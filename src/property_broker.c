@@ -16,215 +16,215 @@ Contributors:
    Roger Light - initial implementation and documentation.
 */
 
-#include "config.h"
+#ضمن "config.h"
 
-#include <stdio.h>
-#include <string.h>
+#ضمن <stdio.h>
+#ضمن <string.h>
 
-#include "mosquitto_broker_internal.h"
-#include "mosquitto/mqtt_protocol.h"
-#include "property_mosq.h"
-#include "property_common.h"
+#ضمن "mosquitto_broker_internal.h"
+#ضمن "mosquitto/mqtt_protocol.h"
+#ضمن "property_mosq.h"
+#ضمن "property_common.h"
 
 
 /* Process the incoming properties, we should be able to assume that only valid
  * properties for CONNECT are present here. */
-int property__process_connect(struct mosquitto *context, mosquitto_property **props)
+صحيح property__process_connect(بنية mosquitto *context, mosquitto_property **props)
 {
 	mosquitto_property *p;
 
 	p = *props;
 
-	while(p){
-		switch(mosquitto_property_identifier(p)){
-			case MQTT_PROP_SESSION_EXPIRY_INTERVAL:
-				context->session_expiry_interval = mosquitto_property_int32_value(p);
-				break;
+	طالما(p){
+		بدل(mosquitto_property_identifier(p)){
+			حالة MQTT_PROP_SESSION_EXPIRY_INTERVAL:
+				context->session_expiry_interval = mosquitto_property_int32_نيلاي(p);
+				اكسر;
 
-			case MQTT_PROP_RECEIVE_MAXIMUM:
-				context->msgs_out.inflight_maximum = mosquitto_property_int16_value(p);
-				if(context->msgs_out.inflight_maximum == 0){
-					log__printf(NULL, MOSQ_LOG_INFO, "Protocol error from %s: CONNECT packet with receive-maximum = 0.", context->id);
-					return MOSQ_ERR_PROTOCOL;
+			حالة MQTT_PROP_RECEIVE_MAXIMUM:
+				context->msgs_out.inflight_maximum = mosquitto_property_int16_نيلاي(p);
+				إذا(context->msgs_out.inflight_maximum == 0){
+					log__printf(عدم, MOSQ_LOG_INFO, "Protocol error from %s: CONNECT packet with receive-maximum = 0.", context->id);
+					أرجع MOSQ_ERR_PROTOCOL;
 				}
 				context->msgs_out.inflight_quota = context->msgs_out.inflight_maximum;
-				break;
+				اكسر;
 
-			case MQTT_PROP_MAXIMUM_PACKET_SIZE:
-				context->maximum_packet_size = mosquitto_property_int32_value(p);
-				if(context->maximum_packet_size == 0){
-					log__printf(NULL, MOSQ_LOG_INFO, "Protocol error from %s: CONNECT packet with maximum-packet-size = 0.", context->id);
-					return MOSQ_ERR_PROTOCOL;
+			حالة MQTT_PROP_MAXIMUM_PACKET_SIZE:
+				context->maximum_packet_size = mosquitto_property_int32_نيلاي(p);
+				إذا(context->maximum_packet_size == 0){
+					log__printf(عدم, MOSQ_LOG_INFO, "Protocol error from %s: CONNECT packet with maximum-packet-size = 0.", context->id);
+					أرجع MOSQ_ERR_PROTOCOL;
 				}
-				break;
+				اكسر;
 
-			case MQTT_PROP_TOPIC_ALIAS_MAXIMUM:
-				context->alias_max_l2r = mosquitto_property_int16_value(p);
-				if(context->alias_max_l2r > context->listener->max_topic_alias_broker){
+			حالة MQTT_PROP_TOPIC_ALIAS_MAXIMUM:
+				context->alias_max_l2r = mosquitto_property_int16_نيلاي(p);
+				إذا(context->alias_max_l2r > context->listener->max_topic_alias_broker){
 					context->alias_max_l2r = context->listener->max_topic_alias_broker;
 				}
-				break;
+				اكسر;
 
-			default:
-				break;
+			افتراضي:
+				اكسر;
 		}
 		p = mosquitto_property_next(p);
 	}
 
-	return MOSQ_ERR_SUCCESS;
+	أرجع MOSQ_ERR_SUCCESS;
 }
 
 
-int property__process_will(struct mosquitto *context, struct mosquitto_message_all *msg, mosquitto_property **props)
+صحيح property__process_will(بنية mosquitto *context, بنية mosquitto_message_all *ڤسنن, mosquitto_property **props)
 {
 	mosquitto_property *p, *p_prev;
-	mosquitto_property *msg_properties, *msg_properties_last;
+	mosquitto_property *ڤسنن_properties, *ڤسنن_properties_last;
 
 	p = *props;
-	p_prev = NULL;
-	msg_properties = NULL;
-	msg_properties_last = NULL;
-	msg->expiry_interval = MSG_EXPIRY_INFINITE;
-	while(p){
-		switch(mosquitto_property_identifier(p)){
-			case MQTT_PROP_CONTENT_TYPE:
-			case MQTT_PROP_CORRELATION_DATA:
-			case MQTT_PROP_PAYLOAD_FORMAT_INDICATOR:
-			case MQTT_PROP_RESPONSE_TOPIC:
-			case MQTT_PROP_USER_PROPERTY:
+	p_prev = عدم;
+	ڤسنن_properties = عدم;
+	ڤسنن_properties_last = عدم;
+	ڤسنن->expiry_interval = ڤسنن_EXPIRY_INFINITE;
+	طالما(p){
+		بدل(mosquitto_property_identifier(p)){
+			حالة MQTT_PROP_CONTENT_TYPE:
+			حالة MQTT_PROP_CORRELATION_DATA:
+			حالة MQTT_PROP_PAYLOAD_FORMAT_INDICATOR:
+			حالة MQTT_PROP_RESPONSE_TOPIC:
+			حالة MQTT_PROP_USER_PROPERTY:
 				/* We save these properties for transmission with the PUBLISH */
 
 				/* Add this property to the end of the list */
-				if(msg_properties){
-					msg_properties_last->next = p;
-					msg_properties_last = p;
-				}else{
-					msg_properties = p;
-					msg_properties_last = p;
+				إذا(ڤسنن_properties){
+					ڤسنن_properties_last->next = p;
+					ڤسنن_properties_last = p;
+				}وإلا{
+					ڤسنن_properties = p;
+					ڤسنن_properties_last = p;
 				}
 
 				/* And remove it from *props */
-				if(p_prev){
+				إذا(p_prev){
 					p_prev->next = mosquitto_property_next(p);
 					p = mosquitto_property_next(p_prev);
-				}else{
+				}وإلا{
 					*props = mosquitto_property_next(p);
 					p = *props;
 				}
-				msg_properties_last->next = NULL;
-				break;
+				ڤسنن_properties_last->next = عدم;
+				اكسر;
 
-			case MQTT_PROP_WILL_DELAY_INTERVAL:
+			حالة MQTT_PROP_WILL_DELAY_INTERVAL:
 				/* Leave this in *props, to be freed */
-				context->will_delay_interval = mosquitto_property_int32_value(p);
+				context->will_delay_interval = mosquitto_property_int32_نيلاي(p);
 				p_prev = p;
 				p = mosquitto_property_next(p);
-				break;
+				اكسر;
 
-			case MQTT_PROP_MESSAGE_EXPIRY_INTERVAL:
+			حالة MQTT_PROP_MESSAGE_EXPIRY_INTERVAL:
 				/* Leave this in *props, to be freed */
-				msg->expiry_interval = mosquitto_property_int32_value(p);
+				ڤسنن->expiry_interval = mosquitto_property_int32_نيلاي(p);
 				p_prev = p;
 				p = mosquitto_property_next(p);
-				break;
+				اكسر;
 
-			default:
-				msg->properties = msg_properties;
-				log__printf(NULL, MOSQ_LOG_INFO, "Protocol error from %s: CONNECT packet invalid property (%d).", context->id, p->identifier);
-				return MOSQ_ERR_PROTOCOL;
-				break;
+			افتراضي:
+				ڤسنن->properties = ڤسنن_properties;
+				log__printf(عدم, MOSQ_LOG_INFO, "Protocol error from %s: CONNECT packet invalid property (%d).", context->id, p->identifier);
+				أرجع MOSQ_ERR_PROTOCOL;
+				اكسر;
 		}
 	}
 
-	msg->properties = msg_properties;
-	return MOSQ_ERR_SUCCESS;
+	ڤسنن->properties = ڤسنن_properties;
+	أرجع MOSQ_ERR_SUCCESS;
 }
 
 
-int property__process_publish(struct mosquitto__base_msg *base_msg, mosquitto_property **props, int *topic_alias, uint32_t *message_expiry_interval, bool is_bridge)
+صحيح property__process_publish(بنية mosquitto_base_ڤسنن *base_ڤسنن, mosquitto_property **props, صحيح *topic_alias, uint32_t *message_expiry_interval, bool is_bridge)
 {
 	mosquitto_property *p, *p_prev;
-	mosquitto_property *msg_properties_last;
+	mosquitto_property *ڤسنن_properties_last;
 
 	p = *props;
-	p_prev = NULL;
-	base_msg->data.properties = NULL;
-	msg_properties_last = NULL;
-	while(p){
-		switch(mosquitto_property_identifier(p)){
-			case MQTT_PROP_CONTENT_TYPE:
-			case MQTT_PROP_CORRELATION_DATA:
-			case MQTT_PROP_PAYLOAD_FORMAT_INDICATOR:
-			case MQTT_PROP_RESPONSE_TOPIC:
-			case MQTT_PROP_USER_PROPERTY:
-				if(base_msg->data.properties){
-					msg_properties_last->next = p;
-					msg_properties_last = p;
-				}else{
-					base_msg->data.properties = p;
-					msg_properties_last = p;
+	p_prev = عدم;
+	base_ڤسنن->data.properties = عدم;
+	ڤسنن_properties_last = عدم;
+	طالما(p){
+		بدل(mosquitto_property_identifier(p)){
+			حالة MQTT_PROP_CONTENT_TYPE:
+			حالة MQTT_PROP_CORRELATION_DATA:
+			حالة MQTT_PROP_PAYLOAD_FORMAT_INDICATOR:
+			حالة MQTT_PROP_RESPONSE_TOPIC:
+			حالة MQTT_PROP_USER_PROPERTY:
+				إذا(base_ڤسنن->data.properties){
+					ڤسنن_properties_last->next = p;
+					ڤسنن_properties_last = p;
+				}وإلا{
+					base_ڤسنن->data.properties = p;
+					ڤسنن_properties_last = p;
 				}
-				if(p_prev){
+				إذا(p_prev){
 					p_prev->next = mosquitto_property_next(p);
 					p = mosquitto_property_next(p_prev);
-				}else{
+				}وإلا{
 					*props = mosquitto_property_next(p);
 					p = *props;
 				}
-				msg_properties_last->next = NULL;
-				break;
+				ڤسنن_properties_last->next = عدم;
+				اكسر;
 
-			case MQTT_PROP_TOPIC_ALIAS:
-				*topic_alias = mosquitto_property_int16_value(p);
+			حالة MQTT_PROP_TOPIC_ALIAS:
+				*topic_alias = mosquitto_property_int16_نيلاي(p);
 				p_prev = p;
 				p = mosquitto_property_next(p);
-				break;
+				اكسر;
 
-			case MQTT_PROP_MESSAGE_EXPIRY_INTERVAL:
-				*message_expiry_interval = mosquitto_property_int32_value(p);
+			حالة MQTT_PROP_MESSAGE_EXPIRY_INTERVAL:
+				*message_expiry_interval = mosquitto_property_int32_نيلاي(p);
 				p_prev = p;
 				p = mosquitto_property_next(p);
-				break;
+				اكسر;
 
-			case MQTT_PROP_SUBSCRIPTION_IDENTIFIER:
-				if(!is_bridge || mosquitto_property_varint_value(p) == 0){
-					return MOSQ_ERR_PROTOCOL;
+			حالة MQTT_PROP_SUBSCRIPTION_IDENTIFIER:
+				إذا(!is_bridge || mosquitto_property_varint_نيلاي(p) == 0){
+					أرجع MOSQ_ERR_PROTOCOL;
 				}
 				p_prev = p;
 				p = mosquitto_property_next(p);
-				break;
+				اكسر;
 
-			default:
+			افتراضي:
 				p = mosquitto_property_next(p);
-				break;
+				اكسر;
 		}
 	}
 
-	return MOSQ_ERR_SUCCESS;
+	أرجع MOSQ_ERR_SUCCESS;
 }
 
 
 /* Process the incoming properties, we should be able to assume that only valid
  * properties for DISCONNECT are present here. */
-int property__process_disconnect(struct mosquitto *context, mosquitto_property **props)
+صحيح property__process_disconnect(بنية mosquitto *context, mosquitto_property **props)
 {
 	mosquitto_property *p;
 
 	p = *props;
 
-	while(p){
-		if(mosquitto_property_identifier(p) == MQTT_PROP_SESSION_EXPIRY_INTERVAL){
-			uint32_t session_expiry_interval = mosquitto_property_int32_value(p);
-			if(context->session_expiry_interval == MQTT_SESSION_EXPIRY_IMMEDIATE
+	طالما(p){
+		إذا(mosquitto_property_identifier(p) == MQTT_PROP_SESSION_EXPIRY_INTERVAL){
+			uint32_t session_expiry_interval = mosquitto_property_int32_نيلاي(p);
+			إذا(context->session_expiry_interval == MQTT_SESSION_EXPIRY_IMMEDIATE
 					&& session_expiry_interval != MQTT_SESSION_EXPIRY_IMMEDIATE){
 
-				log__printf(NULL, MOSQ_LOG_INFO, "Protocol error from %s: DISCONNECT packet with mismatched session-expiry-interval (%d:%d).",
-						context->id, context->session_expiry_interval, p->value.i32);
-				return MOSQ_ERR_PROTOCOL;
+				log__printf(عدم, MOSQ_LOG_INFO, "Protocol error from %s: DISCONNECT packet with mismatched session-expiry-interval (%d:%d).",
+						context->id, context->session_expiry_interval, p->نيلاي.i32);
+				أرجع MOSQ_ERR_PROTOCOL;
 			}
 			context->session_expiry_interval = session_expiry_interval;
 		}
 		p = mosquitto_property_next(p);
 	}
-	return MOSQ_ERR_SUCCESS;
+	أرجع MOSQ_ERR_SUCCESS;
 }
