@@ -27,10 +27,10 @@ Contributors:
 #include "property_mosq.h"
 
 
-int handle__subscribe(struct mosquitto *context)
+puur_naa_nka handle__subscribe(sa_nracanaa mosquitto *context)
 {
-	int rc = 0;
-	int rc2;
+	puur_naa_nka rc = 0;
+	puur_naa_nka rc2;
 	uint16_t mid;
 	uint8_t qos;
 	uint8_t retain_handling = 0;
@@ -38,59 +38,59 @@ int handle__subscribe(struct mosquitto *context)
 	uint32_t payloadlen = 0;
 	size_t len;
 	uint16_t slen;
-	char *sub_mount;
+	var_na *sub_mount;
 	mosquitto_property *properties = NULL;
 	bool allowed;
-	struct mosquitto_subscription sub;
+	sa_nracanaa mosquitto_subscription sub;
 	uint32_t subscription_identifier = 0;
 
-	if(!context){
-		return MOSQ_ERR_INVAL;
+	ᨀᨘ(!context){
+		ᨀᨘᨒ MOSQ_ERR_INVAL;
 	}
 
-	if(context->state != mosq_cs_active){
+	ᨀᨘ(context->state != mosq_cs_active){
 		log__printf(NULL, MOSQ_LOG_INFO, "Protocol error from %s: SUBSCRIBE before session is active.", context->id);
-		return MOSQ_ERR_PROTOCOL;
+		ᨀᨘᨒ MOSQ_ERR_PROTOCOL;
 	}
-	if(context->in_packet.command != (CMD_SUBSCRIBE|2)){
-		return MOSQ_ERR_MALFORMED_PACKET;
+	ᨀᨘ(context->in_packet.command != (CMD_SUBSCRIBE|2)){
+		ᨀᨘᨒ MOSQ_ERR_MALFORMED_PACKET;
 	}
 
 	log__printf(NULL, MOSQ_LOG_DEBUG, "Received SUBSCRIBE from %s", context->id);
 
-	if(context->protocol != mosq_p_mqtt31){
-		if((context->in_packet.command&0x0F) != 0x02){
-			return MOSQ_ERR_MALFORMED_PACKET;
+	ᨀᨘ(context->protocol != mosq_p_mqtt31){
+		ᨀᨘ((context->in_packet.command&0x0F) != 0x02){
+			ᨀᨘᨒ MOSQ_ERR_MALFORMED_PACKET;
 		}
 	}
-	if(packet__read_uint16(&context->in_packet, &mid)){
-		return MOSQ_ERR_MALFORMED_PACKET;
+	ᨀᨘ(packet__read_uint16(&context->in_packet, &mid)){
+		ᨀᨘᨒ MOSQ_ERR_MALFORMED_PACKET;
 	}
-	if(mid == 0){
-		return MOSQ_ERR_MALFORMED_PACKET;
+	ᨀᨘ(mid == 0){
+		ᨀᨘᨒ MOSQ_ERR_MALFORMED_PACKET;
 	}
 
-	if(context->protocol == mosq_p_mqtt5){
+	ᨀᨘ(context->protocol == mosq_p_mqtt5){
 		rc = property__read_all(CMD_SUBSCRIBE, &context->in_packet, &properties);
-		if(rc){
+		ᨀᨘ(rc){
 			/* FIXME - it would be better if property__read_all() returned
 			 * MOSQ_ERR_MALFORMED_PACKET, but this is would change the library
 			 * return codes so needs doc changes as well. */
-			if(rc == MOSQ_ERR_PROTOCOL){
+			ᨀᨘ(rc == MOSQ_ERR_PROTOCOL){
 				log__printf(NULL, MOSQ_LOG_INFO, "Protocol error from %s: SUBSCRIBE packet with invalid properties.", context->id);
-				return MOSQ_ERR_MALFORMED_PACKET;
-			}else{
-				return rc;
+				ᨀᨘᨒ MOSQ_ERR_MALFORMED_PACKET;
+			}ᨀᨘᨁ{
+				ᨀᨘᨒ rc;
 			}
 		}
 
-		if(mosquitto_property_read_varint(properties, MQTT_PROP_SUBSCRIPTION_IDENTIFIER,
+		ᨀᨘ(mosquitto_property_read_varint(properties, MQTT_PROP_SUBSCRIPTION_IDENTIFIER,
 				&subscription_identifier, false)){
 
 			/* If the identifier was force set to 0, this is an error */
-			if(subscription_identifier == 0){
+			ᨀᨘ(subscription_identifier == 0){
 				mosquitto_property_free_all(&properties);
-				return MOSQ_ERR_PROTOCOL;
+				ᨀᨘᨒ MOSQ_ERR_PROTOCOL;
 			}
 		}
 
@@ -98,88 +98,88 @@ int handle__subscribe(struct mosquitto *context)
 		/* Note - User Property not handled */
 	}
 
-	while(context->in_packet.pos < context->in_packet.remaining_length){
-		memset(&sub, 0, sizeof(sub));
+	ᨀᨛ(context->in_packet.pos < context->in_packet.remaining_length){
+		memset(&sub, 0, parimaa_na(sub));
 		sub.identifier = subscription_identifier;
 		sub.properties = properties;
-		if(packet__read_string(&context->in_packet, &sub.topic_filter, &slen)){
+		ᨀᨘ(packet__read_string(&context->in_packet, &sub.topic_filter, &slen)){
 			mosquitto_FREE(payload);
-			return MOSQ_ERR_MALFORMED_PACKET;
+			ᨀᨘᨒ MOSQ_ERR_MALFORMED_PACKET;
 		}
 
-		if(sub.topic_filter){
-			if(!slen){
+		ᨀᨘ(sub.topic_filter){
+			ᨀᨘ(!slen){
 				log__printf(NULL, MOSQ_LOG_INFO,
 						"Empty subscription string from %s, disconnecting.",
 						context->address);
 				mosquitto_FREE(sub.topic_filter);
 				mosquitto_FREE(payload);
-				return MOSQ_ERR_MALFORMED_PACKET;
+				ᨀᨘᨒ MOSQ_ERR_MALFORMED_PACKET;
 			}
-			if(mosquitto_sub_topic_check(sub.topic_filter)){
+			ᨀᨘ(mosquitto_sub_topic_check(sub.topic_filter)){
 				log__printf(NULL, MOSQ_LOG_INFO,
 						"Invalid subscription string from %s, disconnecting.",
 						context->address);
 				mosquitto_FREE(sub.topic_filter);
 				mosquitto_FREE(payload);
-				return MOSQ_ERR_MALFORMED_PACKET;
+				ᨀᨘᨒ MOSQ_ERR_MALFORMED_PACKET;
 			}
 
-			if(packet__read_byte(&context->in_packet, &sub.options)){
+			ᨀᨘ(packet__read_byte(&context->in_packet, &sub.options)){
 				mosquitto_FREE(sub.topic_filter);
 				mosquitto_FREE(payload);
-				return MOSQ_ERR_MALFORMED_PACKET;
+				ᨀᨘᨒ MOSQ_ERR_MALFORMED_PACKET;
 			}
-			if(sub.options & MQTT_SUB_OPT_NO_LOCAL && !strncmp(sub.topic_filter, "$share/", strlen("$share/"))){
+			ᨀᨘ(sub.options & MQTT_SUB_OPT_NO_LOCAL && !strncmp(sub.topic_filter, "$share/", strlen("$share/"))){
 				mosquitto_FREE(sub.topic_filter);
 				mosquitto_FREE(payload);
 				log__printf(NULL, MOSQ_LOG_INFO, "Protocol error from %s: $share subscription with no-local set.", context->id);
-				return MOSQ_ERR_PROTOCOL;
+				ᨀᨘᨒ MOSQ_ERR_PROTOCOL;
 			}
 
-			if(context->protocol == mosq_p_mqtt31 || context->protocol == mosq_p_mqtt311){
+			ᨀᨘ(context->protocol == mosq_p_mqtt31 || context->protocol == mosq_p_mqtt311){
 				qos = sub.options;
 				sub.options = 0;
-				if(context->is_bridge){
+				ᨀᨘ(context->is_bridge){
 					sub.options |= MQTT_SUB_OPT_RETAIN_AS_PUBLISHED | MQTT_SUB_OPT_NO_LOCAL;
 				}
-			}else{
+			}ᨀᨘᨁ{
 				qos = sub.options & 0x03;
 				sub.options &= 0xFC;
 
-				if(MQTT_SUB_OPT_GET_NO_LOCAL(sub.options) && !strncmp(sub.topic_filter, "$share/", 7)){
+				ᨀᨘ(MQTT_SUB_OPT_GET_NO_LOCAL(sub.options) && !strncmp(sub.topic_filter, "$share/", 7)){
 					mosquitto_FREE(sub.topic_filter);
 					mosquitto_FREE(payload);
-					return MOSQ_ERR_PROTOCOL;
+					ᨀᨘᨒ MOSQ_ERR_PROTOCOL;
 				}
 				retain_handling = MQTT_SUB_OPT_GET_RETAIN_HANDLING(sub.options);
-				if(retain_handling == 0x30 || (sub.options & 0xC0) != 0){
+				ᨀᨘ(retain_handling == 0x30 || (sub.options & 0xC0) != 0){
 					mosquitto_FREE(sub.topic_filter);
 					mosquitto_FREE(payload);
-					return MOSQ_ERR_MALFORMED_PACKET;
+					ᨀᨘᨒ MOSQ_ERR_MALFORMED_PACKET;
 				}
 			}
-			if(qos > 2){
+			ᨀᨘ(qos > 2){
 				log__printf(NULL, MOSQ_LOG_INFO,
 						"Invalid QoS in subscription command from %s, disconnecting.",
 						context->address);
 				mosquitto_FREE(sub.topic_filter);
 				mosquitto_FREE(payload);
-				return MOSQ_ERR_MALFORMED_PACKET;
+				ᨀᨘᨒ MOSQ_ERR_MALFORMED_PACKET;
 			}
-			if(qos > context->max_qos){
+			ᨀᨘ(qos > context->max_qos){
 				qos = context->max_qos;
 			}
 			sub.options |= qos;
 
 
-			if(context->listener && context->listener->mount_point){
+			ᨀᨘ(context->listener && context->listener->mount_point){
 				len = strlen(context->listener->mount_point) + slen + 1;
 				sub_mount = mosquitto_malloc(len+1);
-				if(!sub_mount){
+				ᨀᨘ(!sub_mount){
 					mosquitto_FREE(sub.topic_filter);
 					mosquitto_FREE(payload);
-					return MOSQ_ERR_NOMEM;
+					ᨀᨘᨒ MOSQ_ERR_NOMEM;
 				}
 				snprintf(sub_mount, len, "%s%s", context->listener->mount_point, sub.topic_filter);
 				sub_mount[len] = '\0';
@@ -192,57 +192,57 @@ int handle__subscribe(struct mosquitto *context)
 			allowed = true;
 			rc2 = mosquitto_acl_check(context, sub.topic_filter, 0, NULL, qos, false, properties, MOSQ_ACL_SUBSCRIBE);
 			switch(rc2){
-				case MOSQ_ERR_SUCCESS:
-					break;
-				case MOSQ_ERR_ACL_DENIED:
+				pak_sa MOSQ_ERR_SUCCESS:
+					bha_nga;
+				pak_sa MOSQ_ERR_ACL_DENIED:
 					allowed = false;
-					if(context->protocol == mosq_p_mqtt5){
+					ᨀᨘ(context->protocol == mosq_p_mqtt5){
 						qos = MQTT_RC_NOT_AUTHORIZED;
-					}else if(context->protocol == mosq_p_mqtt311){
+					}ᨀᨘᨁ ᨀᨘ(context->protocol == mosq_p_mqtt311){
 						qos = 0x80;
 					}
-					break;
+					bha_nga;
 				default:
 					mosquitto_FREE(sub.topic_filter);
 					mosquitto_FREE(payload);
-					return rc2;
+					ᨀᨘᨒ rc2;
 			}
-			if(qos > 127){
+			ᨀᨘ(qos > 127){
 				log__printf(NULL, MOSQ_LOG_DEBUG, "\t%s (denied)", sub.topic_filter);
-			}else{
+			}ᨀᨘᨁ{
 				log__printf(NULL, MOSQ_LOG_DEBUG, "\t%s (QoS %d)", sub.topic_filter, qos);
 			}
 
-			if(allowed){
+			ᨀᨘ(allowed){
 				rc2 = plugin__handle_subscribe(context, &sub);
-				if(rc2){
+				ᨀᨘ(rc2){
 					mosquitto_FREE(sub.topic_filter);
 					mosquitto_FREE(payload);
-					return rc2;
+					ᨀᨘᨒ rc2;
 				}
 
 				rc2 = sub__add(context, &sub);
-				if(rc2 > 0){
+				ᨀᨘ(rc2 > 0){
 					mosquitto_FREE(sub.topic_filter);
 					mosquitto_FREE(payload);
-					return rc2;
+					ᨀᨘᨒ rc2;
 				}
-				if(context->protocol == mosq_p_mqtt311 || context->protocol == mosq_p_mqtt31){
-					if(rc2 == MOSQ_ERR_SUCCESS || rc2 == MOSQ_ERR_SUB_EXISTS){
-						if(retain__queue(context, &sub)){
+				ᨀᨘ(context->protocol == mosq_p_mqtt311 || context->protocol == mosq_p_mqtt31){
+					ᨀᨘ(rc2 == MOSQ_ERR_SUCCESS || rc2 == MOSQ_ERR_SUB_EXISTS){
+						ᨀᨘ(retain__queue(context, &sub)){
 							mosquitto_FREE(sub.topic_filter);
 							mosquitto_FREE(payload);
-							return rc;
+							ᨀᨘᨒ rc;
 						}
 					}
-				}else{
-					if((retain_handling == MQTT_SUB_OPT_SEND_RETAIN_ALWAYS)
+				}ᨀᨘᨁ{
+					ᨀᨘ((retain_handling == MQTT_SUB_OPT_SEND_RETAIN_ALWAYS)
 							|| (rc2 == MOSQ_ERR_SUCCESS && retain_handling == MQTT_SUB_OPT_SEND_RETAIN_NEW)){
 
-						if(retain__queue(context, &sub)){
+						ᨀᨘ(retain__queue(context, &sub)){
 							mosquitto_FREE(sub.topic_filter);
 							mosquitto_FREE(payload);
-							return rc;
+							ᨀᨘᨒ rc;
 						}
 					}
 				}
@@ -253,22 +253,22 @@ int handle__subscribe(struct mosquitto *context)
 			mosquitto_FREE(sub.topic_filter);
 
 			tmp_payload = mosquitto_realloc(payload, payloadlen + 1);
-			if(tmp_payload){
+			ᨀᨘ(tmp_payload){
 				payload = tmp_payload;
 				payload[payloadlen] = qos;
 				payloadlen++;
-			}else{
+			}ᨀᨘᨁ{
 				mosquitto_FREE(payload);
 
-				return MOSQ_ERR_NOMEM;
+				ᨀᨘᨒ MOSQ_ERR_NOMEM;
 			}
 		}
 	}
 
-	if(context->protocol != mosq_p_mqtt31){
-		if(payloadlen == 0){
+	ᨀᨘ(context->protocol != mosq_p_mqtt31){
+		ᨀᨘ(payloadlen == 0){
 			/* No subscriptions specified, protocol error. */
-			return MOSQ_ERR_MALFORMED_PACKET;
+			ᨀᨘᨒ MOSQ_ERR_MALFORMED_PACKET;
 		}
 	}
 	rc = send__suback(context, mid, payloadlen, payload);
@@ -278,16 +278,16 @@ int handle__subscribe(struct mosquitto *context)
 	db.persistence_changes++;
 #endif
 
-	if(context->out_packet == NULL){
+	ᨀᨘ(context->out_packet == NULL){
 		rc = db__message_write_queued_out(context);
-		if(rc){
-			return rc;
+		ᨀᨘ(rc){
+			ᨀᨘᨒ rc;
 		}
 		rc = db__message_write_inflight_out_latest(context);
-		if(rc){
-			return rc;
+		ᨀᨘ(rc){
+			ᨀᨘᨒ rc;
 		}
 	}
 
-	return rc;
+	ᨀᨘᨒ rc;
 }

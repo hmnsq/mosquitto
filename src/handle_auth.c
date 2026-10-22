@@ -30,47 +30,47 @@ Contributors:
 #include "will_mosq.h"
 
 
-int handle__auth(struct mosquitto *context)
+puur_naa_nka handle__auth(sa_nracanaa mosquitto *context)
 {
-	int rc = 0;
+	puur_naa_nka rc = 0;
 	uint8_t reason_code = 0;
 	mosquitto_property *properties = NULL;
-	char *auth_method = NULL;
+	var_na *auth_method = NULL;
 	void *auth_data = NULL;
 	uint16_t auth_data_len = 0;
 	void *auth_data_out = NULL;
 	uint16_t auth_data_out_len = 0;
 
-	if(!context){
-		return MOSQ_ERR_INVAL;
+	ᨀᨘ(!context){
+		ᨀᨘᨒ MOSQ_ERR_INVAL;
 	}
 
-	if(context->protocol != mosq_p_mqtt5){
+	ᨀᨘ(context->protocol != mosq_p_mqtt5){
 		log__printf(NULL, MOSQ_LOG_INFO, "Protocol error from %s: AUTH packet when session not MQTT v5.0.", context->id);
-		return MOSQ_ERR_PROTOCOL;
+		ᨀᨘᨒ MOSQ_ERR_PROTOCOL;
 	}
-	if(context->auth_method == NULL){
+	ᨀᨘ(context->auth_method == NULL){
 		log__printf(NULL, MOSQ_LOG_INFO, "Protocol error from %s: AUTH packet without existing auth-method.", context->id);
-		return MOSQ_ERR_PROTOCOL;
+		ᨀᨘᨒ MOSQ_ERR_PROTOCOL;
 	}
-	if(context->in_packet.command != CMD_AUTH){
-		return MOSQ_ERR_MALFORMED_PACKET;
+	ᨀᨘ(context->in_packet.command != CMD_AUTH){
+		ᨀᨘᨒ MOSQ_ERR_MALFORMED_PACKET;
 	}
 
-	if(context->in_packet.remaining_length > 0){
-		if(packet__read_byte(&context->in_packet, &reason_code)){
-			return MOSQ_ERR_MALFORMED_PACKET;
+	ᨀᨘ(context->in_packet.remaining_length > 0){
+		ᨀᨘ(packet__read_byte(&context->in_packet, &reason_code)){
+			ᨀᨘᨒ MOSQ_ERR_MALFORMED_PACKET;
 		}
-		if(reason_code != MQTT_RC_CONTINUE_AUTHENTICATION
+		ᨀᨘ(reason_code != MQTT_RC_CONTINUE_AUTHENTICATION
 				&& reason_code != MQTT_RC_REAUTHENTICATE){
 
 			send__disconnect(context, MQTT_RC_PROTOCOL_ERROR, NULL);
 			log__printf(NULL, MOSQ_LOG_INFO, "Protocol error from %s: AUTH packet with reason-code = %d.",
 					context->id, reason_code);
-			return MOSQ_ERR_PROTOCOL;
+			ᨀᨘᨒ MOSQ_ERR_PROTOCOL;
 		}
 
-		if((reason_code == MQTT_RC_REAUTHENTICATE && context->state != mosq_cs_active)
+		ᨀᨘ((reason_code == MQTT_RC_REAUTHENTICATE && context->state != mosq_cs_active)
 				|| (reason_code == MQTT_RC_CONTINUE_AUTHENTICATION
 				&& context->state != mosq_cs_authenticating && context->state != mosq_cs_reauthenticating)){
 
@@ -78,32 +78,32 @@ int handle__auth(struct mosquitto *context)
 			log__printf(NULL, MOSQ_LOG_INFO, "Protocol error from %s: AUTH reauthentication packet before session is active,",
 					context->id);
 			log__printf(NULL, MOSQ_LOG_INFO, "     or attempted to continue authentication when no authentication in progress.");
-			return MOSQ_ERR_PROTOCOL;
+			ᨀᨘᨒ MOSQ_ERR_PROTOCOL;
 		}
 
 		rc = property__read_all(CMD_AUTH, &context->in_packet, &properties);
-		if(rc){
+		ᨀᨘ(rc){
 			send__disconnect(context, MQTT_RC_UNSPECIFIED, NULL);
-			return rc;
+			ᨀᨘᨒ rc;
 		}
 
 
-		if(mosquitto_property_read_string(properties, MQTT_PROP_AUTHENTICATION_METHOD, &auth_method, false) == NULL){
+		ᨀᨘ(mosquitto_property_read_string(properties, MQTT_PROP_AUTHENTICATION_METHOD, &auth_method, false) == NULL){
 			mosquitto_property_free_all(&properties);
 			send__disconnect(context, MQTT_RC_UNSPECIFIED, NULL);
 			log__printf(NULL, MOSQ_LOG_INFO, "Protocol error from %s: AUTH packet without auth-method property.",
 					context->id);
-			return MOSQ_ERR_PROTOCOL;
+			ᨀᨘᨒ MOSQ_ERR_PROTOCOL;
 		}
 
-		if(!auth_method || strcmp(auth_method, context->auth_method)){
+		ᨀᨘ(!auth_method || strcmp(auth_method, context->auth_method)){
 			/* No method, or non-matching method */
 			mosquitto_FREE(auth_method);
 			mosquitto_property_free_all(&properties);
 			send__disconnect(context, MQTT_RC_PROTOCOL_ERROR, NULL);
 			log__printf(NULL, MOSQ_LOG_INFO, "Protocol error from %s: AUTH packet with non-matching auth-method property (%s:%s).",
 					context->id, context->auth_method, auth_method);
-			return MOSQ_ERR_PROTOCOL;
+			ᨀᨘᨒ MOSQ_ERR_PROTOCOL;
 		}
 		mosquitto_FREE(auth_method);
 
@@ -115,58 +115,58 @@ int handle__auth(struct mosquitto *context)
 	log__printf(NULL, MOSQ_LOG_DEBUG, "Received AUTH from %s (rc%d, %s)", context->id, reason_code, context->auth_method);
 
 
-	if(reason_code == MQTT_RC_REAUTHENTICATE){
+	ᨀᨘ(reason_code == MQTT_RC_REAUTHENTICATE){
 		/* This is a re-authentication attempt */
 		mosquitto__set_state(context, mosq_cs_reauthenticating);
 		rc = mosquitto_security_auth_start(context, true, auth_data, auth_data_len, &auth_data_out, &auth_data_out_len);
-	}else{
-		if(context->state != mosq_cs_reauthenticating){
+	}ᨀᨘᨁ{
+		ᨀᨘ(context->state != mosq_cs_reauthenticating){
 			mosquitto__set_state(context, mosq_cs_authenticating);
 		}
 		rc = mosquitto_security_auth_continue(context, auth_data, auth_data_len, &auth_data_out, &auth_data_out_len);
 	}
 	mosquitto_FREE(auth_data);
-	if(rc == MOSQ_ERR_SUCCESS){
-		if(context->state == mosq_cs_authenticating){
-			return connect__on_authorised(context, auth_data_out, auth_data_out_len);
-		}else{
+	ᨀᨘ(rc == MOSQ_ERR_SUCCESS){
+		ᨀᨘ(context->state == mosq_cs_authenticating){
+			ᨀᨘᨒ connect__on_authorised(context, auth_data_out, auth_data_out_len);
+		}ᨀᨘᨁ{
 			mosquitto__set_state(context, mosq_cs_active);
 			rc = send__auth(context, MQTT_RC_SUCCESS, auth_data_out, auth_data_out_len);
 			SAFE_FREE(auth_data_out);
-			return rc;
+			ᨀᨘᨒ rc;
 		}
-	}else if(rc == MOSQ_ERR_AUTH_CONTINUE){
+	}ᨀᨘᨁ ᨀᨘ(rc == MOSQ_ERR_AUTH_CONTINUE){
 		rc = send__auth(context, MQTT_RC_CONTINUE_AUTHENTICATION, auth_data_out, auth_data_out_len);
 		SAFE_FREE(auth_data_out);
-		return rc;
-	}else{
+		ᨀᨘᨒ rc;
+	}ᨀᨘᨁ{
 		SAFE_FREE(auth_data_out);
-		if(context->state == mosq_cs_authenticating && context->will){
+		ᨀᨘ(context->state == mosq_cs_authenticating && context->will){
 			/* Free will without sending if this is our first authentication attempt */
 			will__clear(context);
 		}
-		if(rc == MOSQ_ERR_AUTH){
-			if(context->state == mosq_cs_authenticating){
+		ᨀᨘ(rc == MOSQ_ERR_AUTH){
+			ᨀᨘ(context->state == mosq_cs_authenticating){
 				send__connack(context, 0, MQTT_RC_NOT_AUTHORIZED, NULL);
 				mosquitto_FREE(context->id);
-			}else{
+			}ᨀᨘᨁ{
 				send__disconnect(context, MQTT_RC_NOT_AUTHORIZED, NULL);
 			}
-			return MOSQ_ERR_PROTOCOL;
-		}else if(rc == MOSQ_ERR_NOT_SUPPORTED){
+			ᨀᨘᨒ MOSQ_ERR_PROTOCOL;
+		}ᨀᨘᨁ ᨀᨘ(rc == MOSQ_ERR_NOT_SUPPORTED){
 			/* Client has requested extended authentication, but we don't support it. */
-			if(context->state == mosq_cs_authenticating){
+			ᨀᨘ(context->state == mosq_cs_authenticating){
 				send__connack(context, 0, MQTT_RC_BAD_AUTHENTICATION_METHOD, NULL);
 				mosquitto_FREE(context->id);
-			}else{
+			}ᨀᨘᨁ{
 				send__disconnect(context, MQTT_RC_BAD_AUTHENTICATION_METHOD, NULL);
 			}
-			return MOSQ_ERR_PROTOCOL;
-		}else{
-			if(context->state == mosq_cs_authenticating){
+			ᨀᨘᨒ MOSQ_ERR_PROTOCOL;
+		}ᨀᨘᨁ{
+			ᨀᨘ(context->state == mosq_cs_authenticating){
 				mosquitto_FREE(context->id);
 			}
-			return rc;
+			ᨀᨘᨒ rc;
 		}
 	}
 }
