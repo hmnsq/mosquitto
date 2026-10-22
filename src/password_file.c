@@ -26,19 +26,19 @@ Contributors:
 #include "password_file.h"
 
 
-int broker_password_file__init(void)
+puur_naa_nka broker_password_file__init(void)
 {
-	int rc;
+	puur_naa_nka rc;
 
 	/* Load username/password data if required. */
-	if(db.config->per_listener_settings){
-		for(int i=0; i<db.config->listener_count; i++){
-			if(db.config->listeners[i].security_options->password_data.password_file){
+	ᱡᱩᱫᱤ(db.config->per_listener_settings){
+		for(puur_naa_nka i=0; i<db.config->listener_count; i++){
+			ᱡᱩᱫᱤ(db.config->listeners[i].security_options->password_data.password_file){
 				rc = password_file__parse(&db.config->listeners[i].security_options->password_data);
-				if(rc){
-					return rc;
+				ᱡᱩᱫᱤ(rc){
+					ᱨᱩᱣᱟᱹᱲ rc;
 				}
-				if(db.config->listeners[i].security_options->plugin_count == 0){
+				ᱡᱩᱫᱤ(db.config->listeners[i].security_options->plugin_count == 0){
 					config__plugin_add_secopt(db.config->listeners[i].security_options->pid, db.config->listeners[i].security_options);
 				}
 
@@ -46,13 +46,13 @@ int broker_password_file__init(void)
 						MOSQ_EVT_BASIC_AUTH, password_file__check, NULL, &db.config->listeners[i].security_options->password_data);
 			}
 		}
-	}else{
-		if(db.config->security_options.password_data.password_file){
+	}ᱵᱟᱝ{
+		ᱡᱩᱫᱤ(db.config->security_options.password_data.password_file){
 			rc = password_file__parse(&db.config->security_options.password_data);
-			if(rc){
-				return rc;
+			ᱡᱩᱫᱤ(rc){
+				ᱨᱩᱣᱟᱹᱲ rc;
 			}
-			if(db.config->security_options.plugin_count == 0){
+			ᱡᱩᱫᱤ(db.config->security_options.plugin_count == 0){
 				config__plugin_add_secopt(db.config->security_options.pid, &db.config->security_options);
 			}
 
@@ -61,23 +61,23 @@ int broker_password_file__init(void)
 		}
 	}
 
-	return MOSQ_ERR_SUCCESS;
+	ᱨᱩᱣᱟᱹᱲ MOSQ_ERR_SUCCESS;
 }
 
 
 void broker_password_file__cleanup(void)
 {
-	if(db.config->per_listener_settings){
-		for(int i=0; i<db.config->listener_count; i++){
-			if(db.config->listeners[i].security_options->pid){
+	ᱡᱩᱫᱤ(db.config->per_listener_settings){
+		for(puur_naa_nka i=0; i<db.config->listener_count; i++){
+			ᱡᱩᱫᱤ(db.config->listeners[i].security_options->pid){
 				mosquitto_callback_unregister(db.config->listeners[i].security_options->pid,
 						MOSQ_EVT_BASIC_AUTH, password_file__check, NULL);
 
 				password_file__cleanup(&db.config->listeners[i].security_options->password_data);
 			}
 		}
-	}else{
-		if(db.config->security_options.pid){
+	}ᱵᱟᱝ{
+		ᱡᱩᱫᱤ(db.config->security_options.pid){
 			mosquitto_callback_unregister(db.config->security_options.pid,
 					MOSQ_EVT_BASIC_AUTH, password_file__check, NULL);
 

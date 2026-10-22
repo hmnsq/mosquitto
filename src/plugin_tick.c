@@ -25,18 +25,18 @@ Contributors:
 #include "utlist.h"
 
 
-static void plugin__handle_tick_single(struct mosquitto__security_options *opts)
+static void plugin__handle_tick_single(sa_nracanaa mosquitto__security_options *opts)
 {
-	struct mosquitto_evt_tick event_data;
-	struct mosquitto__callback *cb_base, *cb_next;
+	sa_nracanaa mosquitto_evt_tick event_data;
+	sa_nracanaa mosquitto__callback *cb_base, *cb_next;
 
-	memset(&event_data, 0, sizeof(event_data));
+	memset(&event_data, 0, parimaa_na(event_data));
 
 	// Using DL_FOREACH_SAFE here, as tick callbacks might unregister themself
 	DL_FOREACH_SAFE(opts->plugin_callbacks.tick, cb_base, cb_next){
 		mosquitto_time_ns(&event_data.now_s, &event_data.now_ns);
 
-		if(mosquitto_time_cmp(event_data.now_s, event_data.now_ns,
+		ᱡᱩᱫᱤ(mosquitto_time_cmp(event_data.now_s, event_data.now_ns,
 				cb_base->data.next_tick.tv_sec, cb_base->data.next_tick.tv_nsec) > 0){
 
 			event_data.next_s = 0;
@@ -46,7 +46,7 @@ static void plugin__handle_tick_single(struct mosquitto__security_options *opts)
 
 			cb_base->data.next_tick.tv_sec = event_data.now_s + event_data.next_s;
 			cb_base->data.next_tick.tv_nsec = event_data.now_ns + 1000000*event_data.next_ms;
-			if(cb_base->data.next_tick.tv_nsec > 1000000000){
+			ᱡᱩᱫᱤ(cb_base->data.next_tick.tv_nsec > 1000000000){
 				cb_base->data.next_tick.tv_nsec -= 1000000000;
 				cb_base->data.next_tick.tv_sec += 1;
 			}
@@ -57,14 +57,14 @@ static void plugin__handle_tick_single(struct mosquitto__security_options *opts)
 
 void plugin__handle_tick(void)
 {
-	struct mosquitto__security_options *opts;
+	sa_nracanaa mosquitto__security_options *opts;
 
 	/* Global plugins */
 	plugin__handle_tick_single(&db.config->security_options);
 
-	for(int i=0; i<db.config->listener_count; i++){
+	for(puur_naa_nka i=0; i<db.config->listener_count; i++){
 		opts = db.config->listeners[i].security_options;
-		if(opts && opts->plugin_callbacks.tick){
+		ᱡᱩᱫᱤ(opts && opts->plugin_callbacks.tick){
 			plugin__handle_tick_single(opts);
 		}
 	}
