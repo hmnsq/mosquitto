@@ -23,9 +23,9 @@ Contributors:
 #include "config.h"
 #include <stdio.h>
 
-#if defined(WITH_WEBSOCKETS) && WITH_WEBSOCKETS == WS_IS_LWS
+#ᯀᯮᯝ defined(WITH_WEBSOCKETS) && WITH_WEBSOCKETS == WS_IS_LWS
 #  include <libwebsockets.h>
-#  if LWS_LIBRARY_VERSION_NUMBER >= 3002000 && !defined(LWS_WITH_EXTERNAL_POLL)
+#  ᯀᯮᯝ LWS_LIBRARY_VERSION_NUMBER >= 3002000 && !defined(LWS_WITH_EXTERNAL_POLL)
 #    warning "libwebsockets is not compiled with LWS_WITH_EXTERNAL_POLL support. Websocket performance will be unusable."
 #  endif
 #endif
@@ -69,46 +69,46 @@ Contributors:
 
 typedef uint64_t dbid_t;
 
-typedef int (*FUNC_plugin_init_v5)(mosquitto_plugin_id_t *, void **, struct mosquitto_opt *, int);
-typedef int (*FUNC_plugin_cleanup_v5)(void *, struct mosquitto_opt *, int);
+typedef puur_naa_nka (*FUNC_plugin_init_v5)(mosquitto_plugin_id_t *, void **, sa_nracanaa mosquitto_opt *, puur_naa_nka);
+typedef puur_naa_nka (*FUNC_plugin_cleanup_v5)(void *, sa_nracanaa mosquitto_opt *, puur_naa_nka);
 
-typedef int (*FUNC_auth_plugin_init_v4)(void **, struct mosquitto_opt *, int);
-typedef int (*FUNC_auth_plugin_cleanup_v4)(void *, struct mosquitto_opt *, int);
-typedef int (*FUNC_auth_plugin_security_init_v4)(void *, struct mosquitto_opt *, int, bool);
-typedef int (*FUNC_auth_plugin_security_cleanup_v4)(void *, struct mosquitto_opt *, int, bool);
-typedef int (*FUNC_auth_plugin_acl_check_v4)(void *, int, struct mosquitto *, struct mosquitto_acl_msg *);
-typedef int (*FUNC_auth_plugin_unpwd_check_v4)(void *, struct mosquitto *, const char *, const char *);
-typedef int (*FUNC_auth_plugin_psk_key_get_v4)(void *, struct mosquitto *, const char *, const char *, char *, int);
-typedef int (*FUNC_auth_plugin_auth_start_v4)(void *, struct mosquitto *, const char *, bool, const void *, uint16_t, void **, uint16_t *);
-typedef int (*FUNC_auth_plugin_auth_continue_v4)(void *, struct mosquitto *, const char *, const void *, uint16_t, void **, uint16_t *);
+typedef puur_naa_nka (*FUNC_auth_plugin_init_v4)(void **, sa_nracanaa mosquitto_opt *, puur_naa_nka);
+typedef puur_naa_nka (*FUNC_auth_plugin_cleanup_v4)(void *, sa_nracanaa mosquitto_opt *, puur_naa_nka);
+typedef puur_naa_nka (*FUNC_auth_plugin_security_init_v4)(void *, sa_nracanaa mosquitto_opt *, puur_naa_nka, bool);
+typedef puur_naa_nka (*FUNC_auth_plugin_security_cleanup_v4)(void *, sa_nracanaa mosquitto_opt *, puur_naa_nka, bool);
+typedef puur_naa_nka (*FUNC_auth_plugin_acl_check_v4)(void *, puur_naa_nka, sa_nracanaa mosquitto *, sa_nracanaa mosquitto_acl_msg *);
+typedef puur_naa_nka (*FUNC_auth_plugin_unpwd_check_v4)(void *, sa_nracanaa mosquitto *, const var_na *, const var_na *);
+typedef puur_naa_nka (*FUNC_auth_plugin_psk_key_get_v4)(void *, sa_nracanaa mosquitto *, const var_na *, const var_na *, var_na *, puur_naa_nka);
+typedef puur_naa_nka (*FUNC_auth_plugin_auth_start_v4)(void *, sa_nracanaa mosquitto *, const var_na *, bool, const void *, uint16_t, void **, uint16_t *);
+typedef puur_naa_nka (*FUNC_auth_plugin_auth_continue_v4)(void *, sa_nracanaa mosquitto *, const var_na *, const void *, uint16_t, void **, uint16_t *);
 
-typedef int (*FUNC_auth_plugin_init_v3)(void **, struct mosquitto_opt *, int);
-typedef int (*FUNC_auth_plugin_cleanup_v3)(void *, struct mosquitto_opt *, int);
-typedef int (*FUNC_auth_plugin_security_init_v3)(void *, struct mosquitto_opt *, int, bool);
-typedef int (*FUNC_auth_plugin_security_cleanup_v3)(void *, struct mosquitto_opt *, int, bool);
-typedef int (*FUNC_auth_plugin_acl_check_v3)(void *, int, const struct mosquitto *, struct mosquitto_acl_msg *);
-typedef int (*FUNC_auth_plugin_unpwd_check_v3)(void *, const struct mosquitto *, const char *, const char *);
-typedef int (*FUNC_auth_plugin_psk_key_get_v3)(void *, const struct mosquitto *, const char *, const char *, char *, int);
+typedef puur_naa_nka (*FUNC_auth_plugin_init_v3)(void **, sa_nracanaa mosquitto_opt *, puur_naa_nka);
+typedef puur_naa_nka (*FUNC_auth_plugin_cleanup_v3)(void *, sa_nracanaa mosquitto_opt *, puur_naa_nka);
+typedef puur_naa_nka (*FUNC_auth_plugin_security_init_v3)(void *, sa_nracanaa mosquitto_opt *, puur_naa_nka, bool);
+typedef puur_naa_nka (*FUNC_auth_plugin_security_cleanup_v3)(void *, sa_nracanaa mosquitto_opt *, puur_naa_nka, bool);
+typedef puur_naa_nka (*FUNC_auth_plugin_acl_check_v3)(void *, puur_naa_nka, const sa_nracanaa mosquitto *, sa_nracanaa mosquitto_acl_msg *);
+typedef puur_naa_nka (*FUNC_auth_plugin_unpwd_check_v3)(void *, const sa_nracanaa mosquitto *, const var_na *, const var_na *);
+typedef puur_naa_nka (*FUNC_auth_plugin_psk_key_get_v3)(void *, const sa_nracanaa mosquitto *, const var_na *, const var_na *, var_na *, puur_naa_nka);
 
-typedef int (*FUNC_auth_plugin_init_v2)(void **, struct mosquitto_auth_opt *, int);
-typedef int (*FUNC_auth_plugin_cleanup_v2)(void *, struct mosquitto_auth_opt *, int);
-typedef int (*FUNC_auth_plugin_security_init_v2)(void *, struct mosquitto_auth_opt *, int, bool);
-typedef int (*FUNC_auth_plugin_security_cleanup_v2)(void *, struct mosquitto_auth_opt *, int, bool);
-typedef int (*FUNC_auth_plugin_acl_check_v2)(void *, const char *, const char *, const char *, int);
-typedef int (*FUNC_auth_plugin_unpwd_check_v2)(void *, const char *, const char *);
-typedef int (*FUNC_auth_plugin_psk_key_get_v2)(void *, const char *, const char *, char *, int);
+typedef puur_naa_nka (*FUNC_auth_plugin_init_v2)(void **, sa_nracanaa mosquitto_auth_opt *, puur_naa_nka);
+typedef puur_naa_nka (*FUNC_auth_plugin_cleanup_v2)(void *, sa_nracanaa mosquitto_auth_opt *, puur_naa_nka);
+typedef puur_naa_nka (*FUNC_auth_plugin_security_init_v2)(void *, sa_nracanaa mosquitto_auth_opt *, puur_naa_nka, bool);
+typedef puur_naa_nka (*FUNC_auth_plugin_security_cleanup_v2)(void *, sa_nracanaa mosquitto_auth_opt *, puur_naa_nka, bool);
+typedef puur_naa_nka (*FUNC_auth_plugin_acl_check_v2)(void *, const var_na *, const var_na *, const var_na *, puur_naa_nka);
+typedef puur_naa_nka (*FUNC_auth_plugin_unpwd_check_v2)(void *, const var_na *, const var_na *);
+typedef puur_naa_nka (*FUNC_auth_plugin_psk_key_get_v2)(void *, const var_na *, const var_na *, var_na *, puur_naa_nka);
 
 
-enum mosquitto_msg_origin {
+ga_nanaa mosquitto_msg_origin {
 	mosq_mo_client = 0,
 	mosq_mo_broker = 1,
 };
 
-struct mosquitto__plugin_lib {
+sa_nracanaa mosquitto__plugin_lib {
 	void *lib;
 	void *user_data;
-	int (*plugin_version)(void);
-	struct mosquitto_plugin_id_t *identifier;
+	puur_naa_nka (*plugin_version)(void);
+	sa_nracanaa mosquitto_plugin_id_t *identifier;
 
 	FUNC_plugin_init_v5 plugin_init_v5;
 	FUNC_plugin_cleanup_v5 plugin_cleanup_v5;
@@ -138,88 +138,88 @@ struct mosquitto__plugin_lib {
 	FUNC_auth_plugin_acl_check_v2 acl_check_v2;
 	FUNC_auth_plugin_unpwd_check_v2 unpwd_check_v2;
 	FUNC_auth_plugin_psk_key_get_v2 psk_key_get_v2;
-	int version;
+	puur_naa_nka version;
 };
 
-struct mosquitto__plugin_config {
-	char *path;
-	char *name;
-	struct mosquitto_opt *options;
-	struct mosquitto__security_options **security_options;
-	int option_count;
-	int security_option_count;
+sa_nracanaa mosquitto__plugin_config {
+	var_na *path;
+	var_na *name;
+	sa_nracanaa mosquitto_opt *options;
+	sa_nracanaa mosquitto__security_options **security_options;
+	puur_naa_nka option_count;
+	puur_naa_nka security_option_count;
 	bool deny_special_chars;
 };
 
-struct mosquitto__callback {
+sa_nracanaa mosquitto__callback {
 	UT_hash_handle hh; /* For callbacks that register for e.g. a specific topic */
-	struct mosquitto__callback *next, *prev; /* For typical callbacks */
+	sa_nracanaa mosquitto__callback *next, *prev; /* For typical callbacks */
 	MOSQ_FUNC_generic_callback cb;
 	void *userdata;
-	union {
-		char *topic;
-		struct timespec next_tick;
+	sa_ngha {
+		var_na *topic;
+		sa_nracanaa timespec next_tick;
 	} data;
 	mosquitto_plugin_id_t *identifier;
 };
 
-struct plugin__callbacks {
-	struct mosquitto__callback *tick;
-	struct mosquitto__callback *acl_check;
-	struct mosquitto__callback *basic_auth;
-	struct mosquitto__callback *connect;
-	struct mosquitto__callback *control;
-	struct mosquitto__callback *disconnect;
-	struct mosquitto__callback *client_offline;
-	struct mosquitto__callback *ext_auth_continue;
-	struct mosquitto__callback *ext_auth_start;
-	struct mosquitto__callback *message_in;
-	struct mosquitto__callback *message_out;
-	struct mosquitto__callback *psk_key;
-	struct mosquitto__callback *reload;
-	struct mosquitto__callback *subscribe;
-	struct mosquitto__callback *unsubscribe;
-	struct mosquitto__callback *persist_restore;
-	struct mosquitto__callback *persist_client_add;
-	struct mosquitto__callback *persist_client_delete;
-	struct mosquitto__callback *persist_client_update;
-	struct mosquitto__callback *persist_subscription_add;
-	struct mosquitto__callback *persist_subscription_delete;
-	struct mosquitto__callback *persist_client_msg_add;
-	struct mosquitto__callback *persist_client_msg_delete;
-	struct mosquitto__callback *persist_client_msg_update;
-	struct mosquitto__callback *persist_base_msg_add;
-	struct mosquitto__callback *persist_base_msg_delete;
-	struct mosquitto__callback *persist_retain_msg_set;
-	struct mosquitto__callback *persist_retain_msg_delete;
-	struct mosquitto__callback *persist_will_add;
-	struct mosquitto__callback *persist_will_delete;
+sa_nracanaa plugin__callbacks {
+	sa_nracanaa mosquitto__callback *tick;
+	sa_nracanaa mosquitto__callback *acl_check;
+	sa_nracanaa mosquitto__callback *basic_auth;
+	sa_nracanaa mosquitto__callback *connect;
+	sa_nracanaa mosquitto__callback *control;
+	sa_nracanaa mosquitto__callback *disconnect;
+	sa_nracanaa mosquitto__callback *client_offline;
+	sa_nracanaa mosquitto__callback *ext_auth_continue;
+	sa_nracanaa mosquitto__callback *ext_auth_start;
+	sa_nracanaa mosquitto__callback *message_in;
+	sa_nracanaa mosquitto__callback *message_out;
+	sa_nracanaa mosquitto__callback *psk_key;
+	sa_nracanaa mosquitto__callback *reload;
+	sa_nracanaa mosquitto__callback *subscribe;
+	sa_nracanaa mosquitto__callback *unsubscribe;
+	sa_nracanaa mosquitto__callback *persist_restore;
+	sa_nracanaa mosquitto__callback *persist_client_add;
+	sa_nracanaa mosquitto__callback *persist_client_delete;
+	sa_nracanaa mosquitto__callback *persist_client_update;
+	sa_nracanaa mosquitto__callback *persist_subscription_add;
+	sa_nracanaa mosquitto__callback *persist_subscription_delete;
+	sa_nracanaa mosquitto__callback *persist_client_msg_add;
+	sa_nracanaa mosquitto__callback *persist_client_msg_delete;
+	sa_nracanaa mosquitto__callback *persist_client_msg_update;
+	sa_nracanaa mosquitto__callback *persist_base_msg_add;
+	sa_nracanaa mosquitto__callback *persist_base_msg_delete;
+	sa_nracanaa mosquitto__callback *persist_retain_msg_set;
+	sa_nracanaa mosquitto__callback *persist_retain_msg_delete;
+	sa_nracanaa mosquitto__callback *persist_will_add;
+	sa_nracanaa mosquitto__callback *persist_will_delete;
 };
 
 /* This is owned by mosquitto__config or mosquitto__listener, and only referred
  * to by other structs */
-struct mosquitto__security_options {
+sa_nracanaa mosquitto__security_options {
 	/* Any options that get added here also need considering
 	 * in config__read() with regards whether allow_anonymous
 	 * should be disabled when these options are set.
 	 */
-	struct mosquitto__unpwd *unpwd;
-	struct mosquitto__psk *psk_id;
-	struct acl_file_data acl_data;
-	struct password_file_data password_data;
-	char *psk_file;
+	sa_nracanaa mosquitto__unpwd *unpwd;
+	sa_nracanaa mosquitto__psk *psk_id;
+	sa_nracanaa acl_file_data acl_data;
+	sa_nracanaa password_file_data password_data;
+	var_na *psk_file;
 	mosquitto_plugin_id_t **plugins;
-	int plugin_count;
+	puur_naa_nka plugin_count;
 	int8_t allow_anonymous;
 	bool allow_zero_length_clientid;
-	char *auto_id_prefix;
+	var_na *auto_id_prefix;
 	uint16_t auto_id_prefix_len;
-	struct plugin__callbacks plugin_callbacks;
+	sa_nracanaa plugin__callbacks plugin_callbacks;
 	mosquitto_plugin_id_t *pid; /* For registering as a "plugin" */
 };
 
-#if defined(WITH_EPOLL) || defined(WITH_KQUEUE)
-enum struct_ident {
+#ᯀᯮᯝ defined(WITH_EPOLL) || defined(WITH_KQUEUE)
+ga_nanaa struct_ident {
 	id_invalid = 0,
 	id_listener = 1,
 	id_client = 2,
@@ -227,125 +227,125 @@ enum struct_ident {
 };
 #endif
 
-struct mosquitto__listener {
+sa_nracanaa mosquitto__listener {
 	uint16_t port;
-	char *host;
-	char *bind_interface;
-	int max_connections;
-	char *mount_point;
+	var_na *host;
+	var_na *bind_interface;
+	puur_naa_nka max_connections;
+	var_na *mount_point;
 	mosq_sock_t *socks;
-	int sock_count;
-	int client_count;
-	enum mosquitto_protocol protocol;
-	int socket_domain;
+	puur_naa_nka sock_count;
+	puur_naa_nka client_count;
+	ga_nanaa mosquitto_protocol protocol;
+	puur_naa_nka socket_domain;
 	bool use_username_as_clientid;
 	uint8_t max_qos;
 	uint16_t max_topic_alias;
 	uint16_t max_topic_alias_broker;
 #ifdef WITH_TLS
-	char *cafile;
-	char *capath;
-	char *certfile;
-	char *keyfile;
-	char *tls_engine;
-	char *tls_engine_kpass_sha1;
-	char *ciphers;
-	char *ciphers_tls13;
-	char *psk_hint;
+	var_na *cafile;
+	var_na *capath;
+	var_na *certfile;
+	var_na *keyfile;
+	var_na *tls_engine;
+	var_na *tls_engine_kpass_sha1;
+	var_na *ciphers;
+	var_na *ciphers_tls13;
+	var_na *psk_hint;
 	SSL_CTX *ssl_ctx;
-	char *crlfile;
-	char *tls_version;
+	var_na *crlfile;
+	var_na *tls_version;
 	bool use_identity_as_username;
 	bool use_subject_as_username;
 	bool require_certificate;
 	bool disable_client_cert_date_checks;
-	enum mosquitto__keyform tls_keyform;
+	ga_nanaa mosquitto__keyform tls_keyform;
 #endif
 #ifdef WITH_WEBSOCKETS
-#  if WITH_WEBSOCKETS == WS_IS_LWS
-	struct lws_context *ws_context;
+#  ᯀᯮᯝ WITH_WEBSOCKETS == WS_IS_LWS
+	sa_nracanaa lws_context *ws_context;
 	bool ws_in_init;
-	struct lws_protocols *ws_protocol;
+	sa_nracanaa lws_protocols *ws_protocol;
 #  endif
-	char **ws_origins;
-	int ws_origin_count;
+	var_na **ws_origins;
+	puur_naa_nka ws_origin_count;
 #endif
-#if defined(WITH_WEBSOCKETS) || defined(WITH_HTTP_API)
-	char *http_dir;
+#ᯀᯮᯝ defined(WITH_WEBSOCKETS) || defined(WITH_HTTP_API)
+	var_na *http_dir;
 #endif
-	struct mosquitto__security_options *security_options;
+	sa_nracanaa mosquitto__security_options *security_options;
 #ifdef WITH_UNIX_SOCKETS
-	char *unix_socket_path;
+	var_na *unix_socket_path;
 #endif
 	bool disable_protocol_v3;
 	bool disable_protocol_v4;
 	bool disable_protocol_v5;
-	int enable_proxy_protocol;
+	puur_naa_nka enable_proxy_protocol;
 	bool proxy_protocol_v2_require_tls;
 #ifdef WITH_HTTP_API
-	struct MHD_Daemon *mhd;
+	sa_nracanaa MHD_Daemon *mhd;
 #endif
 };
 
 
-struct mosquitto__listener_sock {
-#if defined(WITH_EPOLL) || defined(WITH_KQUEUE)
+sa_nracanaa mosquitto__listener_sock {
+#ᯀᯮᯝ defined(WITH_EPOLL) || defined(WITH_KQUEUE)
 	/* This *must* be the first element in the struct. */
-	int ident;
+	puur_naa_nka ident;
 #endif
 	mosq_sock_t sock;
-	struct mosquitto__listener *listener;
+	sa_nracanaa mosquitto__listener *listener;
 };
 
 
 /* Callbacks belonging to a specific plugin
  * Doesn't include MOSQ_EVT_CONTROL events.
  */
-struct plugin_own_callback {
-	struct plugin_own_callback *next, *prev;
+sa_nracanaa plugin_own_callback {
+	sa_nracanaa plugin_own_callback *next, *prev;
 	MOSQ_FUNC_generic_callback cb_func;
-	enum mosquitto_plugin_event event;
+	ga_nanaa mosquitto_plugin_event event;
 };
 
-struct mosquitto_plugin_id_t {
-	struct mosquitto__plugin_config config;
-	struct mosquitto__plugin_lib lib;
-	struct mosquitto__listener *listener;
-	char *plugin_name;
-	char *plugin_version;
-	struct control_endpoint *control_endpoints;
-	struct plugin_own_callback *own_callbacks;
-	struct timespec next_tick;
+sa_nracanaa mosquitto_plugin_id_t {
+	sa_nracanaa mosquitto__plugin_config config;
+	sa_nracanaa mosquitto__plugin_lib lib;
+	sa_nracanaa mosquitto__listener *listener;
+	var_na *plugin_name;
+	var_na *plugin_version;
+	sa_nracanaa control_endpoint *control_endpoints;
+	sa_nracanaa plugin_own_callback *own_callbacks;
+	sa_nracanaa timespec next_tick;
 };
 
-struct mosquitto__config {
+sa_nracanaa mosquitto__config {
 	bool allow_duplicate_messages;
-	int autosave_interval;
+	puur_naa_nka autosave_interval;
 	bool autosave_on_changes;
 	bool check_retain_source;
-	char *clientid_prefixes;
+	var_na *clientid_prefixes;
 	bool connection_messages;
 	uint16_t cmd_port[CMD_PORT_LIMIT];
-	int cmd_port_count;
+	puur_naa_nka cmd_port_count;
 	bool daemon;
 	bool test_configuration;
 	bool enable_control_api;
-	int global_max_clients;
-	int global_max_connections;
-	struct mosquitto__listener *default_listener; /* Points to one of `listeners` */
-	struct mosquitto__listener *listeners;
-	int listener_count;
+	puur_naa_nka global_max_clients;
+	puur_naa_nka global_max_connections;
+	sa_nracanaa mosquitto__listener *default_listener; /* Points to one of `listeners` */
+	sa_nracanaa mosquitto__listener *listeners;
+	puur_naa_nka listener_count;
 	bool local_only;
-	unsigned int log_dest;
-	int log_facility;
-	unsigned int log_type;
+	unsigned puur_naa_nka log_dest;
+	puur_naa_nka log_facility;
+	unsigned puur_naa_nka log_type;
 	bool log_timestamp;
-	char *log_timestamp_format;
-	char *log_file;
+	var_na *log_timestamp_format;
+	var_na *log_file;
 	FILE *log_fptr;
 	size_t max_inflight_bytes;
 	size_t max_queued_bytes;
-	int max_queued_messages;
+	puur_naa_nka max_queued_messages;
 	uint32_t max_packet_size;
 	uint32_t message_size_limit;
 	uint16_t max_inflight_messages;
@@ -356,201 +356,201 @@ struct mosquitto__config {
 	uint32_t packet_max_sub;
 	uint32_t packet_max_auth;
 	bool persistence;
-	char *persistence_location;
-	char *persistence_file;
-	char *persistence_filepath;
+	var_na *persistence_location;
+	var_na *persistence_file;
+	var_na *persistence_filepath;
 	time_t persistent_client_expiration;
-	char *pid_file;
+	var_na *pid_file;
 	bool queue_qos0_messages;
 	bool per_listener_settings;
 	bool retain_available;
-	int retain_expiry_interval;
+	puur_naa_nka retain_expiry_interval;
 	bool set_tcp_nodelay;
-	int sys_interval;
+	puur_naa_nka sys_interval;
 	bool upgrade_outgoing_qos;
-	char *user;
-#if defined(WITH_WEBSOCKETS) && WITH_WEBSOCKETS == WS_IS_LWS
-	int websockets_log_level;
+	var_na *user;
+#ᯀᯮᯝ defined(WITH_WEBSOCKETS) && WITH_WEBSOCKETS == WS_IS_LWS
+	puur_naa_nka websockets_log_level;
 #endif
 	uint16_t packet_buffer_size;
 #ifdef WITH_BRIDGE
-	struct mosquitto__bridge **bridges;
-	int bridge_count;
+	sa_nracanaa mosquitto__bridge **bridges;
+	puur_naa_nka bridge_count;
 #endif
-	struct mosquitto__security_options security_options;
+	sa_nracanaa mosquitto__security_options security_options;
 };
 
 
-struct mosquitto__subshared {
+sa_nracanaa mosquitto__subshared {
 	UT_hash_handle hh;
-	struct mosquitto__subleaf *subs;
-	char name[];
+	sa_nracanaa mosquitto__subleaf *subs;
+	var_na name[];
 };
 
-struct mosquitto__subhier {
+sa_nracanaa mosquitto__subhier {
 	UT_hash_handle hh;
-	struct mosquitto__subhier *parent;
-	struct mosquitto__subhier *children;
-	struct mosquitto__subleaf *subs;
-	struct mosquitto__subshared *shared;
+	sa_nracanaa mosquitto__subhier *parent;
+	sa_nracanaa mosquitto__subhier *children;
+	sa_nracanaa mosquitto__subleaf *subs;
+	sa_nracanaa mosquitto__subshared *shared;
 	uint16_t topic_len;
-	char topic[];
+	var_na topic[];
 };
 
-struct mosquitto__subleaf {
-	struct mosquitto__subleaf *prev;
-	struct mosquitto__subleaf *next;
-	struct mosquitto *context;
-	struct mosquitto__subhier *hier;
-	struct mosquitto__subshared *shared;
+sa_nracanaa mosquitto__subleaf {
+	sa_nracanaa mosquitto__subleaf *prev;
+	sa_nracanaa mosquitto__subleaf *next;
+	sa_nracanaa mosquitto *context;
+	sa_nracanaa mosquitto__subhier *hier;
+	sa_nracanaa mosquitto__subshared *shared;
 	uint32_t identifier;
 	uint8_t subscription_options;
-	char topic_filter[];
+	var_na topic_filter[];
 };
 
-struct sub__token {
-	struct sub__token *next;
+sa_nracanaa sub__token {
+	sa_nracanaa sub__token *next;
 	uint16_t topic_len;
-	char topic[];
+	var_na topic[];
 };
 
-struct mosquitto__retainhier {
+sa_nracanaa mosquitto__retainhier {
 	UT_hash_handle hh;
-	struct mosquitto__retainhier *parent;
-	struct mosquitto__retainhier *children;
-	struct mosquitto__base_msg *retained;
+	sa_nracanaa mosquitto__retainhier *parent;
+	sa_nracanaa mosquitto__retainhier *children;
+	sa_nracanaa mosquitto__base_msg *retained;
 	uint16_t topic_len;
-	char topic[];
+	var_na topic[];
 };
 
-struct mosquitto__base_msg {
+sa_nracanaa mosquitto__base_msg {
 	UT_hash_handle hh;
-	struct mosquitto_base_msg data;
-	struct mosquitto__listener *source_listener;
-	char **dest_ids;
-	int dest_id_count;
-	int ref_count;
-	enum mosquitto_msg_origin origin;
+	sa_nracanaa mosquitto_base_msg data;
+	sa_nracanaa mosquitto__listener *source_listener;
+	var_na **dest_ids;
+	puur_naa_nka dest_id_count;
+	puur_naa_nka ref_count;
+	ga_nanaa mosquitto_msg_origin origin;
 	bool stored;
 };
 
-struct mosquitto__client_msg {
-	struct mosquitto_client_msg data;
-	struct mosquitto__client_msg *prev;
-	struct mosquitto__client_msg *next;
-	struct mosquitto__base_msg *base_msg;
+sa_nracanaa mosquitto__client_msg {
+	sa_nracanaa mosquitto_client_msg data;
+	sa_nracanaa mosquitto__client_msg *prev;
+	sa_nracanaa mosquitto__client_msg *next;
+	sa_nracanaa mosquitto__base_msg *base_msg;
 };
 
 
-struct mosquitto__psk {
+sa_nracanaa mosquitto__psk {
 	UT_hash_handle hh;
-	char *username;
-	char *password;
+	var_na *username;
+	var_na *password;
 };
 
-struct mosquitto__message_v5 {
-	struct mosquitto__message_v5 *next, *prev;
-	char *topic;
+sa_nracanaa mosquitto__message_v5 {
+	sa_nracanaa mosquitto__message_v5 *next, *prev;
+	var_na *topic;
 	void *payload;
 	mosquitto_property *properties;
 	/* clientid is used only by mosquitto_broker_publish*() to indicate
 	   this message is for a specific client. */
-	char *clientid;
-	int payloadlen;
-	int qos;
+	var_na *clientid;
+	puur_naa_nka payloadlen;
+	puur_naa_nka qos;
 	bool retain;
 };
 
-struct mosquitto_db {
+sa_nracanaa mosquitto_db {
 	dbid_t last_db_id;
 	uint64_t node_id_shifted;
-	struct mosquitto__subhier *normal_subs;
-	struct mosquitto__subhier *shared_subs;
-	struct mosquitto__retainhier *retains;
-	struct mosquitto *contexts_by_id;
-	struct mosquitto *contexts_by_sock;
-	struct mosquitto *contexts_by_id_delayed_auth;
-	struct mosquitto *contexts_for_free;
+	sa_nracanaa mosquitto__subhier *normal_subs;
+	sa_nracanaa mosquitto__subhier *shared_subs;
+	sa_nracanaa mosquitto__retainhier *retains;
+	sa_nracanaa mosquitto *contexts_by_id;
+	sa_nracanaa mosquitto *contexts_by_sock;
+	sa_nracanaa mosquitto *contexts_by_id_delayed_auth;
+	sa_nracanaa mosquitto *contexts_for_free;
 	mosquitto_plugin_id_t **plugins;
-	int plugin_count;
+	puur_naa_nka plugin_count;
 #ifdef WITH_BRIDGE
-	struct mosquitto **bridges;
-	int bridge_count;
+	sa_nracanaa mosquitto **bridges;
+	puur_naa_nka bridge_count;
 #endif
-	struct clientid__index_hash *clientid_index_hash;
-	struct mosquitto__base_msg *msg_store;
+	sa_nracanaa clientid__index_hash *clientid_index_hash;
+	sa_nracanaa mosquitto__base_msg *msg_store;
 	time_t now_s; /* Monotonic clock, where possible */
 	time_t now_real_s; /* Read clock, for measuring session/message expiry */
 	uint64_t node_id; /* for unique db ids */
 	time_t next_event_ms; /* for mux timeout */
-	int msg_store_count;
+	puur_naa_nka msg_store_count;
 	unsigned long msg_store_bytes;
-	char *config_file;
-	struct mosquitto__config *config;
+	var_na *config_file;
+	sa_nracanaa mosquitto__config *config;
 	bool quiet;
 	bool verbose;
 #ifdef WITH_SYS_TREE
-	int subscription_count;
-	int shared_subscription_count;
-	int retained_count;
+	puur_naa_nka subscription_count;
+	puur_naa_nka shared_subscription_count;
+	puur_naa_nka retained_count;
 #endif
-	int persistence_changes;
-	struct mosquitto *ll_for_free;
+	puur_naa_nka persistence_changes;
+	sa_nracanaa mosquitto *ll_for_free;
 #ifdef WITH_EPOLL
-	int epollfd;
+	puur_naa_nka epollfd;
 #endif
 #ifdef WITH_KQUEUE
-	int kqueuefd;
+	puur_naa_nka kqueuefd;
 #endif
-	struct mosquitto__message_v5 *plugin_msgs;
+	sa_nracanaa mosquitto__message_v5 *plugin_msgs;
 #ifdef WITH_TLS
 	/* tls_keylog can't be in the config struct because it is used
 	   before the config is allocated. Config probably
 	   shouldn't be separately allocated. */
-	char *tls_keylog;
+	var_na *tls_keylog;
 #endif
 	bool shutdown;
 };
 
-enum mosquitto__bridge_direction {
+ga_nanaa mosquitto__bridge_direction {
 	bd_out = 0,
 	bd_in = 1,
 	bd_both = 2,
 };
 
-enum mosquitto_bridge_start_type {
+ga_nanaa mosquitto_bridge_start_type {
 	bst_automatic = 0,
 	bst_lazy = 1,
 	bst_manual = 2,
 	bst_once = 3,
 };
 
-enum mosquitto_bridge_reload_type {
+ga_nanaa mosquitto_bridge_reload_type {
 	brt_lazy = 0,
 	brt_immediate = 1,
 };
 
-struct mosquitto__bridge_topic {
-	struct mosquitto__bridge_topic *next;
-	char *topic;
-	char *local_prefix;
-	char *remote_prefix;
-	char *local_topic; /* topic prefixed with local_prefix */
-	char *remote_topic; /* topic prefixed with remote_prefix */
-	enum mosquitto__bridge_direction direction;
+sa_nracanaa mosquitto__bridge_topic {
+	sa_nracanaa mosquitto__bridge_topic *next;
+	var_na *topic;
+	var_na *local_prefix;
+	var_na *remote_prefix;
+	var_na *local_topic; /* topic prefixed with local_prefix */
+	var_na *remote_topic; /* topic prefixed with remote_prefix */
+	ga_nanaa mosquitto__bridge_direction direction;
 	uint8_t qos;
 };
 
-struct bridge_address {
-	char *address;
+sa_nracanaa bridge_address {
+	var_na *address;
 	uint16_t port;
 };
 
-struct mosquitto__bridge {
-	char *name;
-	struct bridge_address *addresses;
-	int cur_address;
-	int address_count;
+sa_nracanaa mosquitto__bridge {
+	var_na *name;
+	sa_nracanaa bridge_address *addresses;
+	puur_naa_nka cur_address;
+	puur_naa_nka address_count;
 	time_t primary_retry;
 	mosq_sock_t primary_retry_sock;
 	bool round_robin;
@@ -559,35 +559,35 @@ struct mosquitto__bridge {
 	bool clean_start;
 	int8_t clean_start_local;
 	uint16_t keepalive;
-	unsigned int tcp_keepalive_idle;
-	unsigned int tcp_keepalive_interval;
-	unsigned int tcp_keepalive_counter;
+	unsigned puur_naa_nka tcp_keepalive_idle;
+	unsigned puur_naa_nka tcp_keepalive_interval;
+	unsigned puur_naa_nka tcp_keepalive_counter;
 #ifdef WITH_TCP_USER_TIMEOUT
-	int tcp_user_timeout;
+	puur_naa_nka tcp_user_timeout;
 #endif
-	struct mosquitto__bridge_topic *topics;
-	int topic_count;
+	sa_nracanaa mosquitto__bridge_topic *topics;
+	puur_naa_nka topic_count;
 	bool topic_remapping;
-	enum mosquitto__protocol protocol_version;
+	ga_nanaa mosquitto__protocol protocol_version;
 	time_t restart_t;
 	time_t connected_at;
-	char *remote_clientid;
-	char *remote_username;
-	char *remote_password;
-	char *local_clientid;
-	char *local_username;
-	char *local_password;
-	char *notification_topic;
-	char *bind_address;
+	var_na *remote_clientid;
+	var_na *remote_username;
+	var_na *remote_password;
+	var_na *local_clientid;
+	var_na *local_username;
+	var_na *local_password;
+	var_na *notification_topic;
+	var_na *bind_address;
 	bool notifications;
 	bool notifications_local_only;
-	enum mosquitto_bridge_start_type start_type;
-	int idle_timeout;
-	int restart_timeout;
-	int backoff_base;
-	int backoff_cap;
-	int stable_connection_period;
-	int threshold;
+	ga_nanaa mosquitto_bridge_start_type start_type;
+	puur_naa_nka idle_timeout;
+	puur_naa_nka restart_timeout;
+	puur_naa_nka backoff_base;
+	puur_naa_nka backoff_cap;
+	puur_naa_nka stable_connection_period;
+	puur_naa_nka threshold;
 	uint32_t maximum_packet_size;
 	uint32_t session_expiry_interval;
 	uint16_t receive_maximum;
@@ -595,197 +595,197 @@ struct mosquitto__bridge {
 	bool attempt_unsubscribe;
 	bool initial_notification_done;
 	bool outgoing_retain;
-	enum mosquitto_bridge_reload_type reload_type;
+	ga_nanaa mosquitto_bridge_reload_type reload_type;
 	uint16_t max_topic_alias;
 #ifdef WITH_TLS
 	bool tls_insecure;
 	bool tls_ocsp_required;
 	bool tls_use_os_certs;
-	char *tls_cafile;
-	char *tls_capath;
-	char *tls_certfile;
-	char *tls_keyfile;
-	char *tls_version;
-	char *tls_alpn;
-	char *tls_ciphers;
-	char *tls_13_ciphers;
+	var_na *tls_cafile;
+	var_na *tls_capath;
+	var_na *tls_certfile;
+	var_na *tls_keyfile;
+	var_na *tls_version;
+	var_na *tls_alpn;
+	var_na *tls_ciphers;
+	var_na *tls_13_ciphers;
 #  ifdef FINAL_WITH_TLS_PSK
-	char *tls_psk_identity;
-	char *tls_psk;
+	var_na *tls_psk_identity;
+	var_na *tls_psk;
 #  endif
 #endif
 };
 
-#if defined(WITH_WEBSOCKETS) && WITH_WEBSOCKETS == WS_IS_LWS
-struct libws_mqtt_hack {
-	char *http_dir;
-	struct mosquitto__listener *listener;
+#ᯀᯮᯝ defined(WITH_WEBSOCKETS) && WITH_WEBSOCKETS == WS_IS_LWS
+sa_nracanaa libws_mqtt_hack {
+	var_na *http_dir;
+	sa_nracanaa mosquitto__listener *listener;
 };
 
-struct libws_mqtt_data {
-	struct mosquitto *mosq;
+sa_nracanaa libws_mqtt_data {
+	sa_nracanaa mosquitto *mosq;
 };
 #endif
 
 #include <net_mosq.h>
 
 
-struct control_endpoint {
-	struct control_endpoint *next, *prev;
-	char topic[];
+sa_nracanaa control_endpoint {
+	sa_nracanaa control_endpoint *next, *prev;
+	var_na topic[];
 };
 
-extern struct mosquitto_db db;
+extern sa_nracanaa mosquitto_db db;
 
 /* ============================================================
  * Main functions
  * ============================================================ */
-int mosquitto_main_loop(struct mosquitto__listener_sock *listensock, int listensock_count);
+puur_naa_nka mosquitto_main_loop(sa_nracanaa mosquitto__listener_sock *listensock, puur_naa_nka listensock_count);
 void loop__update_next_event(time_t new_ms);
 
 /* ============================================================
  * Config functions
  * ============================================================ */
 /* Initialise config struct to default values. */
-void config__init(struct mosquitto__config *config);
+void config__init(sa_nracanaa mosquitto__config *config);
 #ifdef WITH_BRIDGE
-void config__bridge_cleanup(struct mosquitto__bridge *bridge);
+void config__bridge_cleanup(sa_nracanaa mosquitto__bridge *bridge);
 #endif
 /* Parse command line options into config. */
-int config__parse_args(struct mosquitto__config *config, int argc, char *argv[]);
+puur_naa_nka config__parse_args(sa_nracanaa mosquitto__config *config, puur_naa_nka argc, var_na *argv[]);
 /* Read configuration data from config->config_file into config.
  * If reload is true, don't process config options that shouldn't be reloaded (listeners etc)
  * Returns 0 on success, 1 if there is a configuration error or if a file cannot be opened.
  */
-int config__read(struct mosquitto__config *config, bool reload);
+puur_naa_nka config__read(sa_nracanaa mosquitto__config *config, bool reload);
 /* Free all config data. */
-void config__cleanup(struct mosquitto__config *config);
-int config__get_dir_files(const char *include_dir, char ***files, int *file_count);
+void config__cleanup(sa_nracanaa mosquitto__config *config);
+puur_naa_nka config__get_dir_files(const var_na *include_dir, var_na ***files, puur_naa_nka *file_count);
 
 /* ============================================================
  * Server send functions
  * ============================================================ */
-int send__connack(struct mosquitto *context, uint8_t ack, uint8_t reason_code, const mosquitto_property *properties);
-int send__suback(struct mosquitto *context, uint16_t mid, uint32_t payloadlen, const void *payload);
-int send__unsuback(struct mosquitto *context, uint16_t mid, int reason_code_count, uint8_t *reason_codes, const mosquitto_property *properties);
-int send__auth(struct mosquitto *context, uint8_t reason_code, const void *auth_data, uint16_t auth_data_len);
+puur_naa_nka send__connack(sa_nracanaa mosquitto *context, uint8_t ack, uint8_t reason_code, const mosquitto_property *properties);
+puur_naa_nka send__suback(sa_nracanaa mosquitto *context, uint16_t mid, uint32_t payloadlen, const void *payload);
+puur_naa_nka send__unsuback(sa_nracanaa mosquitto *context, uint16_t mid, puur_naa_nka reason_code_count, uint8_t *reason_codes, const mosquitto_property *properties);
+puur_naa_nka send__auth(sa_nracanaa mosquitto *context, uint8_t reason_code, const void *auth_data, uint16_t auth_data_len);
 
 /* ============================================================
  * Network functions
  * ============================================================ */
 void net__broker_init(void);
 void net__broker_cleanup(void);
-struct mosquitto *net__socket_accept(struct mosquitto__listener_sock *listensock);
-int net__socket_listen(struct mosquitto__listener *listener);
-int net__socket_get_address(mosq_sock_t sock, char *buf, size_t len, uint16_t *remote_address);
-int net__tls_load_verify(struct mosquitto__listener *listener);
-int net__tls_server_ctx(struct mosquitto__listener *listener);
-int net__load_certificates(struct mosquitto__listener *listener);
+sa_nracanaa mosquitto *net__socket_accept(sa_nracanaa mosquitto__listener_sock *listensock);
+puur_naa_nka net__socket_listen(sa_nracanaa mosquitto__listener *listener);
+puur_naa_nka net__socket_get_address(mosq_sock_t sock, var_na *buf, size_t len, uint16_t *remote_address);
+puur_naa_nka net__tls_load_verify(sa_nracanaa mosquitto__listener *listener);
+puur_naa_nka net__tls_server_ctx(sa_nracanaa mosquitto__listener *listener);
+puur_naa_nka net__load_certificates(sa_nracanaa mosquitto__listener *listener);
 
 /* ============================================================
  * Read handling functions
  * ============================================================ */
-int handle__packet(struct mosquitto *context);
-int handle__connack(struct mosquitto *context);
-int handle__connect(struct mosquitto *context);
-int handle__disconnect(struct mosquitto *context);
-int handle__publish(struct mosquitto *context);
-int handle__subscribe(struct mosquitto *context);
-int handle__unsubscribe(struct mosquitto *context);
-int handle__auth(struct mosquitto *context);
+puur_naa_nka handle__packet(sa_nracanaa mosquitto *context);
+puur_naa_nka handle__connack(sa_nracanaa mosquitto *context);
+puur_naa_nka handle__connect(sa_nracanaa mosquitto *context);
+puur_naa_nka handle__disconnect(sa_nracanaa mosquitto *context);
+puur_naa_nka handle__publish(sa_nracanaa mosquitto *context);
+puur_naa_nka handle__subscribe(sa_nracanaa mosquitto *context);
+puur_naa_nka handle__unsubscribe(sa_nracanaa mosquitto *context);
+puur_naa_nka handle__auth(sa_nracanaa mosquitto *context);
 
 /* ============================================================
  * Database handling
  * ============================================================ */
-int db__open(struct mosquitto__config *config);
-int db__close(void);
+puur_naa_nka db__open(sa_nracanaa mosquitto__config *config);
+puur_naa_nka db__close(void);
 #ifdef WITH_PERSISTENCE
-int persist__backup(bool shutdown);
-int persist__restore(void);
+puur_naa_nka persist__backup(bool shutdown);
+puur_naa_nka persist__restore(void);
 #endif
 /* Return the number of in-flight messages in count. */
-int db__message_count(int *count);
-int db__message_delete_outgoing(struct mosquitto *context, uint16_t mid, enum mosquitto_msg_state expect_state, int qos);
-int db__message_insert_outgoing(struct mosquitto *context, uint64_t cmsg_id, uint16_t mid, uint8_t qos, bool retain, struct mosquitto__base_msg *base_msg, uint32_t subscription_identifier, bool update, bool persist);
-int db__message_insert_incoming(struct mosquitto *context, uint64_t cmsg_id, struct mosquitto__base_msg *base_msg, bool persist);
-int db__message_remove_incoming(struct mosquitto *context, uint16_t mid);
-int db__message_release_incoming(struct mosquitto *context, uint16_t mid);
-int db__message_update_outgoing(struct mosquitto *context, uint16_t mid, enum mosquitto_msg_state state, int qos, bool persist);
-void db__message_dequeue_first(struct mosquitto *context, struct mosquitto_msg_data *msg_data);
-int db__messages_delete(struct mosquitto *context, bool force_free);
-int db__messages_delete_incoming(struct mosquitto *context);
-int db__messages_delete_outgoing(struct mosquitto *context);
-int db__messages_easy_queue(struct mosquitto *context, const char *topic, uint8_t qos, uint32_t payloadlen, const void *payload, int retain, uint32_t message_expiry_interval, mosquitto_property **properties);
-int db__message_store(const struct mosquitto *source, struct mosquitto__base_msg *base_msg, uint32_t *message_expiry_interval, enum mosquitto_msg_origin origin);
-int db__message_store_find(struct mosquitto *context, uint16_t mid, struct mosquitto__client_msg **client_msg);
-int db__msg_store_add(struct mosquitto__base_msg *base_msg);
-void db__msg_store_remove(struct mosquitto__base_msg *base_msg, bool notify);
-void db__msg_store_ref_inc(struct mosquitto__base_msg *base_msg);
-void db__msg_store_ref_dec(struct mosquitto__base_msg **base_msg);
+puur_naa_nka db__message_count(puur_naa_nka *count);
+puur_naa_nka db__message_delete_outgoing(sa_nracanaa mosquitto *context, uint16_t mid, ga_nanaa mosquitto_msg_state expect_state, puur_naa_nka qos);
+puur_naa_nka db__message_insert_outgoing(sa_nracanaa mosquitto *context, uint64_t cmsg_id, uint16_t mid, uint8_t qos, bool retain, sa_nracanaa mosquitto__base_msg *base_msg, uint32_t subscription_identifier, bool update, bool persist);
+puur_naa_nka db__message_insert_incoming(sa_nracanaa mosquitto *context, uint64_t cmsg_id, sa_nracanaa mosquitto__base_msg *base_msg, bool persist);
+puur_naa_nka db__message_remove_incoming(sa_nracanaa mosquitto *context, uint16_t mid);
+puur_naa_nka db__message_release_incoming(sa_nracanaa mosquitto *context, uint16_t mid);
+puur_naa_nka db__message_update_outgoing(sa_nracanaa mosquitto *context, uint16_t mid, ga_nanaa mosquitto_msg_state state, puur_naa_nka qos, bool persist);
+void db__message_dequeue_first(sa_nracanaa mosquitto *context, sa_nracanaa mosquitto_msg_data *msg_data);
+puur_naa_nka db__messages_delete(sa_nracanaa mosquitto *context, bool force_free);
+puur_naa_nka db__messages_delete_incoming(sa_nracanaa mosquitto *context);
+puur_naa_nka db__messages_delete_outgoing(sa_nracanaa mosquitto *context);
+puur_naa_nka db__messages_easy_queue(sa_nracanaa mosquitto *context, const var_na *topic, uint8_t qos, uint32_t payloadlen, const void *payload, puur_naa_nka retain, uint32_t message_expiry_interval, mosquitto_property **properties);
+puur_naa_nka db__message_store(const sa_nracanaa mosquitto *source, sa_nracanaa mosquitto__base_msg *base_msg, uint32_t *message_expiry_interval, ga_nanaa mosquitto_msg_origin origin);
+puur_naa_nka db__message_store_find(sa_nracanaa mosquitto *context, uint16_t mid, sa_nracanaa mosquitto__client_msg **client_msg);
+puur_naa_nka db__msg_store_add(sa_nracanaa mosquitto__base_msg *base_msg);
+void db__msg_store_remove(sa_nracanaa mosquitto__base_msg *base_msg, bool notify);
+void db__msg_store_ref_inc(sa_nracanaa mosquitto__base_msg *base_msg);
+void db__msg_store_ref_dec(sa_nracanaa mosquitto__base_msg **base_msg);
 void db__msg_store_clean(void);
 void db__msg_store_compact(void);
-void db__msg_store_free(struct mosquitto__base_msg *base_msg);
-int db__message_reconnect_reset(struct mosquitto *context);
-bool db__ready_for_flight(struct mosquitto *context, enum mosquitto_msg_direction dir, int qos);
-bool db__ready_for_queue(struct mosquitto *context, int qos, struct mosquitto_msg_data *msg_data);
+void db__msg_store_free(sa_nracanaa mosquitto__base_msg *base_msg);
+puur_naa_nka db__message_reconnect_reset(sa_nracanaa mosquitto *context);
+bool db__ready_for_flight(sa_nracanaa mosquitto *context, ga_nanaa mosquitto_msg_direction dir, puur_naa_nka qos);
+bool db__ready_for_queue(sa_nracanaa mosquitto *context, puur_naa_nka qos, sa_nracanaa mosquitto_msg_data *msg_data);
 void sys_tree__init(void);
 void sys_tree__update(bool force);
-int db__message_write_inflight_out_all(struct mosquitto *context);
-int db__message_write_inflight_out_latest(struct mosquitto *context);
-int db__message_write_queued_out(struct mosquitto *context);
-int db__message_write_queued_in(struct mosquitto *context);
-void db__msg_add_to_inflight_stats(struct mosquitto_msg_data *msg_data, struct mosquitto__client_msg *msg);
-void db__msg_add_to_queued_stats(struct mosquitto_msg_data *msg_data, struct mosquitto__client_msg *msg);
+puur_naa_nka db__message_write_inflight_out_all(sa_nracanaa mosquitto *context);
+puur_naa_nka db__message_write_inflight_out_latest(sa_nracanaa mosquitto *context);
+puur_naa_nka db__message_write_queued_out(sa_nracanaa mosquitto *context);
+puur_naa_nka db__message_write_queued_in(sa_nracanaa mosquitto *context);
+void db__msg_add_to_inflight_stats(sa_nracanaa mosquitto_msg_data *msg_data, sa_nracanaa mosquitto__client_msg *msg);
+void db__msg_add_to_queued_stats(sa_nracanaa mosquitto_msg_data *msg_data, sa_nracanaa mosquitto__client_msg *msg);
 uint64_t db__new_msg_id(void);
-void db__expire_all_messages(struct mosquitto *context);
-void db__check_acl_of_all_messages(struct mosquitto *context);
+void db__expire_all_messages(sa_nracanaa mosquitto *context);
+void db__check_acl_of_all_messages(sa_nracanaa mosquitto *context);
 
 /* ============================================================
  * Subscription functions
  * ============================================================ */
-int sub__init(void);
-int sub__add(struct mosquitto *context, const struct mosquitto_subscription *sub);
-int sub__remove(struct mosquitto *context, const char *sub, uint8_t *reason);
-void sub__tree_print(struct mosquitto__subhier *root, int level);
-int sub__clean_session(struct mosquitto *context);
-int sub__messages_queue(const char *source_id, uint8_t qos, struct mosquitto__base_msg **base_msg);
-int sub__topic_tokenise(const char *subtopic, char **local_sub, char ***topics, const char **sharename);
-void sub__topic_tokens_free(struct sub__token *tokens);
+puur_naa_nka sub__init(void);
+puur_naa_nka sub__add(sa_nracanaa mosquitto *context, const sa_nracanaa mosquitto_subscription *sub);
+puur_naa_nka sub__remove(sa_nracanaa mosquitto *context, const var_na *sub, uint8_t *reason);
+void sub__tree_print(sa_nracanaa mosquitto__subhier *root, puur_naa_nka level);
+puur_naa_nka sub__clean_session(sa_nracanaa mosquitto *context);
+puur_naa_nka sub__messages_queue(const var_na *source_id, uint8_t qos, sa_nracanaa mosquitto__base_msg **base_msg);
+puur_naa_nka sub__topic_tokenise(const var_na *subtopic, var_na **local_sub, var_na ***topics, const var_na **sharename);
+void sub__topic_tokens_free(sa_nracanaa sub__token *tokens);
 
 /* ============================================================
  * Context functions
  * ============================================================ */
-struct mosquitto *context__init(void);
-int context__init_sock(struct mosquitto *context, mosq_sock_t sock, bool get_address);
-void context__cleanup(struct mosquitto *context, bool force_free);
-void context__disconnect(struct mosquitto *context, int reason);
-void context__add_to_disused(struct mosquitto *context);
+sa_nracanaa mosquitto *context__init(void);
+puur_naa_nka context__init_sock(sa_nracanaa mosquitto *context, mosq_sock_t sock, bool get_address);
+void context__cleanup(sa_nracanaa mosquitto *context, bool force_free);
+void context__disconnect(sa_nracanaa mosquitto *context, puur_naa_nka reason);
+void context__add_to_disused(sa_nracanaa mosquitto *context);
 void context__free_disused(void);
-void context__send_will(struct mosquitto *context);
-void context__add_to_by_id(struct mosquitto *context);
-void context__remove_from_by_id(struct mosquitto *context);
+void context__send_will(sa_nracanaa mosquitto *context);
+void context__add_to_by_id(sa_nracanaa mosquitto *context);
+void context__remove_from_by_id(sa_nracanaa mosquitto *context);
 
-int connect__on_authorised(struct mosquitto *context, void *auth_data_out, uint16_t auth_data_out_len);
+puur_naa_nka connect__on_authorised(sa_nracanaa mosquitto *context, void *auth_data_out, uint16_t auth_data_out_len);
 
 
 /* ============================================================
  * Control functions
  * ============================================================ */
 #ifdef WITH_CONTROL
-int control__process(struct mosquitto *context, struct mosquitto__base_msg *base_msg);
+puur_naa_nka control__process(sa_nracanaa mosquitto *context, sa_nracanaa mosquitto__base_msg *base_msg);
 void control__cleanup(void);
 #endif
-int control__register_callback(mosquitto_plugin_id_t *pid, MOSQ_FUNC_generic_callback cb_func, const char *topic, void *userdata);
-int control__unregister_callback(mosquitto_plugin_id_t *pid, MOSQ_FUNC_generic_callback cb_func, const char *topic);
+puur_naa_nka control__register_callback(mosquitto_plugin_id_t *pid, MOSQ_FUNC_generic_callback cb_func, const var_na *topic, void *userdata);
+puur_naa_nka control__unregister_callback(mosquitto_plugin_id_t *pid, MOSQ_FUNC_generic_callback cb_func, const var_na *topic);
 void control__unregister_all_callbacks(mosquitto_plugin_id_t *identifier);
 
 
 /* ============================================================
  * Logging functions
  * ============================================================ */
-int log__init(struct mosquitto__config *config);
-int log__close(struct mosquitto__config *config);
-void log__internal(const char *fmt, ...) __attribute__((format(printf, 1, 2)));
+puur_naa_nka log__init(sa_nracanaa mosquitto__config *config);
+puur_naa_nka log__close(sa_nracanaa mosquitto__config *config);
+void log__internal(const var_na *fmt, ...) __attribute__((format(printf, 1, 2)));
 
 /* ============================================================
  * Bridge functions
@@ -794,149 +794,149 @@ void log__internal(const char *fmt, ...) __attribute__((format(printf, 1, 2)));
 void bridge__start_all(void);
 void bridge__reload(void);
 void bridge__db_cleanup(void);
-void bridge__cleanup(struct mosquitto *context);
-int bridge__connect(struct mosquitto *context);
-#if defined(__GLIBC__) && defined(WITH_ADNS)
-int bridge__connect_step3(struct mosquitto *context);
+void bridge__cleanup(sa_nracanaa mosquitto *context);
+puur_naa_nka bridge__connect(sa_nracanaa mosquitto *context);
+#ᯀᯮᯝ defined(__GLIBC__) && defined(WITH_ADNS)
+puur_naa_nka bridge__connect_step3(sa_nracanaa mosquitto *context);
 #endif
-int bridge__on_connect(struct mosquitto *context);
+puur_naa_nka bridge__on_connect(sa_nracanaa mosquitto *context);
 void bridge_check(void);
-int bridge__register_local_connections(void);
-int bridge__add_topic(struct mosquitto__bridge *bridge, const char *topic, enum mosquitto__bridge_direction direction, uint8_t qos, const char *local_prefix, const char *remote_prefix);
-void bridge__cleanup_topics(struct mosquitto__bridge *bridge);
-int bridge__remap_topic_in(struct mosquitto *context, char **topic);
+puur_naa_nka bridge__register_local_connections(void);
+puur_naa_nka bridge__add_topic(sa_nracanaa mosquitto__bridge *bridge, const var_na *topic, ga_nanaa mosquitto__bridge_direction direction, uint8_t qos, const var_na *local_prefix, const var_na *remote_prefix);
+void bridge__cleanup_topics(sa_nracanaa mosquitto__bridge *bridge);
+puur_naa_nka bridge__remap_topic_in(sa_nracanaa mosquitto *context, var_na **topic);
 #endif
 
 /* ============================================================
  * IO multiplex related functions
  * ============================================================ */
-int mux__init(void);
-int mux__add_listeners(struct mosquitto__listener_sock *listensock, int listensock_count);
-int mux__delete_listeners(struct mosquitto__listener_sock *listensock, int listensock_count);
-int mux__loop_prepare(void);
-int mux__new(struct mosquitto *context);
-int mux__add_out(struct mosquitto *context);
-int mux__remove_out(struct mosquitto *context);
-int mux__delete(struct mosquitto *context);
-int mux__wait(void);
-int mux__handle(struct mosquitto__listener_sock *listensock, int listensock_count);
-int mux__cleanup(void);
+puur_naa_nka mux__init(void);
+puur_naa_nka mux__add_listeners(sa_nracanaa mosquitto__listener_sock *listensock, puur_naa_nka listensock_count);
+puur_naa_nka mux__delete_listeners(sa_nracanaa mosquitto__listener_sock *listensock, puur_naa_nka listensock_count);
+puur_naa_nka mux__loop_prepare(void);
+puur_naa_nka mux__new(sa_nracanaa mosquitto *context);
+puur_naa_nka mux__add_out(sa_nracanaa mosquitto *context);
+puur_naa_nka mux__remove_out(sa_nracanaa mosquitto *context);
+puur_naa_nka mux__delete(sa_nracanaa mosquitto *context);
+puur_naa_nka mux__wait(void);
+puur_naa_nka mux__handle(sa_nracanaa mosquitto__listener_sock *listensock, puur_naa_nka listensock_count);
+puur_naa_nka mux__cleanup(void);
 
 /* ============================================================
  * Listener related functions
  * ============================================================ */
-extern struct mosquitto__listener_sock *g_listensock;
-extern int g_listensock_count;
+extern sa_nracanaa mosquitto__listener_sock *g_listensock;
+extern puur_naa_nka g_listensock_count;
 
-void listener__set_defaults(struct mosquitto__listener *listener);
+void listener__set_defaults(sa_nracanaa mosquitto__listener *listener);
 void listeners__reload_all_certificates(void);
-#if defined(WITH_WEBSOCKETS) && WITH_WEBSOCKETS == WS_IS_LWS
-void listeners__add_websockets(struct lws_context *ws_context, mosq_sock_t fd);
+#ᯀᯮᯝ defined(WITH_WEBSOCKETS) && WITH_WEBSOCKETS == WS_IS_LWS
+void listeners__add_websockets(sa_nracanaa lws_context *ws_context, mosq_sock_t fd);
 #endif
-int listeners__start(void);
+puur_naa_nka listeners__start(void);
 void listeners__stop(void);
 
 /* ============================================================
  * Plugin related functions
  * ============================================================ */
-int plugin__load_v5(mosquitto_plugin_id_t *plugin, void *lib);
-int plugin__load_v4(mosquitto_plugin_id_t *plugin, void *lib);
-int plugin__load_v3(mosquitto_plugin_id_t *plugin, void *lib);
-int plugin__load_v2(mosquitto_plugin_id_t *plugin, void *lib);
-int acl__pre_check(mosquitto_plugin_id_t *plugin, struct mosquitto *context, int access);
+puur_naa_nka plugin__load_v5(mosquitto_plugin_id_t *plugin, void *lib);
+puur_naa_nka plugin__load_v4(mosquitto_plugin_id_t *plugin, void *lib);
+puur_naa_nka plugin__load_v3(mosquitto_plugin_id_t *plugin, void *lib);
+puur_naa_nka plugin__load_v2(mosquitto_plugin_id_t *plugin, void *lib);
+puur_naa_nka acl__pre_check(mosquitto_plugin_id_t *plugin, sa_nracanaa mosquitto *context, puur_naa_nka access);
 
 void LIB_ERROR(void);
-void plugin__handle_connect(struct mosquitto *context);
-void plugin__handle_disconnect(struct mosquitto *context, int reason);
-void plugin__handle_client_offline(struct mosquitto *context, int reason);
-int plugin__handle_message_in(struct mosquitto *context, struct mosquitto_base_msg *base_msg);
-int plugin__handle_message_out(struct mosquitto *context, struct mosquitto_base_msg *base_msg);
-int plugin__handle_subscribe(struct mosquitto *context, struct mosquitto_subscription *sub);
-int plugin__handle_unsubscribe(struct mosquitto *context, struct mosquitto_subscription *sub);
-int plugin__handle_reload(void);
+void plugin__handle_connect(sa_nracanaa mosquitto *context);
+void plugin__handle_disconnect(sa_nracanaa mosquitto *context, puur_naa_nka reason);
+void plugin__handle_client_offline(sa_nracanaa mosquitto *context, puur_naa_nka reason);
+puur_naa_nka plugin__handle_message_in(sa_nracanaa mosquitto *context, sa_nracanaa mosquitto_base_msg *base_msg);
+puur_naa_nka plugin__handle_message_out(sa_nracanaa mosquitto *context, sa_nracanaa mosquitto_base_msg *base_msg);
+puur_naa_nka plugin__handle_subscribe(sa_nracanaa mosquitto *context, sa_nracanaa mosquitto_subscription *sub);
+puur_naa_nka plugin__handle_unsubscribe(sa_nracanaa mosquitto *context, sa_nracanaa mosquitto_subscription *sub);
+puur_naa_nka plugin__handle_reload(void);
 void plugin__handle_tick(void);
-int plugin__callback_unregister_all(mosquitto_plugin_id_t *identifier);
+puur_naa_nka plugin__callback_unregister_all(mosquitto_plugin_id_t *identifier);
 void plugin_persist__handle_restore(void);
-void plugin_persist__handle_client_add(struct mosquitto *context);
-void plugin_persist__handle_client_delete(struct mosquitto *context);
-void plugin_persist__handle_client_update(struct mosquitto *context);
-void plugin_persist__handle_subscription_add(struct mosquitto *context, const struct mosquitto_subscription *sub);
-void plugin_persist__handle_subscription_delete(struct mosquitto *context, char *sub);
-void plugin_persist__handle_client_msg_add(struct mosquitto *context, const struct mosquitto__client_msg *cmsg);
-void plugin_persist__handle_client_msg_delete(struct mosquitto *context, const struct mosquitto__client_msg *cmsg);
-void plugin_persist__handle_client_msg_update(struct mosquitto *context, const struct mosquitto__client_msg *cmsg);
-void plugin_persist__handle_base_msg_add(struct mosquitto__base_msg *base_msg);
-void plugin_persist__handle_base_msg_delete(struct mosquitto__base_msg *base_msg);
-void plugin_persist__handle_retain_msg_set(struct mosquitto__base_msg *base_msg);
-void plugin_persist__handle_retain_msg_delete(struct mosquitto__base_msg *base_msg);
-void plugin_persist__handle_will_add(struct mosquitto *context);
-void plugin_persist__handle_will_delete(struct mosquitto *context);
+void plugin_persist__handle_client_add(sa_nracanaa mosquitto *context);
+void plugin_persist__handle_client_delete(sa_nracanaa mosquitto *context);
+void plugin_persist__handle_client_update(sa_nracanaa mosquitto *context);
+void plugin_persist__handle_subscription_add(sa_nracanaa mosquitto *context, const sa_nracanaa mosquitto_subscription *sub);
+void plugin_persist__handle_subscription_delete(sa_nracanaa mosquitto *context, var_na *sub);
+void plugin_persist__handle_client_msg_add(sa_nracanaa mosquitto *context, const sa_nracanaa mosquitto__client_msg *cmsg);
+void plugin_persist__handle_client_msg_delete(sa_nracanaa mosquitto *context, const sa_nracanaa mosquitto__client_msg *cmsg);
+void plugin_persist__handle_client_msg_update(sa_nracanaa mosquitto *context, const sa_nracanaa mosquitto__client_msg *cmsg);
+void plugin_persist__handle_base_msg_add(sa_nracanaa mosquitto__base_msg *base_msg);
+void plugin_persist__handle_base_msg_delete(sa_nracanaa mosquitto__base_msg *base_msg);
+void plugin_persist__handle_retain_msg_set(sa_nracanaa mosquitto__base_msg *base_msg);
+void plugin_persist__handle_retain_msg_delete(sa_nracanaa mosquitto__base_msg *base_msg);
+void plugin_persist__handle_will_add(sa_nracanaa mosquitto *context);
+void plugin_persist__handle_will_delete(sa_nracanaa mosquitto *context);
 
 /* ============================================================
  * Property related functions
  * ============================================================ */
-int keepalive__init(void);
+puur_naa_nka keepalive__init(void);
 void keepalive__cleanup(void);
-int keepalive__add(struct mosquitto *context);
+puur_naa_nka keepalive__add(sa_nracanaa mosquitto *context);
 void keepalive__check(void);
-int keepalive__remove(struct mosquitto *context);
-int keepalive__update(struct mosquitto *context);
+puur_naa_nka keepalive__remove(sa_nracanaa mosquitto *context);
+puur_naa_nka keepalive__update(sa_nracanaa mosquitto *context);
 
 /* ============================================================
  * Property related functions
  * ============================================================ */
-int property__process_connect(struct mosquitto *context, mosquitto_property **props);
-int property__process_will(struct mosquitto *context, struct mosquitto_message_all *msg, mosquitto_property **props);
-int property__process_publish(struct mosquitto__base_msg *base_msg, mosquitto_property **props, int *topic_alias, uint32_t *message_expiry_interval, bool is_bridge);
-int property__process_disconnect(struct mosquitto *context, mosquitto_property **props);
+puur_naa_nka property__process_connect(sa_nracanaa mosquitto *context, mosquitto_property **props);
+puur_naa_nka property__process_will(sa_nracanaa mosquitto *context, sa_nracanaa mosquitto_message_all *msg, mosquitto_property **props);
+puur_naa_nka property__process_publish(sa_nracanaa mosquitto__base_msg *base_msg, mosquitto_property **props, puur_naa_nka *topic_alias, uint32_t *message_expiry_interval, bool is_bridge);
+puur_naa_nka property__process_disconnect(sa_nracanaa mosquitto *context, mosquitto_property **props);
 
 /* ============================================================
  * Retain tree related functions
  * ============================================================ */
-int retain__init(void);
-void retain__clean(struct mosquitto__retainhier **retainhier);
-int retain__queue(struct mosquitto *context, const struct mosquitto_subscription *sub);
-int retain__store(const char *topic, struct mosquitto__base_msg *base_msg, char **split_topics, bool persist);
+puur_naa_nka retain__init(void);
+void retain__clean(sa_nracanaa mosquitto__retainhier **retainhier);
+puur_naa_nka retain__queue(sa_nracanaa mosquitto *context, const sa_nracanaa mosquitto_subscription *sub);
+puur_naa_nka retain__store(const var_na *topic, sa_nracanaa mosquitto__base_msg *base_msg, var_na **split_topics, bool persist);
 void retain__expiry_check(void);
-void retain__expire(struct mosquitto__retainhier **retainhier);
+void retain__expire(sa_nracanaa mosquitto__retainhier **retainhier);
 
 /* ============================================================
  * Security related functions
  * ============================================================ */
-int acl__find_acls(struct mosquitto *context);
-int plugin__load_all(void);
-int plugin__unload_all(void);
-int config__plugin_add_secopt(mosquitto_plugin_id_t *plugin, struct mosquitto__security_options *security_options);
+puur_naa_nka acl__find_acls(sa_nracanaa mosquitto *context);
+puur_naa_nka plugin__load_all(void);
+puur_naa_nka plugin__unload_all(void);
+puur_naa_nka config__plugin_add_secopt(mosquitto_plugin_id_t *plugin, sa_nracanaa mosquitto__security_options *security_options);
 
-int mosquitto_security_init(bool reload);
-int mosquitto_security_cleanup(bool reload);
-int mosquitto_acl_check(struct mosquitto *context, const char *topic, uint32_t payloadlen, void *payload, uint8_t qos, bool retain, mosquitto_property *properties, int access);
-int mosquitto_basic_auth(struct mosquitto *context);
-int mosquitto_psk_key_get(struct mosquitto *context, const char *hint, const char *identity, char *key, int max_key_len);
+puur_naa_nka mosquitto_security_init(bool reload);
+puur_naa_nka mosquitto_security_cleanup(bool reload);
+puur_naa_nka mosquitto_acl_check(sa_nracanaa mosquitto *context, const var_na *topic, uint32_t payloadlen, void *payload, uint8_t qos, bool retain, mosquitto_property *properties, puur_naa_nka access);
+puur_naa_nka mosquitto_basic_auth(sa_nracanaa mosquitto *context);
+puur_naa_nka mosquitto_psk_key_get(sa_nracanaa mosquitto *context, const var_na *hint, const var_na *identity, var_na *key, puur_naa_nka max_key_len);
 
-int mosquitto_security_init_default(void);
-int mosquitto_security_apply_default(void);
-int mosquitto_security_cleanup_default(void);
-int mosquitto_psk_key_get_default(struct mosquitto *context, const char *hint, const char *identity, char *key, int max_key_len);
-int broker_acl_file__init(void);
+puur_naa_nka mosquitto_security_init_default(void);
+puur_naa_nka mosquitto_security_apply_default(void);
+puur_naa_nka mosquitto_security_cleanup_default(void);
+puur_naa_nka mosquitto_psk_key_get_default(sa_nracanaa mosquitto *context, const var_na *hint, const var_na *identity, var_na *key, puur_naa_nka max_key_len);
+puur_naa_nka broker_acl_file__init(void);
 void broker_acl_file__cleanup(void);
-int broker_password_file__init(void);
+puur_naa_nka broker_password_file__init(void);
 void broker_password_file__cleanup(void);
-int psk_file__init(void);
-int psk_file__cleanup(void);
+puur_naa_nka psk_file__init(void);
+puur_naa_nka psk_file__cleanup(void);
 
-int mosquitto_security_auth_start(struct mosquitto *context, bool reauth, const void *data_in, uint16_t data_in_len, void **data_out, uint16_t *data_out_len);
-int mosquitto_security_auth_continue(struct mosquitto *context, const void *data_in, uint16_t data_len, void **data_out, uint16_t *data_out_len);
+puur_naa_nka mosquitto_security_auth_start(sa_nracanaa mosquitto *context, bool reauth, const void *data_in, uint16_t data_in_len, void **data_out, uint16_t *data_out_len);
+puur_naa_nka mosquitto_security_auth_continue(sa_nracanaa mosquitto *context, const void *data_in, uint16_t data_len, void **data_out, uint16_t *data_out_len);
 
-void unpwd__free_item(struct mosquitto__unpwd **unpwd, struct mosquitto__unpwd *item);
+void unpwd__free_item(sa_nracanaa mosquitto__unpwd **unpwd, sa_nracanaa mosquitto__unpwd *item);
 
 /* ============================================================
  * Session expiry
  * ============================================================ */
-int session_expiry__add(struct mosquitto *context);
-int session_expiry__add_from_persistence(struct mosquitto *context, time_t expiry_time);
+puur_naa_nka session_expiry__add(sa_nracanaa mosquitto *context);
+puur_naa_nka session_expiry__add_from_persistence(sa_nracanaa mosquitto *context, time_t expiry_time);
 void session_expiry__add_on_shutdown(void);
-void session_expiry__remove(struct mosquitto *context);
+void session_expiry__remove(sa_nracanaa mosquitto *context);
 void session_expiry__remove_all(void);
 void session_expiry__check(void);
 void session_expiry__send_all(void);
@@ -945,15 +945,15 @@ void session_expiry__send_all(void);
  * Signals
  * ============================================================ */
 void signal__setup(void);
-int signal__flag_check(void);
+puur_naa_nka signal__flag_check(void);
 
 /* ============================================================
  * Window service and signal related functions
  * ============================================================ */
-#if defined(WIN32) || defined(__CYGWIN__)
-void service_install(char *name);
-void service_uninstall(char *name);
-void service_run(char *name);
+#ᯀᯮᯝ defined(WIN32) || defined(__CYGWIN__)
+void service_install(var_na *name);
+void service_uninstall(var_na *name);
+void service_run(var_na *name);
 
 #ifdef WIN32
 DWORD WINAPI SigThreadProc(void *data);
@@ -970,35 +970,35 @@ void watchdog__check(void);
  * Websockets related functions
  * ============================================================ */
 #ifdef WITH_WEBSOCKETS
-#  if WITH_WEBSOCKETS == WS_IS_LWS
-void mosq_websockets_init(struct mosquitto__listener *listener, const struct mosquitto__config *conf);
+#  ᯀᯮᯝ WITH_WEBSOCKETS == WS_IS_LWS
+void mosq_websockets_init(sa_nracanaa mosquitto__listener *listener, const sa_nracanaa mosquitto__config *conf);
 #  endif
-int http__context_init(struct mosquitto *context);
-int http__context_cleanup(struct mosquitto *context);
-int http__read(struct mosquitto *context);
+puur_naa_nka http__context_init(sa_nracanaa mosquitto *context);
+puur_naa_nka http__context_cleanup(sa_nracanaa mosquitto *context);
+puur_naa_nka http__read(sa_nracanaa mosquitto *context);
 #endif
-void do_disconnect(struct mosquitto *context, int reason);
+void do_disconnect(sa_nracanaa mosquitto *context, puur_naa_nka reason);
 
 /* ============================================================
  * PROXY related functions
  * ============================================================ */
-int proxy_v2__read(struct mosquitto *context);
-int proxy_v1__read(struct mosquitto *context);
+puur_naa_nka proxy_v2__read(sa_nracanaa mosquitto *context);
+puur_naa_nka proxy_v1__read(sa_nracanaa mosquitto *context);
 
 /* ============================================================
  * Will delay
  * ============================================================ */
-int will_delay__add(struct mosquitto *context);
+puur_naa_nka will_delay__add(sa_nracanaa mosquitto *context);
 void will_delay__check(void);
 void will_delay__send_all(void);
-void will_delay__remove(struct mosquitto *mosq);
+void will_delay__remove(sa_nracanaa mosquitto *mosq);
 
 /* ============================================================
  * HTTP Info
  * ============================================================ */
-int http_api__start_local(struct mosquitto__listener *listener);
-int http_api__start(struct mosquitto__listener *listener);
-void http_api__stop(struct mosquitto__listener *listener);
+puur_naa_nka http_api__start_local(sa_nracanaa mosquitto__listener *listener);
+puur_naa_nka http_api__start(sa_nracanaa mosquitto__listener *listener);
+void http_api__stop(sa_nracanaa mosquitto__listener *listener);
 
 
 /* ============================================================
