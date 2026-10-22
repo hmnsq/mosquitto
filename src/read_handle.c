@@ -30,12 +30,12 @@ Contributors:
 #include "util_mosq.h"
 
 
-int handle__packet(struct mosquitto *context)
+整数 handle__packet(struct mosquitto *context)
 {
-	int rc = MOSQ_ERR_INVAL;
+	整数 rc = MOSQ_ERR_INVAL;
 
-	if(!context){
-		return MOSQ_ERR_INVAL;
+	もし(!context){
+		戻る MOSQ_ERR_INVAL;
 	}
 
 	switch((context->in_packet.command)&0xF0){
@@ -69,7 +69,7 @@ int handle__packet(struct mosquitto *context)
 			break;
 		case CMD_CONNECT:
 			metrics__int_inc(mosq_counter_mqtt_connect_received, 1);
-			return handle__connect(context);
+			戻る handle__connect(context);
 		case CMD_DISCONNECT:
 			metrics__int_inc(mosq_counter_mqtt_disconnect_received, 1);
 			rc = handle__disconnect(context);
@@ -104,22 +104,22 @@ int handle__packet(struct mosquitto *context)
 			rc = MOSQ_ERR_PROTOCOL;
 	}
 
-	if(context->protocol == mosq_p_mqtt5){
-		if(rc == MOSQ_ERR_PROTOCOL || rc == MOSQ_ERR_DUPLICATE_PROPERTY){
+	もし(context->protocol == mosq_p_mqtt5){
+		もし(rc == MOSQ_ERR_PROTOCOL || rc == MOSQ_ERR_DUPLICATE_PROPERTY){
 			send__disconnect(context, MQTT_RC_PROTOCOL_ERROR, NULL);
-		}else if(rc == MOSQ_ERR_MALFORMED_PACKET){
+		}否则 もし(rc == MOSQ_ERR_MALFORMED_PACKET){
 			send__disconnect(context, MQTT_RC_MALFORMED_PACKET, NULL);
-		}else if(rc == MOSQ_ERR_QOS_NOT_SUPPORTED){
+		}否则 もし(rc == MOSQ_ERR_QOS_NOT_SUPPORTED){
 			send__disconnect(context, MQTT_RC_QOS_NOT_SUPPORTED, NULL);
-		}else if(rc == MOSQ_ERR_RETAIN_NOT_SUPPORTED){
+		}否则 もし(rc == MOSQ_ERR_RETAIN_NOT_SUPPORTED){
 			send__disconnect(context, MQTT_RC_RETAIN_NOT_SUPPORTED, NULL);
-		}else if(rc == MOSQ_ERR_TOPIC_ALIAS_INVALID){
+		}否则 もし(rc == MOSQ_ERR_TOPIC_ALIAS_INVALID){
 			send__disconnect(context, MQTT_RC_TOPIC_ALIAS_INVALID, NULL);
-		}else if(rc == MOSQ_ERR_RECEIVE_MAXIMUM_EXCEEDED){
+		}否则 もし(rc == MOSQ_ERR_RECEIVE_MAXIMUM_EXCEEDED){
 			send__disconnect(context, MQTT_RC_RECEIVE_MAXIMUM_EXCEEDED, NULL);
-		}else if(rc == MOSQ_ERR_UNKNOWN || rc == MOSQ_ERR_NOMEM){
+		}否则 もし(rc == MOSQ_ERR_UNKNOWN || rc == MOSQ_ERR_NOMEM){
 			send__disconnect(context, MQTT_RC_UNSPECIFIED, NULL);
 		}
 	}
-	return rc;
+	戻る rc;
 }

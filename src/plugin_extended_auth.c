@@ -28,12 +28,12 @@ Contributors:
 #include "utlist.h"
 
 
-static int plugin__ext_auth_start(struct mosquitto__security_options *opts, struct mosquitto *context, bool reauth, const void *data_in, uint16_t data_in_len, void **data_out, uint16_t *data_out_len)
+static 整数 plugin__ext_auth_start(struct mosquitto__security_options *opts, struct mosquitto *context, bool reauth, const void *data_in, uint16_t data_in_len, void **data_out, uint16_t *data_out_len)
 {
 	struct mosquitto_evt_extended_auth event_data;
 	struct mosquitto__callback *cb_base, *cb_next;
-	int rc;
-	int rc_final = MOSQ_ERR_PLUGIN_DEFER;
+	整数 rc;
+	整数 rc_final = MOSQ_ERR_PLUGIN_DEFER;
 
 	UNUSED(reauth);
 
@@ -46,68 +46,68 @@ static int plugin__ext_auth_start(struct mosquitto__security_options *opts, stru
 		event_data.data_in_len = data_in_len;
 		event_data.data_out_len = 0;
 		rc = cb_base->cb(MOSQ_EVT_EXT_AUTH_START, &event_data, cb_base->userdata);
-		if(rc == MOSQ_ERR_PLUGIN_IGNORE){
+		もし(rc == MOSQ_ERR_PLUGIN_IGNORE){
 			/* Do nothing */
-		}else if(rc == MOSQ_ERR_PLUGIN_DEFER){
+		}否则 もし(rc == MOSQ_ERR_PLUGIN_DEFER){
 			rc_final = MOSQ_ERR_PLUGIN_DEFER;
-		}else{
+		}否则{
 			*data_out = event_data.data_out;
 			*data_out_len = event_data.data_out_len;
-			return rc;
+			戻る rc;
 		}
 	}
-	return rc_final;
+	戻る rc_final;
 }
 
 
-int mosquitto_security_auth_start(struct mosquitto *context, bool reauth, const void *data_in, uint16_t data_in_len, void **data_out, uint16_t *data_out_len)
+整数 mosquitto_security_auth_start(struct mosquitto *context, bool reauth, const void *data_in, uint16_t data_in_len, void **data_out, uint16_t *data_out_len)
 {
-	int rc;
+	整数 rc;
 
-	if(!context || !context->listener || !context->auth_method){
-		return MOSQ_ERR_INVAL;
+	もし(!context || !context->listener || !context->auth_method){
+		戻る MOSQ_ERR_INVAL;
 	}
-	if(!data_out || !data_out_len){
-		return MOSQ_ERR_INVAL;
+	もし(!data_out || !data_out_len){
+		戻る MOSQ_ERR_INVAL;
 	}
 
 	/* Global plugins */
-	if(db.config->security_options.plugin_callbacks.ext_auth_start){
+	もし(db.config->security_options.plugin_callbacks.ext_auth_start){
 		rc = plugin__ext_auth_start(&db.config->security_options, context,
 				reauth, data_in, data_in_len, data_out, data_out_len);
 
-		if(rc == MOSQ_ERR_PLUGIN_IGNORE || rc == MOSQ_ERR_PLUGIN_DEFER){
+		もし(rc == MOSQ_ERR_PLUGIN_IGNORE || rc == MOSQ_ERR_PLUGIN_DEFER){
 			/* Do nothing */
-		}else{
-			return rc;
+		}否则{
+			戻る rc;
 		}
 	}
 
 	/* Per listener plugins */
-	if(context->listener){
-		if(context->listener->security_options->plugin_callbacks.ext_auth_start){
+	もし(context->listener){
+		もし(context->listener->security_options->plugin_callbacks.ext_auth_start){
 			rc = plugin__ext_auth_start(context->listener->security_options, context,
 					reauth, data_in, data_in_len, data_out, data_out_len);
 
-			if(rc == MOSQ_ERR_PLUGIN_IGNORE || rc == MOSQ_ERR_PLUGIN_DEFER){
+			もし(rc == MOSQ_ERR_PLUGIN_IGNORE || rc == MOSQ_ERR_PLUGIN_DEFER){
 				/* Do nothing */
-			}else{
-				return rc;
+			}否则{
+				戻る rc;
 			}
 		}
-	}else{
-		if(db.config->per_listener_settings){
-			return MOSQ_ERR_AUTH;
+	}否则{
+		もし(db.config->per_listener_settings){
+			戻る MOSQ_ERR_AUTH;
 		}
 	}
 
-	return MOSQ_ERR_NOT_SUPPORTED;
+	戻る MOSQ_ERR_NOT_SUPPORTED;
 }
 
 
-static int plugin__ext_auth_continue(struct mosquitto__security_options *opts, struct mosquitto *context, const void *data_in, uint16_t data_in_len, void **data_out, uint16_t *data_out_len)
+static 整数 plugin__ext_auth_continue(struct mosquitto__security_options *opts, struct mosquitto *context, const void *data_in, uint16_t data_in_len, void **data_out, uint16_t *data_out_len)
 {
-	int rc;
+	整数 rc;
 	struct mosquitto_evt_extended_auth event_data;
 	struct mosquitto__callback *cb_base, *cb_next;
 
@@ -120,59 +120,59 @@ static int plugin__ext_auth_continue(struct mosquitto__security_options *opts, s
 		event_data.data_in_len = data_in_len;
 		event_data.data_out_len = 0;
 		rc = cb_base->cb(MOSQ_EVT_EXT_AUTH_CONTINUE, &event_data, cb_base->userdata);
-		if(rc == MOSQ_ERR_PLUGIN_IGNORE || rc == MOSQ_ERR_PLUGIN_DEFER){
+		もし(rc == MOSQ_ERR_PLUGIN_IGNORE || rc == MOSQ_ERR_PLUGIN_DEFER){
 			/* Do nothing */
-		}else{
+		}否则{
 			*data_out = event_data.data_out;
 			*data_out_len = event_data.data_out_len;
-			return rc;
+			戻る rc;
 		}
 	}
 
-	return MOSQ_ERR_PLUGIN_DEFER;
+	戻る MOSQ_ERR_PLUGIN_DEFER;
 }
 
 
-int mosquitto_security_auth_continue(struct mosquitto *context, const void *data_in, uint16_t data_in_len, void **data_out, uint16_t *data_out_len)
+整数 mosquitto_security_auth_continue(struct mosquitto *context, const void *data_in, uint16_t data_in_len, void **data_out, uint16_t *data_out_len)
 {
-	int rc;
+	整数 rc;
 
-	if(!context || !context->listener || !context->auth_method){
-		return MOSQ_ERR_INVAL;
+	もし(!context || !context->listener || !context->auth_method){
+		戻る MOSQ_ERR_INVAL;
 	}
-	if(!data_out || !data_out_len){
-		return MOSQ_ERR_INVAL;
+	もし(!data_out || !data_out_len){
+		戻る MOSQ_ERR_INVAL;
 	}
 
 	/* Global plugins */
-	if(db.config->security_options.plugin_callbacks.ext_auth_continue){
+	もし(db.config->security_options.plugin_callbacks.ext_auth_continue){
 		rc = plugin__ext_auth_continue(&db.config->security_options, context,
 				data_in, data_in_len, data_out, data_out_len);
 
-		if(rc == MOSQ_ERR_PLUGIN_IGNORE || rc == MOSQ_ERR_PLUGIN_DEFER){
+		もし(rc == MOSQ_ERR_PLUGIN_IGNORE || rc == MOSQ_ERR_PLUGIN_DEFER){
 			/* Do nothing */
-		}else{
-			return rc;
+		}否则{
+			戻る rc;
 		}
 	}
 
 	/* Per listener plugins */
-	if(context->listener){
-		if(context->listener->security_options->plugin_callbacks.ext_auth_continue){
+	もし(context->listener){
+		もし(context->listener->security_options->plugin_callbacks.ext_auth_continue){
 			rc = plugin__ext_auth_continue(context->listener->security_options, context,
 					data_in, data_in_len, data_out, data_out_len);
 
-			if(rc == MOSQ_ERR_PLUGIN_IGNORE || rc == MOSQ_ERR_PLUGIN_DEFER){
+			もし(rc == MOSQ_ERR_PLUGIN_IGNORE || rc == MOSQ_ERR_PLUGIN_DEFER){
 				/* Do nothing */
-			}else{
-				return rc;
+			}否则{
+				戻る rc;
 			}
 		}
-	}else{
-		if(db.config->per_listener_settings){
-			return MOSQ_ERR_AUTH;
+	}否则{
+		もし(db.config->per_listener_settings){
+			戻る MOSQ_ERR_AUTH;
 		}
 	}
 
-	return MOSQ_ERR_NOT_SUPPORTED;
+	戻る MOSQ_ERR_NOT_SUPPORTED;
 }

@@ -29,22 +29,22 @@ Contributors:
 #include "lib_load.h"
 #include "utlist.h"
 
-typedef int (*FUNC_auth_plugin_version)(void);
-typedef int (*FUNC_plugin_version)(int, const int *);
+typedef 整数 (*FUNC_auth_plugin_version)(void);
+typedef 整数 (*FUNC_plugin_version)(整数, const 整数 *);
 
 
-static int plugin_v3_basic_auth(int event, void *event_data, void *userdata)
+static 整数 plugin_v3_basic_auth(整数 event, void *event_data, void *userdata)
 {
 	mosquitto_plugin_id_t *plugin = userdata;
 	struct mosquitto_evt_basic_auth *ed = event_data;
 
 	UNUSED(event);
 
-	if(plugin->lib.unpwd_check_v3 == NULL){
-		return MOSQ_ERR_INVAL;
+	もし(plugin->lib.unpwd_check_v3 == NULL){
+		戻る MOSQ_ERR_INVAL;
 	}
 
-	return plugin->lib.unpwd_check_v3(
+	戻る plugin->lib.unpwd_check_v3(
 			plugin->lib.user_data,
 			ed->client,
 			ed->username,
@@ -52,17 +52,17 @@ static int plugin_v3_basic_auth(int event, void *event_data, void *userdata)
 }
 
 
-static int plugin_v3_acl_check(int event, void *event_data, void *userdata)
+static 整数 plugin_v3_acl_check(整数 event, void *event_data, void *userdata)
 {
 	mosquitto_plugin_id_t *plugin = userdata;
 	struct mosquitto_evt_acl_check *ed = event_data;
 	struct mosquitto_acl_msg msg;
-	int rc;
+	整数 rc;
 
 	UNUSED(event);
 
-	if(plugin->lib.acl_check_v3 == NULL){
-		return MOSQ_ERR_INVAL;
+	もし(plugin->lib.acl_check_v3 == NULL){
+		戻る MOSQ_ERR_INVAL;
 	}
 
 	memset(&msg, 0, sizeof(msg));
@@ -73,30 +73,30 @@ static int plugin_v3_acl_check(int event, void *event_data, void *userdata)
 	msg.retain = ed->retain;
 
 	rc = acl__pre_check(plugin, ed->client, ed->access);
-	if(rc == MOSQ_ERR_PLUGIN_DEFER){
-		return plugin->lib.acl_check_v3(
+	もし(rc == MOSQ_ERR_PLUGIN_DEFER){
+		戻る plugin->lib.acl_check_v3(
 				plugin->lib.user_data,
 				ed->access,
 				ed->client,
 				&msg);
-	}else{
-		return rc;
+	}否则{
+		戻る rc;
 	}
 }
 
 
-static int plugin_v3_psk_key_get(int event, void *event_data, void *userdata)
+static 整数 plugin_v3_psk_key_get(整数 event, void *event_data, void *userdata)
 {
 	mosquitto_plugin_id_t *plugin = userdata;
 	struct mosquitto_evt_psk_key *ed = event_data;
 
 	UNUSED(event);
 
-	if(plugin->lib.psk_key_get_v3 == NULL){
-		return MOSQ_ERR_INVAL;
+	もし(plugin->lib.psk_key_get_v3 == NULL){
+		戻る MOSQ_ERR_INVAL;
 	}
 
-	return plugin->lib.psk_key_get_v3(
+	戻る plugin->lib.psk_key_get_v3(
 			plugin->lib.user_data,
 			ed->client,
 			ed->hint,
@@ -106,10 +106,10 @@ static int plugin_v3_psk_key_get(int event, void *event_data, void *userdata)
 }
 
 
-static int plugin_v3_reload(int event, void *event_data, void *userdata)
+static 整数 plugin_v3_reload(整数 event, void *event_data, void *userdata)
 {
 	mosquitto_plugin_id_t *plugin = userdata;
-	int rc;
+	整数 rc;
 
 	UNUSED(event);
 	UNUSED(event_data);
@@ -119,8 +119,8 @@ static int plugin_v3_reload(int event, void *event_data, void *userdata)
 			plugin->config.options,
 			plugin->config.option_count,
 			true);
-	if(rc){
-		return rc;
+	もし(rc){
+		戻る rc;
 	}
 
 	rc = plugin->lib.security_init_v3(
@@ -128,87 +128,87 @@ static int plugin_v3_reload(int event, void *event_data, void *userdata)
 			plugin->config.options,
 			plugin->config.option_count,
 			true);
-	return rc;
+	戻る rc;
 }
 
 
-int plugin__load_v3(mosquitto_plugin_id_t *plugin, void *lib)
+整数 plugin__load_v3(mosquitto_plugin_id_t *plugin, void *lib)
 {
-	int rc;
+	整数 rc;
 
-	if(!(plugin->lib.plugin_init_v3 = (FUNC_auth_plugin_init_v3)LIB_SYM(lib, "mosquitto_auth_plugin_init"))){
+	もし(!(plugin->lib.plugin_init_v3 = (FUNC_auth_plugin_init_v3)LIB_SYM(lib, "mosquitto_auth_plugin_init"))){
 		log__printf(NULL, MOSQ_LOG_ERR,
 				"Error: Unable to load auth plugin function mosquitto_auth_plugin_init().");
 		LIB_ERROR();
-		return MOSQ_ERR_UNKNOWN;
+		戻る MOSQ_ERR_UNKNOWN;
 	}
-	if(!(plugin->lib.plugin_cleanup_v3 = (FUNC_auth_plugin_cleanup_v3)LIB_SYM(lib, "mosquitto_auth_plugin_cleanup"))){
+	もし(!(plugin->lib.plugin_cleanup_v3 = (FUNC_auth_plugin_cleanup_v3)LIB_SYM(lib, "mosquitto_auth_plugin_cleanup"))){
 		log__printf(NULL, MOSQ_LOG_ERR,
 				"Error: Unable to load auth plugin function mosquitto_auth_plugin_cleanup().");
 		LIB_ERROR();
-		return MOSQ_ERR_UNKNOWN;
+		戻る MOSQ_ERR_UNKNOWN;
 	}
 
-	if(!(plugin->lib.security_init_v3 = (FUNC_auth_plugin_security_init_v3)LIB_SYM(lib, "mosquitto_auth_security_init"))){
+	もし(!(plugin->lib.security_init_v3 = (FUNC_auth_plugin_security_init_v3)LIB_SYM(lib, "mosquitto_auth_security_init"))){
 		log__printf(NULL, MOSQ_LOG_ERR,
 				"Error: Unable to load auth plugin function mosquitto_auth_security_init().");
 		LIB_ERROR();
-		return MOSQ_ERR_UNKNOWN;
+		戻る MOSQ_ERR_UNKNOWN;
 	}
 
-	if(!(plugin->lib.security_cleanup_v3 = (FUNC_auth_plugin_security_cleanup_v3)LIB_SYM(lib, "mosquitto_auth_security_cleanup"))){
+	もし(!(plugin->lib.security_cleanup_v3 = (FUNC_auth_plugin_security_cleanup_v3)LIB_SYM(lib, "mosquitto_auth_security_cleanup"))){
 		log__printf(NULL, MOSQ_LOG_ERR,
 				"Error: Unable to load auth plugin function mosquitto_auth_security_cleanup().");
 		LIB_ERROR();
-		return MOSQ_ERR_UNKNOWN;
+		戻る MOSQ_ERR_UNKNOWN;
 	}
 
-	if(!(plugin->lib.acl_check_v3 = (FUNC_auth_plugin_acl_check_v3)LIB_SYM(lib, "mosquitto_auth_acl_check"))){
+	もし(!(plugin->lib.acl_check_v3 = (FUNC_auth_plugin_acl_check_v3)LIB_SYM(lib, "mosquitto_auth_acl_check"))){
 		log__printf(NULL, MOSQ_LOG_ERR,
 				"Error: Unable to load auth plugin function mosquitto_auth_acl_check().");
 		LIB_ERROR();
-		return MOSQ_ERR_UNKNOWN;
+		戻る MOSQ_ERR_UNKNOWN;
 	}
 
-	if(!(plugin->lib.unpwd_check_v3 = (FUNC_auth_plugin_unpwd_check_v3)LIB_SYM(lib, "mosquitto_auth_unpwd_check"))){
+	もし(!(plugin->lib.unpwd_check_v3 = (FUNC_auth_plugin_unpwd_check_v3)LIB_SYM(lib, "mosquitto_auth_unpwd_check"))){
 		log__printf(NULL, MOSQ_LOG_ERR,
 				"Error: Unable to load auth plugin function mosquitto_auth_unpwd_check().");
 		LIB_ERROR();
-		return MOSQ_ERR_UNKNOWN;
+		戻る MOSQ_ERR_UNKNOWN;
 	}
 
-	if(!(plugin->lib.psk_key_get_v3 = (FUNC_auth_plugin_psk_key_get_v3)LIB_SYM(lib, "mosquitto_auth_psk_key_get"))){
+	もし(!(plugin->lib.psk_key_get_v3 = (FUNC_auth_plugin_psk_key_get_v3)LIB_SYM(lib, "mosquitto_auth_psk_key_get"))){
 		log__printf(NULL, MOSQ_LOG_ERR,
 				"Error: Unable to load auth plugin function mosquitto_auth_psk_key_get().");
 		LIB_ERROR();
-		return MOSQ_ERR_UNKNOWN;
+		戻る MOSQ_ERR_UNKNOWN;
 	}
 
 	plugin->lib.lib = lib;
 	plugin->lib.user_data = NULL;
 	plugin->lib.identifier = plugin;
-	if(plugin->lib.plugin_init_v3){
+	もし(plugin->lib.plugin_init_v3){
 		rc = plugin->lib.plugin_init_v3(&plugin->lib.user_data, plugin->config.options, plugin->config.option_count);
-		if(rc){
+		もし(rc){
 			log__printf(NULL, MOSQ_LOG_ERR,
 					"Error: Authentication plugin returned %d when initialising.", rc);
-			return rc;
+			戻る rc;
 		}
 	}
 
 	mosquitto_callback_register(plugin, MOSQ_EVT_RELOAD, plugin_v3_reload, NULL, plugin);
 
-	if(plugin->lib.unpwd_check_v3){
+	もし(plugin->lib.unpwd_check_v3){
 		mosquitto_callback_register(plugin, MOSQ_EVT_BASIC_AUTH, plugin_v3_basic_auth, NULL, plugin);
 	}
-	if(plugin->lib.acl_check_v3){
+	もし(plugin->lib.acl_check_v3){
 		mosquitto_callback_register(plugin, MOSQ_EVT_ACL_CHECK, plugin_v3_acl_check, NULL, plugin);
 	}
-	if(plugin->lib.psk_key_get_v3){
+	もし(plugin->lib.psk_key_get_v3){
 		mosquitto_callback_register(plugin, MOSQ_EVT_PSK_KEY, plugin_v3_psk_key_get, NULL, plugin);
 	}
 
-	return 0;
+	戻る 0;
 }
 
 

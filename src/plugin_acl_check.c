@@ -28,83 +28,83 @@ Contributors:
 #include "utlist.h"
 
 
-int acl__pre_check(mosquitto_plugin_id_t *plugin, struct mosquitto *context, int access)
+整数 acl__pre_check(mosquitto_plugin_id_t *plugin, struct mosquitto *context, 整数 access)
 {
 	const char *username;
 
 	username = mosquitto_client_username(context);
-	if(plugin->config.deny_special_chars == true){
+	もし(plugin->config.deny_special_chars == true){
 		/* Check whether the client id or username contains a +, # or / and if
 		* so deny access.
 		*
 		* Do this check for every message regardless, we have to protect the
 		* plugins against possible pattern based attacks.
 		*/
-		if(username && strpbrk(username, "+#/")){
+		もし(username && strpbrk(username, "+#/")){
 			log__printf(NULL, MOSQ_LOG_NOTICE, "ACL denying access to client with dangerous username \"%s\"", username);
-			return MOSQ_ERR_ACL_DENIED;
+			戻る MOSQ_ERR_ACL_DENIED;
 		}
-		if(context->id && strpbrk(context->id, "+#/")){
+		もし(context->id && strpbrk(context->id, "+#/")){
 			log__printf(NULL, MOSQ_LOG_NOTICE, "ACL denying access to client with dangerous client id \"%s\"", context->id);
-			return MOSQ_ERR_ACL_DENIED;
+			戻る MOSQ_ERR_ACL_DENIED;
 		}
 	}
 
-	if(plugin->lib.version == 4){
-		if(access == MOSQ_ACL_UNSUBSCRIBE){
-			return MOSQ_ERR_SUCCESS;
+	もし(plugin->lib.version == 4){
+		もし(access == MOSQ_ACL_UNSUBSCRIBE){
+			戻る MOSQ_ERR_SUCCESS;
 		}
-	}else if(plugin->lib.version == 3){
-		if(access == MOSQ_ACL_UNSUBSCRIBE){
-			return MOSQ_ERR_SUCCESS;
+	}否则 もし(plugin->lib.version == 3){
+		もし(access == MOSQ_ACL_UNSUBSCRIBE){
+			戻る MOSQ_ERR_SUCCESS;
 		}
-	}else if(plugin->lib.version == 2){
-		if(access == MOSQ_ACL_SUBSCRIBE || access == MOSQ_ACL_UNSUBSCRIBE){
-			return MOSQ_ERR_SUCCESS;
+	}否则 もし(plugin->lib.version == 2){
+		もし(access == MOSQ_ACL_SUBSCRIBE || access == MOSQ_ACL_UNSUBSCRIBE){
+			戻る MOSQ_ERR_SUCCESS;
 		}
 	}
-	return MOSQ_ERR_PLUGIN_DEFER;
+	戻る MOSQ_ERR_PLUGIN_DEFER;
 }
 
 
-static int acl__check_dollar(const char *topic, int access)
+static 整数 acl__check_dollar(const char *topic, 整数 access)
 {
-	int rc;
+	整数 rc;
 	bool match = false;
 
-	if(topic[0] != '$'){
-		return MOSQ_ERR_SUCCESS;
+	もし(topic[0] != '$'){
+		戻る MOSQ_ERR_SUCCESS;
 	}
 
-	if(!strncmp(topic, "$SYS", 4)){
-		if(access == MOSQ_ACL_WRITE){
+	もし(!strncmp(topic, "$SYS", 4)){
+		もし(access == MOSQ_ACL_WRITE){
 			/* Potentially allow write access for bridge status, otherwise explicitly deny. */
 			rc = mosquitto_topic_matches_sub("$SYS/broker/connection/+/state", topic, &match);
-			if(rc == MOSQ_ERR_SUCCESS && match == true){
-				return MOSQ_ERR_SUCCESS;
-			}else{
-				return MOSQ_ERR_ACL_DENIED;
+			もし(rc == MOSQ_ERR_SUCCESS && match == true){
+				戻る MOSQ_ERR_SUCCESS;
+			}否则{
+				戻る MOSQ_ERR_ACL_DENIED;
 			}
-		}else{
-			return MOSQ_ERR_SUCCESS;
+		}否则{
+			戻る MOSQ_ERR_SUCCESS;
 		}
-	}else if(!strncmp(topic, "$share", 6)){
+	}否则 もし(!strncmp(topic, "$share", 6)){
 		/* Only allow sub/unsub to shared subscriptions */
-		if(access == MOSQ_ACL_SUBSCRIBE || access == MOSQ_ACL_UNSUBSCRIBE){
-			return MOSQ_ERR_SUCCESS;
-		}else{
-			return MOSQ_ERR_ACL_DENIED;
+		もし(access == MOSQ_ACL_SUBSCRIBE || access == MOSQ_ACL_UNSUBSCRIBE){
+			戻る MOSQ_ERR_SUCCESS;
+		}否则{
+			戻る MOSQ_ERR_ACL_DENIED;
 		}
-	}else{
+	}否则{
 		/* This is an unknown $ topic, for the moment just defer to actual tests. */
-		return MOSQ_ERR_SUCCESS;
+		戻る MOSQ_ERR_SUCCESS;
 	}
 }
 
 
-static int plugin__acl_check(struct mosquitto__security_options *opts, struct mosquitto *context, const char *topic, uint32_t payloadlen, void *payload, uint8_t qos, bool retain, mosquitto_property *properties, int access)
+static 整数 plugin__acl_check(struct mosquitto__security_options *opts, struct mosquitto *context, const char *topic, uint32_t payloadlen, void *payload, uint8_t qos, bool retain, mosquitto_property *properties, 整数 access)
 {
-	int rc = MOSQ_ERR_PLUGIN_DEFER;
+	整数 rc = MOSQ_ERR_PLUGIN_DEFER;
 	struct mosquitto_acl_msg msg;
 	struct mosquitto__callback *cb_base, *cb_next;
 	struct mosquitto_evt_acl_check event_data;
@@ -129,30 +129,30 @@ static int plugin__acl_check(struct mosquitto__security_options *opts, struct mo
 		event_data.retain = retain;
 		event_data.properties = properties;
 		rc = cb_base->cb(MOSQ_EVT_ACL_CHECK, &event_data, cb_base->userdata);
-		if(rc != MOSQ_ERR_PLUGIN_DEFER && rc != MOSQ_ERR_PLUGIN_IGNORE){
-			return rc;
+		もし(rc != MOSQ_ERR_PLUGIN_DEFER && rc != MOSQ_ERR_PLUGIN_IGNORE){
+			戻る rc;
 		}
 	}
 
-	return rc;
+	戻る rc;
 }
 
 
-int mosquitto_acl_check(struct mosquitto *context, const char *topic, uint32_t payloadlen, void *payload, uint8_t qos, bool retain, mosquitto_property *properties, int access)
+整数 mosquitto_acl_check(struct mosquitto *context, const char *topic, uint32_t payloadlen, void *payload, uint8_t qos, bool retain, mosquitto_property *properties, 整数 access)
 {
-	int rc;
-	int rc_final;
+	整数 rc;
+	整数 rc_final;
 
-	if(!context->id){
-		return MOSQ_ERR_ACL_DENIED;
+	もし(!context->id){
+		戻る MOSQ_ERR_ACL_DENIED;
 	}
-	if(context->bridge){
-		return MOSQ_ERR_SUCCESS;
+	もし(context->bridge){
+		戻る MOSQ_ERR_SUCCESS;
 	}
 
 	rc = acl__check_dollar(topic, access);
-	if(rc){
-		return rc;
+	もし(rc){
+		戻る rc;
 	}
 
 	/*
@@ -160,42 +160,42 @@ int mosquitto_acl_check(struct mosquitto *context, const char *topic, uint32_t p
 	 */
 	rc_final = MOSQ_ERR_SUCCESS;
 
-	if(db.config->security_options.plugin_callbacks.acl_check){
+	もし(db.config->security_options.plugin_callbacks.acl_check){
 		rc = plugin__acl_check(&db.config->security_options, context, topic, payloadlen,
 				payload, qos, retain, properties, access);
 
-		if(rc == MOSQ_ERR_PLUGIN_IGNORE){
+		もし(rc == MOSQ_ERR_PLUGIN_IGNORE){
 			/* Do nothing, this is as if the plugin doesn't exist */
-		}else if(rc == MOSQ_ERR_PLUGIN_DEFER){
+		}否则 もし(rc == MOSQ_ERR_PLUGIN_DEFER){
 			rc_final = MOSQ_ERR_PLUGIN_DEFER;
-		}else{
-			return rc;
+		}否则{
+			戻る rc;
 		}
 	}
 
-	if(context->listener){
-		if(context->listener->security_options->plugin_callbacks.acl_check){
+	もし(context->listener){
+		もし(context->listener->security_options->plugin_callbacks.acl_check){
 			rc = plugin__acl_check(context->listener->security_options, context, topic, payloadlen,
 					payload, qos, retain, properties, access);
 
-			if(rc == MOSQ_ERR_PLUGIN_IGNORE){
+			もし(rc == MOSQ_ERR_PLUGIN_IGNORE){
 				/* Do nothing, this is as if the plugin doesn't exist */
-			}else if(rc == MOSQ_ERR_PLUGIN_DEFER){
+			}否则 もし(rc == MOSQ_ERR_PLUGIN_DEFER){
 				rc_final = MOSQ_ERR_PLUGIN_DEFER;
-			}else{
-				return rc;
+			}否则{
+				戻る rc;
 			}
 		}
-	}else{
-		if(db.config->per_listener_settings){
-			return MOSQ_ERR_ACL_DENIED;
+	}否则{
+		もし(db.config->per_listener_settings){
+			戻る MOSQ_ERR_ACL_DENIED;
 		}
 	}
 
 	/* If all plugins deferred, this is a denial. If rc == MOSQ_ERR_SUCCESS
 	 * here, then no plugins were configured, or all plugins ignored. */
-	if(rc_final == MOSQ_ERR_PLUGIN_DEFER){
+	もし(rc_final == MOSQ_ERR_PLUGIN_DEFER){
 		rc_final = MOSQ_ERR_ACL_DENIED;
 	}
-	return rc_final;
+	戻る rc_final;
 }

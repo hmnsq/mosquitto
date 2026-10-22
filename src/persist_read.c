@@ -45,77 +45,77 @@ static long client_count = 0;
 static long subscription_count = 0;
 static long client_msg_count = 0;
 
-static int persist__restore_sub(const struct mosquitto_subscription *sub);
+static 整数 persist__restore_sub(const struct mosquitto_subscription *sub);
 
 static struct mosquitto *persist__find_or_add_context(const char *clientid, uint16_t last_mid)
 {
 	struct mosquitto *context;
 
-	if(!clientid){
-		return NULL;
+	もし(!clientid){
+		戻る NULL;
 	}
 
 	context = NULL;
 	HASH_FIND(hh_id, db.contexts_by_id, clientid, strlen(clientid), context);
-	if(!context){
+	もし(!context){
 		context = context__init();
-		if(!context){
-			return NULL;
+		もし(!context){
+			戻る NULL;
 		}
 		context->id = mosquitto_strdup(clientid);
-		if(!context->id){
+		もし(!context->id){
 			mosquitto_FREE(context);
-			return NULL;
+			戻る NULL;
 		}
 
 		context->clean_start = false;
 
 		context__add_to_by_id(context);
 	}
-	if(last_mid){
+	もし(last_mid){
 		context->last_mid = last_mid;
 	}
-	return context;
+	戻る context;
 }
 
 
-int persist__read_string_len(FILE *db_fptr, char **str, uint16_t len)
+整数 persist__read_string_len(FILE *db_fptr, char **str, uint16_t len)
 {
 	char *s = NULL;
 
-	if(len){
+	もし(len){
 		s = mosquitto_malloc(len+1U);
-		if(!s){
+		もし(!s){
 			log__printf(NULL, MOSQ_LOG_ERR, "Error: Out of memory.");
-			return MOSQ_ERR_NOMEM;
+			戻る MOSQ_ERR_NOMEM;
 		}
-		if(fread(s, 1, len, db_fptr) != len){
+		もし(fread(s, 1, len, db_fptr) != len){
 			mosquitto_FREE(s);
-			return MOSQ_ERR_NOMEM;
+			戻る MOSQ_ERR_NOMEM;
 		}
 		s[len] = '\0';
 	}
 
 	*str = s;
-	return MOSQ_ERR_SUCCESS;
+	戻る MOSQ_ERR_SUCCESS;
 }
 
 
-int persist__read_string(FILE *db_fptr, char **str)
+整数 persist__read_string(FILE *db_fptr, char **str)
 {
 	uint16_t i16temp;
 	uint16_t slen;
 
-	if(fread(&i16temp, 1, sizeof(uint16_t), db_fptr) != sizeof(uint16_t)){
-		return MOSQ_ERR_INVAL;
+	もし(fread(&i16temp, 1, sizeof(uint16_t), db_fptr) != sizeof(uint16_t)){
+		戻る MOSQ_ERR_INVAL;
 	}
 
 	slen = ntohs(i16temp);
-	return persist__read_string_len(db_fptr, str, slen);
+	戻る persist__read_string_len(db_fptr, str, slen);
 }
 
 
-static int persist__client_msg_restore(struct P_client_msg *chunk)
+static 整数 persist__client_msg_restore(struct P_client_msg *chunk)
 {
 	struct mosquitto__client_msg *cmsg;
 	struct mosquitto__base_msg *msg;
@@ -123,21 +123,21 @@ static int persist__client_msg_restore(struct P_client_msg *chunk)
 	struct mosquitto_msg_data *msg_data;
 
 	HASH_FIND(hh, db.msg_store, &chunk->F.store_id, sizeof(chunk->F.store_id), msg);
-	if(!msg){
+	もし(!msg){
 		/* Can't find message - probably expired */
-		return MOSQ_ERR_SUCCESS;
+		戻る MOSQ_ERR_SUCCESS;
 	}
 
 	context = persist__find_or_add_context(chunk->clientid, 0);
-	if(!context){
+	もし(!context){
 		log__printf(NULL, MOSQ_LOG_WARNING, "Warning: Persistence file contains client message with no matching client. File may be corrupt.");
-		return 0;
+		戻る 0;
 	}
 
 	cmsg = mosquitto_calloc(1, sizeof(struct mosquitto__client_msg));
-	if(!cmsg){
+	もし(!cmsg){
 		log__printf(NULL, MOSQ_LOG_ERR, "Error: Out of memory.");
-		return MOSQ_ERR_NOMEM;
+		戻る MOSQ_ERR_NOMEM;
 	}
 
 	cmsg->next = NULL;
@@ -154,153 +154,153 @@ static int persist__client_msg_restore(struct P_client_msg *chunk)
 	cmsg->base_msg = msg;
 	db__msg_store_ref_inc(cmsg->base_msg);
 
-	if(cmsg->data.direction == mosq_md_out){
+	もし(cmsg->data.direction == mosq_md_out){
 		msg_data = &context->msgs_out;
-	}else{
+	}否则{
 		msg_data = &context->msgs_in;
 	}
 
-	if(chunk->F.state == mosq_ms_queued || (chunk->F.qos > 0 && msg_data->inflight_quota == 0)){
+	もし(chunk->F.state == mosq_ms_queued || (chunk->F.qos > 0 && msg_data->inflight_quota == 0)){
 		DL_APPEND(msg_data->queued, cmsg);
 		db__msg_add_to_queued_stats(msg_data, cmsg);
-	}else{
+	}否则{
 		DL_APPEND(msg_data->inflight, cmsg);
-		if(chunk->F.qos > 0 && msg_data->inflight_quota > 0){
+		もし(chunk->F.qos > 0 && msg_data->inflight_quota > 0){
 			msg_data->inflight_quota--;
 		}
 		db__msg_add_to_inflight_stats(msg_data, cmsg);
 	}
 
-	return MOSQ_ERR_SUCCESS;
+	戻る MOSQ_ERR_SUCCESS;
 }
 
 
-static int persist__client_chunk_restore(FILE *db_fptr)
+static 整数 persist__client_chunk_restore(FILE *db_fptr)
 {
-	int rc = 0;
+	整数 rc = 0;
 	struct mosquitto *context;
 	struct P_client chunk;
 
 	memset(&chunk, 0, sizeof(struct P_client));
 
-	if(db_version == 6 || db_version == 5){
+	もし(db_version == 6 || db_version == 5){
 		rc = persist__chunk_client_read_v56(db_fptr, &chunk, db_version);
-	}else{
+	}否则{
 		rc = persist__chunk_client_read_v234(db_fptr, &chunk, db_version);
 	}
-	if(rc > 0){
-		return rc;
-	}else if(rc < 0){
+	もし(rc > 0){
+		戻る rc;
+	}否则 もし(rc < 0){
 		/* Client not loaded, but otherwise not an error */
 		log__printf(NULL, MOSQ_LOG_WARNING, "Warning: Empty client entry found in persistence database, it may be corrupt.");
-		return MOSQ_ERR_SUCCESS;
+		戻る MOSQ_ERR_SUCCESS;
 	}
 
 	context = persist__find_or_add_context(chunk.clientid, chunk.F.last_mid);
-	if(context){
+	もし(context){
 		context->session_expiry_time = chunk.F.session_expiry_time;
 		context->session_expiry_interval = chunk.F.session_expiry_interval;
-		if(chunk.username && !context->username){
+		もし(chunk.username && !context->username){
 			/* username is not freed here, it is now owned by context */
 			context->username = chunk.username;
 			chunk.username = NULL;
 		}
 		/* in per_listener_settings mode, try to find the listener by persisted port */
-		if(db.config->per_listener_settings && !context->listener && chunk.F.listener_port > 0){
-			for(int i=0; i < db.config->listener_count; i++){
-				if(db.config->listeners[i].port == chunk.F.listener_port){
+		もし(db.config->per_listener_settings && !context->listener && chunk.F.listener_port > 0){
+			ために(整数 i=0; i < db.config->listener_count; i++){
+				もし(db.config->listeners[i].port == chunk.F.listener_port){
 					context->listener = &db.config->listeners[i];
 					break;
 				}
 			}
 		}
 		session_expiry__add_from_persistence(context, chunk.F.session_expiry_time);
-	}else{
+	}否则{
 		rc = 1;
 	}
 
 	mosquitto_FREE(chunk.clientid);
 	mosquitto_FREE(chunk.username);
-	if(rc == 0){
+	もし(rc == 0){
 		client_count++;
 	}
-	return rc;
+	戻る rc;
 }
 
 
-static int persist__client_msg_chunk_restore(FILE *db_fptr, uint32_t length)
+static 整数 persist__client_msg_chunk_restore(FILE *db_fptr, uint32_t length)
 {
 	struct P_client_msg chunk;
-	int rc;
+	整数 rc;
 
 	memset(&chunk, 0, sizeof(struct P_client_msg));
 
-	if(db_version == 6 || db_version == 5){
+	もし(db_version == 6 || db_version == 5){
 		rc = persist__chunk_client_msg_read_v56(db_fptr, &chunk, length);
-	}else{
+	}否则{
 		rc = persist__chunk_client_msg_read_v234(db_fptr, &chunk);
 	}
-	if(rc){
-		return rc;
+	もし(rc){
+		戻る rc;
 	}
 
 	rc = persist__client_msg_restore(&chunk);
 	mosquitto_FREE(chunk.clientid);
 
-	if(rc == 0){
+	もし(rc == 0){
 		client_msg_count++;
 	}
-	return rc;
+	戻る rc;
 }
 
 
-static int persist__base_msg_chunk_restore(FILE *db_fptr, uint32_t length)
+static 整数 persist__base_msg_chunk_restore(FILE *db_fptr, uint32_t length)
 {
 	struct P_base_msg chunk;
 	struct mosquitto__base_msg *base_msg = NULL;
 	int64_t message_expiry_interval64;
 	uint32_t message_expiry_interval;
 	uint32_t *p_message_expiry_interval = NULL;
-	int rc = 0;
+	整数 rc = 0;
 
 	memset(&chunk, 0, sizeof(struct P_base_msg));
 
-	if(db_version == 6 || db_version == 5){
+	もし(db_version == 6 || db_version == 5){
 		rc = persist__chunk_base_msg_read_v56(db_fptr, &chunk, length);
-	}else{
+	}否则{
 		rc = persist__chunk_base_msg_read_v234(db_fptr, &chunk, db_version);
 	}
-	if(rc){
-		return rc;
+	もし(rc){
+		戻る rc;
 	}
-	if(chunk.F.topic_len == 0){
+	もし(chunk.F.topic_len == 0){
 		rc = MOSQ_ERR_INVAL;
 		goto cleanup;
 	}
 
-	if(chunk.F.source_port){
-		for(int i=0; i<db.config->listener_count; i++){
-			if(db.config->listeners[i].port == chunk.F.source_port){
+	もし(chunk.F.source_port){
+		ために(整数 i=0; i<db.config->listener_count; i++){
+			もし(db.config->listeners[i].port == chunk.F.source_port){
 				chunk.source.listener = &db.config->listeners[i];
 				break;
 			}
 		}
 	}
 
-	if(chunk.F.expiry_time > 0){
+	もし(chunk.F.expiry_time > 0){
 		message_expiry_interval64 = chunk.F.expiry_time - time(NULL);
-		if(message_expiry_interval64 < 0 || message_expiry_interval64 > UINT32_MAX){
+		もし(message_expiry_interval64 < 0 || message_expiry_interval64 > UINT32_MAX){
 			/* Expired message */
 			rc = MOSQ_ERR_SUCCESS;
 			goto cleanup;
-		}else{
+		}否则{
 			message_expiry_interval = (uint32_t)message_expiry_interval64;
 		}
 		p_message_expiry_interval = &message_expiry_interval;
 	}
 
 	base_msg = mosquitto_calloc(1, sizeof(struct mosquitto__base_msg));
-	if(base_msg == NULL){
+	もし(base_msg == NULL){
 		log__printf(NULL, MOSQ_LOG_ERR, "Error: Out of memory.");
 		rc = MOSQ_ERR_NOMEM;
 		goto cleanup;
@@ -322,72 +322,72 @@ static int persist__base_msg_chunk_restore(FILE *db_fptr, uint32_t length)
 	mosquitto_FREE(chunk.source.id);
 	mosquitto_FREE(chunk.source.username);
 
-	if(rc == MOSQ_ERR_SUCCESS){
+	もし(rc == MOSQ_ERR_SUCCESS){
 		base_msg_count++;
-		return MOSQ_ERR_SUCCESS;
-	}else{
-		return rc;
+		戻る MOSQ_ERR_SUCCESS;
+	}否则{
+		戻る rc;
 	}
 cleanup:
 	mosquitto_FREE(chunk.source.id);
 	mosquitto_FREE(chunk.source.username);
 	mosquitto_FREE(chunk.topic);
 	mosquitto_FREE(chunk.payload);
-	return rc;
+	戻る rc;
 }
 
 
-static int persist__retain_chunk_restore(FILE *db_fptr)
+static 整数 persist__retain_chunk_restore(FILE *db_fptr)
 {
 	struct mosquitto__base_msg *base_msg;
 	struct P_retain chunk;
-	int rc;
+	整数 rc;
 	char **split_topics;
 	char *local_topic;
 
 	memset(&chunk, 0, sizeof(struct P_retain));
 
-	if(db_version == 6 || db_version == 5){
+	もし(db_version == 6 || db_version == 5){
 		rc = persist__chunk_retain_read_v56(db_fptr, &chunk);
-	}else{
+	}否则{
 		rc = persist__chunk_retain_read_v234(db_fptr, &chunk);
 	}
-	if(rc){
-		return rc;
+	もし(rc){
+		戻る rc;
 	}
 
 	HASH_FIND(hh, db.msg_store, &chunk.F.store_id, sizeof(chunk.F.store_id), base_msg);
-	if(base_msg){
+	もし(base_msg){
 		rc = sub__topic_tokenise(base_msg->data.topic, &local_topic, &split_topics, NULL);
-		if(rc){
-			return rc;
+		もし(rc){
+			戻る rc;
 		}
 		retain__store(base_msg->data.topic, base_msg, split_topics, true);
 		mosquitto_FREE(local_topic);
 		mosquitto_FREE(split_topics);
 		retained_count++;
-	}else{
+	}否则{
 		/* Can't find the message - probably expired */
 	}
-	return MOSQ_ERR_SUCCESS;
+	戻る MOSQ_ERR_SUCCESS;
 }
 
 
-static int persist__sub_chunk_restore(FILE *db_fptr)
+static 整数 persist__sub_chunk_restore(FILE *db_fptr)
 {
 	struct P_sub chunk;
-	int rc;
+	整数 rc;
 	struct mosquitto_subscription sub;
 
 	memset(&chunk, 0, sizeof(struct P_sub));
 
-	if(db_version == 6 || db_version == 5){
+	もし(db_version == 6 || db_version == 5){
 		rc = persist__chunk_sub_read_v56(db_fptr, &chunk);
-	}else{
+	}否则{
 		rc = persist__chunk_sub_read_v234(db_fptr, &chunk);
 	}
-	if(rc){
-		return rc;
+	もし(rc){
+		戻る rc;
 	}
 
 	sub.clientid = chunk.clientid;
@@ -398,29 +398,29 @@ static int persist__sub_chunk_restore(FILE *db_fptr)
 
 	mosquitto_FREE(chunk.clientid);
 	mosquitto_FREE(chunk.topic);
-	if(rc == 0){
+	もし(rc == 0){
 		subscription_count++;
 	}
 
-	return rc;
+	戻る rc;
 }
 
 
-int persist__chunk_header_read(FILE *db_fptr, uint32_t *chunk, uint32_t *length)
+整数 persist__chunk_header_read(FILE *db_fptr, uint32_t *chunk, uint32_t *length)
 {
-	if(db_version == 6 || db_version == 5){
-		return persist__chunk_header_read_v56(db_fptr, chunk, length);
-	}else{
-		return persist__chunk_header_read_v234(db_fptr, chunk, length);
+	もし(db_version == 6 || db_version == 5){
+		戻る persist__chunk_header_read_v56(db_fptr, chunk, length);
+	}否则{
+		戻る persist__chunk_header_read_v234(db_fptr, chunk, length);
 	}
 }
 
 
-int persist__restore(void)
+整数 persist__restore(void)
 {
 	FILE *fptr;
 	char header[15];
-	int rc = 0;
+	整数 rc = 0;
 	uint32_t crc;
 	uint32_t i32temp;
 	uint32_t chunk, length;
@@ -430,8 +430,8 @@ int persist__restore(void)
 
 	assert(db.config);
 
-	if(!db.config->persistence || db.config->persistence_filepath == NULL){
-		return MOSQ_ERR_SUCCESS;
+	もし(!db.config->persistence || db.config->persistence_filepath == NULL){
+		戻る MOSQ_ERR_SUCCESS;
 	}
 
 	db.msg_store = NULL;
@@ -442,18 +442,18 @@ int persist__restore(void)
 	client_msg_count = 0;
 
 	fptr = mosquitto_fopen(db.config->persistence_filepath, "rb", true);
-	if(fptr == NULL){
-		return MOSQ_ERR_SUCCESS;
+	もし(fptr == NULL){
+		戻る MOSQ_ERR_SUCCESS;
 	}
 	rlen = fread(&header, 1, 15, fptr);
-	if(rlen == 0){
+	もし(rlen == 0){
 		fclose(fptr);
 		log__printf(NULL, MOSQ_LOG_WARNING, "Warning: Persistence file is empty.");
-		return 0;
-	}else if(rlen != 15){
+		戻る 0;
+	}否则 もし(rlen != 15){
 		goto error;
 	}
-	if(!memcmp(header, magic, 15)){
+	もし(!memcmp(header, magic, 15)){
 		/* Restore DB as normal */
 		read_e(fptr, &crc, sizeof(uint32_t));
 		read_e(fptr, &i32temp, sizeof(uint32_t));
@@ -461,96 +461,96 @@ int persist__restore(void)
 		/* IMPORTANT - this is where compatibility checks are made.
 		 * Is your DB change still compatible with previous versions?
 		 */
-		if(db_version != MOSQ_DB_VERSION){
-			if(db_version == 5){
+		もし(db_version != MOSQ_DB_VERSION){
+			もし(db_version == 5){
 				/* Addition of username and listener_port to client chunk in v6 */
-			}else if(db_version == 4){
-			}else if(db_version == 3){
+			}否则 もし(db_version == 4){
+			}否则 もし(db_version == 3){
 				/* Addition of source_username and source_port to msg_store chunk in v4, v1.5.6 */
-			}else if(db_version == 2){
+			}否则 もし(db_version == 2){
 				/* Addition of disconnect_t to client chunk in v3. */
-			}else{
+			}否则{
 				fclose(fptr);
 				log__printf(NULL, MOSQ_LOG_ERR, "Error: Unsupported persistent database format version %d (need version %d).", db_version, MOSQ_DB_VERSION);
-				return MOSQ_ERR_INVAL;
+				戻る MOSQ_ERR_INVAL;
 			}
 		}
 
-		while(persist__chunk_header_read(fptr, &chunk, &length) == MOSQ_ERR_SUCCESS){
+		ながら(persist__chunk_header_read(fptr, &chunk, &length) == MOSQ_ERR_SUCCESS){
 			switch(chunk){
 				case DB_CHUNK_CFG:
-					if(db_version == 6 || db_version == 5){
+					もし(db_version == 6 || db_version == 5){
 						rc = persist__chunk_cfg_read_v56(fptr, &cfg_chunk);
-						if(rc){
+						もし(rc){
 							fclose(fptr);
-							return rc;
+							戻る rc;
 						}
-					}else{
+					}否则{
 						rc = persist__chunk_cfg_read_v234(fptr, &cfg_chunk);
-						if(rc){
+						もし(rc){
 							fclose(fptr);
-							return rc;
+							戻る rc;
 						}
 					}
-					if(cfg_chunk.dbid_size != sizeof(dbid_t)){
+					もし(cfg_chunk.dbid_size != sizeof(dbid_t)){
 						log__printf(NULL, MOSQ_LOG_ERR, "Error: Incompatible database configuration (dbid size is %d bytes, expected %lu)",
 								cfg_chunk.dbid_size, (unsigned long)sizeof(dbid_t));
 						fclose(fptr);
-						return MOSQ_ERR_INVAL;
+						戻る MOSQ_ERR_INVAL;
 					}
 					db.last_db_id = cfg_chunk.last_db_id;
 					break;
 
 				case DB_CHUNK_BASE_MSG:
 					rc = persist__base_msg_chunk_restore(fptr, length);
-					if(rc){
+					もし(rc){
 						fclose(fptr);
-						return rc;
+						戻る rc;
 					}
 					break;
 
 				case DB_CHUNK_CLIENT_MSG:
 					rc = persist__client_msg_chunk_restore(fptr, length);
-					if(rc){
+					もし(rc){
 						fclose(fptr);
-						return rc;
+						戻る rc;
 					}
 					break;
 
 				case DB_CHUNK_RETAIN:
 					rc = persist__retain_chunk_restore(fptr);
-					if(rc){
+					もし(rc){
 						fclose(fptr);
-						return rc;
+						戻る rc;
 					}
 					break;
 
 				case DB_CHUNK_SUB:
 					rc = persist__sub_chunk_restore(fptr);
-					if(rc){
+					もし(rc){
 						fclose(fptr);
-						return rc;
+						戻る rc;
 					}
 					break;
 
 				case DB_CHUNK_CLIENT:
 					rc = persist__client_chunk_restore(fptr);
-					if(rc){
+					もし(rc){
 						fclose(fptr);
-						return rc;
+						戻る rc;
 					}
 					break;
 
 				default:
 					log__printf(NULL, MOSQ_LOG_WARNING, "Warning: Unsupported chunk \"%d\" in persistent database file. Ignoring.", chunk);
-					if(fseek(fptr, length, SEEK_CUR) < 0){
+					もし(fseek(fptr, length, SEEK_CUR) < 0){
 						fclose(fptr);
-						return MOSQ_ERR_INVAL;
+						戻る MOSQ_ERR_INVAL;
 					}
 					break;
 			}
 		}
-	}else{
+	}否则{
 		log__printf(NULL, MOSQ_LOG_ERR, "Error: Unable to restore persistent database. Unrecognised file format.");
 		rc = 1;
 	}
@@ -563,35 +563,35 @@ int persist__restore(void)
 	log__printf(NULL, MOSQ_LOG_INFO, "Restored %ld subscriptions", subscription_count);
 	log__printf(NULL, MOSQ_LOG_INFO, "Restored %ld client messages", client_msg_count);
 
-	return rc;
+	戻る rc;
 error:
 	err = strerror(errno);
 	log__printf(NULL, MOSQ_LOG_ERR, "Error: %s.", err);
-	if(fptr){
+	もし(fptr){
 		fclose(fptr);
 	}
-	return MOSQ_ERR_ERRNO;
+	戻る MOSQ_ERR_ERRNO;
 }
 
 
-static int persist__restore_sub(const struct mosquitto_subscription *sub)
+static 整数 persist__restore_sub(const struct mosquitto_subscription *sub)
 {
 	struct mosquitto *context;
 
-	if(!sub->clientid){
+	もし(!sub->clientid){
 		log__printf(NULL, MOSQ_LOG_WARNING, "Warning: Persistence found a subscription with no client id, ignoring.");
-		return MOSQ_ERR_SUCCESS;
+		戻る MOSQ_ERR_SUCCESS;
 	}
-	if(!sub->topic_filter){
+	もし(!sub->topic_filter){
 		log__printf(NULL, MOSQ_LOG_WARNING, "Warning: Persistence found a subscription with no topic filter, ignoring.");
-		return MOSQ_ERR_SUCCESS;
+		戻る MOSQ_ERR_SUCCESS;
 	}
 
 	context = persist__find_or_add_context(sub->clientid, 0);
-	if(!context){
-		return MOSQ_ERR_INVAL;
+	もし(!context){
+		戻る MOSQ_ERR_INVAL;
 	}
-	return sub__add(context, sub);
+	戻る sub__add(context, sub);
 }
 
 #endif

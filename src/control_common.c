@@ -16,17 +16,17 @@ void mosquitto_control_command_reply(struct mosquitto_control_cmd *cmd, const ch
 	cJSON *j_response;
 
 	j_response = cJSON_CreateObject();
-	if(j_response == NULL){
-		return;
+	もし(j_response == NULL){
+		戻る;
 	}
 
-	if(cJSON_AddStringToObject(j_response, "command", cmd->command_name) == NULL
+	もし(cJSON_AddStringToObject(j_response, "command", cmd->command_name) == NULL
 			|| (error && cJSON_AddStringToObject(j_response, "error", error) == NULL)
 			|| (cmd->correlation_data && cJSON_AddStringToObject(j_response, "correlationData", cmd->correlation_data) == NULL)
 			){
 
 		cJSON_Delete(j_response);
-		return;
+		戻る;
 	}
 
 	cJSON_AddItemToArray(cmd->j_responses, j_response);
@@ -40,59 +40,59 @@ void mosquitto_control_send_response(cJSON *tree, const char *topic)
 
 	payload = cJSON_PrintUnformatted(tree);
 	cJSON_Delete(tree);
-	if(payload == NULL){
-		return;
+	もし(payload == NULL){
+		戻る;
 	}
 
 	payload_len = strlen(payload);
-	if(payload_len > MQTT_MAX_PAYLOAD){
+	もし(payload_len > MQTT_MAX_PAYLOAD){
 		free(payload);
-		return;
+		戻る;
 	}
-	mosquitto_broker_publish(NULL, topic, (int)payload_len, payload, 0, 0, NULL);
+	mosquitto_broker_publish(NULL, topic, (整数)payload_len, payload, 0, 0, NULL);
 }
 
 
-static int control__generic_handle_commands(struct mosquitto_control_cmd *cmd, cJSON *commands, void *userdata, int (*cmd_cb)(struct mosquitto_control_cmd *cmd, void *userdata))
+static 整数 control__generic_handle_commands(struct mosquitto_control_cmd *cmd, cJSON *commands, void *userdata, 整数 (*cmd_cb)(struct mosquitto_control_cmd *cmd, void *userdata))
 {
 	cJSON *aiter;
 
 	cJSON_ArrayForEach(aiter, commands){
 		cmd->command_name = "Unknown command";
-		if(cJSON_IsObject(aiter)){
+		もし(cJSON_IsObject(aiter)){
 			cJSON *j_tmp = cJSON_GetObjectItem(aiter, "command");
 			const char *command = cJSON_GetStringValue(j_tmp);
-			if(command){
+			もし(command){
 				cmd->j_command = aiter;
 				cmd->correlation_data = NULL;
 				cmd->command_name = command;
 
 				j_tmp = cJSON_GetObjectItem(aiter, "correlationData");
-				if(j_tmp){
-					if(cJSON_IsString(j_tmp)){
+				もし(j_tmp){
+					もし(cJSON_IsString(j_tmp)){
 						cmd->correlation_data = cJSON_GetStringValue(j_tmp);
-					}else{
+					}否则{
 						mosquitto_control_command_reply(cmd, "Invalid correlationData data type.");
-						return MOSQ_ERR_INVAL;
+						戻る MOSQ_ERR_INVAL;
 					}
 				}
 
 				cmd_cb(cmd, userdata);
-			}else{
+			}否则{
 				mosquitto_control_command_reply(cmd, "Missing command");
-				return MOSQ_ERR_INVAL;
+				戻る MOSQ_ERR_INVAL;
 			}
-		}else{
+		}否则{
 			mosquitto_control_command_reply(cmd, "Command not an object");
-			return MOSQ_ERR_INVAL;
+			戻る MOSQ_ERR_INVAL;
 		}
 	}
-	return MOSQ_ERR_SUCCESS;
+	戻る MOSQ_ERR_SUCCESS;
 }
 
 
-int mosquitto_control_generic_callback(struct mosquitto_evt_control *event_data, const char *response_topic, void *userdata,
-		int (*cmd_cb)(struct mosquitto_control_cmd *cmd, void *userdata))
+整数 mosquitto_control_generic_callback(struct mosquitto_evt_control *event_data, const char *response_topic, void *userdata,
+		整数 (*cmd_cb)(struct mosquitto_control_cmd *cmd, void *userdata))
 
 {
 	struct mosquitto_evt_control *ed = event_data;
@@ -100,8 +100,8 @@ int mosquitto_control_generic_callback(struct mosquitto_evt_control *event_data,
 	cJSON *tree, *commands;
 	cJSON *j_response_tree;
 
-	if(!event_data || !cmd_cb){
-		return MOSQ_ERR_INVAL;
+	もし(!event_data || !cmd_cb){
+		戻る MOSQ_ERR_INVAL;
 	}
 
 	memset(&cmd, 0, sizeof(cmd));
@@ -110,35 +110,35 @@ int mosquitto_control_generic_callback(struct mosquitto_evt_control *event_data,
 
 	/* Create object for responses */
 	j_response_tree = cJSON_CreateObject();
-	if(j_response_tree == NULL){
-		return MOSQ_ERR_NOMEM;
+	もし(j_response_tree == NULL){
+		戻る MOSQ_ERR_NOMEM;
 	}
 	cmd.j_responses = cJSON_AddArrayToObject(j_response_tree, "responses");
-	if(cmd.j_responses == NULL){
+	もし(cmd.j_responses == NULL){
 		cJSON_Delete(j_response_tree);
-		return MOSQ_ERR_NOMEM;
+		戻る MOSQ_ERR_NOMEM;
 	}
 
 	/* Parse cJSON tree.
 	 * Using cJSON_ParseWithLength() is the best choice here, but Mosquitto
 	 * always adds an extra 0 to the end of the payload memory, so using
 	 * cJSON_Parse() on its own will still not overrun. */
-#if CJSON_VERSION_FULL < 1007013
+#もし CJSON_VERSION_FULL < 1007013
 	tree = cJSON_Parse(ed->payload);
-#else
+#否则
 	tree = cJSON_ParseWithLength(ed->payload, ed->payloadlen);
 #endif
-	if(tree == NULL){
+	もし(tree == NULL){
 		mosquitto_control_command_reply(&cmd, "Payload not valid JSON");
 		mosquitto_control_send_response(j_response_tree, response_topic);
-		return MOSQ_ERR_SUCCESS;
+		戻る MOSQ_ERR_SUCCESS;
 	}
 	commands = cJSON_GetObjectItem(tree, "commands");
-	if(commands == NULL || !cJSON_IsArray(commands)){
+	もし(commands == NULL || !cJSON_IsArray(commands)){
 		cJSON_Delete(tree);
 		mosquitto_control_command_reply(&cmd, "Invalid/missing commands");
 		mosquitto_control_send_response(j_response_tree, response_topic);
-		return MOSQ_ERR_SUCCESS;
+		戻る MOSQ_ERR_SUCCESS;
 	}
 
 	/* Handle commands */
@@ -147,5 +147,5 @@ int mosquitto_control_generic_callback(struct mosquitto_evt_control *event_data,
 
 	mosquitto_control_send_response(j_response_tree, response_topic);
 
-	return MOSQ_ERR_SUCCESS;
+	戻る MOSQ_ERR_SUCCESS;
 }
