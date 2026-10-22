@@ -33,8 +33,8 @@ extern const unsigned char magic[15];
 #define DB_CHUNK_CLIENT 6
 /* End DB read/write */
 
-#define read_e(f, b, c) if(fread(b, 1, c, f) != c){ rc = MOSQ_ERR_UNKNOWN; goto error; }
-#define write_e(f, b, c) if(fwrite(b, 1, c, f) != c){ goto error; }
+#define read_e(f, b, c) 如果(fread(b, 1, c, f) != c){ rc = MOSQ_ERR_UNKNOWN; goto error; }
+#define write_e(f, b, c) 如果(fwrite(b, 1, c, f) != c){ goto error; }
 
 /* COMPATIBILITY NOTES
  *
@@ -145,32 +145,32 @@ struct P_retain {
 };
 
 
-int persist__read_string_len(FILE *db_fptr, char **str, uint16_t len);
-int persist__read_string(FILE *db_fptr, char **str);
+整数 persist__read_string_len(FILE *db_fptr, char **str, uint16_t len);
+整数 persist__read_string(FILE *db_fptr, char **str);
 
-int persist__chunk_header_read(FILE *db_fptr, uint32_t *chunk, uint32_t *length);
+整数 persist__chunk_header_read(FILE *db_fptr, uint32_t *chunk, uint32_t *length);
 
-int persist__chunk_header_read_v234(FILE *db_fptr, uint32_t *chunk, uint32_t *length);
-int persist__chunk_cfg_read_v234(FILE *db_fptr, struct PF_cfg *chunk);
-int persist__chunk_client_read_v234(FILE *db_fptr, struct P_client *chunk, uint32_t db_version);
-int persist__chunk_client_msg_read_v234(FILE *db_fptr, struct P_client_msg *chunk);
-int persist__chunk_base_msg_read_v234(FILE *db_fptr, struct P_base_msg *chunk, uint32_t db_version);
-int persist__chunk_retain_read_v234(FILE *db_fptr, struct P_retain *chunk);
-int persist__chunk_sub_read_v234(FILE *db_fptr, struct P_sub *chunk);
+整数 persist__chunk_header_read_v234(FILE *db_fptr, uint32_t *chunk, uint32_t *length);
+整数 persist__chunk_cfg_read_v234(FILE *db_fptr, struct PF_cfg *chunk);
+整数 persist__chunk_client_read_v234(FILE *db_fptr, struct P_client *chunk, uint32_t db_version);
+整数 persist__chunk_client_msg_read_v234(FILE *db_fptr, struct P_client_msg *chunk);
+整数 persist__chunk_base_msg_read_v234(FILE *db_fptr, struct P_base_msg *chunk, uint32_t db_version);
+整数 persist__chunk_retain_read_v234(FILE *db_fptr, struct P_retain *chunk);
+整数 persist__chunk_sub_read_v234(FILE *db_fptr, struct P_sub *chunk);
 
-int persist__chunk_header_read_v56(FILE *db_fptr, uint32_t *chunk, uint32_t *length);
-int persist__chunk_cfg_read_v56(FILE *db_fptr, struct PF_cfg *chunk);
-int persist__chunk_client_read_v56(FILE *db_fptr, struct P_client *chunk, uint32_t db_version);
-int persist__chunk_client_msg_read_v56(FILE *db_fptr, struct P_client_msg *chunk, uint32_t length);
-int persist__chunk_base_msg_read_v56(FILE *db_fptr, struct P_base_msg *chunk, uint32_t length);
-int persist__chunk_retain_read_v56(FILE *db_fptr, struct P_retain *chunk);
-int persist__chunk_sub_read_v56(FILE *db_fptr, struct P_sub *chunk);
+整数 persist__chunk_header_read_v56(FILE *db_fptr, uint32_t *chunk, uint32_t *length);
+整数 persist__chunk_cfg_read_v56(FILE *db_fptr, struct PF_cfg *chunk);
+整数 persist__chunk_client_read_v56(FILE *db_fptr, struct P_client *chunk, uint32_t db_version);
+整数 persist__chunk_client_msg_read_v56(FILE *db_fptr, struct P_client_msg *chunk, uint32_t length);
+整数 persist__chunk_base_msg_read_v56(FILE *db_fptr, struct P_base_msg *chunk, uint32_t length);
+整数 persist__chunk_retain_read_v56(FILE *db_fptr, struct P_retain *chunk);
+整数 persist__chunk_sub_read_v56(FILE *db_fptr, struct P_sub *chunk);
 
-int persist__chunk_cfg_write_v6(FILE *db_fptr, struct PF_cfg *chunk);
-int persist__chunk_client_write_v6(FILE *db_fptr, struct P_client *chunk);
-int persist__chunk_client_msg_write_v6(FILE *db_fptr, struct P_client_msg *chunk);
-int persist__chunk_message_store_write_v6(FILE *db_fptr, struct P_base_msg *chunk);
-int persist__chunk_retain_write_v6(FILE *db_fptr, struct P_retain *chunk);
-int persist__chunk_sub_write_v6(FILE *db_fptr, struct P_sub *chunk);
+整数 persist__chunk_cfg_write_v6(FILE *db_fptr, struct PF_cfg *chunk);
+整数 persist__chunk_client_write_v6(FILE *db_fptr, struct P_client *chunk);
+整数 persist__chunk_client_msg_write_v6(FILE *db_fptr, struct P_client_msg *chunk);
+整数 persist__chunk_message_store_write_v6(FILE *db_fptr, struct P_base_msg *chunk);
+整数 persist__chunk_retain_write_v6(FILE *db_fptr, struct P_retain *chunk);
+整数 persist__chunk_sub_write_v6(FILE *db_fptr, struct P_sub *chunk);
 
 #endif

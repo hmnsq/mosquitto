@@ -23,11 +23,11 @@ Contributors:
 #include "utlist.h"
 
 
-static int plugin__handle_subscribe_single(struct mosquitto__security_options *opts, struct mosquitto *context, struct mosquitto_subscription *sub)
+static 整数 plugin__handle_subscribe_single(struct mosquitto__security_options *opts, struct mosquitto *context, struct mosquitto_subscription *sub)
 {
 	struct mosquitto_evt_subscribe event_data;
 	struct mosquitto__callback *cb_base, *cb_next;
-	int rc = MOSQ_ERR_SUCCESS;
+	整数 rc = MOSQ_ERR_SUCCESS;
 
 	memset(&event_data, 0, sizeof(event_data));
 	event_data.client = context;
@@ -38,34 +38,34 @@ static int plugin__handle_subscribe_single(struct mosquitto__security_options *o
 
 	DL_FOREACH_SAFE(opts->plugin_callbacks.subscribe, cb_base, cb_next){
 		rc = cb_base->cb(MOSQ_EVT_SUBSCRIBE, &event_data, cb_base->userdata);
-		if(rc != MOSQ_ERR_SUCCESS){
+		如果(rc != MOSQ_ERR_SUCCESS){
 			break;
 		}
 
-		if(sub->topic_filter != event_data.data.topic_filter){
+		如果(sub->topic_filter != event_data.data.topic_filter){
 			mosquitto_free(sub->topic_filter);
 			sub->topic_filter = event_data.data.topic_filter;
 		}
 	}
 	sub->options = event_data.data.options;
 
-	return rc;
+	返回 rc;
 }
 
 
-int plugin__handle_subscribe(struct mosquitto *context, struct mosquitto_subscription *sub)
+整数 plugin__handle_subscribe(struct mosquitto *context, struct mosquitto_subscription *sub)
 {
-	int rc = MOSQ_ERR_SUCCESS;
+	整数 rc = MOSQ_ERR_SUCCESS;
 
 	/* Global plugins */
 	rc = plugin__handle_subscribe_single(&db.config->security_options, context, sub);
-	if(rc){
-		return rc;
+	如果(rc){
+		返回 rc;
 	}
 
-	if(context->listener){
+	如果(context->listener){
 		rc = plugin__handle_subscribe_single(context->listener->security_options, context, sub);
 	}
 
-	return rc;
+	返回 rc;
 }

@@ -22,13 +22,13 @@ Contributors:
 #include "utlist.h"
 
 
-static void plugin__handle_disconnect_single(struct mosquitto__security_options *opts, struct mosquitto *context, int reason)
+static void plugin__handle_disconnect_single(struct mosquitto__security_options *opts, struct mosquitto *context, 整数 reason)
 {
 	struct mosquitto_evt_disconnect event_data;
 	struct mosquitto__callback *cb_base, *cb_next;
 
-	if(context->id == NULL){
-		return;
+	如果(context->id == NULL){
+		返回;
 	}
 
 	memset(&event_data, 0, sizeof(event_data));
@@ -40,13 +40,13 @@ static void plugin__handle_disconnect_single(struct mosquitto__security_options 
 }
 
 
-void plugin__handle_disconnect(struct mosquitto *context, int reason)
+void plugin__handle_disconnect(struct mosquitto *context, 整数 reason)
 {
 	/* Global plugins */
 	plugin__handle_disconnect_single(&db.config->security_options, context, reason);
 
 	/* Per listener plugins */
-	if(context->listener){
+	如果(context->listener){
 		plugin__handle_disconnect_single(context->listener->security_options, context, reason);
 	}
 }

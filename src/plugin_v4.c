@@ -29,22 +29,22 @@ Contributors:
 #include "lib_load.h"
 #include "utlist.h"
 
-typedef int (*FUNC_auth_plugin_version)(void);
-typedef int (*FUNC_plugin_version)(int, const int *);
+typedef 整数 (*FUNC_auth_plugin_version)(void);
+typedef 整数 (*FUNC_plugin_version)(整数, const 整数 *);
 
 
-static int plugin_v4_basic_auth(int event, void *event_data, void *userdata)
+static 整数 plugin_v4_basic_auth(整数 event, void *event_data, void *userdata)
 {
 	mosquitto_plugin_id_t *plugin = userdata;
 	struct mosquitto_evt_basic_auth *ed = event_data;
 
 	UNUSED(event);
 
-	if(plugin->lib.unpwd_check_v4 == NULL){
-		return MOSQ_ERR_PLUGIN_DEFER;
+	如果(plugin->lib.unpwd_check_v4 == NULL){
+		返回 MOSQ_ERR_PLUGIN_DEFER;
 	}
 
-	return plugin->lib.unpwd_check_v4(
+	返回 plugin->lib.unpwd_check_v4(
 			plugin->lib.user_data,
 			ed->client,
 			ed->username,
@@ -52,17 +52,17 @@ static int plugin_v4_basic_auth(int event, void *event_data, void *userdata)
 }
 
 
-static int plugin_v4_acl_check(int event, void *event_data, void *userdata)
+static 整数 plugin_v4_acl_check(整数 event, void *event_data, void *userdata)
 {
 	mosquitto_plugin_id_t *plugin = userdata;
 	struct mosquitto_evt_acl_check *ed = event_data;
 	struct mosquitto_acl_msg msg;
-	int rc;
+	整数 rc;
 
 	UNUSED(event);
 
-	if(plugin->lib.acl_check_v4 == NULL){
-		return MOSQ_ERR_PLUGIN_DEFER;
+	如果(plugin->lib.acl_check_v4 == NULL){
+		返回 MOSQ_ERR_PLUGIN_DEFER;
 	}
 
 	memset(&msg, 0, sizeof(msg));
@@ -73,30 +73,30 @@ static int plugin_v4_acl_check(int event, void *event_data, void *userdata)
 	msg.retain = ed->retain;
 
 	rc = acl__pre_check(plugin, ed->client, ed->access);
-	if(rc == MOSQ_ERR_PLUGIN_DEFER){
-		return plugin->lib.acl_check_v4(
+	如果(rc == MOSQ_ERR_PLUGIN_DEFER){
+		返回 plugin->lib.acl_check_v4(
 				plugin->lib.user_data,
 				ed->access,
 				ed->client,
 				&msg);
-	}else{
-		return rc;
+	}否则{
+		返回 rc;
 	}
 }
 
 
-static int plugin_v4_auth_start(int event, void *event_data, void *userdata)
+static 整数 plugin_v4_auth_start(整数 event, void *event_data, void *userdata)
 {
 	mosquitto_plugin_id_t *plugin = userdata;
 	struct mosquitto_evt_extended_auth *ed = event_data;
 
 	UNUSED(event);
 
-	if(plugin->lib.auth_start_v4 == NULL){
-		return MOSQ_ERR_PLUGIN_DEFER;
+	如果(plugin->lib.auth_start_v4 == NULL){
+		返回 MOSQ_ERR_PLUGIN_DEFER;
 	}
 
-	return plugin->lib.auth_start_v4(
+	返回 plugin->lib.auth_start_v4(
 			plugin->lib.user_data,
 			ed->client,
 			ed->client->auth_method,
@@ -106,18 +106,18 @@ static int plugin_v4_auth_start(int event, void *event_data, void *userdata)
 }
 
 
-static int plugin_v4_auth_continue(int event, void *event_data, void *userdata)
+static 整数 plugin_v4_auth_continue(整数 event, void *event_data, void *userdata)
 {
 	mosquitto_plugin_id_t *plugin = userdata;
 	struct mosquitto_evt_extended_auth *ed = event_data;
 
 	UNUSED(event);
 
-	if(plugin->lib.auth_continue_v4 == NULL){
-		return MOSQ_ERR_PLUGIN_DEFER;
+	如果(plugin->lib.auth_continue_v4 == NULL){
+		返回 MOSQ_ERR_PLUGIN_DEFER;
 	}
 
-	return plugin->lib.auth_continue_v4(
+	返回 plugin->lib.auth_continue_v4(
 			plugin->lib.user_data,
 			ed->client,
 			ed->client->auth_method,
@@ -126,18 +126,18 @@ static int plugin_v4_auth_continue(int event, void *event_data, void *userdata)
 }
 
 
-static int plugin_v4_psk_key_get(int event, void *event_data, void *userdata)
+static 整数 plugin_v4_psk_key_get(整数 event, void *event_data, void *userdata)
 {
 	mosquitto_plugin_id_t *plugin = userdata;
 	struct mosquitto_evt_psk_key *ed = event_data;
 
 	UNUSED(event);
 
-	if(plugin->lib.psk_key_get_v4 == NULL){
-		return MOSQ_ERR_PLUGIN_DEFER;
+	如果(plugin->lib.psk_key_get_v4 == NULL){
+		返回 MOSQ_ERR_PLUGIN_DEFER;
 	}
 
-	return plugin->lib.psk_key_get_v4(
+	返回 plugin->lib.psk_key_get_v4(
 			plugin->lib.user_data,
 			ed->client,
 			ed->hint,
@@ -147,10 +147,10 @@ static int plugin_v4_psk_key_get(int event, void *event_data, void *userdata)
 }
 
 
-static int plugin_v4_reload(int event, void *event_data, void *userdata)
+static 整数 plugin_v4_reload(整数 event, void *event_data, void *userdata)
 {
 	mosquitto_plugin_id_t *plugin = userdata;
-	int rc;
+	整数 rc;
 
 	UNUSED(event);
 	UNUSED(event_data);
@@ -160,8 +160,8 @@ static int plugin_v4_reload(int event, void *event_data, void *userdata)
 			plugin->config.options,
 			plugin->config.option_count,
 			true);
-	if(rc){
-		return rc;
+	如果(rc){
+		返回 rc;
 	}
 
 	rc = plugin->lib.security_init_v4(
@@ -169,62 +169,62 @@ static int plugin_v4_reload(int event, void *event_data, void *userdata)
 			plugin->config.options,
 			plugin->config.option_count,
 			true);
-	return rc;
+	返回 rc;
 }
 
 
-int plugin__load_v4(mosquitto_plugin_id_t *plugin, void *lib)
+整数 plugin__load_v4(mosquitto_plugin_id_t *plugin, void *lib)
 {
-	int rc;
+	整数 rc;
 
-	if(!(plugin->lib.plugin_init_v4 = (FUNC_auth_plugin_init_v4)LIB_SYM(lib, "mosquitto_auth_plugin_init"))){
+	如果(!(plugin->lib.plugin_init_v4 = (FUNC_auth_plugin_init_v4)LIB_SYM(lib, "mosquitto_auth_plugin_init"))){
 		log__printf(NULL, MOSQ_LOG_ERR,
 				"Error: Unable to load auth plugin function mosquitto_auth_plugin_init().");
 		LIB_ERROR();
-		return MOSQ_ERR_UNKNOWN;
+		返回 MOSQ_ERR_UNKNOWN;
 	}
-	if(!(plugin->lib.plugin_cleanup_v4 = (FUNC_auth_plugin_cleanup_v4)LIB_SYM(lib, "mosquitto_auth_plugin_cleanup"))){
+	如果(!(plugin->lib.plugin_cleanup_v4 = (FUNC_auth_plugin_cleanup_v4)LIB_SYM(lib, "mosquitto_auth_plugin_cleanup"))){
 		log__printf(NULL, MOSQ_LOG_ERR,
 				"Error: Unable to load auth plugin function mosquitto_auth_plugin_cleanup().");
 		LIB_ERROR();
-		return MOSQ_ERR_UNKNOWN;
+		返回 MOSQ_ERR_UNKNOWN;
 	}
 
-	if(!(plugin->lib.security_init_v4 = (FUNC_auth_plugin_security_init_v4)LIB_SYM(lib, "mosquitto_auth_security_init"))){
+	如果(!(plugin->lib.security_init_v4 = (FUNC_auth_plugin_security_init_v4)LIB_SYM(lib, "mosquitto_auth_security_init"))){
 		log__printf(NULL, MOSQ_LOG_ERR,
 				"Error: Unable to load auth plugin function mosquitto_auth_security_init().");
 		LIB_ERROR();
-		return MOSQ_ERR_UNKNOWN;
+		返回 MOSQ_ERR_UNKNOWN;
 	}
 
-	if(!(plugin->lib.security_cleanup_v4 = (FUNC_auth_plugin_security_cleanup_v4)LIB_SYM(lib, "mosquitto_auth_security_cleanup"))){
+	如果(!(plugin->lib.security_cleanup_v4 = (FUNC_auth_plugin_security_cleanup_v4)LIB_SYM(lib, "mosquitto_auth_security_cleanup"))){
 		log__printf(NULL, MOSQ_LOG_ERR,
 				"Error: Unable to load auth plugin function mosquitto_auth_security_cleanup().");
 		LIB_ERROR();
-		return MOSQ_ERR_UNKNOWN;
+		返回 MOSQ_ERR_UNKNOWN;
 	}
 
-	if(!(plugin->lib.acl_check_v4 = (FUNC_auth_plugin_acl_check_v4)LIB_SYM(lib, "mosquitto_auth_acl_check"))){
+	如果(!(plugin->lib.acl_check_v4 = (FUNC_auth_plugin_acl_check_v4)LIB_SYM(lib, "mosquitto_auth_acl_check"))){
 		log__printf(NULL, MOSQ_LOG_ERR,
 				"Error: Unable to load auth plugin function mosquitto_auth_acl_check().");
 		LIB_ERROR();
-		return MOSQ_ERR_UNKNOWN;
+		返回 MOSQ_ERR_UNKNOWN;
 	}
 
 	plugin->lib.unpwd_check_v4 = (FUNC_auth_plugin_unpwd_check_v4)LIB_SYM(lib, "mosquitto_auth_unpwd_check");
-	if(plugin->lib.unpwd_check_v4){
+	如果(plugin->lib.unpwd_check_v4){
 		log__printf(NULL, MOSQ_LOG_INFO,
 				" ├── Username/password checking enabled.");
-	}else{
+	}否则{
 		log__printf(NULL, MOSQ_LOG_INFO,
 				" ├── Username/password checking not enabled.");
 	}
 
 	plugin->lib.psk_key_get_v4 = (FUNC_auth_plugin_psk_key_get_v4)LIB_SYM(lib, "mosquitto_auth_psk_key_get");
-	if(plugin->lib.psk_key_get_v4){
+	如果(plugin->lib.psk_key_get_v4){
 		log__printf(NULL, MOSQ_LOG_INFO,
 				" ├── TLS-PSK checking enabled.");
-	}else{
+	}否则{
 		log__printf(NULL, MOSQ_LOG_INFO,
 				" ├── TLS-PSK checking not enabled.");
 	}
@@ -232,16 +232,16 @@ int plugin__load_v4(mosquitto_plugin_id_t *plugin, void *lib)
 	plugin->lib.auth_start_v4 = (FUNC_auth_plugin_auth_start_v4)LIB_SYM(lib, "mosquitto_auth_start");
 	plugin->lib.auth_continue_v4 = (FUNC_auth_plugin_auth_continue_v4)LIB_SYM(lib, "mosquitto_auth_continue");
 
-	if(plugin->lib.auth_start_v4){
-		if(plugin->lib.auth_continue_v4){
+	如果(plugin->lib.auth_start_v4){
+		如果(plugin->lib.auth_continue_v4){
 			log__printf(NULL, MOSQ_LOG_INFO,
 					" └── Extended authentication enabled.");
-		}else{
+		}否则{
 			log__printf(NULL, MOSQ_LOG_ERR,
 					"Error: Plugin has missing mosquitto_auth_continue() function.");
-			return MOSQ_ERR_UNKNOWN;
+			返回 MOSQ_ERR_UNKNOWN;
 		}
-	}else{
+	}否则{
 		log__printf(NULL, MOSQ_LOG_INFO,
 				" └── Extended authentication not enabled.");
 	}
@@ -250,32 +250,32 @@ int plugin__load_v4(mosquitto_plugin_id_t *plugin, void *lib)
 	plugin->lib.user_data = NULL;
 	plugin->lib.identifier = plugin;
 
-	if(plugin->lib.plugin_init_v4){
+	如果(plugin->lib.plugin_init_v4){
 		rc = plugin->lib.plugin_init_v4(&plugin->lib.user_data, plugin->config.options, plugin->config.option_count);
-		if(rc){
+		如果(rc){
 			log__printf(NULL, MOSQ_LOG_ERR,
 					"Error: Authentication plugin returned %d when initialising.", rc);
-			return rc;
+			返回 rc;
 		}
 	}
 
 	mosquitto_callback_register(plugin, MOSQ_EVT_RELOAD, plugin_v4_reload, NULL, plugin);
 
-	if(plugin->lib.unpwd_check_v4){
+	如果(plugin->lib.unpwd_check_v4){
 		mosquitto_callback_register(plugin, MOSQ_EVT_BASIC_AUTH, plugin_v4_basic_auth, NULL, plugin);
 	}
-	if(plugin->lib.acl_check_v4){
+	如果(plugin->lib.acl_check_v4){
 		mosquitto_callback_register(plugin, MOSQ_EVT_ACL_CHECK, plugin_v4_acl_check, NULL, plugin);
 	}
-	if(plugin->lib.auth_start_v4){
+	如果(plugin->lib.auth_start_v4){
 		mosquitto_callback_register(plugin, MOSQ_EVT_EXT_AUTH_START, plugin_v4_auth_start, NULL, plugin);
 	}
-	if(plugin->lib.auth_continue_v4){
+	如果(plugin->lib.auth_continue_v4){
 		mosquitto_callback_register(plugin, MOSQ_EVT_EXT_AUTH_CONTINUE, plugin_v4_auth_continue, NULL, plugin);
 	}
-	if(plugin->lib.psk_key_get_v4){
+	如果(plugin->lib.psk_key_get_v4){
 		mosquitto_callback_register(plugin, MOSQ_EVT_PSK_KEY, plugin_v4_psk_key_get, NULL, plugin);
 	}
 
-	return 0;
+	返回 0;
 }

@@ -32,95 +32,95 @@ static char *strtok_hier(char *str, char **saveptr)
 {
 	char *c;
 
-	if(str != NULL){
+	如果(str != NULL){
 		*saveptr = str;
 	}
 
-	if(*saveptr == NULL){
-		return NULL;
+	如果(*saveptr == NULL){
+		返回 NULL;
 	}
 
 	c = strchr(*saveptr, '/');
-	if(c){
+	如果(c){
 		str = *saveptr;
 		*saveptr = c+1;
 		c[0] = '\0';
-	}else if(*saveptr){
+	}否则 如果(*saveptr){
 		/* No match, but surplus string */
 		str = *saveptr;
 		*saveptr = NULL;
 	}
-	return str;
+	返回 str;
 }
 
 
-int sub__topic_tokenise(const char *subtopic, char **local_sub, char ***topics, const char **sharename)
+整数 sub__topic_tokenise(const char *subtopic, char **local_sub, char ***topics, const char **sharename)
 {
 	char *saveptr = NULL;
 	char *token;
-	int count;
-	int topic_index = 0;
+	整数 count;
+	整数 topic_index = 0;
 	size_t len;
 
-	if(!subtopic){
-		return MOSQ_ERR_INVAL;
+	如果(!subtopic){
+		返回 MOSQ_ERR_INVAL;
 	}
 
 	len = strlen(subtopic);
-	if(len == 0){
-		return MOSQ_ERR_INVAL;
+	如果(len == 0){
+		返回 MOSQ_ERR_INVAL;
 	}
 
 	*local_sub = mosquitto_strdup(subtopic);
-	if((*local_sub) == NULL){
-		return MOSQ_ERR_NOMEM;
+	如果((*local_sub) == NULL){
+		返回 MOSQ_ERR_NOMEM;
 	}
 
 	count = 0;
 	saveptr = *local_sub;
-	while(saveptr){
+	当(saveptr){
 		saveptr = strchr(&saveptr[1], '/');
 		count++;
 	}
 	*topics = mosquitto_calloc((size_t)(count+3) /* 3=$shared,sharename,NULL */, sizeof(char *));
-	if((*topics) == NULL){
+	如果((*topics) == NULL){
 		mosquitto_FREE(*local_sub);
-		return MOSQ_ERR_NOMEM;
+		返回 MOSQ_ERR_NOMEM;
 	}
 
-	if((*local_sub)[0] != '$'){
+	如果((*local_sub)[0] != '$'){
 		(*topics)[topic_index] = "";
 		topic_index++;
 	}
 
 	token = strtok_hier((*local_sub), &saveptr);
-	while(token){
+	当(token){
 		(*topics)[topic_index] = token;
 		topic_index++;
 		token = strtok_hier(NULL, &saveptr);
 	}
 
-	if(!strcmp((*topics)[0], "$share")){
-		if(count < 3 || (count == 3 && strlen((*topics)[2]) == 0)){
+	如果(!strcmp((*topics)[0], "$share")){
+		如果(count < 3 || (count == 3 && strlen((*topics)[2]) == 0)){
 			mosquitto_FREE(*local_sub);
 			mosquitto_FREE(*topics);
-			return MOSQ_ERR_PROTOCOL;
+			返回 MOSQ_ERR_PROTOCOL;
 		}
 
-		if(sharename){
-			if(strpbrk((*topics)[1], "+#")){
+		如果(sharename){
+			如果(strpbrk((*topics)[1], "+#")){
 				mosquitto_FREE(*local_sub);
 				mosquitto_FREE(*topics);
-				return MOSQ_ERR_PROTOCOL;
+				返回 MOSQ_ERR_PROTOCOL;
 			}
 			(*sharename) = (*topics)[1];
 		}
 
-		for(int i=1; i<count-1; i++){
+		为(整数 i=1; i<count-1; i++){
 			(*topics)[i] = (*topics)[i+1];
 		}
 		(*topics)[0] = "";
 		(*topics)[count-1] = NULL;
 	}
-	return MOSQ_ERR_SUCCESS;
+	返回 MOSQ_ERR_SUCCESS;
 }
