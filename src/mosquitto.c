@@ -16,7 +16,7 @@ Contributors:
    Roger Light - initial implementation and documentation.
 */
 
-#include "config.h"
+#شامل "config.h"
 
 #ifndef WIN32
 /* For initgroups() */
@@ -28,110 +28,110 @@ Contributors:
 #endif
 
 #ifndef WIN32
-#include <pwd.h>
-#else
-#include <process.h>
-#include <winsock2.h>
-#include <ws2tcpip.h>
+#شامل <pwd.h>
+#وگرنه
+#شامل <process.h>
+#شامل <winsock2.h>
+#شامل <ws2tcpip.h>
 #endif
 
 #ifndef WIN32
 #  include <sys/time.h>
 #endif
 
-#include <errno.h>
-#include <limits.h>
-#include <signal.h>
-#include <stdio.h>
-#include <string.h>
+#شامل <errno.h>
+#شامل <limits.h>
+#شامل <signal.h>
+#شامل <stdio.h>
+#شامل <string.h>
 #ifdef WITH_SYSTEMD
 #  include <systemd/sd-daemon.h>
 #endif
 #ifdef WITH_WRAP
-#include <tcpd.h>
+#شامل <tcpd.h>
 #endif
 
-#include "mosquitto_broker_internal.h"
-#include "util_mosq.h"
+#شامل "mosquitto_broker_internal.h"
+#شامل "util_mosq.h"
 
-struct mosquitto_db db;
+ساختار mosquitto_db db;
 
-struct mosquitto__listener_sock *g_listensock = NULL;
-int g_listensock_count = 0;
+ساختار mosquitto__listener_sock *g_listensock = پوچ;
+صحیح g_listensock_شمار = 0;
 
-int g_run = 0;
+صحیح g_run = 0;
 #ifdef WITH_WRAP
-#include <syslog.h>
-int allow_severity = LOG_INFO;
-int deny_severity = LOG_INFO;
+#شامل <syslog.h>
+صحیح allow_severity = LOG_INFO;
+صحیح deny_severity = LOG_INFO;
 #endif
 
 
-static int set_umask(void)
+ایستا صحیح set_umask(تهی)
 {
-#if !defined(__CYGWIN__) && !defined(WIN32)
+#اگر !defined(__CYGWIN__) && !defined(WIN32)
 	/* This affects files that are written to, apart from those that are
 	 * created using mosquitto_fopen(..., restrict_read=true), which sets a
 	 * umask of 077. */
-	const char *mask_s;
-	char *endptr = NULL;
+	ثابت نویسه *mask_s;
+	نویسه *endptr = پوچ;
 	long mask;
 
 
 	mask_s = getenv("UMASK_SET");
-	if(mask_s){
+	اگر(mask_s){
 		errno = 0;
 		mask = strtol(mask_s, &endptr, 8);
-		if(errno || endptr == mask_s || *endptr != '\0'){
-			log__printf(NULL, MOSQ_LOG_ERR, "Error: UMASK_SET environment variable not a valid octal number.");
-			return MOSQ_ERR_INVAL;
+		اگر(errno || endptr == mask_s || *endptr != '\0'){
+			log__printf(پوچ, MOSQ_LOG_ERR, "Error: UMASK_SET environment variable not a valid octal number.");
+			بازگشت MOSQ_ERR_INVAL;
 		}
-		if(mask < 000 || mask > 0777){
-			log__printf(NULL, MOSQ_LOG_ERR, "Error: UMASK_SET environment variable out of range.");
-			return MOSQ_ERR_INVAL;
+		اگر(mask < 000 || mask > 0777){
+			log__printf(پوچ, MOSQ_LOG_ERR, "Error: UMASK_SET environment variable out of range.");
+			بازگشت MOSQ_ERR_INVAL;
 		}
 		umask((mode_t)mask);
 	}
 #endif
-	return MOSQ_ERR_SUCCESS;
+	بازگشت MOSQ_ERR_SUCCESS;
 }
 
 
 /* coverity[ +tainted_string_sanitize_content : arg-0 ] */
-static int check_uid(const char *s, const char *name)
+ایستا صحیح check_uid(ثابت نویسه *s, ثابت نویسه *name)
 {
-	char *endptr = NULL;
+	نویسه *endptr = پوچ;
 	long id;
 
 	errno = 0;
 	id = strtol(s, &endptr, 10);
-	if(errno || endptr == s || *endptr != '\0'){
-		log__printf(NULL, MOSQ_LOG_ERR, "Error: %s not a valid ID '%s'", name, s);
-		return -1;
+	اگر(errno || endptr == s || *endptr != '\0'){
+		log__printf(پوچ, MOSQ_LOG_ERR, "Error: %s not a valid ID '%s'", name, s);
+		بازگشت -1;
 	}
-	if(id < 0){
-		log__printf(NULL, MOSQ_LOG_ERR, "Error: %s must not be negative", name);
-		return -1;
+	اگر(id < 0){
+		log__printf(پوچ, MOSQ_LOG_ERR, "Error: %s must not be negative", name);
+		بازگشت -1;
 	}
-	if(id > INT_MAX){
-		log__printf(NULL, MOSQ_LOG_ERR, "Error: %s must not be less than %d", name, INT_MAX);
-		return -1;
+	اگر(id > INT_MAX){
+		log__printf(پوچ, MOSQ_LOG_ERR, "Error: %s must not be less than %d", name, INT_MAX);
+		بازگشت -1;
 	}
-	return (int)id;
+	بازگشت (صحیح)id;
 }
 
 
 /* Prints the name of the process user from its user id if not found
  * it simply prints out the user id
  */
-static void print_pwname(void)
+ایستا تهی print_pwname(تهی)
 {
 #ifndef WIN32
-	struct passwd *pwd = getpwuid(geteuid());
-	if(!pwd){
-		log__printf(NULL, MOSQ_LOG_INFO, "Info: running mosquitto as user id: %i.", geteuid());
-	}else{
-		log__printf(NULL, MOSQ_LOG_INFO, "Info: running mosquitto as user: %s.", pwd->pw_name);
+	ساختار passwd *pwd = getpwuid(geteuid());
+	اگر(!pwd){
+		log__printf(پوچ, MOSQ_LOG_INFO, "Info: running mosquitto as user id: %i.", geteuid());
+	}وگرنه{
+		log__printf(پوچ, MOSQ_LOG_INFO, "Info: running mosquitto as user: %s.", pwd->pw_name);
 	}
 #endif
 }
@@ -147,195 +147,195 @@ static void print_pwname(void)
  */
 
 
-static int drop_privileges(struct mosquitto__config *config)
+ایستا صحیح drop_privileges(ساختار mosquitto__config *config)
 {
-#if !defined(__CYGWIN__) && !defined(WIN32)
-	struct passwd *pwd;
-	char *err;
-	int rc;
-	const char *puid_s, *pgid_s;
-	int puid;
-	int pgid;
+#اگر !defined(__CYGWIN__) && !defined(WIN32)
+	ساختار passwd *pwd;
+	نویسه *err;
+	صحیح rc;
+	ثابت نویسه *puid_s, *pgid_s;
+	صحیح puid;
+	صحیح pgid;
 
-	const char *snap = getenv("SNAP_NAME");
-	if(snap && !strcmp(snap, "mosquitto")){
+	ثابت نویسه *snap = getenv("SNAP_NAME");
+	اگر(snap && !strcmp(snap, "mosquitto")){
 		/* Don't attempt to drop privileges if running as a snap */
-		return MOSQ_ERR_SUCCESS;
+		بازگشت MOSQ_ERR_SUCCESS;
 	}
 
 	/* PUID and PGID are docker custom user mappings */
 	puid_s = getenv("PUID");
 	pgid_s = getenv("PGID");
 
-	if(geteuid() == 0){
-		if(puid_s || pgid_s){
-			if(pgid_s){
+	اگر(geteuid() == 0){
+		اگر(puid_s || pgid_s){
+			اگر(pgid_s){
 				pgid = check_uid(pgid_s, "PGID");
-				if(pgid < 0){
-					return MOSQ_ERR_INVAL;
-				}else if(pgid > 0){
+				اگر(pgid < 0){
+					بازگشت MOSQ_ERR_INVAL;
+				}وگرنه اگر(pgid > 0){
 					rc = setgid((gid_t)pgid);
-					if(rc == -1){
+					اگر(rc == -1){
 						err = strerror(errno);
-						log__printf(NULL, MOSQ_LOG_ERR, "Error setting gid whilst dropping privileges: %s.", err);
-						return MOSQ_ERR_ERRNO;
+						log__printf(پوچ, MOSQ_LOG_ERR, "Error setting gid whilst dropping privileges: %s.", err);
+						بازگشت MOSQ_ERR_ERRNO;
 					}
 				}
 			}
-			if(puid_s){
+			اگر(puid_s){
 				puid = check_uid(puid_s, "PUID");
-				if(puid < 0){
-					return MOSQ_ERR_INVAL;
-				}else if(puid > 0){
+				اگر(puid < 0){
+					بازگشت MOSQ_ERR_INVAL;
+				}وگرنه اگر(puid > 0){
 					rc = setuid((uid_t)puid);
-					if(rc == -1){
+					اگر(rc == -1){
 						err = strerror(errno);
-						log__printf(NULL, MOSQ_LOG_ERR, "Error setting uid whilst dropping privileges: %s.", err);
-						return MOSQ_ERR_ERRNO;
+						log__printf(پوچ, MOSQ_LOG_ERR, "Error setting uid whilst dropping privileges: %s.", err);
+						بازگشت MOSQ_ERR_ERRNO;
 					}
 				}
 			}
-		}else if(config->user && strcmp(config->user, "root")){
+		}وگرنه اگر(config->user && strcmp(config->user, "root")){
 			pwd = getpwnam(config->user);
-			if(!pwd){
-				if(strcmp(config->user, "mosquitto")){
-					log__printf(NULL, MOSQ_LOG_ERR, "Error: Unable to drop privileges to '%s' because this user does not exist.", config->user);
-					return MOSQ_ERR_INVAL;
-				}else{
-					log__printf(NULL, MOSQ_LOG_ERR, "Warning: Unable to drop privileges to '%s' because this user does not exist. Trying 'nobody' instead.", config->user);
+			اگر(!pwd){
+				اگر(strcmp(config->user, "mosquitto")){
+					log__printf(پوچ, MOSQ_LOG_ERR, "Error: Unable to drop privileges to '%s' because this user does not exist.", config->user);
+					بازگشت MOSQ_ERR_INVAL;
+				}وگرنه{
+					log__printf(پوچ, MOSQ_LOG_ERR, "Warning: Unable to drop privileges to '%s' because this user does not exist. Trying 'nobody' instead.", config->user);
 					pwd = getpwnam("nobody");
-					if(!pwd){
-						log__printf(NULL, MOSQ_LOG_ERR, "Error: Unable to drop privileges to 'nobody'.");
-						return MOSQ_ERR_ERRNO;
+					اگر(!pwd){
+						log__printf(پوچ, MOSQ_LOG_ERR, "Error: Unable to drop privileges to 'nobody'.");
+						بازگشت MOSQ_ERR_ERRNO;
 					}
 				}
 			}
-			if(initgroups(config->user, pwd->pw_gid) == -1){
+			اگر(initgroups(config->user, pwd->pw_gid) == -1){
 				err = strerror(errno);
-				log__printf(NULL, MOSQ_LOG_ERR, "Error setting groups whilst dropping privileges: %s.", err);
-				return MOSQ_ERR_ERRNO;
+				log__printf(پوچ, MOSQ_LOG_ERR, "Error setting groups whilst dropping privileges: %s.", err);
+				بازگشت MOSQ_ERR_ERRNO;
 			}
 			rc = setgid(pwd->pw_gid);
-			if(rc == -1){
+			اگر(rc == -1){
 				err = strerror(errno);
-				log__printf(NULL, MOSQ_LOG_ERR, "Error setting gid whilst dropping privileges: %s.", err);
-				return MOSQ_ERR_ERRNO;
+				log__printf(پوچ, MOSQ_LOG_ERR, "Error setting gid whilst dropping privileges: %s.", err);
+				بازگشت MOSQ_ERR_ERRNO;
 			}
 			rc = setuid(pwd->pw_uid);
-			if(rc == -1){
+			اگر(rc == -1){
 				err = strerror(errno);
-				log__printf(NULL, MOSQ_LOG_ERR, "Error setting uid whilst dropping privileges: %s.", err);
-				return MOSQ_ERR_ERRNO;
+				log__printf(پوچ, MOSQ_LOG_ERR, "Error setting uid whilst dropping privileges: %s.", err);
+				بازگشت MOSQ_ERR_ERRNO;
 			}
 		}
 		print_pwname();
-		if(geteuid() == 0 || getegid() == 0){
-			log__printf(NULL, MOSQ_LOG_WARNING, "Warning: Mosquitto should not be run as root/administrator.");
+		اگر(geteuid() == 0 || getegid() == 0){
+			log__printf(پوچ, MOSQ_LOG_WARNING, "Warning: Mosquitto should not be run as root/administrator.");
 		}
-	}else{
+	}وگرنه{
 		print_pwname();
 	}
 
-#else
+#وگرنه
 	UNUSED(config);
 #endif
-	return MOSQ_ERR_SUCCESS;
+	بازگشت MOSQ_ERR_SUCCESS;
 }
 
 
-static void mosquitto__daemonise(void)
+ایستا تهی mosquitto__daemonise(تهی)
 {
 #ifndef WIN32
-	char *err;
+	نویسه *err;
 	pid_t pid;
 
 	pid = fork();
-	if(pid < 0){
+	اگر(pid < 0){
 		err = strerror(errno);
-		log__printf(NULL, MOSQ_LOG_ERR, "Error in fork: %s", err);
+		log__printf(پوچ, MOSQ_LOG_ERR, "Error in fork: %s", err);
 		exit(1);
 	}
-	if(pid > 0){
+	اگر(pid > 0){
 		exit(0);
 	}
-	if(setsid() < 0){
+	اگر(setsid() < 0){
 		err = strerror(errno);
-		log__printf(NULL, MOSQ_LOG_ERR, "Error in setsid: %s", err);
+		log__printf(پوچ, MOSQ_LOG_ERR, "Error in setsid: %s", err);
 		exit(1);
 	}
 
-	if(!freopen("/dev/null", "r", stdin)){
-		log__printf(NULL, MOSQ_LOG_ERR, "Error whilst daemonising (%s): %s", "stdin", strerror(errno));
+	اگر(!freopen("/dev/null", "r", stdin)){
+		log__printf(پوچ, MOSQ_LOG_ERR, "Error whilst daemonising (%s): %s", "stdin", strerror(errno));
 		exit(1);
 	}
-	if(!freopen("/dev/null", "w", stdout)){
-		log__printf(NULL, MOSQ_LOG_ERR, "Error whilst daemonising (%s): %s", "stdout", strerror(errno));
+	اگر(!freopen("/dev/null", "w", stdout)){
+		log__printf(پوچ, MOSQ_LOG_ERR, "Error whilst daemonising (%s): %s", "stdout", strerror(errno));
 		exit(1);
 	}
-	if(!freopen("/dev/null", "w", stderr)){
-		log__printf(NULL, MOSQ_LOG_ERR, "Error whilst daemonising (%s): %s", "stderr", strerror(errno));
+	اگر(!freopen("/dev/null", "w", stderr)){
+		log__printf(پوچ, MOSQ_LOG_ERR, "Error whilst daemonising (%s): %s", "stderr", strerror(errno));
 		exit(1);
 	}
-#else
-	log__printf(NULL, MOSQ_LOG_WARNING, "Warning: Can't start in daemon mode in Windows.");
+#وگرنه
+	log__printf(پوچ, MOSQ_LOG_WARNING, "Warning: Can't start in daemon mode in Windows.");
 #endif
 }
 
 
-static int pid__write(void)
+ایستا صحیح pid__write(تهی)
 {
 	FILE *pid;
 
-	if(db.config->pid_file){
+	اگر(db.config->pid_file){
 		pid = mosquitto_fopen(db.config->pid_file, "wt", false);
-		if(pid){
+		اگر(pid){
 			fprintf(pid, "%d", getpid());
 			fclose(pid);
-		}else{
-			log__printf(NULL, MOSQ_LOG_ERR, "Error: Unable to write pid file.");
-			return MOSQ_ERR_ERRNO;
+		}وگرنه{
+			log__printf(پوچ, MOSQ_LOG_ERR, "Error: Unable to write pid file.");
+			بازگشت MOSQ_ERR_ERRNO;
 		}
 	}
-	return MOSQ_ERR_SUCCESS;
+	بازگشت MOSQ_ERR_SUCCESS;
 }
 
 
-static void report_features(void)
+ایستا تهی report_features(تهی)
 {
 #ifdef WITH_BRIDGE
-	log__printf(NULL, MOSQ_LOG_INFO, "Bridge support available.");
-#else
-	log__printf(NULL, MOSQ_LOG_INFO, "Bridge support NOT available.");
+	log__printf(پوچ, MOSQ_LOG_INFO, "Bridge support available.");
+#وگرنه
+	log__printf(پوچ, MOSQ_LOG_INFO, "Bridge support NOT available.");
 #endif
 #ifdef WITH_PERSISTENCE
-	log__printf(NULL, MOSQ_LOG_INFO, "Persistence support available.");
-#else
-	log__printf(NULL, MOSQ_LOG_INFO, "Persistence support NOT available.");
+	log__printf(پوچ, MOSQ_LOG_INFO, "Persistence support available.");
+#وگرنه
+	log__printf(پوچ, MOSQ_LOG_INFO, "Persistence support NOT available.");
 #endif
 #ifdef WITH_TLS
-	log__printf(NULL, MOSQ_LOG_INFO, "TLS support available.");
-#else
-	log__printf(NULL, MOSQ_LOG_INFO, "TLS support NOT available.");
+	log__printf(پوچ, MOSQ_LOG_INFO, "TLS support available.");
+#وگرنه
+	log__printf(پوچ, MOSQ_LOG_INFO, "TLS support NOT available.");
 #endif
 #ifdef FINAL_WITH_TLS_PSK
-	log__printf(NULL, MOSQ_LOG_INFO, "TLS-PSK support available.");
-#else
-	log__printf(NULL, MOSQ_LOG_INFO, "TLS-PSK support NOT available.");
+	log__printf(پوچ, MOSQ_LOG_INFO, "TLS-PSK support available.");
+#وگرنه
+	log__printf(پوچ, MOSQ_LOG_INFO, "TLS-PSK support NOT available.");
 #endif
 #ifdef WITH_WEBSOCKETS
-	log__printf(NULL, MOSQ_LOG_INFO, "Websockets support available.");
-#else
-	log__printf(NULL, MOSQ_LOG_INFO, "Websockets support NOT available.");
+	log__printf(پوچ, MOSQ_LOG_INFO, "Websockets support available.");
+#وگرنه
+	log__printf(پوچ, MOSQ_LOG_INFO, "Websockets support NOT available.");
 #endif
-	if(getenv("MOSQUITTO_UNSAFE_ALLOW_SYMLINKS")){
-		log__printf(NULL, MOSQ_LOG_NOTICE, "MOSQUITTO_UNSAFE_ALLOW_SYMLINKS is set, loading of sensitive files through symbolic links is allowed.");
+	اگر(getenv("MOSQUITTO_UNSAFE_ALLOW_SYMLINKS")){
+		log__printf(پوچ, MOSQ_LOG_NOTICE, "MOSQUITTO_UNSAFE_ALLOW_SYMLINKS is set, loading of sensitive files through symbolic links is allowed.");
 	}
 }
 
 
-static void post_shutdown_cleanup(void)
+ایستا تهی post_shutdown_cleanup(تهی)
 {
-	struct mosquitto *ctxt, *ctxt_tmp;
+	ساختار mosquitto *ctxt, *ctxt_tmp;
 
 	/* FIXME - this isn't quite right, all wills with will delay zero should be
 	 * sent now, but those with positive will delay should be persisted and
@@ -348,7 +348,7 @@ static void post_shutdown_cleanup(void)
 
 	/* Set to true only after persistence events have been processed */
 	db.shutdown = true;
-	log__printf(NULL, MOSQ_LOG_INFO, "mosquitto version %s terminating", VERSION);
+	log__printf(پوچ, MOSQ_LOG_INFO, "mosquitto version %s terminating", VERSION);
 
 	broker_control__cleanup();
 
@@ -360,8 +360,8 @@ static void post_shutdown_cleanup(void)
 	listeners__stop();
 
 	HASH_ITER(hh_id, db.contexts_by_id, ctxt, ctxt_tmp){
-#if defined(WITH_WEBSOCKETS) && WITH_WEBSOCKETS == WS_IS_LWS
-		if(!ctxt->wsi)
+#اگر defined(WITH_WEBSOCKETS) && WITH_WEBSOCKETS == WS_IS_LWS
+		اگر(!ctxt->wsi)
 #endif
 		{
 			ctxt->is_persisted = false; /* prevent persistence removal */
@@ -386,8 +386,8 @@ static void post_shutdown_cleanup(void)
 	plugin__unload_all();
 	mosquitto_security_cleanup(false);
 
-	if(db.config->pid_file){
-		(void)remove(db.config->pid_file);
+	اگر(db.config->pid_file){
+		(تهی)remove(db.config->pid_file);
 	}
 
 	mux__cleanup();
@@ -398,7 +398,7 @@ static void post_shutdown_cleanup(void)
 }
 
 
-static void cjson_init(void)
+ایستا تهی cjson_init(تهی)
 {
 	cJSON_Hooks hooks = {mosquitto_malloc, mosquitto_free};
 	cJSON_InitHooks(&hooks);
@@ -407,78 +407,78 @@ static void cjson_init(void)
 #ifdef WITH_FUZZING
 
 
-int mosquitto_fuzz_main(int argc, char *argv[])
-#else
+صحیح mosquitto_fuzz_main(صحیح argc, نویسه *argv[])
+#وگرنه
 
 
-int main(int argc, char *argv[])
+صحیح اصلی(صحیح argc, نویسه *argv[])
 #endif
 {
-	struct mosquitto__config config;
-	int rc;
+	ساختار mosquitto__config config;
+	صحیح rc;
 
 	mosquitto_time_init();
 	cjson_init();
 
-#if defined(WIN32) || defined(__CYGWIN__)
-	if(argc == 2){
-		if(!strcmp(argv[1], "run")){
+#اگر defined(WIN32) || defined(__CYGWIN__)
+	اگر(argc == 2){
+		اگر(!strcmp(argv[1], "run")){
 			service_run(argv[0]);
-			return 0;
-		}else if(!strcmp(argv[1], "install")){
+			بازگشت 0;
+		}وگرنه اگر(!strcmp(argv[1], "install")){
 			service_install(argv[0]);
-			return 0;
-		}else if(!strcmp(argv[1], "uninstall")){
+			بازگشت 0;
+		}وگرنه اگر(!strcmp(argv[1], "uninstall")){
 			service_uninstall(argv[0]);
-			return 0;
+			بازگشت 0;
 		}
 	}
 #endif
 
 
 #ifdef WIN32
-	if(_setmaxstdio(8192) != 8192){
+	اگر(_setmaxstdio(8192) != 8192){
 		/* Old limit was 2048 */
-		if(_setmaxstdio(2048) != 2048){
-			log__printf(NULL, MOSQ_LOG_WARNING, "Warning: Unable to increase maximum allowed connections. This session may be limited to 512 connections.");
+		اگر(_setmaxstdio(2048) != 2048){
+			log__printf(پوچ, MOSQ_LOG_WARNING, "Warning: Unable to increase maximum allowed connections. This session may be limited to 512 connections.");
 		}
 	}
 #endif
 
-	memset(&db, 0, sizeof(struct mosquitto_db));
+	memset(&db, 0, اندازه(ساختار mosquitto_db));
 	db.now_s = mosquitto_time();
-	db.now_real_s = time(NULL);
-	mosquitto_broker_node_id_set(0);
+	db.now_real_s = time(پوچ);
+	mosquitto_broker_گره_id_set(0);
 
 	net__broker_init();
 
 	db.config = &config;
 	config__init(&config);
 	rc = config__parse_args(&config, argc, argv);
-	if(rc == MOSQ_ERR_UNKNOWN){
+	اگر(rc == MOSQ_ERR_UNKNOWN){
 		post_shutdown_cleanup();
-		return MOSQ_ERR_SUCCESS;
-	}else if(rc != MOSQ_ERR_SUCCESS){
+		بازگشت MOSQ_ERR_SUCCESS;
+	}وگرنه اگر(rc != MOSQ_ERR_SUCCESS){
 		post_shutdown_cleanup();
-		return rc;
+		بازگشت rc;
 	}
 
-	if(config.test_configuration){
-		if(!db.config_file){
-			log__printf(NULL, MOSQ_LOG_ERR, "Please provide a configuration file to test.");
+	اگر(config.test_configuration){
+		اگر(!db.config_file){
+			log__printf(پوچ, MOSQ_LOG_ERR, "Please provide a configuration file to test.");
 			post_shutdown_cleanup();
-			return MOSQ_ERR_INVAL;
-		}else{
-			log__printf(NULL, MOSQ_LOG_INFO, "Configuration file is OK.");
+			بازگشت MOSQ_ERR_INVAL;
+		}وگرنه{
+			log__printf(پوچ, MOSQ_LOG_INFO, "Configuration file is OK.");
 			post_shutdown_cleanup();
-			return MOSQ_ERR_SUCCESS;
+			بازگشت MOSQ_ERR_SUCCESS;
 		}
 	}
 
 	rc = keepalive__init();
-	if(rc){
+	اگر(rc){
 		post_shutdown_cleanup();
-		return rc;
+		بازگشت rc;
 	}
 
 	/* Drop privileges permanently immediately after the config is loaded.
@@ -486,80 +486,80 @@ int main(int argc, char *argv[])
 	 * etc. are accessible my the `mosquitto` or other unprivileged user.
 	 */
 	rc = drop_privileges(&config);
-	if(rc){
+	اگر(rc){
 		post_shutdown_cleanup();
-		return rc;
+		بازگشت rc;
 	}
 	/* Set umask based on environment variable */
 	rc = set_umask();
-	if(rc){
+	اگر(rc){
 		post_shutdown_cleanup();
-		return rc;
+		بازگشت rc;
 	}
 
 
-	if(config.daemon){
+	اگر(config.daemon){
 		mosquitto__daemonise();
 	}
 
 	rc = pid__write();
-	if(rc){
+	اگر(rc){
 		post_shutdown_cleanup();
-		return rc;
+		بازگشت rc;
 	}
 
 	rc = db__open(&config);
-	if(rc != MOSQ_ERR_SUCCESS){
-		log__printf(NULL, MOSQ_LOG_ERR, "Error: Couldn't open database.");
+	اگر(rc != MOSQ_ERR_SUCCESS){
+		log__printf(پوچ, MOSQ_LOG_ERR, "Error: Couldn't open database.");
 		post_shutdown_cleanup();
-		return rc;
+		بازگشت rc;
 	}
 
 	/* Initialise logging only after initialising the database in case we're
 	 * logging to topics */
 	rc = log__init(&config);
-	if(rc){
+	اگر(rc){
 		post_shutdown_cleanup();
-		return rc;
+		بازگشت rc;
 	}
-	log__printf(NULL, MOSQ_LOG_INFO, "mosquitto version %s starting", VERSION);
-	if(db.config_file){
-		log__printf(NULL, MOSQ_LOG_INFO, "Config loaded from %s.", db.config_file);
-	}else{
-		log__printf(NULL, MOSQ_LOG_INFO, "Using default config.");
+	log__printf(پوچ, MOSQ_LOG_INFO, "mosquitto version %s starting", VERSION);
+	اگر(db.config_file){
+		log__printf(پوچ, MOSQ_LOG_INFO, "Config loaded from %s.", db.config_file);
+	}وگرنه{
+		log__printf(پوچ, MOSQ_LOG_INFO, "Using default config.");
 	}
 	report_features();
 
 	rc = plugin__load_all();
-	if(rc){
+	اگر(rc){
 		post_shutdown_cleanup();
-		return rc;
+		بازگشت rc;
 	}
 	rc = mosquitto_security_init(false);
-	if(rc){
+	اگر(rc){
 		post_shutdown_cleanup();
-		return rc;
+		بازگشت rc;
 	}
 
 	plugin_persist__handle_restore();
 	session_expiry__check();
 	retain__expire(&db.retains);
-	db__msg_store_compact();
+	db_پیام_store_compact();
 
-#ifdef WITH_SYS_TREE
-	sys_tree__init();
+#ifdef WITH_SYS_درخت
+	sys_درخت_init();
 #endif
 
 	rc = mux__init();
-	if(rc){
+	اگر(rc){
 		post_shutdown_cleanup();
-		return rc;
+		بازگشت rc;
 	}
 
 	rc = listeners__start();
-	if(rc){
+	اگر(rc){
 		post_shutdown_cleanup();
-		return rc;
+		بازگشت rc;
 	}
 
 
@@ -572,48 +572,48 @@ int main(int argc, char *argv[])
 	g_run = 1;
 	signal__setup();
 
-	log__printf(NULL, MOSQ_LOG_INFO, "mosquitto version %s running", VERSION);
+	log__printf(پوچ, MOSQ_LOG_INFO, "mosquitto version %s running", VERSION);
 #ifdef WITH_SYSTEMD
 	sd_notify(0, "READY=1");
 #endif
 
-	rc = mosquitto_main_loop(g_listensock, g_listensock_count);
+	rc = mosquitto_main_loop(g_listensock, g_listensock_شمار);
 
 	post_shutdown_cleanup();
 
-	return rc;
+	بازگشت rc;
 }
 
 #ifdef WIN32
 
 
-int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nCmdShow)
+صحیح WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lp_Cmd_سطر, صحیح nCmdShow)
 {
-	char **argv;
-	int argc = 1;
-	char *token;
-	char *saveptr = NULL;
-	int rc;
+	نویسه **argv;
+	صحیح argc = 1;
+	نویسه *token;
+	نویسه *saveptr = پوچ;
+	صحیح rc;
 
 	UNUSED(hInstance);
 	UNUSED(hPrevInstance);
 	UNUSED(nCmdShow);
 
-	argv = mosquitto_malloc(sizeof(char *)*1);
+	argv = mosquitto_malloc(اندازه(نویسه *)*1);
 	argv[0] = "mosquitto";
-	token = strtok_r(lpCmdLine, " ", &saveptr);
-	while(token){
+	token = strtok_r(lp_Cmd_سطر, " ", &saveptr);
+	وقتی(token){
 		argc++;
-		argv = mosquitto_realloc(argv, sizeof(char *)*argc);
-		if(!argv){
+		argv = mosquitto_realloc(argv, اندازه(نویسه *)*argc);
+		اگر(!argv){
 			fprintf(stderr, "Error: Out of memory.\n");
-			return MOSQ_ERR_NOMEM;
+			بازگشت MOSQ_ERR_NOMEM;
 		}
 		argv[argc-1] = token;
-		token = strtok_r(NULL, " ", &saveptr);
+		token = strtok_r(پوچ, " ", &saveptr);
 	}
-	rc = main(argc, argv);
+	rc = اصلی(argc, argv);
 	mosquitto_FREE(argv);
-	return rc;
+	بازگشت rc;
 }
 #endif

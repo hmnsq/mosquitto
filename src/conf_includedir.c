@@ -16,17 +16,17 @@ Contributors:
    Roger Light - initial implementation and documentation.
 */
 
-#include "config.h"
+#شامل "config.h"
 
-#include <ctype.h>
-#include <limits.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <errno.h>
+#شامل <ctype.h>
+#شامل <limits.h>
+#شامل <stdio.h>
+#شامل <stdlib.h>
+#شامل <string.h>
+#شامل <errno.h>
 
 #ifdef WIN32
-#else
+#وگرنه
 #  include <dirent.h>
 #endif
 
@@ -34,107 +34,107 @@ Contributors:
 #  include <strings.h>
 #  include <netdb.h>
 #  include <sys/socket.h>
-#else
+#وگرنه
 #  include <winsock2.h>
 #  include <ws2tcpip.h>
 #endif
 
-#if defined(__HAIKU__)
+#اگر defined(__HAIKU__)
 #  include <syslog.h>
-#elif !defined(WIN32) && !defined(__CYGWIN__) && !defined(__QNX__)
+#وگرنهاگر !defined(WIN32) && !defined(__CYGWIN__) && !defined(__QNX__)
 #  include <sys/syslog.h>
 #endif
 
-#include "mosquitto_broker_internal.h"
-#include "tls_mosq.h"
-#include "util_mosq.h"
-#include "mosquitto/mqtt_protocol.h"
+#شامل "mosquitto_broker_internal.h"
+#شامل "tls_mosq.h"
+#شامل "util_mosq.h"
+#شامل "mosquitto/mqtt_protocol.h"
 
 
-static int scmp_p(const void *p1, const void *p2)
+ایستا صحیح scmp_p(ثابت تهی *p1, ثابت تهی *p2)
 {
-	const char *s1 = *(const char **)p1;
-	const char *s2 = *(const char **)p2;
-	int result;
+	ثابت نویسه *s1 = *(ثابت نویسه **)p1;
+	ثابت نویسه *s2 = *(ثابت نویسه **)p2;
+	صحیح result;
 
-	while(s1[0] && s2[0]){
+	وقتی(s1[0] && s2[0]){
 		/* Sort by case insensitive part first */
-		result = toupper((unsigned char)s1[0]) - toupper((unsigned char)s2[0]);
-		if(result == 0){
+		result = toupper((unsigned نویسه)s1[0]) - toupper((unsigned نویسه)s2[0]);
+		اگر(result == 0){
 			/* Case insensitive part matched, now distinguish between case */
 			result = s1[0] - s2[0];
-			if(result != 0){
-				return result;
+			اگر(result != 0){
+				بازگشت result;
 			}
-		}else{
+		}وگرنه{
 			/* Return case insensitive match fail */
-			return result;
+			بازگشت result;
 		}
 		s1++;
 		s2++;
 	}
 
-	return s1[0] - s2[0];
+	بازگشت s1[0] - s2[0];
 }
 
 #ifdef WIN32
 
 
-int config__get_dir_files(const char *include_dir, char ***files, int *file_count)
+صحیح config__get_dir_files(ثابت نویسه *include_dir, نویسه ***files, صحیح *file_شمار)
 {
 	size_t len;
-	char **l_files = NULL;
-	int l_file_count = 0;
-	char **files_tmp;
+	نویسه **l_files = پوچ;
+	صحیح l_file_شمار = 0;
+	نویسه **files_tmp;
 
 	HANDLE fh;
-	char dirpath[MAX_PATH];
+	نویسه dirpath[MAX_PATH];
 	WIN32_FIND_DATA find_data;
 
 	snprintf(dirpath, MAX_PATH, "%s\\*.conf", include_dir);
 	fh = FindFirstFile(dirpath, &find_data);
-	if(fh == INVALID_HANDLE_VALUE){
-		log__printf(NULL, MOSQ_LOG_ERR, "Error: Unable to open include_dir '%s'.", include_dir);
-		return 1;
+	اگر(fh == INVALID_HANDLE_مقدار){
+		log__printf(پوچ, MOSQ_LOG_ERR, "Error: Unable to open include_dir '%s'.", include_dir);
+		بازگشت 1;
 	}
 
-	do{
+	انجامبده{
 		len = strlen(include_dir)+1+strlen(find_data.cFileName)+1;
 
-		l_file_count++;
-		files_tmp = mosquitto_realloc(l_files, l_file_count*sizeof(char *));
-		if(!files_tmp){
-			for(int i=0; i<l_file_count-1; i++){
+		l_file_شمار++;
+		files_tmp = mosquitto_realloc(l_files, l_file_شمار*اندازه(نویسه *));
+		اگر(!files_tmp){
+			برای(صحیح i=0; i<l_file_شمار-1; i++){
 				mosquitto_FREE(l_files[i]);
 			}
 			mosquitto_FREE(l_files);
 			FindClose(fh);
-			return MOSQ_ERR_NOMEM;
+			بازگشت MOSQ_ERR_NOMEM;
 		}
 		l_files = files_tmp;
 
-		l_files[l_file_count-1] = mosquitto_malloc(len+1);
-		if(!l_files[l_file_count-1]){
-			for(int i=0; i<l_file_count-1; i++){
+		l_files[l_file_شمار-1] = mosquitto_malloc(len+1);
+		اگر(!l_files[l_file_شمار-1]){
+			برای(صحیح i=0; i<l_file_شمار-1; i++){
 				mosquitto_FREE(l_files[i]);
 			}
 			mosquitto_FREE(l_files);
 			FindClose(fh);
-			return MOSQ_ERR_NOMEM;
+			بازگشت MOSQ_ERR_NOMEM;
 		}
-		snprintf(l_files[l_file_count-1], len, "%s/%s", include_dir, find_data.cFileName);
-		l_files[l_file_count-1][len] = '\0';
-	}while(FindNextFile(fh, &find_data));
+		snprintf(l_files[l_file_شمار-1], len, "%s/%s", include_dir, find_data.cFileName);
+		l_files[l_file_شمار-1][len] = '\0';
+	}وقتی(FindNextFile(fh, &find_data));
 
 	FindClose(fh);
 
-	if(l_files){
-		qsort(l_files, l_file_count, sizeof(char *), scmp_p);
+	اگر(l_files){
+		qsort(l_files, l_file_شمار, اندازه(نویسه *), scmp_p);
 	}
 	*files = l_files;
-	*file_count = l_file_count;
+	*file_شمار = l_file_شمار;
 
-	return 0;
+	بازگشت 0;
 }
 #endif
 
@@ -142,58 +142,58 @@ int config__get_dir_files(const char *include_dir, char ***files, int *file_coun
 #ifndef WIN32
 
 
-int config__get_dir_files(const char *include_dir, char ***files, int *file_count)
+صحیح config__get_dir_files(ثابت نویسه *include_dir, نویسه ***files, صحیح *file_شمار)
 {
-	char **l_files = NULL;
-	int l_file_count = 0;
-	char **files_tmp;
+	نویسه **l_files = پوچ;
+	صحیح l_file_شمار = 0;
+	نویسه **files_tmp;
 	size_t len;
 
 	DIR *dh;
-	struct dirent *de;
+	ساختار dirent *de;
 
 	dh = opendir(include_dir);
-	if(!dh){
-		log__printf(NULL, MOSQ_LOG_ERR, "Error: Unable to open include_dir '%s'.", include_dir);
-		return 1;
+	اگر(!dh){
+		log__printf(پوچ, MOSQ_LOG_ERR, "Error: Unable to open include_dir '%s'.", include_dir);
+		بازگشت 1;
 	}
-	while((de = readdir(dh)) != NULL){
-		if(strlen(de->d_name) > 5){
-			if(!strcmp(&de->d_name[strlen(de->d_name)-5], ".conf")){
+	وقتی((de = readdir(dh)) != پوچ){
+		اگر(strlen(de->d_name) > 5){
+			اگر(!strcmp(&de->d_name[strlen(de->d_name)-5], ".conf")){
 				len = strlen(include_dir)+1+strlen(de->d_name)+1;
 
-				l_file_count++;
-				files_tmp = mosquitto_realloc(l_files, (size_t)l_file_count*sizeof(char *));
-				if(!files_tmp){
-					goto error;
+				l_file_شمار++;
+				files_tmp = mosquitto_realloc(l_files, (size_t)l_file_شمار*اندازه(نویسه *));
+				اگر(!files_tmp){
+					برو error;
 				}
 				l_files = files_tmp;
 
-				l_files[l_file_count-1] = mosquitto_malloc(len+1);
-				if(!l_files[l_file_count-1]){
-					goto error;
+				l_files[l_file_شمار-1] = mosquitto_malloc(len+1);
+				اگر(!l_files[l_file_شمار-1]){
+					برو error;
 				}
-				snprintf(l_files[l_file_count-1], len, "%s/%s", include_dir, de->d_name);
-				l_files[l_file_count-1][len] = '\0';
+				snprintf(l_files[l_file_شمار-1], len, "%s/%s", include_dir, de->d_name);
+				l_files[l_file_شمار-1][len] = '\0';
 			}
 		}
 	}
 	closedir(dh);
 
-	if(l_files){
-		qsort(l_files, (size_t)l_file_count, sizeof(char *), scmp_p);
+	اگر(l_files){
+		qsort(l_files, (size_t)l_file_شمار, اندازه(نویسه *), scmp_p);
 	}
 	*files = l_files;
-	*file_count = l_file_count;
+	*file_شمار = l_file_شمار;
 
-	return 0;
+	بازگشت 0;
 error:
-	for(int i=0; i<l_file_count-1; i++){
+	برای(صحیح i=0; i<l_file_شمار-1; i++){
 		mosquitto_FREE(l_files[i]);
 	}
 	mosquitto_FREE(l_files);
 	closedir(dh);
-	return MOSQ_ERR_NOMEM;
+	بازگشت MOSQ_ERR_NOMEM;
 }
 #endif
 

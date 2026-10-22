@@ -18,23 +18,23 @@ Contributors:
 #ifndef PASSWORD_FILE_H
 #define PASSWORD_FILE_H
 
-#include <uthash.h>
+#شامل <uthash.h>
 
-struct mosquitto__unpwd {
+ساختار mosquitto__unpwd {
 	UT_hash_handle hh;
-	char *username;
-	char *clientid;
-	struct mosquitto_pw *pw;
+	نویسه *username;
+	نویسه *clientid;
+	ساختار mosquitto_pw *pw;
 };
 
-struct password_file_data {
-	struct mosquitto__unpwd *unpwd;
-	char *password_file;
+ساختار password_file_data {
+	ساختار mosquitto__unpwd *unpwd;
+	نویسه *password_file;
 };
 
-int password_file__parse(struct password_file_data *data);
-int password_file__check(int event, void *event_data, void *userdata);
-int password_file__reload(int event, void *event_data, void *userdata);
-void password_file__cleanup(struct password_file_data *data);
+صحیح password_file__parse(ساختار password_file_data *data);
+صحیح password_file__check(صحیح event, تهی *event_data, تهی *userdata);
+صحیح password_file__reload(صحیح event, تهی *event_data, تهی *userdata);
+تهی password_file__cleanup(ساختار password_file_data *data);
 
 #endif

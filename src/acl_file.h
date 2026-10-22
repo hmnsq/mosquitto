@@ -18,35 +18,35 @@ Contributors:
 #ifndef ACL_FILE_H
 #define ACL_FILE_H
 
-#include <uthash.h>
+#شامل <uthash.h>
 
-struct acl__entry {
-	struct acl__entry *next, *prev;
-	char *topic;
-	int access;
-	int ucount;
-	int ccount;
+ساختار acl__entry {
+	ساختار acl__entry *next, *prev;
+	نویسه *topic;
+	صحیح access;
+	صحیح ucount;
+	صحیح ccount;
 };
 
 
-struct acl__user {
+ساختار acl__user {
 	UT_hash_handle hh;
-	char *username;
-	struct acl__entry *acl;
+	نویسه *username;
+	ساختار acl__entry *acl;
 };
 
 
-struct acl_file_data {
-	char *acl_file;
-	struct acl__user *acl_users;
-	struct acl__user acl_anon;
-	struct acl__entry *acl_patterns;
+ساختار acl_file_data {
+	نویسه *acl_file;
+	ساختار acl__user *acl_users;
+	ساختار acl__user acl_anon;
+	ساختار acl__entry *acl_patterns;
 };
 
 
-int acl_file__parse(struct acl_file_data *data);
-int acl_file__check(int event, void *event_data, void *userdata);
-int acl_file__reload(int event, void *event_data, void *userdata);
-void acl_file__cleanup(struct acl_file_data *data);
+صحیح acl_file__parse(ساختار acl_file_data *data);
+صحیح acl_file__check(صحیح event, تهی *event_data, تهی *userdata);
+صحیح acl_file__reload(صحیح event, تهی *event_data, تهی *userdata);
+تهی acl_file__cleanup(ساختار acl_file_data *data);
 
 #endif

@@ -16,166 +16,166 @@ Contributors:
    Roger Light - initial implementation and documentation.
 */
 
-#include "config.h"
+#شامل "config.h"
 
-#include <stdio.h>
-#include <string.h>
+#شامل <stdio.h>
+#شامل <string.h>
 
-#include "mosquitto/broker.h"
-#include "mosquitto_broker_internal.h"
-#include "mosquitto/broker_plugin.h"
-#include "lib_load.h"
-#include "utlist.h"
+#شامل "mosquitto/broker.h"
+#شامل "mosquitto_broker_internal.h"
+#شامل "mosquitto/broker_plugin.h"
+#شامل "lib_load.h"
+#شامل "utlist.h"
 
-typedef int (*FUNC_auth_plugin_version)(void);
-typedef int (*FUNC_plugin_version)(int, const int *);
+تعریفنوع صحیح (*FUNC_auth_plugin_version)(تهی);
+تعریفنوع صحیح (*FUNC_plugin_version)(صحیح, ثابت صحیح *);
 
 
-void LIB_ERROR(void)
+تهی LIB_ERROR(تهی)
 {
 #ifdef WIN32
-	char *buf;
+	نویسه *buf;
 	FormatMessage(FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM,
-			NULL, GetLastError(), LANG_NEUTRAL, (LPTSTR)&buf, 0, NULL);
-	log__printf(NULL, MOSQ_LOG_ERR, "Load error: %s", buf);
+			پوچ, GetLastError(), LANG_NEUTRAL, (LPTSTR)&buf, 0, پوچ);
+	log__printf(پوچ, MOSQ_LOG_ERR, "Load error: %s", buf);
 	LocalFree(buf);
-#else
-	log__printf(NULL, MOSQ_LOG_ERR, "Load error: %s", dlerror());
+#وگرنه
+	log__printf(پوچ, MOSQ_LOG_ERR, "Load error: %s", dlerror());
 #endif
 }
 
 
-static int plugin__load_single(mosquitto_plugin_id_t *plugin)
+ایستا صحیح plugin__load_single(mosquitto_plugin_id_t *plugin)
 {
-	void *lib;
-	int (*plugin_version)(int, const int *) = NULL;
-	int (*plugin_auth_version)(void) = NULL;
-	int version;
-	int rc;
-	const int plugin_versions[] = {5, 4, 3, 2};
-	int plugin_version_count = sizeof(plugin_versions)/sizeof(int);
+	تهی *lib;
+	صحیح (*plugin_version)(صحیح, ثابت صحیح *) = پوچ;
+	صحیح (*plugin_auth_version)(تهی) = پوچ;
+	صحیح version;
+	صحیح rc;
+	ثابت صحیح plugin_versions[] = {5, 4, 3, 2};
+	صحیح plugin_version_شمار = اندازه(plugin_versions)/اندازه(صحیح);
 
-	if(plugin->config.security_option_count == 0){
-		return MOSQ_ERR_SUCCESS;
+	اگر(plugin->config.security_option_شمار == 0){
+		بازگشت MOSQ_ERR_SUCCESS;
 	}
 
-	memset(&plugin->lib, 0, sizeof(struct mosquitto__plugin_lib));
+	memset(&plugin->lib, 0, اندازه(ساختار mosquitto__plugin_lib));
 
-	log__printf(NULL, MOSQ_LOG_INFO, "Loading plugin: %s", plugin->config.path);
+	log__printf(پوچ, MOSQ_LOG_INFO, "Loading plugin: %s", plugin->config.path);
 
 	lib = LIB_LOAD(plugin->config.path);
-	if(!lib){
-		log__printf(NULL, MOSQ_LOG_ERR,
+	اگر(!lib){
+		log__printf(پوچ, MOSQ_LOG_ERR,
 				"Error: Unable to load plugin \"%s\".", plugin->config.path);
 		LIB_ERROR();
-		return MOSQ_ERR_UNKNOWN;
+		بازگشت MOSQ_ERR_UNKNOWN;
 	}
 
-	plugin->lib.lib = NULL;
-	if((plugin_version = (FUNC_plugin_version)LIB_SYM(lib, "mosquitto_plugin_version"))){
-		version = plugin_version(plugin_version_count, plugin_versions);
-	}else if((plugin_auth_version = (FUNC_auth_plugin_version)LIB_SYM(lib, "mosquitto_auth_plugin_version"))){
+	plugin->lib.lib = پوچ;
+	اگر((plugin_version = (FUNC_plugin_version)LIB_SYM(lib, "mosquitto_plugin_version"))){
+		version = plugin_version(plugin_version_شمار, plugin_versions);
+	}وگرنه اگر((plugin_auth_version = (FUNC_auth_plugin_version)LIB_SYM(lib, "mosquitto_auth_plugin_version"))){
 		version = plugin_auth_version();
-	}else{
-		log__printf(NULL, MOSQ_LOG_ERR,
+	}وگرنه{
+		log__printf(پوچ, MOSQ_LOG_ERR,
 				"Error: Unable to load auth plugin function mosquitto_auth_plugin_version() or mosquitto_plugin_version().");
 		LIB_ERROR();
 		LIB_CLOSE(lib);
-		return MOSQ_ERR_UNKNOWN;
+		بازگشت MOSQ_ERR_UNKNOWN;
 	}
 
 	plugin->lib.version = version;
-	if(version == 5){
+	اگر(version == 5){
 		rc = plugin__load_v5(plugin, lib);
-		if(rc){
-			return rc;
+		اگر(rc){
+			بازگشت rc;
 		}
-	}else if(version == 4){
+	}وگرنه اگر(version == 4){
 		rc = plugin__load_v4(plugin, lib);
-		if(rc){
-			return rc;
+		اگر(rc){
+			بازگشت rc;
 		}
-	}else if(version == 3){
+	}وگرنه اگر(version == 3){
 		rc = plugin__load_v3(plugin, lib);
-		if(rc){
-			return rc;
+		اگر(rc){
+			بازگشت rc;
 		}
-	}else if(version == 2){
+	}وگرنه اگر(version == 2){
 		rc = plugin__load_v2(plugin, lib);
-		if(rc){
-			return rc;
+		اگر(rc){
+			بازگشت rc;
 		}
-	}else{
-		log__printf(NULL, MOSQ_LOG_ERR,
+	}وگرنه{
+		log__printf(پوچ, MOSQ_LOG_ERR,
 				"Error: Unsupported auth plugin version (got %d, expected %d).",
 				version, MOSQ_PLUGIN_VERSION);
 		LIB_ERROR();
 
 		LIB_CLOSE(lib);
-		return MOSQ_ERR_UNKNOWN;
+		بازگشت MOSQ_ERR_UNKNOWN;
 	}
-	return MOSQ_ERR_SUCCESS;
+	بازگشت MOSQ_ERR_SUCCESS;
 }
 
 
-int plugin__load_all(void)
+صحیح plugin__load_all(تهی)
 {
-	int rc = MOSQ_ERR_SUCCESS;
+	صحیح rc = MOSQ_ERR_SUCCESS;
 
-	for(int i=0; i<db.plugin_count; i++){
+	برای(صحیح i=0; i<db.plugin_شمار; i++){
 		rc = plugin__load_single(db.plugins[i]);
-		if(rc){
-			return rc;
+		اگر(rc){
+			بازگشت rc;
 		}
 	}
-	return MOSQ_ERR_SUCCESS;
+	بازگشت MOSQ_ERR_SUCCESS;
 }
 
 
-static int plugin__security_init_single(mosquitto_plugin_id_t *plugin, bool reload)
+ایستا صحیح plugin__security_init_single(mosquitto_plugin_id_t *plugin, bool reload)
 {
-	int rc;
+	صحیح rc;
 
-	if(plugin->lib.version == 5){
+	اگر(plugin->lib.version == 5){
 		rc = MOSQ_ERR_SUCCESS;
-	}else if(plugin->lib.version == 4){
+	}وگرنه اگر(plugin->lib.version == 4){
 		rc = plugin->lib.security_init_v4(
 				plugin->lib.user_data,
 				plugin->config.options,
-				plugin->config.option_count,
+				plugin->config.option_شمار,
 				reload);
 
-	}else if(plugin->lib.version == 3){
+	}وگرنه اگر(plugin->lib.version == 3){
 		rc = plugin->lib.security_init_v3(
 				plugin->lib.user_data,
 				plugin->config.options,
-				plugin->config.option_count,
+				plugin->config.option_شمار,
 				reload);
 
-	}else if(plugin->lib.version == 2){
+	}وگرنه اگر(plugin->lib.version == 2){
 		rc = plugin->lib.security_init_v2(
 				plugin->lib.user_data,
-				(struct mosquitto_auth_opt *)plugin->config.options,
-				plugin->config.option_count,
+				(ساختار mosquitto_auth_opt *)plugin->config.options,
+				plugin->config.option_شمار,
 				reload);
-	}else{
+	}وگرنه{
 		rc = MOSQ_ERR_INVAL;
 	}
 
-	return rc;
+	بازگشت rc;
 }
 
 
-int mosquitto_security_init(bool reload)
+صحیح mosquitto_security_init(bool reload)
 {
-	int rc;
+	صحیح rc;
 
-	for(int i=0; i<db.plugin_count; i++){
+	برای(صحیح i=0; i<db.plugin_شمار; i++){
 		rc = plugin__security_init_single(db.plugins[i], reload);
-		if(rc != MOSQ_ERR_SUCCESS){
-			return rc;
+		اگر(rc != MOSQ_ERR_SUCCESS){
+			بازگشت rc;
 		}
 	}
 	rc = mosquitto_security_init_default();
-	return rc;
+	بازگشت rc;
 }

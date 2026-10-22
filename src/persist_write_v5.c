@@ -16,48 +16,48 @@ Contributors:
    Roger Light - initial implementation and documentation.
 */
 
-#include "config.h"
+#شامل "config.h"
 
 #ifdef WITH_PERSISTENCE
 
 #ifndef WIN32
-#include <arpa/inet.h>
+#شامل <arpa/inet.h>
 #endif
-#include <errno.h>
-#include <fcntl.h>
-#include <stdio.h>
-#include <string.h>
-#include <sys/stat.h>
-#include <time.h>
+#شامل <errno.h>
+#شامل <fcntl.h>
+#شامل <stdio.h>
+#شامل <string.h>
+#شامل <sys/stat.h>
+#شامل <time.h>
 
-#include "mosquitto/mqtt_protocol.h"
-#include "mosquitto_broker_internal.h"
-#include "persist.h"
-#include "packet_mosq.h"
-#include "property_common.h"
-#include "property_mosq.h"
-#include "util_mosq.h"
+#شامل "mosquitto/mqtt_protocol.h"
+#شامل "mosquitto_broker_internal.h"
+#شامل "persist.h"
+#شامل "packet_mosq.h"
+#شامل "property_common.h"
+#شامل "property_mosq.h"
+#شامل "util_mosq.h"
 
 
-int persist__chunk_cfg_write_v6(FILE *db_fptr, struct PF_cfg *chunk)
+صحیح persist__chunk_cfg_write_v6(FILE *db_fptr, ساختار PF_cfg *chunk)
 {
-	struct PF_header header;
+	ساختار PF_header header;
 
 	header.chunk = htonl(DB_CHUNK_CFG);
-	header.length = htonl(sizeof(struct PF_cfg));
-	write_e(db_fptr, &header, sizeof(struct PF_header));
-	write_e(db_fptr, chunk, sizeof(struct PF_cfg));
+	header.length = htonl(اندازه(ساختار PF_cfg));
+	write_e(db_fptr, &header, اندازه(ساختار PF_header));
+	write_e(db_fptr, chunk, اندازه(ساختار PF_cfg));
 
-	return MOSQ_ERR_SUCCESS;
+	بازگشت MOSQ_ERR_SUCCESS;
 error:
-	log__printf(NULL, MOSQ_LOG_ERR, "Error: %s.", strerror(errno));
-	return 1;
+	log__printf(پوچ, MOSQ_LOG_ERR, "Error: %s.", strerror(errno));
+	بازگشت 1;
 }
 
 
-int persist__chunk_client_write_v6(FILE *db_fptr, struct P_client *chunk)
+صحیح persist__chunk_client_write_v6(FILE *db_fptr, ساختار P_client *chunk)
 {
-	struct PF_header header;
+	ساختار PF_header header;
 	uint16_t id_len = chunk->F.id_len;
 	uint16_t username_len = chunk->F.username_len;
 
@@ -68,60 +68,60 @@ int persist__chunk_client_write_v6(FILE *db_fptr, struct P_client *chunk)
 	chunk->F.listener_port = htons(chunk->F.listener_port);
 
 	header.chunk = htonl(DB_CHUNK_CLIENT);
-	header.length = htonl((uint32_t)sizeof(struct PF_client)+id_len+username_len);
+	header.length = htonl((uint32_t)اندازه(ساختار PF_client)+id_len+username_len);
 
-	write_e(db_fptr, &header, sizeof(struct PF_header));
-	write_e(db_fptr, &chunk->F, sizeof(struct PF_client));
+	write_e(db_fptr, &header, اندازه(ساختار PF_header));
+	write_e(db_fptr, &chunk->F, اندازه(ساختار PF_client));
 
 	write_e(db_fptr, chunk->clientid, id_len);
-	if(username_len > 0){
+	اگر(username_len > 0){
 		write_e(db_fptr, chunk->username, username_len);
 	}
 
-	return MOSQ_ERR_SUCCESS;
+	بازگشت MOSQ_ERR_SUCCESS;
 error:
-	log__printf(NULL, MOSQ_LOG_ERR, "Error: %s.", strerror(errno));
-	return 1;
+	log__printf(پوچ, MOSQ_LOG_ERR, "Error: %s.", strerror(errno));
+	بازگشت 1;
 }
 
 
-int persist__chunk_client_msg_write_v6(FILE *db_fptr, struct P_client_msg *chunk)
+صحیح persist_chunk_client_پیام_write_v6(FILE *db_fptr, ساختار P_client_پیام *chunk)
 {
-	struct PF_header header;
-	struct mosquitto__packet *prop_packet = NULL;
+	ساختار PF_header header;
+	ساختار mosquitto__packet *prop_packet = پوچ;
 	uint16_t id_len = chunk->F.id_len;
 	uint32_t proplen = 0;
-	int rc;
+	صحیح rc;
 	mosquitto_property subscription_id_prop = {
-		.next = NULL, .identifier = MQTT_PROP_SUBSCRIPTION_IDENTIFIER, .client_generated = true, .property_type = MQTT_PROP_TYPE_VARINT
+		.next = پوچ, .identifier = MQTT_PROP_SUBSCRIPTION_IDENTIFIER, .client_generated = true, .property_type = MQTT_PROP_TYPE_VARINT
 	};
 
-	if(chunk->subscription_identifier){
-		subscription_id_prop.value.varint = chunk->subscription_identifier;
+	اگر(chunk->subscription_identifier){
+		subscription_id_prop.مقدار.varint = chunk->subscription_identifier;
 		proplen += mosquitto_property_get_remaining_length(&subscription_id_prop);
 	}
 
 	chunk->F.mid = htons(chunk->F.mid);
 	chunk->F.id_len = htons(chunk->F.id_len);
 
-	header.chunk = htonl(DB_CHUNK_CLIENT_MSG);
-	header.length = htonl((uint32_t)sizeof(struct PF_client_msg) + id_len + proplen);
+	header.chunk = htonl(DB_CHUNK_CLIENT_پیام);
+	header.length = htonl((uint32_t)اندازه(ساختار PF_client_پیام) + id_len + proplen);
 
-	write_e(db_fptr, &header, sizeof(struct PF_header));
-	write_e(db_fptr, &chunk->F, sizeof(struct PF_client_msg));
+	write_e(db_fptr, &header, اندازه(ساختار PF_header));
+	write_e(db_fptr, &chunk->F, اندازه(ساختار PF_client_پیام));
 	write_e(db_fptr, chunk->clientid, id_len);
-	if(chunk->subscription_identifier){
-		if(proplen > 0){
-			prop_packet = mosquitto_calloc(1, sizeof(struct mosquitto__packet)+proplen);
-			if(prop_packet == NULL){
-				return MOSQ_ERR_NOMEM;
+	اگر(chunk->subscription_identifier){
+		اگر(proplen > 0){
+			prop_packet = mosquitto_calloc(1, اندازه(ساختار mosquitto__packet)+proplen);
+			اگر(prop_packet == پوچ){
+				بازگشت MOSQ_ERR_NOMEM;
 			}
 			prop_packet->remaining_length = proplen;
 			prop_packet->packet_length = proplen;
 			rc = property__write_all(prop_packet, &subscription_id_prop, true);
-			if(rc){
+			اگر(rc){
 				mosquitto_FREE(prop_packet);
-				return rc;
+				بازگشت rc;
 			}
 
 			write_e(db_fptr, prop_packet->payload, proplen);
@@ -129,25 +129,25 @@ int persist__chunk_client_msg_write_v6(FILE *db_fptr, struct P_client_msg *chunk
 		}
 	}
 
-	return MOSQ_ERR_SUCCESS;
+	بازگشت MOSQ_ERR_SUCCESS;
 error:
-	log__printf(NULL, MOSQ_LOG_ERR, "Error: %s.", strerror(errno));
+	log__printf(پوچ, MOSQ_LOG_ERR, "Error: %s.", strerror(errno));
 	mosquitto_FREE(prop_packet);
-	return 1;
+	بازگشت 1;
 }
 
 
-int persist__chunk_message_store_write_v6(FILE *db_fptr, struct P_base_msg *chunk)
+صحیح persist__chunk_message_store_write_v6(FILE *db_fptr, ساختار P_base_پیام *chunk)
 {
-	struct PF_header header;
+	ساختار PF_header header;
 	uint32_t payloadlen = chunk->F.payloadlen;
 	uint16_t source_id_len = chunk->F.source_id_len;
 	uint16_t source_username_len = chunk->F.source_username_len;
 	uint16_t topic_len = chunk->F.topic_len;
 	uint32_t proplen = 0;
-	int rc;
+	صحیح rc;
 
-	if(chunk->properties){
+	اگر(chunk->properties){
 		proplen += mosquitto_property_get_remaining_length(chunk->properties);
 	}
 
@@ -158,72 +158,72 @@ int persist__chunk_message_store_write_v6(FILE *db_fptr, struct P_base_msg *chun
 	chunk->F.topic_len = htons(chunk->F.topic_len);
 	chunk->F.source_port = htons(chunk->F.source_port);
 
-	header.chunk = htonl(DB_CHUNK_BASE_MSG);
-	header.length = htonl((uint32_t)sizeof(struct PF_base_msg) +
+	header.chunk = htonl(DB_CHUNK_BASE_پیام);
+	header.length = htonl((uint32_t)اندازه(ساختار PF_base_پیام) +
 			topic_len + payloadlen +
 			source_id_len + source_username_len + proplen);
 
-	write_e(db_fptr, &header, sizeof(struct PF_header));
-	write_e(db_fptr, &chunk->F, sizeof(struct PF_base_msg));
-	if(source_id_len){
+	write_e(db_fptr, &header, اندازه(ساختار PF_header));
+	write_e(db_fptr, &chunk->F, اندازه(ساختار PF_base_پیام));
+	اگر(source_id_len){
 		write_e(db_fptr, chunk->source.id, source_id_len);
 	}
-	if(source_username_len){
+	اگر(source_username_len){
 		write_e(db_fptr, chunk->source.username, source_username_len);
 	}
 	write_e(db_fptr, chunk->topic, topic_len);
-	if(payloadlen){
-		write_e(db_fptr, chunk->payload, (unsigned int)payloadlen);
+	اگر(payloadlen){
+		write_e(db_fptr, chunk->payload, (unsigned صحیح)payloadlen);
 	}
-	if(chunk->properties){
-		if(proplen > 0){
-			struct mosquitto__packet *prop_packet = mosquitto_calloc(1, sizeof(struct mosquitto__packet)+proplen);
-			if(prop_packet == NULL){
-				return MOSQ_ERR_NOMEM;
+	اگر(chunk->properties){
+		اگر(proplen > 0){
+			ساختار mosquitto__packet *prop_packet = mosquitto_calloc(1, اندازه(ساختار mosquitto__packet)+proplen);
+			اگر(prop_packet == پوچ){
+				بازگشت MOSQ_ERR_NOMEM;
 			}
 			prop_packet->remaining_length = proplen;
 			prop_packet->packet_length = proplen;
 			rc = property__write_all(prop_packet, chunk->properties, true);
-			if(rc){
+			اگر(rc){
 				mosquitto_FREE(prop_packet);
-				return rc;
+				بازگشت rc;
 			}
 
-			if(fwrite(prop_packet->payload, 1, proplen, db_fptr) != proplen){
+			اگر(fwrite(prop_packet->payload, 1, proplen, db_fptr) != proplen){
 				mosquitto_FREE(prop_packet);
-				goto error;
+				برو error;
 			}
 			mosquitto_FREE(prop_packet);
 		}
 	}
 
-	return MOSQ_ERR_SUCCESS;
+	بازگشت MOSQ_ERR_SUCCESS;
 error:
-	log__printf(NULL, MOSQ_LOG_ERR, "Error: %s.", strerror(errno));
-	return 1;
+	log__printf(پوچ, MOSQ_LOG_ERR, "Error: %s.", strerror(errno));
+	بازگشت 1;
 }
 
 
-int persist__chunk_retain_write_v6(FILE *db_fptr, struct P_retain *chunk)
+صحیح persist__chunk_retain_write_v6(FILE *db_fptr, ساختار P_retain *chunk)
 {
-	struct PF_header header;
+	ساختار PF_header header;
 
 	header.chunk = htonl(DB_CHUNK_RETAIN);
-	header.length = htonl((uint32_t)sizeof(struct PF_retain));
+	header.length = htonl((uint32_t)اندازه(ساختار PF_retain));
 
-	write_e(db_fptr, &header, sizeof(struct PF_header));
-	write_e(db_fptr, &chunk->F, sizeof(struct PF_retain));
+	write_e(db_fptr, &header, اندازه(ساختار PF_header));
+	write_e(db_fptr, &chunk->F, اندازه(ساختار PF_retain));
 
-	return MOSQ_ERR_SUCCESS;
+	بازگشت MOSQ_ERR_SUCCESS;
 error:
-	log__printf(NULL, MOSQ_LOG_ERR, "Error: %s.", strerror(errno));
-	return 1;
+	log__printf(پوچ, MOSQ_LOG_ERR, "Error: %s.", strerror(errno));
+	بازگشت 1;
 }
 
 
-int persist__chunk_sub_write_v6(FILE *db_fptr, struct P_sub *chunk)
+صحیح persist__chunk_sub_write_v6(FILE *db_fptr, ساختار P_sub *chunk)
 {
-	struct PF_header header;
+	ساختار PF_header header;
 	uint16_t id_len = chunk->F.id_len;
 	uint16_t topic_len = chunk->F.topic_len;
 
@@ -232,17 +232,17 @@ int persist__chunk_sub_write_v6(FILE *db_fptr, struct P_sub *chunk)
 	chunk->F.topic_len = htons(chunk->F.topic_len);
 
 	header.chunk = htonl(DB_CHUNK_SUB);
-	header.length = htonl((uint32_t)sizeof(struct PF_sub) +
+	header.length = htonl((uint32_t)اندازه(ساختار PF_sub) +
 			id_len + topic_len);
 
-	write_e(db_fptr, &header, sizeof(struct PF_header));
-	write_e(db_fptr, &chunk->F, sizeof(struct PF_sub));
+	write_e(db_fptr, &header, اندازه(ساختار PF_header));
+	write_e(db_fptr, &chunk->F, اندازه(ساختار PF_sub));
 	write_e(db_fptr, chunk->clientid, id_len);
 	write_e(db_fptr, chunk->topic, topic_len);
 
-	return MOSQ_ERR_SUCCESS;
+	بازگشت MOSQ_ERR_SUCCESS;
 error:
-	log__printf(NULL, MOSQ_LOG_ERR, "Error: %s.", strerror(errno));
-	return 1;
+	log__printf(پوچ, MOSQ_LOG_ERR, "Error: %s.", strerror(errno));
+	بازگشت 1;
 }
 #endif

@@ -16,67 +16,67 @@ Contributors:
    Roger Light - initial implementation and documentation.
 */
 
-#include "config.h"
+#شامل "config.h"
 
 #ifdef WITH_PERSISTENCE
 
 #ifndef WIN32
-#include <arpa/inet.h>
+#شامل <arpa/inet.h>
 #endif
-#include <errno.h>
-#include <fcntl.h>
-#include <stdio.h>
-#include <string.h>
-#include <sys/stat.h>
-#include <time.h>
+#شامل <errno.h>
+#شامل <fcntl.h>
+#شامل <stdio.h>
+#شامل <string.h>
+#شامل <sys/stat.h>
+#شامل <time.h>
 
-#include "mosquitto_broker_internal.h"
-#include "mosquitto/mqtt_protocol.h"
-#include "persist.h"
-#include "property_mosq.h"
-#include "util_mosq.h"
+#شامل "mosquitto_broker_internal.h"
+#شامل "mosquitto/mqtt_protocol.h"
+#شامل "persist.h"
+#شامل "property_mosq.h"
+#شامل "util_mosq.h"
 
 
-int persist__chunk_header_read_v56(FILE *db_fptr, uint32_t *chunk, uint32_t *length)
+صحیح persist__chunk_header_read_v56(FILE *db_fptr, uint32_t *chunk, uint32_t *length)
 {
 	size_t rlen;
-	struct PF_header header;
+	ساختار PF_header header;
 
-	rlen = fread(&header, sizeof(struct PF_header), 1, db_fptr);
-	if(rlen != 1){
-		return 1;
+	rlen = fread(&header, اندازه(ساختار PF_header), 1, db_fptr);
+	اگر(rlen != 1){
+		بازگشت 1;
 	}
 
 	*chunk = ntohl(header.chunk);
 	*length = ntohl(header.length);
 
-	return MOSQ_ERR_SUCCESS;
+	بازگشت MOSQ_ERR_SUCCESS;
 }
 
 
-int persist__chunk_cfg_read_v56(FILE *db_fptr, struct PF_cfg *chunk)
+صحیح persist__chunk_cfg_read_v56(FILE *db_fptr, ساختار PF_cfg *chunk)
 {
-	if(fread(chunk, sizeof(struct PF_cfg), 1, db_fptr) != 1){
-		log__printf(NULL, MOSQ_LOG_ERR, "Error: %s.", strerror(errno));
-		return 1;
+	اگر(fread(chunk, اندازه(ساختار PF_cfg), 1, db_fptr) != 1){
+		log__printf(پوچ, MOSQ_LOG_ERR, "Error: %s.", strerror(errno));
+		بازگشت 1;
 	}
 
-	return MOSQ_ERR_SUCCESS;
+	بازگشت MOSQ_ERR_SUCCESS;
 }
 
 
-int persist__chunk_client_read_v56(FILE *db_fptr, struct P_client *chunk, uint32_t db_version)
+صحیح persist__chunk_client_read_v56(FILE *db_fptr, ساختار P_client *chunk, uint32_t db_version)
 {
-	int rc;
+	صحیح rc;
 
-	if(db_version == 6){
-		read_e(db_fptr, &chunk->F, sizeof(struct PF_client));
+	اگر(db_version == 6){
+		read_e(db_fptr, &chunk->F, اندازه(ساختار PF_client));
 		chunk->F.username_len = ntohs(chunk->F.username_len);
 		chunk->F.listener_port = ntohs(chunk->F.listener_port);
-	}else if(db_version == 5){
-		read_e(db_fptr, &chunk->F, sizeof(struct PF_client_v5));
-	}else{
-		return 1;
+	}وگرنه اگر(db_version == 5){
+		read_e(db_fptr, &chunk->F, اندازه(ساختار PF_client_v5));
+	}وگرنه{
+		بازگشت 1;
 	}
 
 	chunk->F.session_expiry_interval = ntohl(chunk->F.session_expiry_interval);
@@ -85,70 +85,70 @@ int persist__chunk_client_read_v56(FILE *db_fptr, struct P_client *chunk, uint32
 
 
 	rc = persist__read_string_len(db_fptr, &chunk->clientid, chunk->F.id_len);
-	if(rc){
-		return 1;
-	}else if(chunk->clientid == NULL){
-		return -1;
+	اگر(rc){
+		بازگشت 1;
+	}وگرنه اگر(chunk->clientid == پوچ){
+		بازگشت -1;
 	}
 
-	if(chunk->F.username_len > 0){
+	اگر(chunk->F.username_len > 0){
 		rc = persist__read_string_len(db_fptr, &chunk->username, chunk->F.username_len);
-		if(rc || !chunk->username){
+		اگر(rc || !chunk->username){
 			mosquitto_FREE(chunk->clientid);
-			return 1;
+			بازگشت 1;
 		}
 	}
 
-	return MOSQ_ERR_SUCCESS;
+	بازگشت MOSQ_ERR_SUCCESS;
 error:
-	log__printf(NULL, MOSQ_LOG_ERR, "Error: %s.", strerror(errno));
-	return 1;
+	log__printf(پوچ, MOSQ_LOG_ERR, "Error: %s.", strerror(errno));
+	بازگشت 1;
 }
 
 
-int persist__chunk_client_msg_read_v56(FILE *db_fptr, struct P_client_msg *chunk, uint32_t length)
+صحیح persist_chunk_client_پیام_read_v56(FILE *db_fptr, ساختار P_client_پیام *chunk, uint32_t length)
 {
-	mosquitto_property *properties = NULL, *p;
-	struct mosquitto__packet_in prop_packet;
-	int rc;
+	mosquitto_property *properties = پوچ, *p;
+	ساختار mosquitto__packet_in prop_packet;
+	صحیح rc;
 
-	memset(&prop_packet, 0, sizeof(struct mosquitto__packet_in));
+	memset(&prop_packet, 0, اندازه(ساختار mosquitto__packet_in));
 
-	read_e(db_fptr, &chunk->F, sizeof(struct PF_client_msg));
+	read_e(db_fptr, &chunk->F, اندازه(ساختار PF_client_پیام));
 	chunk->F.mid = ntohs(chunk->F.mid);
 	chunk->F.id_len = ntohs(chunk->F.id_len);
 
-	length -= (uint32_t)(sizeof(struct PF_client_msg) + chunk->F.id_len);
-	if(length > MQTT_MAX_PAYLOAD){
-		goto error;
+	length -= (uint32_t)(اندازه(ساختار PF_client_پیام) + chunk->F.id_len);
+	اگر(length > MQTT_MAX_PAYLOAD){
+		برو error;
 	}
 
 	rc = persist__read_string_len(db_fptr, &chunk->clientid, chunk->F.id_len);
-	if(rc){
-		return rc;
+	اگر(rc){
+		بازگشت rc;
 	}
 
-	if(length > 0){
+	اگر(length > 0){
 		prop_packet.remaining_length = length;
 		prop_packet.payload = mosquitto_malloc(length);
-		if(!prop_packet.payload){
+		اگر(!prop_packet.payload){
 			errno = ENOMEM;
-			goto error;
+			برو error;
 		}
 
 		read_e(db_fptr, prop_packet.payload, length);
 		rc = property__read_all(CMD_PUBLISH, &prop_packet, &properties);
 		mosquitto_FREE(prop_packet.payload);
-		if(rc){
+		اگر(rc){
 			mosquitto_FREE(chunk->clientid);
-			return rc;
+			بازگشت rc;
 		}
 
-		if(properties){
+		اگر(properties){
 			p = properties;
-			while(p){
-				if(mosquitto_property_identifier(p) == MQTT_PROP_SUBSCRIPTION_IDENTIFIER){
-					chunk->subscription_identifier = mosquitto_property_varint_value(p);
+			وقتی(p){
+				اگر(mosquitto_property_identifier(p) == MQTT_PROP_SUBSCRIPTION_IDENTIFIER){
+					chunk->subscription_identifier = mosquitto_property_varint_مقدار(p);
 				}
 				p = mosquitto_property_next(p);
 			}
@@ -156,27 +156,27 @@ int persist__chunk_client_msg_read_v56(FILE *db_fptr, struct P_client_msg *chunk
 		}
 	}
 
-	return MOSQ_ERR_SUCCESS;
+	بازگشت MOSQ_ERR_SUCCESS;
 error:
 	mosquitto_FREE(chunk->clientid);
 	mosquitto_FREE(prop_packet.payload);
-	log__printf(NULL, MOSQ_LOG_ERR, "Error: %s.", strerror(errno));
-	return 1;
+	log__printf(پوچ, MOSQ_LOG_ERR, "Error: %s.", strerror(errno));
+	بازگشت 1;
 }
 
 
-int persist__chunk_base_msg_read_v56(FILE *db_fptr, struct P_base_msg *chunk, uint32_t length)
+صحیح persist_chunk_base_پیام_read_v56(FILE *db_fptr, ساختار P_base_پیام *chunk, uint32_t length)
 {
-	int rc = 0;
-	mosquitto_property *properties = NULL;
-	struct mosquitto__packet_in prop_packet;
+	صحیح rc = 0;
+	mosquitto_property *properties = پوچ;
+	ساختار mosquitto__packet_in prop_packet;
 
-	memset(&prop_packet, 0, sizeof(struct mosquitto__packet_in));
+	memset(&prop_packet, 0, اندازه(ساختار mosquitto__packet_in));
 
-	read_e(db_fptr, &chunk->F, sizeof(struct PF_base_msg));
+	read_e(db_fptr, &chunk->F, اندازه(ساختار PF_base_پیام));
 	chunk->F.payloadlen = ntohl(chunk->F.payloadlen);
-	if(chunk->F.payloadlen > MQTT_MAX_PAYLOAD){
-		return MOSQ_ERR_INVAL;
+	اگر(chunk->F.payloadlen > MQTT_MAX_PAYLOAD){
+		بازگشت MOSQ_ERR_INVAL;
 	}
 	chunk->F.source_mid = ntohs(chunk->F.source_mid);
 	chunk->F.source_id_len = ntohs(chunk->F.source_id_len);
@@ -184,100 +184,100 @@ int persist__chunk_base_msg_read_v56(FILE *db_fptr, struct P_base_msg *chunk, ui
 	chunk->F.topic_len = ntohs(chunk->F.topic_len);
 	chunk->F.source_port = ntohs(chunk->F.source_port);
 
-	length -= (uint32_t)(sizeof(struct PF_base_msg) + chunk->F.payloadlen + chunk->F.source_id_len + chunk->F.source_username_len + chunk->F.topic_len);
-	if(length > MQTT_MAX_PAYLOAD){
-		goto error;
+	length -= (uint32_t)(اندازه(ساختار PF_base_پیام) + chunk->F.payloadlen + chunk->F.source_id_len + chunk->F.source_username_len + chunk->F.topic_len);
+	اگر(length > MQTT_MAX_PAYLOAD){
+		برو error;
 	}
 
-	if(chunk->F.source_id_len){
+	اگر(chunk->F.source_id_len){
 		rc = persist__read_string_len(db_fptr, &chunk->source.id, chunk->F.source_id_len);
-		if(rc){
-			goto error;
+		اگر(rc){
+			برو error;
 		}
 	}
-	if(chunk->F.source_username_len){
+	اگر(chunk->F.source_username_len){
 		rc = persist__read_string_len(db_fptr, &chunk->source.username, chunk->F.source_username_len);
-		if(rc){
-			goto error;
+		اگر(rc){
+			برو error;
 		}
 	}
 	rc = persist__read_string_len(db_fptr, &chunk->topic, chunk->F.topic_len);
-	if(rc){
-		goto error;
+	اگر(rc){
+		برو error;
 	}
 
-	if(chunk->F.payloadlen > 0){
+	اگر(chunk->F.payloadlen > 0){
 		chunk->payload = mosquitto_malloc(chunk->F.payloadlen+1);
-		if(chunk->payload == NULL){
+		اگر(chunk->payload == پوچ){
 			rc = MOSQ_ERR_NOMEM;
-			goto error;
+			برو error;
 		}
 		read_e(db_fptr, chunk->payload, chunk->F.payloadlen);
 		/* Ensure zero terminated regardless of contents */
 		((uint8_t *)chunk->payload)[chunk->F.payloadlen] = 0;
 	}
 
-	if(length > 0){
+	اگر(length > 0){
 		prop_packet.remaining_length = length;
 		prop_packet.payload = mosquitto_malloc(length);
-		if(!prop_packet.payload){
+		اگر(!prop_packet.payload){
 			rc = MOSQ_ERR_NOMEM;
-			goto error;
+			برو error;
 		}
 		read_e(db_fptr, prop_packet.payload, length);
 		rc = property__read_all(CMD_PUBLISH, &prop_packet, &properties);
 		mosquitto_FREE(prop_packet.payload);
-		if(rc){
+		اگر(rc){
 			rc = MOSQ_ERR_NOMEM;
-			goto error;
+			برو error;
 		}
 	}
 	chunk->properties = properties;
 
-	return MOSQ_ERR_SUCCESS;
+	بازگشت MOSQ_ERR_SUCCESS;
 error:
 	mosquitto_FREE(chunk->payload);
 	mosquitto_FREE(chunk->source.id);
 	mosquitto_FREE(chunk->source.username);
 	mosquitto_FREE(chunk->topic);
 	mosquitto_FREE(prop_packet.payload);
-	return rc;
+	بازگشت rc;
 }
 
 
-int persist__chunk_retain_read_v56(FILE *db_fptr, struct P_retain *chunk)
+صحیح persist__chunk_retain_read_v56(FILE *db_fptr, ساختار P_retain *chunk)
 {
-	if(fread(&chunk->F, sizeof(struct P_retain), 1, db_fptr) != 1){
-		log__printf(NULL, MOSQ_LOG_ERR, "Error: %s.", strerror(errno));
-		return 1;
+	اگر(fread(&chunk->F, اندازه(ساختار P_retain), 1, db_fptr) != 1){
+		log__printf(پوچ, MOSQ_LOG_ERR, "Error: %s.", strerror(errno));
+		بازگشت 1;
 	}
-	return MOSQ_ERR_SUCCESS;
+	بازگشت MOSQ_ERR_SUCCESS;
 }
 
 
-int persist__chunk_sub_read_v56(FILE *db_fptr, struct P_sub *chunk)
+صحیح persist__chunk_sub_read_v56(FILE *db_fptr, ساختار P_sub *chunk)
 {
-	int rc = MOSQ_ERR_SUCCESS;
+	صحیح rc = MOSQ_ERR_SUCCESS;
 
-	read_e(db_fptr, &chunk->F, sizeof(struct PF_sub));
+	read_e(db_fptr, &chunk->F, اندازه(ساختار PF_sub));
 	chunk->F.identifier = ntohl(chunk->F.identifier);
 	chunk->F.id_len = ntohs(chunk->F.id_len);
 	chunk->F.topic_len = ntohs(chunk->F.topic_len);
 
 	rc = persist__read_string_len(db_fptr, &chunk->clientid, chunk->F.id_len);
-	if(rc){
-		goto error;
+	اگر(rc){
+		برو error;
 	}
 
 	rc = persist__read_string_len(db_fptr, &chunk->topic, chunk->F.topic_len);
-	if(rc){
-		goto error;
+	اگر(rc){
+		برو error;
 	}
 
-	return MOSQ_ERR_SUCCESS;
+	بازگشت MOSQ_ERR_SUCCESS;
 error:
 	mosquitto_FREE(chunk->clientid);
-	return rc;
+	بازگشت rc;
 }
 
 #endif
