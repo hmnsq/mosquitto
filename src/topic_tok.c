@@ -32,95 +32,95 @@ static char *strtok_hier(char *str, char **saveptr)
 {
 	char *c;
 
-	if(str != NULL){
+	만약(str != NULL){
 		*saveptr = str;
 	}
 
-	if(*saveptr == NULL){
-		return NULL;
+	만약(*saveptr == NULL){
+		반환 NULL;
 	}
 
 	c = strchr(*saveptr, '/');
-	if(c){
+	만약(c){
 		str = *saveptr;
 		*saveptr = c+1;
 		c[0] = '\0';
-	}else if(*saveptr){
+	}아니면 만약(*saveptr){
 		/* No match, but surplus string */
 		str = *saveptr;
 		*saveptr = NULL;
 	}
-	return str;
+	반환 str;
 }
 
 
-int sub__topic_tokenise(const char *subtopic, char **local_sub, char ***topics, const char **sharename)
+정수 sub__topic_tokenise(const char *subtopic, char **local_sub, char ***topics, const char **sharename)
 {
 	char *saveptr = NULL;
 	char *token;
-	int count;
-	int topic_index = 0;
+	정수 count;
+	정수 topic_index = 0;
 	size_t len;
 
-	if(!subtopic){
-		return MOSQ_ERR_INVAL;
+	만약(!subtopic){
+		반환 MOSQ_ERR_INVAL;
 	}
 
 	len = strlen(subtopic);
-	if(len == 0){
-		return MOSQ_ERR_INVAL;
+	만약(len == 0){
+		반환 MOSQ_ERR_INVAL;
 	}
 
 	*local_sub = mosquitto_strdup(subtopic);
-	if((*local_sub) == NULL){
-		return MOSQ_ERR_NOMEM;
+	만약((*local_sub) == NULL){
+		반환 MOSQ_ERR_NOMEM;
 	}
 
 	count = 0;
 	saveptr = *local_sub;
-	while(saveptr){
+	동안(saveptr){
 		saveptr = strchr(&saveptr[1], '/');
 		count++;
 	}
 	*topics = mosquitto_calloc((size_t)(count+3) /* 3=$shared,sharename,NULL */, sizeof(char *));
-	if((*topics) == NULL){
+	만약((*topics) == NULL){
 		mosquitto_FREE(*local_sub);
-		return MOSQ_ERR_NOMEM;
+		반환 MOSQ_ERR_NOMEM;
 	}
 
-	if((*local_sub)[0] != '$'){
+	만약((*local_sub)[0] != '$'){
 		(*topics)[topic_index] = "";
 		topic_index++;
 	}
 
 	token = strtok_hier((*local_sub), &saveptr);
-	while(token){
+	동안(token){
 		(*topics)[topic_index] = token;
 		topic_index++;
 		token = strtok_hier(NULL, &saveptr);
 	}
 
-	if(!strcmp((*topics)[0], "$share")){
-		if(count < 3 || (count == 3 && strlen((*topics)[2]) == 0)){
+	만약(!strcmp((*topics)[0], "$share")){
+		만약(count < 3 || (count == 3 && strlen((*topics)[2]) == 0)){
 			mosquitto_FREE(*local_sub);
 			mosquitto_FREE(*topics);
-			return MOSQ_ERR_PROTOCOL;
+			반환 MOSQ_ERR_PROTOCOL;
 		}
 
-		if(sharename){
-			if(strpbrk((*topics)[1], "+#")){
+		만약(sharename){
+			만약(strpbrk((*topics)[1], "+#")){
 				mosquitto_FREE(*local_sub);
 				mosquitto_FREE(*topics);
-				return MOSQ_ERR_PROTOCOL;
+				반환 MOSQ_ERR_PROTOCOL;
 			}
 			(*sharename) = (*topics)[1];
 		}
 
-		for(int i=1; i<count-1; i++){
+		위해(정수 i=1; i<count-1; i++){
 			(*topics)[i] = (*topics)[i+1];
 		}
 		(*topics)[0] = "";
 		(*topics)[count-1] = NULL;
 	}
-	return MOSQ_ERR_SUCCESS;
+	반환 MOSQ_ERR_SUCCESS;
 }

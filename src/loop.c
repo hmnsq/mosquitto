@@ -25,7 +25,7 @@ Contributors:
 
 #ifndef WIN32
 #include <unistd.h>
-#else
+#아니면
 #include <process.h>
 #include <winsock2.h>
 #include <ws2tcpip.h>
@@ -41,7 +41,7 @@ Contributors:
 #include <time.h>
 #include <utlist.h>
 
-#if defined(WITH_WEBSOCKETS) && WITH_WEBSOCKETS == WS_IS_LWS
+#만약 defined(WITH_WEBSOCKETS) && WITH_WEBSOCKETS == WS_IS_LWS
 #  include <libwebsockets.h>
 #endif
 
@@ -53,9 +53,9 @@ Contributors:
 #include "sys_tree.h"
 #include "util_mosq.h"
 
-extern int g_run;
+extern 정수 g_run;
 
-#if defined(WITH_WEBSOCKETS) && WITH_WEBSOCKETS == WS_IS_LWS && LWS_LIBRARY_VERSION_NUMBER == 3002000
+#만약 defined(WITH_WEBSOCKETS) && WITH_WEBSOCKETS == WS_IS_LWS && LWS_LIBRARY_VERSION_NUMBER == 3002000
 
 
 void lws__sul_callback(struct lws_sorted_usec_list *l)
@@ -66,14 +66,14 @@ static struct lws_sorted_usec_list sul;
 #endif
 
 
-static int single_publish(struct mosquitto *context, struct mosquitto__message_v5 *pub_msg, uint32_t message_expiry)
+static 정수 single_publish(struct mosquitto *context, struct mosquitto__message_v5 *pub_msg, uint32_t message_expiry)
 {
 	struct mosquitto__base_msg *base_msg;
 	uint16_t mid;
 
 	base_msg = mosquitto_calloc(1, sizeof(struct mosquitto__base_msg));
-	if(base_msg == NULL){
-		return MOSQ_ERR_NOMEM;
+	만약(base_msg == NULL){
+		반환 MOSQ_ERR_NOMEM;
 	}
 
 	base_msg->data.topic = pub_msg->topic;
@@ -81,29 +81,29 @@ static int single_publish(struct mosquitto *context, struct mosquitto__message_v
 	base_msg->data.retain = 0;
 	base_msg->data.payloadlen = (uint32_t)pub_msg->payloadlen;
 	base_msg->data.payload = mosquitto_malloc(base_msg->data.payloadlen+1);
-	if(base_msg->data.payload == NULL){
+	만약(base_msg->data.payload == NULL){
 		db__msg_store_free(base_msg);
-		return MOSQ_ERR_NOMEM;
+		반환 MOSQ_ERR_NOMEM;
 	}
 	/* Ensure payload is always zero terminated, this is the reason for the extra byte above */
 	((uint8_t *)base_msg->data.payload)[base_msg->data.payloadlen] = 0;
 	memcpy(base_msg->data.payload, pub_msg->payload, base_msg->data.payloadlen);
 
-	if(pub_msg->properties){
+	만약(pub_msg->properties){
 		base_msg->data.properties = pub_msg->properties;
 		pub_msg->properties = NULL;
 	}
 
-	if(db__message_store(context, base_msg, &message_expiry, mosq_mo_broker)){
-		return 1;
+	만약(db__message_store(context, base_msg, &message_expiry, mosq_mo_broker)){
+		반환 1;
 	}
 
-	if(pub_msg->qos){
+	만약(pub_msg->qos){
 		mid = mosquitto__mid_generate(context);
-	}else{
+	}아니면{
 		mid = 0;
 	}
-	return db__message_insert_outgoing(context, 0, mid, (uint8_t)pub_msg->qos, 0, base_msg, 0, true, true);
+	반환 db__message_insert_outgoing(context, 0, mid, (uint8_t)pub_msg->qos, 0, base_msg, 0, true, true);
 }
 
 
@@ -113,21 +113,21 @@ static void read_message_expiry_interval(mosquitto_property **proplist, uint32_t
 
 	*message_expiry = MSG_EXPIRY_INFINITE;
 
-	if(!proplist){
-		return;
+	만약(!proplist){
+		반환;
 	}
 
 	p = *proplist;
-	while(p){
-		if(mosquitto_property_identifier(p) == MQTT_PROP_MESSAGE_EXPIRY_INTERVAL){
+	동안(p){
+		만약(mosquitto_property_identifier(p) == MQTT_PROP_MESSAGE_EXPIRY_INTERVAL){
 			*message_expiry = mosquitto_property_int32_value(p);
-			if(p == *proplist){
+			만약(p == *proplist){
 				*proplist = mosquitto_property_next(p);
-			}else{
+			}아니면{
 				previous->next = mosquitto_property_next(p);
 			}
 			mosquitto_property_free(&p);
-			return;
+			반환;
 
 		}
 		previous = p;
@@ -147,12 +147,12 @@ static void queue_plugin_msgs(void)
 
 		read_message_expiry_interval(&msg->properties, &message_expiry);
 
-		if(msg->clientid){
+		만약(msg->clientid){
 			HASH_FIND(hh_id, db.contexts_by_id, msg->clientid, strlen(msg->clientid), context);
-			if(context){
+			만약(context){
 				single_publish(context, msg, message_expiry);
 			}
-		}else{
+		}아니면{
 			db__messages_easy_queue(NULL, msg->topic, (uint8_t)msg->qos, (uint32_t)msg->payloadlen, msg->payload, msg->retain, message_expiry, &msg->properties);
 		}
 		mosquitto_FREE(msg->topic);
@@ -166,22 +166,22 @@ static void queue_plugin_msgs(void)
 
 void loop__update_next_event(time_t new_ms)
 {
-	if(new_ms > 0 && new_ms < db.next_event_ms){
+	만약(new_ms > 0 && new_ms < db.next_event_ms){
 		db.next_event_ms = new_ms;
 	}
 }
 
 
-int mosquitto_main_loop(struct mosquitto__listener_sock *listensock, int listensock_count)
+정수 mosquitto_main_loop(struct mosquitto__listener_sock *listensock, 정수 listensock_count)
 {
 #ifdef WITH_PERSISTENCE
 	time_t last_backup = mosquitto_time();
 #endif
-	int rc;
+	정수 rc;
 
 
 	watchdog__init();
-#if defined(WITH_WEBSOCKETS) && WITH_WEBSOCKETS == WS_IS_LWS && LWS_LIBRARY_VERSION_NUMBER == 3002000
+#만약 defined(WITH_WEBSOCKETS) && WITH_WEBSOCKETS == WS_IS_LWS && LWS_LIBRARY_VERSION_NUMBER == 3002000
 	memset(&sul, 0, sizeof(struct lws_sorted_usec_list));
 #endif
 
@@ -190,19 +190,19 @@ int mosquitto_main_loop(struct mosquitto__listener_sock *listensock, int listens
 
 #ifdef WITH_BRIDGE
 	rc = bridge__register_local_connections();
-	if(rc){
-		return rc;
+	만약(rc){
+		반환 rc;
 	}
 #endif
 
-	while(g_run){
+	동안(g_run){
 		retain__expiry_check();
 		queue_plugin_msgs();
 		context__free_disused();
 
 		db.next_event_ms = 86400000;
 #ifdef WITH_SYS_TREE
-		if(db.config->sys_interval > 0){
+		만약(db.config->sys_interval > 0){
 			sys_tree__update(false);
 		}
 #endif
@@ -218,19 +218,19 @@ int mosquitto_main_loop(struct mosquitto__listener_sock *listensock, int listens
 		will_delay__check();
 
 		rc = mux__handle(listensock, listensock_count);
-		if(rc){
-			return rc;
+		만약(rc){
+			반환 rc;
 		}
 
 #ifdef WITH_PERSISTENCE
-		if(db.config->persistence && db.config->autosave_interval){
-			if(db.config->autosave_on_changes){
-				if(db.persistence_changes >= db.config->autosave_interval){
+		만약(db.config->persistence && db.config->autosave_interval){
+			만약(db.config->autosave_on_changes){
+				만약(db.persistence_changes >= db.config->autosave_interval){
 					persist__backup(false);
 					db.persistence_changes = 0;
 				}
-			}else{
-				if(last_backup + db.config->autosave_interval < db.now_s){
+			}아니면{
+				만약(last_backup + db.config->autosave_interval < db.now_s){
 					persist__backup(false);
 					last_backup = db.now_s;
 				}
@@ -239,23 +239,23 @@ int mosquitto_main_loop(struct mosquitto__listener_sock *listensock, int listens
 #endif
 
 		rc = signal__flag_check();
-		if(rc){
-			return rc;
+		만약(rc){
+			반환 rc;
 		}
 
-#if defined(WITH_WEBSOCKETS) && WITH_WEBSOCKETS == WS_IS_LWS
-		for(int i=0; i<db.config->listener_count; i++){
+#만약 defined(WITH_WEBSOCKETS) && WITH_WEBSOCKETS == WS_IS_LWS
+		위해(정수 i=0; i<db.config->listener_count; i++){
 			/* Extremely hacky, should be using the lws provided external poll
 			 * interface, but their interface has changed recently and ours
 			 * will soon, so for now websockets clients are second class
 			 * citizens. */
-			if(db.config->listeners[i].ws_context){
-#if LWS_LIBRARY_VERSION_NUMBER > 3002000
+			만약(db.config->listeners[i].ws_context){
+#만약 LWS_LIBRARY_VERSION_NUMBER > 3002000
 				lws_service(db.config->listeners[i].ws_context, -1);
 #elif LWS_LIBRARY_VERSION_NUMBER == 3002000
 				lws_sul_schedule(db.config->listeners[i].ws_context, 0, &sul, lws__sul_callback, 10);
 				lws_service(db.config->listeners[i].ws_context, 0);
-#else
+#아니면
 				lws_service(db.config->listeners[i].ws_context, 0);
 #endif
 
@@ -264,38 +264,38 @@ int mosquitto_main_loop(struct mosquitto__listener_sock *listensock, int listens
 #endif
 	}
 
-	return MOSQ_ERR_SUCCESS;
+	반환 MOSQ_ERR_SUCCESS;
 }
 
 
-void do_disconnect(struct mosquitto *context, int reason)
+void do_disconnect(struct mosquitto *context, 정수 reason)
 {
 	const char *id;
-#if defined(WITH_WEBSOCKETS) && WITH_WEBSOCKETS == WS_IS_LWS
+#만약 defined(WITH_WEBSOCKETS) && WITH_WEBSOCKETS == WS_IS_LWS
 	bool is_duplicate = false;
 #endif
 
-	if(context->state == mosq_cs_disconnected){
-		return;
+	만약(context->state == mosq_cs_disconnected){
+		반환;
 	}
-#if defined(WITH_WEBSOCKETS) && WITH_WEBSOCKETS == WS_IS_LWS
-	if(context->wsi){
-		if(context->state == mosq_cs_duplicate){
+#만약 defined(WITH_WEBSOCKETS) && WITH_WEBSOCKETS == WS_IS_LWS
+	만약(context->wsi){
+		만약(context->state == mosq_cs_duplicate){
 			is_duplicate = true;
 		}
 
-		if(context->state != mosq_cs_disconnecting && context->state != mosq_cs_disconnect_with_will){
+		만약(context->state != mosq_cs_disconnecting && context->state != mosq_cs_disconnect_with_will){
 			mosquitto__set_state(context, mosq_cs_disconnect_ws);
 		}
-		if(context->wsi){
+		만약(context->wsi){
 			lws_callback_on_writable(context->wsi);
 		}
-		if(context->sock != INVALID_SOCKET){
+		만약(context->sock != INVALID_SOCKET){
 			HASH_DELETE(hh_sock, db.contexts_by_sock, context);
 			mux__delete(context);
 			context->sock = INVALID_SOCKET;
 		}
-		if(is_duplicate){
+		만약(is_duplicate){
 			/* This occurs if another client is taking over the same client id.
 			 * It is important to remove this from the by_id hash here, so it
 			 * doesn't leave us with multiple clients in the hash with the same
@@ -304,16 +304,16 @@ void do_disconnect(struct mosquitto *context, int reason)
 			 * there could be two clients with the same id in the hash. */
 			context__remove_from_by_id(context);
 		}
-	}else
+	}아니면
 #endif
 	{
-		if(db.config->connection_messages == true){
-			if(context->id){
+		만약(db.config->connection_messages == true){
+			만약(context->id){
 				id = context->id;
-			}else{
+			}아니면{
 				id = context->address;
 			}
-			if(context->state != mosq_cs_disconnecting && context->state != mosq_cs_disconnect_with_will){
+			만약(context->state != mosq_cs_disconnecting && context->state != mosq_cs_disconnect_with_will){
 				switch(reason){
 					case MOSQ_ERR_SUCCESS:
 						break;
@@ -396,10 +396,10 @@ void do_disconnect(struct mosquitto *context, int reason)
 						log__printf(NULL, MOSQ_LOG_NOTICE, "Client %s [%s:%d] disconnected: bad socket read/write: %s", id, context->address, context->remote_port, mosquitto_strerror(reason));
 						break;
 				}
-			}else{
-				if(reason == MOSQ_ERR_ADMINISTRATIVE_ACTION){
+			}아니면{
+				만약(reason == MOSQ_ERR_ADMINISTRATIVE_ACTION){
 					log__printf(NULL, MOSQ_LOG_NOTICE, "Client %s [%s:%d] disconnected: administrative action.", id, context->address, context->remote_port);
-				}else{
+				}아니면{
 					log__printf(NULL, MOSQ_LOG_NOTICE, "Client %s [%s:%d] disconnected.", id, context->address, context->remote_port);
 				}
 			}

@@ -32,9 +32,9 @@ struct password_file_data {
 	char *password_file;
 };
 
-int password_file__parse(struct password_file_data *data);
-int password_file__check(int event, void *event_data, void *userdata);
-int password_file__reload(int event, void *event_data, void *userdata);
+정수 password_file__parse(struct password_file_data *data);
+정수 password_file__check(정수 event, void *event_data, void *userdata);
+정수 password_file__reload(정수 event, void *event_data, void *userdata);
 void password_file__cleanup(struct password_file_data *data);
 
 #endif

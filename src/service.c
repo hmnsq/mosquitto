@@ -16,32 +16,32 @@ Contributors:
    Roger Light - initial implementation and documentation.
 */
 
-#if defined(WIN32) || defined(__CYGWIN__)
+#만약 defined(WIN32) || defined(__CYGWIN__)
 
 #include "config.h"
 
 #include "mosquitto_broker_internal.h"
 #include <windows.h>
 
-extern int g_run;
+extern 정수 g_run;
 SERVICE_STATUS_HANDLE service_handle = 0;
 static SERVICE_STATUS service_status;
-int main(int argc, char *argv[]);
+정수 main(정수 argc, char *argv[]);
 
 
 static char *fix_name(char *name)
 {
 	size_t len;
 
-	if(strrchr(name, '\\')){
+	만약(strrchr(name, '\\')){
 		name = strrchr(name, '\\') + 1;
 	}
 	len = strlen(name);
-	if(!strcasecmp(&name[len-4], ".exe")){
+	만약(!strcasecmp(&name[len-4], ".exe")){
 		name[len-4] = '\0';
 	}
 
-	return name;
+	반환 name;
 }
 
 
@@ -83,9 +83,9 @@ void __stdcall service_handler(DWORD fdwControl)
 void __stdcall service_main(DWORD dwArgc, LPTSTR *lpszArgv)
 {
 	char **argv;
-	int argc = 1;
+	정수 argc = 1;
 	char conf_path[MAX_PATH + 20];
-	int rc;
+	정수 rc;
 	char *name;
 	char env_name[MAX_PATH];
 
@@ -93,27 +93,27 @@ void __stdcall service_main(DWORD dwArgc, LPTSTR *lpszArgv)
 
 	name = fix_name(lpszArgv[0]);
 	snprintf(env_name, sizeof(env_name), "%s_DIR", name);
-	for(int i=0; i<strlen(env_name); i++){
-		if(env_name[i]>='A' && env_name[i]<='Z'){
+	위해(정수 i=0; i<strlen(env_name); i++){
+		만약(env_name[i]>='A' && env_name[i]<='Z'){
 			/* Keep upper case letter */
-		}else if(env_name[i]>='0' && env_name[i]<='9'){
+		}아니면 만약(env_name[i]>='0' && env_name[i]<='9'){
 			/* Keep number */
-		}else if(env_name[i]>='a' && env_name[i]<='z'){
+		}아니면 만약(env_name[i]>='a' && env_name[i]<='z'){
 			/* Convert lower case to upper case */
 			env_name[i] -= 32;
-		}else{
+		}아니면{
 			env_name[i] = '_';
 		}
 	}
 
 	service_handle = RegisterServiceCtrlHandler(name, service_handler);
-	if(service_handle){
+	만약(service_handle){
 		memset(conf_path, 0, sizeof(conf_path));
 		rc = GetEnvironmentVariable(env_name, conf_path, MAX_PATH);
-		if(!rc || rc == MAX_PATH){
+		만약(!rc || rc == MAX_PATH){
 			service_status.dwCurrentState = SERVICE_STOPPED;
 			SetServiceStatus(service_handle, &service_status);
-			return;
+			반환;
 		}
 		strcat(conf_path, "\\mosquitto.conf");
 
@@ -148,19 +148,19 @@ void service_install(char *name)
 	SERVICE_DESCRIPTION svc_desc;
 
 	memset(exe_path, 0, sizeof(exe_path));
-	if(GetModuleFileName(NULL, exe_path, MAX_PATH) == MAX_PATH){
+	만약(GetModuleFileName(NULL, exe_path, MAX_PATH) == MAX_PATH){
 		fprintf(stderr, "Error: Path too long.\n");
-		return;
+		반환;
 	}
 	snprintf(service_string, sizeof(service_string), "\"%s\" run", exe_path);
 
 	name = fix_name(name);
 
 	sc_manager = OpenSCManager(NULL, NULL, SC_MANAGER_CREATE_SERVICE);
-	if(sc_manager){
-		if(!strcmp(name, "mosquitto")){
+	만약(sc_manager){
+		만약(!strcmp(name, "mosquitto")){
 			snprintf(display_name, sizeof(display_name), "Mosquitto Broker");
-		}else{
+		}아니면{
 			snprintf(display_name, sizeof(display_name), "Mosquitto Broker (%s.exe)", name);
 		}
 
@@ -169,16 +169,16 @@ void service_install(char *name)
 				SERVICE_WIN32_OWN_PROCESS, SERVICE_AUTO_START, SERVICE_ERROR_NORMAL,
 				service_string, NULL, NULL, NULL, NULL, NULL);
 
-		if(svc_handle){
+		만약(svc_handle){
 			memset(&svc_desc, 0, sizeof(svc_desc));
 			svc_desc.lpDescription = "Eclipse Mosquitto MQTT v5/v3.1.1 broker";
 			ChangeServiceConfig2(svc_handle, SERVICE_CONFIG_DESCRIPTION, &svc_desc);
 			CloseServiceHandle(svc_handle);
-		}else{
+		}아니면{
 			print_error();
 		}
 		CloseServiceHandle(sc_manager);
-	}else{
+	}아니면{
 		print_error();
 	}
 }
@@ -192,20 +192,20 @@ void service_uninstall(char *name)
 	name = fix_name(name);
 
 	sc_manager = OpenSCManager(NULL, SERVICES_ACTIVE_DATABASE, SC_MANAGER_CONNECT);
-	if(sc_manager){
+	만약(sc_manager){
 		svc_handle = OpenService(sc_manager, name, SERVICE_QUERY_STATUS | DELETE);
-		if(svc_handle){
-			if(QueryServiceStatus(svc_handle, &status)){
-				if(status.dwCurrentState == SERVICE_STOPPED){
+		만약(svc_handle){
+			만약(QueryServiceStatus(svc_handle, &status)){
+				만약(status.dwCurrentState == SERVICE_STOPPED){
 					DeleteService(svc_handle);
 				}
 			}
 			CloseServiceHandle(svc_handle);
-		}else{
+		}아니면{
 			print_error();
 		}
 		CloseServiceHandle(sc_manager);
-	}else{
+	}아니면{
 		print_error();
 	}
 }

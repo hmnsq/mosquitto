@@ -28,12 +28,12 @@ Contributors:
 #include "utlist.h"
 
 
-static int plugin__psk_key_get(struct mosquitto__security_options *opts, struct mosquitto *context, const char *hint, const char *identity, char *key, int max_key_len)
+static 정수 plugin__psk_key_get(struct mosquitto__security_options *opts, struct mosquitto *context, const char *hint, const char *identity, char *key, 정수 max_key_len)
 {
 	struct mosquitto_evt_psk_key event_data;
 	struct mosquitto__callback *cb_base, *cb_next;
-	int rc;
-	int rc_final = MOSQ_ERR_SUCCESS;
+	정수 rc;
+	정수 rc_final = MOSQ_ERR_SUCCESS;
 
 	DL_FOREACH_SAFE(opts->plugin_callbacks.psk_key, cb_base, cb_next){
 		memset(&event_data, 0, sizeof(event_data));
@@ -43,71 +43,71 @@ static int plugin__psk_key_get(struct mosquitto__security_options *opts, struct 
 		event_data.key = key;
 		event_data.max_key_len = max_key_len;
 		rc = cb_base->cb(MOSQ_EVT_PSK_KEY, &event_data, cb_base->userdata);
-		if(rc == MOSQ_ERR_PLUGIN_IGNORE){
+		만약(rc == MOSQ_ERR_PLUGIN_IGNORE){
 			/* Do nothing */
-		}else if(rc == MOSQ_ERR_PLUGIN_DEFER){
+		}아니면 만약(rc == MOSQ_ERR_PLUGIN_DEFER){
 			rc_final = MOSQ_ERR_PLUGIN_DEFER;
-		}else{
-			return rc;
+		}아니면{
+			반환 rc;
 		}
 	}
-	return rc_final;
+	반환 rc_final;
 }
 
 
-int mosquitto_psk_key_get(struct mosquitto *context, const char *hint, const char *identity, char *key, int max_key_len)
+정수 mosquitto_psk_key_get(struct mosquitto *context, const char *hint, const char *identity, char *key, 정수 max_key_len)
 {
-	int rc;
-	int rc_final = MOSQ_ERR_SUCCESS;
+	정수 rc;
+	정수 rc_final = MOSQ_ERR_SUCCESS;
 
 	/* Global plugins */
-	if(db.config->security_options.plugin_callbacks.psk_key){
+	만약(db.config->security_options.plugin_callbacks.psk_key){
 		rc = plugin__psk_key_get(&db.config->security_options, context,
 				hint, identity, key, max_key_len);
 
-		if(rc == MOSQ_ERR_PLUGIN_IGNORE){
+		만약(rc == MOSQ_ERR_PLUGIN_IGNORE){
 			/* Do nothing */
-		}else if(rc == MOSQ_ERR_PLUGIN_DEFER){
+		}아니면 만약(rc == MOSQ_ERR_PLUGIN_DEFER){
 			rc_final = MOSQ_ERR_PLUGIN_DEFER;
-		}else{
-			return rc;
+		}아니면{
+			반환 rc;
 		}
 	}
 
 	/* Per listener plugins */
-	if(context->listener){
-		if(context->listener->security_options->plugin_callbacks.psk_key){
+	만약(context->listener){
+		만약(context->listener->security_options->plugin_callbacks.psk_key){
 			rc = plugin__psk_key_get(context->listener->security_options, context,
 					hint, identity, key, max_key_len);
 
-			if(rc == MOSQ_ERR_PLUGIN_IGNORE){
+			만약(rc == MOSQ_ERR_PLUGIN_IGNORE){
 				/* Do nothing */
-			}else if(rc == MOSQ_ERR_PLUGIN_DEFER){
+			}아니면 만약(rc == MOSQ_ERR_PLUGIN_DEFER){
 				rc_final = MOSQ_ERR_PLUGIN_DEFER;
-			}else{
-				return rc;
+			}아니면{
+				반환 rc;
 			}
 		}
-	}else{
-		if(db.config->per_listener_settings){
-			return MOSQ_ERR_AUTH;
+	}아니면{
+		만약(db.config->per_listener_settings){
+			반환 MOSQ_ERR_AUTH;
 		}
 	}
 
 	rc = mosquitto_psk_key_get_default(context, hint, identity, key, max_key_len);
-	if(rc == MOSQ_ERR_PLUGIN_IGNORE){
+	만약(rc == MOSQ_ERR_PLUGIN_IGNORE){
 		/* Do nothing */
-	}else if(rc == MOSQ_ERR_PLUGIN_DEFER){
+	}아니면 만약(rc == MOSQ_ERR_PLUGIN_DEFER){
 		rc_final = MOSQ_ERR_PLUGIN_DEFER;
-	}else{
-		return rc;
+	}아니면{
+		반환 rc;
 	}
 
 
 	/* If all plugins deferred, this is a denial. If rc == MOSQ_ERR_SUCCESS
 	 * here, then no plugins were configured. */
-	if(rc_final == MOSQ_ERR_PLUGIN_DEFER){
+	만약(rc_final == MOSQ_ERR_PLUGIN_DEFER){
 		rc_final = MOSQ_ERR_AUTH;
 	}
-	return rc_final;
+	반환 rc_final;
 }

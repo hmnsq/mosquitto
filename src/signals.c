@@ -31,7 +31,7 @@ Contributors:
 
 #include "mosquitto_broker_internal.h"
 
-extern int g_run;
+extern 정수 g_run;
 
 static bool flag_reload = false;
 static bool flag_log_rotate = false;
@@ -42,29 +42,29 @@ static bool flag_tree_print = false;
 static bool flag_xtreport = false;
 
 
-static void handle_signal(int signal)
+static void handle_signal(정수 signal)
 {
 	UNUSED(signal);
 
-	if(signal == SIGINT || signal == SIGTERM){
+	만약(signal == SIGINT || signal == SIGTERM){
 		g_run = 0;
 #ifdef SIGHUP
-	}else if(signal == SIGHUP){
+	}아니면 만약(signal == SIGHUP){
 		flag_reload = true;
 #endif
 #ifdef SIGUSR1
-	}else if(signal == SIGUSR1){
+	}아니면 만약(signal == SIGUSR1){
 #ifdef WITH_PERSISTENCE
 		flag_db_backup = true;
 #endif
 #endif
 #ifdef SIGUSR2
-	}else if(signal == SIGUSR2){
+	}아니면 만약(signal == SIGUSR2){
 		flag_tree_print = true;
 		flag_xtreport = true;
 #endif
 #ifdef SIGRTMIN
-	}else if(signal == SIGRTMIN){
+	}아니면 만약(signal == SIGRTMIN){
 		flag_log_rotate = true;
 #endif
 	}
@@ -92,43 +92,43 @@ void signal__setup(void)
 }
 
 
-int signal__flag_check(void)
+정수 signal__flag_check(void)
 {
 #ifdef WITH_PERSISTENCE
-	if(flag_db_backup){
+	만약(flag_db_backup){
 		persist__backup(false);
 		flag_db_backup = false;
 	}
 #endif
-	if(flag_log_rotate){
+	만약(flag_log_rotate){
 		log__close(db.config);
 		log__init(db.config);
 		flag_log_rotate = false;
 	}
-	if(flag_reload){
-		int rc;
+	만약(flag_reload){
+		정수 rc;
 		log__printf(NULL, MOSQ_LOG_INFO, "Reloading config.");
 		config__read(db.config, true);
 		listeners__reload_all_certificates();
 		rc = plugin__handle_reload();
-		if(rc){
-			return rc;
+		만약(rc){
+			반환 rc;
 		}
 		mosquitto_security_cleanup(true);
 		rc = mosquitto_security_init(true);
-		if(rc){
-			return rc;
+		만약(rc){
+			반환 rc;
 		}
 		rc = mosquitto_security_apply_default();
-		if(rc){
-			return rc;
+		만약(rc){
+			반환 rc;
 		}
 		log__close(db.config);
 		log__init(db.config);
 		keepalive__cleanup();
 		rc = keepalive__init();
-		if(rc){
-			return rc;
+		만약(rc){
+			반환 rc;
 		}
 		broker_control__reload();
 #ifdef WITH_BRIDGE
@@ -136,19 +136,19 @@ int signal__flag_check(void)
 #endif
 		flag_reload = false;
 	}
-	if(flag_tree_print){
+	만약(flag_tree_print){
 		sub__tree_print(db.normal_subs, 0);
 		sub__tree_print(db.shared_subs, 0);
 		flag_tree_print = false;
 	}
 #ifdef WITH_XTREPORT
-	if(flag_xtreport){
+	만약(flag_xtreport){
 		xtreport();
 		flag_xtreport = false;
 	}
 #endif
 
-	return MOSQ_ERR_SUCCESS;
+	반환 MOSQ_ERR_SUCCESS;
 }
 
 /*
@@ -176,7 +176,7 @@ DWORD WINAPI SigThreadProc(void *data)
 {
 	TCHAR evt_name[MAX_PATH];
 	static HANDLE evt[MOSQ_MAX_EVTS];
-	int pid = GetCurrentProcessId();
+	정수 pid = GetCurrentProcessId();
 	const char *evt_names[MOSQ_MAX_EVTS] = {
 		"shutdown",
 		"reload",
@@ -188,13 +188,13 @@ DWORD WINAPI SigThreadProc(void *data)
 
 	UNUSED(data);
 
-	for(int i=0; i<MOSQ_MAX_EVTS; i++){
+	위해(정수 i=0; i<MOSQ_MAX_EVTS; i++){
 		sprintf_s(evt_name, MAX_PATH, "mosq%d_%s", pid, evt_names[i]);
 		evt[i] = CreateEvent(NULL, FALSE, FALSE, evt_name);
 	}
 
-	while(g_run){
-		int wr = WaitForMultipleObjects(MOSQ_MAX_EVTS, evt, FALSE, INFINITE);
+	동안(g_run){
+		정수 wr = WaitForMultipleObjects(MOSQ_MAX_EVTS, evt, FALSE, INFINITE);
 		switch(wr){
 			case WAIT_OBJECT_0 + 0:
 				handle_signal(SIGINT);
@@ -219,12 +219,12 @@ DWORD WINAPI SigThreadProc(void *data)
 				continue;
 		}
 	}
-	for(int i=0; i<MOSQ_MAX_EVTS; i++){
-		if(evt[i]){
+	위해(정수 i=0; i<MOSQ_MAX_EVTS; i++){
+		만약(evt[i]){
 			CloseHandle(evt[i]);
 		}
 	}
-	return 0;
+	반환 0;
 }
 #undef MOSQ_MAX_EVTS
 #endif

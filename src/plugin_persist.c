@@ -51,8 +51,8 @@ void plugin_persist__handle_client_add(struct mosquitto *context)
 	struct mosquitto__callback *cb_base, *cb_next;
 	struct mosquitto__security_options *opts;
 
-	if(db.shutdown || context->is_persisted){
-		return;
+	만약(db.shutdown || context->is_persisted){
+		반환;
 	}
 
 	opts = &db.config->security_options;
@@ -64,9 +64,9 @@ void plugin_persist__handle_client_add(struct mosquitto *context)
 	event_data.data.session_expiry_time = context->session_expiry_time;
 	event_data.data.will_delay_interval = context->will_delay_interval;
 	event_data.data.session_expiry_interval = context->session_expiry_interval;
-	if(context->listener){
+	만약(context->listener){
 		event_data.data.listener_port = context->listener->port;
-	}else{
+	}아니면{
 		event_data.data.listener_port = 0;
 	}
 	event_data.data.max_qos = context->max_qos;
@@ -77,7 +77,7 @@ void plugin_persist__handle_client_add(struct mosquitto *context)
 		cb_base->cb(MOSQ_EVT_PERSIST_CLIENT_ADD, &event_data, cb_base->userdata);
 	}
 
-	if(context->will){
+	만약(context->will){
 		plugin_persist__handle_will_add(context);
 	}
 
@@ -94,8 +94,8 @@ void plugin_persist__handle_client_update(struct mosquitto *context)
 
 	UNUSED(will); /* FIXME */
 
-	if(db.shutdown){
-		return;
+	만약(db.shutdown){
+		반환;
 	}
 
 	opts = &db.config->security_options;
@@ -107,9 +107,9 @@ void plugin_persist__handle_client_update(struct mosquitto *context)
 	event_data.data.session_expiry_time = context->session_expiry_time;
 	event_data.data.will_delay_interval = context->will_delay_interval;
 	event_data.data.session_expiry_interval = context->session_expiry_interval;
-	if(context->listener){
+	만약(context->listener){
 		event_data.data.listener_port = context->listener->port;
-	}else{
+	}아니면{
 		event_data.data.listener_port = 0;
 	}
 	event_data.data.max_qos = context->max_qos;
@@ -120,9 +120,9 @@ void plugin_persist__handle_client_update(struct mosquitto *context)
 		cb_base->cb(MOSQ_EVT_PERSIST_CLIENT_UPDATE, &event_data, cb_base->userdata);
 	}
 
-	if(context->will){
+	만약(context->will){
 		plugin_persist__handle_will_add(context);
-	}else{
+	}아니면{
 		plugin_persist__handle_will_delete(context);
 	}
 }
@@ -134,17 +134,17 @@ void plugin_persist__handle_client_delete(struct mosquitto *context)
 	struct mosquitto__callback *cb_base, *cb_next;
 	struct mosquitto__security_options *opts;
 
-	if(context->id == NULL
+	만약(context->id == NULL
 			|| context->state == mosq_cs_duplicate
 			|| db.shutdown){
-		return;
+		반환;
 	}
 
 	plugin_persist__handle_will_delete(context);
 
-	if(context->is_persisted == false
+	만약(context->is_persisted == false
 			|| context->session_expiry_interval != MQTT_SESSION_EXPIRY_IMMEDIATE){
-		return;
+		반환;
 	}
 
 	opts = &db.config->security_options;
@@ -164,8 +164,8 @@ void plugin_persist__handle_subscription_add(struct mosquitto *context, const st
 	struct mosquitto__callback *cb_base, *cb_next;
 	struct mosquitto__security_options *opts;
 
-	if(db.shutdown || context->is_persisted == false){
-		return;
+	만약(db.shutdown || context->is_persisted == false){
+		반환;
 	}
 
 	opts = &db.config->security_options;
@@ -187,11 +187,11 @@ void plugin_persist__handle_subscription_delete(struct mosquitto *context, char 
 	struct mosquitto__callback *cb_base, *cb_next;
 	struct mosquitto__security_options *opts;
 
-	if(db.shutdown || context->is_persisted == false){
-		return;
+	만약(db.shutdown || context->is_persisted == false){
+		반환;
 	}
-	if(!sub){
-		return;
+	만약(!sub){
+		반환;
 	}
 
 	opts = &db.config->security_options;
@@ -226,11 +226,11 @@ void plugin_persist__handle_client_msg_add(struct mosquitto *context, const stru
 	struct mosquitto__callback *cb_base, *cb_next;
 	struct mosquitto__security_options *opts;
 
-	if(context->is_persisted == false
+	만약(context->is_persisted == false
 			|| (client_msg->data.qos == 0 && db.config->queue_qos0_messages == false)
 			|| db.shutdown){
 
-		return;
+		반환;
 	}
 
 	opts = &db.config->security_options;
@@ -250,11 +250,11 @@ void plugin_persist__handle_client_msg_delete(struct mosquitto *context, const s
 	struct mosquitto__callback *cb_base, *cb_next;
 	struct mosquitto__security_options *opts;
 
-	if(context->is_persisted == false
+	만약(context->is_persisted == false
 			|| (client_msg->data.qos == 0 && db.config->queue_qos0_messages == false)
 			|| db.shutdown){
 
-		return;
+		반환;
 	}
 
 	opts = &db.config->security_options;
@@ -274,11 +274,11 @@ void plugin_persist__handle_client_msg_update(struct mosquitto *context, const s
 	struct mosquitto__callback *cb_base, *cb_next;
 	struct mosquitto__security_options *opts;
 
-	if(context->is_persisted == false
+	만약(context->is_persisted == false
 			|| (client_msg->data.qos == 0 && db.config->queue_qos0_messages == false)
 			|| db.shutdown){
 
-		return;
+		반환;
 	}
 
 	opts = &db.config->security_options;
@@ -298,8 +298,8 @@ void plugin_persist__handle_base_msg_add(struct mosquitto__base_msg *base_msg)
 	struct mosquitto__callback *cb_base, *cb_next;
 	struct mosquitto__security_options *opts;
 
-	if(base_msg->stored || db.shutdown){
-		return;
+	만약(base_msg->stored || db.shutdown){
+		반환;
 	}
 
 	opts = &db.config->security_options;
@@ -314,9 +314,9 @@ void plugin_persist__handle_base_msg_add(struct mosquitto__base_msg *base_msg)
 	event_data.data.properties = base_msg->data.properties;
 	event_data.data.payloadlen = base_msg->data.payloadlen;
 	event_data.data.source_mid = base_msg->data.source_mid;
-	if(base_msg->source_listener){
+	만약(base_msg->source_listener){
 		event_data.data.source_port = base_msg->source_listener->port;
-	}else{
+	}아니면{
 		event_data.data.source_port = 0;
 	}
 	event_data.data.qos = base_msg->data.qos;
@@ -335,8 +335,8 @@ void plugin_persist__handle_base_msg_delete(struct mosquitto__base_msg *base_msg
 	struct mosquitto__callback *cb_base, *cb_next;
 	struct mosquitto__security_options *opts;
 
-	if(base_msg->stored == false || db.shutdown){
-		return;
+	만약(base_msg->stored == false || db.shutdown){
+		반환;
 	}
 
 	opts = &db.config->security_options;
@@ -357,8 +357,8 @@ void plugin_persist__handle_retain_msg_set(struct mosquitto__base_msg *base_msg)
 	struct mosquitto__callback *cb_base, *cb_next;
 	struct mosquitto__security_options *opts;
 
-	if(db.shutdown){
-		return;
+	만약(db.shutdown){
+		반환;
 	}
 
 	opts = &db.config->security_options;
@@ -379,8 +379,8 @@ void plugin_persist__handle_retain_msg_delete(struct mosquitto__base_msg *base_m
 	struct mosquitto__callback *cb_base, *cb_next;
 	struct mosquitto__security_options *opts;
 
-	if(db.shutdown){
-		return;
+	만약(db.shutdown){
+		반환;
 	}
 
 	opts = &db.config->security_options;
@@ -401,8 +401,8 @@ void plugin_persist__handle_will_add(struct mosquitto *context)
 	struct mosquitto__security_options *opts;
 	struct mosquitto_message *will_msg;
 
-	if(db.shutdown || !context->will){
-		return;
+	만약(db.shutdown || !context->will){
+		반환;
 	}
 
 	opts = &db.config->security_options;
@@ -431,8 +431,8 @@ void plugin_persist__handle_will_delete(struct mosquitto *context)
 	memset(&event_data, 0, sizeof(event_data));
 	event_data.data.clientid = context->id;
 
-	if(db.shutdown){
-		return;
+	만약(db.shutdown){
+		반환;
 	}
 
 	opts = &db.config->security_options;

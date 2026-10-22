@@ -36,7 +36,7 @@ static void plugin__handle_tick_single(struct mosquitto__security_options *opts)
 	DL_FOREACH_SAFE(opts->plugin_callbacks.tick, cb_base, cb_next){
 		mosquitto_time_ns(&event_data.now_s, &event_data.now_ns);
 
-		if(mosquitto_time_cmp(event_data.now_s, event_data.now_ns,
+		만약(mosquitto_time_cmp(event_data.now_s, event_data.now_ns,
 				cb_base->data.next_tick.tv_sec, cb_base->data.next_tick.tv_nsec) > 0){
 
 			event_data.next_s = 0;
@@ -46,7 +46,7 @@ static void plugin__handle_tick_single(struct mosquitto__security_options *opts)
 
 			cb_base->data.next_tick.tv_sec = event_data.now_s + event_data.next_s;
 			cb_base->data.next_tick.tv_nsec = event_data.now_ns + 1000000*event_data.next_ms;
-			if(cb_base->data.next_tick.tv_nsec > 1000000000){
+			만약(cb_base->data.next_tick.tv_nsec > 1000000000){
 				cb_base->data.next_tick.tv_nsec -= 1000000000;
 				cb_base->data.next_tick.tv_sec += 1;
 			}
@@ -62,9 +62,9 @@ void plugin__handle_tick(void)
 	/* Global plugins */
 	plugin__handle_tick_single(&db.config->security_options);
 
-	for(int i=0; i<db.config->listener_count; i++){
+	위해(정수 i=0; i<db.config->listener_count; i++){
 		opts = db.config->listeners[i].security_options;
-		if(opts && opts->plugin_callbacks.tick){
+		만약(opts && opts->plugin_callbacks.tick){
 			plugin__handle_tick_single(opts);
 		}
 	}

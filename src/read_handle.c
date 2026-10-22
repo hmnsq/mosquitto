@@ -30,12 +30,12 @@ Contributors:
 #include "util_mosq.h"
 
 
-int handle__packet(struct mosquitto *context)
+정수 handle__packet(struct mosquitto *context)
 {
-	int rc = MOSQ_ERR_INVAL;
+	정수 rc = MOSQ_ERR_INVAL;
 
-	if(!context){
-		return MOSQ_ERR_INVAL;
+	만약(!context){
+		반환 MOSQ_ERR_INVAL;
 	}
 
 	switch((context->in_packet.command)&0xF0){
@@ -69,7 +69,7 @@ int handle__packet(struct mosquitto *context)
 			break;
 		case CMD_CONNECT:
 			metrics__int_inc(mosq_counter_mqtt_connect_received, 1);
-			return handle__connect(context);
+			반환 handle__connect(context);
 		case CMD_DISCONNECT:
 			metrics__int_inc(mosq_counter_mqtt_disconnect_received, 1);
 			rc = handle__disconnect(context);
@@ -104,22 +104,22 @@ int handle__packet(struct mosquitto *context)
 			rc = MOSQ_ERR_PROTOCOL;
 	}
 
-	if(context->protocol == mosq_p_mqtt5){
-		if(rc == MOSQ_ERR_PROTOCOL || rc == MOSQ_ERR_DUPLICATE_PROPERTY){
+	만약(context->protocol == mosq_p_mqtt5){
+		만약(rc == MOSQ_ERR_PROTOCOL || rc == MOSQ_ERR_DUPLICATE_PROPERTY){
 			send__disconnect(context, MQTT_RC_PROTOCOL_ERROR, NULL);
-		}else if(rc == MOSQ_ERR_MALFORMED_PACKET){
+		}아니면 만약(rc == MOSQ_ERR_MALFORMED_PACKET){
 			send__disconnect(context, MQTT_RC_MALFORMED_PACKET, NULL);
-		}else if(rc == MOSQ_ERR_QOS_NOT_SUPPORTED){
+		}아니면 만약(rc == MOSQ_ERR_QOS_NOT_SUPPORTED){
 			send__disconnect(context, MQTT_RC_QOS_NOT_SUPPORTED, NULL);
-		}else if(rc == MOSQ_ERR_RETAIN_NOT_SUPPORTED){
+		}아니면 만약(rc == MOSQ_ERR_RETAIN_NOT_SUPPORTED){
 			send__disconnect(context, MQTT_RC_RETAIN_NOT_SUPPORTED, NULL);
-		}else if(rc == MOSQ_ERR_TOPIC_ALIAS_INVALID){
+		}아니면 만약(rc == MOSQ_ERR_TOPIC_ALIAS_INVALID){
 			send__disconnect(context, MQTT_RC_TOPIC_ALIAS_INVALID, NULL);
-		}else if(rc == MOSQ_ERR_RECEIVE_MAXIMUM_EXCEEDED){
+		}아니면 만약(rc == MOSQ_ERR_RECEIVE_MAXIMUM_EXCEEDED){
 			send__disconnect(context, MQTT_RC_RECEIVE_MAXIMUM_EXCEEDED, NULL);
-		}else if(rc == MOSQ_ERR_UNKNOWN || rc == MOSQ_ERR_NOMEM){
+		}아니면 만약(rc == MOSQ_ERR_UNKNOWN || rc == MOSQ_ERR_NOMEM){
 			send__disconnect(context, MQTT_RC_UNSPECIFIED, NULL);
 		}
 	}
-	return rc;
+	반환 rc;
 }

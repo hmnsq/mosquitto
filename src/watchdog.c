@@ -40,10 +40,10 @@ void watchdog__init(void)
 	next_ping = mosquitto_time();
 	ping_sec = 0;
 
-	if(watchdog_usec){
+	만약(watchdog_usec){
 		char *endptr = NULL;
 		long usec = strtol(watchdog_usec, &endptr, 10);
-		if(watchdog_usec[0] != '\0' && endptr[0] == '\0' && usec > 0){
+		만약(watchdog_usec[0] != '\0' && endptr[0] == '\0' && usec > 0){
 			ping_sec = (usec / 1000000) / 2;
 		}
 		next_ping = mosquitto_time();
@@ -55,9 +55,9 @@ void watchdog__init(void)
 void watchdog__check(void)
 {
 #ifdef WITH_SYSTEMD
-	if(ping_sec){
+	만약(ping_sec){
 		time_t now = mosquitto_time();
-		if(now > next_ping){
+		만약(now > next_ping){
 			sd_notify(0, "WATCHDOG=1");
 			next_ping = now + ping_sec;
 		}

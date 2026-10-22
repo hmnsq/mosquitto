@@ -31,31 +31,31 @@ Contributors:
 #endif
 
 
-BROKER_EXPORT int mosquitto_plugin_set_info(mosquitto_plugin_id_t *identifier,
+BROKER_EXPORT 정수 mosquitto_plugin_set_info(mosquitto_plugin_id_t *identifier,
 		const char *plugin_name,
 		const char *plugin_version)
 {
-	if(identifier == NULL || plugin_name == NULL){
-		return MOSQ_ERR_INVAL;
+	만약(identifier == NULL || plugin_name == NULL){
+		반환 MOSQ_ERR_INVAL;
 	}
 
 	identifier->plugin_name = mosquitto_strdup(plugin_name);
-	if(plugin_version){
+	만약(plugin_version){
 		identifier->plugin_version = mosquitto_strdup(plugin_version);
-	}else{
+	}아니면{
 		identifier->plugin_version = NULL;
 	}
 
-	return MOSQ_ERR_SUCCESS;
+	반환 MOSQ_ERR_SUCCESS;
 }
 
 
 BROKER_EXPORT const char *mosquitto_client_address(const struct mosquitto *client)
 {
-	if(client){
-		return client->address;
-	}else{
-		return NULL;
+	만약(client){
+		반환 client->address;
+	}아니면{
+		반환 NULL;
 	}
 }
 
@@ -65,66 +65,66 @@ BROKER_EXPORT struct mosquitto *mosquitto_client(const char *clientid)
 	size_t len;
 	struct mosquitto *context;
 
-	if(!clientid){
-		return NULL;
+	만약(!clientid){
+		반환 NULL;
 	}
 	len = strlen(clientid);
-	if(len == 0){
-		return NULL;
+	만약(len == 0){
+		반환 NULL;
 	}
 
 	HASH_FIND(hh_id, db.contexts_by_id, clientid, strlen(clientid), context);
 
-	return context;
+	반환 context;
 }
 
 
-BROKER_EXPORT int mosquitto_client_port(const struct mosquitto *client)
+BROKER_EXPORT 정수 mosquitto_client_port(const struct mosquitto *client)
 {
-	if(client && client->listener){
-		return client->listener->port;
-	}else{
-		return 0;
+	만약(client && client->listener){
+		반환 client->listener->port;
+	}아니면{
+		반환 0;
 	}
 }
 
 
 BROKER_EXPORT bool mosquitto_client_clean_session(const struct mosquitto *client)
 {
-	if(client){
-		return client->clean_start;
-	}else{
-		return true;
+	만약(client){
+		반환 client->clean_start;
+	}아니면{
+		반환 true;
 	}
 }
 
 
 BROKER_EXPORT const char *mosquitto_client_id(const struct mosquitto *client)
 {
-	if(client){
-		return client->id;
-	}else{
-		return NULL;
+	만약(client){
+		반환 client->id;
+	}아니면{
+		반환 NULL;
 	}
 }
 
 
 BROKER_EXPORT unsigned mosquitto_client_id_hashv(const struct mosquitto *client)
 {
-	if(client){
-		return client->id_hashv;
-	}else{
-		return 0;
+	만약(client){
+		반환 client->id_hashv;
+	}아니면{
+		반환 0;
 	}
 }
 
 
-BROKER_EXPORT int mosquitto_client_keepalive(const struct mosquitto *client)
+BROKER_EXPORT 정수 mosquitto_client_keepalive(const struct mosquitto *client)
 {
-	if(client){
-		return client->keepalive;
-	}else{
-		return -1;
+	만약(client){
+		반환 client->keepalive;
+	}아니면{
+		반환 -1;
 	}
 }
 
@@ -132,124 +132,124 @@ BROKER_EXPORT int mosquitto_client_keepalive(const struct mosquitto *client)
 BROKER_EXPORT void *mosquitto_client_certificate(const struct mosquitto *client)
 {
 #ifdef WITH_TLS
-	if(client && client->ssl){
-		return SSL_get_peer_certificate(client->ssl);
-	}else{
-		return NULL;
+	만약(client && client->ssl){
+		반환 SSL_get_peer_certificate(client->ssl);
+	}아니면{
+		반환 NULL;
 	}
-#else
+#아니면
 	UNUSED(client);
 
-	return NULL;
+	반환 NULL;
 #endif
 }
 
 
-BROKER_EXPORT int mosquitto_client_protocol(const struct mosquitto *client)
+BROKER_EXPORT 정수 mosquitto_client_protocol(const struct mosquitto *client)
 {
-#if defined(WITH_WEBSOCKETS) && WITH_WEBSOCKETS == WS_IS_LWS
-	if(client && client->wsi){
-		return mp_websockets;
-	}else
+#만약 defined(WITH_WEBSOCKETS) && WITH_WEBSOCKETS == WS_IS_LWS
+	만약(client && client->wsi){
+		반환 mp_websockets;
+	}아니면
 #elif defined(WITH_WEBSOCKETS) && WITH_WEBSOCKETS == WS_IS_BUILTIN
-	if(client && client->transport == mosq_t_ws){
-		return mp_websockets;
-	}else
-#else
+	만약(client && client->transport == mosq_t_ws){
+		반환 mp_websockets;
+	}아니면
+#아니면
 	UNUSED(client);
 #endif
 	{
-		return mp_mqtt;
+		반환 mp_mqtt;
 	}
 }
 
 
-BROKER_EXPORT int mosquitto_client_protocol_version(const struct mosquitto *client)
+BROKER_EXPORT 정수 mosquitto_client_protocol_version(const struct mosquitto *client)
 {
-	if(client){
+	만약(client){
 		switch(client->protocol){
 			case mosq_p_mqtt31:
-				return 3;
+				반환 3;
 			case mosq_p_mqtt311:
-				return 4;
+				반환 4;
 			case mosq_p_mqtt5:
-				return 5;
+				반환 5;
 			default:
-				return 0;
+				반환 0;
 		}
-	}else{
-		return 0;
+	}아니면{
+		반환 0;
 	}
 }
 
 
-BROKER_EXPORT int mosquitto_client_sub_count(const struct mosquitto *client)
+BROKER_EXPORT 정수 mosquitto_client_sub_count(const struct mosquitto *client)
 {
-	if(client){
-		return client->subs_count;
-	}else{
-		return 0;
+	만약(client){
+		반환 client->subs_count;
+	}아니면{
+		반환 0;
 	}
 }
 
 
 BROKER_EXPORT const char *mosquitto_client_username(const struct mosquitto *client)
 {
-	if(client){
+	만약(client){
 #ifdef WITH_BRIDGE
-		if(client->bridge){
-			return client->bridge->local_username;
-		}else
+		만약(client->bridge){
+			반환 client->bridge->local_username;
+		}아니면
 #endif
 		{
-			return client->username;
+			반환 client->username;
 		}
-	}else{
-		return NULL;
+	}아니면{
+		반환 NULL;
 	}
 }
 
 
-BROKER_EXPORT int mosquitto_broker_publish(
+BROKER_EXPORT 정수 mosquitto_broker_publish(
 		const char *clientid,
 		const char *topic,
-		int payloadlen,
+		정수 payloadlen,
 		void *payload,
-		int qos,
+		정수 qos,
 		bool retain,
 		mosquitto_property *properties)
 {
 	struct mosquitto__message_v5 *msg;
 
-	if(topic == NULL
+	만약(topic == NULL
 			|| payloadlen < 0
 			|| (payloadlen > 0 && payload == NULL)
 			|| qos < 0 || qos > 2){
 
-		return MOSQ_ERR_INVAL;
+		반환 MOSQ_ERR_INVAL;
 	}
 
 	msg = mosquitto_malloc(sizeof(struct mosquitto__message_v5));
-	if(msg == NULL){
-		return MOSQ_ERR_NOMEM;
+	만약(msg == NULL){
+		반환 MOSQ_ERR_NOMEM;
 	}
 
 	msg->next = NULL;
 	msg->prev = NULL;
-	if(clientid){
+	만약(clientid){
 		msg->clientid = mosquitto_strdup(clientid);
-		if(msg->clientid == NULL){
+		만약(msg->clientid == NULL){
 			mosquitto_FREE(msg);
-			return MOSQ_ERR_NOMEM;
+			반환 MOSQ_ERR_NOMEM;
 		}
-	}else{
+	}아니면{
 		msg->clientid = NULL;
 	}
 	msg->topic = mosquitto_strdup(topic);
-	if(msg->topic == NULL){
+	만약(msg->topic == NULL){
 		mosquitto_FREE(msg->clientid);
 		mosquitto_FREE(msg);
-		return MOSQ_ERR_NOMEM;
+		반환 MOSQ_ERR_NOMEM;
 	}
 	msg->payloadlen = payloadlen;
 	msg->payload = payload;
@@ -260,33 +260,33 @@ BROKER_EXPORT int mosquitto_broker_publish(
 	DL_APPEND(db.plugin_msgs, msg);
 
 	loop__update_next_event(1);
-	return MOSQ_ERR_SUCCESS;
+	반환 MOSQ_ERR_SUCCESS;
 }
 
 
-BROKER_EXPORT int mosquitto_broker_publish_copy(
+BROKER_EXPORT 정수 mosquitto_broker_publish_copy(
 		const char *clientid,
 		const char *topic,
-		int payloadlen,
+		정수 payloadlen,
 		const void *payload,
-		int qos,
+		정수 qos,
 		bool retain,
 		mosquitto_property *properties)
 {
 	void *payload_out;
-	int rc;
+	정수 rc;
 
-	if(topic == NULL
+	만약(topic == NULL
 			|| payloadlen < 0
 			|| (payloadlen > 0 && payload == NULL)
 			|| qos < 0 || qos > 2){
 
-		return MOSQ_ERR_INVAL;
+		반환 MOSQ_ERR_INVAL;
 	}
 
 	payload_out = mosquitto_calloc(1, (size_t)(payloadlen+1));
-	if(payload_out == NULL){
-		return MOSQ_ERR_NOMEM;
+	만약(payload_out == NULL){
+		반환 MOSQ_ERR_NOMEM;
 	}
 	memcpy(payload_out, payload, (size_t)payloadlen);
 
@@ -299,31 +299,31 @@ BROKER_EXPORT int mosquitto_broker_publish_copy(
 			retain,
 			properties);
 
-	if(rc){
+	만약(rc){
 		mosquitto_FREE(payload_out);
 	}
-	return rc;
+	반환 rc;
 }
 
 
-BROKER_EXPORT int mosquitto_set_username(struct mosquitto *client, const char *username)
+BROKER_EXPORT 정수 mosquitto_set_username(struct mosquitto *client, const char *username)
 {
 	char *u_dup;
 	char *old;
 
-	if(!client){
-		return MOSQ_ERR_INVAL;
+	만약(!client){
+		반환 MOSQ_ERR_INVAL;
 	}
 
-	if(username){
-		if(mosquitto_validate_utf8(username, (int)strlen(username))){
-			return MOSQ_ERR_MALFORMED_UTF8;
+	만약(username){
+		만약(mosquitto_validate_utf8(username, (정수)strlen(username))){
+			반환 MOSQ_ERR_MALFORMED_UTF8;
 		}
 		u_dup = mosquitto_strdup(username);
-		if(!u_dup){
-			return MOSQ_ERR_NOMEM;
+		만약(!u_dup){
+			반환 MOSQ_ERR_NOMEM;
 		}
-	}else{
+	}아니면{
 		u_dup = NULL;
 	}
 
@@ -331,19 +331,19 @@ BROKER_EXPORT int mosquitto_set_username(struct mosquitto *client, const char *u
 	client->username = u_dup;
 
 	mosquitto_FREE(old);
-	return MOSQ_ERR_SUCCESS;
+	반환 MOSQ_ERR_SUCCESS;
 }
 
 
-BROKER_EXPORT int mosquitto_set_clientid(struct mosquitto *client, const char *clientid)
+BROKER_EXPORT 정수 mosquitto_set_clientid(struct mosquitto *client, const char *clientid)
 {
 	struct mosquitto *found_client;
 	char *id_dup;
 	bool in_by_id;
-	int clientid_len;
+	정수 clientid_len;
 
-	if(!client || !clientid){
-		return MOSQ_ERR_INVAL;
+	만약(!client || !clientid){
+		반환 MOSQ_ERR_INVAL;
 	}
 
 	in_by_id = client->in_by_id;
@@ -356,44 +356,44 @@ BROKER_EXPORT int mosquitto_set_clientid(struct mosquitto *client, const char *c
 	 * because it will be checked after authentication.
 	 */
 
-	if(in_by_id){
+	만약(in_by_id){
 		HASH_FIND(hh_id, db.contexts_by_id, clientid, strlen(clientid), found_client);
-		if(found_client){
-			return MOSQ_ERR_ALREADY_EXISTS;
+		만약(found_client){
+			반환 MOSQ_ERR_ALREADY_EXISTS;
 		}
 	}
 
-	clientid_len = (int)strlen(clientid);
-	if(mosquitto_validate_utf8(clientid, clientid_len)){
-		return MOSQ_ERR_INVAL;
+	clientid_len = (정수)strlen(clientid);
+	만약(mosquitto_validate_utf8(clientid, clientid_len)){
+		반환 MOSQ_ERR_INVAL;
 	}
 
 	id_dup = mosquitto_strdup(clientid);
-	if(!id_dup){
-		return MOSQ_ERR_NOMEM;
+	만약(!id_dup){
+		반환 MOSQ_ERR_NOMEM;
 	}
 
-	if(in_by_id){
+	만약(in_by_id){
 		context__remove_from_by_id(client);
 	}
 	mosquitto_free(client->id);
 	client->id = id_dup;
-	if(in_by_id){
+	만약(in_by_id){
 		context__add_to_by_id(client);
 	}
 
-	return MOSQ_ERR_SUCCESS;
+	반환 MOSQ_ERR_SUCCESS;
 }
 
 
 /* Check to see whether durable clients still have rights to their subscriptions. */
 static void check_subscription_acls(struct mosquitto *context)
 {
-	int rc;
+	정수 rc;
 	uint8_t reason;
 
-	for(int i=0; i<context->subs_capacity; i++){
-		if(context->subs[i] == NULL){
+	위해(정수 i=0; i<context->subs_capacity; i++){
+		만약(context->subs[i] == NULL){
 			continue;
 		}
 		rc = mosquitto_acl_check(context,
@@ -405,7 +405,7 @@ static void check_subscription_acls(struct mosquitto *context)
 				NULL,
 				MOSQ_ACL_SUBSCRIBE);
 
-		if(rc != MOSQ_ERR_SUCCESS){
+		만약(rc != MOSQ_ERR_SUCCESS){
 			sub__remove(context, context->subs[i]->topic_filter, &reason);
 		}
 	}
@@ -414,99 +414,99 @@ static void check_subscription_acls(struct mosquitto *context)
 
 static void disconnect_client(struct mosquitto *context, bool with_will)
 {
-	if(context->protocol == mosq_p_mqtt5){
+	만약(context->protocol == mosq_p_mqtt5){
 		send__disconnect(context, MQTT_RC_ADMINISTRATIVE_ACTION, NULL);
 	}
-	if(with_will == false){
+	만약(with_will == false){
 		mosquitto__set_state(context, mosq_cs_disconnecting);
 	}
-	if(context->session_expiry_interval != MQTT_SESSION_EXPIRY_IMMEDIATE){
+	만약(context->session_expiry_interval != MQTT_SESSION_EXPIRY_IMMEDIATE){
 		check_subscription_acls(context);
 	}
 	do_disconnect(context, MOSQ_ERR_ADMINISTRATIVE_ACTION);
 }
 
 
-BROKER_EXPORT int mosquitto_kick_client_by_clientid(const char *clientid, bool with_will)
+BROKER_EXPORT 정수 mosquitto_kick_client_by_clientid(const char *clientid, bool with_will)
 {
 	struct mosquitto *ctxt, *ctxt_tmp;
 
-	if(clientid == NULL){
+	만약(clientid == NULL){
 		HASH_ITER(hh_sock, db.contexts_by_sock, ctxt, ctxt_tmp){
 			disconnect_client(ctxt, with_will);
 		}
-		return MOSQ_ERR_SUCCESS;
-	}else{
+		반환 MOSQ_ERR_SUCCESS;
+	}아니면{
 		HASH_FIND(hh_id, db.contexts_by_id, clientid, strlen(clientid), ctxt);
-		if(ctxt){
+		만약(ctxt){
 			disconnect_client(ctxt, with_will);
-			return MOSQ_ERR_SUCCESS;
-		}else{
-			return MOSQ_ERR_NOT_FOUND;
+			반환 MOSQ_ERR_SUCCESS;
+		}아니면{
+			반환 MOSQ_ERR_NOT_FOUND;
 		}
 	}
 }
 
 
-BROKER_EXPORT int mosquitto_kick_client_by_username(const char *username, bool with_will)
+BROKER_EXPORT 정수 mosquitto_kick_client_by_username(const char *username, bool with_will)
 {
 	struct mosquitto *ctxt, *ctxt_tmp;
 
-	if(username == NULL){
+	만약(username == NULL){
 		HASH_ITER(hh_sock, db.contexts_by_sock, ctxt, ctxt_tmp){
-			if(ctxt->username == NULL){
+			만약(ctxt->username == NULL){
 				disconnect_client(ctxt, with_will);
 			}
 		}
-	}else{
+	}아니면{
 		HASH_ITER(hh_sock, db.contexts_by_sock, ctxt, ctxt_tmp){
-			if(ctxt->username != NULL && !strcmp(ctxt->username, username)){
+			만약(ctxt->username != NULL && !strcmp(ctxt->username, username)){
 				disconnect_client(ctxt, with_will);
 			}
 		}
 	}
-	return MOSQ_ERR_SUCCESS;
+	반환 MOSQ_ERR_SUCCESS;
 }
 
 
-BROKER_EXPORT int mosquitto_apply_on_all_clients(int (*FUNC_client_functor)(const struct mosquitto *, void *), void *functor_context)
+BROKER_EXPORT 정수 mosquitto_apply_on_all_clients(정수 (*FUNC_client_functor)(const struct mosquitto *, void *), void *functor_context)
 {
-	int rc = MOSQ_ERR_SUCCESS;
+	정수 rc = MOSQ_ERR_SUCCESS;
 	struct mosquitto *ctxt, *ctxt_tmp;
 
 	HASH_ITER(hh_id, db.contexts_by_id, ctxt, ctxt_tmp){
 		rc = (*FUNC_client_functor)(ctxt, functor_context);
-		if(rc != MOSQ_ERR_SUCCESS){
+		만약(rc != MOSQ_ERR_SUCCESS){
 			break;
 		}
 	}
 
-	return rc;
+	반환 rc;
 }
 
 
-BROKER_EXPORT int mosquitto_persist_client_add(struct mosquitto_client *client)
+BROKER_EXPORT 정수 mosquitto_persist_client_add(struct mosquitto_client *client)
 {
 	struct mosquitto *context;
-	int rc;
+	정수 rc;
 
-	if(client == NULL){
-		return MOSQ_ERR_INVAL;
+	만약(client == NULL){
+		반환 MOSQ_ERR_INVAL;
 	}
-	if(client->clientid == NULL){
+	만약(client->clientid == NULL){
 		rc = MOSQ_ERR_INVAL;
 		goto error;
 	}
 
 	context = NULL;
 	HASH_FIND(hh_id, db.contexts_by_id, client->clientid, strlen(client->clientid), context);
-	if(context){
+	만약(context){
 		rc = MOSQ_ERR_INVAL;
 		goto error;
 	}
 
 	context = context__init();
-	if(!context){
+	만약(!context){
 		rc = MOSQ_ERR_NOMEM;
 		goto error;
 	}
@@ -529,9 +529,9 @@ BROKER_EXPORT int mosquitto_persist_client_add(struct mosquitto_client *client)
 	context->is_persisted = true;
 
 	/* in per_listener_settings mode, try to find the listener by persisted port */
-	if(db.config->per_listener_settings && client->listener_port > 0){
-		for(int i=0; i < db.config->listener_count; i++){
-			if(db.config->listeners[i].port == client->listener_port){
+	만약(db.config->per_listener_settings && client->listener_port > 0){
+		위해(정수 i=0; i < db.config->listener_count; i++){
+			만약(db.config->listeners[i].port == client->listener_port){
 				context->listener = &db.config->listeners[i];
 				break;
 			}
@@ -541,31 +541,31 @@ BROKER_EXPORT int mosquitto_persist_client_add(struct mosquitto_client *client)
 	context__add_to_by_id(context);
 	session_expiry__add_from_persistence(context, context->session_expiry_time);
 
-	return MOSQ_ERR_SUCCESS;
+	반환 MOSQ_ERR_SUCCESS;
 error:
 	SAFE_FREE(client->clientid);
 	SAFE_FREE(client->username);
 	SAFE_FREE(client->auth_method);
-	return rc;
+	반환 rc;
 }
 
 
-BROKER_EXPORT int mosquitto_persist_client_update(struct mosquitto_client *client)
+BROKER_EXPORT 정수 mosquitto_persist_client_update(struct mosquitto_client *client)
 {
 	struct mosquitto *context;
-	int rc;
+	정수 rc;
 
-	if(client == NULL){
-		return MOSQ_ERR_INVAL;
+	만약(client == NULL){
+		반환 MOSQ_ERR_INVAL;
 	}
-	if(client->clientid == NULL){
+	만약(client->clientid == NULL){
 		rc = MOSQ_ERR_INVAL;
 		goto error;
 	}
 
 	context = NULL;
 	HASH_FIND(hh_id, db.contexts_by_id, client->clientid, strlen(client->clientid), context);
-	if(context == NULL){
+	만약(context == NULL){
 		rc = MOSQ_ERR_NOT_FOUND;
 		goto error;
 	}
@@ -584,34 +584,34 @@ BROKER_EXPORT int mosquitto_persist_client_update(struct mosquitto_client *clien
 	context->retain_available = client->retain_available;
 
 	/* in per_listener_settings mode, try to find the listener by persisted port */
-	if(db.config->per_listener_settings && client->listener_port > 0){
-		for(int i=0; i < db.config->listener_count; i++){
-			if(db.config->listeners[i].port == client->listener_port){
+	만약(db.config->per_listener_settings && client->listener_port > 0){
+		위해(정수 i=0; i < db.config->listener_count; i++){
+			만약(db.config->listeners[i].port == client->listener_port){
 				context->listener = &db.config->listeners[i];
 				break;
 			}
 		}
 	}
 
-	return MOSQ_ERR_SUCCESS;
+	반환 MOSQ_ERR_SUCCESS;
 error:
 	SAFE_FREE(client->username);
-	return rc;
+	반환 rc;
 }
 
 
-BROKER_EXPORT int mosquitto_persist_client_delete(const char *clientid)
+BROKER_EXPORT 정수 mosquitto_persist_client_delete(const char *clientid)
 {
 	struct mosquitto *context;
 
-	if(clientid == NULL){
-		return MOSQ_ERR_INVAL;
+	만약(clientid == NULL){
+		반환 MOSQ_ERR_INVAL;
 	}
 
 	context = NULL;
 	HASH_FIND(hh_id, db.contexts_by_id, clientid, strlen(clientid), context);
-	if(context == NULL){
-		return MOSQ_ERR_SUCCESS;
+	만약(context == NULL){
+		반환 MOSQ_ERR_SUCCESS;
 	}
 
 	session_expiry__remove(context);
@@ -624,7 +624,7 @@ BROKER_EXPORT int mosquitto_persist_client_delete(const char *clientid)
 	mosquitto__set_state(context, mosq_cs_duplicate);
 	do_disconnect(context, MOSQ_ERR_SUCCESS);
 
-	return MOSQ_ERR_SUCCESS;
+	반환 MOSQ_ERR_SUCCESS;
 }
 
 
@@ -633,162 +633,162 @@ static struct mosquitto__base_msg *find_store_msg(uint64_t store_id)
 	struct mosquitto__base_msg *base_msg;
 
 	HASH_FIND(hh, db.msg_store, &store_id, sizeof(store_id), base_msg);
-	return base_msg;
+	반환 base_msg;
 }
 
 
-BROKER_EXPORT int mosquitto_persist_client_msg_add(struct mosquitto_client_msg *client_msg)
+BROKER_EXPORT 정수 mosquitto_persist_client_msg_add(struct mosquitto_client_msg *client_msg)
 {
 	struct mosquitto *context;
 	struct mosquitto__base_msg *base_msg;
 
-	if(client_msg == NULL || client_msg->clientid == NULL){
-		return MOSQ_ERR_INVAL;
+	만약(client_msg == NULL || client_msg->clientid == NULL){
+		반환 MOSQ_ERR_INVAL;
 	}
 
 	HASH_FIND(hh_id, db.contexts_by_id, client_msg->clientid, strlen(client_msg->clientid), context);
-	if(context == NULL){
-		return MOSQ_ERR_NOT_FOUND;
+	만약(context == NULL){
+		반환 MOSQ_ERR_NOT_FOUND;
 	}
 	base_msg = find_store_msg(client_msg->store_id);
-	if(base_msg == NULL){
-		return MOSQ_ERR_NOT_FOUND;
+	만약(base_msg == NULL){
+		반환 MOSQ_ERR_NOT_FOUND;
 	}
 
-	if(client_msg->direction == mosq_md_out){
-		if(client_msg->qos > 0){
+	만약(client_msg->direction == mosq_md_out){
+		만약(client_msg->qos > 0){
 			context->last_mid = client_msg->mid;
 		}
-		return db__message_insert_outgoing(context, client_msg->cmsg_id, client_msg->mid,
+		반환 db__message_insert_outgoing(context, client_msg->cmsg_id, client_msg->mid,
 				client_msg->qos, client_msg->retain,
 				base_msg, client_msg->subscription_identifier, false, false);
-	}else if(client_msg->direction == mosq_md_in){
-		return db__message_insert_incoming(context, client_msg->cmsg_id, base_msg, false);
-	}else{
-		return MOSQ_ERR_INVAL;
+	}아니면 만약(client_msg->direction == mosq_md_in){
+		반환 db__message_insert_incoming(context, client_msg->cmsg_id, base_msg, false);
+	}아니면{
+		반환 MOSQ_ERR_INVAL;
 	}
-	return MOSQ_ERR_SUCCESS;
+	반환 MOSQ_ERR_SUCCESS;
 }
 
 
-BROKER_EXPORT int mosquitto_persist_client_msg_delete(struct mosquitto_client_msg *client_msg)
+BROKER_EXPORT 정수 mosquitto_persist_client_msg_delete(struct mosquitto_client_msg *client_msg)
 {
 	struct mosquitto *context;
 
-	if(client_msg == NULL || client_msg->clientid == NULL){
-		return MOSQ_ERR_INVAL;
+	만약(client_msg == NULL || client_msg->clientid == NULL){
+		반환 MOSQ_ERR_INVAL;
 	}
 
 	HASH_FIND(hh_id, db.contexts_by_id, client_msg->clientid, strlen(client_msg->clientid), context);
-	if(context == NULL){
-		return MOSQ_ERR_NOT_FOUND;
+	만약(context == NULL){
+		반환 MOSQ_ERR_NOT_FOUND;
 	}
 
 
-	int rc = MOSQ_ERR_INVAL;
-	if(client_msg->direction == mosq_md_out){
+	정수 rc = MOSQ_ERR_INVAL;
+	만약(client_msg->direction == mosq_md_out){
 		rc = db__message_delete_outgoing(context, client_msg->mid, mosq_ms_any, client_msg->qos);
-	}else if(client_msg->direction == mosq_md_in){
+	}아니면 만약(client_msg->direction == mosq_md_in){
 		rc = db__message_remove_incoming(context, client_msg->mid);
 	}
-	return rc;
+	반환 rc;
 }
 
 
-BROKER_EXPORT int mosquitto_persist_client_msg_update(struct mosquitto_client_msg *client_msg)
+BROKER_EXPORT 정수 mosquitto_persist_client_msg_update(struct mosquitto_client_msg *client_msg)
 {
 	struct mosquitto *context;
 
-	if(client_msg == NULL || client_msg->clientid == NULL){
-		return MOSQ_ERR_INVAL;
+	만약(client_msg == NULL || client_msg->clientid == NULL){
+		반환 MOSQ_ERR_INVAL;
 	}
 
 	HASH_FIND(hh_id, db.contexts_by_id, client_msg->clientid, strlen(client_msg->clientid), context);
-	if(context == NULL){
-		return MOSQ_ERR_NOT_FOUND;
+	만약(context == NULL){
+		반환 MOSQ_ERR_NOT_FOUND;
 	}
 
-	if(client_msg->direction == mosq_md_out){
+	만약(client_msg->direction == mosq_md_out){
 		db__message_update_outgoing(context, client_msg->mid, client_msg->state, client_msg->qos, false);
-	}else if(client_msg->direction == mosq_md_in){
+	}아니면 만약(client_msg->direction == mosq_md_in){
 		// FIXME db__message_update_incoming(context, client_msg->mid, client_msg->state, client_msg->qos, false);
-	}else{
-		return MOSQ_ERR_INVAL;
+	}아니면{
+		반환 MOSQ_ERR_INVAL;
 	}
-	return MOSQ_ERR_SUCCESS;
+	반환 MOSQ_ERR_SUCCESS;
 }
 
 
-BROKER_EXPORT int mosquitto_persist_client_msg_clear(struct mosquitto_client_msg *client_msg)
+BROKER_EXPORT 정수 mosquitto_persist_client_msg_clear(struct mosquitto_client_msg *client_msg)
 {
 	struct mosquitto *context;
 
-	if(client_msg == NULL || client_msg->clientid == NULL){
-		return MOSQ_ERR_INVAL;
+	만약(client_msg == NULL || client_msg->clientid == NULL){
+		반환 MOSQ_ERR_INVAL;
 	}
 
 	HASH_FIND(hh_id, db.contexts_by_id, client_msg->clientid, strlen(client_msg->clientid), context);
-	if(context == NULL){
-		return MOSQ_ERR_NOT_FOUND;
+	만약(context == NULL){
+		반환 MOSQ_ERR_NOT_FOUND;
 	}
 
-	if(client_msg->direction == mosq_bmd_in || client_msg->direction == mosq_bmd_all){
+	만약(client_msg->direction == mosq_bmd_in || client_msg->direction == mosq_bmd_all){
 		db__messages_delete_incoming(context);
 	}
-	if(client_msg->direction == mosq_bmd_out || client_msg->direction == mosq_bmd_all){
+	만약(client_msg->direction == mosq_bmd_out || client_msg->direction == mosq_bmd_all){
 		db__messages_delete_outgoing(context);
 	}
-	return MOSQ_ERR_SUCCESS;
+	반환 MOSQ_ERR_SUCCESS;
 }
 
 
-BROKER_EXPORT int mosquitto_subscription_add(const struct mosquitto_subscription *sub)
+BROKER_EXPORT 정수 mosquitto_subscription_add(const struct mosquitto_subscription *sub)
 {
 	struct mosquitto *context;
 
-	if(sub == NULL || sub->clientid == NULL || sub->topic_filter == NULL || sub->clientid[0] == '\0' || sub->topic_filter[0] == '\0'){
-		return MOSQ_ERR_INVAL;
+	만약(sub == NULL || sub->clientid == NULL || sub->topic_filter == NULL || sub->clientid[0] == '\0' || sub->topic_filter[0] == '\0'){
+		반환 MOSQ_ERR_INVAL;
 	}
 
 	HASH_FIND(hh_id, db.contexts_by_id, sub->clientid, strlen(sub->clientid), context);
 
-	if(context){
-		return sub__add(context, sub);
-	}else{
-		return MOSQ_ERR_NOT_FOUND;
+	만약(context){
+		반환 sub__add(context, sub);
+	}아니면{
+		반환 MOSQ_ERR_NOT_FOUND;
 	}
 }
 
 
-BROKER_EXPORT int mosquitto_subscription_delete(const char *clientid, const char *topic)
+BROKER_EXPORT 정수 mosquitto_subscription_delete(const char *clientid, const char *topic)
 {
 	struct mosquitto *context;
 	uint8_t reason;
 
-	if(clientid == NULL || topic == NULL || clientid[0] == '\0' || topic[0] == '\0'){
-		return MOSQ_ERR_INVAL;
+	만약(clientid == NULL || topic == NULL || clientid[0] == '\0' || topic[0] == '\0'){
+		반환 MOSQ_ERR_INVAL;
 	}
 
 	HASH_FIND(hh_id, db.contexts_by_id, clientid, strlen(clientid), context);
 
-	if(context){
-		return sub__remove(context, topic, &reason);
-	}else{
-		return MOSQ_ERR_NOT_FOUND;
+	만약(context){
+		반환 sub__remove(context, topic, &reason);
+	}아니면{
+		반환 MOSQ_ERR_NOT_FOUND;
 	}
 }
 
 
-BROKER_EXPORT int mosquitto_persist_base_msg_add(struct mosquitto_base_msg *msg_add)
+BROKER_EXPORT 정수 mosquitto_persist_base_msg_add(struct mosquitto_base_msg *msg_add)
 {
 	struct mosquitto context;
 	struct mosquitto__base_msg *base_msg;
-	int rc;
+	정수 rc;
 
 	memset(&context, 0, sizeof(context));
 
-	if(msg_add->payloadlen > MQTT_MAX_PAYLOAD){
-		return MOSQ_ERR_INVAL;
+	만약(msg_add->payloadlen > MQTT_MAX_PAYLOAD){
+		반환 MOSQ_ERR_INVAL;
 	}
 
 	/* db__message_store only takes a copy of .id and .username, so it is reasonably safe
@@ -797,7 +797,7 @@ BROKER_EXPORT int mosquitto_persist_base_msg_add(struct mosquitto_base_msg *msg_
 	context.username = (char *)msg_add->source_username;
 
 	base_msg = mosquitto_calloc(1, sizeof(struct mosquitto__base_msg));
-	if(base_msg == NULL){
+	만약(base_msg == NULL){
 		goto error;
 	}
 	base_msg->data.store_id = msg_add->store_id;
@@ -814,9 +814,9 @@ BROKER_EXPORT int mosquitto_persist_base_msg_add(struct mosquitto_base_msg *msg_
 	base_msg->data.properties = msg_add->properties;
 	msg_add->properties = NULL;
 
-	if(msg_add->source_port){
-		for(int i=0; i<db.config->listener_count; i++){
-			if(db.config->listeners[i].port == msg_add->source_port){
+	만약(msg_add->source_port){
+		위해(정수 i=0; i<db.config->listener_count; i++){
+			만약(db.config->listeners[i].port == msg_add->source_port){
 				base_msg->source_listener = &db.config->listeners[i];
 				break;
 			}
@@ -825,7 +825,7 @@ BROKER_EXPORT int mosquitto_persist_base_msg_add(struct mosquitto_base_msg *msg_
 
 	base_msg->stored = true;
 	rc = db__message_store(&context, base_msg, NULL, mosq_mo_broker);
-	return rc;
+	반환 rc;
 
 error:
 	mosquitto_property_free_all(&msg_add->properties);
@@ -833,16 +833,16 @@ error:
 	mosquitto_free(msg_add->payload);
 	mosquitto_free(base_msg);
 
-	return MOSQ_ERR_NOMEM;
+	반환 MOSQ_ERR_NOMEM;
 }
 
 
-BROKER_EXPORT int mosquitto_persist_base_msg_delete(uint64_t store_id)
+BROKER_EXPORT 정수 mosquitto_persist_base_msg_delete(uint64_t store_id)
 {
 	struct mosquitto__base_msg *base_msg;
 
 	base_msg = find_store_msg(store_id);
-	if(base_msg && base_msg->ref_count == 0){
+	만약(base_msg && base_msg->ref_count == 0){
 		/* If ref count is zero, then we should delete this. It might seem
 		 * surprising that the ref count is zero already, but it can be. If ref
 		 * count is greater than zero then there may be e.g. a retained message
@@ -854,27 +854,27 @@ BROKER_EXPORT int mosquitto_persist_base_msg_delete(uint64_t store_id)
 		db__msg_store_remove(base_msg, false);
 	}
 
-	return MOSQ_ERR_SUCCESS;
+	반환 MOSQ_ERR_SUCCESS;
 }
 
 
-BROKER_EXPORT void mosquitto_complete_basic_auth(const char *clientid, int result)
+BROKER_EXPORT void mosquitto_complete_basic_auth(const char *clientid, 정수 result)
 {
 	struct mosquitto *context;
 
-	if(clientid == NULL){
-		return;
+	만약(clientid == NULL){
+		반환;
 	}
 
 	HASH_FIND(hh_id, db.contexts_by_id_delayed_auth, clientid, strlen(clientid), context);
-	if(context){
+	만약(context){
 		HASH_DELETE(hh_id, db.contexts_by_id_delayed_auth, context);
-		if(result == MOSQ_ERR_SUCCESS){
+		만약(result == MOSQ_ERR_SUCCESS){
 			connect__on_authorised(context, NULL, 0);
-		}else{
-			if(context->protocol == mosq_p_mqtt5){
+		}아니면{
+			만약(context->protocol == mosq_p_mqtt5){
 				send__connack(context, 0, MQTT_RC_NOT_AUTHORIZED, NULL);
-			}else{
+			}아니면{
 				send__connack(context, 0, CONNACK_REFUSED_NOT_AUTHORIZED, NULL);
 			}
 			context->clean_start = true;
@@ -886,35 +886,35 @@ BROKER_EXPORT void mosquitto_complete_basic_auth(const char *clientid, int resul
 }
 
 
-BROKER_EXPORT int mosquitto_broker_node_id_set(uint16_t id)
+BROKER_EXPORT 정수 mosquitto_broker_node_id_set(uint16_t id)
 {
-	if(id > 1023){
-		return MOSQ_ERR_INVAL;
-	}else{
+	만약(id > 1023){
+		반환 MOSQ_ERR_INVAL;
+	}아니면{
 		db.node_id = id;
 		db.node_id_shifted = ((uint64_t)id) << 54;
-		return MOSQ_ERR_SUCCESS;
+		반환 MOSQ_ERR_SUCCESS;
 	}
 }
 
 
 BROKER_EXPORT const char *mosquitto_persistence_location(void)
 {
-	return db.config->persistence_location;
+	반환 db.config->persistence_location;
 }
 
 
-BROKER_EXPORT int mosquitto_client_will_set(const char *clientid, const char *topic, int payloadlen, const void *payload, int qos, bool retain, mosquitto_property *properties)
+BROKER_EXPORT 정수 mosquitto_client_will_set(const char *clientid, const char *topic, 정수 payloadlen, const void *payload, 정수 qos, bool retain, mosquitto_property *properties)
 {
 	struct mosquitto *mosq = mosquitto_client(clientid);
-	if(!mosq){
-		return MOSQ_ERR_NOT_FOUND;
+	만약(!mosq){
+		반환 MOSQ_ERR_NOT_FOUND;
 	}
-	if(properties && mosq->protocol != mosq_p_mqtt5){
-		if(net__is_connected(mosq)){
-			return MOSQ_ERR_NOT_SUPPORTED;
+	만약(properties && mosq->protocol != mosq_p_mqtt5){
+		만약(net__is_connected(mosq)){
+			반환 MOSQ_ERR_NOT_SUPPORTED;
 		}
 		mosq->protocol = mosq_p_mqtt5;
 	}
-	return will__set(mosq, topic, payloadlen, payload, qos, retain, properties);
+	반환 will__set(mosq, topic, payloadlen, payload, qos, retain, properties);
 }

@@ -28,23 +28,23 @@ static struct will_delay_list *delay_list = NULL;
 static time_t last_check = 0;
 
 
-static int will_delay__cmp(struct will_delay_list *i1, struct will_delay_list *i2)
+static 정수 will_delay__cmp(struct will_delay_list *i1, struct will_delay_list *i2)
 {
-	return (int)(i1->context->will_delay_interval - i2->context->will_delay_interval);
+	반환 (정수)(i1->context->will_delay_interval - i2->context->will_delay_interval);
 }
 
 
-int will_delay__add(struct mosquitto *context)
+정수 will_delay__add(struct mosquitto *context)
 {
 	struct will_delay_list *item;
 
-	if(context->will_delay_entry){
-		return MOSQ_ERR_SUCCESS;
+	만약(context->will_delay_entry){
+		반환 MOSQ_ERR_SUCCESS;
 	}
 
 	item = mosquitto_calloc(1, sizeof(struct will_delay_list));
-	if(!item){
-		return MOSQ_ERR_NOMEM;
+	만약(!item){
+		반환 MOSQ_ERR_NOMEM;
 	}
 
 	item->context = context;
@@ -56,7 +56,7 @@ int will_delay__add(struct mosquitto *context)
 	loop__update_next_event(item->context->will_delay_interval*1000);
 	plugin_persist__handle_client_update(context);
 
-	return MOSQ_ERR_SUCCESS;
+	반환 MOSQ_ERR_SUCCESS;
 }
 
 
@@ -79,28 +79,28 @@ void will_delay__check(void)
 {
 	struct will_delay_list *item, *tmp;
 
-	if(db.now_real_s <= last_check){
-		if(delay_list){
+	만약(db.now_real_s <= last_check){
+		만약(delay_list){
 			loop__update_next_event(1000);
 		}
-		return;
+		반환;
 	}
 
 	last_check = db.now_real_s;
 
 	DL_FOREACH_SAFE(delay_list, item, tmp){
-		if(item->context->will_delay_time <= db.now_real_s){
+		만약(item->context->will_delay_time <= db.now_real_s){
 			DL_DELETE(delay_list, item);
 			item->context->will_delay_interval = 0;
 			item->context->will_delay_entry = NULL;
 			context__send_will(item->context);
-			if(item->context->session_expiry_interval == MQTT_SESSION_EXPIRY_IMMEDIATE){
+			만약(item->context->session_expiry_interval == MQTT_SESSION_EXPIRY_IMMEDIATE){
 				context__add_to_disused(item->context);
 			}
 			mosquitto_FREE(item);
-		}else{
+		}아니면{
 			loop__update_next_event((item->context->will_delay_time - db.now_real_s)*1000);
-			return;
+			반환;
 		}
 	}
 }
@@ -108,7 +108,7 @@ void will_delay__check(void)
 
 void will_delay__remove(struct mosquitto *mosq)
 {
-	if(mosq->will_delay_entry != NULL){
+	만약(mosq->will_delay_entry != NULL){
 		DL_DELETE(delay_list, mosq->will_delay_entry);
 		mosquitto_FREE(mosq->will_delay_entry);
 	}
