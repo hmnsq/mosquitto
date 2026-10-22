@@ -23,11 +23,11 @@ Contributors:
 #include "utlist.h"
 
 
-static int plugin__handle_unsubscribe_single(struct mosquitto__security_options *opts, struct mosquitto *context, struct mosquitto_subscription *sub)
+static số_nguyên plugin__handle_unsubscribe_single(struct mosquitto__security_options *opts, struct mosquitto *context, struct mosquitto_subscription *sub)
 {
 	struct mosquitto_evt_unsubscribe event_data;
 	struct mosquitto__callback *cb_base, *cb_next;
-	int rc = MOSQ_ERR_SUCCESS;
+	số_nguyên rc = MOSQ_ERR_SUCCESS;
 
 	memset(&event_data, 0, sizeof(event_data));
 	event_data.client = context;
@@ -36,35 +36,35 @@ static int plugin__handle_unsubscribe_single(struct mosquitto__security_options 
 
 	DL_FOREACH_SAFE(opts->plugin_callbacks.unsubscribe, cb_base, cb_next){
 		rc = cb_base->cb(MOSQ_EVT_UNSUBSCRIBE, &event_data, cb_base->userdata);
-		if(rc != MOSQ_ERR_SUCCESS){
+		nếu(rc != MOSQ_ERR_SUCCESS){
 			break;
 		}
 
-		if(sub->topic_filter != event_data.data.topic_filter){
+		nếu(sub->topic_filter != event_data.data.topic_filter){
 			mosquitto_free(sub->topic_filter);
 			sub->topic_filter = event_data.data.topic_filter;
 		}
 	}
 
-	return rc;
+	trả_về rc;
 }
 
 
-int plugin__handle_unsubscribe(struct mosquitto *context, struct mosquitto_subscription *sub)
+số_nguyên plugin__handle_unsubscribe(struct mosquitto *context, struct mosquitto_subscription *sub)
 {
-	int rc = MOSQ_ERR_SUCCESS;
+	số_nguyên rc = MOSQ_ERR_SUCCESS;
 
 	/* Global plugins */
 	rc = plugin__handle_unsubscribe_single(&db.config->security_options,
 			context, sub);
-	if(rc){
-		return rc;
+	nếu(rc){
+		trả_về rc;
 	}
 
-	if(context->listener){
+	nếu(context->listener){
 		rc = plugin__handle_unsubscribe_single(context->listener->security_options,
 				context, sub);
 	}
 
-	return rc;
+	trả_về rc;
 }

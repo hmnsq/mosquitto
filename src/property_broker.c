@@ -29,13 +29,13 @@ Contributors:
 
 /* Process the incoming properties, we should be able to assume that only valid
  * properties for CONNECT are present here. */
-int property__process_connect(struct mosquitto *context, mosquitto_property **props)
+số_nguyên property__process_connect(struct mosquitto *context, mosquitto_property **props)
 {
 	mosquitto_property *p;
 
 	p = *props;
 
-	while(p){
+	trong_khi(p){
 		switch(mosquitto_property_identifier(p)){
 			case MQTT_PROP_SESSION_EXPIRY_INTERVAL:
 				context->session_expiry_interval = mosquitto_property_int32_value(p);
@@ -43,24 +43,24 @@ int property__process_connect(struct mosquitto *context, mosquitto_property **pr
 
 			case MQTT_PROP_RECEIVE_MAXIMUM:
 				context->msgs_out.inflight_maximum = mosquitto_property_int16_value(p);
-				if(context->msgs_out.inflight_maximum == 0){
+				nếu(context->msgs_out.inflight_maximum == 0){
 					log__printf(NULL, MOSQ_LOG_INFO, "Protocol error from %s: CONNECT packet with receive-maximum = 0.", context->id);
-					return MOSQ_ERR_PROTOCOL;
+					trả_về MOSQ_ERR_PROTOCOL;
 				}
 				context->msgs_out.inflight_quota = context->msgs_out.inflight_maximum;
 				break;
 
 			case MQTT_PROP_MAXIMUM_PACKET_SIZE:
 				context->maximum_packet_size = mosquitto_property_int32_value(p);
-				if(context->maximum_packet_size == 0){
+				nếu(context->maximum_packet_size == 0){
 					log__printf(NULL, MOSQ_LOG_INFO, "Protocol error from %s: CONNECT packet with maximum-packet-size = 0.", context->id);
-					return MOSQ_ERR_PROTOCOL;
+					trả_về MOSQ_ERR_PROTOCOL;
 				}
 				break;
 
 			case MQTT_PROP_TOPIC_ALIAS_MAXIMUM:
 				context->alias_max_l2r = mosquitto_property_int16_value(p);
-				if(context->alias_max_l2r > context->listener->max_topic_alias_broker){
+				nếu(context->alias_max_l2r > context->listener->max_topic_alias_broker){
 					context->alias_max_l2r = context->listener->max_topic_alias_broker;
 				}
 				break;
@@ -71,11 +71,11 @@ int property__process_connect(struct mosquitto *context, mosquitto_property **pr
 		p = mosquitto_property_next(p);
 	}
 
-	return MOSQ_ERR_SUCCESS;
+	trả_về MOSQ_ERR_SUCCESS;
 }
 
 
-int property__process_will(struct mosquitto *context, struct mosquitto_message_all *msg, mosquitto_property **props)
+số_nguyên property__process_will(struct mosquitto *context, struct mosquitto_message_all *msg, mosquitto_property **props)
 {
 	mosquitto_property *p, *p_prev;
 	mosquitto_property *msg_properties, *msg_properties_last;
@@ -85,7 +85,7 @@ int property__process_will(struct mosquitto *context, struct mosquitto_message_a
 	msg_properties = NULL;
 	msg_properties_last = NULL;
 	msg->expiry_interval = MSG_EXPIRY_INFINITE;
-	while(p){
+	trong_khi(p){
 		switch(mosquitto_property_identifier(p)){
 			case MQTT_PROP_CONTENT_TYPE:
 			case MQTT_PROP_CORRELATION_DATA:
@@ -95,19 +95,19 @@ int property__process_will(struct mosquitto *context, struct mosquitto_message_a
 				/* We save these properties for transmission with the PUBLISH */
 
 				/* Add this property to the end of the list */
-				if(msg_properties){
+				nếu(msg_properties){
 					msg_properties_last->next = p;
 					msg_properties_last = p;
-				}else{
+				}không_thì{
 					msg_properties = p;
 					msg_properties_last = p;
 				}
 
 				/* And remove it from *props */
-				if(p_prev){
+				nếu(p_prev){
 					p_prev->next = mosquitto_property_next(p);
 					p = mosquitto_property_next(p_prev);
-				}else{
+				}không_thì{
 					*props = mosquitto_property_next(p);
 					p = *props;
 				}
@@ -131,17 +131,17 @@ int property__process_will(struct mosquitto *context, struct mosquitto_message_a
 			default:
 				msg->properties = msg_properties;
 				log__printf(NULL, MOSQ_LOG_INFO, "Protocol error from %s: CONNECT packet invalid property (%d).", context->id, p->identifier);
-				return MOSQ_ERR_PROTOCOL;
+				trả_về MOSQ_ERR_PROTOCOL;
 				break;
 		}
 	}
 
 	msg->properties = msg_properties;
-	return MOSQ_ERR_SUCCESS;
+	trả_về MOSQ_ERR_SUCCESS;
 }
 
 
-int property__process_publish(struct mosquitto__base_msg *base_msg, mosquitto_property **props, int *topic_alias, uint32_t *message_expiry_interval, bool is_bridge)
+số_nguyên property__process_publish(struct mosquitto__base_msg *base_msg, mosquitto_property **props, số_nguyên *topic_alias, uint32_t *message_expiry_interval, bool is_bridge)
 {
 	mosquitto_property *p, *p_prev;
 	mosquitto_property *msg_properties_last;
@@ -150,24 +150,24 @@ int property__process_publish(struct mosquitto__base_msg *base_msg, mosquitto_pr
 	p_prev = NULL;
 	base_msg->data.properties = NULL;
 	msg_properties_last = NULL;
-	while(p){
+	trong_khi(p){
 		switch(mosquitto_property_identifier(p)){
 			case MQTT_PROP_CONTENT_TYPE:
 			case MQTT_PROP_CORRELATION_DATA:
 			case MQTT_PROP_PAYLOAD_FORMAT_INDICATOR:
 			case MQTT_PROP_RESPONSE_TOPIC:
 			case MQTT_PROP_USER_PROPERTY:
-				if(base_msg->data.properties){
+				nếu(base_msg->data.properties){
 					msg_properties_last->next = p;
 					msg_properties_last = p;
-				}else{
+				}không_thì{
 					base_msg->data.properties = p;
 					msg_properties_last = p;
 				}
-				if(p_prev){
+				nếu(p_prev){
 					p_prev->next = mosquitto_property_next(p);
 					p = mosquitto_property_next(p_prev);
-				}else{
+				}không_thì{
 					*props = mosquitto_property_next(p);
 					p = *props;
 				}
@@ -187,8 +187,8 @@ int property__process_publish(struct mosquitto__base_msg *base_msg, mosquitto_pr
 				break;
 
 			case MQTT_PROP_SUBSCRIPTION_IDENTIFIER:
-				if(!is_bridge || mosquitto_property_varint_value(p) == 0){
-					return MOSQ_ERR_PROTOCOL;
+				nếu(!is_bridge || mosquitto_property_varint_value(p) == 0){
+					trả_về MOSQ_ERR_PROTOCOL;
 				}
 				p_prev = p;
 				p = mosquitto_property_next(p);
@@ -200,31 +200,31 @@ int property__process_publish(struct mosquitto__base_msg *base_msg, mosquitto_pr
 		}
 	}
 
-	return MOSQ_ERR_SUCCESS;
+	trả_về MOSQ_ERR_SUCCESS;
 }
 
 
 /* Process the incoming properties, we should be able to assume that only valid
  * properties for DISCONNECT are present here. */
-int property__process_disconnect(struct mosquitto *context, mosquitto_property **props)
+số_nguyên property__process_disconnect(struct mosquitto *context, mosquitto_property **props)
 {
 	mosquitto_property *p;
 
 	p = *props;
 
-	while(p){
-		if(mosquitto_property_identifier(p) == MQTT_PROP_SESSION_EXPIRY_INTERVAL){
+	trong_khi(p){
+		nếu(mosquitto_property_identifier(p) == MQTT_PROP_SESSION_EXPIRY_INTERVAL){
 			uint32_t session_expiry_interval = mosquitto_property_int32_value(p);
-			if(context->session_expiry_interval == MQTT_SESSION_EXPIRY_IMMEDIATE
+			nếu(context->session_expiry_interval == MQTT_SESSION_EXPIRY_IMMEDIATE
 					&& session_expiry_interval != MQTT_SESSION_EXPIRY_IMMEDIATE){
 
 				log__printf(NULL, MOSQ_LOG_INFO, "Protocol error from %s: DISCONNECT packet with mismatched session-expiry-interval (%d:%d).",
 						context->id, context->session_expiry_interval, p->value.i32);
-				return MOSQ_ERR_PROTOCOL;
+				trả_về MOSQ_ERR_PROTOCOL;
 			}
 			context->session_expiry_interval = session_expiry_interval;
 		}
 		p = mosquitto_property_next(p);
 	}
-	return MOSQ_ERR_SUCCESS;
+	trả_về MOSQ_ERR_SUCCESS;
 }

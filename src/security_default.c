@@ -29,79 +29,79 @@ Contributors:
 #include "util_mosq.h"
 
 
-int mosquitto_security_init_default(void)
+số_nguyên mosquitto_security_init_default(void)
 {
-	int rc;
+	số_nguyên rc;
 
 	/* Configure plugin identifier */
-	if(db.config->per_listener_settings){
-		for(int i=0; i<db.config->listener_count; i++){
+	nếu(db.config->per_listener_settings){
+		cho(số_nguyên i=0; i<db.config->listener_count; i++){
 			db.config->listeners[i].security_options->pid = mosquitto_calloc(1, sizeof(mosquitto_plugin_id_t));
-			if(db.config->listeners[i].security_options->pid == NULL){
+			nếu(db.config->listeners[i].security_options->pid == NULL){
 				log__printf(NULL, MOSQ_LOG_ERR, "Error: Out of memory.");
-				return MOSQ_ERR_NOMEM;
+				trả_về MOSQ_ERR_NOMEM;
 			}
 			db.config->listeners[i].security_options->pid->plugin_name = mosquitto_strdup("builtin-security");
 			db.config->listeners[i].security_options->pid->listener = &db.config->listeners[i];
 			config__plugin_add_secopt(db.config->listeners[i].security_options->pid, db.config->listeners[i].security_options);
 		}
-	}else{
+	}không_thì{
 		db.config->security_options.pid = mosquitto_calloc(1, sizeof(mosquitto_plugin_id_t));
-		if(db.config->security_options.pid == NULL){
+		nếu(db.config->security_options.pid == NULL){
 			log__printf(NULL, MOSQ_LOG_ERR, "Error: Out of memory.");
-			return MOSQ_ERR_NOMEM;
+			trả_về MOSQ_ERR_NOMEM;
 		}
 		db.config->security_options.pid->plugin_name = mosquitto_strdup("builtin-security");
 		config__plugin_add_secopt(db.config->security_options.pid, &db.config->security_options);
 	}
 
 	rc = broker_password_file__init();
-	if(rc){
-		return rc;
+	nếu(rc){
+		trả_về rc;
 	}
 
 	rc = broker_acl_file__init();
-	if(rc){
-		return rc;
+	nếu(rc){
+		trả_về rc;
 	}
 
 	rc = psk_file__init();
-	if(rc){
-		return rc;
+	nếu(rc){
+		trả_về rc;
 	}
 
-	return MOSQ_ERR_SUCCESS;
+	trả_về MOSQ_ERR_SUCCESS;
 }
 
 
-int mosquitto_security_cleanup_default(void)
+số_nguyên mosquitto_security_cleanup_default(void)
 {
-	int rc = 0;
+	số_nguyên rc = 0;
 
 	broker_password_file__cleanup();
 	broker_acl_file__cleanup();
 
 	rc = psk_file__cleanup();
-	if(rc != MOSQ_ERR_SUCCESS){
-		return rc;
+	nếu(rc != MOSQ_ERR_SUCCESS){
+		trả_về rc;
 	}
 
-	if(db.config->per_listener_settings){
-		for(int i=0; i<db.config->listener_count; i++){
-			if(db.config->listeners[i].security_options->pid){
+	nếu(db.config->per_listener_settings){
+		cho(số_nguyên i=0; i<db.config->listener_count; i++){
+			nếu(db.config->listeners[i].security_options->pid){
 				mosquitto_FREE(db.config->listeners[i].security_options->pid->plugin_name);
 				mosquitto_FREE(db.config->listeners[i].security_options->pid->config.security_options);
 				mosquitto_FREE(db.config->listeners[i].security_options->pid);
 			}
 		}
-	}else{
-		if(db.config->security_options.pid){
+	}không_thì{
+		nếu(db.config->security_options.pid){
 			mosquitto_FREE(db.config->security_options.pid->plugin_name);
 			mosquitto_FREE(db.config->security_options.pid->config.security_options);
 			mosquitto_FREE(db.config->security_options.pid);
 		}
 	}
-	return MOSQ_ERR_SUCCESS;
+	trả_về MOSQ_ERR_SUCCESS;
 }
 
 
@@ -110,7 +110,7 @@ int mosquitto_security_cleanup_default(void)
 
 static void security__disconnect_auth(struct mosquitto *context)
 {
-	if(context->protocol == mosq_p_mqtt5){
+	nếu(context->protocol == mosq_p_mqtt5){
 		send__disconnect(context, MQTT_RC_ADMINISTRATIVE_ACTION, NULL);
 	}
 	mosquitto__set_state(context, mosq_cs_disconnecting);
@@ -125,7 +125,7 @@ static void security__disconnect_auth(struct mosquitto *context)
  * - Disconnecting users with invalid passwords
  * - Reapplying ACLs
  */
-int mosquitto_security_apply_default(void)
+số_nguyên mosquitto_security_apply_default(void)
 {
 	struct mosquitto *context, *ctxt_tmp = NULL;
 	bool allow_anonymous;
@@ -141,34 +141,34 @@ int mosquitto_security_apply_default(void)
 #endif
 
 #ifdef WITH_TLS
-	for(int i=0; i<db.config->listener_count; i++){
+	cho(số_nguyên i=0; i<db.config->listener_count; i++){
 		listener = &db.config->listeners[i];
-		if(listener && listener->ssl_ctx && listener->certfile && listener->keyfile && listener->crlfile && listener->require_certificate){
-			if(net__tls_server_ctx(listener)){
-				return MOSQ_ERR_TLS;
+		nếu(listener && listener->ssl_ctx && listener->certfile && listener->keyfile && listener->crlfile && listener->require_certificate){
+			nếu(net__tls_server_ctx(listener)){
+				trả_về MOSQ_ERR_TLS;
 			}
 
-			if(net__tls_load_verify(listener)){
-				return MOSQ_ERR_TLS;
+			nếu(net__tls_load_verify(listener)){
+				trả_về MOSQ_ERR_TLS;
 			}
 		}
 	}
 #endif
 
 	HASH_ITER(hh_id, db.contexts_by_id, context, ctxt_tmp){
-		if(context->bridge){
+		nếu(context->bridge){
 			continue;
 		}
 
-		if((context->listener && context->listener->security_options->allow_anonymous == true)
+		nếu((context->listener && context->listener->security_options->allow_anonymous == true)
 				|| (!db.config->per_listener_settings && db.config->security_options.allow_anonymous == true
 				&& context->listener && context->listener->security_options->allow_anonymous != false)){
 			allow_anonymous = true;
-		}else{
+		}không_thì{
 			allow_anonymous = false;
 		}
 
-		if(!allow_anonymous && !context->username){
+		nếu(!allow_anonymous && !context->username){
 			mosquitto__set_state(context, mosq_cs_disconnecting);
 			do_disconnect(context, MOSQ_ERR_AUTH);
 			continue;
@@ -176,10 +176,10 @@ int mosquitto_security_apply_default(void)
 
 		/* Check for connected clients that are no longer authorised */
 #ifdef WITH_TLS
-		if(context->listener && context->listener->ssl_ctx && (context->listener->use_identity_as_username || context->listener->use_subject_as_username)){
+		nếu(context->listener && context->listener->ssl_ctx && (context->listener->use_identity_as_username || context->listener->use_subject_as_username)){
 			/* Client must have either a valid certificate, or valid PSK used as a username. */
-			if(!context->ssl){
-				if(context->protocol == mosq_p_mqtt5){
+			nếu(!context->ssl){
+				nếu(context->protocol == mosq_p_mqtt5){
 					send__disconnect(context, MQTT_RC_ADMINISTRATIVE_ACTION, NULL);
 				}
 				mosquitto__set_state(context, mosq_cs_disconnecting);
@@ -187,13 +187,13 @@ int mosquitto_security_apply_default(void)
 				continue;
 			}
 #ifdef FINAL_WITH_TLS_PSK
-			if(context->listener->psk_hint){
+			nếu(context->listener->psk_hint){
 				/* Client should have provided an identity to get this far. */
-				if(!context->username){
+				nếu(!context->username){
 					security__disconnect_auth(context);
 					continue;
 				}
-			}else
+			}không_thì
 #endif /* FINAL_WITH_TLS_PSK */
 			{
 				/* Free existing credentials and then recover them. */
@@ -201,58 +201,58 @@ int mosquitto_security_apply_default(void)
 				mosquitto_FREE(context->password);
 
 				X509 *client_cert = SSL_get_peer_certificate(context->ssl);
-				if(!client_cert){
+				nếu(!client_cert){
 					security__disconnect_auth(context);
 					continue;
 				}
 				name = X509_get_subject_name(client_cert);
-				if(!name){
+				nếu(!name){
 					X509_free(client_cert);
 					security__disconnect_auth(context);
 					continue;
 				}
-				if(context->listener->use_identity_as_username){   /* use_identity_as_username */
-					int i = X509_NAME_get_index_by_NID(name, NID_commonName, -1);
-					if(i == -1){
+				nếu(context->listener->use_identity_as_username){   /* use_identity_as_username */
+					số_nguyên i = X509_NAME_get_index_by_NID(name, NID_commonName, -1);
+					nếu(i == -1){
 						X509_free(client_cert);
 						security__disconnect_auth(context);
 						continue;
 					}
 					name_entry = X509_NAME_get_entry(name, i);
-					if(name_entry){
+					nếu(name_entry){
 						name_asn1 = X509_NAME_ENTRY_get_data(name_entry);
-						if(name_asn1 == NULL){
+						nếu(name_asn1 == NULL){
 							X509_free(client_cert);
 							security__disconnect_auth(context);
 							continue;
 						}
 						const char *username = (const char *)ASN1_STRING_get0_data(name_asn1);
-						if(!username){
+						nếu(!username){
 							X509_free(client_cert);
 							client_cert = NULL;
 							security__disconnect_auth(context);
 							continue;
 						}
 						context->username = mosquitto_strdup(username);
-						if(!context->username){
+						nếu(!context->username){
 							X509_free(client_cert);
 							security__disconnect_auth(context);
 							continue;
 						}
 						/* Make sure there isn't an embedded NUL character in the CN */
-						if((size_t)ASN1_STRING_length(name_asn1) != strlen(context->username)){
+						nếu((size_t)ASN1_STRING_length(name_asn1) != strlen(context->username)){
 							X509_free(client_cert);
 							security__disconnect_auth(context);
 							continue;
 						}
 					}
-				}else{   /* use_subject_as_username */
+				}không_thì{   /* use_subject_as_username */
 					subject_bio = BIO_new(BIO_s_mem());
 					X509_NAME_print_ex(subject_bio, X509_get_subject_name(client_cert), 0, XN_FLAG_RFC2253);
 					data_start = NULL;
 					name_length = (size_t)BIO_get_mem_data(subject_bio, &data_start);
 					subject = mosquitto_malloc(sizeof(char)*name_length+1);
-					if(!subject){
+					nếu(!subject){
 						BIO_free(subject_bio);
 						X509_free(client_cert);
 						security__disconnect_auth(context);
@@ -263,18 +263,18 @@ int mosquitto_security_apply_default(void)
 					BIO_free(subject_bio);
 					context->username = subject;
 				}
-				if(!context->username){
+				nếu(!context->username){
 					X509_free(client_cert);
 					security__disconnect_auth(context);
 					continue;
 				}
 				X509_free(client_cert);
 			}
-		}else
+		}không_thì
 #endif
 		{
 			/* Username/password check only if the identity/subject check not used */
-			if(mosquitto_basic_auth(context) != MOSQ_ERR_SUCCESS){
+			nếu(mosquitto_basic_auth(context) != MOSQ_ERR_SUCCESS){
 				mosquitto__set_state(context, mosq_cs_disconnecting);
 				do_disconnect(context, MOSQ_ERR_AUTH);
 				continue;
@@ -282,5 +282,5 @@ int mosquitto_security_apply_default(void)
 		}
 	}
 
-	return MOSQ_ERR_SUCCESS;
+	trả_về MOSQ_ERR_SUCCESS;
 }

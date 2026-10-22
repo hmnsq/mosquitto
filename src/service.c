@@ -16,32 +16,32 @@ Contributors:
    Roger Light - initial implementation and documentation.
 */
 
-#if defined(WIN32) || defined(__CYGWIN__)
+#nếu defined(WIN32) || defined(__CYGWIN__)
 
 #include "config.h"
 
 #include "mosquitto_broker_internal.h"
 #include <windows.h>
 
-extern int g_run;
+extern số_nguyên g_run;
 SERVICE_STATUS_HANDLE service_handle = 0;
 static SERVICE_STATUS service_status;
-int main(int argc, char *argv[]);
+số_nguyên main(số_nguyên argc, char *argv[]);
 
 
 static char *fix_name(char *name)
 {
 	size_t len;
 
-	if(strrchr(name, '\\')){
+	nếu(strrchr(name, '\\')){
 		name = strrchr(name, '\\') + 1;
 	}
 	len = strlen(name);
-	if(!strcasecmp(&name[len-4], ".exe")){
+	nếu(!strcasecmp(&name[len-4], ".exe")){
 		name[len-4] = '\0';
 	}
 
-	return name;
+	trả_về name;
 }
 
 
@@ -83,9 +83,9 @@ void __stdcall service_handler(DWORD fdwControl)
 void __stdcall service_main(DWORD dwArgc, LPTSTR *lpszArgv)
 {
 	char **argv;
-	int argc = 1;
+	số_nguyên argc = 1;
 	char conf_path[MAX_PATH + 20];
-	int rc;
+	số_nguyên rc;
 	char *name;
 	char env_name[MAX_PATH];
 
@@ -93,27 +93,27 @@ void __stdcall service_main(DWORD dwArgc, LPTSTR *lpszArgv)
 
 	name = fix_name(lpszArgv[0]);
 	snprintf(env_name, sizeof(env_name), "%s_DIR", name);
-	for(int i=0; i<strlen(env_name); i++){
-		if(env_name[i]>='A' && env_name[i]<='Z'){
+	cho(số_nguyên i=0; i<strlen(env_name); i++){
+		nếu(env_name[i]>='A' && env_name[i]<='Z'){
 			/* Keep upper case letter */
-		}else if(env_name[i]>='0' && env_name[i]<='9'){
+		}không_thì nếu(env_name[i]>='0' && env_name[i]<='9'){
 			/* Keep number */
-		}else if(env_name[i]>='a' && env_name[i]<='z'){
+		}không_thì nếu(env_name[i]>='a' && env_name[i]<='z'){
 			/* Convert lower case to upper case */
 			env_name[i] -= 32;
-		}else{
+		}không_thì{
 			env_name[i] = '_';
 		}
 	}
 
 	service_handle = RegisterServiceCtrlHandler(name, service_handler);
-	if(service_handle){
+	nếu(service_handle){
 		memset(conf_path, 0, sizeof(conf_path));
 		rc = GetEnvironmentVariable(env_name, conf_path, MAX_PATH);
-		if(!rc || rc == MAX_PATH){
+		nếu(!rc || rc == MAX_PATH){
 			service_status.dwCurrentState = SERVICE_STOPPED;
 			SetServiceStatus(service_handle, &service_status);
-			return;
+			trả_về;
 		}
 		strcat(conf_path, "\\mosquitto.conf");
 
@@ -148,19 +148,19 @@ void service_install(char *name)
 	SERVICE_DESCRIPTION svc_desc;
 
 	memset(exe_path, 0, sizeof(exe_path));
-	if(GetModuleFileName(NULL, exe_path, MAX_PATH) == MAX_PATH){
+	nếu(GetModuleFileName(NULL, exe_path, MAX_PATH) == MAX_PATH){
 		fprintf(stderr, "Error: Path too long.\n");
-		return;
+		trả_về;
 	}
 	snprintf(service_string, sizeof(service_string), "\"%s\" run", exe_path);
 
 	name = fix_name(name);
 
 	sc_manager = OpenSCManager(NULL, NULL, SC_MANAGER_CREATE_SERVICE);
-	if(sc_manager){
-		if(!strcmp(name, "mosquitto")){
+	nếu(sc_manager){
+		nếu(!strcmp(name, "mosquitto")){
 			snprintf(display_name, sizeof(display_name), "Mosquitto Broker");
-		}else{
+		}không_thì{
 			snprintf(display_name, sizeof(display_name), "Mosquitto Broker (%s.exe)", name);
 		}
 
@@ -169,16 +169,16 @@ void service_install(char *name)
 				SERVICE_WIN32_OWN_PROCESS, SERVICE_AUTO_START, SERVICE_ERROR_NORMAL,
 				service_string, NULL, NULL, NULL, NULL, NULL);
 
-		if(svc_handle){
+		nếu(svc_handle){
 			memset(&svc_desc, 0, sizeof(svc_desc));
 			svc_desc.lpDescription = "Eclipse Mosquitto MQTT v5/v3.1.1 broker";
 			ChangeServiceConfig2(svc_handle, SERVICE_CONFIG_DESCRIPTION, &svc_desc);
 			CloseServiceHandle(svc_handle);
-		}else{
+		}không_thì{
 			print_error();
 		}
 		CloseServiceHandle(sc_manager);
-	}else{
+	}không_thì{
 		print_error();
 	}
 }
@@ -192,20 +192,20 @@ void service_uninstall(char *name)
 	name = fix_name(name);
 
 	sc_manager = OpenSCManager(NULL, SERVICES_ACTIVE_DATABASE, SC_MANAGER_CONNECT);
-	if(sc_manager){
+	nếu(sc_manager){
 		svc_handle = OpenService(sc_manager, name, SERVICE_QUERY_STATUS | DELETE);
-		if(svc_handle){
-			if(QueryServiceStatus(svc_handle, &status)){
-				if(status.dwCurrentState == SERVICE_STOPPED){
+		nếu(svc_handle){
+			nếu(QueryServiceStatus(svc_handle, &status)){
+				nếu(status.dwCurrentState == SERVICE_STOPPED){
 					DeleteService(svc_handle);
 				}
 			}
 			CloseServiceHandle(svc_handle);
-		}else{
+		}không_thì{
 			print_error();
 		}
 		CloseServiceHandle(sc_manager);
-	}else{
+	}không_thì{
 		print_error();
 	}
 }

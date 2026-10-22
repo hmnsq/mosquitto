@@ -20,113 +20,113 @@ Contributors:
 #include "mux.h"
 
 
-int mux__init(void)
+số_nguyên mux__init(void)
 {
 #ifdef WITH_EPOLL
-	return mux_epoll__init();
+	trả_về mux_epoll__init();
 #elif defined(WITH_KQUEUE)
-	return mux_kqueue__init();
-#else
-	return mux_poll__init();
+	trả_về mux_kqueue__init();
+#không_thì
+	trả_về mux_poll__init();
 #endif
 }
 
 
-int mux__add_listeners(struct mosquitto__listener_sock *listensock, int listensock_count)
+số_nguyên mux__add_listeners(struct mosquitto__listener_sock *listensock, số_nguyên listensock_count)
 {
 #ifdef WITH_EPOLL
-	return mux_epoll__add_listeners(listensock, listensock_count);
+	trả_về mux_epoll__add_listeners(listensock, listensock_count);
 #elif defined(WITH_KQUEUE)
-	return mux_kqueue__add_listeners(listensock, listensock_count);
-#else
-	return mux_poll__add_listeners(listensock, listensock_count);
+	trả_về mux_kqueue__add_listeners(listensock, listensock_count);
+#không_thì
+	trả_về mux_poll__add_listeners(listensock, listensock_count);
 #endif
 }
 
 
-int mux__delete_listeners(struct mosquitto__listener_sock *listensock, int listensock_count)
+số_nguyên mux__delete_listeners(struct mosquitto__listener_sock *listensock, số_nguyên listensock_count)
 {
 #ifdef WITH_EPOLL
-	return mux_epoll__delete_listeners(listensock, listensock_count);
+	trả_về mux_epoll__delete_listeners(listensock, listensock_count);
 #elif defined(WITH_KQUEUE)
-	return mux_kqueue__delete_listeners(listensock, listensock_count);
-#else
-	return mux_poll__delete_listeners(listensock, listensock_count);
+	trả_về mux_kqueue__delete_listeners(listensock, listensock_count);
+#không_thì
+	trả_về mux_poll__delete_listeners(listensock, listensock_count);
 #endif
 }
 
 
-int mux__add_out(struct mosquitto *context)
+số_nguyên mux__add_out(struct mosquitto *context)
 {
 #ifdef WITH_EPOLL
-	return mux_epoll__add_out(context);
+	trả_về mux_epoll__add_out(context);
 #elif defined(WITH_KQUEUE)
-	return mux_kqueue__add_out(context);
-#else
-	return mux_poll__add_out(context);
+	trả_về mux_kqueue__add_out(context);
+#không_thì
+	trả_về mux_poll__add_out(context);
 #endif
 }
 
 
-int mux__remove_out(struct mosquitto *context)
+số_nguyên mux__remove_out(struct mosquitto *context)
 {
 #ifdef WITH_EPOLL
-	return mux_epoll__remove_out(context);
+	trả_về mux_epoll__remove_out(context);
 #elif defined(WITH_KQUEUE)
-	return mux_kqueue__remove_out(context);
-#else
-	return mux_poll__remove_out(context);
+	trả_về mux_kqueue__remove_out(context);
+#không_thì
+	trả_về mux_poll__remove_out(context);
 #endif
 }
 
 
-int mux__new(struct mosquitto *context)
+số_nguyên mux__new(struct mosquitto *context)
 {
 #ifdef WITH_EPOLL
-	return mux_epoll__new(context);
+	trả_về mux_epoll__new(context);
 #elif defined(WITH_KQUEUE)
-	return mux_kqueue__new(context);
-#else
-	return mux_poll__new(context);
+	trả_về mux_kqueue__new(context);
+#không_thì
+	trả_về mux_poll__new(context);
 #endif
 }
 
 
-int mux__delete(struct mosquitto *context)
+số_nguyên mux__delete(struct mosquitto *context)
 {
 #ifdef WITH_EPOLL
-	return mux_epoll__delete(context);
+	trả_về mux_epoll__delete(context);
 #elif defined(WITH_KQUEUE)
-	return mux_kqueue__delete(context);
-#else
-	return mux_poll__delete(context);
+	trả_về mux_kqueue__delete(context);
+#không_thì
+	trả_về mux_poll__delete(context);
 #endif
 }
 
 
-int mux__handle(struct mosquitto__listener_sock *listensock, int listensock_count)
+số_nguyên mux__handle(struct mosquitto__listener_sock *listensock, số_nguyên listensock_count)
 {
 #ifdef WITH_EPOLL
 	UNUSED(listensock);
 	UNUSED(listensock_count);
-	return mux_epoll__handle();
+	trả_về mux_epoll__handle();
 #elif defined(WITH_KQUEUE)
 	UNUSED(listensock);
 	UNUSED(listensock_count);
-	return mux_kqueue__handle();
-#else
-	return mux_poll__handle(listensock, listensock_count);
+	trả_về mux_kqueue__handle();
+#không_thì
+	trả_về mux_poll__handle(listensock, listensock_count);
 #endif
 }
 
 
-int mux__cleanup(void)
+số_nguyên mux__cleanup(void)
 {
 #ifdef WITH_EPOLL
-	return mux_epoll__cleanup();
+	trả_về mux_epoll__cleanup();
 #elif defined(WITH_KQUEUE)
-	return mux_kqueue__cleanup();
-#else
-	return mux_poll__cleanup();
+	trả_về mux_kqueue__cleanup();
+#không_thì
+	trả_về mux_poll__cleanup();
 #endif
 }
