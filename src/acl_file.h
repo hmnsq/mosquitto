@@ -23,9 +23,9 @@ Contributors:
 struct acl__entry {
 	struct acl__entry *next, *prev;
 	char *topic;
-	int access;
-	int ucount;
-	int ccount;
+	цяло access;
+	цяло ucount;
+	цяло ccount;
 };
 
 
@@ -44,9 +44,9 @@ struct acl_file_data {
 };
 
 
-int acl_file__parse(struct acl_file_data *data);
-int acl_file__check(int event, void *event_data, void *userdata);
-int acl_file__reload(int event, void *event_data, void *userdata);
+цяло acl_file__parse(struct acl_file_data *data);
+цяло acl_file__check(цяло event, void *event_data, void *userdata);
+цяло acl_file__reload(цяло event, void *event_data, void *userdata);
 void acl_file__cleanup(struct acl_file_data *data);
 
 #endif

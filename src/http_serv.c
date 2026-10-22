@@ -18,7 +18,7 @@ Contributors:
 
 #include "config.h"
 
-#if defined(WITH_WEBSOCKETS) && WITH_WEBSOCKETS == WS_IS_BUILTIN
+#ако defined(WITH_WEBSOCKETS) && WITH_WEBSOCKETS == WS_IS_BUILTIN
 
 #include <assert.h>
 #include <errno.h>
@@ -34,22 +34,22 @@ Contributors:
 #include "picohttpparser.h"
 
 
-int http__context_init(struct mosquitto *context)
+цяло http__context_init(struct mosquitto *context)
 {
 	context->transport = mosq_t_http;
 
-	return MOSQ_ERR_SUCCESS;
+	върни MOSQ_ERR_SUCCESS;
 }
 
 
-int http__context_cleanup(struct mosquitto *context)
+цяло http__context_cleanup(struct mosquitto *context)
 {
 	UNUSED(context);
-	return MOSQ_ERR_SUCCESS;
+	върни MOSQ_ERR_SUCCESS;
 }
 
 
-int http__read(struct mosquitto *mosq)
+цяло http__read(struct mosquitto *mosq)
 {
 	ssize_t read_length;
 	ssize_t header_length;
@@ -57,7 +57,7 @@ int http__read(struct mosquitto *mosq)
 	size_t hlen;
 	const char *http_method, *http_path;
 	size_t http_method_len, http_path_len;
-	int http_minor_version;
+	цяло http_minor_version;
 	size_t http_header_count = 100;
 	struct phr_header http_headers[100];
 	const char *client_key = NULL;
@@ -66,41 +66,41 @@ int http__read(struct mosquitto *mosq)
 	bool header_have_upgrade;
 	bool header_have_connection;
 	struct mosquitto__packet *packet;
-	int rc;
+	цяло rc;
 	const char *subprotocol = NULL;
-	int subprotocol_len = 0;
+	цяло subprotocol_len = 0;
 
-	if(!mosq){
-		return MOSQ_ERR_INVAL;
+	ако(!mosq){
+		върни MOSQ_ERR_INVAL;
 	}
-	if(mosq->sock == INVALID_SOCKET){
-		return MOSQ_ERR_NO_CONN;
+	ако(mosq->sock == INVALID_SOCKET){
+		върни MOSQ_ERR_NO_CONN;
 	}
 
 	state = mosquitto__get_state(mosq);
-	if(state == mosq_cs_connect_pending){
-		return MOSQ_ERR_SUCCESS;
+	ако(state == mosq_cs_connect_pending){
+		върни MOSQ_ERR_SUCCESS;
 	}
 
 	hlen = strlen((char *)mosq->in_packet.packet_buffer);
 	read_length = net__read(mosq, &mosq->in_packet.packet_buffer[hlen], mosq->in_packet.packet_buffer_size-hlen);
-	if(read_length <= 0){
-		if(read_length == 0){
-			return MOSQ_ERR_CONN_LOST; /* EOF */
+	ако(read_length <= 0){
+		ако(read_length == 0){
+			върни MOSQ_ERR_CONN_LOST; /* EOF */
 		}
 #ifdef WIN32
 		errno = WSAGetLastError();
 #endif
-		if(errno == EAGAIN || errno == COMPAT_EWOULDBLOCK){
-			return MOSQ_ERR_SUCCESS;
-		}else{
+		ако(errno == EAGAIN || errno == COMPAT_EWOULDBLOCK){
+			върни MOSQ_ERR_SUCCESS;
+		}иначе{
 			switch(errno){
 				case COMPAT_ECONNRESET:
-					return MOSQ_ERR_CONN_LOST;
+					върни MOSQ_ERR_CONN_LOST;
 				case COMPAT_EINTR:
-					return MOSQ_ERR_SUCCESS;
+					върни MOSQ_ERR_SUCCESS;
 				default:
-					return MOSQ_ERR_ERRNO;
+					върни MOSQ_ERR_ERRNO;
 			}
 		}
 	}
@@ -113,73 +113,73 @@ int http__read(struct mosquitto *mosq)
 			http_headers, &http_header_count,
 			0);
 	// FIXME - deal with partial read !
-	if(header_length == -2){
+	ако(header_length == -2){
 		// Partial read
-		return MOSQ_ERR_SUCCESS;
-	}else if(header_length == -1){
+		върни MOSQ_ERR_SUCCESS;
+	}иначе ако(header_length == -1){
 		// Error
-		return MOSQ_ERR_UNKNOWN;
-	}else if(header_length < read_length){
+		върни MOSQ_ERR_UNKNOWN;
+	}иначе ако(header_length < read_length){
 		/* Excess data which can't be handled because the client doesn't have a key yet */
-		return MOSQ_ERR_MALFORMED_PACKET;
+		върни MOSQ_ERR_MALFORMED_PACKET;
 	}
 
-	if(strncmp(http_method, "GET", http_method_len) && strncmp(http_method, "HEAD", http_method_len)){
+	ако(strncmp(http_method, "GET", http_method_len) && strncmp(http_method, "HEAD", http_method_len)){
 		/* FIXME Not supported - send 501 response */
-		return MOSQ_ERR_UNKNOWN;
+		върни MOSQ_ERR_UNKNOWN;
 	}
 
 	header_have_upgrade = false;
 	header_have_connection = false;
 	subprotocol = NULL;
 
-	for(size_t i=0; i<http_header_count; i++){
-		if(!strncasecmp(http_headers[i].name, "Upgrade", http_headers[i].name_len)){
-			if(!strncasecmp(http_headers[i].value, "websocket", http_headers[i].value_len)){
+	за(size_t i=0; i<http_header_count; i++){
+		ако(!strncasecmp(http_headers[i].name, "Upgrade", http_headers[i].name_len)){
+			ако(!strncasecmp(http_headers[i].value, "websocket", http_headers[i].value_len)){
 				header_have_upgrade = true;
 			}
-		}else if(!strncasecmp(http_headers[i].name, "Connection", http_headers[i].name_len)){
+		}иначе ако(!strncasecmp(http_headers[i].name, "Connection", http_headers[i].name_len)){
 			/* Check for "upgrade" */
 			const char *str = http_headers[i].value;
 			size_t start = 0;
 			size_t j;
-			for(j=0; j<http_headers[i].value_len; j++){
-				if(str[j] == ','){
-					if(!strncasecmp(&str[start], "upgrade", http_headers[i].value_len-j)){
+			за(j=0; j<http_headers[i].value_len; j++){
+				ако(str[j] == ','){
+					ако(!strncasecmp(&str[start], "upgrade", http_headers[i].value_len-j)){
 						header_have_connection = true;
 						break;
-					}else{
+					}иначе{
 						start = j+1;
 					}
-				}else if(str[j] == ' '){
+				}иначе ако(str[j] == ' '){
 					start = j+1;
 				}
 			}
-			if(!strncasecmp(&str[start], "upgrade", http_headers[i].value_len-j)){
+			ако(!strncasecmp(&str[start], "upgrade", http_headers[i].value_len-j)){
 				header_have_connection = true;
 			}
-		}else if(!strncasecmp(http_headers[i].name, "Sec-WebSocket-Key", http_headers[i].name_len)){
+		}иначе ако(!strncasecmp(http_headers[i].name, "Sec-WebSocket-Key", http_headers[i].name_len)){
 			client_key = http_headers[i].value;
 			client_key_len = http_headers[i].value_len;
-		}else if(!strncasecmp(http_headers[i].name, "Sec-WebSocket-Version", http_headers[i].name_len)){
+		}иначе ако(!strncasecmp(http_headers[i].name, "Sec-WebSocket-Version", http_headers[i].name_len)){
 			/* Check for "13" */
-			if(http_headers[i].value_len != 2
+			ако(http_headers[i].value_len != 2
 					|| http_headers[i].value[0] != '1'
 					|| http_headers[i].value[1] != '3'
 					){
 
 				/* FIXME - not supported */
-				return MOSQ_ERR_NOT_SUPPORTED;
+				върни MOSQ_ERR_NOT_SUPPORTED;
 			}
-		}else if(!strncasecmp(http_headers[i].name, "Sec-WebSocket-Protocol", http_headers[i].name_len)){
+		}иначе ако(!strncasecmp(http_headers[i].name, "Sec-WebSocket-Protocol", http_headers[i].name_len)){
 			/* Check for "mqtt" */
-			if(!strncmp(http_headers[i].value, "mqtt", http_headers[i].value_len)
+			ако(!strncmp(http_headers[i].value, "mqtt", http_headers[i].value_len)
 					|| !strncmp(http_headers[i].value, "mqttv3.1", http_headers[i].value_len)){
 
 				subprotocol = http_headers[i].value;
-				subprotocol_len = (int)http_headers[i].value_len;
+				subprotocol_len = (цяло)http_headers[i].value_len;
 			}
-		}else if(!strncasecmp(http_headers[i].name, "X-Forwarded-For", http_headers[i].name_len)){
+		}иначе ако(!strncasecmp(http_headers[i].name, "X-Forwarded-For", http_headers[i].name_len)){
 			/* Before implementing this, refer to:
 			 * https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/X-Forwarded-For
 			 *
@@ -191,44 +191,44 @@ int http__read(struct mosquitto *mosq)
 			 * control that, so we have to make it very clear to the end user
 			 * that this is the case.
 			 */
-		}else if(!strncasecmp(http_headers[i].name, "Origin", http_headers[i].name_len)){
-			if(mosq->listener){
+		}иначе ако(!strncasecmp(http_headers[i].name, "Origin", http_headers[i].name_len)){
+			ако(mosq->listener){
 				bool have_match = false;
-				for(int j=0; j<mosq->listener->ws_origin_count; j++){
-					if(!strncmp(mosq->listener->ws_origins[j], http_headers[i].value, http_headers[i].value_len)){
+				за(цяло j=0; j<mosq->listener->ws_origin_count; j++){
+					ако(!strncmp(mosq->listener->ws_origins[j], http_headers[i].value, http_headers[i].value_len)){
 						have_match = true;
 						break;
 					}
 				}
-				if(!have_match && mosq->listener->ws_origin_count > 0){
-					return MOSQ_ERR_HTTP_BAD_ORIGIN;
+				ако(!have_match && mosq->listener->ws_origin_count > 0){
+					върни MOSQ_ERR_HTTP_BAD_ORIGIN;
 				}
 			}
-		}else{
+		}иначе{
 			/* Unknown header */
 		}
 	}
 
-	if(subprotocol == NULL){
+	ако(subprotocol == NULL){
 		// FIXME ?
-		return MOSQ_ERR_UNKNOWN;
+		върни MOSQ_ERR_UNKNOWN;
 	}
 
-	if(header_have_upgrade == false || header_have_connection == false
+	ако(header_have_upgrade == false || header_have_connection == false
 			|| client_key == NULL || client_key_len == 0){
 
 		// FIXME - 404
-		return MOSQ_ERR_UNKNOWN;
+		върни MOSQ_ERR_UNKNOWN;
 	}
 
-	if(ws__create_accept_key(client_key, client_key_len, &accept_key)){
-		return MOSQ_ERR_UNKNOWN;
+	ако(ws__create_accept_key(client_key, client_key_len, &accept_key)){
+		върни MOSQ_ERR_UNKNOWN;
 	}
 
 	packet = mosquitto_calloc(1, sizeof(struct mosquitto__packet) + 1024 + WS_PACKET_OFFSET);
-	if(!packet){
+	ако(!packet){
 		SAFE_FREE(accept_key);
-		return MOSQ_ERR_NOMEM;
+		върни MOSQ_ERR_NOMEM;
 	}
 	packet->packet_length = (uint32_t )snprintf((char *)&packet->payload[WS_PACKET_OFFSET], 1024,
 			"HTTP/1.1 101 Switching Protocols\r\n"
@@ -244,6 +244,6 @@ int http__read(struct mosquitto *mosq)
 	rc = packet__queue(mosq, packet);
 	http__context_cleanup(mosq);
 	ws__context_init(mosq);
-	return rc;
+	върни rc;
 }
 #endif

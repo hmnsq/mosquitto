@@ -23,13 +23,13 @@ Contributors:
 #include "utlist.h"
 
 
-static void plugin__handle_client_offline_single(struct mosquitto__security_options *opts, struct mosquitto *context, int reason)
+static void plugin__handle_client_offline_single(struct mosquitto__security_options *opts, struct mosquitto *context, цяло reason)
 {
 	struct mosquitto_evt_client_offline event_data;
 	struct mosquitto__callback *cb_base, *cb_next;
 
-	if(context->id == NULL){
-		return;
+	ако(context->id == NULL){
+		върни;
 	}
 
 	memset(&event_data, 0, sizeof(event_data));
@@ -41,13 +41,13 @@ static void plugin__handle_client_offline_single(struct mosquitto__security_opti
 }
 
 
-void plugin__handle_client_offline(struct mosquitto *context, int reason)
+void plugin__handle_client_offline(struct mosquitto *context, цяло reason)
 {
 	/* Global plugins */
 	plugin__handle_client_offline_single(&db.config->security_options, context, reason);
 
 	/* Per listener plugins */
-	if(context->listener){
+	ако(context->listener){
 		plugin__handle_client_offline_single(context->listener->security_options, context, reason);
 	}
 }
