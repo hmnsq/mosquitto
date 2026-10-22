@@ -16,98 +16,98 @@ Contributors:
    Roger Light - initial implementation and documentation.
 */
 
-#include "config.h"
+#ଅନ୍ତର୍ଭାଵ "config.h"
 
-#include <stdio.h>
-#include <string.h>
+#ଅନ୍ତର୍ଭାଵ <stdio.h>
+#ଅନ୍ତର୍ଭାଵ <string.h>
 
-#include "mosquitto/broker.h"
-#include "mosquitto_broker_internal.h"
-#include "mosquitto/broker_plugin.h"
-#include "lib_load.h"
-#include "utlist.h"
+#ଅନ୍ତର୍ଭାଵ "mosquitto/broker.h"
+#ଅନ୍ତର୍ଭାଵ "mosquitto_broker_internal.h"
+#ଅନ୍ତର୍ଭାଵ "mosquitto/broker_plugin.h"
+#ଅନ୍ତର୍ଭାଵ "lib_load.h"
+#ଅନ୍ତର୍ଭାଵ "utlist.h"
 
 
-static int plugin__psk_key_get(struct mosquitto__security_options *opts, struct mosquitto *context, const char *hint, const char *identity, char *key, int max_key_len)
+ସ୍ଥିର ପୂର୍ଣ୍ଣସଂଖ୍ୟା plugin_psk_ଚାବି_get(ସଂରଚନା mosquitto__security_options *opts, ସଂରଚନା mosquitto *context, ଅଚଳ ଅକ୍ଷର *hint, ଅଚଳ ଅକ୍ଷର *identity, ଅକ୍ଷର *ଚାବି, ପୂର୍ଣ୍ଣସଂଖ୍ୟା max_ଚାବି_len)
 {
-	struct mosquitto_evt_psk_key event_data;
-	struct mosquitto__callback *cb_base, *cb_next;
-	int rc;
-	int rc_final = MOSQ_ERR_SUCCESS;
+	ସଂରଚନା mosquitto_evt_psk_ଚାବି event_data;
+	ସଂରଚନା mosquitto__callback *cb_base, *cb_next;
+	ପୂର୍ଣ୍ଣସଂଖ୍ୟା rc;
+	ପୂର୍ଣ୍ଣସଂଖ୍ୟା rc_final = MOSQ_ERR_SUCCESS;
 
-	DL_FOREACH_SAFE(opts->plugin_callbacks.psk_key, cb_base, cb_next){
-		memset(&event_data, 0, sizeof(event_data));
+	DL_FOREACH_SAFE(opts->plugin_callbacks.psk_ଚାବି, cb_base, cb_next){
+		memset(&event_data, 0, ଆକାର(event_data));
 		event_data.client = context;
 		event_data.hint = hint;
 		event_data.identity = identity;
-		event_data.key = key;
-		event_data.max_key_len = max_key_len;
-		rc = cb_base->cb(MOSQ_EVT_PSK_KEY, &event_data, cb_base->userdata);
-		if(rc == MOSQ_ERR_PLUGIN_IGNORE){
+		event_data.ଚାବି = ଚାବି;
+		event_data.max_ଚାବି_len = max_ଚାବି_len;
+		rc = cb_base->cb(MOSQ_EVT_PSK_ଚାବି, &event_data, cb_base->userdata);
+		ଯଦି(rc == MOSQ_ERR_PLUGIN_IGNORE){
 			/* Do nothing */
-		}else if(rc == MOSQ_ERR_PLUGIN_DEFER){
+		}ଅନ୍ୟଥା ଯଦି(rc == MOSQ_ERR_PLUGIN_DEFER){
 			rc_final = MOSQ_ERR_PLUGIN_DEFER;
-		}else{
-			return rc;
+		}ଅନ୍ୟଥା{
+			ଫେରନ୍ତୁ rc;
 		}
 	}
-	return rc_final;
+	ଫେରନ୍ତୁ rc_final;
 }
 
 
-int mosquitto_psk_key_get(struct mosquitto *context, const char *hint, const char *identity, char *key, int max_key_len)
+ପୂର୍ଣ୍ଣସଂଖ୍ୟା mosquitto_psk_ଚାବି_get(ସଂରଚନା mosquitto *context, ଅଚଳ ଅକ୍ଷର *hint, ଅଚଳ ଅକ୍ଷର *identity, ଅକ୍ଷର *ଚାବି, ପୂର୍ଣ୍ଣସଂଖ୍ୟା max_ଚାବି_len)
 {
-	int rc;
-	int rc_final = MOSQ_ERR_SUCCESS;
+	ପୂର୍ଣ୍ଣସଂଖ୍ୟା rc;
+	ପୂର୍ଣ୍ଣସଂଖ୍ୟା rc_final = MOSQ_ERR_SUCCESS;
 
 	/* Global plugins */
-	if(db.config->security_options.plugin_callbacks.psk_key){
-		rc = plugin__psk_key_get(&db.config->security_options, context,
-				hint, identity, key, max_key_len);
+	ଯଦି(db.config->security_options.plugin_callbacks.psk_ଚାବି){
+		rc = plugin_psk_ଚାବି_get(&db.config->security_options, context,
+				hint, identity, ଚାବି, max_ଚାବି_len);
 
-		if(rc == MOSQ_ERR_PLUGIN_IGNORE){
+		ଯଦି(rc == MOSQ_ERR_PLUGIN_IGNORE){
 			/* Do nothing */
-		}else if(rc == MOSQ_ERR_PLUGIN_DEFER){
+		}ଅନ୍ୟଥା ଯଦି(rc == MOSQ_ERR_PLUGIN_DEFER){
 			rc_final = MOSQ_ERR_PLUGIN_DEFER;
-		}else{
-			return rc;
+		}ଅନ୍ୟଥା{
+			ଫେରନ୍ତୁ rc;
 		}
 	}
 
 	/* Per listener plugins */
-	if(context->listener){
-		if(context->listener->security_options->plugin_callbacks.psk_key){
-			rc = plugin__psk_key_get(context->listener->security_options, context,
-					hint, identity, key, max_key_len);
+	ଯଦି(context->listener){
+		ଯଦି(context->listener->security_options->plugin_callbacks.psk_ଚାବି){
+			rc = plugin_psk_ଚାବି_get(context->listener->security_options, context,
+					hint, identity, ଚାବି, max_ଚାବି_len);
 
-			if(rc == MOSQ_ERR_PLUGIN_IGNORE){
+			ଯଦି(rc == MOSQ_ERR_PLUGIN_IGNORE){
 				/* Do nothing */
-			}else if(rc == MOSQ_ERR_PLUGIN_DEFER){
+			}ଅନ୍ୟଥା ଯଦି(rc == MOSQ_ERR_PLUGIN_DEFER){
 				rc_final = MOSQ_ERR_PLUGIN_DEFER;
-			}else{
-				return rc;
+			}ଅନ୍ୟଥା{
+				ଫେରନ୍ତୁ rc;
 			}
 		}
-	}else{
-		if(db.config->per_listener_settings){
-			return MOSQ_ERR_AUTH;
+	}ଅନ୍ୟଥା{
+		ଯଦି(db.config->per_listener_settings){
+			ଫେରନ୍ତୁ MOSQ_ERR_AUTH;
 		}
 	}
 
-	rc = mosquitto_psk_key_get_default(context, hint, identity, key, max_key_len);
-	if(rc == MOSQ_ERR_PLUGIN_IGNORE){
+	rc = mosquitto_psk_ଚାବି_get_default(context, hint, identity, ଚାବି, max_ଚାବି_len);
+	ଯଦି(rc == MOSQ_ERR_PLUGIN_IGNORE){
 		/* Do nothing */
-	}else if(rc == MOSQ_ERR_PLUGIN_DEFER){
+	}ଅନ୍ୟଥା ଯଦି(rc == MOSQ_ERR_PLUGIN_DEFER){
 		rc_final = MOSQ_ERR_PLUGIN_DEFER;
-	}else{
-		return rc;
+	}ଅନ୍ୟଥା{
+		ଫେରନ୍ତୁ rc;
 	}
 
 
 	/* If all plugins deferred, this is a denial. If rc == MOSQ_ERR_SUCCESS
 	 * here, then no plugins were configured. */
-	if(rc_final == MOSQ_ERR_PLUGIN_DEFER){
+	ଯଦି(rc_final == MOSQ_ERR_PLUGIN_DEFER){
 		rc_final = MOSQ_ERR_AUTH;
 	}
-	return rc_final;
+	ଫେରନ୍ତୁ rc_final;
 }

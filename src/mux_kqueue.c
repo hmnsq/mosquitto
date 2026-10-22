@@ -16,304 +16,304 @@ Contributors:
    Roger Light - initial implementation and documentation.
 */
 
-#include "config.h"
+#ଅନ୍ତର୍ଭାଵ "config.h"
 
 #ifdef WITH_KQUEUE
 
 #define MAX_EVENTS 1000
 
-#include <errno.h>
-#include <signal.h>
-#include <sys/event.h>
-#include <sys/socket.h>
+#ଅନ୍ତର୍ଭାଵ <errno.h>
+#ଅନ୍ତର୍ଭାଵ <signal.h>
+#ଅନ୍ତର୍ଭାଵ <sys/event.h>
+#ଅନ୍ତର୍ଭାଵ <sys/socket.h>
 
-#include "mosquitto_broker_internal.h"
-#include "packet_mosq.h"
-#include "util_mosq.h"
+#ଅନ୍ତର୍ଭାଵ "mosquitto_broker_internal.h"
+#ଅନ୍ତର୍ଭାଵ "packet_mosq.h"
+#ଅନ୍ତର୍ଭାଵ "util_mosq.h"
 
-static void loop_handle_reads_writes(struct mosquitto *context, short events);
+ସ୍ଥିର ଶୂନ୍ୟ loop_handle_reads_writes(ସଂରଚନା mosquitto *context, short events);
 
-static struct kevent event_list[MAX_EVENTS];
+ସ୍ଥିର ସଂରଚନା kevent event_list[MAX_EVENTS];
 
 
-int mux_kqueue__init(void)
+ପୂର୍ଣ୍ଣସଂଖ୍ୟା mux_kqueue__init(ଶୂନ୍ୟ)
 {
-	memset(&event_list, 0, sizeof(struct kevent)*MAX_EVENTS);
+	memset(&event_list, 0, ଆକାର(ସଂରଚନା kevent)*MAX_EVENTS);
 
 	db.kqueuefd = 0;
-	if((db.kqueuefd = kqueue()) == -1){
-		log__printf(NULL, MOSQ_LOG_ERR, "Error in kqueue creating: %s", strerror(errno));
-		return MOSQ_ERR_UNKNOWN;
+	ଯଦି((db.kqueuefd = kqueue()) == -1){
+		log__printf(ଖାଲି, MOSQ_LOG_ERR, "Error in kqueue creating: %s", strerror(errno));
+		ଫେରନ୍ତୁ MOSQ_ERR_UNKNOWN;
 	}
 
-	return MOSQ_ERR_SUCCESS;
+	ଫେରନ୍ତୁ MOSQ_ERR_SUCCESS;
 }
 
 
-int mux_kqueue__add_listeners(struct mosquitto__listener_sock *listensock, int listensock_count)
+ପୂର୍ଣ୍ଣସଂଖ୍ୟା mux_kqueue__add_listeners(ସଂରଚନା mosquitto__listener_sock *listensock, ପୂର୍ଣ୍ଣସଂଖ୍ୟା listensock_ଗଣନା)
 {
-	struct kevent ev;
+	ସଂରଚନା kevent ev;
 
-	memset(&ev, 0, sizeof(struct kevent));
+	memset(&ev, 0, ଆକାର(ସଂରଚନା kevent));
 
-	for(int i=0; i<listensock_count; i++){
+	ପାଇଁ(ପୂର୍ଣ୍ଣସଂଖ୍ୟା i=0; i<listensock_ଗଣନା; i++){
 		EV_SET(&ev, listensock[i].sock, EVFILT_READ, EV_ADD, 0, 0, &listensock[i]);
-		if(kevent(db.kqueuefd, &ev, 1, NULL, 0, NULL) == -1){
-			log__printf(NULL, MOSQ_LOG_ERR, "Error in kqueue initial registering: %s", strerror(errno));
-			return MOSQ_ERR_UNKNOWN;
+		ଯଦି(kevent(db.kqueuefd, &ev, 1, ଖାଲି, 0, ଖାଲି) == -1){
+			log__printf(ଖାଲି, MOSQ_LOG_ERR, "Error in kqueue initial registering: %s", strerror(errno));
+			ଫେରନ୍ତୁ MOSQ_ERR_UNKNOWN;
 		}
 	}
 
-	return MOSQ_ERR_SUCCESS;
+	ଫେରନ୍ତୁ MOSQ_ERR_SUCCESS;
 }
 
 
-int mux_kqueue__delete_listeners(struct mosquitto__listener_sock *listensock, int listensock_count)
+ପୂର୍ଣ୍ଣସଂଖ୍ୟା mux_kqueue__delete_listeners(ସଂରଚନା mosquitto__listener_sock *listensock, ପୂର୍ଣ୍ଣସଂଖ୍ୟା listensock_ଗଣନା)
 {
-	struct kevent ev;
+	ସଂରଚନା kevent ev;
 
-	for(int i=0; i<listensock_count; i++){
+	ପାଇଁ(ପୂର୍ଣ୍ଣସଂଖ୍ୟା i=0; i<listensock_ଗଣନା; i++){
 		EV_SET(&ev, listensock[i].sock, EVFILT_READ, EV_DELETE, 0, 0, &listensock[i]);
-		if(kevent(db.kqueuefd, &ev, 1, NULL, 0, NULL) == -1){
-			return MOSQ_ERR_UNKNOWN;
+		ଯଦି(kevent(db.kqueuefd, &ev, 1, ଖାଲି, 0, ଖାଲି) == -1){
+			ଫେରନ୍ତୁ MOSQ_ERR_UNKNOWN;
 		}
 	}
 
-	return MOSQ_ERR_SUCCESS;
+	ଫେରନ୍ତୁ MOSQ_ERR_SUCCESS;
 }
 
 
-int mux_kqueue__loop_setup(void)
+ପୂର୍ଣ୍ଣସଂଖ୍ୟା mux_kqueue__loop_setup(ଶୂନ୍ୟ)
 {
-	return MOSQ_ERR_SUCCESS;
+	ଫେରନ୍ତୁ MOSQ_ERR_SUCCESS;
 }
 
 
-int mux_kqueue__add_out(struct mosquitto *context)
+ପୂର୍ଣ୍ଣସଂଖ୍ୟା mux_kqueue__add_out(ସଂରଚନା mosquitto *context)
 {
-	struct kevent ev;
+	ସଂରଚନା kevent ev;
 
-	if(context->events != EVFILT_WRITE){
+	ଯଦି(context->events != EVFILT_WRITE){
 		EV_SET(&ev, context->sock, EVFILT_WRITE, EV_ADD, 0, 0, context);
-		if(kevent(db.kqueuefd, &ev, 1, NULL, 0, NULL) == -1){
-			log__printf(NULL, MOSQ_LOG_DEBUG, "Error in kqueue re-registering to EVFILT_WRITE: %s", strerror(errno));
+		ଯଦି(kevent(db.kqueuefd, &ev, 1, ଖାଲି, 0, ଖାଲି) == -1){
+			log__printf(ଖାଲି, MOSQ_LOG_DEBUG, "Error in kqueue re-registering to EVFILT_WRITE: %s", strerror(errno));
 		}
 
 		context->events = EVFILT_WRITE;
 	}
-	return MOSQ_ERR_SUCCESS;
+	ଫେରନ୍ତୁ MOSQ_ERR_SUCCESS;
 }
 
 
-int mux_kqueue__remove_out(struct mosquitto *context)
+ପୂର୍ଣ୍ଣସଂଖ୍ୟା mux_kqueue__remove_out(ସଂରଚନା mosquitto *context)
 {
-	struct kevent ev;
+	ସଂରଚନା kevent ev;
 
-	if(context->events == EVFILT_WRITE){
+	ଯଦି(context->events == EVFILT_WRITE){
 		EV_SET(&ev, context->sock, EVFILT_WRITE, EV_DELETE, 0, 0, context);
-		if(kevent(db.kqueuefd, &ev, 1, NULL, 0, NULL) == -1){
-			log__printf(NULL, MOSQ_LOG_DEBUG, "Error in kqueue removing EVFILT_WRITE: %s", strerror(errno));
+		ଯଦି(kevent(db.kqueuefd, &ev, 1, ଖାଲି, 0, ଖାଲି) == -1){
+			log__printf(ଖାଲି, MOSQ_LOG_DEBUG, "Error in kqueue removing EVFILT_WRITE: %s", strerror(errno));
 		}
 
 		context->events = 0;
 	}
-	return MOSQ_ERR_SUCCESS;
+	ଫେରନ୍ତୁ MOSQ_ERR_SUCCESS;
 }
 
 
-int mux_kqueue__new(struct mosquitto *context)
+ପୂର୍ଣ୍ଣସଂଖ୍ୟା mux_kqueue__new(ସଂରଚନା mosquitto *context)
 {
-	struct kevent ev;
+	ସଂରଚନା kevent ev;
 
 	EV_SET(&ev, context->sock, EVFILT_READ, EV_ADD, 0, 0, context);
-	if(kevent(db.kqueuefd, &ev, 1, NULL, 0, NULL) == -1){
-		log__printf(NULL, MOSQ_LOG_ERR, "Error in kqueue accepting: %s", strerror(errno));
+	ଯଦି(kevent(db.kqueuefd, &ev, 1, ଖାଲି, 0, ଖାଲି) == -1){
+		log__printf(ଖାଲି, MOSQ_LOG_ERR, "Error in kqueue accepting: %s", strerror(errno));
 	}
 
 	context->events = 0;
-	return MOSQ_ERR_SUCCESS;
+	ଫେରନ୍ତୁ MOSQ_ERR_SUCCESS;
 }
 
 
-int mux_kqueue__delete(struct mosquitto *context)
+ପୂର୍ଣ୍ଣସଂଖ୍ୟା mux_kqueue__delete(ସଂରଚନା mosquitto *context)
 {
-	struct kevent ev[2];
+	ସଂରଚନା kevent ev[2];
 
-	if(context->sock != INVALID_SOCKET){
+	ଯଦି(context->sock != INVALID_SOCKET){
 		EV_SET(&ev[0], context->sock, EVFILT_READ, EV_DELETE, 0, 0, context);
 		EV_SET(&ev[1], context->sock, EVFILT_WRITE, EV_DELETE, 0, 0, context);
-		if(kevent(db.kqueuefd, ev, 2, NULL, 0, NULL) == -1){
-			return 1;
+		ଯଦି(kevent(db.kqueuefd, ev, 2, ଖାଲି, 0, ଖାଲି) == -1){
+			ଫେରନ୍ତୁ 1;
 		}
 	}
-	return 0;
+	ଫେରନ୍ତୁ 0;
 }
 
 
-int mux_kqueue__handle(void)
+ପୂର୍ଣ୍ଣସଂଖ୍ୟା mux_kqueue__handle(ଶୂନ୍ୟ)
 {
-	struct mosquitto *context;
-	struct mosquitto__listener_sock *listensock;
-	int event_count;
-	struct timespec timeout;
+	ସଂରଚନା mosquitto *context;
+	ସଂରଚନା mosquitto__listener_sock *listensock;
+	ପୂର୍ଣ୍ଣସଂଖ୍ୟା event_ଗଣନା;
+	ସଂରଚନା timespec timeout;
 
 #ifdef WITH_WEBSOCKETS
 	timeout.tv_sec = 0;
 	timeout.tv_nsec = 100000000; /* 100 ms */
-#else
+#ଅନ୍ୟଥା
 	timeout.tv_sec = db.next_event_ms/1000;
 	timeout.tv_nsec = (db.next_event_ms - timeout.tv_sec*1000) * 1000000;
 #endif
 
-	event_count = kevent(db.kqueuefd,
-			NULL, 0,
+	event_ଗଣନା = kevent(db.kqueuefd,
+			ଖାଲି, 0,
 			event_list, MAX_EVENTS,
 			&timeout);
 
 	db.now_s = mosquitto_time();
-	db.now_real_s = time(NULL);
+	db.now_real_s = time(ଖାଲି);
 
-	switch(event_count){
-		case -1:
-			if(errno != EINTR){
-				log__printf(NULL, MOSQ_LOG_ERR, "Error in kqueue waiting: %s.", strerror(errno));
+	ବାଛ(event_ଗଣନା){
+		ସ୍ଥିତି -1:
+			ଯଦି(errno != EINTR){
+				log__printf(ଖାଲି, MOSQ_LOG_ERR, "Error in kqueue waiting: %s.", strerror(errno));
 			}
-			break;
-		case 0:
-			break;
-		default:
-			for(int i=0; i<event_count; i++){
+			ଭାଙ୍ଗ;
+		ସ୍ଥିତି 0:
+			ଭାଙ୍ଗ;
+		ପୂର୍ବନିର୍ଦ୍ଧାରିତ:
+			ପାଇଁ(ପୂର୍ଣ୍ଣସଂଖ୍ୟା i=0; i<event_ଗଣନା; i++){
 				context = event_list[i].udata;
-				if(context->ident == id_client){
+				ଯଦି(context->ident == id_client){
 					loop_handle_reads_writes(context, event_list[i].filter);
-					if(event_list[i].flags & (EV_EOF | EV_ERROR)){
+					ଯଦି(event_list[i].flags & (EV_EOF | EV_ERROR)){
 						do_disconnect(context, MOSQ_ERR_CONN_LOST);
 					}
-				}else if(context->ident == id_listener){
+				}ଅନ୍ୟଥା ଯଦି(context->ident == id_listener){
 					listensock = event_list[i].udata;
 
-					if(event_list[i].filter == EVFILT_READ){
-						while((context = net__socket_accept(listensock)) != NULL){
+					ଯଦି(event_list[i].filter == EVFILT_READ){
+						ଯେତେବେଳେ((context = net__socket_accept(listensock)) != ଖାଲି){
 						}
 					}
 #ifdef WITH_WEBSOCKETS
-				}else if(context->ident == id_listener_ws){
+				}ଅନ୍ୟଥା ଯଦି(context->ident == id_listener_ws){
 					/* Nothing needs to happen here, because we always call lws_service in the loop.
 					 * The important point is we've been woken up for this listener. */
 #endif
 				}
 			}
 	}
-	return MOSQ_ERR_SUCCESS;
+	ଫେରନ୍ତୁ MOSQ_ERR_SUCCESS;
 }
 
 
-int mux_kqueue__cleanup(void)
+ପୂର୍ଣ୍ଣସଂଖ୍ୟା mux_kqueue__cleanup(ଶୂନ୍ୟ)
 {
-	(void)close(db.kqueuefd);
+	(ଶୂନ୍ୟ)close(db.kqueuefd);
 	db.kqueuefd = 0;
-	return MOSQ_ERR_SUCCESS;
+	ଫେରନ୍ତୁ MOSQ_ERR_SUCCESS;
 }
 
 
-static void loop_handle_reads_writes(struct mosquitto *context, short event)
+ସ୍ଥିର ଶୂନ୍ୟ loop_handle_reads_writes(ସଂରଚନା mosquitto *context, short event)
 {
-	int err;
+	ପୂର୍ଣ୍ଣସଂଖ୍ୟା err;
 	socklen_t len;
-	int rc;
+	ପୂର୍ଣ୍ଣସଂଖ୍ୟା rc;
 
-	if(context->sock == INVALID_SOCKET){
-		return;
+	ଯଦି(context->sock == INVALID_SOCKET){
+		ଫେରନ୍ତୁ;
 	}
 
-#if defined(WITH_WEBSOCKETS) && WITH_WEBSOCKETS == WS_IS_LWS
-	if(context->wsi){
-		struct lws_pollfd wspoll;
+#ଯଦି defined(WITH_WEBSOCKETS) && WITH_WEBSOCKETS == WS_IS_LWS
+	ଯଦି(context->wsi){
+		ସଂରଚନା lws_pollfd wspoll;
 		wspoll.fd = context->sock;
 		int16_t lws_events;
-		switch(event){
-			case EVFILT_READ:
+		ବାଛ(event){
+			ସ୍ଥିତି EVFILT_READ:
 				lws_events = LWS_POLLIN;
-				break;
-			case EVFILT_WRITE:
+				ଭାଙ୍ଗ;
+			ସ୍ଥିତି EVFILT_WRITE:
 				lws_events = LWS_POLLOUT;
-				break;
-			default:
+				ଭାଙ୍ଗ;
+			ପୂର୍ବନିର୍ଦ୍ଧାରିତ:
 				lws_events = LWS_POLLHUP;
-				break;
+				ଭାଙ୍ଗ;
 		}
 		wspoll.events = lws_events;
 		wspoll.revents = lws_events;
 		lws_service_fd(lws_get_context(context->wsi), &wspoll);
-		return;
+		ଫେରନ୍ତୁ;
 	}
 #endif
 
-	if(event == EVFILT_WRITE
+	ଯଦି(event == EVFILT_WRITE
 #ifdef WITH_TLS
 			|| context->want_write
 			|| (context->ssl && context->state == mosq_cs_new)
 #endif
 			){
 
-		if(context->state == mosq_cs_connect_pending){
-			len = sizeof(int);
-			if(!getsockopt(context->sock, SOL_SOCKET, SO_ERROR, (char *)&err, &len)){
-				if(err == 0){
+		ଯଦି(context->state == mosq_cs_connect_pending){
+			len = ଆକାର(ପୂର୍ଣ୍ଣସଂଖ୍ୟା);
+			ଯଦି(!getsockopt(context->sock, SOL_SOCKET, SO_ERROR, (ଅକ୍ଷର *)&err, &len)){
+				ଯଦି(err == 0){
 					mosquitto__set_state(context, mosq_cs_new);
-#if defined(WITH_ADNS) && defined(WITH_BRIDGE)
-					if(context->bridge){
+#ଯଦି defined(WITH_ADNS) && defined(WITH_BRIDGE)
+					ଯଦି(context->bridge){
 						bridge__connect_step3(context);
 					}
 #endif
 				}
-			}else{
+			}ଅନ୍ୟଥା{
 				do_disconnect(context, MOSQ_ERR_CONN_LOST);
-				return;
+				ଫେରନ୍ତୁ;
 			}
 		}
 		rc = packet__write(context);
-		if(rc){
+		ଯଦି(rc){
 			do_disconnect(context, rc);
-			return;
+			ଫେରନ୍ତୁ;
 		}
 	}
 
-	if(event == EVFILT_READ
+	ଯଦି(event == EVFILT_READ
 #ifdef WITH_TLS
 			|| (context->ssl && context->state == mosq_cs_new)
 #endif
 			){
 
-		do{
-			switch(context->transport){
-				case mosq_t_tcp:
-				case mosq_t_ws:
+		କର{
+			ବାଛ(context->transport){
+				ସ୍ଥିତି mosq_t_tcp:
+				ସ୍ଥିତି mosq_t_ws:
 					rc = packet__read(context);
-					break;
-#if defined(WITH_WEBSOCKETS) && WITH_WEBSOCKETS == WS_IS_BUILTIN
-				case mosq_t_http:
+					ଭାଙ୍ଗ;
+#ଯଦି defined(WITH_WEBSOCKETS) && WITH_WEBSOCKETS == WS_IS_BUILTIN
+				ସ୍ଥିତି mosq_t_http:
 					rc = http__read(context);
-					break;
+					ଭାଙ୍ଗ;
 #endif
-#if !defined(WITH_WEBSOCKETS) || WITH_WEBSOCKETS == WS_IS_BUILTIN
+#ଯଦି !defined(WITH_WEBSOCKETS) || WITH_WEBSOCKETS == WS_IS_BUILTIN
 				/* Not supported with LWS */
-				case mosq_t_proxy_v2:
+				ସ୍ଥିତି mosq_t_proxy_v2:
 					rc = proxy_v2__read(context);
-					break;
-				case mosq_t_proxy_v1:
+					ଭାଙ୍ଗ;
+				ସ୍ଥିତି mosq_t_proxy_v1:
 					rc = proxy_v1__read(context);
-					break;
+					ଭାଙ୍ଗ;
 #endif
-				default:
+				ପୂର୍ବନିର୍ଦ୍ଧାରିତ:
 					rc = MOSQ_ERR_INVAL;
-					break;
+					ଭାଙ୍ଗ;
 			}
-			if(rc){
+			ଯଦି(rc){
 				do_disconnect(context, rc);
-				return;
+				ଫେରନ୍ତୁ;
 			}
-		}while(SSL_DATA_PENDING(context));
+		}ଯେତେବେଳେ(SSL_DATA_PENDING(context));
 	}
 }
 #endif

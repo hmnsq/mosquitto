@@ -16,46 +16,46 @@ Contributors:
    Roger Light - initial implementation and documentation.
 */
 
-#include "config.h"
+#ଅନ୍ତର୍ଭାଵ "config.h"
 
-#include "mosquitto_broker_internal.h"
-#include "utlist.h"
-#include "lib_load.h"
+#ଅନ୍ତର୍ଭାଵ "mosquitto_broker_internal.h"
+#ଅନ୍ତର୍ଭାଵ "utlist.h"
+#ଅନ୍ତର୍ଭାଵ "lib_load.h"
 
 
-int plugin__load_v5(mosquitto_plugin_id_t *plugin, void *lib)
+ପୂର୍ଣ୍ଣସଂଖ୍ୟା plugin__load_v5(mosquitto_plugin_id_t *plugin, ଶୂନ୍ୟ *lib)
 {
-	int rc;
+	ପୂର୍ଣ୍ଣସଂଖ୍ୟା rc;
 
-	if(!(plugin->lib.plugin_init_v5 = (FUNC_plugin_init_v5)LIB_SYM(lib, "mosquitto_plugin_init"))){
-		log__printf(NULL, MOSQ_LOG_ERR,
+	ଯଦି(!(plugin->lib.plugin_init_v5 = (FUNC_plugin_init_v5)LIB_SYM(lib, "mosquitto_plugin_init"))){
+		log__printf(ଖାଲି, MOSQ_LOG_ERR,
 				"Error: Unable to load plugin function mosquitto_plugin_init().");
 		LIB_ERROR();
 		LIB_CLOSE(lib);
-		return MOSQ_ERR_UNKNOWN;
+		ଫେରନ୍ତୁ MOSQ_ERR_UNKNOWN;
 	}
 	/* Optional function */
 	plugin->lib.plugin_cleanup_v5 = (FUNC_plugin_cleanup_v5)LIB_SYM(lib, "mosquitto_plugin_cleanup");
 
 	plugin->lib.lib = lib;
-	plugin->lib.user_data = NULL;
+	plugin->lib.user_data = ଖାଲି;
 	plugin->lib.identifier = plugin;
 
-	if(plugin->lib.plugin_init_v5){
-		rc = plugin->lib.plugin_init_v5(plugin, &plugin->lib.user_data, plugin->config.options, plugin->config.option_count);
-		if(rc){
-			log__printf(NULL, MOSQ_LOG_ERR,
+	ଯଦି(plugin->lib.plugin_init_v5){
+		rc = plugin->lib.plugin_init_v5(plugin, &plugin->lib.user_data, plugin->config.options, plugin->config.option_ଗଣନା);
+		ଯଦି(rc){
+			log__printf(ଖାଲି, MOSQ_LOG_ERR,
 					"Error: Plugin returned %d when initialising.", rc);
-			return rc;
+			ଫେରନ୍ତୁ rc;
 		}
 	}
-	if(plugin->plugin_name && plugin->plugin_version){
-		log__printf(NULL, MOSQ_LOG_INFO,
+	ଯଦି(plugin->plugin_name && plugin->plugin_version){
+		log__printf(ଖାଲି, MOSQ_LOG_INFO,
 				"Plugin %s version %s loaded.", plugin->plugin_name, plugin->plugin_version);
-	}else if(plugin->plugin_name){
-		log__printf(NULL, MOSQ_LOG_INFO,
+	}ଅନ୍ୟଥା ଯଦି(plugin->plugin_name){
+		log__printf(ଖାଲି, MOSQ_LOG_INFO,
 				"Plugin %s loaded.", plugin->plugin_name);
 	}
 
-	return 0;
+	ଫେରନ୍ତୁ 0;
 }

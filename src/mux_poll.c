@@ -16,164 +16,164 @@ Contributors:
    Roger Light - initial implementation and documentation.
 */
 
-#include "config.h"
+#ଅନ୍ତର୍ଭାଵ "config.h"
 
-#if !defined(WITH_EPOLL) && !defined(WITH_KQUEUE)
+#ଯଦି !defined(WITH_EPOLL) && !defined(WITH_KQUEUE)
 
 #ifndef WIN32
 #  define _GNU_SOURCE
 #endif
 
-#include <assert.h>
+#ଅନ୍ତର୍ଭାଵ <assert.h>
 #ifndef WIN32
-#include <poll.h>
-#include <unistd.h>
-#else
-#include <process.h>
-#include <winsock2.h>
-#include <ws2tcpip.h>
+#ଅନ୍ତର୍ଭାଵ <poll.h>
+#ଅନ୍ତର୍ଭାଵ <unistd.h>
+#ଅନ୍ୟଥା
+#ଅନ୍ତର୍ଭାଵ <process.h>
+#ଅନ୍ତର୍ଭାଵ <winsock2.h>
+#ଅନ୍ତର୍ଭାଵ <ws2tcpip.h>
 #endif
 
-#include <errno.h>
-#include <signal.h>
-#include <stdio.h>
-#include <string.h>
+#ଅନ୍ତର୍ଭାଵ <errno.h>
+#ଅନ୍ତର୍ଭାଵ <signal.h>
+#ଅନ୍ତର୍ଭାଵ <stdio.h>
+#ଅନ୍ତର୍ଭାଵ <string.h>
 #ifndef WIN32
 #  include <sys/socket.h>
 #endif
-#include <time.h>
+#ଅନ୍ତର୍ଭାଵ <time.h>
 
-#if defined(WITH_WEBSOCKETS) && WITH_WEBSOCKETS == WS_IS_LWS
+#ଯଦି defined(WITH_WEBSOCKETS) && WITH_WEBSOCKETS == WS_IS_LWS
 #  include <libwebsockets.h>
 #endif
 
-#include "mosquitto_broker_internal.h"
-#include "packet_mosq.h"
-#include "send_mosq.h"
-#include "sys_tree.h"
-#include "util_mosq.h"
-#include "mux.h"
+#ଅନ୍ତର୍ଭାଵ "mosquitto_broker_internal.h"
+#ଅନ୍ତର୍ଭାଵ "packet_mosq.h"
+#ଅନ୍ତର୍ଭାଵ "send_mosq.h"
+#ଅନ୍ତର୍ଭାଵ "sys_tree.h"
+#ଅନ୍ତର୍ଭାଵ "util_mosq.h"
+#ଅନ୍ତର୍ଭାଵ "mux.h"
 
-static void loop_handle_reads_writes(void);
+ସ୍ଥିର ଶୂନ୍ୟ loop_handle_reads_writes(ଶୂନ୍ୟ);
 
-static struct pollfd *pollfds = NULL;
-static size_t pollfd_max, pollfd_current_max = 0;
+ସ୍ଥିର ସଂରଚନା pollfd *pollfds = ଖାଲି;
+ସ୍ଥିର size_t pollfd_max, pollfd_current_max = 0;
 
 
-int mux_poll__init(void)
+ପୂର୍ଣ୍ଣସଂଖ୍ୟା mux_poll__init(ଶୂନ୍ୟ)
 {
 #ifdef WIN32
 	pollfd_max = (size_t)_getmaxstdio();
-#else
+#ଅନ୍ୟଥା
 	pollfd_max = (size_t)sysconf(_SC_OPEN_MAX);
 #endif
 
-	pollfds = mosquitto_calloc(pollfd_max, sizeof(struct pollfd));
-	if(!pollfds){
-		log__printf(NULL, MOSQ_LOG_ERR, "Error: Out of memory.");
-		return MOSQ_ERR_NOMEM;
+	pollfds = mosquitto_calloc(pollfd_max, ଆକାର(ସଂରଚନା pollfd));
+	ଯଦି(!pollfds){
+		log__printf(ଖାଲି, MOSQ_LOG_ERR, "Error: Out of memory.");
+		ଫେରନ୍ତୁ MOSQ_ERR_NOMEM;
 	}
-	memset(pollfds, 0, sizeof(struct pollfd)*pollfd_max);
-	for(size_t i=0; i<pollfd_max; i++){
+	memset(pollfds, 0, ଆକାର(ସଂରଚନା pollfd)*pollfd_max);
+	ପାଇଁ(size_t i=0; i<pollfd_max; i++){
 		pollfds[i].fd = INVALID_SOCKET;
 	}
 
-	return MOSQ_ERR_SUCCESS;
+	ଫେରନ୍ତୁ MOSQ_ERR_SUCCESS;
 }
 
 
-int mux_poll__add_listeners(struct mosquitto__listener_sock *listensock, int listensock_count)
+ପୂର୍ଣ୍ଣସଂଖ୍ୟା mux_poll__add_listeners(ସଂରଚନା mosquitto__listener_sock *listensock, ପୂର୍ଣ୍ଣସଂଖ୍ୟା listensock_ଗଣନା)
 {
 	size_t pollfd_index = 0;
 
-	for(size_t i=0; i<(size_t )listensock_count; i++){
+	ପାଇଁ(size_t i=0; i<(size_t )listensock_ଗଣନା; i++){
 		pollfds[pollfd_index].fd = listensock[i].sock;
 		pollfds[pollfd_index].events = POLLIN;
 		pollfds[pollfd_index].revents = 0;
 		pollfd_index++;
 	}
 
-	if(pollfd_current_max == 0){
+	ଯଦି(pollfd_current_max == 0){
 		pollfd_current_max = pollfd_index-1;
 	}
-	return MOSQ_ERR_SUCCESS;
+	ଫେରନ୍ତୁ MOSQ_ERR_SUCCESS;
 }
 
 
-int mux_poll__delete_listeners(struct mosquitto__listener_sock *listensock, int listensock_count)
+ପୂର୍ଣ୍ଣସଂଖ୍ୟା mux_poll__delete_listeners(ସଂରଚନା mosquitto__listener_sock *listensock, ପୂର୍ଣ୍ଣସଂଖ୍ୟା listensock_ଗଣନା)
 {
 	size_t pollfd_index = 0;
 
 	UNUSED(listensock);
 
-	for(size_t i=0; i<(size_t )listensock_count; i++){
+	ପାଇଁ(size_t i=0; i<(size_t )listensock_ଗଣନା; i++){
 		pollfds[pollfd_index].fd = INVALID_SOCKET;
 		pollfds[pollfd_index].events = 0;
 		pollfds[pollfd_index].revents = 0;
 		pollfd_index++;
 	}
 
-	return MOSQ_ERR_SUCCESS;
+	ଫେରନ୍ତୁ MOSQ_ERR_SUCCESS;
 }
 
 
-static int mux_poll__add(struct mosquitto *context, uint16_t evt)
+ସ୍ଥିର ପୂର୍ଣ୍ଣସଂଖ୍ୟା mux_poll__add(ସଂରଚନା mosquitto *context, uint16_t evt)
 {
-	if(context->events == evt){
-		return MOSQ_ERR_SUCCESS;
+	ଯଦି(context->events == evt){
+		ଫେରନ୍ତୁ MOSQ_ERR_SUCCESS;
 	}
 
-	if(context->pollfd_index != -1){
+	ଯଦି(context->pollfd_index != -1){
 		pollfds[context->pollfd_index].fd = context->sock;
-		pollfds[context->pollfd_index].events = (short int)evt;
+		pollfds[context->pollfd_index].events = (short ପୂର୍ଣ୍ଣସଂଖ୍ୟା)evt;
 		pollfds[context->pollfd_index].revents = 0;
-	}else{
-		for(size_t i=0; i<pollfd_max; i++){
-			if(pollfds[i].fd == INVALID_SOCKET){
+	}ଅନ୍ୟଥା{
+		ପାଇଁ(size_t i=0; i<pollfd_max; i++){
+			ଯଦି(pollfds[i].fd == INVALID_SOCKET){
 				pollfds[i].fd = context->sock;
 				pollfds[i].events = POLLIN;
 				pollfds[i].revents = 0;
-				context->pollfd_index = (int)i;
-				if(i > pollfd_current_max){
+				context->pollfd_index = (ପୂର୍ଣ୍ଣସଂଖ୍ୟା)i;
+				ଯଦି(i > pollfd_current_max){
 					pollfd_current_max = i;
 				}
-				break;
+				ଭାଙ୍ଗ;
 			}
 		}
 	}
 	context->events = evt;
 
-	return MOSQ_ERR_SUCCESS;
+	ଫେରନ୍ତୁ MOSQ_ERR_SUCCESS;
 }
 
 
-int mux_poll__add_out(struct mosquitto *context)
+ପୂର୍ଣ୍ଣସଂଖ୍ୟା mux_poll__add_out(ସଂରଚନା mosquitto *context)
 {
-	return mux_poll__add(context, POLLIN | POLLOUT);
+	ଫେରନ୍ତୁ mux_poll__add(context, POLLIN | POLLOUT);
 }
 
 
-int mux_poll__remove_out(struct mosquitto *context)
+ପୂର୍ଣ୍ଣସଂଖ୍ୟା mux_poll__remove_out(ସଂରଚନା mosquitto *context)
 {
-	if(context->events & POLLOUT){
-		return mux_poll__new(context);
-	}else{
-		return MOSQ_ERR_SUCCESS;
+	ଯଦି(context->events & POLLOUT){
+		ଫେରନ୍ତୁ mux_poll__new(context);
+	}ଅନ୍ୟଥା{
+		ଫେରନ୍ତୁ MOSQ_ERR_SUCCESS;
 	}
 }
 
 
-int mux_poll__new(struct mosquitto *context)
+ପୂର୍ଣ୍ଣସଂଖ୍ୟା mux_poll__new(ସଂରଚନା mosquitto *context)
 {
-	return mux_poll__add(context, POLLIN);
+	ଫେରନ୍ତୁ mux_poll__add(context, POLLIN);
 }
 
 
-int mux_poll__delete(struct mosquitto *context)
+ପୂର୍ଣ୍ଣସଂଖ୍ୟା mux_poll__delete(ସଂରଚନା mosquitto *context)
 {
 	size_t pollfd_index;
 
-	if(context->pollfd_index != -1){
+	ଯଦି(context->pollfd_index != -1){
 		pollfds[context->pollfd_index].fd = INVALID_SOCKET;
 		pollfds[context->pollfd_index].events = 0;
 		pollfds[context->pollfd_index].revents = 0;
@@ -182,7 +182,7 @@ int mux_poll__delete(struct mosquitto *context)
 
 		/* If this is the highest index, reduce the current max until we find
 		 * the next highest in use index. */
-		while(pollfd_index == pollfd_current_max
+		ଯେତେବେଳେ(pollfd_index == pollfd_current_max
 				&& pollfd_index > 0
 				&& pollfds[pollfd_index].fd == INVALID_SOCKET){
 
@@ -191,185 +191,185 @@ int mux_poll__delete(struct mosquitto *context)
 		}
 	}
 
-	return MOSQ_ERR_SUCCESS;
+	ଫେରନ୍ତୁ MOSQ_ERR_SUCCESS;
 }
 
 
-int mux_poll__handle(struct mosquitto__listener_sock *listensock, int listensock_count)
+ପୂର୍ଣ୍ଣସଂଖ୍ୟା mux_poll__handle(ସଂରଚନା mosquitto__listener_sock *listensock, ପୂର୍ଣ୍ଣସଂଖ୍ୟା listensock_ଗଣନା)
 {
-	struct mosquitto *context;
-	int fdcount;
-	int timeout;
+	ସଂରଚନା mosquitto *context;
+	ପୂର୍ଣ୍ଣସଂଖ୍ୟା fdcount;
+	ପୂର୍ଣ୍ଣସଂଖ୍ୟା timeout;
 
 #ifdef WITH_WEBSOCKETS
 	timeout = 100;
-#else
+#ଅନ୍ୟଥା
 	timeout = db.next_event_ms;
 #endif
 
 #ifndef WIN32
 	fdcount = poll(pollfds, pollfd_current_max+1, timeout);
-#else
+#ଅନ୍ୟଥା
 	fdcount = WSAPoll(pollfds, pollfd_current_max+1, timeout);
 #endif
 
 	db.now_s = mosquitto_time();
-	db.now_real_s = time(NULL);
+	db.now_real_s = time(ଖାଲି);
 
-	if(fdcount == -1){
-#  if defined(WIN32) && defined(WITH_WEBSOCKETS) && WITH_WEBSOCKETS == WS_IS_LWS
-		if(WSAGetLastError() == WSAEINVAL){
+	ଯଦି(fdcount == -1){
+#  ଯଦି defined(WIN32) && defined(WITH_WEBSOCKETS) && WITH_WEBSOCKETS == WS_IS_LWS
+		ଯଦି(WSAGetLastError() == WSAEINVAL){
 			/* WSAPoll() immediately returns an error if it is not given
 			 * any sockets to wait on. This can happen if we only have
 			 * websockets listeners. Sleep a little to prevent a busy loop.
 			 */
 			Sleep(10);
-		}else
+		}ଅନ୍ୟଥା
 #  endif
 		{
-			log__printf(NULL, MOSQ_LOG_ERR, "Error in poll: %s.", strerror(errno));
+			log__printf(ଖାଲି, MOSQ_LOG_ERR, "Error in poll: %s.", strerror(errno));
 		}
-	}else{
+	}ଅନ୍ୟଥା{
 		loop_handle_reads_writes();
 
-		for(int i=0; i<listensock_count; i++){
-			if(pollfds[i].revents & POLLIN){
-#if defined(WITH_WEBSOCKETS) && WITH_WEBSOCKETS == WS_IS_LWS
-				if(listensock[i].listener->ws_context){
+		ପାଇଁ(ପୂର୍ଣ୍ଣସଂଖ୍ୟା i=0; i<listensock_ଗଣନା; i++){
+			ଯଦି(pollfds[i].revents & POLLIN){
+#ଯଦି defined(WITH_WEBSOCKETS) && WITH_WEBSOCKETS == WS_IS_LWS
+				ଯଦି(listensock[i].listener->ws_context){
 					/* Nothing needs to happen here, because we always call lws_service in the loop.
 					 * The important point is we've been woken up for this listener. */
-				}else
+				}ଅନ୍ୟଥା
 #endif
 				{
-					while((context = net__socket_accept(&listensock[i])) != NULL){
+					ଯେତେବେଳେ((context = net__socket_accept(&listensock[i])) != ଖାଲି){
 					}
 				}
 			}
 		}
 	}
-	return MOSQ_ERR_SUCCESS;
+	ଫେରନ୍ତୁ MOSQ_ERR_SUCCESS;
 }
 
 
-int mux_poll__cleanup(void)
+ପୂର୍ଣ୍ଣସଂଖ୍ୟା mux_poll__cleanup(ଶୂନ୍ୟ)
 {
 	mosquitto_FREE(pollfds);
 
-	return MOSQ_ERR_SUCCESS;
+	ଫେରନ୍ତୁ MOSQ_ERR_SUCCESS;
 }
 
 
-static void loop_handle_reads_writes(void)
+ସ୍ଥିର ଶୂନ୍ୟ loop_handle_reads_writes(ଶୂନ୍ୟ)
 {
-	struct mosquitto *context, *ctxt_tmp;
-	int err;
+	ସଂରଚନା mosquitto *context, *ctxt_tmp;
+	ପୂର୍ଣ୍ଣସଂଖ୍ୟା err;
 	socklen_t len;
-	int rc;
+	ପୂର୍ଣ୍ଣସଂଖ୍ୟା rc;
 
 	HASH_ITER(hh_sock, db.contexts_by_sock, context, ctxt_tmp){
-		if(context->pollfd_index < 0){
-			continue;
+		ଯଦି(context->pollfd_index < 0){
+			ଜାରି;
 		}
 
-		if(pollfds[context->pollfd_index].fd == INVALID_SOCKET){
-			continue;
+		ଯଦି(pollfds[context->pollfd_index].fd == INVALID_SOCKET){
+			ଜାରି;
 		}
 
-		assert(pollfds[context->pollfd_index].fd == context->sock);
+		ପ୍ରତିଜ୍ଞା(pollfds[context->pollfd_index].fd == context->sock);
 
-#if defined(WITH_WEBSOCKETS) && WITH_WEBSOCKETS == WS_IS_LWS
-		if(context->wsi){
-			struct lws_pollfd wspoll;
+#ଯଦି defined(WITH_WEBSOCKETS) && WITH_WEBSOCKETS == WS_IS_LWS
+		ଯଦି(context->wsi){
+			ସଂରଚନା lws_pollfd wspoll;
 			wspoll.fd = pollfds[context->pollfd_index].fd;
 			wspoll.events = pollfds[context->pollfd_index].events;
 			wspoll.revents = pollfds[context->pollfd_index].revents;
 			lws_service_fd(lws_get_context(context->wsi), &wspoll);
-			continue;
+			ଜାରି;
 		}
 #endif
 
 #ifdef WITH_TLS
-		if(pollfds[context->pollfd_index].revents & POLLOUT ||
+		ଯଦି(pollfds[context->pollfd_index].revents & POLLOUT ||
 				context->want_write ||
 				(context->ssl && context->state == mosq_cs_new)){
-#else
-		if(pollfds[context->pollfd_index].revents & POLLOUT){
+#ଅନ୍ୟଥା
+		ଯଦି(pollfds[context->pollfd_index].revents & POLLOUT){
 #endif
-			if(context->state == mosq_cs_connect_pending){
-				len = sizeof(int);
-				if(!getsockopt(context->sock, SOL_SOCKET, SO_ERROR, (char *)&err, &len)){
-					if(err == 0){
+			ଯଦି(context->state == mosq_cs_connect_pending){
+				len = ଆକାର(ପୂର୍ଣ୍ଣସଂଖ୍ୟା);
+				ଯଦି(!getsockopt(context->sock, SOL_SOCKET, SO_ERROR, (ଅକ୍ଷର *)&err, &len)){
+					ଯଦି(err == 0){
 						mosquitto__set_state(context, mosq_cs_new);
-#if defined(WITH_ADNS) && defined(WITH_BRIDGE)
-						if(context->bridge){
+#ଯଦି defined(WITH_ADNS) && defined(WITH_BRIDGE)
+						ଯଦି(context->bridge){
 							bridge__connect_step3(context);
-							continue;
+							ଜାରି;
 						}
 #endif
 					}
-				}else{
+				}ଅନ୍ୟଥା{
 					do_disconnect(context, MOSQ_ERR_CONN_LOST);
-					continue;
+					ଜାରି;
 				}
 			}
 			rc = packet__write(context);
-			if(rc){
+			ଯଦି(rc){
 				do_disconnect(context, rc);
-				continue;
+				ଜାରି;
 			}
 		}
 	}
 
 	HASH_ITER(hh_sock, db.contexts_by_sock, context, ctxt_tmp){
-		if(context->pollfd_index < 0){
-			continue;
+		ଯଦି(context->pollfd_index < 0){
+			ଜାରି;
 		}
-#if defined(WITH_WEBSOCKETS) && WITH_WEBSOCKETS == WS_IS_LWS
-		if(context->wsi){
+#ଯଦି defined(WITH_WEBSOCKETS) && WITH_WEBSOCKETS == WS_IS_LWS
+		ଯଦି(context->wsi){
 			// Websocket are already handled above
-			continue;
+			ଜାରି;
 		}
 #endif
 
 #ifdef WITH_TLS
-		if(pollfds[context->pollfd_index].revents & POLLIN ||
+		ଯଦି(pollfds[context->pollfd_index].revents & POLLIN ||
 				(context->ssl && context->state == mosq_cs_new)){
-#else
-		if(pollfds[context->pollfd_index].revents & POLLIN){
+#ଅନ୍ୟଥା
+		ଯଦି(pollfds[context->pollfd_index].revents & POLLIN){
 #endif
-			do{
-				switch(context->transport){
-					case mosq_t_tcp:
-					case mosq_t_ws:
+			କର{
+				ବାଛ(context->transport){
+					ସ୍ଥିତି mosq_t_tcp:
+					ସ୍ଥିତି mosq_t_ws:
 						rc = packet__read(context);
-						break;
-#if defined(WITH_WEBSOCKETS) && WITH_WEBSOCKETS == WS_IS_BUILTIN
-					case mosq_t_http:
+						ଭାଙ୍ଗ;
+#ଯଦି defined(WITH_WEBSOCKETS) && WITH_WEBSOCKETS == WS_IS_BUILTIN
+					ସ୍ଥିତି mosq_t_http:
 						rc = http__read(context);
-						break;
+						ଭାଙ୍ଗ;
 #endif
-#if !defined(WITH_WEBSOCKETS) || WITH_WEBSOCKETS == WS_IS_BUILTIN
+#ଯଦି !defined(WITH_WEBSOCKETS) || WITH_WEBSOCKETS == WS_IS_BUILTIN
 					/* Not supported with LWS */
-					case mosq_t_proxy_v2:
+					ସ୍ଥିତି mosq_t_proxy_v2:
 						rc = proxy_v2__read(context);
-						break;
-					case mosq_t_proxy_v1:
+						ଭାଙ୍ଗ;
+					ସ୍ଥିତି mosq_t_proxy_v1:
 						rc = proxy_v1__read(context);
-						break;
+						ଭାଙ୍ଗ;
 #endif
-					default:
+					ପୂର୍ବନିର୍ଦ୍ଧାରିତ:
 						rc = MOSQ_ERR_INVAL;
-						break;
+						ଭାଙ୍ଗ;
 				}
-				if(rc){
+				ଯଦି(rc){
 					do_disconnect(context, rc);
-					continue;
+					ଜାରି;
 				}
-			}while(SSL_DATA_PENDING(context));
-		}else{
-			if(context->pollfd_index >= 0 && pollfds[context->pollfd_index].revents & (POLLERR | POLLNVAL | POLLHUP)){
+			}ଯେତେବେଳେ(SSL_DATA_PENDING(context));
+		}ଅନ୍ୟଥା{
+			ଯଦି(context->pollfd_index >= 0 && pollfds[context->pollfd_index].revents & (POLLERR | POLLNVAL | POLLHUP)){
 				do_disconnect(context, MOSQ_ERR_CONN_LOST);
-				continue;
+				ଜାରି;
 			}
 		}
 	}

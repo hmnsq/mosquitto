@@ -16,163 +16,163 @@ Contributors:
    Roger Light - initial implementation and documentation.
 */
 
-#include "config.h"
+#ଅନ୍ତର୍ଭାଵ "config.h"
 
-#include <stdio.h>
-#include <string.h>
+#ଅନ୍ତର୍ଭାଵ <stdio.h>
+#ଅନ୍ତର୍ଭାଵ <string.h>
 
-#include "mosquitto/broker.h"
-#include "mosquitto_broker_internal.h"
-#include "mosquitto/broker_plugin.h"
-#include "lib_load.h"
-#include "utlist.h"
+#ଅନ୍ତର୍ଭାଵ "mosquitto/broker.h"
+#ଅନ୍ତର୍ଭାଵ "mosquitto_broker_internal.h"
+#ଅନ୍ତର୍ଭାଵ "mosquitto/broker_plugin.h"
+#ଅନ୍ତର୍ଭାଵ "lib_load.h"
+#ଅନ୍ତର୍ଭାଵ "utlist.h"
 
 
-static int plugin__ext_auth_start(struct mosquitto__security_options *opts, struct mosquitto *context, bool reauth, const void *data_in, uint16_t data_in_len, void **data_out, uint16_t *data_out_len)
+ସ୍ଥିର ପୂର୍ଣ୍ଣସଂଖ୍ୟା plugin__ext_auth_start(ସଂରଚନା mosquitto__security_options *opts, ସଂରଚନା mosquitto *context, bool reauth, ଅଚଳ ଶୂନ୍ୟ *data_in, uint16_t data_in_len, ଶୂନ୍ୟ **data_out, uint16_t *data_out_len)
 {
-	struct mosquitto_evt_extended_auth event_data;
-	struct mosquitto__callback *cb_base, *cb_next;
-	int rc;
-	int rc_final = MOSQ_ERR_PLUGIN_DEFER;
+	ସଂରଚନା mosquitto_evt_extended_auth event_data;
+	ସଂରଚନା mosquitto__callback *cb_base, *cb_next;
+	ପୂର୍ଣ୍ଣସଂଖ୍ୟା rc;
+	ପୂର୍ଣ୍ଣସଂଖ୍ୟା rc_final = MOSQ_ERR_PLUGIN_DEFER;
 
 	UNUSED(reauth);
 
 	DL_FOREACH_SAFE(opts->plugin_callbacks.ext_auth_start, cb_base, cb_next){
-		memset(&event_data, 0, sizeof(event_data));
+		memset(&event_data, 0, ଆକାର(event_data));
 		event_data.client = context;
 		event_data.auth_method = context->auth_method;
 		event_data.data_in = data_in;
-		event_data.data_out = NULL;
+		event_data.data_out = ଖାଲି;
 		event_data.data_in_len = data_in_len;
 		event_data.data_out_len = 0;
 		rc = cb_base->cb(MOSQ_EVT_EXT_AUTH_START, &event_data, cb_base->userdata);
-		if(rc == MOSQ_ERR_PLUGIN_IGNORE){
+		ଯଦି(rc == MOSQ_ERR_PLUGIN_IGNORE){
 			/* Do nothing */
-		}else if(rc == MOSQ_ERR_PLUGIN_DEFER){
+		}ଅନ୍ୟଥା ଯଦି(rc == MOSQ_ERR_PLUGIN_DEFER){
 			rc_final = MOSQ_ERR_PLUGIN_DEFER;
-		}else{
+		}ଅନ୍ୟଥା{
 			*data_out = event_data.data_out;
 			*data_out_len = event_data.data_out_len;
-			return rc;
+			ଫେରନ୍ତୁ rc;
 		}
 	}
-	return rc_final;
+	ଫେରନ୍ତୁ rc_final;
 }
 
 
-int mosquitto_security_auth_start(struct mosquitto *context, bool reauth, const void *data_in, uint16_t data_in_len, void **data_out, uint16_t *data_out_len)
+ପୂର୍ଣ୍ଣସଂଖ୍ୟା mosquitto_security_auth_start(ସଂରଚନା mosquitto *context, bool reauth, ଅଚଳ ଶୂନ୍ୟ *data_in, uint16_t data_in_len, ଶୂନ୍ୟ **data_out, uint16_t *data_out_len)
 {
-	int rc;
+	ପୂର୍ଣ୍ଣସଂଖ୍ୟା rc;
 
-	if(!context || !context->listener || !context->auth_method){
-		return MOSQ_ERR_INVAL;
+	ଯଦି(!context || !context->listener || !context->auth_method){
+		ଫେରନ୍ତୁ MOSQ_ERR_INVAL;
 	}
-	if(!data_out || !data_out_len){
-		return MOSQ_ERR_INVAL;
+	ଯଦି(!data_out || !data_out_len){
+		ଫେରନ୍ତୁ MOSQ_ERR_INVAL;
 	}
 
 	/* Global plugins */
-	if(db.config->security_options.plugin_callbacks.ext_auth_start){
+	ଯଦି(db.config->security_options.plugin_callbacks.ext_auth_start){
 		rc = plugin__ext_auth_start(&db.config->security_options, context,
 				reauth, data_in, data_in_len, data_out, data_out_len);
 
-		if(rc == MOSQ_ERR_PLUGIN_IGNORE || rc == MOSQ_ERR_PLUGIN_DEFER){
+		ଯଦି(rc == MOSQ_ERR_PLUGIN_IGNORE || rc == MOSQ_ERR_PLUGIN_DEFER){
 			/* Do nothing */
-		}else{
-			return rc;
+		}ଅନ୍ୟଥା{
+			ଫେରନ୍ତୁ rc;
 		}
 	}
 
 	/* Per listener plugins */
-	if(context->listener){
-		if(context->listener->security_options->plugin_callbacks.ext_auth_start){
+	ଯଦି(context->listener){
+		ଯଦି(context->listener->security_options->plugin_callbacks.ext_auth_start){
 			rc = plugin__ext_auth_start(context->listener->security_options, context,
 					reauth, data_in, data_in_len, data_out, data_out_len);
 
-			if(rc == MOSQ_ERR_PLUGIN_IGNORE || rc == MOSQ_ERR_PLUGIN_DEFER){
+			ଯଦି(rc == MOSQ_ERR_PLUGIN_IGNORE || rc == MOSQ_ERR_PLUGIN_DEFER){
 				/* Do nothing */
-			}else{
-				return rc;
+			}ଅନ୍ୟଥା{
+				ଫେରନ୍ତୁ rc;
 			}
 		}
-	}else{
-		if(db.config->per_listener_settings){
-			return MOSQ_ERR_AUTH;
+	}ଅନ୍ୟଥା{
+		ଯଦି(db.config->per_listener_settings){
+			ଫେରନ୍ତୁ MOSQ_ERR_AUTH;
 		}
 	}
 
-	return MOSQ_ERR_NOT_SUPPORTED;
+	ଫେରନ୍ତୁ MOSQ_ERR_NOT_SUPPORTED;
 }
 
 
-static int plugin__ext_auth_continue(struct mosquitto__security_options *opts, struct mosquitto *context, const void *data_in, uint16_t data_in_len, void **data_out, uint16_t *data_out_len)
+ସ୍ଥିର ପୂର୍ଣ୍ଣସଂଖ୍ୟା plugin__ext_auth_continue(ସଂରଚନା mosquitto__security_options *opts, ସଂରଚନା mosquitto *context, ଅଚଳ ଶୂନ୍ୟ *data_in, uint16_t data_in_len, ଶୂନ୍ୟ **data_out, uint16_t *data_out_len)
 {
-	int rc;
-	struct mosquitto_evt_extended_auth event_data;
-	struct mosquitto__callback *cb_base, *cb_next;
+	ପୂର୍ଣ୍ଣସଂଖ୍ୟା rc;
+	ସଂରଚନା mosquitto_evt_extended_auth event_data;
+	ସଂରଚନା mosquitto__callback *cb_base, *cb_next;
 
 	DL_FOREACH_SAFE(opts->plugin_callbacks.ext_auth_continue, cb_base, cb_next){
-		memset(&event_data, 0, sizeof(event_data));
+		memset(&event_data, 0, ଆକାର(event_data));
 		event_data.client = context;
 		event_data.auth_method = context->auth_method;
 		event_data.data_in = data_in;
-		event_data.data_out = NULL;
+		event_data.data_out = ଖାଲି;
 		event_data.data_in_len = data_in_len;
 		event_data.data_out_len = 0;
 		rc = cb_base->cb(MOSQ_EVT_EXT_AUTH_CONTINUE, &event_data, cb_base->userdata);
-		if(rc == MOSQ_ERR_PLUGIN_IGNORE || rc == MOSQ_ERR_PLUGIN_DEFER){
+		ଯଦି(rc == MOSQ_ERR_PLUGIN_IGNORE || rc == MOSQ_ERR_PLUGIN_DEFER){
 			/* Do nothing */
-		}else{
+		}ଅନ୍ୟଥା{
 			*data_out = event_data.data_out;
 			*data_out_len = event_data.data_out_len;
-			return rc;
+			ଫେରନ୍ତୁ rc;
 		}
 	}
 
-	return MOSQ_ERR_PLUGIN_DEFER;
+	ଫେରନ୍ତୁ MOSQ_ERR_PLUGIN_DEFER;
 }
 
 
-int mosquitto_security_auth_continue(struct mosquitto *context, const void *data_in, uint16_t data_in_len, void **data_out, uint16_t *data_out_len)
+ପୂର୍ଣ୍ଣସଂଖ୍ୟା mosquitto_security_auth_continue(ସଂରଚନା mosquitto *context, ଅଚଳ ଶୂନ୍ୟ *data_in, uint16_t data_in_len, ଶୂନ୍ୟ **data_out, uint16_t *data_out_len)
 {
-	int rc;
+	ପୂର୍ଣ୍ଣସଂଖ୍ୟା rc;
 
-	if(!context || !context->listener || !context->auth_method){
-		return MOSQ_ERR_INVAL;
+	ଯଦି(!context || !context->listener || !context->auth_method){
+		ଫେରନ୍ତୁ MOSQ_ERR_INVAL;
 	}
-	if(!data_out || !data_out_len){
-		return MOSQ_ERR_INVAL;
+	ଯଦି(!data_out || !data_out_len){
+		ଫେରନ୍ତୁ MOSQ_ERR_INVAL;
 	}
 
 	/* Global plugins */
-	if(db.config->security_options.plugin_callbacks.ext_auth_continue){
+	ଯଦି(db.config->security_options.plugin_callbacks.ext_auth_continue){
 		rc = plugin__ext_auth_continue(&db.config->security_options, context,
 				data_in, data_in_len, data_out, data_out_len);
 
-		if(rc == MOSQ_ERR_PLUGIN_IGNORE || rc == MOSQ_ERR_PLUGIN_DEFER){
+		ଯଦି(rc == MOSQ_ERR_PLUGIN_IGNORE || rc == MOSQ_ERR_PLUGIN_DEFER){
 			/* Do nothing */
-		}else{
-			return rc;
+		}ଅନ୍ୟଥା{
+			ଫେରନ୍ତୁ rc;
 		}
 	}
 
 	/* Per listener plugins */
-	if(context->listener){
-		if(context->listener->security_options->plugin_callbacks.ext_auth_continue){
+	ଯଦି(context->listener){
+		ଯଦି(context->listener->security_options->plugin_callbacks.ext_auth_continue){
 			rc = plugin__ext_auth_continue(context->listener->security_options, context,
 					data_in, data_in_len, data_out, data_out_len);
 
-			if(rc == MOSQ_ERR_PLUGIN_IGNORE || rc == MOSQ_ERR_PLUGIN_DEFER){
+			ଯଦି(rc == MOSQ_ERR_PLUGIN_IGNORE || rc == MOSQ_ERR_PLUGIN_DEFER){
 				/* Do nothing */
-			}else{
-				return rc;
+			}ଅନ୍ୟଥା{
+				ଫେରନ୍ତୁ rc;
 			}
 		}
-	}else{
-		if(db.config->per_listener_settings){
-			return MOSQ_ERR_AUTH;
+	}ଅନ୍ୟଥା{
+		ଯଦି(db.config->per_listener_settings){
+			ଫେରନ୍ତୁ MOSQ_ERR_AUTH;
 		}
 	}
 
-	return MOSQ_ERR_NOT_SUPPORTED;
+	ଫେରନ୍ତୁ MOSQ_ERR_NOT_SUPPORTED;
 }

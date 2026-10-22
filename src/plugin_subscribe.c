@@ -17,19 +17,19 @@ Contributors:
    Roger Light - initial implementation and documentation.
 */
 
-#include "config.h"
+#ଅନ୍ତର୍ଭାଵ "config.h"
 
-#include "mosquitto_broker_internal.h"
-#include "utlist.h"
+#ଅନ୍ତର୍ଭାଵ "mosquitto_broker_internal.h"
+#ଅନ୍ତର୍ଭାଵ "utlist.h"
 
 
-static int plugin__handle_subscribe_single(struct mosquitto__security_options *opts, struct mosquitto *context, struct mosquitto_subscription *sub)
+ସ୍ଥିର ପୂର୍ଣ୍ଣସଂଖ୍ୟା plugin__handle_subscribe_single(ସଂରଚନା mosquitto__security_options *opts, ସଂରଚନା mosquitto *context, ସଂରଚନା mosquitto_subscription *sub)
 {
-	struct mosquitto_evt_subscribe event_data;
-	struct mosquitto__callback *cb_base, *cb_next;
-	int rc = MOSQ_ERR_SUCCESS;
+	ସଂରଚନା mosquitto_evt_subscribe event_data;
+	ସଂରଚନା mosquitto__callback *cb_base, *cb_next;
+	ପୂର୍ଣ୍ଣସଂଖ୍ୟା rc = MOSQ_ERR_SUCCESS;
 
-	memset(&event_data, 0, sizeof(event_data));
+	memset(&event_data, 0, ଆକାର(event_data));
 	event_data.client = context;
 	event_data.data.topic_filter = sub->topic_filter;
 	event_data.data.options = sub->options;
@@ -38,34 +38,34 @@ static int plugin__handle_subscribe_single(struct mosquitto__security_options *o
 
 	DL_FOREACH_SAFE(opts->plugin_callbacks.subscribe, cb_base, cb_next){
 		rc = cb_base->cb(MOSQ_EVT_SUBSCRIBE, &event_data, cb_base->userdata);
-		if(rc != MOSQ_ERR_SUCCESS){
-			break;
+		ଯଦି(rc != MOSQ_ERR_SUCCESS){
+			ଭାଙ୍ଗ;
 		}
 
-		if(sub->topic_filter != event_data.data.topic_filter){
+		ଯଦି(sub->topic_filter != event_data.data.topic_filter){
 			mosquitto_free(sub->topic_filter);
 			sub->topic_filter = event_data.data.topic_filter;
 		}
 	}
 	sub->options = event_data.data.options;
 
-	return rc;
+	ଫେରନ୍ତୁ rc;
 }
 
 
-int plugin__handle_subscribe(struct mosquitto *context, struct mosquitto_subscription *sub)
+ପୂର୍ଣ୍ଣସଂଖ୍ୟା plugin__handle_subscribe(ସଂରଚନା mosquitto *context, ସଂରଚନା mosquitto_subscription *sub)
 {
-	int rc = MOSQ_ERR_SUCCESS;
+	ପୂର୍ଣ୍ଣସଂଖ୍ୟା rc = MOSQ_ERR_SUCCESS;
 
 	/* Global plugins */
 	rc = plugin__handle_subscribe_single(&db.config->security_options, context, sub);
-	if(rc){
-		return rc;
+	ଯଦି(rc){
+		ଫେରନ୍ତୁ rc;
 	}
 
-	if(context->listener){
+	ଯଦି(context->listener){
 		rc = plugin__handle_subscribe_single(context->listener->security_options, context, sub);
 	}
 
-	return rc;
+	ଫେରନ୍ତୁ rc;
 }

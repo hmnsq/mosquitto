@@ -16,27 +16,27 @@ Contributors:
    Roger Light - initial implementation and documentation.
 */
 
-#include "config.h"
+#ଅନ୍ତର୍ଭାଵ "config.h"
 
-#include <string.h>
+#ଅନ୍ତର୍ଭାଵ <string.h>
 
-#include "mosquitto_broker_internal.h"
-#include "mosquitto/broker.h"
-#include "utlist.h"
+#ଅନ୍ତର୍ଭାଵ "mosquitto_broker_internal.h"
+#ଅନ୍ତର୍ଭାଵ "mosquitto/broker.h"
+#ଅନ୍ତର୍ଭାଵ "utlist.h"
 
 
-static void plugin__handle_tick_single(struct mosquitto__security_options *opts)
+ସ୍ଥିର ଶୂନ୍ୟ plugin__handle_tick_single(ସଂରଚନା mosquitto__security_options *opts)
 {
-	struct mosquitto_evt_tick event_data;
-	struct mosquitto__callback *cb_base, *cb_next;
+	ସଂରଚନା mosquitto_evt_tick event_data;
+	ସଂରଚନା mosquitto__callback *cb_base, *cb_next;
 
-	memset(&event_data, 0, sizeof(event_data));
+	memset(&event_data, 0, ଆକାର(event_data));
 
 	// Using DL_FOREACH_SAFE here, as tick callbacks might unregister themself
 	DL_FOREACH_SAFE(opts->plugin_callbacks.tick, cb_base, cb_next){
 		mosquitto_time_ns(&event_data.now_s, &event_data.now_ns);
 
-		if(mosquitto_time_cmp(event_data.now_s, event_data.now_ns,
+		ଯଦି(mosquitto_time_cmp(event_data.now_s, event_data.now_ns,
 				cb_base->data.next_tick.tv_sec, cb_base->data.next_tick.tv_nsec) > 0){
 
 			event_data.next_s = 0;
@@ -46,7 +46,7 @@ static void plugin__handle_tick_single(struct mosquitto__security_options *opts)
 
 			cb_base->data.next_tick.tv_sec = event_data.now_s + event_data.next_s;
 			cb_base->data.next_tick.tv_nsec = event_data.now_ns + 1000000*event_data.next_ms;
-			if(cb_base->data.next_tick.tv_nsec > 1000000000){
+			ଯଦି(cb_base->data.next_tick.tv_nsec > 1000000000){
 				cb_base->data.next_tick.tv_nsec -= 1000000000;
 				cb_base->data.next_tick.tv_sec += 1;
 			}
@@ -55,16 +55,16 @@ static void plugin__handle_tick_single(struct mosquitto__security_options *opts)
 }
 
 
-void plugin__handle_tick(void)
+ଶୂନ୍ୟ plugin__handle_tick(ଶୂନ୍ୟ)
 {
-	struct mosquitto__security_options *opts;
+	ସଂରଚନା mosquitto__security_options *opts;
 
 	/* Global plugins */
 	plugin__handle_tick_single(&db.config->security_options);
 
-	for(int i=0; i<db.config->listener_count; i++){
+	ପାଇଁ(ପୂର୍ଣ୍ଣସଂଖ୍ୟା i=0; i<db.config->listener_ଗଣନା; i++){
 		opts = db.config->listeners[i].security_options;
-		if(opts && opts->plugin_callbacks.tick){
+		ଯଦି(opts && opts->plugin_callbacks.tick){
 			plugin__handle_tick_single(opts);
 		}
 	}
