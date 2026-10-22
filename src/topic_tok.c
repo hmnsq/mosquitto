@@ -16,111 +16,111 @@ Contributors:
    Roger Light - initial implementation and documentation.
 */
 
-#include "config.h"
+#ضمن "config.h"
 
-#include <stdio.h>
-#include <string.h>
+#ضمن <stdio.h>
+#ضمن <string.h>
 
-#include "mosquitto_broker_internal.h"
-#include "mosquitto/mqtt_protocol.h"
-#include "util_mosq.h"
+#ضمن "mosquitto_broker_internal.h"
+#ضمن "mosquitto/mqtt_protocol.h"
+#ضمن "util_mosq.h"
 
-#include "utlist.h"
+#ضمن "utlist.h"
 
 
-static char *strtok_hier(char *str, char **saveptr)
+ساكن حرف *strtok_hier(حرف *str, حرف **saveptr)
 {
-	char *c;
+	حرف *c;
 
-	if(str != NULL){
+	إذا(str != عدم){
 		*saveptr = str;
 	}
 
-	if(*saveptr == NULL){
-		return NULL;
+	إذا(*saveptr == عدم){
+		أرجع عدم;
 	}
 
 	c = strchr(*saveptr, '/');
-	if(c){
+	إذا(c){
 		str = *saveptr;
 		*saveptr = c+1;
 		c[0] = '\0';
-	}else if(*saveptr){
+	}وإلا إذا(*saveptr){
 		/* No match, but surplus string */
 		str = *saveptr;
-		*saveptr = NULL;
+		*saveptr = عدم;
 	}
-	return str;
+	أرجع str;
 }
 
 
-int sub__topic_tokenise(const char *subtopic, char **local_sub, char ***topics, const char **sharename)
+صحيح sub__topic_tokenise(ثابت حرف *subtopic, حرف **local_sub, حرف ***topics, ثابت حرف **sharename)
 {
-	char *saveptr = NULL;
-	char *token;
-	int count;
-	int topic_index = 0;
+	حرف *saveptr = عدم;
+	حرف *token;
+	صحيح ڳڻپ;
+	صحيح topic_اشاريو = 0;
 	size_t len;
 
-	if(!subtopic){
-		return MOSQ_ERR_INVAL;
+	إذا(!subtopic){
+		أرجع MOSQ_ERR_INVAL;
 	}
 
-	len = strlen(subtopic);
-	if(len == 0){
-		return MOSQ_ERR_INVAL;
+	len = لڙي_ڊيگهه(subtopic);
+	إذا(len == 0){
+		أرجع MOSQ_ERR_INVAL;
 	}
 
 	*local_sub = mosquitto_strdup(subtopic);
-	if((*local_sub) == NULL){
-		return MOSQ_ERR_NOMEM;
+	إذا((*local_sub) == عدم){
+		أرجع MOSQ_ERR_NOMEM;
 	}
 
-	count = 0;
+	ڳڻپ = 0;
 	saveptr = *local_sub;
-	while(saveptr){
+	طالما(saveptr){
 		saveptr = strchr(&saveptr[1], '/');
-		count++;
+		ڳڻپ++;
 	}
-	*topics = mosquitto_calloc((size_t)(count+3) /* 3=$shared,sharename,NULL */, sizeof(char *));
-	if((*topics) == NULL){
+	*topics = mosquitto_calloc((size_t)(ڳڻپ+3) /* 3=$shared,sharename,NULL */, حجم(حرف *));
+	إذا((*topics) == عدم){
 		mosquitto_FREE(*local_sub);
-		return MOSQ_ERR_NOMEM;
+		أرجع MOSQ_ERR_NOMEM;
 	}
 
-	if((*local_sub)[0] != '$'){
-		(*topics)[topic_index] = "";
-		topic_index++;
+	إذا((*local_sub)[0] != '$'){
+		(*topics)[topic_اشاريو] = "";
+		topic_اشاريو++;
 	}
 
 	token = strtok_hier((*local_sub), &saveptr);
-	while(token){
-		(*topics)[topic_index] = token;
-		topic_index++;
-		token = strtok_hier(NULL, &saveptr);
+	طالما(token){
+		(*topics)[topic_اشاريو] = token;
+		topic_اشاريو++;
+		token = strtok_hier(عدم, &saveptr);
 	}
 
-	if(!strcmp((*topics)[0], "$share")){
-		if(count < 3 || (count == 3 && strlen((*topics)[2]) == 0)){
+	إذا(!strcmp((*topics)[0], "$share")){
+		إذا(ڳڻپ < 3 || (ڳڻپ == 3 && لڙي_ڊيگهه((*topics)[2]) == 0)){
 			mosquitto_FREE(*local_sub);
 			mosquitto_FREE(*topics);
-			return MOSQ_ERR_PROTOCOL;
+			أرجع MOSQ_ERR_PROTOCOL;
 		}
 
-		if(sharename){
-			if(strpbrk((*topics)[1], "+#")){
+		إذا(sharename){
+			إذا(strpbrk((*topics)[1], "+#")){
 				mosquitto_FREE(*local_sub);
 				mosquitto_FREE(*topics);
-				return MOSQ_ERR_PROTOCOL;
+				أرجع MOSQ_ERR_PROTOCOL;
 			}
 			(*sharename) = (*topics)[1];
 		}
 
-		for(int i=1; i<count-1; i++){
+		لكل(صحيح i=1; i<ڳڻپ-1; i++){
 			(*topics)[i] = (*topics)[i+1];
 		}
 		(*topics)[0] = "";
-		(*topics)[count-1] = NULL;
+		(*topics)[ڳڻپ-1] = عدم;
 	}
-	return MOSQ_ERR_SUCCESS;
+	أرجع MOSQ_ERR_SUCCESS;
 }

@@ -17,98 +17,98 @@ Contributors:
    Tatsuzo Osawa - Add epoll.
 */
 
-#ifndef MOSQUITTO_BROKER_INTERNAL_H
-#define MOSQUITTO_BROKER_INTERNAL_H
+#جيڪڏهن_وصف_نه_ٿيل MOSQUITTO_BROKER_اندروني_H
+#وصف_ڪريو MOSQUITTO_BROKER_اندروني_H
 
-#include "config.h"
-#include <stdio.h>
+#ضمن "config.h"
+#ضمن <stdio.h>
 
-#if defined(WITH_WEBSOCKETS) && WITH_WEBSOCKETS == WS_IS_LWS
+#إذا defined(WITH_WEBSOCKETS) && WITH_WEBSOCKETS == WS_IS_LWS
 #  include <libwebsockets.h>
-#  if LWS_LIBRARY_VERSION_NUMBER >= 3002000 && !defined(LWS_WITH_EXTERNAL_POLL)
+#  إذا LWS_LIBRARY_نسخو_عدد >= 3002000 && !defined(LWS_WITH_EXTERNAL_POLL)
 #    warning "libwebsockets is not compiled with LWS_WITH_EXTERNAL_POLL support. Websocket performance will be unusable."
 #  endif
-#endif
+#جيڪڏهن_پورو
 
-#ifdef WITH_HTTP_API
+#جيڪڏهن_وصف_ٿيل WITH_HTTP_API
 #  include <microhttpd.h>
-#endif
+#جيڪڏهن_پورو
 
-#ifdef __linux__
-#define WITH_TCP_USER_TIMEOUT
-#endif
+#جيڪڏهن_وصف_ٿيل __linux__
+#وصف_ڪريو WITH_TCP_USER_TIMEOUT
+#جيڪڏهن_پورو
 
-#include "mosquitto_internal.h"
-#include "mosquitto/broker.h"
-#include "mosquitto/broker_plugin.h"
-#include "mosquitto.h"
-#include "logging_mosq.h"
-#include "tls_mosq.h"
-#include "uthash.h"
-#include "acl_file.h"
-#include "password_file.h"
+#ضمن "mosquitto_internal.h"
+#ضمن "mosquitto/broker.h"
+#ضمن "mosquitto/broker_plugin.h"
+#ضمن "mosquitto.h"
+#ضمن "logging_mosq.h"
+#ضمن "tls_mosq.h"
+#ضمن "uthash.h"
+#ضمن "acl_file.h"
+#ضمن "password_file.h"
 
-#ifndef __GNUC__
-#define __attribute__(attrib)
-#endif
+#جيڪڏهن_وصف_نه_ٿيل __GNUC__
+#وصف_ڪريو __attribute__(attrib)
+#جيڪڏهن_پورو
 
 /* Log destinations */
-#define MQTT3_LOG_NONE 0x00
-#define MQTT3_LOG_SYSLOG 0x01
-#define MQTT3_LOG_FILE 0x02
-#define MQTT3_LOG_STDOUT 0x04
-#define MQTT3_LOG_STDERR 0x08
-#define MQTT3_LOG_TOPIC 0x10
-#define MQTT3_LOG_DLT 0x20
-#ifdef ANDROID
-#define MQTT3_LOG_ANDROID 0x40
-#endif
-#define MQTT3_LOG_ALL 0xFF
+#وصف_ڪريو MQTT3_LOG_NONE 0x00
+#وصف_ڪريو MQTT3_LOG_SYSLOG 0x01
+#وصف_ڪريو MQTT3_LOG_FILE 0x02
+#وصف_ڪريو MQTT3_LOG_STDOUT 0x04
+#وصف_ڪريو MQTT3_LOG_STDERR 0x08
+#وصف_ڪريو MQTT3_LOG_TOPIC 0x10
+#وصف_ڪريو MQTT3_LOG_DLT 0x20
+#جيڪڏهن_وصف_ٿيل ANDROID
+#وصف_ڪريو MQTT3_LOG_ANDROID 0x40
+#جيڪڏهن_پورو
+#وصف_ڪريو MQTT3_LOG_ALL 0xFF
 
-#define CMD_PORT_LIMIT 10
+#وصف_ڪريو CMD_پورٽ_حد_بندي 10
 
-typedef uint64_t dbid_t;
+تعريفنوع uint64_t dbid_t;
 
-typedef int (*FUNC_plugin_init_v5)(mosquitto_plugin_id_t *, void **, struct mosquitto_opt *, int);
-typedef int (*FUNC_plugin_cleanup_v5)(void *, struct mosquitto_opt *, int);
+تعريفنوع صحيح (*FUNC_plugin_init_v5)(mosquitto_plugin_id_t *, فراغ **, بنية mosquitto_opt *, صحيح);
+تعريفنوع صحيح (*FUNC_plugin_cleanup_v5)(فراغ *, بنية mosquitto_opt *, صحيح);
 
-typedef int (*FUNC_auth_plugin_init_v4)(void **, struct mosquitto_opt *, int);
-typedef int (*FUNC_auth_plugin_cleanup_v4)(void *, struct mosquitto_opt *, int);
-typedef int (*FUNC_auth_plugin_security_init_v4)(void *, struct mosquitto_opt *, int, bool);
-typedef int (*FUNC_auth_plugin_security_cleanup_v4)(void *, struct mosquitto_opt *, int, bool);
-typedef int (*FUNC_auth_plugin_acl_check_v4)(void *, int, struct mosquitto *, struct mosquitto_acl_msg *);
-typedef int (*FUNC_auth_plugin_unpwd_check_v4)(void *, struct mosquitto *, const char *, const char *);
-typedef int (*FUNC_auth_plugin_psk_key_get_v4)(void *, struct mosquitto *, const char *, const char *, char *, int);
-typedef int (*FUNC_auth_plugin_auth_start_v4)(void *, struct mosquitto *, const char *, bool, const void *, uint16_t, void **, uint16_t *);
-typedef int (*FUNC_auth_plugin_auth_continue_v4)(void *, struct mosquitto *, const char *, const void *, uint16_t, void **, uint16_t *);
+تعريفنوع صحيح (*FUNC_auth_plugin_init_v4)(فراغ **, بنية mosquitto_opt *, صحيح);
+تعريفنوع صحيح (*FUNC_auth_plugin_cleanup_v4)(فراغ *, بنية mosquitto_opt *, صحيح);
+تعريفنوع صحيح (*FUNC_auth_plugin_security_init_v4)(فراغ *, بنية mosquitto_opt *, صحيح, bool);
+تعريفنوع صحيح (*FUNC_auth_plugin_security_cleanup_v4)(فراغ *, بنية mosquitto_opt *, صحيح, bool);
+تعريفنوع صحيح (*FUNC_auth_plugin_acl_check_v4)(فراغ *, صحيح, بنية mosquitto *, بنية mosquitto_acl_نياپو *);
+تعريفنوع صحيح (*FUNC_auth_plugin_unpwd_check_v4)(فراغ *, بنية mosquitto *, ثابت حرف *, ثابت حرف *);
+تعريفنوع صحيح (*FUNC_auth_plugin_psk_ڪنجي_get_v4)(فراغ *, بنية mosquitto *, ثابت حرف *, ثابت حرف *, حرف *, صحيح);
+تعريفنوع صحيح (*FUNC_auth_plugin_auth_شروعات_v4)(فراغ *, بنية mosquitto *, ثابت حرف *, bool, ثابت فراغ *, uint16_t, فراغ **, uint16_t *);
+تعريفنوع صحيح (*FUNC_auth_plugin_auth_continue_v4)(فراغ *, بنية mosquitto *, ثابت حرف *, ثابت فراغ *, uint16_t, فراغ **, uint16_t *);
 
-typedef int (*FUNC_auth_plugin_init_v3)(void **, struct mosquitto_opt *, int);
-typedef int (*FUNC_auth_plugin_cleanup_v3)(void *, struct mosquitto_opt *, int);
-typedef int (*FUNC_auth_plugin_security_init_v3)(void *, struct mosquitto_opt *, int, bool);
-typedef int (*FUNC_auth_plugin_security_cleanup_v3)(void *, struct mosquitto_opt *, int, bool);
-typedef int (*FUNC_auth_plugin_acl_check_v3)(void *, int, const struct mosquitto *, struct mosquitto_acl_msg *);
-typedef int (*FUNC_auth_plugin_unpwd_check_v3)(void *, const struct mosquitto *, const char *, const char *);
-typedef int (*FUNC_auth_plugin_psk_key_get_v3)(void *, const struct mosquitto *, const char *, const char *, char *, int);
+تعريفنوع صحيح (*FUNC_auth_plugin_init_v3)(فراغ **, بنية mosquitto_opt *, صحيح);
+تعريفنوع صحيح (*FUNC_auth_plugin_cleanup_v3)(فراغ *, بنية mosquitto_opt *, صحيح);
+تعريفنوع صحيح (*FUNC_auth_plugin_security_init_v3)(فراغ *, بنية mosquitto_opt *, صحيح, bool);
+تعريفنوع صحيح (*FUNC_auth_plugin_security_cleanup_v3)(فراغ *, بنية mosquitto_opt *, صحيح, bool);
+تعريفنوع صحيح (*FUNC_auth_plugin_acl_check_v3)(فراغ *, صحيح, ثابت بنية mosquitto *, بنية mosquitto_acl_نياپو *);
+تعريفنوع صحيح (*FUNC_auth_plugin_unpwd_check_v3)(فراغ *, ثابت بنية mosquitto *, ثابت حرف *, ثابت حرف *);
+تعريفنوع صحيح (*FUNC_auth_plugin_psk_ڪنجي_get_v3)(فراغ *, ثابت بنية mosquitto *, ثابت حرف *, ثابت حرف *, حرف *, صحيح);
 
-typedef int (*FUNC_auth_plugin_init_v2)(void **, struct mosquitto_auth_opt *, int);
-typedef int (*FUNC_auth_plugin_cleanup_v2)(void *, struct mosquitto_auth_opt *, int);
-typedef int (*FUNC_auth_plugin_security_init_v2)(void *, struct mosquitto_auth_opt *, int, bool);
-typedef int (*FUNC_auth_plugin_security_cleanup_v2)(void *, struct mosquitto_auth_opt *, int, bool);
-typedef int (*FUNC_auth_plugin_acl_check_v2)(void *, const char *, const char *, const char *, int);
-typedef int (*FUNC_auth_plugin_unpwd_check_v2)(void *, const char *, const char *);
-typedef int (*FUNC_auth_plugin_psk_key_get_v2)(void *, const char *, const char *, char *, int);
+تعريفنوع صحيح (*FUNC_auth_plugin_init_v2)(فراغ **, بنية mosquitto_auth_opt *, صحيح);
+تعريفنوع صحيح (*FUNC_auth_plugin_cleanup_v2)(فراغ *, بنية mosquitto_auth_opt *, صحيح);
+تعريفنوع صحيح (*FUNC_auth_plugin_security_init_v2)(فراغ *, بنية mosquitto_auth_opt *, صحيح, bool);
+تعريفنوع صحيح (*FUNC_auth_plugin_security_cleanup_v2)(فراغ *, بنية mosquitto_auth_opt *, صحيح, bool);
+تعريفنوع صحيح (*FUNC_auth_plugin_acl_check_v2)(فراغ *, ثابت حرف *, ثابت حرف *, ثابت حرف *, صحيح);
+تعريفنوع صحيح (*FUNC_auth_plugin_unpwd_check_v2)(فراغ *, ثابت حرف *, ثابت حرف *);
+تعريفنوع صحيح (*FUNC_auth_plugin_psk_ڪنجي_get_v2)(فراغ *, ثابت حرف *, ثابت حرف *, حرف *, صحيح);
 
 
-enum mosquitto_msg_origin {
+تعداد mosquitto_نياپو_origin {
 	mosq_mo_client = 0,
 	mosq_mo_broker = 1,
 };
 
-struct mosquitto__plugin_lib {
-	void *lib;
-	void *user_data;
-	int (*plugin_version)(void);
-	struct mosquitto_plugin_id_t *identifier;
+بنية mosquitto__plugin_lib {
+	فراغ *lib;
+	فراغ *user_معلومات;
+	صحيح (*plugin_نسخو)(فراغ);
+	بنية mosquitto_plugin_id_t *identifier;
 
 	FUNC_plugin_init_v5 plugin_init_v5;
 	FUNC_plugin_cleanup_v5 plugin_cleanup_v5;
@@ -119,8 +119,8 @@ struct mosquitto__plugin_lib {
 	FUNC_auth_plugin_security_cleanup_v4 security_cleanup_v4;
 	FUNC_auth_plugin_acl_check_v4 acl_check_v4;
 	FUNC_auth_plugin_unpwd_check_v4 unpwd_check_v4;
-	FUNC_auth_plugin_psk_key_get_v4 psk_key_get_v4;
-	FUNC_auth_plugin_auth_start_v4 auth_start_v4;
+	FUNC_auth_plugin_psk_ڪنجي_get_v4 psk_ڪنجي_get_v4;
+	FUNC_auth_plugin_auth_شروعات_v4 auth_شروعات_v4;
 	FUNC_auth_plugin_auth_continue_v4 auth_continue_v4;
 
 	FUNC_auth_plugin_init_v3 plugin_init_v3;
@@ -129,7 +129,7 @@ struct mosquitto__plugin_lib {
 	FUNC_auth_plugin_security_cleanup_v3 security_cleanup_v3;
 	FUNC_auth_plugin_acl_check_v3 acl_check_v3;
 	FUNC_auth_plugin_unpwd_check_v3 unpwd_check_v3;
-	FUNC_auth_plugin_psk_key_get_v3 psk_key_get_v3;
+	FUNC_auth_plugin_psk_ڪنجي_get_v3 psk_ڪنجي_get_v3;
 
 	FUNC_auth_plugin_init_v2 plugin_init_v2;
 	FUNC_auth_plugin_cleanup_v2 plugin_cleanup_v2;
@@ -137,217 +137,217 @@ struct mosquitto__plugin_lib {
 	FUNC_auth_plugin_security_cleanup_v2 security_cleanup_v2;
 	FUNC_auth_plugin_acl_check_v2 acl_check_v2;
 	FUNC_auth_plugin_unpwd_check_v2 unpwd_check_v2;
-	FUNC_auth_plugin_psk_key_get_v2 psk_key_get_v2;
-	int version;
+	FUNC_auth_plugin_psk_ڪنجي_get_v2 psk_ڪنجي_get_v2;
+	صحيح نسخو_2;
 };
 
-struct mosquitto__plugin_config {
-	char *path;
-	char *name;
-	struct mosquitto_opt *options;
-	struct mosquitto__security_options **security_options;
-	int option_count;
-	int security_option_count;
+بنية mosquitto__plugin_config {
+	حرف *رستو;
+	حرف *name;
+	بنية mosquitto_opt *options;
+	بنية mosquitto__security_options **security_options;
+	صحيح option_ڳڻپ;
+	صحيح security_option_ڳڻپ;
 	bool deny_special_chars;
 };
 
-struct mosquitto__callback {
+بنية mosquitto__callback {
 	UT_hash_handle hh; /* For callbacks that register for e.g. a specific topic */
-	struct mosquitto__callback *next, *prev; /* For typical callbacks */
+	بنية mosquitto__callback *ايندڙ, *prev; /* For typical callbacks */
 	MOSQ_FUNC_generic_callback cb;
-	void *userdata;
-	union {
-		char *topic;
-		struct timespec next_tick;
-	} data;
+	فراغ *userdata;
+	اتحاد {
+		حرف *topic;
+		بنية timespec ايندڙ_tick;
+	} معلومات;
 	mosquitto_plugin_id_t *identifier;
 };
 
-struct plugin__callbacks {
-	struct mosquitto__callback *tick;
-	struct mosquitto__callback *acl_check;
-	struct mosquitto__callback *basic_auth;
-	struct mosquitto__callback *connect;
-	struct mosquitto__callback *control;
-	struct mosquitto__callback *disconnect;
-	struct mosquitto__callback *client_offline;
-	struct mosquitto__callback *ext_auth_continue;
-	struct mosquitto__callback *ext_auth_start;
-	struct mosquitto__callback *message_in;
-	struct mosquitto__callback *message_out;
-	struct mosquitto__callback *psk_key;
-	struct mosquitto__callback *reload;
-	struct mosquitto__callback *subscribe;
-	struct mosquitto__callback *unsubscribe;
-	struct mosquitto__callback *persist_restore;
-	struct mosquitto__callback *persist_client_add;
-	struct mosquitto__callback *persist_client_delete;
-	struct mosquitto__callback *persist_client_update;
-	struct mosquitto__callback *persist_subscription_add;
-	struct mosquitto__callback *persist_subscription_delete;
-	struct mosquitto__callback *persist_client_msg_add;
-	struct mosquitto__callback *persist_client_msg_delete;
-	struct mosquitto__callback *persist_client_msg_update;
-	struct mosquitto__callback *persist_base_msg_add;
-	struct mosquitto__callback *persist_base_msg_delete;
-	struct mosquitto__callback *persist_retain_msg_set;
-	struct mosquitto__callback *persist_retain_msg_delete;
-	struct mosquitto__callback *persist_will_add;
-	struct mosquitto__callback *persist_will_delete;
+بنية plugin__callbacks {
+	بنية mosquitto__callback *tick;
+	بنية mosquitto__callback *acl_check;
+	بنية mosquitto__callback *basic_auth;
+	بنية mosquitto__callback *connect;
+	بنية mosquitto__callback *control;
+	بنية mosquitto__callback *disconnect;
+	بنية mosquitto__callback *client_offline;
+	بنية mosquitto__callback *ext_auth_continue;
+	بنية mosquitto__callback *ext_auth_شروعات;
+	بنية mosquitto__callback *پيغام_اندريون;
+	بنية mosquitto__callback *پيغام_ٻاهريون;
+	بنية mosquitto__callback *psk_ڪنجي;
+	بنية mosquitto__callback *reload;
+	بنية mosquitto__callback *subscribe;
+	بنية mosquitto__callback *unsubscribe;
+	بنية mosquitto__callback *persist_restore;
+	بنية mosquitto__callback *persist_client_جوڙيو;
+	بنية mosquitto__callback *persist_client_delete;
+	بنية mosquitto__callback *persist_client_update;
+	بنية mosquitto__callback *persist_subscription_جوڙيو;
+	بنية mosquitto__callback *persist_subscription_delete;
+	بنية mosquitto__callback *persist_client_نياپو_جوڙيو;
+	بنية mosquitto__callback *persist_client_نياپو_delete;
+	بنية mosquitto__callback *persist_client_نياپو_update;
+	بنية mosquitto__callback *persist_بنياد_نياپو_جوڙيو;
+	بنية mosquitto__callback *persist_بنياد_نياپو_delete;
+	بنية mosquitto__callback *persist_retain_نياپو_سيٽ;
+	بنية mosquitto__callback *persist_retain_نياپو_delete;
+	بنية mosquitto__callback *persist_will_جوڙيو;
+	بنية mosquitto__callback *persist_will_delete;
 };
 
 /* This is owned by mosquitto__config or mosquitto__listener, and only referred
  * to by other structs */
-struct mosquitto__security_options {
+بنية mosquitto__security_options {
 	/* Any options that get added here also need considering
 	 * in config__read() with regards whether allow_anonymous
 	 * should be disabled when these options are set.
 	 */
-	struct mosquitto__unpwd *unpwd;
-	struct mosquitto__psk *psk_id;
-	struct acl_file_data acl_data;
-	struct password_file_data password_data;
-	char *psk_file;
+	بنية mosquitto__unpwd *unpwd;
+	بنية mosquitto__psk *psk_id;
+	بنية acl_file_معلومات acl_معلومات;
+	بنية password_file_معلومات password_معلومات;
+	حرف *psk_file;
 	mosquitto_plugin_id_t **plugins;
-	int plugin_count;
+	صحيح plugin_ڳڻپ;
 	int8_t allow_anonymous;
-	bool allow_zero_length_clientid;
-	char *auto_id_prefix;
-	uint16_t auto_id_prefix_len;
-	struct plugin__callbacks plugin_callbacks;
+	bool allow_zero_ڊيگهائي_clientid;
+	حرف *auto_id_اڳياڙي;
+	uint16_t auto_id_اڳياڙي_len;
+	بنية plugin__callbacks plugin_callbacks;
 	mosquitto_plugin_id_t *pid; /* For registering as a "plugin" */
 };
 
-#if defined(WITH_EPOLL) || defined(WITH_KQUEUE)
-enum struct_ident {
+#إذا defined(WITH_EPOLL) || defined(WITH_KQUEUE)
+تعداد struct_ident {
 	id_invalid = 0,
 	id_listener = 1,
 	id_client = 2,
 	id_listener_ws = 3,
 };
-#endif
+#جيڪڏهن_پورو
 
-struct mosquitto__listener {
-	uint16_t port;
-	char *host;
-	char *bind_interface;
-	int max_connections;
-	char *mount_point;
+بنية mosquitto__listener {
+	uint16_t پورٽ;
+	حرف *host;
+	حرف *bind_interface;
+	صحيح max_connections;
+	حرف *mount_نقطو;
 	mosq_sock_t *socks;
-	int sock_count;
-	int client_count;
-	enum mosquitto_protocol protocol;
-	int socket_domain;
+	صحيح sock_ڳڻپ;
+	صحيح client_ڳڻپ;
+	تعداد mosquitto_protocol protocol;
+	صحيح socket_domain;
 	bool use_username_as_clientid;
 	uint8_t max_qos;
 	uint16_t max_topic_alias;
 	uint16_t max_topic_alias_broker;
-#ifdef WITH_TLS
-	char *cafile;
-	char *capath;
-	char *certfile;
-	char *keyfile;
-	char *tls_engine;
-	char *tls_engine_kpass_sha1;
-	char *ciphers;
-	char *ciphers_tls13;
-	char *psk_hint;
+#جيڪڏهن_وصف_ٿيل WITH_TLS
+	حرف *cafile;
+	حرف *capath;
+	حرف *certfile;
+	حرف *keyfile;
+	حرف *tls_engine;
+	حرف *tls_engine_kpass_sha1;
+	حرف *ciphers;
+	حرف *ciphers_tls13;
+	حرف *psk_hint;
 	SSL_CTX *ssl_ctx;
-	char *crlfile;
-	char *tls_version;
-	bool use_identity_as_username;
+	حرف *crlfile;
+	حرف *tls_نسخو;
+	bool use_سڃاڻپ_عنصر_as_username;
 	bool use_subject_as_username;
 	bool require_certificate;
 	bool disable_client_cert_date_checks;
-	enum mosquitto__keyform tls_keyform;
-#endif
-#ifdef WITH_WEBSOCKETS
-#  if WITH_WEBSOCKETS == WS_IS_LWS
-	struct lws_context *ws_context;
-	bool ws_in_init;
-	struct lws_protocols *ws_protocol;
+	تعداد mosquitto__keyform tls_keyform;
+#جيڪڏهن_پورو
+#جيڪڏهن_وصف_ٿيل WITH_WEBSOCKETS
+#  إذا WITH_WEBSOCKETS == WS_IS_LWS
+	بنية lws_context *ws_context;
+	bool ws_اندريون_init;
+	بنية lws_protocols *ws_protocol;
 #  endif
-	char **ws_origins;
-	int ws_origin_count;
-#endif
-#if defined(WITH_WEBSOCKETS) || defined(WITH_HTTP_API)
-	char *http_dir;
-#endif
-	struct mosquitto__security_options *security_options;
-#ifdef WITH_UNIX_SOCKETS
-	char *unix_socket_path;
-#endif
+	حرف **ws_origins;
+	صحيح ws_origin_ڳڻپ;
+#جيڪڏهن_پورو
+#إذا defined(WITH_WEBSOCKETS) || defined(WITH_HTTP_API)
+	حرف *http_dir;
+#جيڪڏهن_پورو
+	بنية mosquitto__security_options *security_options;
+#جيڪڏهن_وصف_ٿيل WITH_UNIX_SOCKETS
+	حرف *unix_socket_رستو;
+#جيڪڏهن_پورو
 	bool disable_protocol_v3;
 	bool disable_protocol_v4;
 	bool disable_protocol_v5;
-	int enable_proxy_protocol;
+	صحيح enable_proxy_protocol;
 	bool proxy_protocol_v2_require_tls;
-#ifdef WITH_HTTP_API
-	struct MHD_Daemon *mhd;
-#endif
+#جيڪڏهن_وصف_ٿيل WITH_HTTP_API
+	بنية MHD_Daemon *mhd;
+#جيڪڏهن_پورو
 };
 
 
-struct mosquitto__listener_sock {
-#if defined(WITH_EPOLL) || defined(WITH_KQUEUE)
+بنية mosquitto__listener_sock {
+#إذا defined(WITH_EPOLL) || defined(WITH_KQUEUE)
 	/* This *must* be the first element in the struct. */
-	int ident;
-#endif
+	صحيح ident;
+#جيڪڏهن_پورو
 	mosq_sock_t sock;
-	struct mosquitto__listener *listener;
+	بنية mosquitto__listener *listener;
 };
 
 
 /* Callbacks belonging to a specific plugin
  * Doesn't include MOSQ_EVT_CONTROL events.
  */
-struct plugin_own_callback {
-	struct plugin_own_callback *next, *prev;
+بنية plugin_own_callback {
+	بنية plugin_own_callback *ايندڙ, *prev;
 	MOSQ_FUNC_generic_callback cb_func;
-	enum mosquitto_plugin_event event;
+	تعداد mosquitto_plugin_event event;
 };
 
-struct mosquitto_plugin_id_t {
-	struct mosquitto__plugin_config config;
-	struct mosquitto__plugin_lib lib;
-	struct mosquitto__listener *listener;
-	char *plugin_name;
-	char *plugin_version;
-	struct control_endpoint *control_endpoints;
-	struct plugin_own_callback *own_callbacks;
-	struct timespec next_tick;
+بنية mosquitto_plugin_id_t {
+	بنية mosquitto__plugin_config config;
+	بنية mosquitto__plugin_lib lib;
+	بنية mosquitto__listener *listener;
+	حرف *plugin_name;
+	حرف *plugin_نسخو;
+	بنية control_endpoint *control_endpoints;
+	بنية plugin_own_callback *own_callbacks;
+	بنية timespec ايندڙ_tick;
 };
 
-struct mosquitto__config {
+بنية mosquitto__config {
 	bool allow_duplicate_messages;
-	int autosave_interval;
+	صحيح autosave_interval;
 	bool autosave_on_changes;
-	bool check_retain_source;
-	char *clientid_prefixes;
+	bool check_retain_ذريعو;
+	حرف *clientid_prefixes;
 	bool connection_messages;
-	uint16_t cmd_port[CMD_PORT_LIMIT];
-	int cmd_port_count;
+	uint16_t cmd_پورٽ[CMD_پورٽ_حد_بندي];
+	صحيح cmd_پورٽ_ڳڻپ;
 	bool daemon;
 	bool test_configuration;
 	bool enable_control_api;
-	int global_max_clients;
-	int global_max_connections;
-	struct mosquitto__listener *default_listener; /* Points to one of `listeners` */
-	struct mosquitto__listener *listeners;
-	int listener_count;
+	صحيح global_max_clients;
+	صحيح global_max_connections;
+	بنية mosquitto__listener *default_listener; /* Points to one of `listeners` */
+	بنية mosquitto__listener *listeners;
+	صحيح listener_ڳڻپ;
 	bool local_only;
-	unsigned int log_dest;
-	int log_facility;
-	unsigned int log_type;
+	بنانشان صحيح log_dest;
+	صحيح log_facility;
+	بنانشان صحيح log_type;
 	bool log_timestamp;
-	char *log_timestamp_format;
-	char *log_file;
+	حرف *log_timestamp_format;
+	حرف *log_file;
 	FILE *log_fptr;
-	size_t max_inflight_bytes;
-	size_t max_queued_bytes;
-	int max_queued_messages;
-	uint32_t max_packet_size;
-	uint32_t message_size_limit;
+	size_t max_inflight_بائيٽون;
+	size_t max_queued_بائيٽون;
+	صحيح max_queued_messages;
+	uint32_t max_packet_سائيز;
+	uint32_t پيغام_سائيز_حد_بندي;
 	uint16_t max_inflight_messages;
 	uint16_t max_keepalive;
 	uint8_t max_qos;
@@ -356,660 +356,660 @@ struct mosquitto__config {
 	uint32_t packet_max_sub;
 	uint32_t packet_max_auth;
 	bool persistence;
-	char *persistence_location;
-	char *persistence_file;
-	char *persistence_filepath;
+	حرف *persistence_location;
+	حرف *persistence_file;
+	حرف *persistence_filepath;
 	time_t persistent_client_expiration;
-	char *pid_file;
-	bool queue_qos0_messages;
-	bool per_listener_settings;
-	bool retain_available;
-	int retain_expiry_interval;
-	bool set_tcp_nodelay;
-	int sys_interval;
+	حرف *pid_file;
+	bool قطار_qos0_messages;
+	bool في_listener_settings;
+	bool retain_موجود;
+	صحيح retain_expiry_interval;
+	bool سيٽ_tcp_nodelay;
+	صحيح sys_interval;
 	bool upgrade_outgoing_qos;
-	char *user;
-#if defined(WITH_WEBSOCKETS) && WITH_WEBSOCKETS == WS_IS_LWS
-	int websockets_log_level;
-#endif
-	uint16_t packet_buffer_size;
-#ifdef WITH_BRIDGE
-	struct mosquitto__bridge **bridges;
-	int bridge_count;
-#endif
-	struct mosquitto__security_options security_options;
+	حرف *user;
+#إذا defined(WITH_WEBSOCKETS) && WITH_WEBSOCKETS == WS_IS_LWS
+	صحيح websockets_log_level;
+#جيڪڏهن_پورو
+	uint16_t packet_بفر_سائيز;
+#جيڪڏهن_وصف_ٿيل WITH_BRIDGE
+	بنية mosquitto__bridge **bridges;
+	صحيح bridge_ڳڻپ;
+#جيڪڏهن_پورو
+	بنية mosquitto__security_options security_options;
 };
 
 
-struct mosquitto__subshared {
+بنية mosquitto__subshared {
 	UT_hash_handle hh;
-	struct mosquitto__subleaf *subs;
-	char name[];
+	بنية mosquitto__subleaf *subs;
+	حرف name[];
 };
 
-struct mosquitto__subhier {
+بنية mosquitto__subhier {
 	UT_hash_handle hh;
-	struct mosquitto__subhier *parent;
-	struct mosquitto__subhier *children;
-	struct mosquitto__subleaf *subs;
-	struct mosquitto__subshared *shared;
+	بنية mosquitto__subhier *والد;
+	بنية mosquitto__subhier *children;
+	بنية mosquitto__subleaf *subs;
+	بنية mosquitto__subshared *shared;
 	uint16_t topic_len;
-	char topic[];
+	حرف topic[];
 };
 
-struct mosquitto__subleaf {
-	struct mosquitto__subleaf *prev;
-	struct mosquitto__subleaf *next;
-	struct mosquitto *context;
-	struct mosquitto__subhier *hier;
-	struct mosquitto__subshared *shared;
+بنية mosquitto__subleaf {
+	بنية mosquitto__subleaf *prev;
+	بنية mosquitto__subleaf *ايندڙ;
+	بنية mosquitto *context;
+	بنية mosquitto__subhier *hier;
+	بنية mosquitto__subshared *shared;
 	uint32_t identifier;
 	uint8_t subscription_options;
-	char topic_filter[];
+	حرف topic_filter[];
 };
 
-struct sub__token {
-	struct sub__token *next;
+بنية sub__token {
+	بنية sub__token *ايندڙ;
 	uint16_t topic_len;
-	char topic[];
+	حرف topic[];
 };
 
-struct mosquitto__retainhier {
+بنية mosquitto__retainhier {
 	UT_hash_handle hh;
-	struct mosquitto__retainhier *parent;
-	struct mosquitto__retainhier *children;
-	struct mosquitto__base_msg *retained;
+	بنية mosquitto__retainhier *والد;
+	بنية mosquitto__retainhier *children;
+	بنية mosquitto_بنياد_نياپو *retained;
 	uint16_t topic_len;
-	char topic[];
+	حرف topic[];
 };
 
-struct mosquitto__base_msg {
+بنية mosquitto_بنياد_نياپو {
 	UT_hash_handle hh;
-	struct mosquitto_base_msg data;
-	struct mosquitto__listener *source_listener;
-	char **dest_ids;
-	int dest_id_count;
-	int ref_count;
-	enum mosquitto_msg_origin origin;
+	بنية mosquitto_بنياد_نياپو_2 معلومات;
+	بنية mosquitto__listener *ذريعو_listener;
+	حرف **dest_ids;
+	صحيح dest_id_ڳڻپ;
+	صحيح ref_ڳڻپ;
+	تعداد mosquitto_نياپو_origin origin;
 	bool stored;
 };
 
-struct mosquitto__client_msg {
-	struct mosquitto_client_msg data;
-	struct mosquitto__client_msg *prev;
-	struct mosquitto__client_msg *next;
-	struct mosquitto__base_msg *base_msg;
+بنية mosquitto_client_نياپو {
+	بنية mosquitto_client_نياپو_2 معلومات;
+	بنية mosquitto_client_نياپو *prev;
+	بنية mosquitto_client_نياپو *ايندڙ;
+	بنية mosquitto_بنياد_نياپو *بنياد_نياپو;
 };
 
 
-struct mosquitto__psk {
+بنية mosquitto__psk {
 	UT_hash_handle hh;
-	char *username;
-	char *password;
+	حرف *username;
+	حرف *password;
 };
 
-struct mosquitto__message_v5 {
-	struct mosquitto__message_v5 *next, *prev;
-	char *topic;
-	void *payload;
+بنية mosquitto_پيغام_v5 {
+	بنية mosquitto_پيغام_v5 *ايندڙ, *prev;
+	حرف *topic;
+	فراغ *payload;
 	mosquitto_property *properties;
 	/* clientid is used only by mosquitto_broker_publish*() to indicate
 	   this message is for a specific client. */
-	char *clientid;
-	int payloadlen;
-	int qos;
+	حرف *clientid;
+	صحيح payloadlen;
+	صحيح qos;
 	bool retain;
 };
 
-struct mosquitto_db {
-	dbid_t last_db_id;
-	uint64_t node_id_shifted;
-	struct mosquitto__subhier *normal_subs;
-	struct mosquitto__subhier *shared_subs;
-	struct mosquitto__retainhier *retains;
-	struct mosquitto *contexts_by_id;
-	struct mosquitto *contexts_by_sock;
-	struct mosquitto *contexts_by_id_delayed_auth;
-	struct mosquitto *contexts_for_free;
+بنية mosquitto_db {
+	dbid_t آخري_db_id;
+	uint64_t ڳنڍ_id_shifted;
+	بنية mosquitto__subhier *عام_subs;
+	بنية mosquitto__subhier *shared_subs;
+	بنية mosquitto__retainhier *retains;
+	بنية mosquitto *contexts_by_id;
+	بنية mosquitto *contexts_by_sock;
+	بنية mosquitto *contexts_by_id_delayed_auth;
+	بنية mosquitto *contexts_for_free;
 	mosquitto_plugin_id_t **plugins;
-	int plugin_count;
-#ifdef WITH_BRIDGE
-	struct mosquitto **bridges;
-	int bridge_count;
-#endif
-	struct clientid__index_hash *clientid_index_hash;
-	struct mosquitto__base_msg *msg_store;
+	صحيح plugin_ڳڻپ;
+#جيڪڏهن_وصف_ٿيل WITH_BRIDGE
+	بنية mosquitto **bridges;
+	صحيح bridge_ڳڻپ;
+#جيڪڏهن_پورو
+	بنية clientid_اشاريو_hash_2 *clientid_اشاريو_hash;
+	بنية mosquitto_بنياد_نياپو *نياپو_store;
 	time_t now_s; /* Monotonic clock, where possible */
 	time_t now_real_s; /* Read clock, for measuring session/message expiry */
-	uint64_t node_id; /* for unique db ids */
-	time_t next_event_ms; /* for mux timeout */
-	int msg_store_count;
-	unsigned long msg_store_bytes;
-	char *config_file;
-	struct mosquitto__config *config;
+	uint64_t ڳنڍ_id; /* for unique db ids */
+	time_t ايندڙ_event_ms; /* for mux timeout */
+	صحيح نياپو_store_ڳڻپ;
+	بنانشان ڊگهو نياپو_store_بائيٽون;
+	حرف *config_file;
+	بنية mosquitto__config *config;
 	bool quiet;
 	bool verbose;
-#ifdef WITH_SYS_TREE
-	int subscription_count;
-	int shared_subscription_count;
-	int retained_count;
-#endif
-	int persistence_changes;
-	struct mosquitto *ll_for_free;
-#ifdef WITH_EPOLL
-	int epollfd;
-#endif
-#ifdef WITH_KQUEUE
-	int kqueuefd;
-#endif
-	struct mosquitto__message_v5 *plugin_msgs;
-#ifdef WITH_TLS
+#جيڪڏهن_وصف_ٿيل WITH_SYS_وڻ
+	صحيح subscription_ڳڻپ;
+	صحيح shared_subscription_ڳڻپ;
+	صحيح retained_ڳڻپ;
+#جيڪڏهن_پورو
+	صحيح persistence_changes;
+	بنية mosquitto *ll_for_free;
+#جيڪڏهن_وصف_ٿيل WITH_EPOLL
+	صحيح epollfd;
+#جيڪڏهن_پورو
+#جيڪڏهن_وصف_ٿيل WITH_KQUEUE
+	صحيح kqueuefd;
+#جيڪڏهن_پورو
+	بنية mosquitto_پيغام_v5 *plugin_msgs;
+#جيڪڏهن_وصف_ٿيل WITH_TLS
 	/* tls_keylog can't be in the config struct because it is used
 	   before the config is allocated. Config probably
 	   shouldn't be separately allocated. */
-	char *tls_keylog;
-#endif
+	حرف *tls_keylog;
+#جيڪڏهن_پورو
 	bool shutdown;
 };
 
-enum mosquitto__bridge_direction {
-	bd_out = 0,
-	bd_in = 1,
+تعداد mosquitto__bridge_direction {
+	bd_ٻاهريون = 0,
+	bd_اندريون = 1,
 	bd_both = 2,
 };
 
-enum mosquitto_bridge_start_type {
+تعداد mosquitto_bridge_شروعات_type {
 	bst_automatic = 0,
 	bst_lazy = 1,
 	bst_manual = 2,
 	bst_once = 3,
 };
 
-enum mosquitto_bridge_reload_type {
+تعداد mosquitto_bridge_reload_type {
 	brt_lazy = 0,
-	brt_immediate = 1,
+	brt_فوري = 1,
 };
 
-struct mosquitto__bridge_topic {
-	struct mosquitto__bridge_topic *next;
-	char *topic;
-	char *local_prefix;
-	char *remote_prefix;
-	char *local_topic; /* topic prefixed with local_prefix */
-	char *remote_topic; /* topic prefixed with remote_prefix */
-	enum mosquitto__bridge_direction direction;
+بنية mosquitto__bridge_topic {
+	بنية mosquitto__bridge_topic *ايندڙ;
+	حرف *topic;
+	حرف *local_اڳياڙي;
+	حرف *remote_اڳياڙي;
+	حرف *local_topic; /* topic prefixed with local_prefix */
+	حرف *remote_topic; /* topic prefixed with remote_prefix */
+	تعداد mosquitto__bridge_direction direction;
 	uint8_t qos;
 };
 
-struct bridge_address {
-	char *address;
-	uint16_t port;
+بنية bridge_پتو {
+	حرف *پتو;
+	uint16_t پورٽ;
 };
 
-struct mosquitto__bridge {
-	char *name;
-	struct bridge_address *addresses;
-	int cur_address;
-	int address_count;
+بنية mosquitto__bridge {
+	حرف *name;
+	بنية bridge_پتو *پتا;
+	صحيح cur_پتو;
+	صحيح پتو_ڳڻپ;
 	time_t primary_retry;
 	mosq_sock_t primary_retry_sock;
-	bool round_robin;
-	bool try_private;
-	bool try_private_accepted;
-	bool clean_start;
-	int8_t clean_start_local;
+	bool ڦيرو_robin;
+	bool try_ذاتي;
+	bool try_ذاتي_accepted;
+	bool clean_شروعات;
+	int8_t clean_شروعات_local;
 	uint16_t keepalive;
-	unsigned int tcp_keepalive_idle;
-	unsigned int tcp_keepalive_interval;
-	unsigned int tcp_keepalive_counter;
-#ifdef WITH_TCP_USER_TIMEOUT
-	int tcp_user_timeout;
-#endif
-	struct mosquitto__bridge_topic *topics;
-	int topic_count;
+	بنانشان صحيح tcp_keepalive_idle;
+	بنانشان صحيح tcp_keepalive_interval;
+	بنانشان صحيح tcp_keepalive_counter;
+#جيڪڏهن_وصف_ٿيل WITH_TCP_USER_TIMEOUT
+	صحيح tcp_user_timeout;
+#جيڪڏهن_پورو
+	بنية mosquitto__bridge_topic *topics;
+	صحيح topic_ڳڻپ;
 	bool topic_remapping;
-	enum mosquitto__protocol protocol_version;
+	تعداد mosquitto__protocol protocol_نسخو;
 	time_t restart_t;
 	time_t connected_at;
-	char *remote_clientid;
-	char *remote_username;
-	char *remote_password;
-	char *local_clientid;
-	char *local_username;
-	char *local_password;
-	char *notification_topic;
-	char *bind_address;
+	حرف *remote_clientid;
+	حرف *remote_username;
+	حرف *remote_password;
+	حرف *local_clientid;
+	حرف *local_username;
+	حرف *local_password;
+	حرف *notification_topic;
+	حرف *bind_پتو;
 	bool notifications;
 	bool notifications_local_only;
-	enum mosquitto_bridge_start_type start_type;
-	int idle_timeout;
-	int restart_timeout;
-	int backoff_base;
-	int backoff_cap;
-	int stable_connection_period;
-	int threshold;
-	uint32_t maximum_packet_size;
+	تعداد mosquitto_bridge_شروعات_type شروعات_type;
+	صحيح idle_timeout;
+	صحيح restart_timeout;
+	صحيح backoff_بنياد;
+	صحيح backoff_cap;
+	صحيح stable_connection_period;
+	صحيح حد;
+	uint32_t وڌ_کان_وڌ_packet_سائيز;
 	uint32_t session_expiry_interval;
-	uint16_t receive_maximum;
+	uint16_t receive_وڌ_کان_وڌ;
 	bool lazy_reconnect;
 	bool attempt_unsubscribe;
-	bool initial_notification_done;
+	bool initial_notification_پورو;
 	bool outgoing_retain;
-	enum mosquitto_bridge_reload_type reload_type;
+	تعداد mosquitto_bridge_reload_type reload_type;
 	uint16_t max_topic_alias;
-#ifdef WITH_TLS
+#جيڪڏهن_وصف_ٿيل WITH_TLS
 	bool tls_insecure;
 	bool tls_ocsp_required;
 	bool tls_use_os_certs;
-	char *tls_cafile;
-	char *tls_capath;
-	char *tls_certfile;
-	char *tls_keyfile;
-	char *tls_version;
-	char *tls_alpn;
-	char *tls_ciphers;
-	char *tls_13_ciphers;
+	حرف *tls_cafile;
+	حرف *tls_capath;
+	حرف *tls_certfile;
+	حرف *tls_keyfile;
+	حرف *tls_نسخو;
+	حرف *tls_alpn;
+	حرف *tls_ciphers;
+	حرف *tls_13_ciphers;
 #  ifdef FINAL_WITH_TLS_PSK
-	char *tls_psk_identity;
-	char *tls_psk;
+	حرف *tls_psk_سڃاڻپ_عنصر;
+	حرف *tls_psk;
 #  endif
-#endif
+#جيڪڏهن_پورو
 };
 
-#if defined(WITH_WEBSOCKETS) && WITH_WEBSOCKETS == WS_IS_LWS
-struct libws_mqtt_hack {
-	char *http_dir;
-	struct mosquitto__listener *listener;
+#إذا defined(WITH_WEBSOCKETS) && WITH_WEBSOCKETS == WS_IS_LWS
+بنية libws_mqtt_hack {
+	حرف *http_dir;
+	بنية mosquitto__listener *listener;
 };
 
-struct libws_mqtt_data {
-	struct mosquitto *mosq;
+بنية libws_mqtt_معلومات {
+	بنية mosquitto *mosq;
 };
-#endif
+#جيڪڏهن_پورو
 
-#include <net_mosq.h>
+#ضمن <net_mosq.h>
 
 
-struct control_endpoint {
-	struct control_endpoint *next, *prev;
-	char topic[];
+بنية control_endpoint {
+	بنية control_endpoint *ايندڙ, *prev;
+	حرف topic[];
 };
 
-extern struct mosquitto_db db;
+خارجي بنية mosquitto_db db;
 
 /* ============================================================
  * Main functions
  * ============================================================ */
-int mosquitto_main_loop(struct mosquitto__listener_sock *listensock, int listensock_count);
-void loop__update_next_event(time_t new_ms);
+صحيح mosquitto_main_loop(بنية mosquitto__listener_sock *listensock, صحيح listensock_ڳڻپ);
+فراغ loop_update_ايندڙ_event(time_t new_ms);
 
 /* ============================================================
  * Config functions
  * ============================================================ */
 /* Initialise config struct to default values. */
-void config__init(struct mosquitto__config *config);
-#ifdef WITH_BRIDGE
-void config__bridge_cleanup(struct mosquitto__bridge *bridge);
-#endif
+فراغ config__init(بنية mosquitto__config *config);
+#جيڪڏهن_وصف_ٿيل WITH_BRIDGE
+فراغ config__bridge_cleanup(بنية mosquitto__bridge *bridge);
+#جيڪڏهن_پورو
 /* Parse command line options into config. */
-int config__parse_args(struct mosquitto__config *config, int argc, char *argv[]);
+صحيح config_parse_دليلون(بنية mosquitto__config *config, صحيح argc, حرف *argv[]);
 /* Read configuration data from config->config_file into config.
  * If reload is true, don't process config options that shouldn't be reloaded (listeners etc)
  * Returns 0 on success, 1 if there is a configuration error or if a file cannot be opened.
  */
-int config__read(struct mosquitto__config *config, bool reload);
+صحيح config__read(بنية mosquitto__config *config, bool reload);
 /* Free all config data. */
-void config__cleanup(struct mosquitto__config *config);
-int config__get_dir_files(const char *include_dir, char ***files, int *file_count);
+فراغ config__cleanup(بنية mosquitto__config *config);
+صحيح config__get_dir_files(ثابت حرف *include_dir, حرف ***files, صحيح *file_ڳڻپ);
 
 /* ============================================================
  * Server send functions
  * ============================================================ */
-int send__connack(struct mosquitto *context, uint8_t ack, uint8_t reason_code, const mosquitto_property *properties);
-int send__suback(struct mosquitto *context, uint16_t mid, uint32_t payloadlen, const void *payload);
-int send__unsuback(struct mosquitto *context, uint16_t mid, int reason_code_count, uint8_t *reason_codes, const mosquitto_property *properties);
-int send__auth(struct mosquitto *context, uint8_t reason_code, const void *auth_data, uint16_t auth_data_len);
+صحيح send__connack(بنية mosquitto *context, uint8_t ack, uint8_t reason_ڪوڊ, ثابت mosquitto_property *properties);
+صحيح send__suback(بنية mosquitto *context, uint16_t mid, uint32_t payloadlen, ثابت فراغ *payload);
+صحيح send__unsuback(بنية mosquitto *context, uint16_t mid, صحيح reason_ڪوڊ_ڳڻپ, uint8_t *reason_codes, ثابت mosquitto_property *properties);
+صحيح send__auth(بنية mosquitto *context, uint8_t reason_ڪوڊ, ثابت فراغ *auth_معلومات, uint16_t auth_معلومات_len);
 
 /* ============================================================
  * Network functions
  * ============================================================ */
-void net__broker_init(void);
-void net__broker_cleanup(void);
-struct mosquitto *net__socket_accept(struct mosquitto__listener_sock *listensock);
-int net__socket_listen(struct mosquitto__listener *listener);
-int net__socket_get_address(mosq_sock_t sock, char *buf, size_t len, uint16_t *remote_address);
-int net__tls_load_verify(struct mosquitto__listener *listener);
-int net__tls_server_ctx(struct mosquitto__listener *listener);
-int net__load_certificates(struct mosquitto__listener *listener);
+فراغ net__broker_init(فراغ);
+فراغ net__broker_cleanup(فراغ);
+بنية mosquitto *net__socket_accept(بنية mosquitto__listener_sock *listensock);
+صحيح net__socket_listen(بنية mosquitto__listener *listener);
+صحيح net_socket_get_پتو(mosq_sock_t sock, حرف *buf, size_t len, uint16_t *remote_پتو);
+صحيح net_tls_ڀريو_verify(بنية mosquitto__listener *listener);
+صحيح net__tls_server_ctx(بنية mosquitto__listener *listener);
+صحيح net_ڀريو_certificates(بنية mosquitto__listener *listener);
 
 /* ============================================================
  * Read handling functions
  * ============================================================ */
-int handle__packet(struct mosquitto *context);
-int handle__connack(struct mosquitto *context);
-int handle__connect(struct mosquitto *context);
-int handle__disconnect(struct mosquitto *context);
-int handle__publish(struct mosquitto *context);
-int handle__subscribe(struct mosquitto *context);
-int handle__unsubscribe(struct mosquitto *context);
-int handle__auth(struct mosquitto *context);
+صحيح handle__packet(بنية mosquitto *context);
+صحيح handle__connack(بنية mosquitto *context);
+صحيح handle__connect(بنية mosquitto *context);
+صحيح handle__disconnect(بنية mosquitto *context);
+صحيح handle__publish(بنية mosquitto *context);
+صحيح handle__subscribe(بنية mosquitto *context);
+صحيح handle__unsubscribe(بنية mosquitto *context);
+صحيح handle__auth(بنية mosquitto *context);
 
 /* ============================================================
  * Database handling
  * ============================================================ */
-int db__open(struct mosquitto__config *config);
-int db__close(void);
-#ifdef WITH_PERSISTENCE
-int persist__backup(bool shutdown);
-int persist__restore(void);
-#endif
+صحيح db__open(بنية mosquitto__config *config);
+صحيح db__close(فراغ);
+#جيڪڏهن_وصف_ٿيل WITH_PERSISTENCE
+صحيح persist__backup(bool shutdown);
+صحيح persist__restore(فراغ);
+#جيڪڏهن_پورو
 /* Return the number of in-flight messages in count. */
-int db__message_count(int *count);
-int db__message_delete_outgoing(struct mosquitto *context, uint16_t mid, enum mosquitto_msg_state expect_state, int qos);
-int db__message_insert_outgoing(struct mosquitto *context, uint64_t cmsg_id, uint16_t mid, uint8_t qos, bool retain, struct mosquitto__base_msg *base_msg, uint32_t subscription_identifier, bool update, bool persist);
-int db__message_insert_incoming(struct mosquitto *context, uint64_t cmsg_id, struct mosquitto__base_msg *base_msg, bool persist);
-int db__message_remove_incoming(struct mosquitto *context, uint16_t mid);
-int db__message_release_incoming(struct mosquitto *context, uint16_t mid);
-int db__message_update_outgoing(struct mosquitto *context, uint16_t mid, enum mosquitto_msg_state state, int qos, bool persist);
-void db__message_dequeue_first(struct mosquitto *context, struct mosquitto_msg_data *msg_data);
-int db__messages_delete(struct mosquitto *context, bool force_free);
-int db__messages_delete_incoming(struct mosquitto *context);
-int db__messages_delete_outgoing(struct mosquitto *context);
-int db__messages_easy_queue(struct mosquitto *context, const char *topic, uint8_t qos, uint32_t payloadlen, const void *payload, int retain, uint32_t message_expiry_interval, mosquitto_property **properties);
-int db__message_store(const struct mosquitto *source, struct mosquitto__base_msg *base_msg, uint32_t *message_expiry_interval, enum mosquitto_msg_origin origin);
-int db__message_store_find(struct mosquitto *context, uint16_t mid, struct mosquitto__client_msg **client_msg);
-int db__msg_store_add(struct mosquitto__base_msg *base_msg);
-void db__msg_store_remove(struct mosquitto__base_msg *base_msg, bool notify);
-void db__msg_store_ref_inc(struct mosquitto__base_msg *base_msg);
-void db__msg_store_ref_dec(struct mosquitto__base_msg **base_msg);
-void db__msg_store_clean(void);
-void db__msg_store_compact(void);
-void db__msg_store_free(struct mosquitto__base_msg *base_msg);
-int db__message_reconnect_reset(struct mosquitto *context);
-bool db__ready_for_flight(struct mosquitto *context, enum mosquitto_msg_direction dir, int qos);
-bool db__ready_for_queue(struct mosquitto *context, int qos, struct mosquitto_msg_data *msg_data);
-void sys_tree__init(void);
-void sys_tree__update(bool force);
-int db__message_write_inflight_out_all(struct mosquitto *context);
-int db__message_write_inflight_out_latest(struct mosquitto *context);
-int db__message_write_queued_out(struct mosquitto *context);
-int db__message_write_queued_in(struct mosquitto *context);
-void db__msg_add_to_inflight_stats(struct mosquitto_msg_data *msg_data, struct mosquitto__client_msg *msg);
-void db__msg_add_to_queued_stats(struct mosquitto_msg_data *msg_data, struct mosquitto__client_msg *msg);
-uint64_t db__new_msg_id(void);
-void db__expire_all_messages(struct mosquitto *context);
-void db__check_acl_of_all_messages(struct mosquitto *context);
+صحيح db_پيغام_ڳڻپ(صحيح *ڳڻپ);
+صحيح db_پيغام_delete_outgoing(بنية mosquitto *context, uint16_t mid, تعداد mosquitto_نياپو_state expect_state, صحيح qos);
+صحيح db_پيغام_وجهو_outgoing(بنية mosquitto *context, uint64_t cmsg_id, uint16_t mid, uint8_t qos, bool retain, بنية mosquitto_بنياد_نياپو *بنياد_نياپو, uint32_t subscription_identifier, bool update, bool persist);
+صحيح db_پيغام_وجهو_incoming(بنية mosquitto *context, uint64_t cmsg_id, بنية mosquitto_بنياد_نياپو *بنياد_نياپو, bool persist);
+صحيح db_پيغام_remove_incoming(بنية mosquitto *context, uint16_t mid);
+صحيح db_پيغام_release_incoming(بنية mosquitto *context, uint16_t mid);
+صحيح db_پيغام_update_outgoing(بنية mosquitto *context, uint16_t mid, تعداد mosquitto_نياپو_state state, صحيح qos, bool persist);
+فراغ db_پيغام_قطار_مان_ڪڍو_پهريون(بنية mosquitto *context, بنية mosquitto_نياپو_معلومات *نياپو_معلومات);
+صحيح db__messages_delete(بنية mosquitto *context, bool force_free);
+صحيح db__messages_delete_incoming(بنية mosquitto *context);
+صحيح db__messages_delete_outgoing(بنية mosquitto *context);
+صحيح db_messages_easy_قطار(بنية mosquitto *context, ثابت حرف *topic, uint8_t qos, uint32_t payloadlen, ثابت فراغ *payload, صحيح retain, uint32_t پيغام_expiry_interval, mosquitto_property **properties);
+صحيح db_پيغام_store(ثابت بنية mosquitto *ذريعو, بنية mosquitto_بنياد_نياپو *بنياد_نياپو, uint32_t *پيغام_expiry_interval, تعداد mosquitto_نياپو_origin origin);
+صحيح db_پيغام_store_ڳوليو(بنية mosquitto *context, uint16_t mid, بنية mosquitto_client_نياپو **client_نياپو);
+صحيح db_نياپو_store_جوڙيو(بنية mosquitto_بنياد_نياپو *بنياد_نياپو);
+فراغ db_نياپو_store_remove(بنية mosquitto_بنياد_نياپو *بنياد_نياپو, bool notify);
+فراغ db_نياپو_store_ref_inc(بنية mosquitto_بنياد_نياپو *بنياد_نياپو);
+فراغ db_نياپو_store_ref_dec(بنية mosquitto_بنياد_نياپو **بنياد_نياپو);
+فراغ db_نياپو_store_clean(فراغ);
+فراغ db_نياپو_store_compact(فراغ);
+فراغ db_نياپو_store_free(بنية mosquitto_بنياد_نياپو *بنياد_نياپو);
+صحيح db_پيغام_reconnect_reset(بنية mosquitto *context);
+bool db__ready_for_flight(بنية mosquitto *context, تعداد mosquitto_نياپو_direction dir, صحيح qos);
+bool db_ready_for_قطار(بنية mosquitto *context, صحيح qos, بنية mosquitto_نياپو_معلومات *نياپو_معلومات);
+فراغ sys_وڻ_init(فراغ);
+فراغ sys_وڻ_update(bool force);
+صحيح db_پيغام_write_inflight_ٻاهريون_all(بنية mosquitto *context);
+صحيح db_پيغام_write_inflight_ٻاهريون_latest(بنية mosquitto *context);
+صحيح db_پيغام_write_queued_ٻاهريون(بنية mosquitto *context);
+صحيح db_پيغام_write_queued_اندريون(بنية mosquitto *context);
+فراغ db_نياپو_جوڙيو_منزل_inflight_stats(بنية mosquitto_نياپو_معلومات *نياپو_معلومات, بنية mosquitto_client_نياپو *نياپو);
+فراغ db_نياپو_جوڙيو_منزل_queued_stats(بنية mosquitto_نياپو_معلومات *نياپو_معلومات, بنية mosquitto_client_نياپو *نياپو);
+uint64_t db_new_نياپو_id(فراغ);
+فراغ db__expire_all_messages(بنية mosquitto *context);
+فراغ db_check_acl_جو_all_messages(بنية mosquitto *context);
 
 /* ============================================================
  * Subscription functions
  * ============================================================ */
-int sub__init(void);
-int sub__add(struct mosquitto *context, const struct mosquitto_subscription *sub);
-int sub__remove(struct mosquitto *context, const char *sub, uint8_t *reason);
-void sub__tree_print(struct mosquitto__subhier *root, int level);
-int sub__clean_session(struct mosquitto *context);
-int sub__messages_queue(const char *source_id, uint8_t qos, struct mosquitto__base_msg **base_msg);
-int sub__topic_tokenise(const char *subtopic, char **local_sub, char ***topics, const char **sharename);
-void sub__topic_tokens_free(struct sub__token *tokens);
+صحيح sub__init(فراغ);
+صحيح sub_جوڙيو(بنية mosquitto *context, ثابت بنية mosquitto_subscription *sub);
+صحيح sub__remove(بنية mosquitto *context, ثابت حرف *sub, uint8_t *reason);
+فراغ sub_وڻ_print(بنية mosquitto__subhier *پاڙ, صحيح level);
+صحيح sub__clean_session(بنية mosquitto *context);
+صحيح sub_messages_قطار(ثابت حرف *ذريعو_id, uint8_t qos, بنية mosquitto_بنياد_نياپو **بنياد_نياپو);
+صحيح sub__topic_tokenise(ثابت حرف *subtopic, حرف **local_sub, حرف ***topics, ثابت حرف **sharename);
+فراغ sub_topic_ٽوڪن_free(بنية sub__token *ٽوڪن);
 
 /* ============================================================
  * Context functions
  * ============================================================ */
-struct mosquitto *context__init(void);
-int context__init_sock(struct mosquitto *context, mosq_sock_t sock, bool get_address);
-void context__cleanup(struct mosquitto *context, bool force_free);
-void context__disconnect(struct mosquitto *context, int reason);
-void context__add_to_disused(struct mosquitto *context);
-void context__free_disused(void);
-void context__send_will(struct mosquitto *context);
-void context__add_to_by_id(struct mosquitto *context);
-void context__remove_from_by_id(struct mosquitto *context);
+بنية mosquitto *context__init(فراغ);
+صحيح context__init_sock(بنية mosquitto *context, mosq_sock_t sock, bool get_پتو);
+فراغ context__cleanup(بنية mosquitto *context, bool force_free);
+فراغ context__disconnect(بنية mosquitto *context, صحيح reason);
+فراغ context_جوڙيو_منزل_disused(بنية mosquitto *context);
+فراغ context__free_disused(فراغ);
+فراغ context__send_will(بنية mosquitto *context);
+فراغ context_جوڙيو_منزل_by_id(بنية mosquitto *context);
+فراغ context__remove_from_by_id(بنية mosquitto *context);
 
-int connect__on_authorised(struct mosquitto *context, void *auth_data_out, uint16_t auth_data_out_len);
+صحيح connect__on_authorised(بنية mosquitto *context, فراغ *auth_معلومات_ٻاهريون, uint16_t auth_معلومات_ٻاهريون_len);
 
 
 /* ============================================================
  * Control functions
  * ============================================================ */
-#ifdef WITH_CONTROL
-int control__process(struct mosquitto *context, struct mosquitto__base_msg *base_msg);
-void control__cleanup(void);
-#endif
-int control__register_callback(mosquitto_plugin_id_t *pid, MOSQ_FUNC_generic_callback cb_func, const char *topic, void *userdata);
-int control__unregister_callback(mosquitto_plugin_id_t *pid, MOSQ_FUNC_generic_callback cb_func, const char *topic);
-void control__unregister_all_callbacks(mosquitto_plugin_id_t *identifier);
+#جيڪڏهن_وصف_ٿيل WITH_CONTROL
+صحيح control__process(بنية mosquitto *context, بنية mosquitto_بنياد_نياپو *بنياد_نياپو);
+فراغ control__cleanup(فراغ);
+#جيڪڏهن_پورو
+صحيح control_رجسٽر_callback(mosquitto_plugin_id_t *pid, MOSQ_FUNC_generic_callback cb_func, ثابت حرف *topic, فراغ *userdata);
+صحيح control__unregister_callback(mosquitto_plugin_id_t *pid, MOSQ_FUNC_generic_callback cb_func, ثابت حرف *topic);
+فراغ control__unregister_all_callbacks(mosquitto_plugin_id_t *identifier);
 
 
 /* ============================================================
  * Logging functions
  * ============================================================ */
-int log__init(struct mosquitto__config *config);
-int log__close(struct mosquitto__config *config);
-void log__internal(const char *fmt, ...) __attribute__((format(printf, 1, 2)));
+صحيح log__init(بنية mosquitto__config *config);
+صحيح log__close(بنية mosquitto__config *config);
+فراغ log_اندروني(ثابت حرف *fmt, ...) __attribute__((format(لکو, 1, 2)));
 
 /* ============================================================
  * Bridge functions
  * ============================================================ */
-#ifdef WITH_BRIDGE
-void bridge__start_all(void);
-void bridge__reload(void);
-void bridge__db_cleanup(void);
-void bridge__cleanup(struct mosquitto *context);
-int bridge__connect(struct mosquitto *context);
-#if defined(__GLIBC__) && defined(WITH_ADNS)
-int bridge__connect_step3(struct mosquitto *context);
-#endif
-int bridge__on_connect(struct mosquitto *context);
-void bridge_check(void);
-int bridge__register_local_connections(void);
-int bridge__add_topic(struct mosquitto__bridge *bridge, const char *topic, enum mosquitto__bridge_direction direction, uint8_t qos, const char *local_prefix, const char *remote_prefix);
-void bridge__cleanup_topics(struct mosquitto__bridge *bridge);
-int bridge__remap_topic_in(struct mosquitto *context, char **topic);
-#endif
+#جيڪڏهن_وصف_ٿيل WITH_BRIDGE
+فراغ bridge_شروعات_all(فراغ);
+فراغ bridge__reload(فراغ);
+فراغ bridge__db_cleanup(فراغ);
+فراغ bridge__cleanup(بنية mosquitto *context);
+صحيح bridge__connect(بنية mosquitto *context);
+#إذا defined(__GLIBC__) && defined(WITH_ADNS)
+صحيح bridge__connect_step3(بنية mosquitto *context);
+#جيڪڏهن_پورو
+صحيح bridge__on_connect(بنية mosquitto *context);
+فراغ bridge_check(فراغ);
+صحيح bridge_رجسٽر_local_connections(فراغ);
+صحيح bridge_جوڙيو_topic(بنية mosquitto__bridge *bridge, ثابت حرف *topic, تعداد mosquitto__bridge_direction direction, uint8_t qos, ثابت حرف *local_اڳياڙي, ثابت حرف *remote_اڳياڙي);
+فراغ bridge__cleanup_topics(بنية mosquitto__bridge *bridge);
+صحيح bridge_remap_topic_اندريون(بنية mosquitto *context, حرف **topic);
+#جيڪڏهن_پورو
 
 /* ============================================================
  * IO multiplex related functions
  * ============================================================ */
-int mux__init(void);
-int mux__add_listeners(struct mosquitto__listener_sock *listensock, int listensock_count);
-int mux__delete_listeners(struct mosquitto__listener_sock *listensock, int listensock_count);
-int mux__loop_prepare(void);
-int mux__new(struct mosquitto *context);
-int mux__add_out(struct mosquitto *context);
-int mux__remove_out(struct mosquitto *context);
-int mux__delete(struct mosquitto *context);
-int mux__wait(void);
-int mux__handle(struct mosquitto__listener_sock *listensock, int listensock_count);
-int mux__cleanup(void);
+صحيح mux__init(فراغ);
+صحيح mux_جوڙيو_listeners(بنية mosquitto__listener_sock *listensock, صحيح listensock_ڳڻپ);
+صحيح mux__delete_listeners(بنية mosquitto__listener_sock *listensock, صحيح listensock_ڳڻپ);
+صحيح mux__loop_prepare(فراغ);
+صحيح mux__new(بنية mosquitto *context);
+صحيح mux_جوڙيو_ٻاهريون(بنية mosquitto *context);
+صحيح mux_remove_ٻاهريون(بنية mosquitto *context);
+صحيح mux__delete(بنية mosquitto *context);
+صحيح mux__wait(فراغ);
+صحيح mux__handle(بنية mosquitto__listener_sock *listensock, صحيح listensock_ڳڻپ);
+صحيح mux__cleanup(فراغ);
 
 /* ============================================================
  * Listener related functions
  * ============================================================ */
-extern struct mosquitto__listener_sock *g_listensock;
-extern int g_listensock_count;
+خارجي بنية mosquitto__listener_sock *g_listensock;
+خارجي صحيح g_listensock_ڳڻپ;
 
-void listener__set_defaults(struct mosquitto__listener *listener);
-void listeners__reload_all_certificates(void);
-#if defined(WITH_WEBSOCKETS) && WITH_WEBSOCKETS == WS_IS_LWS
-void listeners__add_websockets(struct lws_context *ws_context, mosq_sock_t fd);
-#endif
-int listeners__start(void);
-void listeners__stop(void);
+فراغ listener_سيٽ_defaults(بنية mosquitto__listener *listener);
+فراغ listeners__reload_all_certificates(فراغ);
+#إذا defined(WITH_WEBSOCKETS) && WITH_WEBSOCKETS == WS_IS_LWS
+فراغ listeners_جوڙيو_websockets(بنية lws_context *ws_context, mosq_sock_t fd);
+#جيڪڏهن_پورو
+صحيح listeners_شروعات(فراغ);
+فراغ listeners__stop(فراغ);
 
 /* ============================================================
  * Plugin related functions
  * ============================================================ */
-int plugin__load_v5(mosquitto_plugin_id_t *plugin, void *lib);
-int plugin__load_v4(mosquitto_plugin_id_t *plugin, void *lib);
-int plugin__load_v3(mosquitto_plugin_id_t *plugin, void *lib);
-int plugin__load_v2(mosquitto_plugin_id_t *plugin, void *lib);
-int acl__pre_check(mosquitto_plugin_id_t *plugin, struct mosquitto *context, int access);
+صحيح plugin_ڀريو_v5(mosquitto_plugin_id_t *plugin, فراغ *lib);
+صحيح plugin_ڀريو_v4(mosquitto_plugin_id_t *plugin, فراغ *lib);
+صحيح plugin_ڀريو_v3(mosquitto_plugin_id_t *plugin, فراغ *lib);
+صحيح plugin_ڀريو_v2(mosquitto_plugin_id_t *plugin, فراغ *lib);
+صحيح acl__pre_check(mosquitto_plugin_id_t *plugin, بنية mosquitto *context, صحيح access);
 
-void LIB_ERROR(void);
-void plugin__handle_connect(struct mosquitto *context);
-void plugin__handle_disconnect(struct mosquitto *context, int reason);
-void plugin__handle_client_offline(struct mosquitto *context, int reason);
-int plugin__handle_message_in(struct mosquitto *context, struct mosquitto_base_msg *base_msg);
-int plugin__handle_message_out(struct mosquitto *context, struct mosquitto_base_msg *base_msg);
-int plugin__handle_subscribe(struct mosquitto *context, struct mosquitto_subscription *sub);
-int plugin__handle_unsubscribe(struct mosquitto *context, struct mosquitto_subscription *sub);
-int plugin__handle_reload(void);
-void plugin__handle_tick(void);
-int plugin__callback_unregister_all(mosquitto_plugin_id_t *identifier);
-void plugin_persist__handle_restore(void);
-void plugin_persist__handle_client_add(struct mosquitto *context);
-void plugin_persist__handle_client_delete(struct mosquitto *context);
-void plugin_persist__handle_client_update(struct mosquitto *context);
-void plugin_persist__handle_subscription_add(struct mosquitto *context, const struct mosquitto_subscription *sub);
-void plugin_persist__handle_subscription_delete(struct mosquitto *context, char *sub);
-void plugin_persist__handle_client_msg_add(struct mosquitto *context, const struct mosquitto__client_msg *cmsg);
-void plugin_persist__handle_client_msg_delete(struct mosquitto *context, const struct mosquitto__client_msg *cmsg);
-void plugin_persist__handle_client_msg_update(struct mosquitto *context, const struct mosquitto__client_msg *cmsg);
-void plugin_persist__handle_base_msg_add(struct mosquitto__base_msg *base_msg);
-void plugin_persist__handle_base_msg_delete(struct mosquitto__base_msg *base_msg);
-void plugin_persist__handle_retain_msg_set(struct mosquitto__base_msg *base_msg);
-void plugin_persist__handle_retain_msg_delete(struct mosquitto__base_msg *base_msg);
-void plugin_persist__handle_will_add(struct mosquitto *context);
-void plugin_persist__handle_will_delete(struct mosquitto *context);
-
-/* ============================================================
- * Property related functions
- * ============================================================ */
-int keepalive__init(void);
-void keepalive__cleanup(void);
-int keepalive__add(struct mosquitto *context);
-void keepalive__check(void);
-int keepalive__remove(struct mosquitto *context);
-int keepalive__update(struct mosquitto *context);
+فراغ LIB_ERROR(فراغ);
+فراغ plugin__handle_connect(بنية mosquitto *context);
+فراغ plugin__handle_disconnect(بنية mosquitto *context, صحيح reason);
+فراغ plugin__handle_client_offline(بنية mosquitto *context, صحيح reason);
+صحيح plugin_handle_پيغام_اندريون(بنية mosquitto *context, بنية mosquitto_بنياد_نياپو_2 *بنياد_نياپو);
+صحيح plugin_handle_پيغام_ٻاهريون(بنية mosquitto *context, بنية mosquitto_بنياد_نياپو_2 *بنياد_نياپو);
+صحيح plugin__handle_subscribe(بنية mosquitto *context, بنية mosquitto_subscription *sub);
+صحيح plugin__handle_unsubscribe(بنية mosquitto *context, بنية mosquitto_subscription *sub);
+صحيح plugin__handle_reload(فراغ);
+فراغ plugin__handle_tick(فراغ);
+صحيح plugin__callback_unregister_all(mosquitto_plugin_id_t *identifier);
+فراغ plugin_persist__handle_restore(فراغ);
+فراغ plugin_persist_handle_client_جوڙيو(بنية mosquitto *context);
+فراغ plugin_persist__handle_client_delete(بنية mosquitto *context);
+فراغ plugin_persist__handle_client_update(بنية mosquitto *context);
+فراغ plugin_persist_handle_subscription_جوڙيو(بنية mosquitto *context, ثابت بنية mosquitto_subscription *sub);
+فراغ plugin_persist__handle_subscription_delete(بنية mosquitto *context, حرف *sub);
+فراغ plugin_persist_handle_client_نياپو_جوڙيو(بنية mosquitto *context, ثابت بنية mosquitto_client_نياپو *cmsg);
+فراغ plugin_persist_handle_client_نياپو_delete(بنية mosquitto *context, ثابت بنية mosquitto_client_نياپو *cmsg);
+فراغ plugin_persist_handle_client_نياپو_update(بنية mosquitto *context, ثابت بنية mosquitto_client_نياپو *cmsg);
+فراغ plugin_persist_handle_بنياد_نياپو_جوڙيو(بنية mosquitto_بنياد_نياپو *بنياد_نياپو);
+فراغ plugin_persist_handle_بنياد_نياپو_delete(بنية mosquitto_بنياد_نياپو *بنياد_نياپو);
+فراغ plugin_persist_handle_retain_نياپو_سيٽ(بنية mosquitto_بنياد_نياپو *بنياد_نياپو);
+فراغ plugin_persist_handle_retain_نياپو_delete(بنية mosquitto_بنياد_نياپو *بنياد_نياپو);
+فراغ plugin_persist_handle_will_جوڙيو(بنية mosquitto *context);
+فراغ plugin_persist__handle_will_delete(بنية mosquitto *context);
 
 /* ============================================================
  * Property related functions
  * ============================================================ */
-int property__process_connect(struct mosquitto *context, mosquitto_property **props);
-int property__process_will(struct mosquitto *context, struct mosquitto_message_all *msg, mosquitto_property **props);
-int property__process_publish(struct mosquitto__base_msg *base_msg, mosquitto_property **props, int *topic_alias, uint32_t *message_expiry_interval, bool is_bridge);
-int property__process_disconnect(struct mosquitto *context, mosquitto_property **props);
+صحيح keepalive__init(فراغ);
+فراغ keepalive__cleanup(فراغ);
+صحيح keepalive_جوڙيو(بنية mosquitto *context);
+فراغ keepalive__check(فراغ);
+صحيح keepalive__remove(بنية mosquitto *context);
+صحيح keepalive__update(بنية mosquitto *context);
+
+/* ============================================================
+ * Property related functions
+ * ============================================================ */
+صحيح property__process_connect(بنية mosquitto *context, mosquitto_property **props);
+صحيح property__process_will(بنية mosquitto *context, بنية mosquitto_پيغام_all *نياپو, mosquitto_property **props);
+صحيح property__process_publish(بنية mosquitto_بنياد_نياپو *بنياد_نياپو, mosquitto_property **props, صحيح *topic_alias, uint32_t *پيغام_expiry_interval, bool is_bridge);
+صحيح property__process_disconnect(بنية mosquitto *context, mosquitto_property **props);
 
 /* ============================================================
  * Retain tree related functions
  * ============================================================ */
-int retain__init(void);
-void retain__clean(struct mosquitto__retainhier **retainhier);
-int retain__queue(struct mosquitto *context, const struct mosquitto_subscription *sub);
-int retain__store(const char *topic, struct mosquitto__base_msg *base_msg, char **split_topics, bool persist);
-void retain__expiry_check(void);
-void retain__expire(struct mosquitto__retainhier **retainhier);
+صحيح retain__init(فراغ);
+فراغ retain__clean(بنية mosquitto__retainhier **retainhier);
+صحيح retain_قطار(بنية mosquitto *context, ثابت بنية mosquitto_subscription *sub);
+صحيح retain__store(ثابت حرف *topic, بنية mosquitto_بنياد_نياپو *بنياد_نياپو, حرف **ورهايو_topics, bool persist);
+فراغ retain__expiry_check(فراغ);
+فراغ retain__expire(بنية mosquitto__retainhier **retainhier);
 
 /* ============================================================
  * Security related functions
  * ============================================================ */
-int acl__find_acls(struct mosquitto *context);
-int plugin__load_all(void);
-int plugin__unload_all(void);
-int config__plugin_add_secopt(mosquitto_plugin_id_t *plugin, struct mosquitto__security_options *security_options);
+صحيح acl_ڳوليو_acls(بنية mosquitto *context);
+صحيح plugin_ڀريو_all(فراغ);
+صحيح plugin__unload_all(فراغ);
+صحيح config_plugin_جوڙيو_secopt(mosquitto_plugin_id_t *plugin, بنية mosquitto__security_options *security_options);
 
-int mosquitto_security_init(bool reload);
-int mosquitto_security_cleanup(bool reload);
-int mosquitto_acl_check(struct mosquitto *context, const char *topic, uint32_t payloadlen, void *payload, uint8_t qos, bool retain, mosquitto_property *properties, int access);
-int mosquitto_basic_auth(struct mosquitto *context);
-int mosquitto_psk_key_get(struct mosquitto *context, const char *hint, const char *identity, char *key, int max_key_len);
+صحيح mosquitto_security_init(bool reload);
+صحيح mosquitto_security_cleanup(bool reload);
+صحيح mosquitto_acl_check(بنية mosquitto *context, ثابت حرف *topic, uint32_t payloadlen, فراغ *payload, uint8_t qos, bool retain, mosquitto_property *properties, صحيح access);
+صحيح mosquitto_basic_auth(بنية mosquitto *context);
+صحيح mosquitto_psk_ڪنجي_get(بنية mosquitto *context, ثابت حرف *hint, ثابت حرف *سڃاڻپ_عنصر, حرف *ڪنجي, صحيح max_ڪنجي_len);
 
-int mosquitto_security_init_default(void);
-int mosquitto_security_apply_default(void);
-int mosquitto_security_cleanup_default(void);
-int mosquitto_psk_key_get_default(struct mosquitto *context, const char *hint, const char *identity, char *key, int max_key_len);
-int broker_acl_file__init(void);
-void broker_acl_file__cleanup(void);
-int broker_password_file__init(void);
-void broker_password_file__cleanup(void);
-int psk_file__init(void);
-int psk_file__cleanup(void);
+صحيح mosquitto_security_init_default(فراغ);
+صحيح mosquitto_security_apply_default(فراغ);
+صحيح mosquitto_security_cleanup_default(فراغ);
+صحيح mosquitto_psk_ڪنجي_get_default(بنية mosquitto *context, ثابت حرف *hint, ثابت حرف *سڃاڻپ_عنصر, حرف *ڪنجي, صحيح max_ڪنجي_len);
+صحيح broker_acl_file__init(فراغ);
+فراغ broker_acl_file__cleanup(فراغ);
+صحيح broker_password_file__init(فراغ);
+فراغ broker_password_file__cleanup(فراغ);
+صحيح psk_file__init(فراغ);
+صحيح psk_file__cleanup(فراغ);
 
-int mosquitto_security_auth_start(struct mosquitto *context, bool reauth, const void *data_in, uint16_t data_in_len, void **data_out, uint16_t *data_out_len);
-int mosquitto_security_auth_continue(struct mosquitto *context, const void *data_in, uint16_t data_len, void **data_out, uint16_t *data_out_len);
+صحيح mosquitto_security_auth_شروعات(بنية mosquitto *context, bool reauth, ثابت فراغ *معلومات_اندريون, uint16_t معلومات_اندريون_len, فراغ **معلومات_ٻاهريون, uint16_t *معلومات_ٻاهريون_len);
+صحيح mosquitto_security_auth_continue(بنية mosquitto *context, ثابت فراغ *معلومات_اندريون, uint16_t معلومات_len, فراغ **معلومات_ٻاهريون, uint16_t *معلومات_ٻاهريون_len);
 
-void unpwd__free_item(struct mosquitto__unpwd **unpwd, struct mosquitto__unpwd *item);
+فراغ unpwd_free_شي(بنية mosquitto__unpwd **unpwd, بنية mosquitto__unpwd *شي);
 
 /* ============================================================
  * Session expiry
  * ============================================================ */
-int session_expiry__add(struct mosquitto *context);
-int session_expiry__add_from_persistence(struct mosquitto *context, time_t expiry_time);
-void session_expiry__add_on_shutdown(void);
-void session_expiry__remove(struct mosquitto *context);
-void session_expiry__remove_all(void);
-void session_expiry__check(void);
-void session_expiry__send_all(void);
+صحيح session_expiry_جوڙيو(بنية mosquitto *context);
+صحيح session_expiry_جوڙيو_from_persistence(بنية mosquitto *context, time_t expiry_وقت);
+فراغ session_expiry_جوڙيو_on_shutdown(فراغ);
+فراغ session_expiry__remove(بنية mosquitto *context);
+فراغ session_expiry__remove_all(فراغ);
+فراغ session_expiry__check(فراغ);
+فراغ session_expiry__send_all(فراغ);
 
 /* ============================================================
  * Signals
  * ============================================================ */
-void signal__setup(void);
-int signal__flag_check(void);
+فراغ signal_تياري(فراغ);
+صحيح signal__flag_check(فراغ);
 
 /* ============================================================
  * Window service and signal related functions
  * ============================================================ */
-#if defined(WIN32) || defined(__CYGWIN__)
-void service_install(char *name);
-void service_uninstall(char *name);
-void service_run(char *name);
+#إذا defined(WIN32) || defined(__CYGWIN__)
+فراغ service_install(حرف *name);
+فراغ service_uninstall(حرف *name);
+فراغ service_لاڳيتو(حرف *name);
 
-#ifdef WIN32
-DWORD WINAPI SigThreadProc(void *data);
-#endif
-#endif
+#جيڪڏهن_وصف_ٿيل WIN32
+DWORD WINAPI SigThreadProc(فراغ *معلومات);
+#جيڪڏهن_پورو
+#جيڪڏهن_پورو
 
 /* ============================================================
  * Watchdog
  * ============================================================ */
-void watchdog__init(void);
-void watchdog__check(void);
+فراغ watchdog__init(فراغ);
+فراغ watchdog__check(فراغ);
 
 /* ============================================================
  * Websockets related functions
  * ============================================================ */
-#ifdef WITH_WEBSOCKETS
-#  if WITH_WEBSOCKETS == WS_IS_LWS
-void mosq_websockets_init(struct mosquitto__listener *listener, const struct mosquitto__config *conf);
+#جيڪڏهن_وصف_ٿيل WITH_WEBSOCKETS
+#  إذا WITH_WEBSOCKETS == WS_IS_LWS
+فراغ mosq_websockets_init(بنية mosquitto__listener *listener, ثابت بنية mosquitto__config *conf);
 #  endif
-int http__context_init(struct mosquitto *context);
-int http__context_cleanup(struct mosquitto *context);
-int http__read(struct mosquitto *context);
-#endif
-void do_disconnect(struct mosquitto *context, int reason);
+صحيح http__context_init(بنية mosquitto *context);
+صحيح http__context_cleanup(بنية mosquitto *context);
+صحيح http__read(بنية mosquitto *context);
+#جيڪڏهن_پورو
+فراغ do_disconnect(بنية mosquitto *context, صحيح reason);
 
 /* ============================================================
  * PROXY related functions
  * ============================================================ */
-int proxy_v2__read(struct mosquitto *context);
-int proxy_v1__read(struct mosquitto *context);
+صحيح proxy_v2__read(بنية mosquitto *context);
+صحيح proxy_v1__read(بنية mosquitto *context);
 
 /* ============================================================
  * Will delay
  * ============================================================ */
-int will_delay__add(struct mosquitto *context);
-void will_delay__check(void);
-void will_delay__send_all(void);
-void will_delay__remove(struct mosquitto *mosq);
+صحيح will_delay_جوڙيو(بنية mosquitto *context);
+فراغ will_delay__check(فراغ);
+فراغ will_delay__send_all(فراغ);
+فراغ will_delay__remove(بنية mosquitto *mosq);
 
 /* ============================================================
  * HTTP Info
  * ============================================================ */
-int http_api__start_local(struct mosquitto__listener *listener);
-int http_api__start(struct mosquitto__listener *listener);
-void http_api__stop(struct mosquitto__listener *listener);
+صحيح http_api_شروعات_local(بنية mosquitto__listener *listener);
+صحيح http_api_شروعات(بنية mosquitto__listener *listener);
+فراغ http_api__stop(بنية mosquitto__listener *listener);
 
 
 /* ============================================================
  * Other
  * ============================================================ */
-#ifdef WITH_XTREPORT
-void xtreport(void);
-#endif
+#جيڪڏهن_وصف_ٿيل WITH_XTREPORT
+فراغ xtreport(فراغ);
+#جيڪڏهن_پورو
 
-void broker_control__init(void);
-void broker_control__cleanup(void);
-void broker_control__reload(void);
+فراغ broker_control__init(فراغ);
+فراغ broker_control__cleanup(فراغ);
+فراغ broker_control__reload(فراغ);
 
-#endif
+#جيڪڏهن_پورو

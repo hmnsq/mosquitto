@@ -16,389 +16,389 @@ Contributors:
    Roger Light - initial implementation and documentation.
 */
 
-#include "config.h"
+#ضمن "config.h"
 
-#include <assert.h>
-#include <stdio.h>
-#include <string.h>
+#ضمن <assert.h>
+#ضمن <stdio.h>
+#ضمن <string.h>
 
-#include "mosquitto_broker_internal.h"
-#include "mosquitto/mqtt_protocol.h"
-#include "util_mosq.h"
+#ضمن "mosquitto_broker_internal.h"
+#ضمن "mosquitto/mqtt_protocol.h"
+#ضمن "util_mosq.h"
 
-#include "utlist.h"
+#ضمن "utlist.h"
 
-static time_t next_expire_check = 0;
+ساكن time_t ايندڙ_expire_check = 0;
 
-static struct mosquitto__retainhier *retain__add_hier_entry(struct mosquitto__retainhier *parent, struct mosquitto__retainhier **sibling, const char *topic, uint16_t len)
+ساكن بنية mosquitto__retainhier *retain_جوڙيو_hier_داخلا(بنية mosquitto__retainhier *والد, بنية mosquitto__retainhier **sibling, ثابت حرف *topic, uint16_t len)
 {
-	struct mosquitto__retainhier *child;
+	بنية mosquitto__retainhier *ٻار;
 
-	assert(sibling);
+	أكد(sibling);
 
-	child = mosquitto_calloc(1, sizeof(struct mosquitto__retainhier) + len + 1);
-	if(!child){
-		log__printf(NULL, MOSQ_LOG_ERR, "Error: Out of memory.");
-		return NULL;
+	ٻار = mosquitto_calloc(1, حجم(بنية mosquitto__retainhier) + len + 1);
+	إذا(!ٻار){
+		log__printf(عدم, MOSQ_LOG_ERR, "Error: Out of memory.");
+		أرجع عدم;
 	}
-	child->parent = parent;
-	child->topic_len = len;
-	if(len > 0){
-		strncpy(child->topic, topic, (size_t)(len+1));
+	ٻار->والد = والد;
+	ٻار->topic_len = len;
+	إذا(len > 0){
+		strncpy(ٻار->topic, topic, (size_t)(len+1));
 	}
 
-	HASH_ADD(hh, *sibling, topic, child->topic_len, child);
+	HASH_جوڙيو(hh, *sibling, topic, ٻار->topic_len, ٻار);
 
-	return child;
+	أرجع ٻار;
 }
 
 
-int retain__init(void)
+صحيح retain__init(فراغ)
 {
-	struct mosquitto__retainhier *retainhier;
+	بنية mosquitto__retainhier *retainhier;
 
-	retainhier = retain__add_hier_entry(NULL, &db.retains, "", 0);
-	if(!retainhier){
-		return MOSQ_ERR_NOMEM;
+	retainhier = retain_جوڙيو_hier_داخلا(عدم, &db.retains, "", 0);
+	إذا(!retainhier){
+		أرجع MOSQ_ERR_NOMEM;
 	}
 
-	retainhier = retain__add_hier_entry(NULL, &db.retains, "$SYS", (uint16_t)strlen("$SYS"));
-	if(!retainhier){
-		return MOSQ_ERR_NOMEM;
+	retainhier = retain_جوڙيو_hier_داخلا(عدم, &db.retains, "$SYS", (uint16_t)لڙي_ڊيگهه("$SYS"));
+	إذا(!retainhier){
+		أرجع MOSQ_ERR_NOMEM;
 	}
 
-	return MOSQ_ERR_SUCCESS;
+	أرجع MOSQ_ERR_SUCCESS;
 }
 
 
-BROKER_EXPORT int mosquitto_persist_retain_msg_set(const char *topic, uint64_t base_msg_id)
+BROKER_EXPORT صحيح mosquitto_persist_retain_نياپو_سيٽ(ثابت حرف *topic, uint64_t بنياد_نياپو_id)
 {
-	struct mosquitto__base_msg *base_msg;
-	int rc = MOSQ_ERR_UNKNOWN;
-	char **split_topics = NULL;
-	char *local_topic = NULL;
+	بنية mosquitto_بنياد_نياپو *بنياد_نياپو;
+	صحيح rc = MOSQ_ERR_UNKNOWN;
+	حرف **ورهايو_topics = عدم;
+	حرف *local_topic = عدم;
 
-	if(topic == NULL){
-		return MOSQ_ERR_INVAL;
+	إذا(topic == عدم){
+		أرجع MOSQ_ERR_INVAL;
 	}
 
-	HASH_FIND(hh, db.msg_store, &base_msg_id, sizeof(base_msg_id), base_msg);
-	if(base_msg){
-		if(sub__topic_tokenise(topic, &local_topic, &split_topics, NULL)){
-			return MOSQ_ERR_NOMEM;
+	HASH_ڳوليو(hh, db.نياپو_store, &بنياد_نياپو_id, حجم(بنياد_نياپو_id), بنياد_نياپو);
+	إذا(بنياد_نياپو){
+		إذا(sub__topic_tokenise(topic, &local_topic, &ورهايو_topics, عدم)){
+			أرجع MOSQ_ERR_NOMEM;
 		}
 
-		rc = retain__store(topic, base_msg, split_topics, false);
-		mosquitto_free(split_topics);
+		rc = retain__store(topic, بنياد_نياپو, ورهايو_topics, false);
+		mosquitto_free(ورهايو_topics);
 		mosquitto_free(local_topic);
 	}
 
-	return rc;
+	أرجع rc;
 }
 
 
-BROKER_EXPORT int mosquitto_persist_retain_msg_delete(const char *topic)
+BROKER_EXPORT صحيح mosquitto_persist_retain_نياپو_delete(ثابت حرف *topic)
 {
-	struct mosquitto__base_msg base_msg;
-	int rc = MOSQ_ERR_UNKNOWN;
-	char **split_topics = NULL;
-	char *local_topic = NULL;
+	بنية mosquitto_بنياد_نياپو بنياد_نياپو;
+	صحيح rc = MOSQ_ERR_UNKNOWN;
+	حرف **ورهايو_topics = عدم;
+	حرف *local_topic = عدم;
 
-	if(topic == NULL){
-		return MOSQ_ERR_INVAL;
+	إذا(topic == عدم){
+		أرجع MOSQ_ERR_INVAL;
 	}
 
-	memset(&base_msg, 0, sizeof(base_msg));
-	base_msg.ref_count = 10; /* Ensure this isn't freed */
+	memset(&بنياد_نياپو, 0, حجم(بنياد_نياپو));
+	بنياد_نياپو.ref_ڳڻپ = 10; /* Ensure this isn't freed */
 
-	if(sub__topic_tokenise(topic, &local_topic, &split_topics, NULL)){
-		return MOSQ_ERR_NOMEM;
+	إذا(sub__topic_tokenise(topic, &local_topic, &ورهايو_topics, عدم)){
+		أرجع MOSQ_ERR_NOMEM;
 	}
 
 	/* With stored->payloadlen == 0, this means the message will be removed */
-	rc = retain__store(topic, &base_msg, split_topics, false);
-	mosquitto_FREE(split_topics);
+	rc = retain__store(topic, &بنياد_نياپو, ورهايو_topics, false);
+	mosquitto_FREE(ورهايو_topics);
 	mosquitto_FREE(local_topic);
 
-	return rc;
+	أرجع rc;
 }
 
 
-void retain__clean_empty_hierarchy(struct mosquitto__retainhier *retainhier)
+فراغ retain_clean_خالي_جايون_hierarchy(بنية mosquitto__retainhier *retainhier)
 {
-	while(retainhier){
-		if(retainhier->children || retainhier->retained || retainhier->parent == NULL){
+	طالما(retainhier){
+		إذا(retainhier->children || retainhier->retained || retainhier->والد == عدم){
 			/* Entry is being used */
-			return;
-		}else{
-			HASH_DELETE(hh, retainhier->parent->children, retainhier);
+			أرجع;
+		}وإلا{
+			HASH_DELETE(hh, retainhier->والد->children, retainhier);
 
-			struct mosquitto__retainhier *parent = retainhier->parent;
+			بنية mosquitto__retainhier *والد = retainhier->والد;
 			mosquitto_FREE(retainhier);
-			retainhier = parent;
+			retainhier = والد;
 		}
 	}
 }
 
 
-int retain__store(const char *topic, struct mosquitto__base_msg *base_msg, char **split_topics, bool persist)
+صحيح retain__store(ثابت حرف *topic, بنية mosquitto_بنياد_نياپو *بنياد_نياپو, حرف **ورهايو_topics, bool persist)
 {
-	struct mosquitto__retainhier *retainhier;
-	struct mosquitto__retainhier *branch;
+	بنية mosquitto__retainhier *retainhier;
+	بنية mosquitto__retainhier *branch;
 	size_t slen;
 
-	assert(base_msg);
-	assert(split_topics);
+	أكد(بنياد_نياپو);
+	أكد(ورهايو_topics);
 
-	HASH_FIND(hh, db.retains, split_topics[0], strlen(split_topics[0]), retainhier);
-	if(retainhier == NULL){
-		retainhier = retain__add_hier_entry(NULL, &db.retains, split_topics[0], (uint16_t)strlen(split_topics[0]));
-		if(!retainhier){
-			return MOSQ_ERR_NOMEM;
+	HASH_ڳوليو(hh, db.retains, ورهايو_topics[0], لڙي_ڊيگهه(ورهايو_topics[0]), retainhier);
+	إذا(retainhier == عدم){
+		retainhier = retain_جوڙيو_hier_داخلا(عدم, &db.retains, ورهايو_topics[0], (uint16_t)لڙي_ڊيگهه(ورهايو_topics[0]));
+		إذا(!retainhier){
+			أرجع MOSQ_ERR_NOMEM;
 		}
 	}
 
-	for(int i=0; split_topics[i] != NULL; i++){
-		slen = strlen(split_topics[i]);
-		HASH_FIND(hh, retainhier->children, split_topics[i], slen, branch);
-		if(branch == NULL){
-			branch = retain__add_hier_entry(retainhier, &retainhier->children, split_topics[i], (uint16_t)slen);
-			if(branch == NULL){
-				return MOSQ_ERR_NOMEM;
+	لكل(صحيح i=0; ورهايو_topics[i] != عدم; i++){
+		slen = لڙي_ڊيگهه(ورهايو_topics[i]);
+		HASH_ڳوليو(hh, retainhier->children, ورهايو_topics[i], slen, branch);
+		إذا(branch == عدم){
+			branch = retain_جوڙيو_hier_داخلا(retainhier, &retainhier->children, ورهايو_topics[i], (uint16_t)slen);
+			إذا(branch == عدم){
+				أرجع MOSQ_ERR_NOMEM;
 			}
 		}
 		retainhier = branch;
 	}
 
-#ifdef WITH_PERSISTENCE
-	if(strncmp(topic, "$SYS", 4)){
+#جيڪڏهن_وصف_ٿيل WITH_PERSISTENCE
+	إذا(لڙي_ڀيٽ(topic, "$SYS", 4)){
 		/* Retained messages count as a persistence change, but only if
 		 * they aren't for $SYS. */
 		db.persistence_changes++;
 	}
-#else
-	UNUSED(topic);
-#endif
+#وإلا
+	اڻ_استعمال_ٿيل(topic);
+#جيڪڏهن_پورو
 
-	if(retainhier->retained){
-		if(retainhier->retained == base_msg){
+	إذا(retainhier->retained){
+		إذا(retainhier->retained == بنياد_نياپو){
 			/* This may occur if multiple persistence providers are used */
-			return MOSQ_ERR_SUCCESS;
+			أرجع MOSQ_ERR_SUCCESS;
 		}
 
-		if(persist && retainhier->retained->data.topic[0] != '$' && base_msg->data.payloadlen == 0){
+		إذا(persist && retainhier->retained->معلومات.topic[0] != '$' && بنياد_نياپو->معلومات.payloadlen == 0){
 			/* Only delete if another retained message isn't replacing this one */
-			plugin_persist__handle_retain_msg_delete(retainhier->retained);
+			plugin_persist_handle_retain_نياپو_delete(retainhier->retained);
 		}
-		db__msg_store_ref_dec(&retainhier->retained);
-#ifdef WITH_SYS_TREE
-		db.retained_count--;
-#endif
-		if(base_msg->data.payloadlen == 0){
-			retainhier->retained = NULL;
-			retain__clean_empty_hierarchy(retainhier);
+		db_نياپو_store_ref_dec(&retainhier->retained);
+#جيڪڏهن_وصف_ٿيل WITH_SYS_وڻ
+		db.retained_ڳڻپ--;
+#جيڪڏهن_پورو
+		إذا(بنياد_نياپو->معلومات.payloadlen == 0){
+			retainhier->retained = عدم;
+			retain_clean_خالي_جايون_hierarchy(retainhier);
 		}
 	}
-	if(base_msg->data.payloadlen){
-		retainhier->retained = base_msg;
-		db__msg_store_ref_inc(retainhier->retained);
-		if(persist && retainhier->retained->data.topic[0] != '$'){
-			plugin_persist__handle_base_msg_add(retainhier->retained);
-			plugin_persist__handle_retain_msg_set(retainhier->retained);
+	إذا(بنياد_نياپو->معلومات.payloadlen){
+		retainhier->retained = بنياد_نياپو;
+		db_نياپو_store_ref_inc(retainhier->retained);
+		إذا(persist && retainhier->retained->معلومات.topic[0] != '$'){
+			plugin_persist_handle_بنياد_نياپو_جوڙيو(retainhier->retained);
+			plugin_persist_handle_retain_نياپو_سيٽ(retainhier->retained);
 		}
-#ifdef WITH_SYS_TREE
-		db.retained_count++;
-#endif
+#جيڪڏهن_وصف_ٿيل WITH_SYS_وڻ
+		db.retained_ڳڻپ++;
+#جيڪڏهن_پورو
 	}
 
-	return MOSQ_ERR_SUCCESS;
+	أرجع MOSQ_ERR_SUCCESS;
 }
 
 
-static bool retain__delete_expired_msg(struct mosquitto__retainhier *branch)
+ساكن bool retain_delete_expired_نياپو(بنية mosquitto__retainhier *branch)
 {
-	if(branch->retained && branch->retained->data.expiry_time > 0 && db.now_real_s >= branch->retained->data.expiry_time){
-		plugin_persist__handle_retain_msg_delete(branch->retained);
-		db__msg_store_ref_dec(&branch->retained);
-		branch->retained = NULL;
-#ifdef WITH_SYS_TREE
-		db.retained_count--;
-#endif
-		return true;
+	إذا(branch->retained && branch->retained->معلومات.expiry_وقت > 0 && db.now_real_s >= branch->retained->معلومات.expiry_وقت){
+		plugin_persist_handle_retain_نياپو_delete(branch->retained);
+		db_نياپو_store_ref_dec(&branch->retained);
+		branch->retained = عدم;
+#جيڪڏهن_وصف_ٿيل WITH_SYS_وڻ
+		db.retained_ڳڻپ--;
+#جيڪڏهن_پورو
+		أرجع true;
 	}
-	return false;
+	أرجع false;
 }
 
 
-static int retain__process(struct mosquitto__retainhier *branch, struct mosquitto *context, const struct mosquitto_subscription *sub)
+ساكن صحيح retain__process(بنية mosquitto__retainhier *branch, بنية mosquitto *context, ثابت بنية mosquitto_subscription *sub)
 {
-	int rc = 0;
+	صحيح rc = 0;
 	uint8_t qos, sub_qos;
 	uint16_t mid;
-	struct mosquitto__base_msg *retained;
+	بنية mosquitto_بنياد_نياپو *retained;
 
-	if(retain__delete_expired_msg(branch)){
-		return MOSQ_ERR_SUCCESS;
+	إذا(retain_delete_expired_نياپو(branch)){
+		أرجع MOSQ_ERR_SUCCESS;
 	}
 
 	retained = branch->retained;
 
-	rc = mosquitto_acl_check(context, retained->data.topic, retained->data.payloadlen, retained->data.payload,
-			retained->data.qos, retained->data.retain, retained->data.properties, MOSQ_ACL_READ);
-	if(rc == MOSQ_ERR_ACL_DENIED){
-		return MOSQ_ERR_SUCCESS;
-	}else if(rc != MOSQ_ERR_SUCCESS){
-		return rc;
+	rc = mosquitto_acl_check(context, retained->معلومات.topic, retained->معلومات.payloadlen, retained->معلومات.payload,
+			retained->معلومات.qos, retained->معلومات.retain, retained->معلومات.properties, MOSQ_ACL_READ);
+	إذا(rc == MOSQ_ERR_ACL_DENIED){
+		أرجع MOSQ_ERR_SUCCESS;
+	}وإلا إذا(rc != MOSQ_ERR_SUCCESS){
+		أرجع rc;
 	}
 
 	/* Check for original source access */
-	if(db.config->check_retain_source && retained->origin != mosq_mo_broker && retained->data.source_id){
-		struct mosquitto retain_ctxt;
-		memset(&retain_ctxt, 0, sizeof(struct mosquitto));
+	إذا(db.config->check_retain_ذريعو && retained->origin != mosq_mo_broker && retained->معلومات.ذريعو_id){
+		بنية mosquitto retain_ctxt;
+		memset(&retain_ctxt, 0, حجم(بنية mosquitto));
 
-		retain_ctxt.id = retained->data.source_id;
-		retain_ctxt.username = retained->data.source_username;
-		retain_ctxt.listener = retained->source_listener;
+		retain_ctxt.id = retained->معلومات.ذريعو_id;
+		retain_ctxt.username = retained->معلومات.ذريعو_username;
+		retain_ctxt.listener = retained->ذريعو_listener;
 
-		rc = mosquitto_acl_check(&retain_ctxt, retained->data.topic, retained->data.payloadlen, retained->data.payload,
-				retained->data.qos, retained->data.retain, retained->data.properties, MOSQ_ACL_WRITE);
-		if(rc == MOSQ_ERR_ACL_DENIED){
-			return MOSQ_ERR_SUCCESS;
-		}else if(rc != MOSQ_ERR_SUCCESS){
-			return rc;
+		rc = mosquitto_acl_check(&retain_ctxt, retained->معلومات.topic, retained->معلومات.payloadlen, retained->معلومات.payload,
+				retained->معلومات.qos, retained->معلومات.retain, retained->معلومات.properties, MOSQ_ACL_WRITE);
+		إذا(rc == MOSQ_ERR_ACL_DENIED){
+			أرجع MOSQ_ERR_SUCCESS;
+		}وإلا إذا(rc != MOSQ_ERR_SUCCESS){
+			أرجع rc;
 		}
 	}
 
 	sub_qos = sub->options & 0x03;
-	if(db.config->upgrade_outgoing_qos){
+	إذا(db.config->upgrade_outgoing_qos){
 		qos = sub_qos;
-	}else{
-		qos = retained->data.qos;
-		if(qos > sub_qos){
+	}وإلا{
+		qos = retained->معلومات.qos;
+		إذا(qos > sub_qos){
 			qos = sub_qos;
 		}
 	}
-	if(qos > 0){
+	إذا(qos > 0){
 		mid = mosquitto__mid_generate(context);
-	}else{
+	}وإلا{
 		mid = 0;
 	}
-	return db__message_insert_outgoing(context, 0, mid, qos, true, retained, sub->identifier, false, true);
+	أرجع db_پيغام_وجهو_outgoing(context, 0, mid, qos, true, retained, sub->identifier, false, true);
 }
 
 
-static int retain__search(struct mosquitto__retainhier *retainhier, char **split_topics, struct mosquitto *context, const struct mosquitto_subscription *sub, int level)
+ساكن صحيح retain_ڳولا(بنية mosquitto__retainhier *retainhier, حرف **ورهايو_topics, بنية mosquitto *context, ثابت بنية mosquitto_subscription *sub, صحيح level)
 {
-	struct mosquitto__retainhier *branch, *branch_tmp;
-	int flag = 0;
+	بنية mosquitto__retainhier *branch, *branch_tmp;
+	صحيح flag = 0;
 
-	if(!strcmp(split_topics[0], "#") && split_topics[1] == NULL){
+	إذا(!strcmp(ورهايو_topics[0], "#") && ورهايو_topics[1] == عدم){
 		HASH_ITER(hh, retainhier->children, branch, branch_tmp){
 			/* Set flag to indicate that we should check for retained messages
 			 * on "foo" when we are subscribing to e.g. "foo/#" and then exit
 			 * this function and return to an earlier retain__search().
 			 */
 			flag = -1;
-			if(branch->retained){
+			إذا(branch->retained){
 				retain__process(branch, context, sub);
 			}
-			if(branch->children){
-				retain__search(branch, split_topics, context, sub, level+1);
+			إذا(branch->children){
+				retain_ڳولا(branch, ورهايو_topics, context, sub, level+1);
 			}
 		}
-	}else{
-		if(!strcmp(split_topics[0], "+")){
+	}وإلا{
+		إذا(!strcmp(ورهايو_topics[0], "+")){
 			HASH_ITER(hh, retainhier->children, branch, branch_tmp){
-				if(split_topics[1] != NULL){
-					if(retain__search(branch, &(split_topics[1]), context, sub, level+1) == -1
-							|| (split_topics[1] != NULL && !strcmp(split_topics[1], "#") && level>0)){
+				إذا(ورهايو_topics[1] != عدم){
+					إذا(retain_ڳولا(branch, &(ورهايو_topics[1]), context, sub, level+1) == -1
+							|| (ورهايو_topics[1] != عدم && !strcmp(ورهايو_topics[1], "#") && level>0)){
 
-						if(branch->retained){
+						إذا(branch->retained){
 							retain__process(branch, context, sub);
 						}
 					}
-				}else{
-					if(branch->retained){
+				}وإلا{
+					إذا(branch->retained){
 						retain__process(branch, context, sub);
 					}
 				}
 			}
-		}else{
-			HASH_FIND(hh, retainhier->children, split_topics[0], strlen(split_topics[0]), branch);
-			if(branch){
-				if(split_topics[1] != NULL){
-					if(retain__search(branch, &(split_topics[1]), context, sub, level+1) == -1
-							|| (split_topics[1] != NULL && !strcmp(split_topics[1], "#") && level>0)){
+		}وإلا{
+			HASH_ڳوليو(hh, retainhier->children, ورهايو_topics[0], لڙي_ڊيگهه(ورهايو_topics[0]), branch);
+			إذا(branch){
+				إذا(ورهايو_topics[1] != عدم){
+					إذا(retain_ڳولا(branch, &(ورهايو_topics[1]), context, sub, level+1) == -1
+							|| (ورهايو_topics[1] != عدم && !strcmp(ورهايو_topics[1], "#") && level>0)){
 
-						if(branch->retained){
+						إذا(branch->retained){
 							retain__process(branch, context, sub);
 						}
 					}
-				}else{
-					if(branch->retained){
+				}وإلا{
+					إذا(branch->retained){
 						retain__process(branch, context, sub);
 					}
 				}
 			}
 		}
 	}
-	return flag;
+	أرجع flag;
 }
 
 
-int retain__queue(struct mosquitto *context, const struct mosquitto_subscription *sub)
+صحيح retain_قطار(بنية mosquitto *context, ثابت بنية mosquitto_subscription *sub)
 {
-	struct mosquitto__retainhier *retainhier;
-	char *local_sub;
-	char **split_topics;
-	int rc;
+	بنية mosquitto__retainhier *retainhier;
+	حرف *local_sub;
+	حرف **ورهايو_topics;
+	صحيح rc;
 
-	assert(context);
-	assert(sub);
+	أكد(context);
+	أكد(sub);
 
-	if(!strncmp(sub->topic_filter, "$share/", strlen("$share/"))){
-		return MOSQ_ERR_SUCCESS;
+	إذا(!لڙي_ڀيٽ(sub->topic_filter, "$share/", لڙي_ڊيگهه("$share/"))){
+		أرجع MOSQ_ERR_SUCCESS;
 	}
 
-	rc = sub__topic_tokenise(sub->topic_filter, &local_sub, &split_topics, NULL);
-	if(rc){
-		return rc;
+	rc = sub__topic_tokenise(sub->topic_filter, &local_sub, &ورهايو_topics, عدم);
+	إذا(rc){
+		أرجع rc;
 	}
 
-	HASH_FIND(hh, db.retains, split_topics[0], strlen(split_topics[0]), retainhier);
+	HASH_ڳوليو(hh, db.retains, ورهايو_topics[0], لڙي_ڊيگهه(ورهايو_topics[0]), retainhier);
 
-	if(retainhier){
-		retain__search(retainhier, split_topics, context, sub, 0);
+	إذا(retainhier){
+		retain_ڳولا(retainhier, ورهايو_topics, context, sub, 0);
 	}
 	mosquitto_FREE(local_sub);
-	mosquitto_FREE(split_topics);
+	mosquitto_FREE(ورهايو_topics);
 
-	return MOSQ_ERR_SUCCESS;
+	أرجع MOSQ_ERR_SUCCESS;
 }
 
 
-void retain__expire(struct mosquitto__retainhier **retainhier)
+فراغ retain__expire(بنية mosquitto__retainhier **retainhier)
 {
-	struct mosquitto__retainhier *peer, *retainhier_tmp;
+	بنية mosquitto__retainhier *peer, *retainhier_tmp;
 
 	HASH_ITER(hh, *retainhier, peer, retainhier_tmp){
 		retain__expire(&peer->children);
 
-		struct mosquitto__retainhier *parent = peer->parent;
-		if(retain__delete_expired_msg(peer)){
-			retain__clean_empty_hierarchy(parent);
+		بنية mosquitto__retainhier *والد = peer->والد;
+		إذا(retain_delete_expired_نياپو(peer)){
+			retain_clean_خالي_جايون_hierarchy(والد);
 		}
 	}
 }
 
 
-void retain__clean(struct mosquitto__retainhier **retainhier)
+فراغ retain__clean(بنية mosquitto__retainhier **retainhier)
 {
-	struct mosquitto__retainhier *peer, *retainhier_tmp;
+	بنية mosquitto__retainhier *peer, *retainhier_tmp;
 
 	HASH_ITER(hh, *retainhier, peer, retainhier_tmp){
-		if(peer->retained){
-			db__msg_store_ref_dec(&peer->retained);
+		إذا(peer->retained){
+			db_نياپو_store_ref_dec(&peer->retained);
 		}
 		retain__clean(&peer->children);
 
@@ -408,10 +408,10 @@ void retain__clean(struct mosquitto__retainhier **retainhier)
 }
 
 
-void retain__expiry_check(void)
+فراغ retain__expiry_check(فراغ)
 {
-	if(db.config->retain_expiry_interval > 0 && db.now_s > next_expire_check){
+	إذا(db.config->retain_expiry_interval > 0 && db.now_s > ايندڙ_expire_check){
 		retain__expire(&db.retains);
-		next_expire_check = db.now_s + db.config->retain_expiry_interval;
+		ايندڙ_expire_check = db.now_s + db.config->retain_expiry_interval;
 	}
 }

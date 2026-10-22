@@ -16,195 +16,195 @@ Contributors:
    Roger Light - initial implementation and documentation.
 */
 
-#include "config.h"
+#ضمن "config.h"
 
-#include <stdio.h>
-#include <string.h>
+#ضمن <stdio.h>
+#ضمن <string.h>
 
-#include "mosquitto_broker_internal.h"
-#include "mosquitto/mqtt_protocol.h"
-#include "packet_mosq.h"
-#include "send_mosq.h"
-#include "util_mosq.h"
+#ضمن "mosquitto_broker_internal.h"
+#ضمن "mosquitto/mqtt_protocol.h"
+#ضمن "packet_mosq.h"
+#ضمن "send_mosq.h"
+#ضمن "util_mosq.h"
 
 
-static int handle__connack_properties(struct mosquitto *context)
+ساكن صحيح handle__connack_properties(بنية mosquitto *context)
 {
-	int rc;
-	mosquitto_property *properties = NULL;
-	uint16_t inflight_maximum;
+	صحيح rc;
+	mosquitto_property *properties = عدم;
+	uint16_t inflight_وڌ_کان_وڌ;
 	uint8_t max_qos = 255;
-	uint32_t maximum_packet_size;
+	uint32_t وڌ_کان_وڌ_packet_سائيز;
 	uint16_t server_keepalive;
 	uint16_t max_topic_alias;
-	uint8_t retain_available;
+	uint8_t retain_موجود;
 
-	rc = property__read_all(CMD_CONNACK, &context->in_packet, &properties);
-	if(rc){
-		return rc;
+	rc = property__read_all(CMD_CONNACK, &context->اندريون_packet, &properties);
+	إذا(rc){
+		أرجع rc;
 	}
 
 	/* maximum-qos */
-	mosquitto_property_read_byte(properties, MQTT_PROP_MAXIMUM_QOS,
+	mosquitto_property_read_byte(properties, MQTT_PROP_وڌ_کان_وڌ_QOS,
 			&max_qos, false);
-	if(max_qos != 255){
+	إذا(max_qos != 255){
 		context->max_qos = max_qos;
 	}
 
 	/* maximum-packet-size */
-	if(mosquitto_property_read_int32(properties, MQTT_PROP_MAXIMUM_PACKET_SIZE,
-			&maximum_packet_size, false)){
+	إذا(mosquitto_property_read_int32(properties, MQTT_PROP_وڌ_کان_وڌ_PACKET_سائيز,
+			&وڌ_کان_وڌ_packet_سائيز, false)){
 
-		if(context->maximum_packet_size == 0 || context->maximum_packet_size > maximum_packet_size){
-			context->maximum_packet_size = maximum_packet_size;
+		إذا(context->وڌ_کان_وڌ_packet_سائيز == 0 || context->وڌ_کان_وڌ_packet_سائيز > وڌ_کان_وڌ_packet_سائيز){
+			context->وڌ_کان_وڌ_packet_سائيز = وڌ_کان_وڌ_packet_سائيز;
 		}
 	}
 
 	/* receive-maximum */
-	inflight_maximum = context->msgs_out.inflight_maximum;
-	mosquitto_property_read_int16(properties, MQTT_PROP_RECEIVE_MAXIMUM, &inflight_maximum, false);
-	if(context->msgs_out.inflight_maximum != inflight_maximum){
-		context->msgs_out.inflight_maximum = inflight_maximum;
-		db__message_reconnect_reset(context);
+	inflight_وڌ_کان_وڌ = context->msgs_ٻاهريون.inflight_وڌ_کان_وڌ;
+	mosquitto_property_read_int16(properties, MQTT_PROP_RECEIVE_وڌ_کان_وڌ, &inflight_وڌ_کان_وڌ, false);
+	إذا(context->msgs_ٻاهريون.inflight_وڌ_کان_وڌ != inflight_وڌ_کان_وڌ){
+		context->msgs_ٻاهريون.inflight_وڌ_کان_وڌ = inflight_وڌ_کان_وڌ;
+		db_پيغام_reconnect_reset(context);
 	}
 
 	/* retain-available */
-	if(mosquitto_property_read_byte(properties, MQTT_PROP_RETAIN_AVAILABLE,
-			&retain_available, false)){
+	إذا(mosquitto_property_read_byte(properties, MQTT_PROP_RETAIN_موجود,
+			&retain_موجود, false)){
 
 		/* Only use broker provided value if the local config is set to available==true */
-		if(context->retain_available){
-			context->retain_available = retain_available;
+		إذا(context->retain_موجود){
+			context->retain_موجود = retain_موجود;
 		}
 	}
 
 	/* server-keepalive */
-	if(mosquitto_property_read_int16(properties, MQTT_PROP_SERVER_KEEP_ALIVE,
+	إذا(mosquitto_property_read_int16(properties, MQTT_PROP_SERVER_KEEP_ALIVE,
 			&server_keepalive, false)){
 
 		context->keepalive = server_keepalive;
 	}
 
 	/* topic-alias-maximum */
-	if(mosquitto_property_read_int16(properties, MQTT_PROP_TOPIC_ALIAS_MAXIMUM,
+	إذا(mosquitto_property_read_int16(properties, MQTT_PROP_TOPIC_ALIAS_وڌ_کان_وڌ,
 			&max_topic_alias, false)){
 
-		if(max_topic_alias < context->bridge->max_topic_alias){
+		إذا(max_topic_alias < context->bridge->max_topic_alias){
 			context->alias_max_l2r = max_topic_alias;
-		}else{
+		}وإلا{
 			context->alias_max_l2r = context->bridge->max_topic_alias;
 		}
 	}
 
 	mosquitto_property_free_all(&properties);
 
-	return MOSQ_ERR_SUCCESS;
+	أرجع MOSQ_ERR_SUCCESS;
 }
 
 
-int handle__connack(struct mosquitto *context)
+صحيح handle__connack(بنية mosquitto *context)
 {
-	int rc;
+	صحيح rc;
 	uint8_t connect_acknowledge;
-	uint8_t reason_code;
+	uint8_t reason_ڪوڊ;
 
-	if(context == NULL){
-		return MOSQ_ERR_INVAL;
+	إذا(context == عدم){
+		أرجع MOSQ_ERR_INVAL;
 	}
-	if(context->bridge == NULL){
-		log__printf(NULL, MOSQ_LOG_INFO, "Protocol error from %s: CONNACK when not a bridge.", context->id);
-		return MOSQ_ERR_PROTOCOL;
+	إذا(context->bridge == عدم){
+		log__printf(عدم, MOSQ_LOG_INFO, "Protocol error from %s: CONNACK when not a bridge.", context->id);
+		أرجع MOSQ_ERR_PROTOCOL;
 	}
-	if(context->in_packet.command != CMD_CONNACK){
-		return MOSQ_ERR_MALFORMED_PACKET;
+	إذا(context->اندريون_packet.command != CMD_CONNACK){
+		أرجع MOSQ_ERR_MALFORMED_PACKET;
 	}
-	log__printf(NULL, MOSQ_LOG_DEBUG, "Received CONNACK on connection %s.", context->id);
-	if(packet__read_byte(&context->in_packet, &connect_acknowledge)){
-		return MOSQ_ERR_MALFORMED_PACKET;
+	log__printf(عدم, MOSQ_LOG_DEBUG, "Received CONNACK on connection %s.", context->id);
+	إذا(packet__read_byte(&context->اندريون_packet, &connect_acknowledge)){
+		أرجع MOSQ_ERR_MALFORMED_PACKET;
 	}
-	if(packet__read_byte(&context->in_packet, &reason_code)){
-		return MOSQ_ERR_MALFORMED_PACKET;
+	إذا(packet__read_byte(&context->اندريون_packet, &reason_ڪوڊ)){
+		أرجع MOSQ_ERR_MALFORMED_PACKET;
 	}
 
-	if(context->protocol == mosq_p_mqtt5){
-		if(context->in_packet.remaining_length == 2 && reason_code == CONNACK_REFUSED_PROTOCOL_VERSION){
+	إذا(context->protocol == mosq_p_mqtt5){
+		إذا(context->اندريون_packet.بچيل_ڊيگهائي == 2 && reason_ڪوڊ == CONNACK_REFUSED_PROTOCOL_نسخو){
 			/* We have connected to a MQTT v3.x broker that doesn't support MQTT v5.0
 			 * It has correctly replied with a CONNACK code of a bad protocol version.
 			 */
-			log__printf(NULL, MOSQ_LOG_NOTICE,
+			log__printf(عدم, MOSQ_LOG_NOTICE,
 					"Warning: Remote bridge %s does not support MQTT v5.0, reconnecting using MQTT v3.1.1.",
 					context->bridge->name);
 
 			context->protocol = mosq_p_mqtt311;
-			context->bridge->protocol_version = mosq_p_mqtt311;
-			return MOSQ_ERR_PROTOCOL;
+			context->bridge->protocol_نسخو = mosq_p_mqtt311;
+			أرجع MOSQ_ERR_PROTOCOL;
 		}
 
 		rc = handle__connack_properties(context);
-		if(rc){
-			return rc;
+		إذا(rc){
+			أرجع rc;
 		}
 	}
 
-	if(reason_code == MQTT_RC_SUCCESS){
-#ifdef WITH_BRIDGE
-		if(context->bridge){
+	إذا(reason_ڪوڊ == MQTT_RC_SUCCESS){
+#جيڪڏهن_وصف_ٿيل WITH_BRIDGE
+		إذا(context->bridge){
 			rc = bridge__on_connect(context);
-			if(rc){
-				return rc;
+			إذا(rc){
+				أرجع rc;
 			}
 		}
-#endif
-		mosquitto__set_state(context, mosq_cs_active);
-		rc = db__message_write_queued_out(context);
-		if(rc){
-			return rc;
+#جيڪڏهن_پورو
+		mosquitto_سيٽ_state(context, mosq_cs_سرگرم);
+		rc = db_پيغام_write_queued_ٻاهريون(context);
+		إذا(rc){
+			أرجع rc;
 		}
-		rc = db__message_write_inflight_out_all(context);
-		return rc;
-	}else{
-		if(context->protocol == mosq_p_mqtt5){
-			switch(reason_code){
-				case MQTT_RC_RETAIN_NOT_SUPPORTED:
-					context->retain_available = 0;
-					log__printf(NULL, MOSQ_LOG_ERR, "Connection Refused: retain not available (will retry)");
-					return MOSQ_ERR_CONN_LOST;
-				case MQTT_RC_QOS_NOT_SUPPORTED:
-					if(context->max_qos != 0){
+		rc = db_پيغام_write_inflight_ٻاهريون_all(context);
+		أرجع rc;
+	}وإلا{
+		إذا(context->protocol == mosq_p_mqtt5){
+			بدل(reason_ڪوڊ){
+				حالة MQTT_RC_RETAIN_NOT_SUPPORTED:
+					context->retain_موجود = 0;
+					log__printf(عدم, MOSQ_LOG_ERR, "Connection Refused: retain not available (will retry)");
+					أرجع MOSQ_ERR_CONN_گم;
+				حالة MQTT_RC_QOS_NOT_SUPPORTED:
+					إذا(context->max_qos != 0){
 						context->max_qos--;
 					}
-					log__printf(NULL, MOSQ_LOG_ERR, "Connection Refused: QoS not supported (will retry)");
-					return MOSQ_ERR_CONN_LOST;
-				default:
-					log__printf(NULL, MOSQ_LOG_ERR, "Connection Refused: %s", mosquitto_reason_string(reason_code));
-					return MOSQ_ERR_CONN_LOST;
+					log__printf(عدم, MOSQ_LOG_ERR, "Connection Refused: QoS not supported (will retry)");
+					أرجع MOSQ_ERR_CONN_گم;
+				افتراضي:
+					log__printf(عدم, MOSQ_LOG_ERR, "Connection Refused: %s", mosquitto_reason_string(reason_ڪوڊ));
+					أرجع MOSQ_ERR_CONN_گم;
 			}
-		}else{
-			switch(reason_code){
-				case CONNACK_REFUSED_PROTOCOL_VERSION:
-					if(context->bridge){
-						context->bridge->try_private_accepted = false;
+		}وإلا{
+			بدل(reason_ڪوڊ){
+				حالة CONNACK_REFUSED_PROTOCOL_نسخو:
+					إذا(context->bridge){
+						context->bridge->try_ذاتي_accepted = false;
 					}
-					log__printf(NULL, MOSQ_LOG_ERR, "Connection Refused: unacceptable protocol version");
-					return MOSQ_ERR_CONN_LOST;
-				case CONNACK_REFUSED_IDENTIFIER_REJECTED:
-					log__printf(NULL, MOSQ_LOG_ERR, "Connection Refused: identifier rejected");
-					return MOSQ_ERR_CONN_LOST;
-				case CONNACK_REFUSED_SERVER_UNAVAILABLE:
-					log__printf(NULL, MOSQ_LOG_ERR, "Connection Refused: broker unavailable");
-					return MOSQ_ERR_CONN_LOST;
-				case CONNACK_REFUSED_BAD_USERNAME_PASSWORD:
-					log__printf(NULL, MOSQ_LOG_ERR, "Connection Refused: bad user name or password");
-					return MOSQ_ERR_CONN_LOST;
-				case CONNACK_REFUSED_NOT_AUTHORIZED:
-					log__printf(NULL, MOSQ_LOG_ERR, "Connection Refused: not authorised");
-					return MOSQ_ERR_CONN_LOST;
-				default:
-					log__printf(NULL, MOSQ_LOG_ERR, "Connection Refused: unknown reason");
-					return MOSQ_ERR_CONN_LOST;
+					log__printf(عدم, MOSQ_LOG_ERR, "Connection Refused: unacceptable protocol version");
+					أرجع MOSQ_ERR_CONN_گم;
+				حالة CONNACK_REFUSED_IDENTIFIER_REJECTED:
+					log__printf(عدم, MOSQ_LOG_ERR, "Connection Refused: identifier rejected");
+					أرجع MOSQ_ERR_CONN_گم;
+				حالة CONNACK_REFUSED_SERVER_UNAVAILABLE:
+					log__printf(عدم, MOSQ_LOG_ERR, "Connection Refused: broker unavailable");
+					أرجع MOSQ_ERR_CONN_گم;
+				حالة CONNACK_REFUSED_BAD_USERNAME_PASSWORD:
+					log__printf(عدم, MOSQ_LOG_ERR, "Connection Refused: bad user name or password");
+					أرجع MOSQ_ERR_CONN_گم;
+				حالة CONNACK_REFUSED_NOT_AUTHORIZED:
+					log__printf(عدم, MOSQ_LOG_ERR, "Connection Refused: not authorised");
+					أرجع MOSQ_ERR_CONN_گم;
+				افتراضي:
+					log__printf(عدم, MOSQ_LOG_ERR, "Connection Refused: unknown reason");
+					أرجع MOSQ_ERR_CONN_گم;
 			}
 		}
 	}
-	return MOSQ_ERR_CONN_LOST;
+	أرجع MOSQ_ERR_CONN_گم;
 }
 
