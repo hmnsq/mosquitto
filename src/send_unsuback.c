@@ -16,43 +16,43 @@ Contributors:
    Roger Light - initial implementation and documentation.
 */
 
-#include "config.h"
+#ضمن "config.h"
 
-#include <assert.h>
+#ضمن <assert.h>
 
-#include "mosquitto_broker_internal.h"
-#include "mosquitto/mqtt_protocol.h"
-#include "packet_mosq.h"
-#include "property_mosq.h"
-#include "sys_tree.h"
+#ضمن "mosquitto_broker_internal.h"
+#ضمن "mosquitto/mqtt_protocol.h"
+#ضمن "packet_mosq.h"
+#ضمن "property_mosq.h"
+#ضمن "sys_tree.h"
 
 
-int send__unsuback(struct mosquitto *mosq, uint16_t mid, int reason_code_count, uint8_t *reason_codes, const mosquitto_property *properties)
+صحيح send__unsuback(بنية mosquitto *mosq, uint16_t mid, صحيح reason_کوڈ_گنتی, uint8_t *reason_codes, ثابت mosquitto_property *properties)
 {
-	struct mosquitto__packet *packet = NULL;
-	int rc;
-	uint32_t remaining_length;
+	بنية mosquitto__packet *packet = عدم;
+	صحيح rc;
+	uint32_t بچیا_لمائی;
 
-	assert(mosq);
+	أكد(mosq);
 
-	remaining_length = 2;
-	if(mosq->protocol == mosq_p_mqtt5){
-		remaining_length += mosquitto_property_get_remaining_length(properties);
-		remaining_length += (uint32_t)reason_code_count;
+	بچیا_لمائی = 2;
+	إذا(mosq->protocol == mosq_p_mqtt5){
+		بچیا_لمائی += mosquitto_property_get_بچیا_لمائی(properties);
+		بچیا_لمائی += (uint32_t)reason_کوڈ_گنتی;
 	}
 
-	rc = packet__alloc(&packet, CMD_UNSUBACK, remaining_length);
-	if(rc){
-		return rc;
+	rc = packet__alloc(&packet, CMD_UNSUBACK, بچیا_لمائی);
+	إذا(rc){
+		أرجع rc;
 	}
 
 	packet__write_uint16(packet, mid);
 
-	if(mosq->protocol == mosq_p_mqtt5){
+	إذا(mosq->protocol == mosq_p_mqtt5){
 		property__write_all(packet, properties, true);
-		packet__write_bytes(packet, reason_codes, (uint32_t)reason_code_count);
+		packet_write_بائٹاں(packet, reason_codes, (uint32_t)reason_کوڈ_گنتی);
 	}
 
-	metrics__int_inc(mosq_counter_mqtt_unsuback_sent, 1);
-	return packet__queue(mosq, packet);
+	metrics__int_inc(mosq_counter_mqtt_unsuback_گھلیا, 1);
+	أرجع packet_قطار(mosq, packet);
 }

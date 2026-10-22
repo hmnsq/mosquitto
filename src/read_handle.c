@@ -16,110 +16,110 @@ Contributors:
    Roger Light - initial implementation and documentation.
 */
 
-#include "config.h"
+#ضمن "config.h"
 
-#include <stdio.h>
-#include <string.h>
+#ضمن <stdio.h>
+#ضمن <string.h>
 
-#include "mosquitto_broker_internal.h"
-#include "mosquitto/mqtt_protocol.h"
-#include "packet_mosq.h"
-#include "read_handle.h"
-#include "send_mosq.h"
-#include "sys_tree.h"
-#include "util_mosq.h"
+#ضمن "mosquitto_broker_internal.h"
+#ضمن "mosquitto/mqtt_protocol.h"
+#ضمن "packet_mosq.h"
+#ضمن "read_handle.h"
+#ضمن "send_mosq.h"
+#ضمن "sys_tree.h"
+#ضمن "util_mosq.h"
 
 
-int handle__packet(struct mosquitto *context)
+صحيح handle__packet(بنية mosquitto *context)
 {
-	int rc = MOSQ_ERR_INVAL;
+	صحيح rc = MOSQ_ERR_INVAL;
 
-	if(!context){
-		return MOSQ_ERR_INVAL;
+	إذا(!context){
+		أرجع MOSQ_ERR_INVAL;
 	}
 
-	switch((context->in_packet.command)&0xF0){
-		case CMD_PINGREQ:
+	بدل((context->وچ_packet.command)&0xF0){
+		حالة CMD_PINGREQ:
 			metrics__int_inc(mosq_counter_mqtt_pingreq_received, 1);
 			rc = handle__pingreq(context);
-			break;
-		case CMD_PINGRESP:
+			اكسر;
+		حالة CMD_PINGRESP:
 			metrics__int_inc(mosq_counter_mqtt_pingresp_received, 1);
 			rc = handle__pingresp(context);
-			break;
-		case CMD_PUBACK:
+			اكسر;
+		حالة CMD_PUBACK:
 			metrics__int_inc(mosq_counter_mqtt_puback_received, 1);
 			rc = handle__pubackcomp(context, "PUBACK");
-			break;
-		case CMD_PUBCOMP:
+			اكسر;
+		حالة CMD_PUBCOMP:
 			metrics__int_inc(mosq_counter_mqtt_pubcomp_received, 1);
 			rc = handle__pubackcomp(context, "PUBCOMP");
-			break;
-		case CMD_PUBLISH:
+			اكسر;
+		حالة CMD_PUBLISH:
 			metrics__int_inc(mosq_counter_mqtt_publish_received, 1);
 			rc = handle__publish(context);
-			break;
-		case CMD_PUBREC:
+			اكسر;
+		حالة CMD_PUBREC:
 			metrics__int_inc(mosq_counter_mqtt_pubrec_received, 1);
 			rc = handle__pubrec(context);
-			break;
-		case CMD_PUBREL:
+			اكسر;
+		حالة CMD_PUBREL:
 			metrics__int_inc(mosq_counter_mqtt_pubrel_received, 1);
 			rc = handle__pubrel(context);
-			break;
-		case CMD_CONNECT:
+			اكسر;
+		حالة CMD_CONNECT:
 			metrics__int_inc(mosq_counter_mqtt_connect_received, 1);
-			return handle__connect(context);
-		case CMD_DISCONNECT:
+			أرجع handle__connect(context);
+		حالة CMD_DISCONNECT:
 			metrics__int_inc(mosq_counter_mqtt_disconnect_received, 1);
 			rc = handle__disconnect(context);
-			break;
-		case CMD_SUBSCRIBE:
+			اكسر;
+		حالة CMD_SUBSCRIBE:
 			metrics__int_inc(mosq_counter_mqtt_subscribe_received, 1);
 			rc = handle__subscribe(context);
-			break;
-		case CMD_UNSUBSCRIBE:
+			اكسر;
+		حالة CMD_UNSUBSCRIBE:
 			metrics__int_inc(mosq_counter_mqtt_unsubscribe_received, 1);
 			rc = handle__unsubscribe(context);
-			break;
-#ifdef WITH_BRIDGE
-		case CMD_CONNACK:
+			اكسر;
+#جے_تعریف_شدہ WITH_BRIDGE
+		حالة CMD_CONNACK:
 			metrics__int_inc(mosq_counter_mqtt_connack_received, 1);
 			rc = handle__connack(context);
-			break;
-		case CMD_SUBACK:
+			اكسر;
+		حالة CMD_SUBACK:
 			metrics__int_inc(mosq_counter_mqtt_suback_received, 1);
 			rc = handle__suback(context);
-			break;
-		case CMD_UNSUBACK:
+			اكسر;
+		حالة CMD_UNSUBACK:
 			metrics__int_inc(mosq_counter_mqtt_unsuback_received, 1);
 			rc = handle__unsuback(context);
-			break;
-#endif
-		case CMD_AUTH:
+			اكسر;
+#جے_انت
+		حالة CMD_AUTH:
 			metrics__int_inc(mosq_counter_mqtt_auth_received, 1);
 			rc = handle__auth(context);
-			break;
-		default:
+			اكسر;
+		افتراضي:
 			rc = MOSQ_ERR_PROTOCOL;
 	}
 
-	if(context->protocol == mosq_p_mqtt5){
-		if(rc == MOSQ_ERR_PROTOCOL || rc == MOSQ_ERR_DUPLICATE_PROPERTY){
-			send__disconnect(context, MQTT_RC_PROTOCOL_ERROR, NULL);
-		}else if(rc == MOSQ_ERR_MALFORMED_PACKET){
-			send__disconnect(context, MQTT_RC_MALFORMED_PACKET, NULL);
-		}else if(rc == MOSQ_ERR_QOS_NOT_SUPPORTED){
-			send__disconnect(context, MQTT_RC_QOS_NOT_SUPPORTED, NULL);
-		}else if(rc == MOSQ_ERR_RETAIN_NOT_SUPPORTED){
-			send__disconnect(context, MQTT_RC_RETAIN_NOT_SUPPORTED, NULL);
-		}else if(rc == MOSQ_ERR_TOPIC_ALIAS_INVALID){
-			send__disconnect(context, MQTT_RC_TOPIC_ALIAS_INVALID, NULL);
-		}else if(rc == MOSQ_ERR_RECEIVE_MAXIMUM_EXCEEDED){
-			send__disconnect(context, MQTT_RC_RECEIVE_MAXIMUM_EXCEEDED, NULL);
-		}else if(rc == MOSQ_ERR_UNKNOWN || rc == MOSQ_ERR_NOMEM){
-			send__disconnect(context, MQTT_RC_UNSPECIFIED, NULL);
+	إذا(context->protocol == mosq_p_mqtt5){
+		إذا(rc == MOSQ_ERR_PROTOCOL || rc == MOSQ_ERR_DUPLICATE_PROPERTY){
+			send__disconnect(context, MQTT_RC_PROTOCOL_ERROR, عدم);
+		}وإلا إذا(rc == MOSQ_ERR_MALFORMED_PACKET){
+			send__disconnect(context, MQTT_RC_MALFORMED_PACKET, عدم);
+		}وإلا إذا(rc == MOSQ_ERR_QOS_NOT_SUPPORTED){
+			send__disconnect(context, MQTT_RC_QOS_NOT_SUPPORTED, عدم);
+		}وإلا إذا(rc == MOSQ_ERR_RETAIN_NOT_SUPPORTED){
+			send__disconnect(context, MQTT_RC_RETAIN_NOT_SUPPORTED, عدم);
+		}وإلا إذا(rc == MOSQ_ERR_TOPIC_ALIAS_INVALID){
+			send__disconnect(context, MQTT_RC_TOPIC_ALIAS_INVALID, عدم);
+		}وإلا إذا(rc == MOSQ_ERR_RECEIVE_ودھ_توں_ودھ_EXCEEDED){
+			send__disconnect(context, MQTT_RC_RECEIVE_ودھ_توں_ودھ_EXCEEDED, عدم);
+		}وإلا إذا(rc == MOSQ_ERR_UNKNOWN || rc == MOSQ_ERR_NOMEM){
+			send__disconnect(context, MQTT_RC_UNSPECIFIED, عدم);
 		}
 	}
-	return rc;
+	أرجع rc;
 }

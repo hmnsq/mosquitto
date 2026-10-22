@@ -16,87 +16,87 @@ Contributors:
    Roger Light - initial implementation and documentation.
 */
 
-#include "config.h"
+#ضمن "config.h"
 
-#include "mosquitto_broker_internal.h"
-#include "mosquitto/mqtt_protocol.h"
-#include "packet_mosq.h"
-#include "property_mosq.h"
-#include "sys_tree.h"
-#include "util_mosq.h"
+#ضمن "mosquitto_broker_internal.h"
+#ضمن "mosquitto/mqtt_protocol.h"
+#ضمن "packet_mosq.h"
+#ضمن "property_mosq.h"
+#ضمن "sys_tree.h"
+#ضمن "util_mosq.h"
 
 
-int send__connack(struct mosquitto *context, uint8_t ack, uint8_t reason_code, const mosquitto_property *properties)
+صحيح send__connack(بنية mosquitto *context, uint8_t ack, uint8_t reason_کوڈ, ثابت mosquitto_property *properties)
 {
-	struct mosquitto__packet *packet = NULL;
-	int rc;
-	mosquitto_property *connack_props = NULL;
-	uint32_t remaining_length;
+	بنية mosquitto__packet *packet = عدم;
+	صحيح rc;
+	mosquitto_property *connack_props = عدم;
+	uint32_t بچیا_لمائی;
 
 	rc = mosquitto_property_copy_all(&connack_props, properties);
-	if(rc){
-		return rc;
+	إذا(rc){
+		أرجع rc;
 	}
 
-	if(context->id){
-		log__printf(NULL, MOSQ_LOG_DEBUG, "Sending CONNACK to %s (%d, %d)", context->id, ack, reason_code);
-	}else{
-		log__printf(NULL, MOSQ_LOG_DEBUG, "Sending CONNACK to %s (%d, %d)", context->address, ack, reason_code);
+	إذا(context->id){
+		log__printf(عدم, MOSQ_LOG_DEBUG, "Sending CONNACK to %s (%d, %d)", context->id, ack, reason_کوڈ);
+	}وإلا{
+		log__printf(عدم, MOSQ_LOG_DEBUG, "Sending CONNACK to %s (%d, %d)", context->پتہ, ack, reason_کوڈ);
 	}
 
-	remaining_length = 2;
+	بچیا_لمائی = 2;
 
-	if(context->protocol == mosq_p_mqtt5){
-		if(reason_code < 128 && db.config->retain_available == false){
-			rc = mosquitto_property_add_byte(&connack_props, MQTT_PROP_RETAIN_AVAILABLE, 0);
-			if(rc){
+	إذا(context->protocol == mosq_p_mqtt5){
+		إذا(reason_کوڈ < 128 && db.config->retain_دستیاب == false){
+			rc = mosquitto_property_جوڑو_byte(&connack_props, MQTT_PROP_RETAIN_دستیاب, 0);
+			إذا(rc){
 				mosquitto_property_free_all(&connack_props);
-				return rc;
+				أرجع rc;
 			}
 		}
-		if(reason_code < 128 && db.config->max_packet_size > 0){
-			rc = mosquitto_property_add_int32(&connack_props, MQTT_PROP_MAXIMUM_PACKET_SIZE, db.config->max_packet_size);
-			if(rc){
+		إذا(reason_کوڈ < 128 && db.config->max_packet_ناپ > 0){
+			rc = mosquitto_property_جوڑو_int32(&connack_props, MQTT_PROP_ودھ_توں_ودھ_PACKET_ناپ, db.config->max_packet_ناپ);
+			إذا(rc){
 				mosquitto_property_free_all(&connack_props);
-				return rc;
+				أرجع rc;
 			}
 		}
-		if(reason_code < 128 && db.config->max_inflight_messages > 0){
-			rc = mosquitto_property_add_int16(&connack_props, MQTT_PROP_RECEIVE_MAXIMUM, db.config->max_inflight_messages);
-			if(rc){
+		إذا(reason_کوڈ < 128 && db.config->max_inflight_messages > 0){
+			rc = mosquitto_property_جوڑو_int16(&connack_props, MQTT_PROP_RECEIVE_ودھ_توں_ودھ, db.config->max_inflight_messages);
+			إذا(rc){
 				mosquitto_property_free_all(&connack_props);
-				return rc;
+				أرجع rc;
 			}
 		}
-		if(context->listener->max_qos != 2){
-			rc = mosquitto_property_add_byte(&connack_props, MQTT_PROP_MAXIMUM_QOS, context->listener->max_qos);
-			if(rc){
+		إذا(context->listener->max_qos != 2){
+			rc = mosquitto_property_جوڑو_byte(&connack_props, MQTT_PROP_ودھ_توں_ودھ_QOS, context->listener->max_qos);
+			إذا(rc){
 				mosquitto_property_free_all(&connack_props);
-				return rc;
+				أرجع rc;
 			}
 		}
 
-		remaining_length += mosquitto_property_get_remaining_length(connack_props);
+		بچیا_لمائی += mosquitto_property_get_بچیا_لمائی(connack_props);
 	}
 
-	if(packet__check_oversize(context, remaining_length)){
+	إذا(packet__check_oversize(context, بچیا_لمائی)){
 		mosquitto_property_free_all(&connack_props);
-		return MOSQ_ERR_OVERSIZE_PACKET;
+		أرجع MOSQ_ERR_OVERSIZE_PACKET;
 	}
 
-	rc = packet__alloc(&packet, CMD_CONNACK, remaining_length);
-	if(rc){
+	rc = packet__alloc(&packet, CMD_CONNACK, بچیا_لمائی);
+	إذا(rc){
 		mosquitto_property_free_all(&connack_props);
-		return rc;
+		أرجع rc;
 	}
 	packet__write_byte(packet, ack);
-	packet__write_byte(packet, reason_code);
-	if(context->protocol == mosq_p_mqtt5){
+	packet__write_byte(packet, reason_کوڈ);
+	إذا(context->protocol == mosq_p_mqtt5){
 		property__write_all(packet, connack_props, true);
 	}
 	mosquitto_property_free_all(&connack_props);
 
-	metrics__int_inc(mosq_counter_mqtt_connack_sent, 1);
-	return packet__queue(context, packet);
+	metrics__int_inc(mosq_counter_mqtt_connack_گھلیا, 1);
+	أرجع packet_قطار(context, packet);
 }
 

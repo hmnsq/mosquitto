@@ -17,55 +17,55 @@ Contributors:
    Roger Light - initial implementation and documentation.
 */
 
-#include "config.h"
+#ضمن "config.h"
 
-#include "mosquitto_broker_internal.h"
-#include "utlist.h"
+#ضمن "mosquitto_broker_internal.h"
+#ضمن "utlist.h"
 
 
-static int plugin__handle_subscribe_single(struct mosquitto__security_options *opts, struct mosquitto *context, struct mosquitto_subscription *sub)
+ساكن صحيح plugin__handle_subscribe_single(بنية mosquitto__security_options *opts, بنية mosquitto *context, بنية mosquitto_subscription *sub)
 {
-	struct mosquitto_evt_subscribe event_data;
-	struct mosquitto__callback *cb_base, *cb_next;
-	int rc = MOSQ_ERR_SUCCESS;
+	بنية mosquitto_evt_subscribe event_انکڑے;
+	بنية mosquitto__callback *cb_ادھار, *cb_اگلا;
+	صحيح rc = MOSQ_ERR_SUCCESS;
 
-	memset(&event_data, 0, sizeof(event_data));
-	event_data.client = context;
-	event_data.data.topic_filter = sub->topic_filter;
-	event_data.data.options = sub->options;
-	event_data.data.identifier = sub->identifier;
-	event_data.data.properties = sub->properties;
+	memset(&event_انکڑے, 0, حجم(event_انکڑے));
+	event_انکڑے.client = context;
+	event_انکڑے.انکڑے.topic_filter = sub->topic_filter;
+	event_انکڑے.انکڑے.options = sub->options;
+	event_انکڑے.انکڑے.identifier = sub->identifier;
+	event_انکڑے.انکڑے.properties = sub->properties;
 
-	DL_FOREACH_SAFE(opts->plugin_callbacks.subscribe, cb_base, cb_next){
-		rc = cb_base->cb(MOSQ_EVT_SUBSCRIBE, &event_data, cb_base->userdata);
-		if(rc != MOSQ_ERR_SUCCESS){
-			break;
+	DL_FOREACH_محفوظ(opts->plugin_callbacks.subscribe, cb_ادھار, cb_اگلا){
+		rc = cb_ادھار->cb(MOSQ_EVT_SUBSCRIBE, &event_انکڑے, cb_ادھار->userdata);
+		إذا(rc != MOSQ_ERR_SUCCESS){
+			اكسر;
 		}
 
-		if(sub->topic_filter != event_data.data.topic_filter){
+		إذا(sub->topic_filter != event_انکڑے.انکڑے.topic_filter){
 			mosquitto_free(sub->topic_filter);
-			sub->topic_filter = event_data.data.topic_filter;
+			sub->topic_filter = event_انکڑے.انکڑے.topic_filter;
 		}
 	}
-	sub->options = event_data.data.options;
+	sub->options = event_انکڑے.انکڑے.options;
 
-	return rc;
+	أرجع rc;
 }
 
 
-int plugin__handle_subscribe(struct mosquitto *context, struct mosquitto_subscription *sub)
+صحيح plugin__handle_subscribe(بنية mosquitto *context, بنية mosquitto_subscription *sub)
 {
-	int rc = MOSQ_ERR_SUCCESS;
+	صحيح rc = MOSQ_ERR_SUCCESS;
 
 	/* Global plugins */
 	rc = plugin__handle_subscribe_single(&db.config->security_options, context, sub);
-	if(rc){
-		return rc;
+	إذا(rc){
+		أرجع rc;
 	}
 
-	if(context->listener){
+	إذا(context->listener){
 		rc = plugin__handle_subscribe_single(context->listener->security_options, context, sub);
 	}
 
-	return rc;
+	أرجع rc;
 }
