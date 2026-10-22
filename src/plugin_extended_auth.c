@@ -16,163 +16,163 @@ Contributors:
    Roger Light - initial implementation and documentation.
 */
 
-#include "config.h"
+#అన్తర్భావ "config.h"
 
-#include <stdio.h>
-#include <string.h>
+#అన్తర్భావ <stdio.h>
+#అన్తర్భావ <string.h>
 
-#include "mosquitto/broker.h"
-#include "mosquitto_broker_internal.h"
-#include "mosquitto/broker_plugin.h"
-#include "lib_load.h"
-#include "utlist.h"
+#అన్తర్భావ "mosquitto/broker.h"
+#అన్తర్భావ "mosquitto_broker_internal.h"
+#అన్తర్భావ "mosquitto/broker_plugin.h"
+#అన్తర్భావ "lib_load.h"
+#అన్తర్భావ "utlist.h"
 
 
-static int plugin__ext_auth_start(struct mosquitto__security_options *opts, struct mosquitto *context, bool reauth, const void *data_in, uint16_t data_in_len, void **data_out, uint16_t *data_out_len)
+స్థిర పూర్ణాంకం plugin_ext_auth_ప్రారంభం(నిర్మాణం mosquitto__security_options *opts, నిర్మాణం mosquitto *context, bool reauth, స్థిరరాశి శూన్య *దత్తాంశం_లోపల, uint16_t దత్తాంశం_లోపల_len, శూన్య **దత్తాంశం_బహిర్గతం, uint16_t *దత్తాంశం_బహిర్గతం_len)
 {
-	struct mosquitto_evt_extended_auth event_data;
-	struct mosquitto__callback *cb_base, *cb_next;
-	int rc;
-	int rc_final = MOSQ_ERR_PLUGIN_DEFER;
+	నిర్మాణం mosquitto_evt_extended_auth event_దత్తాంశం;
+	నిర్మాణం mosquitto__callback *cb_పునాది, *cb_తదుపరి;
+	పూర్ణాంకం rc;
+	పూర్ణాంకం rc_final = MOSQ_ERR_PLUGIN_DEFER;
 
-	UNUSED(reauth);
+	వాడని(reauth);
 
-	DL_FOREACH_SAFE(opts->plugin_callbacks.ext_auth_start, cb_base, cb_next){
-		memset(&event_data, 0, sizeof(event_data));
-		event_data.client = context;
-		event_data.auth_method = context->auth_method;
-		event_data.data_in = data_in;
-		event_data.data_out = NULL;
-		event_data.data_in_len = data_in_len;
-		event_data.data_out_len = 0;
-		rc = cb_base->cb(MOSQ_EVT_EXT_AUTH_START, &event_data, cb_base->userdata);
-		if(rc == MOSQ_ERR_PLUGIN_IGNORE){
+	DL_FOREACH_సురక్షిత(opts->plugin_callbacks.ext_auth_ప్రారంభం, cb_పునాది, cb_తదుపరి){
+		memset(&event_దత్తాంశం, 0, పరిమాణం(event_దత్తాంశం));
+		event_దత్తాంశం.client = context;
+		event_దత్తాంశం.auth_పద్ధతి = context->auth_పద్ధతి;
+		event_దత్తాంశం.దత్తాంశం_లోపల = దత్తాంశం_లోపల;
+		event_దత్తాంశం.దత్తాంశం_బహిర్గతం = ఖాళీ;
+		event_దత్తాంశం.దత్తాంశం_లోపల_len = దత్తాంశం_లోపల_len;
+		event_దత్తాంశం.దత్తాంశం_బహిర్గతం_len = 0;
+		rc = cb_పునాది->cb(MOSQ_EVT_EXT_AUTH_ప్రారంభం, &event_దత్తాంశం, cb_పునాది->userdata);
+		ఒకవేళ(rc == MOSQ_ERR_PLUGIN_IGNORE){
 			/* Do nothing */
-		}else if(rc == MOSQ_ERR_PLUGIN_DEFER){
+		}లేకపోతే ఒకవేళ(rc == MOSQ_ERR_PLUGIN_DEFER){
 			rc_final = MOSQ_ERR_PLUGIN_DEFER;
-		}else{
-			*data_out = event_data.data_out;
-			*data_out_len = event_data.data_out_len;
-			return rc;
+		}లేకపోతే{
+			*దత్తాంశం_బహిర్గతం = event_దత్తాంశం.దత్తాంశం_బహిర్గతం;
+			*దత్తాంశం_బహిర్గతం_len = event_దత్తాంశం.దత్తాంశం_బహిర్గతం_len;
+			తిరిగి rc;
 		}
 	}
-	return rc_final;
+	తిరిగి rc_final;
 }
 
 
-int mosquitto_security_auth_start(struct mosquitto *context, bool reauth, const void *data_in, uint16_t data_in_len, void **data_out, uint16_t *data_out_len)
+పూర్ణాంకం mosquitto_security_auth_ప్రారంభం(నిర్మాణం mosquitto *context, bool reauth, స్థిరరాశి శూన్య *దత్తాంశం_లోపల, uint16_t దత్తాంశం_లోపల_len, శూన్య **దత్తాంశం_బహిర్గతం, uint16_t *దత్తాంశం_బహిర్గతం_len)
 {
-	int rc;
+	పూర్ణాంకం rc;
 
-	if(!context || !context->listener || !context->auth_method){
-		return MOSQ_ERR_INVAL;
+	ఒకవేళ(!context || !context->listener || !context->auth_పద్ధతి){
+		తిరిగి MOSQ_ERR_INVAL;
 	}
-	if(!data_out || !data_out_len){
-		return MOSQ_ERR_INVAL;
+	ఒకవేళ(!దత్తాంశం_బహిర్గతం || !దత్తాంశం_బహిర్గతం_len){
+		తిరిగి MOSQ_ERR_INVAL;
 	}
 
 	/* Global plugins */
-	if(db.config->security_options.plugin_callbacks.ext_auth_start){
-		rc = plugin__ext_auth_start(&db.config->security_options, context,
-				reauth, data_in, data_in_len, data_out, data_out_len);
+	ఒకవేళ(db.config->security_options.plugin_callbacks.ext_auth_ప్రారంభం){
+		rc = plugin_ext_auth_ప్రారంభం(&db.config->security_options, context,
+				reauth, దత్తాంశం_లోపల, దత్తాంశం_లోపల_len, దత్తాంశం_బహిర్గతం, దత్తాంశం_బహిర్గతం_len);
 
-		if(rc == MOSQ_ERR_PLUGIN_IGNORE || rc == MOSQ_ERR_PLUGIN_DEFER){
+		ఒకవేళ(rc == MOSQ_ERR_PLUGIN_IGNORE || rc == MOSQ_ERR_PLUGIN_DEFER){
 			/* Do nothing */
-		}else{
-			return rc;
+		}లేకపోతే{
+			తిరిగి rc;
 		}
 	}
 
 	/* Per listener plugins */
-	if(context->listener){
-		if(context->listener->security_options->plugin_callbacks.ext_auth_start){
-			rc = plugin__ext_auth_start(context->listener->security_options, context,
-					reauth, data_in, data_in_len, data_out, data_out_len);
+	ఒకవేళ(context->listener){
+		ఒకవేళ(context->listener->security_options->plugin_callbacks.ext_auth_ప్రారంభం){
+			rc = plugin_ext_auth_ప్రారంభం(context->listener->security_options, context,
+					reauth, దత్తాంశం_లోపల, దత్తాంశం_లోపల_len, దత్తాంశం_బహిర్గతం, దత్తాంశం_బహిర్గతం_len);
 
-			if(rc == MOSQ_ERR_PLUGIN_IGNORE || rc == MOSQ_ERR_PLUGIN_DEFER){
+			ఒకవేళ(rc == MOSQ_ERR_PLUGIN_IGNORE || rc == MOSQ_ERR_PLUGIN_DEFER){
 				/* Do nothing */
-			}else{
-				return rc;
+			}లేకపోతే{
+				తిరిగి rc;
 			}
 		}
-	}else{
-		if(db.config->per_listener_settings){
-			return MOSQ_ERR_AUTH;
+	}లేకపోతే{
+		ఒకవేళ(db.config->చొప్పున_listener_settings){
+			తిరిగి MOSQ_ERR_AUTH;
 		}
 	}
 
-	return MOSQ_ERR_NOT_SUPPORTED;
+	తిరిగి MOSQ_ERR_NOT_SUPPORTED;
 }
 
 
-static int plugin__ext_auth_continue(struct mosquitto__security_options *opts, struct mosquitto *context, const void *data_in, uint16_t data_in_len, void **data_out, uint16_t *data_out_len)
+స్థిర పూర్ణాంకం plugin__ext_auth_continue(నిర్మాణం mosquitto__security_options *opts, నిర్మాణం mosquitto *context, స్థిరరాశి శూన్య *దత్తాంశం_లోపల, uint16_t దత్తాంశం_లోపల_len, శూన్య **దత్తాంశం_బహిర్గతం, uint16_t *దత్తాంశం_బహిర్గతం_len)
 {
-	int rc;
-	struct mosquitto_evt_extended_auth event_data;
-	struct mosquitto__callback *cb_base, *cb_next;
+	పూర్ణాంకం rc;
+	నిర్మాణం mosquitto_evt_extended_auth event_దత్తాంశం;
+	నిర్మాణం mosquitto__callback *cb_పునాది, *cb_తదుపరి;
 
-	DL_FOREACH_SAFE(opts->plugin_callbacks.ext_auth_continue, cb_base, cb_next){
-		memset(&event_data, 0, sizeof(event_data));
-		event_data.client = context;
-		event_data.auth_method = context->auth_method;
-		event_data.data_in = data_in;
-		event_data.data_out = NULL;
-		event_data.data_in_len = data_in_len;
-		event_data.data_out_len = 0;
-		rc = cb_base->cb(MOSQ_EVT_EXT_AUTH_CONTINUE, &event_data, cb_base->userdata);
-		if(rc == MOSQ_ERR_PLUGIN_IGNORE || rc == MOSQ_ERR_PLUGIN_DEFER){
+	DL_FOREACH_సురక్షిత(opts->plugin_callbacks.ext_auth_continue, cb_పునాది, cb_తదుపరి){
+		memset(&event_దత్తాంశం, 0, పరిమాణం(event_దత్తాంశం));
+		event_దత్తాంశం.client = context;
+		event_దత్తాంశం.auth_పద్ధతి = context->auth_పద్ధతి;
+		event_దత్తాంశం.దత్తాంశం_లోపల = దత్తాంశం_లోపల;
+		event_దత్తాంశం.దత్తాంశం_బహిర్గతం = ఖాళీ;
+		event_దత్తాంశం.దత్తాంశం_లోపల_len = దత్తాంశం_లోపల_len;
+		event_దత్తాంశం.దత్తాంశం_బహిర్గతం_len = 0;
+		rc = cb_పునాది->cb(MOSQ_EVT_EXT_AUTH_CONTINUE, &event_దత్తాంశం, cb_పునాది->userdata);
+		ఒకవేళ(rc == MOSQ_ERR_PLUGIN_IGNORE || rc == MOSQ_ERR_PLUGIN_DEFER){
 			/* Do nothing */
-		}else{
-			*data_out = event_data.data_out;
-			*data_out_len = event_data.data_out_len;
-			return rc;
+		}లేకపోతే{
+			*దత్తాంశం_బహిర్గతం = event_దత్తాంశం.దత్తాంశం_బహిర్గతం;
+			*దత్తాంశం_బహిర్గతం_len = event_దత్తాంశం.దత్తాంశం_బహిర్గతం_len;
+			తిరిగి rc;
 		}
 	}
 
-	return MOSQ_ERR_PLUGIN_DEFER;
+	తిరిగి MOSQ_ERR_PLUGIN_DEFER;
 }
 
 
-int mosquitto_security_auth_continue(struct mosquitto *context, const void *data_in, uint16_t data_in_len, void **data_out, uint16_t *data_out_len)
+పూర్ణాంకం mosquitto_security_auth_continue(నిర్మాణం mosquitto *context, స్థిరరాశి శూన్య *దత్తాంశం_లోపల, uint16_t దత్తాంశం_లోపల_len, శూన్య **దత్తాంశం_బహిర్గతం, uint16_t *దత్తాంశం_బహిర్గతం_len)
 {
-	int rc;
+	పూర్ణాంకం rc;
 
-	if(!context || !context->listener || !context->auth_method){
-		return MOSQ_ERR_INVAL;
+	ఒకవేళ(!context || !context->listener || !context->auth_పద్ధతి){
+		తిరిగి MOSQ_ERR_INVAL;
 	}
-	if(!data_out || !data_out_len){
-		return MOSQ_ERR_INVAL;
+	ఒకవేళ(!దత్తాంశం_బహిర్గతం || !దత్తాంశం_బహిర్గతం_len){
+		తిరిగి MOSQ_ERR_INVAL;
 	}
 
 	/* Global plugins */
-	if(db.config->security_options.plugin_callbacks.ext_auth_continue){
+	ఒకవేళ(db.config->security_options.plugin_callbacks.ext_auth_continue){
 		rc = plugin__ext_auth_continue(&db.config->security_options, context,
-				data_in, data_in_len, data_out, data_out_len);
+				దత్తాంశం_లోపల, దత్తాంశం_లోపల_len, దత్తాంశం_బహిర్గతం, దత్తాంశం_బహిర్గతం_len);
 
-		if(rc == MOSQ_ERR_PLUGIN_IGNORE || rc == MOSQ_ERR_PLUGIN_DEFER){
+		ఒకవేళ(rc == MOSQ_ERR_PLUGIN_IGNORE || rc == MOSQ_ERR_PLUGIN_DEFER){
 			/* Do nothing */
-		}else{
-			return rc;
+		}లేకపోతే{
+			తిరిగి rc;
 		}
 	}
 
 	/* Per listener plugins */
-	if(context->listener){
-		if(context->listener->security_options->plugin_callbacks.ext_auth_continue){
+	ఒకవేళ(context->listener){
+		ఒకవేళ(context->listener->security_options->plugin_callbacks.ext_auth_continue){
 			rc = plugin__ext_auth_continue(context->listener->security_options, context,
-					data_in, data_in_len, data_out, data_out_len);
+					దత్తాంశం_లోపల, దత్తాంశం_లోపల_len, దత్తాంశం_బహిర్గతం, దత్తాంశం_బహిర్గతం_len);
 
-			if(rc == MOSQ_ERR_PLUGIN_IGNORE || rc == MOSQ_ERR_PLUGIN_DEFER){
+			ఒకవేళ(rc == MOSQ_ERR_PLUGIN_IGNORE || rc == MOSQ_ERR_PLUGIN_DEFER){
 				/* Do nothing */
-			}else{
-				return rc;
+			}లేకపోతే{
+				తిరిగి rc;
 			}
 		}
-	}else{
-		if(db.config->per_listener_settings){
-			return MOSQ_ERR_AUTH;
+	}లేకపోతే{
+		ఒకవేళ(db.config->చొప్పున_listener_settings){
+			తిరిగి MOSQ_ERR_AUTH;
 		}
 	}
 
-	return MOSQ_ERR_NOT_SUPPORTED;
+	తిరిగి MOSQ_ERR_NOT_SUPPORTED;
 }

@@ -17,290 +17,290 @@ Contributors:
    Tatsuzo Osawa - Add epoll.
 */
 
-#include "config.h"
+#అన్తర్భావ "config.h"
 
-#ifdef WITH_EPOLL
+#నిర్వచితమైతే WITH_EPOLL
 
-#ifndef WIN32
-#  define _GNU_SOURCE
-#endif
+#నిర్వచితం_కాకపోతే WIN32
+#  define GNU_ఆధారం
+#అయితే_ముగింపు
 
-#ifndef WIN32
+#నిర్వచితం_కాకపోతే WIN32
 #  include <sys/epoll.h>
 #  define MAX_EVENTS 1000
-#endif
+#అయితే_ముగింపు
 
-#include <errno.h>
-#include <signal.h>
+#అన్తర్భావ <errno.h>
+#అన్తర్భావ <signal.h>
 
-#include "mosquitto_broker_internal.h"
-#include "mux.h"
-#include "packet_mosq.h"
-#include "util_mosq.h"
+#అన్తర్భావ "mosquitto_broker_internal.h"
+#అన్తర్భావ "mux.h"
+#అన్తర్భావ "packet_mosq.h"
+#అన్తర్భావ "util_mosq.h"
 
-static void loop_handle_reads_writes(struct mosquitto *context, uint32_t events);
+స్థిర శూన్య loop_handle_reads_writes(నిర్మాణం mosquitto *context, uint32_t events);
 
-static struct epoll_event ep_events[MAX_EVENTS];
+స్థిర నిర్మాణం epoll_event ep_events[MAX_EVENTS];
 
 
-int mux_epoll__init(void)
+పూర్ణాంకం mux_epoll__init(శూన్య)
 {
-	memset(&ep_events, 0, sizeof(struct epoll_event)*MAX_EVENTS);
+	memset(&ep_events, 0, పరిమాణం(నిర్మాణం epoll_event)*MAX_EVENTS);
 
 	db.epollfd = 0;
-	if((db.epollfd = epoll_create(MAX_EVENTS)) == -1){
-		log__printf(NULL, MOSQ_LOG_ERR, "Error in epoll creating: %s", strerror(errno));
-		return MOSQ_ERR_UNKNOWN;
+	ఒకవేళ((db.epollfd = epoll_create(MAX_EVENTS)) == -1){
+		log__printf(ఖాళీ, MOSQ_LOG_ERR, "Error in epoll creating: %s", strerror(errno));
+		తిరిగి MOSQ_ERR_UNKNOWN;
 	}
 
-	return MOSQ_ERR_SUCCESS;
+	తిరిగి MOSQ_ERR_SUCCESS;
 }
 
 
-int mux_epoll__add_listeners(struct mosquitto__listener_sock *listensock, int listensock_count)
+పూర్ణాంకం mux_epoll_కూడు_listeners(నిర్మాణం mosquitto__listener_sock *listensock, పూర్ణాంకం listensock_లెక్క)
 {
-	for(int i=0; i<listensock_count; i++){
-		struct epoll_event ev;
+	కొరకు(పూర్ణాంకం i=0; i<listensock_లెక్క; i++){
+		నిర్మాణం epoll_event ev;
 
-		memset(&ev, 0, sizeof(struct epoll_event));
-		ev.data.ptr = &listensock[i];
+		memset(&ev, 0, పరిమాణం(నిర్మాణం epoll_event));
+		ev.దత్తాంశం.ptr = &listensock[i];
 		ev.events = EPOLLIN;
-		if(epoll_ctl(db.epollfd, EPOLL_CTL_ADD, listensock[i].sock, &ev) == -1){
-			log__printf(NULL, MOSQ_LOG_ERR, "Error in epoll initial registering: %s", strerror(errno));
-			return MOSQ_ERR_UNKNOWN;
+		ఒకవేళ(epoll_ctl(db.epollfd, EPOLL_CTL_ADD, listensock[i].sock, &ev) == -1){
+			log__printf(ఖాళీ, MOSQ_LOG_ERR, "Error in epoll initial registering: %s", strerror(errno));
+			తిరిగి MOSQ_ERR_UNKNOWN;
 		}
 	}
 
-	return MOSQ_ERR_SUCCESS;
+	తిరిగి MOSQ_ERR_SUCCESS;
 }
 
 
-int mux_epoll__delete_listeners(struct mosquitto__listener_sock *listensock, int listensock_count)
+పూర్ణాంకం mux_epoll__delete_listeners(నిర్మాణం mosquitto__listener_sock *listensock, పూర్ణాంకం listensock_లెక్క)
 {
-	for(int i=0; i<listensock_count; i++){
-		if(epoll_ctl(db.epollfd, EPOLL_CTL_DEL, listensock[i].sock, NULL) == -1){
-			return MOSQ_ERR_UNKNOWN;
+	కొరకు(పూర్ణాంకం i=0; i<listensock_లెక్క; i++){
+		ఒకవేళ(epoll_ctl(db.epollfd, EPOLL_CTL_DEL, listensock[i].sock, ఖాళీ) == -1){
+			తిరిగి MOSQ_ERR_UNKNOWN;
 		}
 	}
 
-	return MOSQ_ERR_SUCCESS;
+	తిరిగి MOSQ_ERR_SUCCESS;
 }
 
 
-int mux_epoll__add_out(struct mosquitto *context)
+పూర్ణాంకం mux_epoll_కూడు_బహిర్గతం(నిర్మాణం mosquitto *context)
 {
-	if(!(context->events & EPOLLOUT)){
-		struct epoll_event ev;
+	ఒకవేళ(!(context->events & EPOLLOUT)){
+		నిర్మాణం epoll_event ev;
 
-		memset(&ev, 0, sizeof(struct epoll_event));
-		ev.data.ptr = context;
+		memset(&ev, 0, పరిమాణం(నిర్మాణం epoll_event));
+		ev.దత్తాంశం.ptr = context;
 		ev.events = EPOLLIN | EPOLLOUT;
-		if(epoll_ctl(db.epollfd, EPOLL_CTL_MOD, context->sock, &ev) == -1){
-			if((errno != ENOENT)||(epoll_ctl(db.epollfd, EPOLL_CTL_ADD, context->sock, &ev) == -1)){
-				log__printf(NULL, MOSQ_LOG_DEBUG, "Error in epoll re-registering to EPOLLOUT: %s", strerror(errno));
+		ఒకవేళ(epoll_ctl(db.epollfd, EPOLL_CTL_MOD, context->sock, &ev) == -1){
+			ఒకవేళ((errno != ENOENT)||(epoll_ctl(db.epollfd, EPOLL_CTL_ADD, context->sock, &ev) == -1)){
+				log__printf(ఖాళీ, MOSQ_LOG_DEBUG, "Error in epoll re-registering to EPOLLOUT: %s", strerror(errno));
 			}
 		}
 		context->events = EPOLLIN | EPOLLOUT;
 	}
-	return MOSQ_ERR_SUCCESS;
+	తిరిగి MOSQ_ERR_SUCCESS;
 }
 
 
-int mux_epoll__remove_out(struct mosquitto *context)
+పూర్ణాంకం mux_epoll_remove_బహిర్గతం(నిర్మాణం mosquitto *context)
 {
-	if(context->events & EPOLLOUT){
-		struct epoll_event ev;
+	ఒకవేళ(context->events & EPOLLOUT){
+		నిర్మాణం epoll_event ev;
 
-		memset(&ev, 0, sizeof(struct epoll_event));
-		ev.data.ptr = context;
+		memset(&ev, 0, పరిమాణం(నిర్మాణం epoll_event));
+		ev.దత్తాంశం.ptr = context;
 		ev.events = EPOLLIN;
-		if(epoll_ctl(db.epollfd, EPOLL_CTL_MOD, context->sock, &ev) == -1){
-			if((errno != ENOENT)||(epoll_ctl(db.epollfd, EPOLL_CTL_ADD, context->sock, &ev) == -1)){
-				log__printf(NULL, MOSQ_LOG_DEBUG, "Error in epoll re-registering to EPOLLIN: %s", strerror(errno));
+		ఒకవేళ(epoll_ctl(db.epollfd, EPOLL_CTL_MOD, context->sock, &ev) == -1){
+			ఒకవేళ((errno != ENOENT)||(epoll_ctl(db.epollfd, EPOLL_CTL_ADD, context->sock, &ev) == -1)){
+				log__printf(ఖాళీ, MOSQ_LOG_DEBUG, "Error in epoll re-registering to EPOLLIN: %s", strerror(errno));
 			}
 		}
 		context->events = EPOLLIN;
 	}
-	return MOSQ_ERR_SUCCESS;
+	తిరిగి MOSQ_ERR_SUCCESS;
 }
 
 
-int mux_epoll__new(struct mosquitto *context)
+పూర్ణాంకం mux_epoll__new(నిర్మాణం mosquitto *context)
 {
-	struct epoll_event ev;
+	నిర్మాణం epoll_event ev;
 
-	memset(&ev, 0, sizeof(struct epoll_event));
+	memset(&ev, 0, పరిమాణం(నిర్మాణం epoll_event));
 	ev.events = EPOLLIN;
-	ev.data.ptr = context;
-	if(epoll_ctl(db.epollfd, EPOLL_CTL_ADD, context->sock, &ev) == -1){
-		if(errno != EEXIST){
-			log__printf(NULL, MOSQ_LOG_ERR, "Error in epoll accepting: %s", strerror(errno));
+	ev.దత్తాంశం.ptr = context;
+	ఒకవేళ(epoll_ctl(db.epollfd, EPOLL_CTL_ADD, context->sock, &ev) == -1){
+		ఒకవేళ(errno != EEXIST){
+			log__printf(ఖాళీ, MOSQ_LOG_ERR, "Error in epoll accepting: %s", strerror(errno));
 		}
 	}
 	context->events = EPOLLIN;
-	return MOSQ_ERR_SUCCESS;
+	తిరిగి MOSQ_ERR_SUCCESS;
 }
 
 
-int mux_epoll__delete(struct mosquitto *context)
+పూర్ణాంకం mux_epoll__delete(నిర్మాణం mosquitto *context)
 {
-	if(context->sock != INVALID_SOCKET){
-		if(epoll_ctl(db.epollfd, EPOLL_CTL_DEL, context->sock, NULL) == -1){
-			return 1;
+	ఒకవేళ(context->sock != INVALID_SOCKET){
+		ఒకవేళ(epoll_ctl(db.epollfd, EPOLL_CTL_DEL, context->sock, ఖాళీ) == -1){
+			తిరిగి 1;
 		}
 	}
-	return 0;
+	తిరిగి 0;
 }
 
 
-int mux_epoll__handle(void)
+పూర్ణాంకం mux_epoll__handle(శూన్య)
 {
-	struct epoll_event ev;
-	struct mosquitto *context;
-	struct mosquitto__listener_sock *listensock;
-	int event_count;
+	నిర్మాణం epoll_event ev;
+	నిర్మాణం mosquitto *context;
+	నిర్మాణం mosquitto__listener_sock *listensock;
+	పూర్ణాంకం event_లెక్క;
 
-	memset(&ev, 0, sizeof(struct epoll_event));
-#if defined(WITH_WEBSOCKETS)
-	event_count = epoll_wait(db.epollfd, ep_events, MAX_EVENTS, 100);
-#else
-	event_count = epoll_wait(db.epollfd, ep_events, MAX_EVENTS, db.next_event_ms);
-#endif
+	memset(&ev, 0, పరిమాణం(నిర్మాణం epoll_event));
+#ఒకవేళ defined(WITH_WEBSOCKETS)
+	event_లెక్క = epoll_wait(db.epollfd, ep_events, MAX_EVENTS, 100);
+#లేకపోతే
+	event_లెక్క = epoll_wait(db.epollfd, ep_events, MAX_EVENTS, db.తదుపరి_event_ms);
+#అయితే_ముగింపు
 
-	db.now_s = mosquitto_time();
-	db.now_real_s = time(NULL);
+	db.now_s = mosquitto_సమయం();
+	db.now_real_s = సమయం(ఖాళీ);
 
-	switch(event_count){
-		case -1:
-			if(errno != EINTR){
-				log__printf(NULL, MOSQ_LOG_ERR, "Error in epoll waiting: %s.", strerror(errno));
+	ఎంపిక(event_లెక్క){
+		స్థితి -1:
+			ఒకవేళ(errno != EINTR){
+				log__printf(ఖాళీ, MOSQ_LOG_ERR, "Error in epoll waiting: %s.", strerror(errno));
 			}
-			break;
-		case 0:
-			break;
-		default:
-			for(int i=0; i<event_count; i++){
-				context = ep_events[i].data.ptr;
-				if(context->ident == id_client){
+			ఆపు;
+		స్థితి 0:
+			ఆపు;
+		అప్రమేయ:
+			కొరకు(పూర్ణాంకం i=0; i<event_లెక్క; i++){
+				context = ep_events[i].దత్తాంశం.ptr;
+				ఒకవేళ(context->ident == id_client){
 					loop_handle_reads_writes(context, ep_events[i].events);
-				}else if(context->ident == id_listener){
-					listensock = ep_events[i].data.ptr;
+				}లేకపోతే ఒకవేళ(context->ident == id_listener){
+					listensock = ep_events[i].దత్తాంశం.ptr;
 
-					if(ep_events[i].events & (EPOLLIN | EPOLLPRI)){
-						while((context = net__socket_accept(listensock)) != NULL){
+					ఒకవేళ(ep_events[i].events & (EPOLLIN | EPOLLPRI)){
+						అయితే((context = net__socket_accept(listensock)) != ఖాళీ){
 						}
 					}
-#if defined(WITH_WEBSOCKETS) && WITH_WEBSOCKETS == WS_IS_LWS
-				}else if(context->ident == id_listener_ws){
+#ఒకవేళ defined(WITH_WEBSOCKETS) && WITH_WEBSOCKETS == WS_IS_LWS
+				}లేకపోతే ఒకవేళ(context->ident == id_listener_ws){
 					/* Nothing needs to happen here, because we always call lws_service in the loop.
 					 * The important point is we've been woken up for this listener. */
-#endif
+#అయితే_ముగింపు
 				}
 			}
 	}
-	return MOSQ_ERR_SUCCESS;
+	తిరిగి MOSQ_ERR_SUCCESS;
 }
 
 
-int mux_epoll__cleanup(void)
+పూర్ణాంకం mux_epoll__cleanup(శూన్య)
 {
-	(void)close(db.epollfd);
+	(శూన్య)close(db.epollfd);
 	db.epollfd = 0;
-	return MOSQ_ERR_SUCCESS;
+	తిరిగి MOSQ_ERR_SUCCESS;
 }
 
 
-static void loop_handle_reads_writes(struct mosquitto *context, uint32_t events)
+స్థిర శూన్య loop_handle_reads_writes(నిర్మాణం mosquitto *context, uint32_t events)
 {
-	int err;
+	పూర్ణాంకం err;
 	socklen_t len;
-	int rc;
+	పూర్ణాంకం rc;
 
-	if(context->sock == INVALID_SOCKET){
-		return;
+	ఒకవేళ(context->sock == INVALID_SOCKET){
+		తిరిగి;
 	}
 
-#if defined(WITH_WEBSOCKETS) && WITH_WEBSOCKETS == WS_IS_LWS
-	if(context->wsi){
-		struct lws_pollfd wspoll;
+#ఒకవేళ defined(WITH_WEBSOCKETS) && WITH_WEBSOCKETS == WS_IS_LWS
+	ఒకవేళ(context->wsi){
+		నిర్మాణం lws_pollfd wspoll;
 		wspoll.fd = context->sock;
 		wspoll.events = (int16_t)context->events;
 		wspoll.revents = (int16_t)events;
 		lws_service_fd(lws_get_context(context->wsi), &wspoll);
-		return;
+		తిరిగి;
 	}
-#endif
+#అయితే_ముగింపు
 
-	if(events & EPOLLOUT
-#ifdef WITH_TLS
+	ఒకవేళ(events & EPOLLOUT
+#నిర్వచితమైతే WITH_TLS
 			|| context->want_write
 			|| (context->ssl && context->state == mosq_cs_new)
-#endif
+#అయితే_ముగింపు
 			){
 
-		if(context->state == mosq_cs_connect_pending){
-			len = sizeof(int);
-			if(!getsockopt(context->sock, SOL_SOCKET, SO_ERROR, (char *)&err, &len)){
-				if(err == 0){
-					mosquitto__set_state(context, mosq_cs_new);
-#if defined(WITH_ADNS) && defined(WITH_BRIDGE)
-					if(context->bridge){
+		ఒకవేళ(context->state == mosq_cs_connect_pending){
+			len = పరిమాణం(పూర్ణాంకం);
+			ఒకవేళ(!getsockopt(context->sock, SOL_SOCKET, SO_ERROR, (అక్షరం *)&err, &len)){
+				ఒకవేళ(err == 0){
+					mosquitto_సమితి_state(context, mosq_cs_new);
+#ఒకవేళ defined(WITH_ADNS) && defined(WITH_BRIDGE)
+					ఒకవేళ(context->bridge){
 						bridge__connect_step3(context);
 					}
-#endif
+#అయితే_ముగింపు
 				}
-			}else{
-				do_disconnect(context, MOSQ_ERR_CONN_LOST);
-				return;
+			}లేకపోతే{
+				do_disconnect(context, MOSQ_ERR_CONN_కోల్పోయిన);
+				తిరిగి;
 			}
 		}
 		rc = packet__write(context);
-		if(rc){
+		ఒకవేళ(rc){
 			do_disconnect(context, rc);
-			return;
+			తిరిగి;
 		}
 	}
 
-	if(events & EPOLLIN
-#ifdef WITH_TLS
+	ఒకవేళ(events & EPOLLIN
+#నిర్వచితమైతే WITH_TLS
 			|| (context->ssl && context->state == mosq_cs_new)
-#endif
+#అయితే_ముగింపు
 			){
 
-		do{
-			switch(context->transport){
-				case mosq_t_tcp:
-				case mosq_t_ws:
+		చేయి{
+			ఎంపిక(context->transport){
+				స్థితి mosq_t_tcp:
+				స్థితి mosq_t_ws:
 					rc = packet__read(context);
-					break;
-#if defined(WITH_WEBSOCKETS) && WITH_WEBSOCKETS == WS_IS_BUILTIN
-				case mosq_t_http:
+					ఆపు;
+#ఒకవేళ defined(WITH_WEBSOCKETS) && WITH_WEBSOCKETS == WS_IS_BUILTIN
+				స్థితి mosq_t_http:
 					rc = http__read(context);
-					break;
-#endif
-#if !defined(WITH_WEBSOCKETS) || WITH_WEBSOCKETS == WS_IS_BUILTIN
+					ఆపు;
+#అయితే_ముగింపు
+#ఒకవేళ !defined(WITH_WEBSOCKETS) || WITH_WEBSOCKETS == WS_IS_BUILTIN
 				/* Not supported with LWS */
-				case mosq_t_proxy_v2:
+				స్థితి mosq_t_proxy_v2:
 					rc = proxy_v2__read(context);
-					break;
-				case mosq_t_proxy_v1:
+					ఆపు;
+				స్థితి mosq_t_proxy_v1:
 					rc = proxy_v1__read(context);
-					break;
-#endif
-				default:
+					ఆపు;
+#అయితే_ముగింపు
+				అప్రమేయ:
 					rc = MOSQ_ERR_INVAL;
-					break;
+					ఆపు;
 			}
-			if(rc){
+			ఒకవేళ(rc){
 				do_disconnect(context, rc);
-				return;
+				తిరిగి;
 			}
-		}while(SSL_DATA_PENDING(context));
-	}else{
-		if(events & (EPOLLERR | EPOLLHUP)){
-			do_disconnect(context, MOSQ_ERR_CONN_LOST);
-			return;
+		}అయితే(SSL_దత్తాంశం_PENDING(context));
+	}లేకపోతే{
+		ఒకవేళ(events & (EPOLLERR | EPOLLHUP)){
+			do_disconnect(context, MOSQ_ERR_CONN_కోల్పోయిన);
+			తిరిగి;
 		}
 	}
 }
-#endif
+#అయితే_ముగింపు

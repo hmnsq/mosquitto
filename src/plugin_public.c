@@ -16,337 +16,337 @@ Contributors:
    Roger Light - initial implementation and documentation.
 */
 
-#include "config.h"
+#అన్తర్భావ "config.h"
 
-#include "mosquitto_broker_internal.h"
-#include "mosquitto/mqtt_protocol.h"
-#include "send_mosq.h"
-#include "util_mosq.h"
-#include "will_mosq.h"
-#include "utlist.h"
-#include "will_mosq.h"
+#అన్తర్భావ "mosquitto_broker_internal.h"
+#అన్తర్భావ "mosquitto/mqtt_protocol.h"
+#అన్తర్భావ "send_mosq.h"
+#అన్తర్భావ "util_mosq.h"
+#అన్తర్భావ "will_mosq.h"
+#అన్తర్భావ "utlist.h"
+#అన్తర్భావ "will_mosq.h"
 
-#ifdef WITH_TLS
+#నిర్వచితమైతే WITH_TLS
 #  include <openssl/ssl.h>
-#endif
+#అయితే_ముగింపు
 
 
-BROKER_EXPORT int mosquitto_plugin_set_info(mosquitto_plugin_id_t *identifier,
-		const char *plugin_name,
-		const char *plugin_version)
+BROKER_EXPORT పూర్ణాంకం mosquitto_plugin_సమితి_info(mosquitto_plugin_id_t *identifier,
+		స్థిరరాశి అక్షరం *plugin_name,
+		స్థిరరాశి అక్షరం *plugin_సంస్కరణ)
 {
-	if(identifier == NULL || plugin_name == NULL){
-		return MOSQ_ERR_INVAL;
+	ఒకవేళ(identifier == ఖాళీ || plugin_name == ఖాళీ){
+		తిరిగి MOSQ_ERR_INVAL;
 	}
 
 	identifier->plugin_name = mosquitto_strdup(plugin_name);
-	if(plugin_version){
-		identifier->plugin_version = mosquitto_strdup(plugin_version);
-	}else{
-		identifier->plugin_version = NULL;
+	ఒకవేళ(plugin_సంస్కరణ){
+		identifier->plugin_సంస్కరణ = mosquitto_strdup(plugin_సంస్కరణ);
+	}లేకపోతే{
+		identifier->plugin_సంస్కరణ = ఖాళీ;
 	}
 
-	return MOSQ_ERR_SUCCESS;
+	తిరిగి MOSQ_ERR_SUCCESS;
 }
 
 
-BROKER_EXPORT const char *mosquitto_client_address(const struct mosquitto *client)
+BROKER_EXPORT స్థిరరాశి అక్షరం *mosquitto_client_చిరునామా(స్థిరరాశి నిర్మాణం mosquitto *client)
 {
-	if(client){
-		return client->address;
-	}else{
-		return NULL;
+	ఒకవేళ(client){
+		తిరిగి client->చిరునామా;
+	}లేకపోతే{
+		తిరిగి ఖాళీ;
 	}
 }
 
 
-BROKER_EXPORT struct mosquitto *mosquitto_client(const char *clientid)
+BROKER_EXPORT నిర్మాణం mosquitto *mosquitto_client(స్థిరరాశి అక్షరం *clientid)
 {
 	size_t len;
-	struct mosquitto *context;
+	నిర్మాణం mosquitto *context;
 
-	if(!clientid){
-		return NULL;
+	ఒకవేళ(!clientid){
+		తిరిగి ఖాళీ;
 	}
-	len = strlen(clientid);
-	if(len == 0){
-		return NULL;
+	len = అక్షరశ్రేణి_పొడవు(clientid);
+	ఒకవేళ(len == 0){
+		తిరిగి ఖాళీ;
 	}
 
-	HASH_FIND(hh_id, db.contexts_by_id, clientid, strlen(clientid), context);
+	HASH_కనుగొను(hh_id, db.contexts_by_id, clientid, అక్షరశ్రేణి_పొడవు(clientid), context);
 
-	return context;
+	తిరిగి context;
 }
 
 
-BROKER_EXPORT int mosquitto_client_port(const struct mosquitto *client)
+BROKER_EXPORT పూర్ణాంకం mosquitto_client_పోర్టు(స్థిరరాశి నిర్మాణం mosquitto *client)
 {
-	if(client && client->listener){
-		return client->listener->port;
-	}else{
-		return 0;
-	}
-}
-
-
-BROKER_EXPORT bool mosquitto_client_clean_session(const struct mosquitto *client)
-{
-	if(client){
-		return client->clean_start;
-	}else{
-		return true;
+	ఒకవేళ(client && client->listener){
+		తిరిగి client->listener->పోర్టు;
+	}లేకపోతే{
+		తిరిగి 0;
 	}
 }
 
 
-BROKER_EXPORT const char *mosquitto_client_id(const struct mosquitto *client)
+BROKER_EXPORT bool mosquitto_client_clean_session(స్థిరరాశి నిర్మాణం mosquitto *client)
 {
-	if(client){
-		return client->id;
-	}else{
-		return NULL;
+	ఒకవేళ(client){
+		తిరిగి client->clean_ప్రారంభం;
+	}లేకపోతే{
+		తిరిగి true;
 	}
 }
 
 
-BROKER_EXPORT unsigned mosquitto_client_id_hashv(const struct mosquitto *client)
+BROKER_EXPORT స్థిరరాశి అక్షరం *mosquitto_client_id(స్థిరరాశి నిర్మాణం mosquitto *client)
 {
-	if(client){
-		return client->id_hashv;
-	}else{
-		return 0;
+	ఒకవేళ(client){
+		తిరిగి client->id;
+	}లేకపోతే{
+		తిరిగి ఖాళీ;
 	}
 }
 
 
-BROKER_EXPORT int mosquitto_client_keepalive(const struct mosquitto *client)
+BROKER_EXPORT గుర్తులేని mosquitto_client_id_hashv(స్థిరరాశి నిర్మాణం mosquitto *client)
 {
-	if(client){
-		return client->keepalive;
-	}else{
-		return -1;
+	ఒకవేళ(client){
+		తిరిగి client->id_hashv;
+	}లేకపోతే{
+		తిరిగి 0;
 	}
 }
 
 
-BROKER_EXPORT void *mosquitto_client_certificate(const struct mosquitto *client)
+BROKER_EXPORT పూర్ణాంకం mosquitto_client_keepalive(స్థిరరాశి నిర్మాణం mosquitto *client)
 {
-#ifdef WITH_TLS
-	if(client && client->ssl){
-		return SSL_get_peer_certificate(client->ssl);
-	}else{
-		return NULL;
+	ఒకవేళ(client){
+		తిరిగి client->keepalive;
+	}లేకపోతే{
+		తిరిగి -1;
 	}
-#else
-	UNUSED(client);
-
-	return NULL;
-#endif
 }
 
 
-BROKER_EXPORT int mosquitto_client_protocol(const struct mosquitto *client)
+BROKER_EXPORT శూన్య *mosquitto_client_certificate(స్థిరరాశి నిర్మాణం mosquitto *client)
 {
-#if defined(WITH_WEBSOCKETS) && WITH_WEBSOCKETS == WS_IS_LWS
-	if(client && client->wsi){
-		return mp_websockets;
-	}else
-#elif defined(WITH_WEBSOCKETS) && WITH_WEBSOCKETS == WS_IS_BUILTIN
-	if(client && client->transport == mosq_t_ws){
-		return mp_websockets;
-	}else
-#else
-	UNUSED(client);
-#endif
+#నిర్వచితమైతే WITH_TLS
+	ఒకవేళ(client && client->ssl){
+		తిరిగి SSL_get_peer_certificate(client->ssl);
+	}లేకపోతే{
+		తిరిగి ఖాళీ;
+	}
+#లేకపోతే
+	వాడని(client);
+
+	తిరిగి ఖాళీ;
+#అయితే_ముగింపు
+}
+
+
+BROKER_EXPORT పూర్ణాంకం mosquitto_client_protocol(స్థిరరాశి నిర్మాణం mosquitto *client)
+{
+#ఒకవేళ defined(WITH_WEBSOCKETS) && WITH_WEBSOCKETS == WS_IS_LWS
+	ఒకవేళ(client && client->wsi){
+		తిరిగి mp_websockets;
+	}లేకపోతే
+#లేదావేళ defined(WITH_WEBSOCKETS) && WITH_WEBSOCKETS == WS_IS_BUILTIN
+	ఒకవేళ(client && client->transport == mosq_t_ws){
+		తిరిగి mp_websockets;
+	}లేకపోతే
+#లేకపోతే
+	వాడని(client);
+#అయితే_ముగింపు
 	{
-		return mp_mqtt;
+		తిరిగి mp_mqtt;
 	}
 }
 
 
-BROKER_EXPORT int mosquitto_client_protocol_version(const struct mosquitto *client)
+BROKER_EXPORT పూర్ణాంకం mosquitto_client_protocol_సంస్కరణ(స్థిరరాశి నిర్మాణం mosquitto *client)
 {
-	if(client){
-		switch(client->protocol){
-			case mosq_p_mqtt31:
-				return 3;
-			case mosq_p_mqtt311:
-				return 4;
-			case mosq_p_mqtt5:
-				return 5;
-			default:
-				return 0;
+	ఒకవేళ(client){
+		ఎంపిక(client->protocol){
+			స్థితి mosq_p_mqtt31:
+				తిరిగి 3;
+			స్థితి mosq_p_mqtt311:
+				తిరిగి 4;
+			స్థితి mosq_p_mqtt5:
+				తిరిగి 5;
+			అప్రమేయ:
+				తిరిగి 0;
 		}
-	}else{
-		return 0;
+	}లేకపోతే{
+		తిరిగి 0;
 	}
 }
 
 
-BROKER_EXPORT int mosquitto_client_sub_count(const struct mosquitto *client)
+BROKER_EXPORT పూర్ణాంకం mosquitto_client_sub_లెక్క(స్థిరరాశి నిర్మాణం mosquitto *client)
 {
-	if(client){
-		return client->subs_count;
-	}else{
-		return 0;
+	ఒకవేళ(client){
+		తిరిగి client->subs_లెక్క;
+	}లేకపోతే{
+		తిరిగి 0;
 	}
 }
 
 
-BROKER_EXPORT const char *mosquitto_client_username(const struct mosquitto *client)
+BROKER_EXPORT స్థిరరాశి అక్షరం *mosquitto_client_username(స్థిరరాశి నిర్మాణం mosquitto *client)
 {
-	if(client){
-#ifdef WITH_BRIDGE
-		if(client->bridge){
-			return client->bridge->local_username;
-		}else
-#endif
+	ఒకవేళ(client){
+#నిర్వచితమైతే WITH_BRIDGE
+		ఒకవేళ(client->bridge){
+			తిరిగి client->bridge->local_username;
+		}లేకపోతే
+#అయితే_ముగింపు
 		{
-			return client->username;
+			తిరిగి client->username;
 		}
-	}else{
-		return NULL;
+	}లేకపోతే{
+		తిరిగి ఖాళీ;
 	}
 }
 
 
-BROKER_EXPORT int mosquitto_broker_publish(
-		const char *clientid,
-		const char *topic,
-		int payloadlen,
-		void *payload,
-		int qos,
+BROKER_EXPORT పూర్ణాంకం mosquitto_broker_publish(
+		స్థిరరాశి అక్షరం *clientid,
+		స్థిరరాశి అక్షరం *topic,
+		పూర్ణాంకం payloadlen,
+		శూన్య *payload,
+		పూర్ణాంకం qos,
 		bool retain,
 		mosquitto_property *properties)
 {
-	struct mosquitto__message_v5 *msg;
+	నిర్మాణం mosquitto_సందేశం_v5 *సందేశం;
 
-	if(topic == NULL
+	ఒకవేళ(topic == ఖాళీ
 			|| payloadlen < 0
-			|| (payloadlen > 0 && payload == NULL)
+			|| (payloadlen > 0 && payload == ఖాళీ)
 			|| qos < 0 || qos > 2){
 
-		return MOSQ_ERR_INVAL;
+		తిరిగి MOSQ_ERR_INVAL;
 	}
 
-	msg = mosquitto_malloc(sizeof(struct mosquitto__message_v5));
-	if(msg == NULL){
-		return MOSQ_ERR_NOMEM;
+	సందేశం = mosquitto_malloc(పరిమాణం(నిర్మాణం mosquitto_సందేశం_v5));
+	ఒకవేళ(సందేశం == ఖాళీ){
+		తిరిగి MOSQ_ERR_NOMEM;
 	}
 
-	msg->next = NULL;
-	msg->prev = NULL;
-	if(clientid){
-		msg->clientid = mosquitto_strdup(clientid);
-		if(msg->clientid == NULL){
-			mosquitto_FREE(msg);
-			return MOSQ_ERR_NOMEM;
+	సందేశం->తదుపరి = ఖాళీ;
+	సందేశం->prev = ఖాళీ;
+	ఒకవేళ(clientid){
+		సందేశం->clientid = mosquitto_strdup(clientid);
+		ఒకవేళ(సందేశం->clientid == ఖాళీ){
+			mosquitto_FREE(సందేశం);
+			తిరిగి MOSQ_ERR_NOMEM;
 		}
-	}else{
-		msg->clientid = NULL;
+	}లేకపోతే{
+		సందేశం->clientid = ఖాళీ;
 	}
-	msg->topic = mosquitto_strdup(topic);
-	if(msg->topic == NULL){
-		mosquitto_FREE(msg->clientid);
-		mosquitto_FREE(msg);
-		return MOSQ_ERR_NOMEM;
+	సందేశం->topic = mosquitto_strdup(topic);
+	ఒకవేళ(సందేశం->topic == ఖాళీ){
+		mosquitto_FREE(సందేశం->clientid);
+		mosquitto_FREE(సందేశం);
+		తిరిగి MOSQ_ERR_NOMEM;
 	}
-	msg->payloadlen = payloadlen;
-	msg->payload = payload;
-	msg->qos = qos;
-	msg->retain = retain;
-	msg->properties = properties;
+	సందేశం->payloadlen = payloadlen;
+	సందేశం->payload = payload;
+	సందేశం->qos = qos;
+	సందేశం->retain = retain;
+	సందేశం->properties = properties;
 
-	DL_APPEND(db.plugin_msgs, msg);
+	DL_APPEND(db.plugin_msgs, సందేశం);
 
-	loop__update_next_event(1);
-	return MOSQ_ERR_SUCCESS;
+	loop_update_తదుపరి_event(1);
+	తిరిగి MOSQ_ERR_SUCCESS;
 }
 
 
-BROKER_EXPORT int mosquitto_broker_publish_copy(
-		const char *clientid,
-		const char *topic,
-		int payloadlen,
-		const void *payload,
-		int qos,
+BROKER_EXPORT పూర్ణాంకం mosquitto_broker_publish_copy(
+		స్థిరరాశి అక్షరం *clientid,
+		స్థిరరాశి అక్షరం *topic,
+		పూర్ణాంకం payloadlen,
+		స్థిరరాశి శూన్య *payload,
+		పూర్ణాంకం qos,
 		bool retain,
 		mosquitto_property *properties)
 {
-	void *payload_out;
-	int rc;
+	శూన్య *payload_బహిర్గతం;
+	పూర్ణాంకం rc;
 
-	if(topic == NULL
+	ఒకవేళ(topic == ఖాళీ
 			|| payloadlen < 0
-			|| (payloadlen > 0 && payload == NULL)
+			|| (payloadlen > 0 && payload == ఖాళీ)
 			|| qos < 0 || qos > 2){
 
-		return MOSQ_ERR_INVAL;
+		తిరిగి MOSQ_ERR_INVAL;
 	}
 
-	payload_out = mosquitto_calloc(1, (size_t)(payloadlen+1));
-	if(payload_out == NULL){
-		return MOSQ_ERR_NOMEM;
+	payload_బహిర్గతం = mosquitto_calloc(1, (size_t)(payloadlen+1));
+	ఒకవేళ(payload_బహిర్గతం == ఖాళీ){
+		తిరిగి MOSQ_ERR_NOMEM;
 	}
-	memcpy(payload_out, payload, (size_t)payloadlen);
+	జ్ఞాపకం_నకలు(payload_బహిర్గతం, payload, (size_t)payloadlen);
 
 	rc = mosquitto_broker_publish(
 			clientid,
 			topic,
 			payloadlen,
-			payload_out,
+			payload_బహిర్గతం,
 			qos,
 			retain,
 			properties);
 
-	if(rc){
-		mosquitto_FREE(payload_out);
+	ఒకవేళ(rc){
+		mosquitto_FREE(payload_బహిర్గతం);
 	}
-	return rc;
+	తిరిగి rc;
 }
 
 
-BROKER_EXPORT int mosquitto_set_username(struct mosquitto *client, const char *username)
+BROKER_EXPORT పూర్ణాంకం mosquitto_సమితి_username(నిర్మాణం mosquitto *client, స్థిరరాశి అక్షరం *username)
 {
-	char *u_dup;
-	char *old;
+	అక్షరం *u_dup;
+	అక్షరం *old;
 
-	if(!client){
-		return MOSQ_ERR_INVAL;
+	ఒకవేళ(!client){
+		తిరిగి MOSQ_ERR_INVAL;
 	}
 
-	if(username){
-		if(mosquitto_validate_utf8(username, (int)strlen(username))){
-			return MOSQ_ERR_MALFORMED_UTF8;
+	ఒకవేళ(username){
+		ఒకవేళ(mosquitto_validate_utf8(username, (పూర్ణాంకం)అక్షరశ్రేణి_పొడవు(username))){
+			తిరిగి MOSQ_ERR_MALFORMED_UTF8;
 		}
 		u_dup = mosquitto_strdup(username);
-		if(!u_dup){
-			return MOSQ_ERR_NOMEM;
+		ఒకవేళ(!u_dup){
+			తిరిగి MOSQ_ERR_NOMEM;
 		}
-	}else{
-		u_dup = NULL;
+	}లేకపోతే{
+		u_dup = ఖాళీ;
 	}
 
 	old = client->username;
 	client->username = u_dup;
 
 	mosquitto_FREE(old);
-	return MOSQ_ERR_SUCCESS;
+	తిరిగి MOSQ_ERR_SUCCESS;
 }
 
 
-BROKER_EXPORT int mosquitto_set_clientid(struct mosquitto *client, const char *clientid)
+BROKER_EXPORT పూర్ణాంకం mosquitto_సమితి_clientid(నిర్మాణం mosquitto *client, స్థిరరాశి అక్షరం *clientid)
 {
-	struct mosquitto *found_client;
-	char *id_dup;
-	bool in_by_id;
-	int clientid_len;
+	నిర్మాణం mosquitto *దొరికింది_client;
+	అక్షరం *id_dup;
+	bool లోపల_by_id;
+	పూర్ణాంకం clientid_len;
 
-	if(!client || !clientid){
-		return MOSQ_ERR_INVAL;
+	ఒకవేళ(!client || !clientid){
+		తిరిగి MOSQ_ERR_INVAL;
 	}
 
-	in_by_id = client->in_by_id;
+	లోపల_by_id = client->లోపల_by_id;
 	/* If in_by_id is true, then this client has already authenticated and
 	 * completed the connection flow. This means it *cannot* take over an
 	 * existing session, and we must remove/add it to the by_id hash table.
@@ -356,493 +356,493 @@ BROKER_EXPORT int mosquitto_set_clientid(struct mosquitto *client, const char *c
 	 * because it will be checked after authentication.
 	 */
 
-	if(in_by_id){
-		HASH_FIND(hh_id, db.contexts_by_id, clientid, strlen(clientid), found_client);
-		if(found_client){
-			return MOSQ_ERR_ALREADY_EXISTS;
+	ఒకవేళ(లోపల_by_id){
+		HASH_కనుగొను(hh_id, db.contexts_by_id, clientid, అక్షరశ్రేణి_పొడవు(clientid), దొరికింది_client);
+		ఒకవేళ(దొరికింది_client){
+			తిరిగి MOSQ_ERR_ALREADY_EXISTS;
 		}
 	}
 
-	clientid_len = (int)strlen(clientid);
-	if(mosquitto_validate_utf8(clientid, clientid_len)){
-		return MOSQ_ERR_INVAL;
+	clientid_len = (పూర్ణాంకం)అక్షరశ్రేణి_పొడవు(clientid);
+	ఒకవేళ(mosquitto_validate_utf8(clientid, clientid_len)){
+		తిరిగి MOSQ_ERR_INVAL;
 	}
 
 	id_dup = mosquitto_strdup(clientid);
-	if(!id_dup){
-		return MOSQ_ERR_NOMEM;
+	ఒకవేళ(!id_dup){
+		తిరిగి MOSQ_ERR_NOMEM;
 	}
 
-	if(in_by_id){
+	ఒకవేళ(లోపల_by_id){
 		context__remove_from_by_id(client);
 	}
 	mosquitto_free(client->id);
 	client->id = id_dup;
-	if(in_by_id){
-		context__add_to_by_id(client);
+	ఒకవేళ(లోపల_by_id){
+		context_కూడు_గమ్యం_by_id(client);
 	}
 
-	return MOSQ_ERR_SUCCESS;
+	తిరిగి MOSQ_ERR_SUCCESS;
 }
 
 
 /* Check to see whether durable clients still have rights to their subscriptions. */
-static void check_subscription_acls(struct mosquitto *context)
+స్థిర శూన్య check_subscription_acls(నిర్మాణం mosquitto *context)
 {
-	int rc;
+	పూర్ణాంకం rc;
 	uint8_t reason;
 
-	for(int i=0; i<context->subs_capacity; i++){
-		if(context->subs[i] == NULL){
-			continue;
+	కొరకు(పూర్ణాంకం i=0; i<context->subs_సామర్థ్యం; i++){
+		ఒకవేళ(context->subs[i] == ఖాళీ){
+			కొనసాగు;
 		}
 		rc = mosquitto_acl_check(context,
 				context->subs[i]->topic_filter,
 				0,
-				NULL,
+				ఖాళీ,
 				0, /* FIXME */
 				false,
-				NULL,
+				ఖాళీ,
 				MOSQ_ACL_SUBSCRIBE);
 
-		if(rc != MOSQ_ERR_SUCCESS){
+		ఒకవేళ(rc != MOSQ_ERR_SUCCESS){
 			sub__remove(context, context->subs[i]->topic_filter, &reason);
 		}
 	}
 }
 
 
-static void disconnect_client(struct mosquitto *context, bool with_will)
+స్థిర శూన్య disconnect_client(నిర్మాణం mosquitto *context, bool with_will)
 {
-	if(context->protocol == mosq_p_mqtt5){
-		send__disconnect(context, MQTT_RC_ADMINISTRATIVE_ACTION, NULL);
+	ఒకవేళ(context->protocol == mosq_p_mqtt5){
+		send__disconnect(context, MQTT_RC_ADMINISTRATIVE_ACTION, ఖాళీ);
 	}
-	if(with_will == false){
-		mosquitto__set_state(context, mosq_cs_disconnecting);
+	ఒకవేళ(with_will == false){
+		mosquitto_సమితి_state(context, mosq_cs_disconnecting);
 	}
-	if(context->session_expiry_interval != MQTT_SESSION_EXPIRY_IMMEDIATE){
+	ఒకవేళ(context->session_expiry_interval != MQTT_SESSION_EXPIRY_తక్షణ){
 		check_subscription_acls(context);
 	}
 	do_disconnect(context, MOSQ_ERR_ADMINISTRATIVE_ACTION);
 }
 
 
-BROKER_EXPORT int mosquitto_kick_client_by_clientid(const char *clientid, bool with_will)
+BROKER_EXPORT పూర్ణాంకం mosquitto_kick_client_by_clientid(స్థిరరాశి అక్షరం *clientid, bool with_will)
 {
-	struct mosquitto *ctxt, *ctxt_tmp;
+	నిర్మాణం mosquitto *ctxt, *ctxt_tmp;
 
-	if(clientid == NULL){
+	ఒకవేళ(clientid == ఖాళీ){
 		HASH_ITER(hh_sock, db.contexts_by_sock, ctxt, ctxt_tmp){
 			disconnect_client(ctxt, with_will);
 		}
-		return MOSQ_ERR_SUCCESS;
-	}else{
-		HASH_FIND(hh_id, db.contexts_by_id, clientid, strlen(clientid), ctxt);
-		if(ctxt){
+		తిరిగి MOSQ_ERR_SUCCESS;
+	}లేకపోతే{
+		HASH_కనుగొను(hh_id, db.contexts_by_id, clientid, అక్షరశ్రేణి_పొడవు(clientid), ctxt);
+		ఒకవేళ(ctxt){
 			disconnect_client(ctxt, with_will);
-			return MOSQ_ERR_SUCCESS;
-		}else{
-			return MOSQ_ERR_NOT_FOUND;
+			తిరిగి MOSQ_ERR_SUCCESS;
+		}లేకపోతే{
+			తిరిగి MOSQ_ERR_NOT_దొరికింది;
 		}
 	}
 }
 
 
-BROKER_EXPORT int mosquitto_kick_client_by_username(const char *username, bool with_will)
+BROKER_EXPORT పూర్ణాంకం mosquitto_kick_client_by_username(స్థిరరాశి అక్షరం *username, bool with_will)
 {
-	struct mosquitto *ctxt, *ctxt_tmp;
+	నిర్మాణం mosquitto *ctxt, *ctxt_tmp;
 
-	if(username == NULL){
+	ఒకవేళ(username == ఖాళీ){
 		HASH_ITER(hh_sock, db.contexts_by_sock, ctxt, ctxt_tmp){
-			if(ctxt->username == NULL){
+			ఒకవేళ(ctxt->username == ఖాళీ){
 				disconnect_client(ctxt, with_will);
 			}
 		}
-	}else{
+	}లేకపోతే{
 		HASH_ITER(hh_sock, db.contexts_by_sock, ctxt, ctxt_tmp){
-			if(ctxt->username != NULL && !strcmp(ctxt->username, username)){
+			ఒకవేళ(ctxt->username != ఖాళీ && !strcmp(ctxt->username, username)){
 				disconnect_client(ctxt, with_will);
 			}
 		}
 	}
-	return MOSQ_ERR_SUCCESS;
+	తిరిగి MOSQ_ERR_SUCCESS;
 }
 
 
-BROKER_EXPORT int mosquitto_apply_on_all_clients(int (*FUNC_client_functor)(const struct mosquitto *, void *), void *functor_context)
+BROKER_EXPORT పూర్ణాంకం mosquitto_apply_on_all_clients(పూర్ణాంకం (*FUNC_client_functor)(స్థిరరాశి నిర్మాణం mosquitto *, శూన్య *), శూన్య *functor_context)
 {
-	int rc = MOSQ_ERR_SUCCESS;
-	struct mosquitto *ctxt, *ctxt_tmp;
+	పూర్ణాంకం rc = MOSQ_ERR_SUCCESS;
+	నిర్మాణం mosquitto *ctxt, *ctxt_tmp;
 
 	HASH_ITER(hh_id, db.contexts_by_id, ctxt, ctxt_tmp){
 		rc = (*FUNC_client_functor)(ctxt, functor_context);
-		if(rc != MOSQ_ERR_SUCCESS){
-			break;
+		ఒకవేళ(rc != MOSQ_ERR_SUCCESS){
+			ఆపు;
 		}
 	}
 
-	return rc;
+	తిరిగి rc;
 }
 
 
-BROKER_EXPORT int mosquitto_persist_client_add(struct mosquitto_client *client)
+BROKER_EXPORT పూర్ణాంకం mosquitto_persist_client_కూడు(నిర్మాణం mosquitto_client *client)
 {
-	struct mosquitto *context;
-	int rc;
+	నిర్మాణం mosquitto *context;
+	పూర్ణాంకం rc;
 
-	if(client == NULL){
-		return MOSQ_ERR_INVAL;
+	ఒకవేళ(client == ఖాళీ){
+		తిరిగి MOSQ_ERR_INVAL;
 	}
-	if(client->clientid == NULL){
+	ఒకవేళ(client->clientid == ఖాళీ){
 		rc = MOSQ_ERR_INVAL;
-		goto error;
+		వెళ్ళు error;
 	}
 
-	context = NULL;
-	HASH_FIND(hh_id, db.contexts_by_id, client->clientid, strlen(client->clientid), context);
-	if(context){
+	context = ఖాళీ;
+	HASH_కనుగొను(hh_id, db.contexts_by_id, client->clientid, అక్షరశ్రేణి_పొడవు(client->clientid), context);
+	ఒకవేళ(context){
 		rc = MOSQ_ERR_INVAL;
-		goto error;
+		వెళ్ళు error;
 	}
 
 	context = context__init();
-	if(!context){
+	ఒకవేళ(!context){
 		rc = MOSQ_ERR_NOMEM;
-		goto error;
+		వెళ్ళు error;
 	}
 
 	context->id = client->clientid;
-	client->clientid = NULL;
+	client->clientid = ఖాళీ;
 	context->username = client->username;
-	client->username = NULL;
-	context->auth_method = client->auth_method;
-	client->auth_method = NULL;
+	client->username = ఖాళీ;
+	context->auth_పద్ధతి = client->auth_పద్ధతి;
+	client->auth_పద్ధతి = ఖాళీ;
 
-	context->clean_start = false;
-	context->will_delay_time = client->will_delay_time;
-	context->session_expiry_time = client->session_expiry_time;
+	context->clean_ప్రారంభం = false;
+	context->will_delay_సమయం = client->will_delay_సమయం;
+	context->session_expiry_సమయం = client->session_expiry_సమయం;
 	context->will_delay_interval = client->will_delay_interval;
 	context->session_expiry_interval = client->session_expiry_interval;
 	context->max_qos = client->max_qos;
-	context->maximum_packet_size = client->max_packet_size;
-	context->retain_available = client->retain_available;
+	context->గరిష్ఠ_packet_కొలత = client->max_packet_కొలత;
+	context->retain_అందుబాటు = client->retain_అందుబాటు;
 	context->is_persisted = true;
 
 	/* in per_listener_settings mode, try to find the listener by persisted port */
-	if(db.config->per_listener_settings && client->listener_port > 0){
-		for(int i=0; i < db.config->listener_count; i++){
-			if(db.config->listeners[i].port == client->listener_port){
+	ఒకవేళ(db.config->చొప్పున_listener_settings && client->listener_పోర్టు > 0){
+		కొరకు(పూర్ణాంకం i=0; i < db.config->listener_లెక్క; i++){
+			ఒకవేళ(db.config->listeners[i].పోర్టు == client->listener_పోర్టు){
 				context->listener = &db.config->listeners[i];
-				break;
+				ఆపు;
 			}
 		}
 	}
 
-	context__add_to_by_id(context);
-	session_expiry__add_from_persistence(context, context->session_expiry_time);
+	context_కూడు_గమ్యం_by_id(context);
+	session_expiry_కూడు_from_persistence(context, context->session_expiry_సమయం);
 
-	return MOSQ_ERR_SUCCESS;
+	తిరిగి MOSQ_ERR_SUCCESS;
 error:
-	SAFE_FREE(client->clientid);
-	SAFE_FREE(client->username);
-	SAFE_FREE(client->auth_method);
-	return rc;
+	సురక్షిత_FREE(client->clientid);
+	సురక్షిత_FREE(client->username);
+	సురక్షిత_FREE(client->auth_పద్ధతి);
+	తిరిగి rc;
 }
 
 
-BROKER_EXPORT int mosquitto_persist_client_update(struct mosquitto_client *client)
+BROKER_EXPORT పూర్ణాంకం mosquitto_persist_client_update(నిర్మాణం mosquitto_client *client)
 {
-	struct mosquitto *context;
-	int rc;
+	నిర్మాణం mosquitto *context;
+	పూర్ణాంకం rc;
 
-	if(client == NULL){
-		return MOSQ_ERR_INVAL;
+	ఒకవేళ(client == ఖాళీ){
+		తిరిగి MOSQ_ERR_INVAL;
 	}
-	if(client->clientid == NULL){
+	ఒకవేళ(client->clientid == ఖాళీ){
 		rc = MOSQ_ERR_INVAL;
-		goto error;
+		వెళ్ళు error;
 	}
 
-	context = NULL;
-	HASH_FIND(hh_id, db.contexts_by_id, client->clientid, strlen(client->clientid), context);
-	if(context == NULL){
-		rc = MOSQ_ERR_NOT_FOUND;
-		goto error;
+	context = ఖాళీ;
+	HASH_కనుగొను(hh_id, db.contexts_by_id, client->clientid, అక్షరశ్రేణి_పొడవు(client->clientid), context);
+	ఒకవేళ(context == ఖాళీ){
+		rc = MOSQ_ERR_NOT_దొరికింది;
+		వెళ్ళు error;
 	}
 
 	mosquitto_free(context->username);
 	context->username = client->username;
-	client->username = NULL;
+	client->username = ఖాళీ;
 
-	context->clean_start = false;
-	context->will_delay_time = client->will_delay_time;
-	context->session_expiry_time = client->session_expiry_time;
+	context->clean_ప్రారంభం = false;
+	context->will_delay_సమయం = client->will_delay_సమయం;
+	context->session_expiry_సమయం = client->session_expiry_సమయం;
 	context->will_delay_interval = client->will_delay_interval;
 	context->session_expiry_interval = client->session_expiry_interval;
 	context->max_qos = client->max_qos;
-	context->maximum_packet_size = client->max_packet_size;
-	context->retain_available = client->retain_available;
+	context->గరిష్ఠ_packet_కొలత = client->max_packet_కొలత;
+	context->retain_అందుబాటు = client->retain_అందుబాటు;
 
 	/* in per_listener_settings mode, try to find the listener by persisted port */
-	if(db.config->per_listener_settings && client->listener_port > 0){
-		for(int i=0; i < db.config->listener_count; i++){
-			if(db.config->listeners[i].port == client->listener_port){
+	ఒకవేళ(db.config->చొప్పున_listener_settings && client->listener_పోర్టు > 0){
+		కొరకు(పూర్ణాంకం i=0; i < db.config->listener_లెక్క; i++){
+			ఒకవేళ(db.config->listeners[i].పోర్టు == client->listener_పోర్టు){
 				context->listener = &db.config->listeners[i];
-				break;
+				ఆపు;
 			}
 		}
 	}
 
-	return MOSQ_ERR_SUCCESS;
+	తిరిగి MOSQ_ERR_SUCCESS;
 error:
-	SAFE_FREE(client->username);
-	return rc;
+	సురక్షిత_FREE(client->username);
+	తిరిగి rc;
 }
 
 
-BROKER_EXPORT int mosquitto_persist_client_delete(const char *clientid)
+BROKER_EXPORT పూర్ణాంకం mosquitto_persist_client_delete(స్థిరరాశి అక్షరం *clientid)
 {
-	struct mosquitto *context;
+	నిర్మాణం mosquitto *context;
 
-	if(clientid == NULL){
-		return MOSQ_ERR_INVAL;
+	ఒకవేళ(clientid == ఖాళీ){
+		తిరిగి MOSQ_ERR_INVAL;
 	}
 
-	context = NULL;
-	HASH_FIND(hh_id, db.contexts_by_id, clientid, strlen(clientid), context);
-	if(context == NULL){
-		return MOSQ_ERR_SUCCESS;
+	context = ఖాళీ;
+	HASH_కనుగొను(hh_id, db.contexts_by_id, clientid, అక్షరశ్రేణి_పొడవు(clientid), context);
+	ఒకవేళ(context == ఖాళీ){
+		తిరిగి MOSQ_ERR_SUCCESS;
 	}
 
 	session_expiry__remove(context);
 	will_delay__remove(context);
 	will__clear(context);
 
-	context->clean_start = true;
-	context->session_expiry_interval = MQTT_SESSION_EXPIRY_IMMEDIATE;
+	context->clean_ప్రారంభం = true;
+	context->session_expiry_interval = MQTT_SESSION_EXPIRY_తక్షణ;
 	context->is_persisted = false;
-	mosquitto__set_state(context, mosq_cs_duplicate);
+	mosquitto_సమితి_state(context, mosq_cs_duplicate);
 	do_disconnect(context, MOSQ_ERR_SUCCESS);
 
-	return MOSQ_ERR_SUCCESS;
+	తిరిగి MOSQ_ERR_SUCCESS;
 }
 
 
-static struct mosquitto__base_msg *find_store_msg(uint64_t store_id)
+స్థిర నిర్మాణం mosquitto_పునాది_సందేశం *కనుగొను_store_సందేశం(uint64_t store_id)
 {
-	struct mosquitto__base_msg *base_msg;
+	నిర్మాణం mosquitto_పునాది_సందేశం *పునాది_సందేశం;
 
-	HASH_FIND(hh, db.msg_store, &store_id, sizeof(store_id), base_msg);
-	return base_msg;
+	HASH_కనుగొను(hh, db.సందేశం_store, &store_id, పరిమాణం(store_id), పునాది_సందేశం);
+	తిరిగి పునాది_సందేశం;
 }
 
 
-BROKER_EXPORT int mosquitto_persist_client_msg_add(struct mosquitto_client_msg *client_msg)
+BROKER_EXPORT పూర్ణాంకం mosquitto_persist_client_సందేశం_కూడు(నిర్మాణం mosquitto_client_సందేశం_2 *client_సందేశం)
 {
-	struct mosquitto *context;
-	struct mosquitto__base_msg *base_msg;
+	నిర్మాణం mosquitto *context;
+	నిర్మాణం mosquitto_పునాది_సందేశం *పునాది_సందేశం;
 
-	if(client_msg == NULL || client_msg->clientid == NULL){
-		return MOSQ_ERR_INVAL;
+	ఒకవేళ(client_సందేశం == ఖాళీ || client_సందేశం->clientid == ఖాళీ){
+		తిరిగి MOSQ_ERR_INVAL;
 	}
 
-	HASH_FIND(hh_id, db.contexts_by_id, client_msg->clientid, strlen(client_msg->clientid), context);
-	if(context == NULL){
-		return MOSQ_ERR_NOT_FOUND;
+	HASH_కనుగొను(hh_id, db.contexts_by_id, client_సందేశం->clientid, అక్షరశ్రేణి_పొడవు(client_సందేశం->clientid), context);
+	ఒకవేళ(context == ఖాళీ){
+		తిరిగి MOSQ_ERR_NOT_దొరికింది;
 	}
-	base_msg = find_store_msg(client_msg->store_id);
-	if(base_msg == NULL){
-		return MOSQ_ERR_NOT_FOUND;
+	పునాది_సందేశం = కనుగొను_store_సందేశం(client_సందేశం->store_id);
+	ఒకవేళ(పునాది_సందేశం == ఖాళీ){
+		తిరిగి MOSQ_ERR_NOT_దొరికింది;
 	}
 
-	if(client_msg->direction == mosq_md_out){
-		if(client_msg->qos > 0){
-			context->last_mid = client_msg->mid;
+	ఒకవేళ(client_సందేశం->direction == mosq_md_బహిర్గతం){
+		ఒకవేళ(client_సందేశం->qos > 0){
+			context->చివరి_mid = client_సందేశం->mid;
 		}
-		return db__message_insert_outgoing(context, client_msg->cmsg_id, client_msg->mid,
-				client_msg->qos, client_msg->retain,
-				base_msg, client_msg->subscription_identifier, false, false);
-	}else if(client_msg->direction == mosq_md_in){
-		return db__message_insert_incoming(context, client_msg->cmsg_id, base_msg, false);
-	}else{
-		return MOSQ_ERR_INVAL;
+		తిరిగి db_సందేశం_చొప్పించు_outgoing(context, client_సందేశం->cmsg_id, client_సందేశం->mid,
+				client_సందేశం->qos, client_సందేశం->retain,
+				పునాది_సందేశం, client_సందేశం->subscription_identifier, false, false);
+	}లేకపోతే ఒకవేళ(client_సందేశం->direction == mosq_md_లోపల){
+		తిరిగి db_సందేశం_చొప్పించు_incoming(context, client_సందేశం->cmsg_id, పునాది_సందేశం, false);
+	}లేకపోతే{
+		తిరిగి MOSQ_ERR_INVAL;
 	}
-	return MOSQ_ERR_SUCCESS;
+	తిరిగి MOSQ_ERR_SUCCESS;
 }
 
 
-BROKER_EXPORT int mosquitto_persist_client_msg_delete(struct mosquitto_client_msg *client_msg)
+BROKER_EXPORT పూర్ణాంకం mosquitto_persist_client_సందేశం_delete(నిర్మాణం mosquitto_client_సందేశం_2 *client_సందేశం)
 {
-	struct mosquitto *context;
+	నిర్మాణం mosquitto *context;
 
-	if(client_msg == NULL || client_msg->clientid == NULL){
-		return MOSQ_ERR_INVAL;
+	ఒకవేళ(client_సందేశం == ఖాళీ || client_సందేశం->clientid == ఖాళీ){
+		తిరిగి MOSQ_ERR_INVAL;
 	}
 
-	HASH_FIND(hh_id, db.contexts_by_id, client_msg->clientid, strlen(client_msg->clientid), context);
-	if(context == NULL){
-		return MOSQ_ERR_NOT_FOUND;
+	HASH_కనుగొను(hh_id, db.contexts_by_id, client_సందేశం->clientid, అక్షరశ్రేణి_పొడవు(client_సందేశం->clientid), context);
+	ఒకవేళ(context == ఖాళీ){
+		తిరిగి MOSQ_ERR_NOT_దొరికింది;
 	}
 
 
-	int rc = MOSQ_ERR_INVAL;
-	if(client_msg->direction == mosq_md_out){
-		rc = db__message_delete_outgoing(context, client_msg->mid, mosq_ms_any, client_msg->qos);
-	}else if(client_msg->direction == mosq_md_in){
-		rc = db__message_remove_incoming(context, client_msg->mid);
+	పూర్ణాంకం rc = MOSQ_ERR_INVAL;
+	ఒకవేళ(client_సందేశం->direction == mosq_md_బహిర్గతం){
+		rc = db_సందేశం_delete_outgoing(context, client_సందేశం->mid, mosq_ms_any, client_సందేశం->qos);
+	}లేకపోతే ఒకవేళ(client_సందేశం->direction == mosq_md_లోపల){
+		rc = db_సందేశం_remove_incoming(context, client_సందేశం->mid);
 	}
-	return rc;
+	తిరిగి rc;
 }
 
 
-BROKER_EXPORT int mosquitto_persist_client_msg_update(struct mosquitto_client_msg *client_msg)
+BROKER_EXPORT పూర్ణాంకం mosquitto_persist_client_సందేశం_update(నిర్మాణం mosquitto_client_సందేశం_2 *client_సందేశం)
 {
-	struct mosquitto *context;
+	నిర్మాణం mosquitto *context;
 
-	if(client_msg == NULL || client_msg->clientid == NULL){
-		return MOSQ_ERR_INVAL;
+	ఒకవేళ(client_సందేశం == ఖాళీ || client_సందేశం->clientid == ఖాళీ){
+		తిరిగి MOSQ_ERR_INVAL;
 	}
 
-	HASH_FIND(hh_id, db.contexts_by_id, client_msg->clientid, strlen(client_msg->clientid), context);
-	if(context == NULL){
-		return MOSQ_ERR_NOT_FOUND;
+	HASH_కనుగొను(hh_id, db.contexts_by_id, client_సందేశం->clientid, అక్షరశ్రేణి_పొడవు(client_సందేశం->clientid), context);
+	ఒకవేళ(context == ఖాళీ){
+		తిరిగి MOSQ_ERR_NOT_దొరికింది;
 	}
 
-	if(client_msg->direction == mosq_md_out){
-		db__message_update_outgoing(context, client_msg->mid, client_msg->state, client_msg->qos, false);
-	}else if(client_msg->direction == mosq_md_in){
+	ఒకవేళ(client_సందేశం->direction == mosq_md_బహిర్గతం){
+		db_సందేశం_update_outgoing(context, client_సందేశం->mid, client_సందేశం->state, client_సందేశం->qos, false);
+	}లేకపోతే ఒకవేళ(client_సందేశం->direction == mosq_md_లోపల){
 		// FIXME db__message_update_incoming(context, client_msg->mid, client_msg->state, client_msg->qos, false);
-	}else{
-		return MOSQ_ERR_INVAL;
+	}లేకపోతే{
+		తిరిగి MOSQ_ERR_INVAL;
 	}
-	return MOSQ_ERR_SUCCESS;
+	తిరిగి MOSQ_ERR_SUCCESS;
 }
 
 
-BROKER_EXPORT int mosquitto_persist_client_msg_clear(struct mosquitto_client_msg *client_msg)
+BROKER_EXPORT పూర్ణాంకం mosquitto_persist_client_సందేశం_clear(నిర్మాణం mosquitto_client_సందేశం_2 *client_సందేశం)
 {
-	struct mosquitto *context;
+	నిర్మాణం mosquitto *context;
 
-	if(client_msg == NULL || client_msg->clientid == NULL){
-		return MOSQ_ERR_INVAL;
+	ఒకవేళ(client_సందేశం == ఖాళీ || client_సందేశం->clientid == ఖాళీ){
+		తిరిగి MOSQ_ERR_INVAL;
 	}
 
-	HASH_FIND(hh_id, db.contexts_by_id, client_msg->clientid, strlen(client_msg->clientid), context);
-	if(context == NULL){
-		return MOSQ_ERR_NOT_FOUND;
+	HASH_కనుగొను(hh_id, db.contexts_by_id, client_సందేశం->clientid, అక్షరశ్రేణి_పొడవు(client_సందేశం->clientid), context);
+	ఒకవేళ(context == ఖాళీ){
+		తిరిగి MOSQ_ERR_NOT_దొరికింది;
 	}
 
-	if(client_msg->direction == mosq_bmd_in || client_msg->direction == mosq_bmd_all){
+	ఒకవేళ(client_సందేశం->direction == mosq_bmd_లోపల || client_సందేశం->direction == mosq_bmd_all){
 		db__messages_delete_incoming(context);
 	}
-	if(client_msg->direction == mosq_bmd_out || client_msg->direction == mosq_bmd_all){
+	ఒకవేళ(client_సందేశం->direction == mosq_bmd_బహిర్గతం || client_సందేశం->direction == mosq_bmd_all){
 		db__messages_delete_outgoing(context);
 	}
-	return MOSQ_ERR_SUCCESS;
+	తిరిగి MOSQ_ERR_SUCCESS;
 }
 
 
-BROKER_EXPORT int mosquitto_subscription_add(const struct mosquitto_subscription *sub)
+BROKER_EXPORT పూర్ణాంకం mosquitto_subscription_కూడు(స్థిరరాశి నిర్మాణం mosquitto_subscription *sub)
 {
-	struct mosquitto *context;
+	నిర్మాణం mosquitto *context;
 
-	if(sub == NULL || sub->clientid == NULL || sub->topic_filter == NULL || sub->clientid[0] == '\0' || sub->topic_filter[0] == '\0'){
-		return MOSQ_ERR_INVAL;
+	ఒకవేళ(sub == ఖాళీ || sub->clientid == ఖాళీ || sub->topic_filter == ఖాళీ || sub->clientid[0] == '\0' || sub->topic_filter[0] == '\0'){
+		తిరిగి MOSQ_ERR_INVAL;
 	}
 
-	HASH_FIND(hh_id, db.contexts_by_id, sub->clientid, strlen(sub->clientid), context);
+	HASH_కనుగొను(hh_id, db.contexts_by_id, sub->clientid, అక్షరశ్రేణి_పొడవు(sub->clientid), context);
 
-	if(context){
-		return sub__add(context, sub);
-	}else{
-		return MOSQ_ERR_NOT_FOUND;
+	ఒకవేళ(context){
+		తిరిగి sub_కూడు(context, sub);
+	}లేకపోతే{
+		తిరిగి MOSQ_ERR_NOT_దొరికింది;
 	}
 }
 
 
-BROKER_EXPORT int mosquitto_subscription_delete(const char *clientid, const char *topic)
+BROKER_EXPORT పూర్ణాంకం mosquitto_subscription_delete(స్థిరరాశి అక్షరం *clientid, స్థిరరాశి అక్షరం *topic)
 {
-	struct mosquitto *context;
+	నిర్మాణం mosquitto *context;
 	uint8_t reason;
 
-	if(clientid == NULL || topic == NULL || clientid[0] == '\0' || topic[0] == '\0'){
-		return MOSQ_ERR_INVAL;
+	ఒకవేళ(clientid == ఖాళీ || topic == ఖాళీ || clientid[0] == '\0' || topic[0] == '\0'){
+		తిరిగి MOSQ_ERR_INVAL;
 	}
 
-	HASH_FIND(hh_id, db.contexts_by_id, clientid, strlen(clientid), context);
+	HASH_కనుగొను(hh_id, db.contexts_by_id, clientid, అక్షరశ్రేణి_పొడవు(clientid), context);
 
-	if(context){
-		return sub__remove(context, topic, &reason);
-	}else{
-		return MOSQ_ERR_NOT_FOUND;
+	ఒకవేళ(context){
+		తిరిగి sub__remove(context, topic, &reason);
+	}లేకపోతే{
+		తిరిగి MOSQ_ERR_NOT_దొరికింది;
 	}
 }
 
 
-BROKER_EXPORT int mosquitto_persist_base_msg_add(struct mosquitto_base_msg *msg_add)
+BROKER_EXPORT పూర్ణాంకం mosquitto_persist_పునాది_సందేశం_కూడు(నిర్మాణం mosquitto_పునాది_సందేశం_2 *సందేశం_కూడు)
 {
-	struct mosquitto context;
-	struct mosquitto__base_msg *base_msg;
-	int rc;
+	నిర్మాణం mosquitto context;
+	నిర్మాణం mosquitto_పునాది_సందేశం *పునాది_సందేశం;
+	పూర్ణాంకం rc;
 
-	memset(&context, 0, sizeof(context));
+	memset(&context, 0, పరిమాణం(context));
 
-	if(msg_add->payloadlen > MQTT_MAX_PAYLOAD){
-		return MOSQ_ERR_INVAL;
+	ఒకవేళ(సందేశం_కూడు->payloadlen > MQTT_MAX_PAYLOAD){
+		తిరిగి MOSQ_ERR_INVAL;
 	}
 
 	/* db__message_store only takes a copy of .id and .username, so it is reasonably safe
 	 * to cast the const char * to char * */
-	context.id = (char *)msg_add->source_id;
-	context.username = (char *)msg_add->source_username;
+	context.id = (అక్షరం *)సందేశం_కూడు->ఆధారం_id;
+	context.username = (అక్షరం *)సందేశం_కూడు->ఆధారం_username;
 
-	base_msg = mosquitto_calloc(1, sizeof(struct mosquitto__base_msg));
-	if(base_msg == NULL){
-		goto error;
+	పునాది_సందేశం = mosquitto_calloc(1, పరిమాణం(నిర్మాణం mosquitto_పునాది_సందేశం));
+	ఒకవేళ(పునాది_సందేశం == ఖాళీ){
+		వెళ్ళు error;
 	}
-	base_msg->data.store_id = msg_add->store_id;
-	base_msg->data.expiry_time = msg_add->expiry_time;
-	base_msg->data.payloadlen = msg_add->payloadlen;
-	base_msg->data.source_mid = msg_add->source_mid;
-	base_msg->data.qos = msg_add->qos;
-	base_msg->data.retain = msg_add->retain;
+	పునాది_సందేశం->దత్తాంశం.store_id = సందేశం_కూడు->store_id;
+	పునాది_సందేశం->దత్తాంశం.expiry_సమయం = సందేశం_కూడు->expiry_సమయం;
+	పునాది_సందేశం->దత్తాంశం.payloadlen = సందేశం_కూడు->payloadlen;
+	పునాది_సందేశం->దత్తాంశం.ఆధారం_mid = సందేశం_కూడు->ఆధారం_mid;
+	పునాది_సందేశం->దత్తాంశం.qos = సందేశం_కూడు->qos;
+	పునాది_సందేశం->దత్తాంశం.retain = సందేశం_కూడు->retain;
 
-	base_msg->data.payload = msg_add->payload;
-	msg_add->payload = NULL;
-	base_msg->data.topic = msg_add->topic;
-	msg_add->topic = NULL;
-	base_msg->data.properties = msg_add->properties;
-	msg_add->properties = NULL;
+	పునాది_సందేశం->దత్తాంశం.payload = సందేశం_కూడు->payload;
+	సందేశం_కూడు->payload = ఖాళీ;
+	పునాది_సందేశం->దత్తాంశం.topic = సందేశం_కూడు->topic;
+	సందేశం_కూడు->topic = ఖాళీ;
+	పునాది_సందేశం->దత్తాంశం.properties = సందేశం_కూడు->properties;
+	సందేశం_కూడు->properties = ఖాళీ;
 
-	if(msg_add->source_port){
-		for(int i=0; i<db.config->listener_count; i++){
-			if(db.config->listeners[i].port == msg_add->source_port){
-				base_msg->source_listener = &db.config->listeners[i];
-				break;
+	ఒకవేళ(సందేశం_కూడు->ఆధారం_పోర్టు){
+		కొరకు(పూర్ణాంకం i=0; i<db.config->listener_లెక్క; i++){
+			ఒకవేళ(db.config->listeners[i].పోర్టు == సందేశం_కూడు->ఆధారం_పోర్టు){
+				పునాది_సందేశం->ఆధారం_listener = &db.config->listeners[i];
+				ఆపు;
 			}
 		}
 	}
 
-	base_msg->stored = true;
-	rc = db__message_store(&context, base_msg, NULL, mosq_mo_broker);
-	return rc;
+	పునాది_సందేశం->stored = true;
+	rc = db_సందేశం_store(&context, పునాది_సందేశం, ఖాళీ, mosq_mo_broker);
+	తిరిగి rc;
 
 error:
-	mosquitto_property_free_all(&msg_add->properties);
-	mosquitto_free(msg_add->topic);
-	mosquitto_free(msg_add->payload);
-	mosquitto_free(base_msg);
+	mosquitto_property_free_all(&సందేశం_కూడు->properties);
+	mosquitto_free(సందేశం_కూడు->topic);
+	mosquitto_free(సందేశం_కూడు->payload);
+	mosquitto_free(పునాది_సందేశం);
 
-	return MOSQ_ERR_NOMEM;
+	తిరిగి MOSQ_ERR_NOMEM;
 }
 
 
-BROKER_EXPORT int mosquitto_persist_base_msg_delete(uint64_t store_id)
+BROKER_EXPORT పూర్ణాంకం mosquitto_persist_పునాది_సందేశం_delete(uint64_t store_id)
 {
-	struct mosquitto__base_msg *base_msg;
+	నిర్మాణం mosquitto_పునాది_సందేశం *పునాది_సందేశం;
 
-	base_msg = find_store_msg(store_id);
-	if(base_msg && base_msg->ref_count == 0){
+	పునాది_సందేశం = కనుగొను_store_సందేశం(store_id);
+	ఒకవేళ(పునాది_సందేశం && పునాది_సందేశం->ref_లెక్క == 0){
 		/* If ref count is zero, then we should delete this. It might seem
 		 * surprising that the ref count is zero already, but it can be. If ref
 		 * count is greater than zero then there may be e.g. a retained message
@@ -851,34 +851,34 @@ BROKER_EXPORT int mosquitto_persist_base_msg_delete(uint64_t store_id)
 		 * the retain changes there will be use after free errors. All messages
 		 * will eventually hit ref count 0 and be removed in some way or other.
 		 */
-		db__msg_store_remove(base_msg, false);
+		db_సందేశం_store_remove(పునాది_సందేశం, false);
 	}
 
-	return MOSQ_ERR_SUCCESS;
+	తిరిగి MOSQ_ERR_SUCCESS;
 }
 
 
-BROKER_EXPORT void mosquitto_complete_basic_auth(const char *clientid, int result)
+BROKER_EXPORT శూన్య mosquitto_complete_basic_auth(స్థిరరాశి అక్షరం *clientid, పూర్ణాంకం ఫలితం)
 {
-	struct mosquitto *context;
+	నిర్మాణం mosquitto *context;
 
-	if(clientid == NULL){
-		return;
+	ఒకవేళ(clientid == ఖాళీ){
+		తిరిగి;
 	}
 
-	HASH_FIND(hh_id, db.contexts_by_id_delayed_auth, clientid, strlen(clientid), context);
-	if(context){
+	HASH_కనుగొను(hh_id, db.contexts_by_id_delayed_auth, clientid, అక్షరశ్రేణి_పొడవు(clientid), context);
+	ఒకవేళ(context){
 		HASH_DELETE(hh_id, db.contexts_by_id_delayed_auth, context);
-		if(result == MOSQ_ERR_SUCCESS){
-			connect__on_authorised(context, NULL, 0);
-		}else{
-			if(context->protocol == mosq_p_mqtt5){
-				send__connack(context, 0, MQTT_RC_NOT_AUTHORIZED, NULL);
-			}else{
-				send__connack(context, 0, CONNACK_REFUSED_NOT_AUTHORIZED, NULL);
+		ఒకవేళ(ఫలితం == MOSQ_ERR_SUCCESS){
+			connect__on_authorised(context, ఖాళీ, 0);
+		}లేకపోతే{
+			ఒకవేళ(context->protocol == mosq_p_mqtt5){
+				send__connack(context, 0, MQTT_RC_NOT_AUTHORIZED, ఖాళీ);
+			}లేకపోతే{
+				send__connack(context, 0, CONNACK_REFUSED_NOT_AUTHORIZED, ఖాళీ);
 			}
-			context->clean_start = true;
-			context->session_expiry_interval = MQTT_SESSION_EXPIRY_IMMEDIATE;
+			context->clean_ప్రారంభం = true;
+			context->session_expiry_interval = MQTT_SESSION_EXPIRY_తక్షణ;
 			will__clear(context);
 			do_disconnect(context, MOSQ_ERR_AUTH);
 		}
@@ -886,35 +886,35 @@ BROKER_EXPORT void mosquitto_complete_basic_auth(const char *clientid, int resul
 }
 
 
-BROKER_EXPORT int mosquitto_broker_node_id_set(uint16_t id)
+BROKER_EXPORT పూర్ణాంకం mosquitto_broker_కణుపు_id_సమితి(uint16_t id)
 {
-	if(id > 1023){
-		return MOSQ_ERR_INVAL;
-	}else{
-		db.node_id = id;
-		db.node_id_shifted = ((uint64_t)id) << 54;
-		return MOSQ_ERR_SUCCESS;
+	ఒకవేళ(id > 1023){
+		తిరిగి MOSQ_ERR_INVAL;
+	}లేకపోతే{
+		db.కణుపు_id = id;
+		db.కణుపు_id_shifted = ((uint64_t)id) << 54;
+		తిరిగి MOSQ_ERR_SUCCESS;
 	}
 }
 
 
-BROKER_EXPORT const char *mosquitto_persistence_location(void)
+BROKER_EXPORT స్థిరరాశి అక్షరం *mosquitto_persistence_location(శూన్య)
 {
-	return db.config->persistence_location;
+	తిరిగి db.config->persistence_location;
 }
 
 
-BROKER_EXPORT int mosquitto_client_will_set(const char *clientid, const char *topic, int payloadlen, const void *payload, int qos, bool retain, mosquitto_property *properties)
+BROKER_EXPORT పూర్ణాంకం mosquitto_client_will_సమితి(స్థిరరాశి అక్షరం *clientid, స్థిరరాశి అక్షరం *topic, పూర్ణాంకం payloadlen, స్థిరరాశి శూన్య *payload, పూర్ణాంకం qos, bool retain, mosquitto_property *properties)
 {
-	struct mosquitto *mosq = mosquitto_client(clientid);
-	if(!mosq){
-		return MOSQ_ERR_NOT_FOUND;
+	నిర్మాణం mosquitto *mosq = mosquitto_client(clientid);
+	ఒకవేళ(!mosq){
+		తిరిగి MOSQ_ERR_NOT_దొరికింది;
 	}
-	if(properties && mosq->protocol != mosq_p_mqtt5){
-		if(net__is_connected(mosq)){
-			return MOSQ_ERR_NOT_SUPPORTED;
+	ఒకవేళ(properties && mosq->protocol != mosq_p_mqtt5){
+		ఒకవేళ(net__is_connected(mosq)){
+			తిరిగి MOSQ_ERR_NOT_SUPPORTED;
 		}
 		mosq->protocol = mosq_p_mqtt5;
 	}
-	return will__set(mosq, topic, payloadlen, payload, qos, retain, properties);
+	తిరిగి will_సమితి(mosq, topic, payloadlen, payload, qos, retain, properties);
 }

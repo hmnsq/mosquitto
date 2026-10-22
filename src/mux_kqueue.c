@@ -16,304 +16,304 @@ Contributors:
    Roger Light - initial implementation and documentation.
 */
 
-#include "config.h"
+#అన్తర్భావ "config.h"
 
-#ifdef WITH_KQUEUE
+#నిర్వచితమైతే WITH_KQUEUE
 
-#define MAX_EVENTS 1000
+#నిర్వచించు MAX_EVENTS 1000
 
-#include <errno.h>
-#include <signal.h>
-#include <sys/event.h>
-#include <sys/socket.h>
+#అన్తర్భావ <errno.h>
+#అన్తర్భావ <signal.h>
+#అన్తర్భావ <sys/event.h>
+#అన్తర్భావ <sys/socket.h>
 
-#include "mosquitto_broker_internal.h"
-#include "packet_mosq.h"
-#include "util_mosq.h"
+#అన్తర్భావ "mosquitto_broker_internal.h"
+#అన్తర్భావ "packet_mosq.h"
+#అన్తర్భావ "util_mosq.h"
 
-static void loop_handle_reads_writes(struct mosquitto *context, short events);
+స్థిర శూన్య loop_handle_reads_writes(నిర్మాణం mosquitto *context, పొట్టి events);
 
-static struct kevent event_list[MAX_EVENTS];
+స్థిర నిర్మాణం kevent event_list[MAX_EVENTS];
 
 
-int mux_kqueue__init(void)
+పూర్ణాంకం mux_kqueue__init(శూన్య)
 {
-	memset(&event_list, 0, sizeof(struct kevent)*MAX_EVENTS);
+	memset(&event_list, 0, పరిమాణం(నిర్మాణం kevent)*MAX_EVENTS);
 
 	db.kqueuefd = 0;
-	if((db.kqueuefd = kqueue()) == -1){
-		log__printf(NULL, MOSQ_LOG_ERR, "Error in kqueue creating: %s", strerror(errno));
-		return MOSQ_ERR_UNKNOWN;
+	ఒకవేళ((db.kqueuefd = kqueue()) == -1){
+		log__printf(ఖాళీ, MOSQ_LOG_ERR, "Error in kqueue creating: %s", strerror(errno));
+		తిరిగి MOSQ_ERR_UNKNOWN;
 	}
 
-	return MOSQ_ERR_SUCCESS;
+	తిరిగి MOSQ_ERR_SUCCESS;
 }
 
 
-int mux_kqueue__add_listeners(struct mosquitto__listener_sock *listensock, int listensock_count)
+పూర్ణాంకం mux_kqueue_కూడు_listeners(నిర్మాణం mosquitto__listener_sock *listensock, పూర్ణాంకం listensock_లెక్క)
 {
-	struct kevent ev;
+	నిర్మాణం kevent ev;
 
-	memset(&ev, 0, sizeof(struct kevent));
+	memset(&ev, 0, పరిమాణం(నిర్మాణం kevent));
 
-	for(int i=0; i<listensock_count; i++){
-		EV_SET(&ev, listensock[i].sock, EVFILT_READ, EV_ADD, 0, 0, &listensock[i]);
-		if(kevent(db.kqueuefd, &ev, 1, NULL, 0, NULL) == -1){
-			log__printf(NULL, MOSQ_LOG_ERR, "Error in kqueue initial registering: %s", strerror(errno));
-			return MOSQ_ERR_UNKNOWN;
+	కొరకు(పూర్ణాంకం i=0; i<listensock_లెక్క; i++){
+		EV_సమితి(&ev, listensock[i].sock, EVFILT_READ, EV_కూడు, 0, 0, &listensock[i]);
+		ఒకవేళ(kevent(db.kqueuefd, &ev, 1, ఖాళీ, 0, ఖాళీ) == -1){
+			log__printf(ఖాళీ, MOSQ_LOG_ERR, "Error in kqueue initial registering: %s", strerror(errno));
+			తిరిగి MOSQ_ERR_UNKNOWN;
 		}
 	}
 
-	return MOSQ_ERR_SUCCESS;
+	తిరిగి MOSQ_ERR_SUCCESS;
 }
 
 
-int mux_kqueue__delete_listeners(struct mosquitto__listener_sock *listensock, int listensock_count)
+పూర్ణాంకం mux_kqueue__delete_listeners(నిర్మాణం mosquitto__listener_sock *listensock, పూర్ణాంకం listensock_లెక్క)
 {
-	struct kevent ev;
+	నిర్మాణం kevent ev;
 
-	for(int i=0; i<listensock_count; i++){
-		EV_SET(&ev, listensock[i].sock, EVFILT_READ, EV_DELETE, 0, 0, &listensock[i]);
-		if(kevent(db.kqueuefd, &ev, 1, NULL, 0, NULL) == -1){
-			return MOSQ_ERR_UNKNOWN;
+	కొరకు(పూర్ణాంకం i=0; i<listensock_లెక్క; i++){
+		EV_సమితి(&ev, listensock[i].sock, EVFILT_READ, EV_DELETE, 0, 0, &listensock[i]);
+		ఒకవేళ(kevent(db.kqueuefd, &ev, 1, ఖాళీ, 0, ఖాళీ) == -1){
+			తిరిగి MOSQ_ERR_UNKNOWN;
 		}
 	}
 
-	return MOSQ_ERR_SUCCESS;
+	తిరిగి MOSQ_ERR_SUCCESS;
 }
 
 
-int mux_kqueue__loop_setup(void)
+పూర్ణాంకం mux_kqueue_loop_అమరిక(శూన్య)
 {
-	return MOSQ_ERR_SUCCESS;
+	తిరిగి MOSQ_ERR_SUCCESS;
 }
 
 
-int mux_kqueue__add_out(struct mosquitto *context)
+పూర్ణాంకం mux_kqueue_కూడు_బహిర్గతం(నిర్మాణం mosquitto *context)
 {
-	struct kevent ev;
+	నిర్మాణం kevent ev;
 
-	if(context->events != EVFILT_WRITE){
-		EV_SET(&ev, context->sock, EVFILT_WRITE, EV_ADD, 0, 0, context);
-		if(kevent(db.kqueuefd, &ev, 1, NULL, 0, NULL) == -1){
-			log__printf(NULL, MOSQ_LOG_DEBUG, "Error in kqueue re-registering to EVFILT_WRITE: %s", strerror(errno));
+	ఒకవేళ(context->events != EVFILT_WRITE){
+		EV_సమితి(&ev, context->sock, EVFILT_WRITE, EV_కూడు, 0, 0, context);
+		ఒకవేళ(kevent(db.kqueuefd, &ev, 1, ఖాళీ, 0, ఖాళీ) == -1){
+			log__printf(ఖాళీ, MOSQ_LOG_DEBUG, "Error in kqueue re-registering to EVFILT_WRITE: %s", strerror(errno));
 		}
 
 		context->events = EVFILT_WRITE;
 	}
-	return MOSQ_ERR_SUCCESS;
+	తిరిగి MOSQ_ERR_SUCCESS;
 }
 
 
-int mux_kqueue__remove_out(struct mosquitto *context)
+పూర్ణాంకం mux_kqueue_remove_బహిర్గతం(నిర్మాణం mosquitto *context)
 {
-	struct kevent ev;
+	నిర్మాణం kevent ev;
 
-	if(context->events == EVFILT_WRITE){
-		EV_SET(&ev, context->sock, EVFILT_WRITE, EV_DELETE, 0, 0, context);
-		if(kevent(db.kqueuefd, &ev, 1, NULL, 0, NULL) == -1){
-			log__printf(NULL, MOSQ_LOG_DEBUG, "Error in kqueue removing EVFILT_WRITE: %s", strerror(errno));
+	ఒకవేళ(context->events == EVFILT_WRITE){
+		EV_సమితి(&ev, context->sock, EVFILT_WRITE, EV_DELETE, 0, 0, context);
+		ఒకవేళ(kevent(db.kqueuefd, &ev, 1, ఖాళీ, 0, ఖాళీ) == -1){
+			log__printf(ఖాళీ, MOSQ_LOG_DEBUG, "Error in kqueue removing EVFILT_WRITE: %s", strerror(errno));
 		}
 
 		context->events = 0;
 	}
-	return MOSQ_ERR_SUCCESS;
+	తిరిగి MOSQ_ERR_SUCCESS;
 }
 
 
-int mux_kqueue__new(struct mosquitto *context)
+పూర్ణాంకం mux_kqueue__new(నిర్మాణం mosquitto *context)
 {
-	struct kevent ev;
+	నిర్మాణం kevent ev;
 
-	EV_SET(&ev, context->sock, EVFILT_READ, EV_ADD, 0, 0, context);
-	if(kevent(db.kqueuefd, &ev, 1, NULL, 0, NULL) == -1){
-		log__printf(NULL, MOSQ_LOG_ERR, "Error in kqueue accepting: %s", strerror(errno));
+	EV_సమితి(&ev, context->sock, EVFILT_READ, EV_కూడు, 0, 0, context);
+	ఒకవేళ(kevent(db.kqueuefd, &ev, 1, ఖాళీ, 0, ఖాళీ) == -1){
+		log__printf(ఖాళీ, MOSQ_LOG_ERR, "Error in kqueue accepting: %s", strerror(errno));
 	}
 
 	context->events = 0;
-	return MOSQ_ERR_SUCCESS;
+	తిరిగి MOSQ_ERR_SUCCESS;
 }
 
 
-int mux_kqueue__delete(struct mosquitto *context)
+పూర్ణాంకం mux_kqueue__delete(నిర్మాణం mosquitto *context)
 {
-	struct kevent ev[2];
+	నిర్మాణం kevent ev[2];
 
-	if(context->sock != INVALID_SOCKET){
-		EV_SET(&ev[0], context->sock, EVFILT_READ, EV_DELETE, 0, 0, context);
-		EV_SET(&ev[1], context->sock, EVFILT_WRITE, EV_DELETE, 0, 0, context);
-		if(kevent(db.kqueuefd, ev, 2, NULL, 0, NULL) == -1){
-			return 1;
+	ఒకవేళ(context->sock != INVALID_SOCKET){
+		EV_సమితి(&ev[0], context->sock, EVFILT_READ, EV_DELETE, 0, 0, context);
+		EV_సమితి(&ev[1], context->sock, EVFILT_WRITE, EV_DELETE, 0, 0, context);
+		ఒకవేళ(kevent(db.kqueuefd, ev, 2, ఖాళీ, 0, ఖాళీ) == -1){
+			తిరిగి 1;
 		}
 	}
-	return 0;
+	తిరిగి 0;
 }
 
 
-int mux_kqueue__handle(void)
+పూర్ణాంకం mux_kqueue__handle(శూన్య)
 {
-	struct mosquitto *context;
-	struct mosquitto__listener_sock *listensock;
-	int event_count;
-	struct timespec timeout;
+	నిర్మాణం mosquitto *context;
+	నిర్మాణం mosquitto__listener_sock *listensock;
+	పూర్ణాంకం event_లెక్క;
+	నిర్మాణం timespec timeout;
 
-#ifdef WITH_WEBSOCKETS
+#నిర్వచితమైతే WITH_WEBSOCKETS
 	timeout.tv_sec = 0;
 	timeout.tv_nsec = 100000000; /* 100 ms */
-#else
-	timeout.tv_sec = db.next_event_ms/1000;
-	timeout.tv_nsec = (db.next_event_ms - timeout.tv_sec*1000) * 1000000;
-#endif
+#లేకపోతే
+	timeout.tv_sec = db.తదుపరి_event_ms/1000;
+	timeout.tv_nsec = (db.తదుపరి_event_ms - timeout.tv_sec*1000) * 1000000;
+#అయితే_ముగింపు
 
-	event_count = kevent(db.kqueuefd,
-			NULL, 0,
+	event_లెక్క = kevent(db.kqueuefd,
+			ఖాళీ, 0,
 			event_list, MAX_EVENTS,
 			&timeout);
 
-	db.now_s = mosquitto_time();
-	db.now_real_s = time(NULL);
+	db.now_s = mosquitto_సమయం();
+	db.now_real_s = సమయం(ఖాళీ);
 
-	switch(event_count){
-		case -1:
-			if(errno != EINTR){
-				log__printf(NULL, MOSQ_LOG_ERR, "Error in kqueue waiting: %s.", strerror(errno));
+	ఎంపిక(event_లెక్క){
+		స్థితి -1:
+			ఒకవేళ(errno != EINTR){
+				log__printf(ఖాళీ, MOSQ_LOG_ERR, "Error in kqueue waiting: %s.", strerror(errno));
 			}
-			break;
-		case 0:
-			break;
-		default:
-			for(int i=0; i<event_count; i++){
+			ఆపు;
+		స్థితి 0:
+			ఆపు;
+		అప్రమేయ:
+			కొరకు(పూర్ణాంకం i=0; i<event_లెక్క; i++){
 				context = event_list[i].udata;
-				if(context->ident == id_client){
+				ఒకవేళ(context->ident == id_client){
 					loop_handle_reads_writes(context, event_list[i].filter);
-					if(event_list[i].flags & (EV_EOF | EV_ERROR)){
-						do_disconnect(context, MOSQ_ERR_CONN_LOST);
+					ఒకవేళ(event_list[i].flags & (EV_EOF | EV_ERROR)){
+						do_disconnect(context, MOSQ_ERR_CONN_కోల్పోయిన);
 					}
-				}else if(context->ident == id_listener){
+				}లేకపోతే ఒకవేళ(context->ident == id_listener){
 					listensock = event_list[i].udata;
 
-					if(event_list[i].filter == EVFILT_READ){
-						while((context = net__socket_accept(listensock)) != NULL){
+					ఒకవేళ(event_list[i].filter == EVFILT_READ){
+						అయితే((context = net__socket_accept(listensock)) != ఖాళీ){
 						}
 					}
-#ifdef WITH_WEBSOCKETS
-				}else if(context->ident == id_listener_ws){
+#నిర్వచితమైతే WITH_WEBSOCKETS
+				}లేకపోతే ఒకవేళ(context->ident == id_listener_ws){
 					/* Nothing needs to happen here, because we always call lws_service in the loop.
 					 * The important point is we've been woken up for this listener. */
-#endif
+#అయితే_ముగింపు
 				}
 			}
 	}
-	return MOSQ_ERR_SUCCESS;
+	తిరిగి MOSQ_ERR_SUCCESS;
 }
 
 
-int mux_kqueue__cleanup(void)
+పూర్ణాంకం mux_kqueue__cleanup(శూన్య)
 {
-	(void)close(db.kqueuefd);
+	(శూన్య)close(db.kqueuefd);
 	db.kqueuefd = 0;
-	return MOSQ_ERR_SUCCESS;
+	తిరిగి MOSQ_ERR_SUCCESS;
 }
 
 
-static void loop_handle_reads_writes(struct mosquitto *context, short event)
+స్థిర శూన్య loop_handle_reads_writes(నిర్మాణం mosquitto *context, పొట్టి event)
 {
-	int err;
+	పూర్ణాంకం err;
 	socklen_t len;
-	int rc;
+	పూర్ణాంకం rc;
 
-	if(context->sock == INVALID_SOCKET){
-		return;
+	ఒకవేళ(context->sock == INVALID_SOCKET){
+		తిరిగి;
 	}
 
-#if defined(WITH_WEBSOCKETS) && WITH_WEBSOCKETS == WS_IS_LWS
-	if(context->wsi){
-		struct lws_pollfd wspoll;
+#ఒకవేళ defined(WITH_WEBSOCKETS) && WITH_WEBSOCKETS == WS_IS_LWS
+	ఒకవేళ(context->wsi){
+		నిర్మాణం lws_pollfd wspoll;
 		wspoll.fd = context->sock;
 		int16_t lws_events;
-		switch(event){
-			case EVFILT_READ:
+		ఎంపిక(event){
+			స్థితి EVFILT_READ:
 				lws_events = LWS_POLLIN;
-				break;
-			case EVFILT_WRITE:
+				ఆపు;
+			స్థితి EVFILT_WRITE:
 				lws_events = LWS_POLLOUT;
-				break;
-			default:
+				ఆపు;
+			అప్రమేయ:
 				lws_events = LWS_POLLHUP;
-				break;
+				ఆపు;
 		}
 		wspoll.events = lws_events;
 		wspoll.revents = lws_events;
 		lws_service_fd(lws_get_context(context->wsi), &wspoll);
-		return;
+		తిరిగి;
 	}
-#endif
+#అయితే_ముగింపు
 
-	if(event == EVFILT_WRITE
-#ifdef WITH_TLS
+	ఒకవేళ(event == EVFILT_WRITE
+#నిర్వచితమైతే WITH_TLS
 			|| context->want_write
 			|| (context->ssl && context->state == mosq_cs_new)
-#endif
+#అయితే_ముగింపు
 			){
 
-		if(context->state == mosq_cs_connect_pending){
-			len = sizeof(int);
-			if(!getsockopt(context->sock, SOL_SOCKET, SO_ERROR, (char *)&err, &len)){
-				if(err == 0){
-					mosquitto__set_state(context, mosq_cs_new);
-#if defined(WITH_ADNS) && defined(WITH_BRIDGE)
-					if(context->bridge){
+		ఒకవేళ(context->state == mosq_cs_connect_pending){
+			len = పరిమాణం(పూర్ణాంకం);
+			ఒకవేళ(!getsockopt(context->sock, SOL_SOCKET, SO_ERROR, (అక్షరం *)&err, &len)){
+				ఒకవేళ(err == 0){
+					mosquitto_సమితి_state(context, mosq_cs_new);
+#ఒకవేళ defined(WITH_ADNS) && defined(WITH_BRIDGE)
+					ఒకవేళ(context->bridge){
 						bridge__connect_step3(context);
 					}
-#endif
+#అయితే_ముగింపు
 				}
-			}else{
-				do_disconnect(context, MOSQ_ERR_CONN_LOST);
-				return;
+			}లేకపోతే{
+				do_disconnect(context, MOSQ_ERR_CONN_కోల్పోయిన);
+				తిరిగి;
 			}
 		}
 		rc = packet__write(context);
-		if(rc){
+		ఒకవేళ(rc){
 			do_disconnect(context, rc);
-			return;
+			తిరిగి;
 		}
 	}
 
-	if(event == EVFILT_READ
-#ifdef WITH_TLS
+	ఒకవేళ(event == EVFILT_READ
+#నిర్వచితమైతే WITH_TLS
 			|| (context->ssl && context->state == mosq_cs_new)
-#endif
+#అయితే_ముగింపు
 			){
 
-		do{
-			switch(context->transport){
-				case mosq_t_tcp:
-				case mosq_t_ws:
+		చేయి{
+			ఎంపిక(context->transport){
+				స్థితి mosq_t_tcp:
+				స్థితి mosq_t_ws:
 					rc = packet__read(context);
-					break;
-#if defined(WITH_WEBSOCKETS) && WITH_WEBSOCKETS == WS_IS_BUILTIN
-				case mosq_t_http:
+					ఆపు;
+#ఒకవేళ defined(WITH_WEBSOCKETS) && WITH_WEBSOCKETS == WS_IS_BUILTIN
+				స్థితి mosq_t_http:
 					rc = http__read(context);
-					break;
-#endif
-#if !defined(WITH_WEBSOCKETS) || WITH_WEBSOCKETS == WS_IS_BUILTIN
+					ఆపు;
+#అయితే_ముగింపు
+#ఒకవేళ !defined(WITH_WEBSOCKETS) || WITH_WEBSOCKETS == WS_IS_BUILTIN
 				/* Not supported with LWS */
-				case mosq_t_proxy_v2:
+				స్థితి mosq_t_proxy_v2:
 					rc = proxy_v2__read(context);
-					break;
-				case mosq_t_proxy_v1:
+					ఆపు;
+				స్థితి mosq_t_proxy_v1:
 					rc = proxy_v1__read(context);
-					break;
-#endif
-				default:
+					ఆపు;
+#అయితే_ముగింపు
+				అప్రమేయ:
 					rc = MOSQ_ERR_INVAL;
-					break;
+					ఆపు;
 			}
-			if(rc){
+			ఒకవేళ(rc){
 				do_disconnect(context, rc);
-				return;
+				తిరిగి;
 			}
-		}while(SSL_DATA_PENDING(context));
+		}అయితే(SSL_దత్తాంశం_PENDING(context));
 	}
 }
-#endif
+#అయితే_ముగింపు

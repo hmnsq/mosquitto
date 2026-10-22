@@ -16,112 +16,112 @@ Contributors:
    Roger Light - initial implementation and documentation.
 */
 
-#include "config.h"
+#అన్తర్భావ "config.h"
 
-#ifdef WITH_PERSISTENCE
+#నిర్వచితమైతే WITH_PERSISTENCE
 
-#ifndef WIN32
-#include <arpa/inet.h>
-#endif
-#include <errno.h>
-#include <fcntl.h>
-#include <stdio.h>
-#include <string.h>
-#include <sys/stat.h>
-#include <time.h>
+#నిర్వచితం_కాకపోతే WIN32
+#అన్తర్భావ <arpa/inet.h>
+#అయితే_ముగింపు
+#అన్తర్భావ <errno.h>
+#అన్తర్భావ <fcntl.h>
+#అన్తర్భావ <stdio.h>
+#అన్తర్భావ <string.h>
+#అన్తర్భావ <sys/stat.h>
+#అన్తర్భావ <time.h>
 
-#include "mosquitto/mqtt_protocol.h"
-#include "mosquitto_broker_internal.h"
-#include "persist.h"
-#include "packet_mosq.h"
-#include "property_common.h"
-#include "property_mosq.h"
-#include "util_mosq.h"
+#అన్తర్భావ "mosquitto/mqtt_protocol.h"
+#అన్తర్భావ "mosquitto_broker_internal.h"
+#అన్తర్భావ "persist.h"
+#అన్తర్భావ "packet_mosq.h"
+#అన్తర్భావ "property_common.h"
+#అన్తర్భావ "property_mosq.h"
+#అన్తర్భావ "util_mosq.h"
 
 
-int persist__chunk_cfg_write_v6(FILE *db_fptr, struct PF_cfg *chunk)
+పూర్ణాంకం persist__chunk_cfg_write_v6(FILE *db_fptr, నిర్మాణం PF_cfg *chunk)
 {
-	struct PF_header header;
+	నిర్మాణం PF_శీర్షిక శీర్షిక;
 
-	header.chunk = htonl(DB_CHUNK_CFG);
-	header.length = htonl(sizeof(struct PF_cfg));
-	write_e(db_fptr, &header, sizeof(struct PF_header));
-	write_e(db_fptr, chunk, sizeof(struct PF_cfg));
+	శీర్షిక.chunk = htonl(DB_CHUNK_CFG);
+	శీర్షిక.నిడివి = htonl(పరిమాణం(నిర్మాణం PF_cfg));
+	write_e(db_fptr, &శీర్షిక, పరిమాణం(నిర్మాణం PF_శీర్షిక));
+	write_e(db_fptr, chunk, పరిమాణం(నిర్మాణం PF_cfg));
 
-	return MOSQ_ERR_SUCCESS;
+	తిరిగి MOSQ_ERR_SUCCESS;
 error:
-	log__printf(NULL, MOSQ_LOG_ERR, "Error: %s.", strerror(errno));
-	return 1;
+	log__printf(ఖాళీ, MOSQ_LOG_ERR, "Error: %s.", strerror(errno));
+	తిరిగి 1;
 }
 
 
-int persist__chunk_client_write_v6(FILE *db_fptr, struct P_client *chunk)
+పూర్ణాంకం persist__chunk_client_write_v6(FILE *db_fptr, నిర్మాణం P_client *chunk)
 {
-	struct PF_header header;
+	నిర్మాణం PF_శీర్షిక శీర్షిక;
 	uint16_t id_len = chunk->F.id_len;
 	uint16_t username_len = chunk->F.username_len;
 
 	chunk->F.session_expiry_interval = htonl(chunk->F.session_expiry_interval);
-	chunk->F.last_mid = htons(chunk->F.last_mid);
+	chunk->F.చివరి_mid = htons(chunk->F.చివరి_mid);
 	chunk->F.id_len = htons(chunk->F.id_len);
 	chunk->F.username_len = htons(chunk->F.username_len);
-	chunk->F.listener_port = htons(chunk->F.listener_port);
+	chunk->F.listener_పోర్టు = htons(chunk->F.listener_పోర్టు);
 
-	header.chunk = htonl(DB_CHUNK_CLIENT);
-	header.length = htonl((uint32_t)sizeof(struct PF_client)+id_len+username_len);
+	శీర్షిక.chunk = htonl(DB_CHUNK_CLIENT);
+	శీర్షిక.నిడివి = htonl((uint32_t)పరిమాణం(నిర్మాణం PF_client)+id_len+username_len);
 
-	write_e(db_fptr, &header, sizeof(struct PF_header));
-	write_e(db_fptr, &chunk->F, sizeof(struct PF_client));
+	write_e(db_fptr, &శీర్షిక, పరిమాణం(నిర్మాణం PF_శీర్షిక));
+	write_e(db_fptr, &chunk->F, పరిమాణం(నిర్మాణం PF_client));
 
 	write_e(db_fptr, chunk->clientid, id_len);
-	if(username_len > 0){
+	ఒకవేళ(username_len > 0){
 		write_e(db_fptr, chunk->username, username_len);
 	}
 
-	return MOSQ_ERR_SUCCESS;
+	తిరిగి MOSQ_ERR_SUCCESS;
 error:
-	log__printf(NULL, MOSQ_LOG_ERR, "Error: %s.", strerror(errno));
-	return 1;
+	log__printf(ఖాళీ, MOSQ_LOG_ERR, "Error: %s.", strerror(errno));
+	తిరిగి 1;
 }
 
 
-int persist__chunk_client_msg_write_v6(FILE *db_fptr, struct P_client_msg *chunk)
+పూర్ణాంకం persist_chunk_client_సందేశం_write_v6(FILE *db_fptr, నిర్మాణం P_client_సందేశం *chunk)
 {
-	struct PF_header header;
-	struct mosquitto__packet *prop_packet = NULL;
+	నిర్మాణం PF_శీర్షిక శీర్షిక;
+	నిర్మాణం mosquitto__packet *prop_packet = ఖాళీ;
 	uint16_t id_len = chunk->F.id_len;
 	uint32_t proplen = 0;
-	int rc;
+	పూర్ణాంకం rc;
 	mosquitto_property subscription_id_prop = {
-		.next = NULL, .identifier = MQTT_PROP_SUBSCRIPTION_IDENTIFIER, .client_generated = true, .property_type = MQTT_PROP_TYPE_VARINT
+		.తదుపరి = ఖాళీ, .identifier = MQTT_PROP_SUBSCRIPTION_IDENTIFIER, .client_generated = true, .property_type = MQTT_PROP_TYPE_VARINT
 	};
 
-	if(chunk->subscription_identifier){
-		subscription_id_prop.value.varint = chunk->subscription_identifier;
-		proplen += mosquitto_property_get_remaining_length(&subscription_id_prop);
+	ఒకవేళ(chunk->subscription_identifier){
+		subscription_id_prop.విలువ.varint = chunk->subscription_identifier;
+		proplen += mosquitto_property_get_మిగిలిన_నిడివి(&subscription_id_prop);
 	}
 
 	chunk->F.mid = htons(chunk->F.mid);
 	chunk->F.id_len = htons(chunk->F.id_len);
 
-	header.chunk = htonl(DB_CHUNK_CLIENT_MSG);
-	header.length = htonl((uint32_t)sizeof(struct PF_client_msg) + id_len + proplen);
+	శీర్షిక.chunk = htonl(DB_CHUNK_CLIENT_సందేశం);
+	శీర్షిక.నిడివి = htonl((uint32_t)పరిమాణం(నిర్మాణం PF_client_సందేశం) + id_len + proplen);
 
-	write_e(db_fptr, &header, sizeof(struct PF_header));
-	write_e(db_fptr, &chunk->F, sizeof(struct PF_client_msg));
+	write_e(db_fptr, &శీర్షిక, పరిమాణం(నిర్మాణం PF_శీర్షిక));
+	write_e(db_fptr, &chunk->F, పరిమాణం(నిర్మాణం PF_client_సందేశం));
 	write_e(db_fptr, chunk->clientid, id_len);
-	if(chunk->subscription_identifier){
-		if(proplen > 0){
-			prop_packet = mosquitto_calloc(1, sizeof(struct mosquitto__packet)+proplen);
-			if(prop_packet == NULL){
-				return MOSQ_ERR_NOMEM;
+	ఒకవేళ(chunk->subscription_identifier){
+		ఒకవేళ(proplen > 0){
+			prop_packet = mosquitto_calloc(1, పరిమాణం(నిర్మాణం mosquitto__packet)+proplen);
+			ఒకవేళ(prop_packet == ఖాళీ){
+				తిరిగి MOSQ_ERR_NOMEM;
 			}
-			prop_packet->remaining_length = proplen;
-			prop_packet->packet_length = proplen;
+			prop_packet->మిగిలిన_నిడివి = proplen;
+			prop_packet->packet_నిడివి = proplen;
 			rc = property__write_all(prop_packet, &subscription_id_prop, true);
-			if(rc){
+			ఒకవేళ(rc){
 				mosquitto_FREE(prop_packet);
-				return rc;
+				తిరిగి rc;
 			}
 
 			write_e(db_fptr, prop_packet->payload, proplen);
@@ -129,101 +129,101 @@ int persist__chunk_client_msg_write_v6(FILE *db_fptr, struct P_client_msg *chunk
 		}
 	}
 
-	return MOSQ_ERR_SUCCESS;
+	తిరిగి MOSQ_ERR_SUCCESS;
 error:
-	log__printf(NULL, MOSQ_LOG_ERR, "Error: %s.", strerror(errno));
+	log__printf(ఖాళీ, MOSQ_LOG_ERR, "Error: %s.", strerror(errno));
 	mosquitto_FREE(prop_packet);
-	return 1;
+	తిరిగి 1;
 }
 
 
-int persist__chunk_message_store_write_v6(FILE *db_fptr, struct P_base_msg *chunk)
+పూర్ణాంకం persist_chunk_సందేశం_store_write_v6(FILE *db_fptr, నిర్మాణం P_పునాది_సందేశం *chunk)
 {
-	struct PF_header header;
+	నిర్మాణం PF_శీర్షిక శీర్షిక;
 	uint32_t payloadlen = chunk->F.payloadlen;
-	uint16_t source_id_len = chunk->F.source_id_len;
-	uint16_t source_username_len = chunk->F.source_username_len;
+	uint16_t ఆధారం_id_len = chunk->F.ఆధారం_id_len;
+	uint16_t ఆధారం_username_len = chunk->F.ఆధారం_username_len;
 	uint16_t topic_len = chunk->F.topic_len;
 	uint32_t proplen = 0;
-	int rc;
+	పూర్ణాంకం rc;
 
-	if(chunk->properties){
-		proplen += mosquitto_property_get_remaining_length(chunk->properties);
+	ఒకవేళ(chunk->properties){
+		proplen += mosquitto_property_get_మిగిలిన_నిడివి(chunk->properties);
 	}
 
 	chunk->F.payloadlen = htonl(chunk->F.payloadlen);
-	chunk->F.source_mid = htons(chunk->F.source_mid);
-	chunk->F.source_id_len = htons(chunk->F.source_id_len);
-	chunk->F.source_username_len = htons(chunk->F.source_username_len);
+	chunk->F.ఆధారం_mid = htons(chunk->F.ఆధారం_mid);
+	chunk->F.ఆధారం_id_len = htons(chunk->F.ఆధారం_id_len);
+	chunk->F.ఆధారం_username_len = htons(chunk->F.ఆధారం_username_len);
 	chunk->F.topic_len = htons(chunk->F.topic_len);
-	chunk->F.source_port = htons(chunk->F.source_port);
+	chunk->F.ఆధారం_పోర్టు = htons(chunk->F.ఆధారం_పోర్టు);
 
-	header.chunk = htonl(DB_CHUNK_BASE_MSG);
-	header.length = htonl((uint32_t)sizeof(struct PF_base_msg) +
+	శీర్షిక.chunk = htonl(DB_CHUNK_పునాది_సందేశం);
+	శీర్షిక.నిడివి = htonl((uint32_t)పరిమాణం(నిర్మాణం PF_పునాది_సందేశం) +
 			topic_len + payloadlen +
-			source_id_len + source_username_len + proplen);
+			ఆధారం_id_len + ఆధారం_username_len + proplen);
 
-	write_e(db_fptr, &header, sizeof(struct PF_header));
-	write_e(db_fptr, &chunk->F, sizeof(struct PF_base_msg));
-	if(source_id_len){
-		write_e(db_fptr, chunk->source.id, source_id_len);
+	write_e(db_fptr, &శీర్షిక, పరిమాణం(నిర్మాణం PF_శీర్షిక));
+	write_e(db_fptr, &chunk->F, పరిమాణం(నిర్మాణం PF_పునాది_సందేశం));
+	ఒకవేళ(ఆధారం_id_len){
+		write_e(db_fptr, chunk->ఆధారం.id, ఆధారం_id_len);
 	}
-	if(source_username_len){
-		write_e(db_fptr, chunk->source.username, source_username_len);
+	ఒకవేళ(ఆధారం_username_len){
+		write_e(db_fptr, chunk->ఆధారం.username, ఆధారం_username_len);
 	}
 	write_e(db_fptr, chunk->topic, topic_len);
-	if(payloadlen){
-		write_e(db_fptr, chunk->payload, (unsigned int)payloadlen);
+	ఒకవేళ(payloadlen){
+		write_e(db_fptr, chunk->payload, (గుర్తులేని పూర్ణాంకం)payloadlen);
 	}
-	if(chunk->properties){
-		if(proplen > 0){
-			struct mosquitto__packet *prop_packet = mosquitto_calloc(1, sizeof(struct mosquitto__packet)+proplen);
-			if(prop_packet == NULL){
-				return MOSQ_ERR_NOMEM;
+	ఒకవేళ(chunk->properties){
+		ఒకవేళ(proplen > 0){
+			నిర్మాణం mosquitto__packet *prop_packet = mosquitto_calloc(1, పరిమాణం(నిర్మాణం mosquitto__packet)+proplen);
+			ఒకవేళ(prop_packet == ఖాళీ){
+				తిరిగి MOSQ_ERR_NOMEM;
 			}
-			prop_packet->remaining_length = proplen;
-			prop_packet->packet_length = proplen;
+			prop_packet->మిగిలిన_నిడివి = proplen;
+			prop_packet->packet_నిడివి = proplen;
 			rc = property__write_all(prop_packet, chunk->properties, true);
-			if(rc){
+			ఒకవేళ(rc){
 				mosquitto_FREE(prop_packet);
-				return rc;
+				తిరిగి rc;
 			}
 
-			if(fwrite(prop_packet->payload, 1, proplen, db_fptr) != proplen){
+			ఒకవేళ(fwrite(prop_packet->payload, 1, proplen, db_fptr) != proplen){
 				mosquitto_FREE(prop_packet);
-				goto error;
+				వెళ్ళు error;
 			}
 			mosquitto_FREE(prop_packet);
 		}
 	}
 
-	return MOSQ_ERR_SUCCESS;
+	తిరిగి MOSQ_ERR_SUCCESS;
 error:
-	log__printf(NULL, MOSQ_LOG_ERR, "Error: %s.", strerror(errno));
-	return 1;
+	log__printf(ఖాళీ, MOSQ_LOG_ERR, "Error: %s.", strerror(errno));
+	తిరిగి 1;
 }
 
 
-int persist__chunk_retain_write_v6(FILE *db_fptr, struct P_retain *chunk)
+పూర్ణాంకం persist__chunk_retain_write_v6(FILE *db_fptr, నిర్మాణం P_retain *chunk)
 {
-	struct PF_header header;
+	నిర్మాణం PF_శీర్షిక శీర్షిక;
 
-	header.chunk = htonl(DB_CHUNK_RETAIN);
-	header.length = htonl((uint32_t)sizeof(struct PF_retain));
+	శీర్షిక.chunk = htonl(DB_CHUNK_RETAIN);
+	శీర్షిక.నిడివి = htonl((uint32_t)పరిమాణం(నిర్మాణం PF_retain));
 
-	write_e(db_fptr, &header, sizeof(struct PF_header));
-	write_e(db_fptr, &chunk->F, sizeof(struct PF_retain));
+	write_e(db_fptr, &శీర్షిక, పరిమాణం(నిర్మాణం PF_శీర్షిక));
+	write_e(db_fptr, &chunk->F, పరిమాణం(నిర్మాణం PF_retain));
 
-	return MOSQ_ERR_SUCCESS;
+	తిరిగి MOSQ_ERR_SUCCESS;
 error:
-	log__printf(NULL, MOSQ_LOG_ERR, "Error: %s.", strerror(errno));
-	return 1;
+	log__printf(ఖాళీ, MOSQ_LOG_ERR, "Error: %s.", strerror(errno));
+	తిరిగి 1;
 }
 
 
-int persist__chunk_sub_write_v6(FILE *db_fptr, struct P_sub *chunk)
+పూర్ణాంకం persist__chunk_sub_write_v6(FILE *db_fptr, నిర్మాణం P_sub *chunk)
 {
-	struct PF_header header;
+	నిర్మాణం PF_శీర్షిక శీర్షిక;
 	uint16_t id_len = chunk->F.id_len;
 	uint16_t topic_len = chunk->F.topic_len;
 
@@ -231,18 +231,18 @@ int persist__chunk_sub_write_v6(FILE *db_fptr, struct P_sub *chunk)
 	chunk->F.id_len = htons(chunk->F.id_len);
 	chunk->F.topic_len = htons(chunk->F.topic_len);
 
-	header.chunk = htonl(DB_CHUNK_SUB);
-	header.length = htonl((uint32_t)sizeof(struct PF_sub) +
+	శీర్షిక.chunk = htonl(DB_CHUNK_SUB);
+	శీర్షిక.నిడివి = htonl((uint32_t)పరిమాణం(నిర్మాణం PF_sub) +
 			id_len + topic_len);
 
-	write_e(db_fptr, &header, sizeof(struct PF_header));
-	write_e(db_fptr, &chunk->F, sizeof(struct PF_sub));
+	write_e(db_fptr, &శీర్షిక, పరిమాణం(నిర్మాణం PF_శీర్షిక));
+	write_e(db_fptr, &chunk->F, పరిమాణం(నిర్మాణం PF_sub));
 	write_e(db_fptr, chunk->clientid, id_len);
 	write_e(db_fptr, chunk->topic, topic_len);
 
-	return MOSQ_ERR_SUCCESS;
+	తిరిగి MOSQ_ERR_SUCCESS;
 error:
-	log__printf(NULL, MOSQ_LOG_ERR, "Error: %s.", strerror(errno));
-	return 1;
+	log__printf(ఖాళీ, MOSQ_LOG_ERR, "Error: %s.", strerror(errno));
+	తిరిగి 1;
 }
-#endif
+#అయితే_ముగింపు

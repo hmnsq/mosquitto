@@ -16,121 +16,121 @@ Contributors:
    Roger Light - initial implementation and documentation.
 */
 
-#include "config.h"
+#అన్తర్భావ "config.h"
 
-#include <stdio.h>
-#include <string.h>
+#అన్తర్భావ <stdio.h>
+#అన్తర్భావ <string.h>
 
-#include "mosquitto/broker.h"
-#include "mosquitto_broker_internal.h"
-#include "mosquitto/broker_plugin.h"
-#include "lib_load.h"
-#include "utlist.h"
+#అన్తర్భావ "mosquitto/broker.h"
+#అన్తర్భావ "mosquitto_broker_internal.h"
+#అన్తర్భావ "mosquitto/broker_plugin.h"
+#అన్తర్భావ "lib_load.h"
+#అన్తర్భావ "utlist.h"
 
-static int plugin__security_cleanup_single(mosquitto_plugin_id_t *plugin, bool reload);
+స్థిర పూర్ణాంకం plugin__security_cleanup_single(mosquitto_plugin_id_t *plugin, bool reload);
 
 
-static void plugin__unload_single(mosquitto_plugin_id_t *plugin)
+స్థిర శూన్య plugin__unload_single(mosquitto_plugin_id_t *plugin)
 {
-	struct control_endpoint *ep, *tmp;
+	నిర్మాణం control_endpoint *ep, *tmp;
 
 	/* Run plugin cleanup function */
-	if(plugin->lib.version == 5){
-		if(plugin->lib.plugin_cleanup_v5){
+	ఒకవేళ(plugin->lib.సంస్కరణ_2 == 5){
+		ఒకవేళ(plugin->lib.plugin_cleanup_v5){
 			plugin->lib.plugin_cleanup_v5(
-					plugin->lib.user_data,
+					plugin->lib.user_దత్తాంశం,
 					plugin->config.options,
-					plugin->config.option_count);
+					plugin->config.option_లెక్క);
 		}
-	}else if(plugin->lib.version == 4){
-		if(plugin->lib.plugin_cleanup_v4){
+	}లేకపోతే ఒకవేళ(plugin->lib.సంస్కరణ_2 == 4){
+		ఒకవేళ(plugin->lib.plugin_cleanup_v4){
 			plugin->lib.plugin_cleanup_v4(
-					plugin->lib.user_data,
+					plugin->lib.user_దత్తాంశం,
 					plugin->config.options,
-					plugin->config.option_count);
+					plugin->config.option_లెక్క);
 		}
-	}else if(plugin->lib.version == 3){
-		if(plugin->lib.plugin_cleanup_v3){
+	}లేకపోతే ఒకవేళ(plugin->lib.సంస్కరణ_2 == 3){
+		ఒకవేళ(plugin->lib.plugin_cleanup_v3){
 			plugin->lib.plugin_cleanup_v3(
-					plugin->lib.user_data,
+					plugin->lib.user_దత్తాంశం,
 					plugin->config.options,
-					plugin->config.option_count);
+					plugin->config.option_లెక్క);
 		}
-	}else if(plugin->lib.version == 2){
-		if(plugin->lib.plugin_cleanup_v2){
+	}లేకపోతే ఒకవేళ(plugin->lib.సంస్కరణ_2 == 2){
+		ఒకవేళ(plugin->lib.plugin_cleanup_v2){
 			plugin->lib.plugin_cleanup_v2(
-					plugin->lib.user_data,
-					(struct mosquitto_auth_opt *)plugin->config.options,
-					plugin->config.option_count);
+					plugin->lib.user_దత్తాంశం,
+					(నిర్మాణం mosquitto_auth_opt *)plugin->config.options,
+					plugin->config.option_లెక్క);
 		}
 	}
 
 	plugin__callback_unregister_all(plugin);
 	mosquitto_FREE(plugin->plugin_name);
-	mosquitto_FREE(plugin->plugin_version);
-	DL_FOREACH_SAFE(plugin->control_endpoints, ep, tmp){
+	mosquitto_FREE(plugin->plugin_సంస్కరణ);
+	DL_FOREACH_సురక్షిత(plugin->control_endpoints, ep, tmp){
 		DL_DELETE(plugin->control_endpoints, ep);
 		mosquitto_FREE(ep);
 	}
 
-	if(plugin->lib.lib){
+	ఒకవేళ(plugin->lib.lib){
 		//LIB_CLOSE(plugin->lib.lib);
 	}
-	memset(&plugin->lib, 0, sizeof(struct mosquitto__plugin_lib));
+	memset(&plugin->lib, 0, పరిమాణం(నిర్మాణం mosquitto__plugin_lib));
 }
 
 
-int plugin__unload_all(void)
+పూర్ణాంకం plugin__unload_all(శూన్య)
 {
-	for(int i=0; i<db.plugin_count; i++){
+	కొరకు(పూర్ణాంకం i=0; i<db.plugin_లెక్క; i++){
 		plugin__unload_single(db.plugins[i]);
 	}
 
 	mosquitto_security_cleanup(false);
 
-	return MOSQ_ERR_SUCCESS;
+	తిరిగి MOSQ_ERR_SUCCESS;
 }
 
 
-static int plugin__security_cleanup_single(mosquitto_plugin_id_t *plugin, bool reload)
+స్థిర పూర్ణాంకం plugin__security_cleanup_single(mosquitto_plugin_id_t *plugin, bool reload)
 {
-	int rc;
+	పూర్ణాంకం rc;
 
-	if(plugin->lib.version == 5){
+	ఒకవేళ(plugin->lib.సంస్కరణ_2 == 5){
 		rc = MOSQ_ERR_SUCCESS;
-	}else if(plugin->lib.version == 4){
+	}లేకపోతే ఒకవేళ(plugin->lib.సంస్కరణ_2 == 4){
 		rc = plugin->lib.security_cleanup_v4(
-				plugin->lib.user_data,
+				plugin->lib.user_దత్తాంశం,
 				plugin->config.options,
-				plugin->config.option_count,
+				plugin->config.option_లెక్క,
 				reload);
 
-	}else if(plugin->lib.version == 3){
+	}లేకపోతే ఒకవేళ(plugin->lib.సంస్కరణ_2 == 3){
 		rc = plugin->lib.security_cleanup_v3(
-				plugin->lib.user_data,
+				plugin->lib.user_దత్తాంశం,
 				plugin->config.options,
-				plugin->config.option_count,
+				plugin->config.option_లెక్క,
 				reload);
 
-	}else if(plugin->lib.version == 2){
+	}లేకపోతే ఒకవేళ(plugin->lib.సంస్కరణ_2 == 2){
 		rc = plugin->lib.security_cleanup_v2(
-				plugin->lib.user_data,
-				(struct mosquitto_auth_opt *)plugin->config.options,
-				plugin->config.option_count,
+				plugin->lib.user_దత్తాంశం,
+				(నిర్మాణం mosquitto_auth_opt *)plugin->config.options,
+				plugin->config.option_లెక్క,
 				reload);
-	}else{
+	}లేకపోతే{
 		rc = MOSQ_ERR_INVAL;
 	}
 
-	return rc;
+	తిరిగి rc;
 }
 
 
-int mosquitto_security_cleanup(bool reload)
+పూర్ణాంకం mosquitto_security_cleanup(bool reload)
 {
-	for(int i=0; i<db.plugin_count; i++){
+	కొరకు(పూర్ణాంకం i=0; i<db.plugin_లెక్క; i++){
 		plugin__security_cleanup_single(db.plugins[i], reload);
 	}
 
-	return mosquitto_security_cleanup_default();
+	తిరిగి mosquitto_security_cleanup_default();
 }

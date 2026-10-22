@@ -17,50 +17,50 @@ Contributors:
    Tatsuzo Osawa - Add epoll.
 */
 
-#include "config.h"
+#అన్తర్భావ "config.h"
 
-#include <stdlib.h>
-#include <time.h>
-#include "mosquitto.h"
+#అన్తర్భావ <stdlib.h>
+#అన్తర్భావ <time.h>
+#అన్తర్భావ "mosquitto.h"
 
-#ifdef WITH_SYSTEMD
+#నిర్వచితమైతే WITH_SYSTEMD
 #  include <systemd/sd-daemon.h>
-#endif
+#అయితే_ముగింపు
 
-#ifdef WITH_SYSTEMD
-static time_t next_ping = 0;
-static time_t ping_sec = 0;
-#endif
+#నిర్వచితమైతే WITH_SYSTEMD
+స్థిర time_t తదుపరి_ping = 0;
+స్థిర time_t ping_sec = 0;
+#అయితే_ముగింపు
 
 
-void watchdog__init(void)
+శూన్య watchdog__init(శూన్య)
 {
-#ifdef WITH_SYSTEMD
-	char *watchdog_usec = getenv("WATCHDOG_USEC");
-	next_ping = mosquitto_time();
+#నిర్వచితమైతే WITH_SYSTEMD
+	అక్షరం *watchdog_usec = getenv("WATCHDOG_USEC");
+	తదుపరి_ping = mosquitto_సమయం();
 	ping_sec = 0;
 
-	if(watchdog_usec){
-		char *endptr = NULL;
-		long usec = strtol(watchdog_usec, &endptr, 10);
-		if(watchdog_usec[0] != '\0' && endptr[0] == '\0' && usec > 0){
+	ఒకవేళ(watchdog_usec){
+		అక్షరం *endptr = ఖాళీ;
+		దీర్ఘ usec = strtol(watchdog_usec, &endptr, 10);
+		ఒకవేళ(watchdog_usec[0] != '\0' && endptr[0] == '\0' && usec > 0){
 			ping_sec = (usec / 1000000) / 2;
 		}
-		next_ping = mosquitto_time();
+		తదుపరి_ping = mosquitto_సమయం();
 	}
-#endif
+#అయితే_ముగింపు
 }
 
 
-void watchdog__check(void)
+శూన్య watchdog__check(శూన్య)
 {
-#ifdef WITH_SYSTEMD
-	if(ping_sec){
-		time_t now = mosquitto_time();
-		if(now > next_ping){
+#నిర్వచితమైతే WITH_SYSTEMD
+	ఒకవేళ(ping_sec){
+		time_t now = mosquitto_సమయం();
+		ఒకవేళ(now > తదుపరి_ping){
 			sd_notify(0, "WATCHDOG=1");
-			next_ping = now + ping_sec;
+			తదుపరి_ping = now + ping_sec;
 		}
 	}
-#endif
+#అయితే_ముగింపు
 }

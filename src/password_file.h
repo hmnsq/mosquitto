@@ -15,26 +15,26 @@ SPDX-License-Identifier: EPL-2.0 OR BSD-3-Clause
 Contributors:
    Roger Light - initial implementation and documentation.
 */
-#ifndef PASSWORD_FILE_H
-#define PASSWORD_FILE_H
+#నిర్వచితం_కాకపోతే PASSWORD_FILE_H
+#నిర్వచించు PASSWORD_FILE_H
 
-#include <uthash.h>
+#అన్తర్భావ <uthash.h>
 
-struct mosquitto__unpwd {
+నిర్మాణం mosquitto__unpwd {
 	UT_hash_handle hh;
-	char *username;
-	char *clientid;
-	struct mosquitto_pw *pw;
+	అక్షరం *username;
+	అక్షరం *clientid;
+	నిర్మాణం mosquitto_pw *pw;
 };
 
-struct password_file_data {
-	struct mosquitto__unpwd *unpwd;
-	char *password_file;
+నిర్మాణం password_file_దత్తాంశం {
+	నిర్మాణం mosquitto__unpwd *unpwd;
+	అక్షరం *password_file;
 };
 
-int password_file__parse(struct password_file_data *data);
-int password_file__check(int event, void *event_data, void *userdata);
-int password_file__reload(int event, void *event_data, void *userdata);
-void password_file__cleanup(struct password_file_data *data);
+పూర్ణాంకం password_file__parse(నిర్మాణం password_file_దత్తాంశం *దత్తాంశం);
+పూర్ణాంకం password_file__check(పూర్ణాంకం event, శూన్య *event_దత్తాంశం, శూన్య *userdata);
+పూర్ణాంకం password_file__reload(పూర్ణాంకం event, శూన్య *event_దత్తాంశం, శూన్య *userdata);
+శూన్య password_file__cleanup(నిర్మాణం password_file_దత్తాంశం *దత్తాంశం);
 
-#endif
+#అయితే_ముగింపు

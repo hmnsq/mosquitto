@@ -16,111 +16,111 @@ Contributors:
    Roger Light - initial implementation and documentation.
 */
 
-#include "config.h"
+#అన్తర్భావ "config.h"
 
-#include "mosquitto_broker_internal.h"
-#include "utlist.h"
+#అన్తర్భావ "mosquitto_broker_internal.h"
+#అన్తర్భావ "utlist.h"
 
-struct should_free {
+నిర్మాణం should_free {
 	bool topic;
 	bool payload;
 	bool properties;
 };
 
 
-static int plugin__handle_message_single(struct mosquitto__callback *callbacks, enum mosquitto_plugin_event ev_type, struct should_free *to_free, struct mosquitto *context, struct mosquitto_base_msg *stored)
+స్థిర పూర్ణాంకం plugin_handle_సందేశం_single(నిర్మాణం mosquitto__callback *callbacks, గణన mosquitto_plugin_event ev_type, నిర్మాణం should_free *గమ్యం_free, నిర్మాణం mosquitto *context, నిర్మాణం mosquitto_పునాది_సందేశం_2 *stored)
 {
-	struct mosquitto_evt_message event_data;
-	struct mosquitto__callback *cb_base, *cb_next;
-	int rc = MOSQ_ERR_SUCCESS;
+	నిర్మాణం mosquitto_evt_సందేశం event_దత్తాంశం;
+	నిర్మాణం mosquitto__callback *cb_పునాది, *cb_తదుపరి;
+	పూర్ణాంకం rc = MOSQ_ERR_SUCCESS;
 
-	memset(&event_data, 0, sizeof(event_data));
-	event_data.client = context;
-	event_data.topic = stored->topic;
-	event_data.payloadlen = stored->payloadlen;
-	event_data.payload = stored->payload;
-	event_data.qos = stored->qos;
-	event_data.retain = stored->retain;
-	event_data.properties = stored->properties;
+	memset(&event_దత్తాంశం, 0, పరిమాణం(event_దత్తాంశం));
+	event_దత్తాంశం.client = context;
+	event_దత్తాంశం.topic = stored->topic;
+	event_దత్తాంశం.payloadlen = stored->payloadlen;
+	event_దత్తాంశం.payload = stored->payload;
+	event_దత్తాంశం.qos = stored->qos;
+	event_దత్తాంశం.retain = stored->retain;
+	event_దత్తాంశం.properties = stored->properties;
 
-	DL_FOREACH_SAFE(callbacks, cb_base, cb_next){
-		rc = cb_base->cb((int)ev_type, &event_data, cb_base->userdata);
-		if(rc != MOSQ_ERR_SUCCESS){
-			break;
+	DL_FOREACH_సురక్షిత(callbacks, cb_పునాది, cb_తదుపరి){
+		rc = cb_పునాది->cb((పూర్ణాంకం)ev_type, &event_దత్తాంశం, cb_పునాది->userdata);
+		ఒకవేళ(rc != MOSQ_ERR_SUCCESS){
+			ఆపు;
 		}
 
-		if(stored->topic != event_data.topic){
-			if(to_free->topic){
+		ఒకవేళ(stored->topic != event_దత్తాంశం.topic){
+			ఒకవేళ(గమ్యం_free->topic){
 				mosquitto_FREE(stored->topic);
 			}
-			stored->topic = event_data.topic;
-			to_free->topic = true;
+			stored->topic = event_దత్తాంశం.topic;
+			గమ్యం_free->topic = true;
 		}
 
-		if(stored->payload != event_data.payload){
-			if(to_free->payload){
+		ఒకవేళ(stored->payload != event_దత్తాంశం.payload){
+			ఒకవేళ(గమ్యం_free->payload){
 				mosquitto_FREE(stored->payload);
 			}
-			stored->payload = event_data.payload;
-			stored->payloadlen = event_data.payloadlen;
-			to_free->payload = true;
+			stored->payload = event_దత్తాంశం.payload;
+			stored->payloadlen = event_దత్తాంశం.payloadlen;
+			గమ్యం_free->payload = true;
 		}
 
-		if(stored->properties != event_data.properties){
-			if(to_free->properties){
+		ఒకవేళ(stored->properties != event_దత్తాంశం.properties){
+			ఒకవేళ(గమ్యం_free->properties){
 				mosquitto_property_free_all(&stored->properties);
 			}
-			stored->properties = event_data.properties;
-			to_free->properties = true;
+			stored->properties = event_దత్తాంశం.properties;
+			గమ్యం_free->properties = true;
 		}
 	}
 
-	stored->retain = event_data.retain;
-	if(ev_type == MOSQ_EVT_MESSAGE_OUT){
-		stored->qos = event_data.qos;
+	stored->retain = event_దత్తాంశం.retain;
+	ఒకవేళ(ev_type == MOSQ_EVT_సందేశం_బహిర్గతం){
+		stored->qos = event_దత్తాంశం.qos;
 	}
 
-	return rc;
+	తిరిగి rc;
 }
 
 
-int plugin__handle_message_out(struct mosquitto *context, struct mosquitto_base_msg *stored)
+పూర్ణాంకం plugin_handle_సందేశం_బహిర్గతం(నిర్మాణం mosquitto *context, నిర్మాణం mosquitto_పునాది_సందేశం_2 *stored)
 {
-	int rc = MOSQ_ERR_SUCCESS;
-	struct should_free to_free = {false, false, false}; /* in msg_out, original data will be freed later */
+	పూర్ణాంకం rc = MOSQ_ERR_SUCCESS;
+	నిర్మాణం should_free గమ్యం_free = {false, false, false}; /* in msg_out, original data will be freed later */
 
 	/* Global plugins */
-	rc = plugin__handle_message_single(db.config->security_options.plugin_callbacks.message_out,
-			MOSQ_EVT_MESSAGE_OUT, &to_free, context, stored);
-	if(rc){
-		return rc;
+	rc = plugin_handle_సందేశం_single(db.config->security_options.plugin_callbacks.సందేశం_బహిర్గతం,
+			MOSQ_EVT_సందేశం_బహిర్గతం, &గమ్యం_free, context, stored);
+	ఒకవేళ(rc){
+		తిరిగి rc;
 	}
 
-	if(context->listener){
-		rc = plugin__handle_message_single(context->listener->security_options->plugin_callbacks.message_out,
-				MOSQ_EVT_MESSAGE_OUT, &to_free, context, stored);
+	ఒకవేళ(context->listener){
+		rc = plugin_handle_సందేశం_single(context->listener->security_options->plugin_callbacks.సందేశం_బహిర్గతం,
+				MOSQ_EVT_సందేశం_బహిర్గతం, &గమ్యం_free, context, stored);
 	}
 
-	return rc;
+	తిరిగి rc;
 }
 
 
-int plugin__handle_message_in(struct mosquitto *context, struct mosquitto_base_msg *stored)
+పూర్ణాంకం plugin_handle_సందేశం_లోపల(నిర్మాణం mosquitto *context, నిర్మాణం mosquitto_పునాది_సందేశం_2 *stored)
 {
-	int rc = MOSQ_ERR_SUCCESS;
-	struct should_free to_free = {true, true, true}; /* in msg_in, original data should be freed */
+	పూర్ణాంకం rc = MOSQ_ERR_SUCCESS;
+	నిర్మాణం should_free గమ్యం_free = {true, true, true}; /* in msg_in, original data should be freed */
 
 	/* Global plugins */
-	rc = plugin__handle_message_single(db.config->security_options.plugin_callbacks.message_in,
-			MOSQ_EVT_MESSAGE_IN, &to_free, context, stored);
-	if(rc){
-		return rc;
+	rc = plugin_handle_సందేశం_single(db.config->security_options.plugin_callbacks.సందేశం_లోపల,
+			MOSQ_EVT_సందేశం_లోపల, &గమ్యం_free, context, stored);
+	ఒకవేళ(rc){
+		తిరిగి rc;
 	}
 
-	if(context->listener){
-		rc = plugin__handle_message_single(context->listener->security_options->plugin_callbacks.message_in,
-				MOSQ_EVT_MESSAGE_IN, &to_free, context, stored);
+	ఒకవేళ(context->listener){
+		rc = plugin_handle_సందేశం_single(context->listener->security_options->plugin_callbacks.సందేశం_లోపల,
+				MOSQ_EVT_సందేశం_లోపల, &గమ్యం_free, context, stored);
 	}
 
-	return rc;
+	తిరిగి rc;
 }

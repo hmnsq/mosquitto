@@ -16,428 +16,428 @@ Contributors:
    Roger Light - initial implementation and documentation.
 */
 
-#include "config.h"
+#అన్తర్భావ "config.h"
 
-#include "mosquitto_broker_internal.h"
-#include "mosquitto_internal.h"
-#include "mosquitto/broker.h"
-#include "mosquitto/mqtt_protocol.h"
-#include "send_mosq.h"
-#include "util_mosq.h"
-#include "utlist.h"
-#include "lib_load.h"
-#include "will_mosq.h"
-#include <stdint.h>
+#అన్తర్భావ "mosquitto_broker_internal.h"
+#అన్తర్భావ "mosquitto_internal.h"
+#అన్తర్భావ "mosquitto/broker.h"
+#అన్తర్భావ "mosquitto/mqtt_protocol.h"
+#అన్తర్భావ "send_mosq.h"
+#అన్తర్భావ "util_mosq.h"
+#అన్తర్భావ "utlist.h"
+#అన్తర్భావ "lib_load.h"
+#అన్తర్భావ "will_mosq.h"
+#అన్తర్భావ <stdint.h>
 
 
-void plugin_persist__handle_restore(void)
+శూన్య plugin_persist__handle_restore(శూన్య)
 {
-	struct mosquitto_evt_persist_restore event_data;
-	struct mosquitto__callback *cb_base, *cb_next;
-	struct mosquitto__security_options *opts;
+	నిర్మాణం mosquitto_evt_persist_restore event_దత్తాంశం;
+	నిర్మాణం mosquitto__callback *cb_పునాది, *cb_తదుపరి;
+	నిర్మాణం mosquitto__security_options *opts;
 
 	opts = &db.config->security_options;
-	memset(&event_data, 0, sizeof(event_data));
+	memset(&event_దత్తాంశం, 0, పరిమాణం(event_దత్తాంశం));
 
-	DL_FOREACH_SAFE(opts->plugin_callbacks.persist_restore, cb_base, cb_next){
-		cb_base->cb(MOSQ_EVT_PERSIST_RESTORE, &event_data, cb_base->userdata);
+	DL_FOREACH_సురక్షిత(opts->plugin_callbacks.persist_restore, cb_పునాది, cb_తదుపరి){
+		cb_పునాది->cb(MOSQ_EVT_PERSIST_RESTORE, &event_దత్తాంశం, cb_పునాది->userdata);
 	}
 }
 
 
-void plugin_persist__handle_client_add(struct mosquitto *context)
+శూన్య plugin_persist_handle_client_కూడు(నిర్మాణం mosquitto *context)
 {
-	struct mosquitto_evt_persist_client event_data;
-	struct mosquitto__callback *cb_base, *cb_next;
-	struct mosquitto__security_options *opts;
+	నిర్మాణం mosquitto_evt_persist_client event_దత్తాంశం;
+	నిర్మాణం mosquitto__callback *cb_పునాది, *cb_తదుపరి;
+	నిర్మాణం mosquitto__security_options *opts;
 
-	if(db.shutdown || context->is_persisted){
-		return;
+	ఒకవేళ(db.shutdown || context->is_persisted){
+		తిరిగి;
 	}
 
 	opts = &db.config->security_options;
-	memset(&event_data, 0, sizeof(event_data));
-	event_data.data.clientid = context->id;
-	event_data.data.username = context->username;
-	event_data.data.auth_method = context->auth_method;
-	event_data.data.will_delay_time = context->will_delay_time;
-	event_data.data.session_expiry_time = context->session_expiry_time;
-	event_data.data.will_delay_interval = context->will_delay_interval;
-	event_data.data.session_expiry_interval = context->session_expiry_interval;
-	if(context->listener){
-		event_data.data.listener_port = context->listener->port;
-	}else{
-		event_data.data.listener_port = 0;
+	memset(&event_దత్తాంశం, 0, పరిమాణం(event_దత్తాంశం));
+	event_దత్తాంశం.దత్తాంశం.clientid = context->id;
+	event_దత్తాంశం.దత్తాంశం.username = context->username;
+	event_దత్తాంశం.దత్తాంశం.auth_పద్ధతి = context->auth_పద్ధతి;
+	event_దత్తాంశం.దత్తాంశం.will_delay_సమయం = context->will_delay_సమయం;
+	event_దత్తాంశం.దత్తాంశం.session_expiry_సమయం = context->session_expiry_సమయం;
+	event_దత్తాంశం.దత్తాంశం.will_delay_interval = context->will_delay_interval;
+	event_దత్తాంశం.దత్తాంశం.session_expiry_interval = context->session_expiry_interval;
+	ఒకవేళ(context->listener){
+		event_దత్తాంశం.దత్తాంశం.listener_పోర్టు = context->listener->పోర్టు;
+	}లేకపోతే{
+		event_దత్తాంశం.దత్తాంశం.listener_పోర్టు = 0;
 	}
-	event_data.data.max_qos = context->max_qos;
-	event_data.data.retain_available = context->retain_available;
-	event_data.data.max_packet_size = context->maximum_packet_size;
+	event_దత్తాంశం.దత్తాంశం.max_qos = context->max_qos;
+	event_దత్తాంశం.దత్తాంశం.retain_అందుబాటు = context->retain_అందుబాటు;
+	event_దత్తాంశం.దత్తాంశం.max_packet_కొలత = context->గరిష్ఠ_packet_కొలత;
 
-	DL_FOREACH_SAFE(opts->plugin_callbacks.persist_client_add, cb_base, cb_next){
-		cb_base->cb(MOSQ_EVT_PERSIST_CLIENT_ADD, &event_data, cb_base->userdata);
+	DL_FOREACH_సురక్షిత(opts->plugin_callbacks.persist_client_కూడు, cb_పునాది, cb_తదుపరి){
+		cb_పునాది->cb(MOSQ_EVT_PERSIST_CLIENT_కూడు, &event_దత్తాంశం, cb_పునాది->userdata);
 	}
 
-	if(context->will){
-		plugin_persist__handle_will_add(context);
+	ఒకవేళ(context->will){
+		plugin_persist_handle_will_కూడు(context);
 	}
 
 	context->is_persisted = true;
 }
 
 
-void plugin_persist__handle_client_update(struct mosquitto *context)
+శూన్య plugin_persist__handle_client_update(నిర్మాణం mosquitto *context)
 {
-	struct mosquitto_evt_persist_client event_data;
-	struct mosquitto__callback *cb_base, *cb_next;
-	struct mosquitto__security_options *opts;
-	struct mosquitto_message_v5 will;
+	నిర్మాణం mosquitto_evt_persist_client event_దత్తాంశం;
+	నిర్మాణం mosquitto__callback *cb_పునాది, *cb_తదుపరి;
+	నిర్మాణం mosquitto__security_options *opts;
+	నిర్మాణం mosquitto_సందేశం_v5_2 will;
 
-	UNUSED(will); /* FIXME */
+	వాడని(will); /* FIXME */
 
-	if(db.shutdown){
-		return;
+	ఒకవేళ(db.shutdown){
+		తిరిగి;
 	}
 
 	opts = &db.config->security_options;
-	memset(&event_data, 0, sizeof(event_data));
-	event_data.data.clientid = context->id;
-	event_data.data.username = context->username;
-	event_data.data.auth_method = context->auth_method;
-	event_data.data.will_delay_time = context->will_delay_time;
-	event_data.data.session_expiry_time = context->session_expiry_time;
-	event_data.data.will_delay_interval = context->will_delay_interval;
-	event_data.data.session_expiry_interval = context->session_expiry_interval;
-	if(context->listener){
-		event_data.data.listener_port = context->listener->port;
-	}else{
-		event_data.data.listener_port = 0;
+	memset(&event_దత్తాంశం, 0, పరిమాణం(event_దత్తాంశం));
+	event_దత్తాంశం.దత్తాంశం.clientid = context->id;
+	event_దత్తాంశం.దత్తాంశం.username = context->username;
+	event_దత్తాంశం.దత్తాంశం.auth_పద్ధతి = context->auth_పద్ధతి;
+	event_దత్తాంశం.దత్తాంశం.will_delay_సమయం = context->will_delay_సమయం;
+	event_దత్తాంశం.దత్తాంశం.session_expiry_సమయం = context->session_expiry_సమయం;
+	event_దత్తాంశం.దత్తాంశం.will_delay_interval = context->will_delay_interval;
+	event_దత్తాంశం.దత్తాంశం.session_expiry_interval = context->session_expiry_interval;
+	ఒకవేళ(context->listener){
+		event_దత్తాంశం.దత్తాంశం.listener_పోర్టు = context->listener->పోర్టు;
+	}లేకపోతే{
+		event_దత్తాంశం.దత్తాంశం.listener_పోర్టు = 0;
 	}
-	event_data.data.max_qos = context->max_qos;
-	event_data.data.retain_available = context->retain_available;
-	event_data.data.max_packet_size = context->maximum_packet_size;
+	event_దత్తాంశం.దత్తాంశం.max_qos = context->max_qos;
+	event_దత్తాంశం.దత్తాంశం.retain_అందుబాటు = context->retain_అందుబాటు;
+	event_దత్తాంశం.దత్తాంశం.max_packet_కొలత = context->గరిష్ఠ_packet_కొలత;
 
-	DL_FOREACH_SAFE(opts->plugin_callbacks.persist_client_update, cb_base, cb_next){
-		cb_base->cb(MOSQ_EVT_PERSIST_CLIENT_UPDATE, &event_data, cb_base->userdata);
+	DL_FOREACH_సురక్షిత(opts->plugin_callbacks.persist_client_update, cb_పునాది, cb_తదుపరి){
+		cb_పునాది->cb(MOSQ_EVT_PERSIST_CLIENT_UPDATE, &event_దత్తాంశం, cb_పునాది->userdata);
 	}
 
-	if(context->will){
-		plugin_persist__handle_will_add(context);
-	}else{
+	ఒకవేళ(context->will){
+		plugin_persist_handle_will_కూడు(context);
+	}లేకపోతే{
 		plugin_persist__handle_will_delete(context);
 	}
 }
 
 
-void plugin_persist__handle_client_delete(struct mosquitto *context)
+శూన్య plugin_persist__handle_client_delete(నిర్మాణం mosquitto *context)
 {
-	struct mosquitto_evt_persist_client event_data;
-	struct mosquitto__callback *cb_base, *cb_next;
-	struct mosquitto__security_options *opts;
+	నిర్మాణం mosquitto_evt_persist_client event_దత్తాంశం;
+	నిర్మాణం mosquitto__callback *cb_పునాది, *cb_తదుపరి;
+	నిర్మాణం mosquitto__security_options *opts;
 
-	if(context->id == NULL
+	ఒకవేళ(context->id == ఖాళీ
 			|| context->state == mosq_cs_duplicate
 			|| db.shutdown){
-		return;
+		తిరిగి;
 	}
 
 	plugin_persist__handle_will_delete(context);
 
-	if(context->is_persisted == false
-			|| context->session_expiry_interval != MQTT_SESSION_EXPIRY_IMMEDIATE){
-		return;
+	ఒకవేళ(context->is_persisted == false
+			|| context->session_expiry_interval != MQTT_SESSION_EXPIRY_తక్షణ){
+		తిరిగి;
 	}
 
 	opts = &db.config->security_options;
-	memset(&event_data, 0, sizeof(event_data));
-	event_data.data.clientid = context->id;
+	memset(&event_దత్తాంశం, 0, పరిమాణం(event_దత్తాంశం));
+	event_దత్తాంశం.దత్తాంశం.clientid = context->id;
 
-	DL_FOREACH_SAFE(opts->plugin_callbacks.persist_client_delete, cb_base, cb_next){
-		cb_base->cb(MOSQ_EVT_PERSIST_CLIENT_DELETE, &event_data, cb_base->userdata);
+	DL_FOREACH_సురక్షిత(opts->plugin_callbacks.persist_client_delete, cb_పునాది, cb_తదుపరి){
+		cb_పునాది->cb(MOSQ_EVT_PERSIST_CLIENT_DELETE, &event_దత్తాంశం, cb_పునాది->userdata);
 	}
 	context->is_persisted = false;
 }
 
 
-void plugin_persist__handle_subscription_add(struct mosquitto *context, const struct mosquitto_subscription *sub)
+శూన్య plugin_persist_handle_subscription_కూడు(నిర్మాణం mosquitto *context, స్థిరరాశి నిర్మాణం mosquitto_subscription *sub)
 {
-	struct mosquitto_evt_persist_subscription event_data;
-	struct mosquitto__callback *cb_base, *cb_next;
-	struct mosquitto__security_options *opts;
+	నిర్మాణం mosquitto_evt_persist_subscription event_దత్తాంశం;
+	నిర్మాణం mosquitto__callback *cb_పునాది, *cb_తదుపరి;
+	నిర్మాణం mosquitto__security_options *opts;
 
-	if(db.shutdown || context->is_persisted == false){
-		return;
+	ఒకవేళ(db.shutdown || context->is_persisted == false){
+		తిరిగి;
 	}
 
 	opts = &db.config->security_options;
-	memset(&event_data, 0, sizeof(event_data));
-	event_data.data.clientid = context->id;
-	event_data.data.topic_filter = sub->topic_filter;
-	event_data.data.identifier = sub->identifier;
-	event_data.data.options = sub->options;
+	memset(&event_దత్తాంశం, 0, పరిమాణం(event_దత్తాంశం));
+	event_దత్తాంశం.దత్తాంశం.clientid = context->id;
+	event_దత్తాంశం.దత్తాంశం.topic_filter = sub->topic_filter;
+	event_దత్తాంశం.దత్తాంశం.identifier = sub->identifier;
+	event_దత్తాంశం.దత్తాంశం.options = sub->options;
 
-	DL_FOREACH_SAFE(opts->plugin_callbacks.persist_subscription_add, cb_base, cb_next){
-		cb_base->cb(MOSQ_EVT_PERSIST_SUBSCRIPTION_ADD, &event_data, cb_base->userdata);
+	DL_FOREACH_సురక్షిత(opts->plugin_callbacks.persist_subscription_కూడు, cb_పునాది, cb_తదుపరి){
+		cb_పునాది->cb(MOSQ_EVT_PERSIST_SUBSCRIPTION_కూడు, &event_దత్తాంశం, cb_పునాది->userdata);
 	}
 }
 
 
-void plugin_persist__handle_subscription_delete(struct mosquitto *context, char *sub)
+శూన్య plugin_persist__handle_subscription_delete(నిర్మాణం mosquitto *context, అక్షరం *sub)
 {
-	struct mosquitto_evt_persist_subscription event_data;
-	struct mosquitto__callback *cb_base, *cb_next;
-	struct mosquitto__security_options *opts;
+	నిర్మాణం mosquitto_evt_persist_subscription event_దత్తాంశం;
+	నిర్మాణం mosquitto__callback *cb_పునాది, *cb_తదుపరి;
+	నిర్మాణం mosquitto__security_options *opts;
 
-	if(db.shutdown || context->is_persisted == false){
-		return;
+	ఒకవేళ(db.shutdown || context->is_persisted == false){
+		తిరిగి;
 	}
-	if(!sub){
-		return;
+	ఒకవేళ(!sub){
+		తిరిగి;
 	}
 
 	opts = &db.config->security_options;
-	memset(&event_data, 0, sizeof(event_data));
-	event_data.data.clientid = context->id;
-	event_data.data.topic_filter = sub;
+	memset(&event_దత్తాంశం, 0, పరిమాణం(event_దత్తాంశం));
+	event_దత్తాంశం.దత్తాంశం.clientid = context->id;
+	event_దత్తాంశం.దత్తాంశం.topic_filter = sub;
 
-	DL_FOREACH_SAFE(opts->plugin_callbacks.persist_subscription_delete, cb_base, cb_next){
-		cb_base->cb(MOSQ_EVT_PERSIST_SUBSCRIPTION_DELETE, &event_data, cb_base->userdata);
+	DL_FOREACH_సురక్షిత(opts->plugin_callbacks.persist_subscription_delete, cb_పునాది, cb_తదుపరి){
+		cb_పునాది->cb(MOSQ_EVT_PERSIST_SUBSCRIPTION_DELETE, &event_దత్తాంశం, cb_పునాది->userdata);
 	}
 }
 
 
-static inline void set_client_msg_event_data(struct mosquitto_evt_persist_client_msg *event_data, struct mosquitto *context, const struct mosquitto__client_msg *client_msg)
+స్థిర అంతఃవరుస శూన్య సమితి_client_సందేశం_event_దత్తాంశం(నిర్మాణం mosquitto_evt_persist_client_సందేశం *event_దత్తాంశం, నిర్మాణం mosquitto *context, స్థిరరాశి నిర్మాణం mosquitto_client_సందేశం *client_సందేశం)
 {
-	event_data->data.clientid = context->id;
-	event_data->data.cmsg_id = client_msg->data.cmsg_id;
-	event_data->data.direction = (uint8_t)client_msg->data.direction;
-	event_data->data.dup = client_msg->data.dup;
-	event_data->data.mid = client_msg->data.mid;
-	event_data->data.qos = client_msg->data.qos;
-	event_data->data.retain = client_msg->data.retain;
-	event_data->data.state = (uint8_t)client_msg->data.state;
-	event_data->data.store_id = client_msg->base_msg->data.store_id;
-	event_data->data.subscription_identifier = client_msg->data.subscription_identifier;
+	event_దత్తాంశం->దత్తాంశం.clientid = context->id;
+	event_దత్తాంశం->దత్తాంశం.cmsg_id = client_సందేశం->దత్తాంశం.cmsg_id;
+	event_దత్తాంశం->దత్తాంశం.direction = (uint8_t)client_సందేశం->దత్తాంశం.direction;
+	event_దత్తాంశం->దత్తాంశం.dup = client_సందేశం->దత్తాంశం.dup;
+	event_దత్తాంశం->దత్తాంశం.mid = client_సందేశం->దత్తాంశం.mid;
+	event_దత్తాంశం->దత్తాంశం.qos = client_సందేశం->దత్తాంశం.qos;
+	event_దత్తాంశం->దత్తాంశం.retain = client_సందేశం->దత్తాంశం.retain;
+	event_దత్తాంశం->దత్తాంశం.state = (uint8_t)client_సందేశం->దత్తాంశం.state;
+	event_దత్తాంశం->దత్తాంశం.store_id = client_సందేశం->పునాది_సందేశం->దత్తాంశం.store_id;
+	event_దత్తాంశం->దత్తాంశం.subscription_identifier = client_సందేశం->దత్తాంశం.subscription_identifier;
 }
 
 
-void plugin_persist__handle_client_msg_add(struct mosquitto *context, const struct mosquitto__client_msg *client_msg)
+శూన్య plugin_persist_handle_client_సందేశం_కూడు(నిర్మాణం mosquitto *context, స్థిరరాశి నిర్మాణం mosquitto_client_సందేశం *client_సందేశం)
 {
-	struct mosquitto_evt_persist_client_msg event_data;
-	struct mosquitto__callback *cb_base, *cb_next;
-	struct mosquitto__security_options *opts;
+	నిర్మాణం mosquitto_evt_persist_client_సందేశం event_దత్తాంశం;
+	నిర్మాణం mosquitto__callback *cb_పునాది, *cb_తదుపరి;
+	నిర్మాణం mosquitto__security_options *opts;
 
-	if(context->is_persisted == false
-			|| (client_msg->data.qos == 0 && db.config->queue_qos0_messages == false)
+	ఒకవేళ(context->is_persisted == false
+			|| (client_సందేశం->దత్తాంశం.qos == 0 && db.config->వరుస_qos0_messages == false)
 			|| db.shutdown){
 
-		return;
+		తిరిగి;
 	}
 
 	opts = &db.config->security_options;
-	memset(&event_data, 0, sizeof(event_data));
+	memset(&event_దత్తాంశం, 0, పరిమాణం(event_దత్తాంశం));
 
-	set_client_msg_event_data(&event_data, context, client_msg);
+	సమితి_client_సందేశం_event_దత్తాంశం(&event_దత్తాంశం, context, client_సందేశం);
 
-	DL_FOREACH_SAFE(opts->plugin_callbacks.persist_client_msg_add, cb_base, cb_next){
-		cb_base->cb(MOSQ_EVT_PERSIST_CLIENT_MSG_ADD, &event_data, cb_base->userdata);
+	DL_FOREACH_సురక్షిత(opts->plugin_callbacks.persist_client_సందేశం_కూడు, cb_పునాది, cb_తదుపరి){
+		cb_పునాది->cb(MOSQ_EVT_PERSIST_CLIENT_సందేశం_కూడు, &event_దత్తాంశం, cb_పునాది->userdata);
 	}
 }
 
 
-void plugin_persist__handle_client_msg_delete(struct mosquitto *context, const struct mosquitto__client_msg *client_msg)
+శూన్య plugin_persist_handle_client_సందేశం_delete(నిర్మాణం mosquitto *context, స్థిరరాశి నిర్మాణం mosquitto_client_సందేశం *client_సందేశం)
 {
-	struct mosquitto_evt_persist_client_msg event_data;
-	struct mosquitto__callback *cb_base, *cb_next;
-	struct mosquitto__security_options *opts;
+	నిర్మాణం mosquitto_evt_persist_client_సందేశం event_దత్తాంశం;
+	నిర్మాణం mosquitto__callback *cb_పునాది, *cb_తదుపరి;
+	నిర్మాణం mosquitto__security_options *opts;
 
-	if(context->is_persisted == false
-			|| (client_msg->data.qos == 0 && db.config->queue_qos0_messages == false)
+	ఒకవేళ(context->is_persisted == false
+			|| (client_సందేశం->దత్తాంశం.qos == 0 && db.config->వరుస_qos0_messages == false)
 			|| db.shutdown){
 
-		return;
+		తిరిగి;
 	}
 
 	opts = &db.config->security_options;
-	memset(&event_data, 0, sizeof(event_data));
+	memset(&event_దత్తాంశం, 0, పరిమాణం(event_దత్తాంశం));
 
-	set_client_msg_event_data(&event_data, context, client_msg);
+	సమితి_client_సందేశం_event_దత్తాంశం(&event_దత్తాంశం, context, client_సందేశం);
 
-	DL_FOREACH_SAFE(opts->plugin_callbacks.persist_client_msg_delete, cb_base, cb_next){
-		cb_base->cb(MOSQ_EVT_PERSIST_CLIENT_MSG_DELETE, &event_data, cb_base->userdata);
+	DL_FOREACH_సురక్షిత(opts->plugin_callbacks.persist_client_సందేశం_delete, cb_పునాది, cb_తదుపరి){
+		cb_పునాది->cb(MOSQ_EVT_PERSIST_CLIENT_సందేశం_DELETE, &event_దత్తాంశం, cb_పునాది->userdata);
 	}
 }
 
 
-void plugin_persist__handle_client_msg_update(struct mosquitto *context, const struct mosquitto__client_msg *client_msg)
+శూన్య plugin_persist_handle_client_సందేశం_update(నిర్మాణం mosquitto *context, స్థిరరాశి నిర్మాణం mosquitto_client_సందేశం *client_సందేశం)
 {
-	struct mosquitto_evt_persist_client_msg event_data;
-	struct mosquitto__callback *cb_base, *cb_next;
-	struct mosquitto__security_options *opts;
+	నిర్మాణం mosquitto_evt_persist_client_సందేశం event_దత్తాంశం;
+	నిర్మాణం mosquitto__callback *cb_పునాది, *cb_తదుపరి;
+	నిర్మాణం mosquitto__security_options *opts;
 
-	if(context->is_persisted == false
-			|| (client_msg->data.qos == 0 && db.config->queue_qos0_messages == false)
+	ఒకవేళ(context->is_persisted == false
+			|| (client_సందేశం->దత్తాంశం.qos == 0 && db.config->వరుస_qos0_messages == false)
 			|| db.shutdown){
 
-		return;
+		తిరిగి;
 	}
 
 	opts = &db.config->security_options;
-	memset(&event_data, 0, sizeof(event_data));
+	memset(&event_దత్తాంశం, 0, పరిమాణం(event_దత్తాంశం));
 
-	set_client_msg_event_data(&event_data, context, client_msg);
+	సమితి_client_సందేశం_event_దత్తాంశం(&event_దత్తాంశం, context, client_సందేశం);
 
-	DL_FOREACH_SAFE(opts->plugin_callbacks.persist_client_msg_update, cb_base, cb_next){
-		cb_base->cb(MOSQ_EVT_PERSIST_CLIENT_MSG_UPDATE, &event_data, cb_base->userdata);
+	DL_FOREACH_సురక్షిత(opts->plugin_callbacks.persist_client_సందేశం_update, cb_పునాది, cb_తదుపరి){
+		cb_పునాది->cb(MOSQ_EVT_PERSIST_CLIENT_సందేశం_UPDATE, &event_దత్తాంశం, cb_పునాది->userdata);
 	}
 }
 
 
-void plugin_persist__handle_base_msg_add(struct mosquitto__base_msg *base_msg)
+శూన్య plugin_persist_handle_పునాది_సందేశం_కూడు(నిర్మాణం mosquitto_పునాది_సందేశం *పునాది_సందేశం)
 {
-	struct mosquitto_evt_persist_base_msg event_data;
-	struct mosquitto__callback *cb_base, *cb_next;
-	struct mosquitto__security_options *opts;
+	నిర్మాణం mosquitto_evt_persist_పునాది_సందేశం event_దత్తాంశం;
+	నిర్మాణం mosquitto__callback *cb_పునాది, *cb_తదుపరి;
+	నిర్మాణం mosquitto__security_options *opts;
 
-	if(base_msg->stored || db.shutdown){
-		return;
+	ఒకవేళ(పునాది_సందేశం->stored || db.shutdown){
+		తిరిగి;
 	}
 
 	opts = &db.config->security_options;
-	memset(&event_data, 0, sizeof(event_data));
+	memset(&event_దత్తాంశం, 0, పరిమాణం(event_దత్తాంశం));
 
-	event_data.data.store_id = base_msg->data.store_id;
-	event_data.data.expiry_time = base_msg->data.expiry_time;
-	event_data.data.topic = base_msg->data.topic;
-	event_data.data.payload = base_msg->data.payload;
-	event_data.data.source_id = base_msg->data.source_id;
-	event_data.data.source_username = base_msg->data.source_username;
-	event_data.data.properties = base_msg->data.properties;
-	event_data.data.payloadlen = base_msg->data.payloadlen;
-	event_data.data.source_mid = base_msg->data.source_mid;
-	if(base_msg->source_listener){
-		event_data.data.source_port = base_msg->source_listener->port;
-	}else{
-		event_data.data.source_port = 0;
+	event_దత్తాంశం.దత్తాంశం.store_id = పునాది_సందేశం->దత్తాంశం.store_id;
+	event_దత్తాంశం.దత్తాంశం.expiry_సమయం = పునాది_సందేశం->దత్తాంశం.expiry_సమయం;
+	event_దత్తాంశం.దత్తాంశం.topic = పునాది_సందేశం->దత్తాంశం.topic;
+	event_దత్తాంశం.దత్తాంశం.payload = పునాది_సందేశం->దత్తాంశం.payload;
+	event_దత్తాంశం.దత్తాంశం.ఆధారం_id = పునాది_సందేశం->దత్తాంశం.ఆధారం_id;
+	event_దత్తాంశం.దత్తాంశం.ఆధారం_username = పునాది_సందేశం->దత్తాంశం.ఆధారం_username;
+	event_దత్తాంశం.దత్తాంశం.properties = పునాది_సందేశం->దత్తాంశం.properties;
+	event_దత్తాంశం.దత్తాంశం.payloadlen = పునాది_సందేశం->దత్తాంశం.payloadlen;
+	event_దత్తాంశం.దత్తాంశం.ఆధారం_mid = పునాది_సందేశం->దత్తాంశం.ఆధారం_mid;
+	ఒకవేళ(పునాది_సందేశం->ఆధారం_listener){
+		event_దత్తాంశం.దత్తాంశం.ఆధారం_పోర్టు = పునాది_సందేశం->ఆధారం_listener->పోర్టు;
+	}లేకపోతే{
+		event_దత్తాంశం.దత్తాంశం.ఆధారం_పోర్టు = 0;
 	}
-	event_data.data.qos = base_msg->data.qos;
-	event_data.data.retain = base_msg->data.retain;
+	event_దత్తాంశం.దత్తాంశం.qos = పునాది_సందేశం->దత్తాంశం.qos;
+	event_దత్తాంశం.దత్తాంశం.retain = పునాది_సందేశం->దత్తాంశం.retain;
 
-	DL_FOREACH_SAFE(opts->plugin_callbacks.persist_base_msg_add, cb_base, cb_next){
-		cb_base->cb(MOSQ_EVT_PERSIST_BASE_MSG_ADD, &event_data, cb_base->userdata);
+	DL_FOREACH_సురక్షిత(opts->plugin_callbacks.persist_పునాది_సందేశం_కూడు, cb_పునాది, cb_తదుపరి){
+		cb_పునాది->cb(MOSQ_EVT_PERSIST_పునాది_సందేశం_కూడు, &event_దత్తాంశం, cb_పునాది->userdata);
 	}
-	base_msg->stored = true;
+	పునాది_సందేశం->stored = true;
 }
 
 
-void plugin_persist__handle_base_msg_delete(struct mosquitto__base_msg *base_msg)
+శూన్య plugin_persist_handle_పునాది_సందేశం_delete(నిర్మాణం mosquitto_పునాది_సందేశం *పునాది_సందేశం)
 {
-	struct mosquitto_evt_persist_base_msg event_data;
-	struct mosquitto__callback *cb_base, *cb_next;
-	struct mosquitto__security_options *opts;
+	నిర్మాణం mosquitto_evt_persist_పునాది_సందేశం event_దత్తాంశం;
+	నిర్మాణం mosquitto__callback *cb_పునాది, *cb_తదుపరి;
+	నిర్మాణం mosquitto__security_options *opts;
 
-	if(base_msg->stored == false || db.shutdown){
-		return;
+	ఒకవేళ(పునాది_సందేశం->stored == false || db.shutdown){
+		తిరిగి;
 	}
 
 	opts = &db.config->security_options;
-	memset(&event_data, 0, sizeof(event_data));
+	memset(&event_దత్తాంశం, 0, పరిమాణం(event_దత్తాంశం));
 
-	event_data.data.store_id = base_msg->data.store_id;
+	event_దత్తాంశం.దత్తాంశం.store_id = పునాది_సందేశం->దత్తాంశం.store_id;
 
-	DL_FOREACH_SAFE(opts->plugin_callbacks.persist_base_msg_delete, cb_base, cb_next){
-		cb_base->cb(MOSQ_EVT_PERSIST_BASE_MSG_DELETE, &event_data, cb_base->userdata);
+	DL_FOREACH_సురక్షిత(opts->plugin_callbacks.persist_పునాది_సందేశం_delete, cb_పునాది, cb_తదుపరి){
+		cb_పునాది->cb(MOSQ_EVT_PERSIST_పునాది_సందేశం_DELETE, &event_దత్తాంశం, cb_పునాది->userdata);
 	}
-	base_msg->stored = false;
+	పునాది_సందేశం->stored = false;
 }
 
 
-void plugin_persist__handle_retain_msg_set(struct mosquitto__base_msg *base_msg)
+శూన్య plugin_persist_handle_retain_సందేశం_సమితి(నిర్మాణం mosquitto_పునాది_సందేశం *పునాది_సందేశం)
 {
-	struct mosquitto_evt_persist_retain_msg event_data;
-	struct mosquitto__callback *cb_base, *cb_next;
-	struct mosquitto__security_options *opts;
+	నిర్మాణం mosquitto_evt_persist_retain_సందేశం event_దత్తాంశం;
+	నిర్మాణం mosquitto__callback *cb_పునాది, *cb_తదుపరి;
+	నిర్మాణం mosquitto__security_options *opts;
 
-	if(db.shutdown){
-		return;
+	ఒకవేళ(db.shutdown){
+		తిరిగి;
 	}
 
 	opts = &db.config->security_options;
-	memset(&event_data, 0, sizeof(event_data));
+	memset(&event_దత్తాంశం, 0, పరిమాణం(event_దత్తాంశం));
 
-	event_data.store_id = base_msg->data.store_id;
-	event_data.topic = base_msg->data.topic;
+	event_దత్తాంశం.store_id = పునాది_సందేశం->దత్తాంశం.store_id;
+	event_దత్తాంశం.topic = పునాది_సందేశం->దత్తాంశం.topic;
 
-	DL_FOREACH_SAFE(opts->plugin_callbacks.persist_retain_msg_set, cb_base, cb_next){
-		cb_base->cb(MOSQ_EVT_PERSIST_RETAIN_MSG_SET, &event_data, cb_base->userdata);
-	}
-}
-
-
-void plugin_persist__handle_retain_msg_delete(struct mosquitto__base_msg *base_msg)
-{
-	struct mosquitto_evt_persist_retain_msg event_data;
-	struct mosquitto__callback *cb_base, *cb_next;
-	struct mosquitto__security_options *opts;
-
-	if(db.shutdown){
-		return;
-	}
-
-	opts = &db.config->security_options;
-	memset(&event_data, 0, sizeof(event_data));
-
-	event_data.topic = base_msg->data.topic;
-
-	DL_FOREACH_SAFE(opts->plugin_callbacks.persist_retain_msg_delete, cb_base, cb_next){
-		cb_base->cb(MOSQ_EVT_PERSIST_RETAIN_MSG_DELETE, &event_data, cb_base->userdata);
+	DL_FOREACH_సురక్షిత(opts->plugin_callbacks.persist_retain_సందేశం_సమితి, cb_పునాది, cb_తదుపరి){
+		cb_పునాది->cb(MOSQ_EVT_PERSIST_RETAIN_సందేశం_సమితి, &event_దత్తాంశం, cb_పునాది->userdata);
 	}
 }
 
 
-void plugin_persist__handle_will_add(struct mosquitto *context)
+శూన్య plugin_persist_handle_retain_సందేశం_delete(నిర్మాణం mosquitto_పునాది_సందేశం *పునాది_సందేశం)
 {
-	struct mosquitto_evt_persist_will_msg event_data;
-	struct mosquitto__callback *cb_base, *cb_next;
-	struct mosquitto__security_options *opts;
-	struct mosquitto_message *will_msg;
+	నిర్మాణం mosquitto_evt_persist_retain_సందేశం event_దత్తాంశం;
+	నిర్మాణం mosquitto__callback *cb_పునాది, *cb_తదుపరి;
+	నిర్మాణం mosquitto__security_options *opts;
 
-	if(db.shutdown || !context->will){
-		return;
+	ఒకవేళ(db.shutdown){
+		తిరిగి;
 	}
 
 	opts = &db.config->security_options;
-	will_msg = &context->will->msg;
-	memset(&event_data, 0, sizeof(event_data));
-	event_data.data.clientid = context->id;
-	event_data.data.topic = will_msg->topic;
-	event_data.data.payload = will_msg->payload;
-	event_data.data.payloadlen = (uint32_t)will_msg->payloadlen;
-	event_data.data.qos = (uint8_t)will_msg->qos;
-	event_data.data.retain = will_msg->retain;
-	event_data.data.properties = context->will->properties;
+	memset(&event_దత్తాంశం, 0, పరిమాణం(event_దత్తాంశం));
 
-	DL_FOREACH_SAFE(opts->plugin_callbacks.persist_will_add, cb_base, cb_next){
-		cb_base->cb(MOSQ_EVT_PERSIST_WILL_ADD, &event_data, cb_base->userdata);
+	event_దత్తాంశం.topic = పునాది_సందేశం->దత్తాంశం.topic;
+
+	DL_FOREACH_సురక్షిత(opts->plugin_callbacks.persist_retain_సందేశం_delete, cb_పునాది, cb_తదుపరి){
+		cb_పునాది->cb(MOSQ_EVT_PERSIST_RETAIN_సందేశం_DELETE, &event_దత్తాంశం, cb_పునాది->userdata);
 	}
 }
 
 
-void plugin_persist__handle_will_delete(struct mosquitto *context)
+శూన్య plugin_persist_handle_will_కూడు(నిర్మాణం mosquitto *context)
 {
-	struct mosquitto_evt_persist_will_msg event_data;
-	struct mosquitto__callback *cb_base, *cb_next;
-	struct mosquitto__security_options *opts;
+	నిర్మాణం mosquitto_evt_persist_will_సందేశం event_దత్తాంశం;
+	నిర్మాణం mosquitto__callback *cb_పునాది, *cb_తదుపరి;
+	నిర్మాణం mosquitto__security_options *opts;
+	నిర్మాణం mosquitto_సందేశం *will_సందేశం;
 
-	memset(&event_data, 0, sizeof(event_data));
-	event_data.data.clientid = context->id;
-
-	if(db.shutdown){
-		return;
+	ఒకవేళ(db.shutdown || !context->will){
+		తిరిగి;
 	}
 
 	opts = &db.config->security_options;
-	DL_FOREACH_SAFE(opts->plugin_callbacks.persist_will_delete, cb_base, cb_next){
-		cb_base->cb(MOSQ_EVT_PERSIST_WILL_ADD, &event_data, cb_base->userdata);
+	will_సందేశం = &context->will->సందేశం;
+	memset(&event_దత్తాంశం, 0, పరిమాణం(event_దత్తాంశం));
+	event_దత్తాంశం.దత్తాంశం.clientid = context->id;
+	event_దత్తాంశం.దత్తాంశం.topic = will_సందేశం->topic;
+	event_దత్తాంశం.దత్తాంశం.payload = will_సందేశం->payload;
+	event_దత్తాంశం.దత్తాంశం.payloadlen = (uint32_t)will_సందేశం->payloadlen;
+	event_దత్తాంశం.దత్తాంశం.qos = (uint8_t)will_సందేశం->qos;
+	event_దత్తాంశం.దత్తాంశం.retain = will_సందేశం->retain;
+	event_దత్తాంశం.దత్తాంశం.properties = context->will->properties;
+
+	DL_FOREACH_సురక్షిత(opts->plugin_callbacks.persist_will_కూడు, cb_పునాది, cb_తదుపరి){
+		cb_పునాది->cb(MOSQ_EVT_PERSIST_WILL_కూడు, &event_దత్తాంశం, cb_పునాది->userdata);
+	}
+}
+
+
+శూన్య plugin_persist__handle_will_delete(నిర్మాణం mosquitto *context)
+{
+	నిర్మాణం mosquitto_evt_persist_will_సందేశం event_దత్తాంశం;
+	నిర్మాణం mosquitto__callback *cb_పునాది, *cb_తదుపరి;
+	నిర్మాణం mosquitto__security_options *opts;
+
+	memset(&event_దత్తాంశం, 0, పరిమాణం(event_దత్తాంశం));
+	event_దత్తాంశం.దత్తాంశం.clientid = context->id;
+
+	ఒకవేళ(db.shutdown){
+		తిరిగి;
+	}
+
+	opts = &db.config->security_options;
+	DL_FOREACH_సురక్షిత(opts->plugin_callbacks.persist_will_delete, cb_పునాది, cb_తదుపరి){
+		cb_పునాది->cb(MOSQ_EVT_PERSIST_WILL_కూడు, &event_దత్తాంశం, cb_పునాది->userdata);
 	}
 
 }

@@ -16,111 +16,111 @@ Contributors:
    Roger Light - initial implementation and documentation.
 */
 
-#ifdef WITH_XTREPORT
+#నిర్వచితమైతే WITH_XTREPORT
 
 /* This file allows reporting of internal parameters to a kcachegrind
  * compatible output file. It is for debugging purposes only and is most likely
  * of no interest to end users.
  */
-#include "config.h"
+#అన్తర్భావ "config.h"
 
-#include <inttypes.h>
-#include <stdint.h>
-#include <stdio.h>
-#include <uthash.h>
+#అన్తర్భావ <inttypes.h>
+#అన్తర్భావ <stdint.h>
+#అన్తర్భావ <stdio.h>
+#అన్తర్భావ <uthash.h>
 
-#include "mosquitto_broker_internal.h"
-#include "mosquitto_internal.h"
-#include "net_mosq.h"
+#అన్తర్భావ "mosquitto_broker_internal.h"
+#అన్తర్భావ "mosquitto_internal.h"
+#అన్తర్భావ "net_mosq.h"
 
 
-static void client_cost(FILE *fptr, struct mosquitto *context, int fn_index)
+స్థిర శూన్య client_ఖర్చు(FILE *fptr, నిర్మాణం mosquitto *context, పూర్ణాంకం fn_సూచీ)
 {
-	long pkt_count, pkt_bytes;
-	long cmsg_count;
-	long cmsg_bytes;
-	long tBytes;
+	దీర్ఘ pkt_లెక్క, pkt_బైట్లు;
+	దీర్ఘ cmsg_లెక్క;
+	దీర్ఘ cmsg_బైట్లు;
+	దీర్ఘ t_బైట్లు;
 
-	pkt_count = 1;
-	pkt_bytes = context->in_packet.packet_length + context->out_packet_bytes;
+	pkt_లెక్క = 1;
+	pkt_బైట్లు = context->లోపల_packet.packet_నిడివి + context->బహిర్గతం_packet_బైట్లు;
 
-	cmsg_count = context->msgs_in.inflight_count + context->msgs_in.queued_count;
-	cmsg_bytes = context->msgs_in.inflight_bytes + context->msgs_in.queued_bytes;
-	cmsg_count += context->msgs_out.inflight_count + context->msgs_out.queued_count;
-	cmsg_bytes += context->msgs_out.inflight_bytes + context->msgs_out.queued_bytes;
+	cmsg_లెక్క = context->msgs_లోపల.inflight_లెక్క + context->msgs_లోపల.queued_లెక్క;
+	cmsg_బైట్లు = context->msgs_లోపల.inflight_బైట్లు + context->msgs_లోపల.queued_బైట్లు;
+	cmsg_లెక్క += context->msgs_బహిర్గతం.inflight_లెక్క + context->msgs_బహిర్గతం.queued_లెక్క;
+	cmsg_బైట్లు += context->msgs_బహిర్గతం.inflight_బైట్లు + context->msgs_బహిర్గతం.queued_బైట్లు;
 
-	tBytes = pkt_bytes + cmsg_bytes;
-	if(context->id){
-		tBytes += (long)strlen(context->id);
+	t_బైట్లు = pkt_బైట్లు + cmsg_బైట్లు;
+	ఒకవేళ(context->id){
+		t_బైట్లు += (దీర్ఘ)అక్షరశ్రేణి_పొడవు(context->id);
 	}
-	fprintf(fptr, "%d %ld %lu %lu %lu %lu %d 0 0 %" PRIu64 " %" PRIu64 " %" PRIu64 "\n", fn_index,
-			tBytes,
-			pkt_count, cmsg_count,
-			pkt_bytes, cmsg_bytes,
+	fprintf(fptr, "%d %ld %lu %lu %lu %lu %d 0 0 %" PRIu64 " %" PRIu64 " %" PRIu64 "\n", fn_సూచీ,
+			t_బైట్లు,
+			pkt_లెక్క, cmsg_లెక్క,
+			pkt_బైట్లు, cmsg_బైట్లు,
 			context->sock == INVALID_SOCKET?0:context->sock,
-			context->stats.messages_sent,
+			context->stats.messages_పంపిన,
 			context->stats.messages_received,
 			context->stats.messages_dropped
 			);
 }
 
 
-static void report_subscriptions(FILE *fptr, struct mosquitto *context, int *fn_index_max)
+స్థిర శూన్య report_subscriptions(FILE *fptr, నిర్మాణం mosquitto *context, పూర్ణాంకం *fn_సూచీ_max)
 {
-	for(int i=0; i<context->subs_count; i++){
-		if(context->subs && context->subs[i]){
-			struct mosquitto__subhier *subhier = context->subs[i]->hier;
-			int topic_count = 0;
-			char *topics[100];
+	కొరకు(పూర్ణాంకం i=0; i<context->subs_లెక్క; i++){
+		ఒకవేళ(context->subs && context->subs[i]){
+			నిర్మాణం mosquitto__subhier *subhier = context->subs[i]->hier;
+			పూర్ణాంకం topic_లెక్క = 0;
+			అక్షరం *topics[100];
 
-			do{
-				topics[topic_count] = subhier->topic;
-				subhier = subhier->parent;
-				topic_count++;
-				if(topic_count == 100){
-					break;
+			చేయి{
+				topics[topic_లెక్క] = subhier->topic;
+				subhier = subhier->మాతృ;
+				topic_లెక్క++;
+				ఒకవేళ(topic_లెక్క == 100){
+					ఆపు;
 				}
-			}while(subhier);
-			if(topic_count == 100){
-				continue;
+			}అయితే(subhier);
+			ఒకవేళ(topic_లెక్క == 100){
+				కొనసాగు;
 			}
 
-			fprintf(fptr, "cfn=(%d) ", *fn_index_max);
-			if(topics[topic_count-2] && topics[topic_count-2][0] == '\0'){
-				topic_count--;
+			fprintf(fptr, "cfn=(%d) ", *fn_సూచీ_max);
+			ఒకవేళ(topics[topic_లెక్క-2] && topics[topic_లెక్క-2][0] == '\0'){
+				topic_లెక్క--;
 			}
-			for(int j=topic_count-2; j>0; j--){
-				if(topics[j]){
+			కొరకు(పూర్ణాంకం j=topic_లెక్క-2; j>0; j--){
+				ఒకవేళ(topics[j]){
 					fprintf(fptr, "%s/", topics[j]);
 				}
 			}
-			if(topics[0]){
+			ఒకవేళ(topics[0]){
 				fprintf(fptr, "%s\n", topics[0]);
 			}
 
-			fprintf(fptr, "calls=1 %d\n", *fn_index_max);
+			fprintf(fptr, "calls=1 %d\n", *fn_సూచీ_max);
 			fprintf(fptr, "1 0 0 0 0 0 0 1 0 0 0 0\n");
-			(*fn_index_max)++;
+			(*fn_సూచీ_max)++;
 		}
 	}
 }
 
 
-void xtreport(void)
+శూన్య xtreport(శూన్య)
 {
 	pid_t pid;
-	char filename[40];
+	అక్షరం filename[40];
 	FILE *fptr;
-	struct mosquitto *context, *ctxt_tmp;
-	int fn_index = 2, fn_index_max;
-	static int iter = 1;
+	నిర్మాణం mosquitto *context, *ctxt_tmp;
+	పూర్ణాంకం fn_సూచీ = 2, fn_సూచీ_max;
+	స్థిర పూర్ణాంకం iter = 1;
 
 	pid = getpid();
 	snprintf(filename, 40, "/tmp/xtmosquitto.kcg.%d.%d", pid, iter);
 	iter++;
 	fptr = fopen(filename, "wt");
-	if(fptr == NULL){
-		return;
+	ఒకవేళ(fptr == ఖాళీ){
+		తిరిగి;
 	}
 
 	fprintf(fptr, "# callgrind format\n");
@@ -146,42 +146,42 @@ void xtreport(void)
 	fprintf(fptr, "\nfn=(1) clients\n");
 	fprintf(fptr, "1 0 0 0 0 0 0 0 0 0 0 0\n");
 
-	fn_index = 2;
+	fn_సూచీ = 2;
 	HASH_ITER(hh_id, db.contexts_by_id, context, ctxt_tmp){
-		if(context->id){
-			fprintf(fptr, "cfn=(%d) %s\n", fn_index, context->id);
-		}else{
-			fprintf(fptr, "cfn=(%d) unknown\n", fn_index);
+		ఒకవేళ(context->id){
+			fprintf(fptr, "cfn=(%d) %s\n", fn_సూచీ, context->id);
+		}లేకపోతే{
+			fprintf(fptr, "cfn=(%d) unknown\n", fn_సూచీ);
 		}
-		fprintf(fptr, "calls=1 %d\n", fn_index);
-		client_cost(fptr, context, fn_index);
-		fn_index++;
+		fprintf(fptr, "calls=1 %d\n", fn_సూచీ);
+		client_ఖర్చు(fptr, context, fn_సూచీ);
+		fn_సూచీ++;
 	}
-	fn_index_max = fn_index;
+	fn_సూచీ_max = fn_సూచీ;
 
-	fn_index = 2;
+	fn_సూచీ = 2;
 	HASH_ITER(hh_id, db.contexts_by_id, context, ctxt_tmp){
-		fprintf(fptr, "\nfn=(%d)\n", fn_index);
-		client_cost(fptr, context, fn_index);
-		fn_index++;
+		fprintf(fptr, "\nfn=(%d)\n", fn_సూచీ);
+		client_ఖర్చు(fptr, context, fn_సూచీ);
+		fn_సూచీ++;
 
-		report_subscriptions(fptr, context, &fn_index_max);
+		report_subscriptions(fptr, context, &fn_సూచీ_max);
 	}
 
-	fprintf(fptr, "\nfn=(%d) messages\n", fn_index_max);
+	fprintf(fptr, "\nfn=(%d) messages\n", fn_సూచీ_max);
 	fprintf(fptr, "1 0 0 0 0 0 0 0 0 0 0 0\n");
 
-	struct mosquitto__base_msg *base_msg, *base_msg_tmp;
+	నిర్మాణం mosquitto_పునాది_సందేశం *పునాది_సందేశం, *పునాది_సందేశం_tmp;
 
-	HASH_ITER(hh, db.msg_store, base_msg, base_msg_tmp){
-		if(base_msg->ref_count > 1){
-			fprintf(fptr, "cfn=(%d) %" PRIu64 "\n", fn_index_max, base_msg->data.store_id);
-			fprintf(fptr, "calls=%d %d\n", base_msg->ref_count, fn_index_max);
-			fprintf(fptr, "%d 0 0 0 0 0 0 0 %d 0 0 0\n", fn_index_max, base_msg->ref_count);
-			fn_index_max++;
+	HASH_ITER(hh, db.సందేశం_store, పునాది_సందేశం, పునాది_సందేశం_tmp){
+		ఒకవేళ(పునాది_సందేశం->ref_లెక్క > 1){
+			fprintf(fptr, "cfn=(%d) %" PRIu64 "\n", fn_సూచీ_max, పునాది_సందేశం->దత్తాంశం.store_id);
+			fprintf(fptr, "calls=%d %d\n", పునాది_సందేశం->ref_లెక్క, fn_సూచీ_max);
+			fprintf(fptr, "%d 0 0 0 0 0 0 0 %d 0 0 0\n", fn_సూచీ_max, పునాది_సందేశం->ref_లెక్క);
+			fn_సూచీ_max++;
 		}
 	}
 
 	fclose(fptr);
 }
-#endif
+#అయితే_ముగింపు

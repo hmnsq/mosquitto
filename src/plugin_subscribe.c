@@ -17,55 +17,55 @@ Contributors:
    Roger Light - initial implementation and documentation.
 */
 
-#include "config.h"
+#అన్తర్భావ "config.h"
 
-#include "mosquitto_broker_internal.h"
-#include "utlist.h"
+#అన్తర్భావ "mosquitto_broker_internal.h"
+#అన్తర్భావ "utlist.h"
 
 
-static int plugin__handle_subscribe_single(struct mosquitto__security_options *opts, struct mosquitto *context, struct mosquitto_subscription *sub)
+స్థిర పూర్ణాంకం plugin__handle_subscribe_single(నిర్మాణం mosquitto__security_options *opts, నిర్మాణం mosquitto *context, నిర్మాణం mosquitto_subscription *sub)
 {
-	struct mosquitto_evt_subscribe event_data;
-	struct mosquitto__callback *cb_base, *cb_next;
-	int rc = MOSQ_ERR_SUCCESS;
+	నిర్మాణం mosquitto_evt_subscribe event_దత్తాంశం;
+	నిర్మాణం mosquitto__callback *cb_పునాది, *cb_తదుపరి;
+	పూర్ణాంకం rc = MOSQ_ERR_SUCCESS;
 
-	memset(&event_data, 0, sizeof(event_data));
-	event_data.client = context;
-	event_data.data.topic_filter = sub->topic_filter;
-	event_data.data.options = sub->options;
-	event_data.data.identifier = sub->identifier;
-	event_data.data.properties = sub->properties;
+	memset(&event_దత్తాంశం, 0, పరిమాణం(event_దత్తాంశం));
+	event_దత్తాంశం.client = context;
+	event_దత్తాంశం.దత్తాంశం.topic_filter = sub->topic_filter;
+	event_దత్తాంశం.దత్తాంశం.options = sub->options;
+	event_దత్తాంశం.దత్తాంశం.identifier = sub->identifier;
+	event_దత్తాంశం.దత్తాంశం.properties = sub->properties;
 
-	DL_FOREACH_SAFE(opts->plugin_callbacks.subscribe, cb_base, cb_next){
-		rc = cb_base->cb(MOSQ_EVT_SUBSCRIBE, &event_data, cb_base->userdata);
-		if(rc != MOSQ_ERR_SUCCESS){
-			break;
+	DL_FOREACH_సురక్షిత(opts->plugin_callbacks.subscribe, cb_పునాది, cb_తదుపరి){
+		rc = cb_పునాది->cb(MOSQ_EVT_SUBSCRIBE, &event_దత్తాంశం, cb_పునాది->userdata);
+		ఒకవేళ(rc != MOSQ_ERR_SUCCESS){
+			ఆపు;
 		}
 
-		if(sub->topic_filter != event_data.data.topic_filter){
+		ఒకవేళ(sub->topic_filter != event_దత్తాంశం.దత్తాంశం.topic_filter){
 			mosquitto_free(sub->topic_filter);
-			sub->topic_filter = event_data.data.topic_filter;
+			sub->topic_filter = event_దత్తాంశం.దత్తాంశం.topic_filter;
 		}
 	}
-	sub->options = event_data.data.options;
+	sub->options = event_దత్తాంశం.దత్తాంశం.options;
 
-	return rc;
+	తిరిగి rc;
 }
 
 
-int plugin__handle_subscribe(struct mosquitto *context, struct mosquitto_subscription *sub)
+పూర్ణాంకం plugin__handle_subscribe(నిర్మాణం mosquitto *context, నిర్మాణం mosquitto_subscription *sub)
 {
-	int rc = MOSQ_ERR_SUCCESS;
+	పూర్ణాంకం rc = MOSQ_ERR_SUCCESS;
 
 	/* Global plugins */
 	rc = plugin__handle_subscribe_single(&db.config->security_options, context, sub);
-	if(rc){
-		return rc;
+	ఒకవేళ(rc){
+		తిరిగి rc;
 	}
 
-	if(context->listener){
+	ఒకవేళ(context->listener){
 		rc = plugin__handle_subscribe_single(context->listener->security_options, context, sub);
 	}
 
-	return rc;
+	తిరిగి rc;
 }

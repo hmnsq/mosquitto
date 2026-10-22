@@ -16,159 +16,159 @@ Contributors:
    Roger Light - initial implementation and documentation.
 */
 
-#include "config.h"
+#అన్తర్భావ "config.h"
 
-#include <math.h>
-#include <stdio.h>
-#include <utlist.h>
+#అన్తర్భావ <math.h>
+#అన్తర్భావ <stdio.h>
+#అన్తర్భావ <utlist.h>
 
-#include "mosquitto_broker_internal.h"
-#include "sys_tree.h"
+#అన్తర్భావ "mosquitto_broker_internal.h"
+#అన్తర్భావ "sys_tree.h"
 
-static struct session_expiry_list *expiry_list = NULL;
-static time_t last_check = 0;
+స్థిర నిర్మాణం session_expiry_list *expiry_list = ఖాళీ;
+స్థిర time_t చివరి_check = 0;
 
 
-static int session_expiry__cmp(struct session_expiry_list *i1, struct session_expiry_list *i2)
+స్థిర పూర్ణాంకం session_expiry__cmp(నిర్మాణం session_expiry_list *i1, నిర్మాణం session_expiry_list *i2)
 {
-	if(i1->context->session_expiry_time == i2->context->session_expiry_time){
-		return 0;
-	}else if(i1->context->session_expiry_time > i2->context->session_expiry_time){
-		return 1;
-	}else{
-		return -1;
+	ఒకవేళ(i1->context->session_expiry_సమయం == i2->context->session_expiry_సమయం){
+		తిరిగి 0;
+	}లేకపోతే ఒకవేళ(i1->context->session_expiry_సమయం > i2->context->session_expiry_సమయం){
+		తిరిగి 1;
+	}లేకపోతే{
+		తిరిగి -1;
 	}
 }
 
 
-static void set_session_expiry_time(struct mosquitto *context)
+స్థిర శూన్య సమితి_session_expiry_సమయం(నిర్మాణం mosquitto *context)
 {
-	context->session_expiry_time = db.now_real_s;
+	context->session_expiry_సమయం = db.now_real_s;
 
-	if(db.config->persistent_client_expiration == 0){
+	ఒకవేళ(db.config->persistent_client_expiration == 0){
 		/* No global expiry, so use the client expiration interval */
-		context->session_expiry_time += context->session_expiry_interval;
-	}else{
+		context->session_expiry_సమయం += context->session_expiry_interval;
+	}లేకపోతే{
 		/* We have a global expiry interval */
-		if(db.config->persistent_client_expiration < context->session_expiry_interval){
+		ఒకవేళ(db.config->persistent_client_expiration < context->session_expiry_interval){
 			/* The client expiry is longer than the global expiry, so use the global */
-			context->session_expiry_time += db.config->persistent_client_expiration;
-		}else{
+			context->session_expiry_సమయం += db.config->persistent_client_expiration;
+		}లేకపోతే{
 			/* The global expiry is longer than the client expiry, so use the client */
-			context->session_expiry_time += context->session_expiry_interval;
+			context->session_expiry_సమయం += context->session_expiry_interval;
 		}
 	}
 }
 
 
-int session_expiry__add(struct mosquitto *context)
+పూర్ణాంకం session_expiry_కూడు(నిర్మాణం mosquitto *context)
 {
-	struct session_expiry_list *item;
+	నిర్మాణం session_expiry_list *అంశం;
 
-	if(context->expiry_list_item){
+	ఒకవేళ(context->expiry_list_అంశం){
 		/* Already added, may happen in cases like a client disconnecting then
 		 * being kicked by a plugin. */
-		return MOSQ_ERR_SUCCESS;
+		తిరిగి MOSQ_ERR_SUCCESS;
 	}
 
-	if(db.config->persistent_client_expiration == 0){
-		if(context->session_expiry_interval == MQTT_SESSION_EXPIRY_NEVER){
+	ఒకవేళ(db.config->persistent_client_expiration == 0){
+		ఒకవేళ(context->session_expiry_interval == MQTT_SESSION_EXPIRY_NEVER){
 			/* There isn't a global expiry set, and the client has asked to
 			 * never expire, so we don't add it to the list. */
-			return MOSQ_ERR_SUCCESS;
+			తిరిగి MOSQ_ERR_SUCCESS;
 		}
 	}
 
-	item = mosquitto_calloc(1, sizeof(struct session_expiry_list));
-	if(!item){
-		return MOSQ_ERR_NOMEM;
+	అంశం = mosquitto_calloc(1, పరిమాణం(నిర్మాణం session_expiry_list));
+	ఒకవేళ(!అంశం){
+		తిరిగి MOSQ_ERR_NOMEM;
 	}
 
-	item->context = context;
-	set_session_expiry_time(item->context);
-	context->expiry_list_item = item;
+	అంశం->context = context;
+	సమితి_session_expiry_సమయం(అంశం->context);
+	context->expiry_list_అంశం = అంశం;
 
-	DL_INSERT_INORDER(expiry_list, item, session_expiry__cmp);
+	DL_చొప్పించు_మధ్యక్రమం(expiry_list, అంశం, session_expiry__cmp);
 
 	plugin_persist__handle_client_update(context);
 
-	return MOSQ_ERR_SUCCESS;
+	తిరిగి MOSQ_ERR_SUCCESS;
 }
 
 
-int session_expiry__add_from_persistence(struct mosquitto *context, time_t expiry_time)
+పూర్ణాంకం session_expiry_కూడు_from_persistence(నిర్మాణం mosquitto *context, time_t expiry_సమయం)
 {
-	struct session_expiry_list *item;
+	నిర్మాణం session_expiry_list *అంశం;
 
-	if(context->expiry_list_item){
+	ఒకవేళ(context->expiry_list_అంశం){
 		/* Already added, may happen in cases like a client disconnecting then
 		 * being kicked by a plugin. */
-		return MOSQ_ERR_SUCCESS;
+		తిరిగి MOSQ_ERR_SUCCESS;
 	}
 
-	if(db.config->persistent_client_expiration == 0){
-		if(context->session_expiry_interval == MQTT_SESSION_EXPIRY_NEVER){
+	ఒకవేళ(db.config->persistent_client_expiration == 0){
+		ఒకవేళ(context->session_expiry_interval == MQTT_SESSION_EXPIRY_NEVER){
 			/* There isn't a global expiry set, and the client has asked to
 			 * never expire, so we don't add it to the list. */
-			return MOSQ_ERR_SUCCESS;
+			తిరిగి MOSQ_ERR_SUCCESS;
 		}
 	}
 
-	item = mosquitto_calloc(1, sizeof(struct session_expiry_list));
-	if(!item){
-		return MOSQ_ERR_NOMEM;
+	అంశం = mosquitto_calloc(1, పరిమాణం(నిర్మాణం session_expiry_list));
+	ఒకవేళ(!అంశం){
+		తిరిగి MOSQ_ERR_NOMEM;
 	}
 
-	item->context = context;
-	if(expiry_time){
-		item->context->session_expiry_time = expiry_time;
-	}else{
-		set_session_expiry_time(item->context);
+	అంశం->context = context;
+	ఒకవేళ(expiry_సమయం){
+		అంశం->context->session_expiry_సమయం = expiry_సమయం;
+	}లేకపోతే{
+		సమితి_session_expiry_సమయం(అంశం->context);
 
 	}
-	context->expiry_list_item = item;
+	context->expiry_list_అంశం = అంశం;
 
-	DL_INSERT_INORDER(expiry_list, item, session_expiry__cmp);
+	DL_చొప్పించు_మధ్యక్రమం(expiry_list, అంశం, session_expiry__cmp);
 
-	return MOSQ_ERR_SUCCESS;
+	తిరిగి MOSQ_ERR_SUCCESS;
 }
 
 
-void session_expiry__add_on_shutdown(void)
+శూన్య session_expiry_కూడు_on_shutdown(శూన్య)
 {
-	struct mosquitto *ctxt, *ctxt_tmp;
+	నిర్మాణం mosquitto *ctxt, *ctxt_tmp;
 
 	HASH_ITER(hh_id, db.contexts_by_id, ctxt, ctxt_tmp){
-		if(ctxt->bridge == NULL
+		ఒకవేళ(ctxt->bridge == ఖాళీ
 				&& ctxt->is_persisted
-				&& ctxt->session_expiry_interval != MQTT_SESSION_EXPIRY_IMMEDIATE
+				&& ctxt->session_expiry_interval != MQTT_SESSION_EXPIRY_తక్షణ
 				){
 
-			session_expiry__add(ctxt);
+			session_expiry_కూడు(ctxt);
 		}
 	}
 }
 
 
-void session_expiry__remove(struct mosquitto *context)
+శూన్య session_expiry__remove(నిర్మాణం mosquitto *context)
 {
-	if(context->expiry_list_item){
-		DL_DELETE(expiry_list, context->expiry_list_item);
-		mosquitto_FREE(context->expiry_list_item);
+	ఒకవేళ(context->expiry_list_అంశం){
+		DL_DELETE(expiry_list, context->expiry_list_అంశం);
+		mosquitto_FREE(context->expiry_list_అంశం);
 	}
 }
 
 
 /* Call on broker shutdown only */
-void session_expiry__remove_all(void)
+శూన్య session_expiry__remove_all(శూన్య)
 {
-	struct session_expiry_list *item, *tmp;
-	struct mosquitto *context;
+	నిర్మాణం session_expiry_list *అంశం, *tmp;
+	నిర్మాణం mosquitto *context;
 
-	DL_FOREACH_SAFE(expiry_list, item, tmp){
-		context = item->context;
+	DL_FOREACH_సురక్షిత(expiry_list, అంశం, tmp){
+		context = అంశం->context;
 		session_expiry__remove(context);
-		context->session_expiry_interval = MQTT_SESSION_EXPIRY_IMMEDIATE;
+		context->session_expiry_interval = MQTT_SESSION_EXPIRY_తక్షణ;
 		context->will_delay_interval = 0;
 		will_delay__remove(context);
 		context__disconnect(context, -1);
@@ -176,53 +176,53 @@ void session_expiry__remove_all(void)
 }
 
 
-void session_expiry__check(void)
+శూన్య session_expiry__check(శూన్య)
 {
-	struct session_expiry_list *item, *tmp;
-	struct mosquitto *context;
+	నిర్మాణం session_expiry_list *అంశం, *tmp;
+	నిర్మాణం mosquitto *context;
 	time_t timeout;
 
-	if(last_check != 0 && db.now_real_s <= last_check){
-		if(expiry_list){
+	ఒకవేళ(చివరి_check != 0 && db.now_real_s <= చివరి_check){
+		ఒకవేళ(expiry_list){
 			/* Next event is the first item of the list, we must set the timeout even if we aren't
 			 * checking the full list */
-			timeout = (expiry_list->context->session_expiry_time - db.now_real_s) * 1000;
-			if(timeout <= 0){
+			timeout = (expiry_list->context->session_expiry_సమయం - db.now_real_s) * 1000;
+			ఒకవేళ(timeout <= 0){
 				timeout = 100;
 			}
-			loop__update_next_event(timeout);
+			loop_update_తదుపరి_event(timeout);
 		}
-		return;
+		తిరిగి;
 	}
 
-	last_check = db.now_real_s;
+	చివరి_check = db.now_real_s;
 
-	DL_FOREACH_SAFE(expiry_list, item, tmp){
-		if(item->context->session_expiry_time < db.now_real_s){
+	DL_FOREACH_సురక్షిత(expiry_list, అంశం, tmp){
+		ఒకవేళ(అంశం->context->session_expiry_సమయం < db.now_real_s){
 
-			context = item->context;
+			context = అంశం->context;
 			session_expiry__remove(context);
 
-			if(context->id){
-				log__printf(NULL, MOSQ_LOG_NOTICE, "Expiring client %s due to timeout.", context->id);
+			ఒకవేళ(context->id){
+				log__printf(ఖాళీ, MOSQ_LOG_NOTICE, "Expiring client %s due to timeout.", context->id);
 			}
 			metrics__int_inc(mosq_counter_clients_expired, 1);
 
 			/* Session has now expired, so clear interval */
-			context->session_expiry_interval = MQTT_SESSION_EXPIRY_IMMEDIATE;
+			context->session_expiry_interval = MQTT_SESSION_EXPIRY_తక్షణ;
 			/* Session has expired, so will delay should be cleared. */
 			context->will_delay_interval = 0;
 			will_delay__remove(context);
 			context__send_will(context);
 			plugin_persist__handle_client_delete(context);
-			context__add_to_disused(context);
-		}else{
-			timeout = (item->context->session_expiry_time - db.now_real_s + 1) * 1000;
-			if(timeout <= 0){
+			context_కూడు_గమ్యం_disused(context);
+		}లేకపోతే{
+			timeout = (అంశం->context->session_expiry_సమయం - db.now_real_s + 1) * 1000;
+			ఒకవేళ(timeout <= 0){
 				timeout = 100;
 			}
-			loop__update_next_event(timeout);
-			return;
+			loop_update_తదుపరి_event(timeout);
+			తిరిగి;
 		}
 	}
 }

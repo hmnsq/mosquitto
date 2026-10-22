@@ -16,378 +16,378 @@ Contributors:
    Roger Light - initial implementation and documentation.
 */
 
-#include "config.h"
+#అన్తర్భావ "config.h"
 
-#ifdef WITH_PERSISTENCE
+#నిర్వచితమైతే WITH_PERSISTENCE
 
-#ifndef WIN32
-#include <arpa/inet.h>
-#endif
-#include <assert.h>
-#include <errno.h>
-#include <fcntl.h>
-#include <stdio.h>
-#include <string.h>
-#include <sys/stat.h>
-#include <time.h>
-#include <utlist.h>
+#నిర్వచితం_కాకపోతే WIN32
+#అన్తర్భావ <arpa/inet.h>
+#అయితే_ముగింపు
+#అన్తర్భావ <assert.h>
+#అన్తర్భావ <errno.h>
+#అన్తర్భావ <fcntl.h>
+#అన్తర్భావ <stdio.h>
+#అన్తర్భావ <string.h>
+#అన్తర్భావ <sys/stat.h>
+#అన్తర్భావ <time.h>
+#అన్తర్భావ <utlist.h>
 
-#include "mosquitto_broker_internal.h"
-#include "persist.h"
-#include "util_mosq.h"
+#అన్తర్భావ "mosquitto_broker_internal.h"
+#అన్తర్భావ "persist.h"
+#అన్తర్భావ "util_mosq.h"
 
-uint32_t db_version;
+uint32_t db_సంస్కరణ;
 
-const unsigned char magic[15] = {0x00, 0xB5, 0x00, 'm', 'o', 's', 'q', 'u', 'i', 't', 't', 'o', ' ', 'd', 'b'};
-static long base_msg_count = 0;
-static long retained_count = 0;
-static long client_count = 0;
-static long subscription_count = 0;
-static long client_msg_count = 0;
+స్థిరరాశి గుర్తులేని అక్షరం magic[15] = {0x00, 0xB5, 0x00, 'm', 'o', 's', 'q', 'u', 'i', 't', 't', 'o', ' ', 'd', 'b'};
+స్థిర దీర్ఘ పునాది_సందేశం_లెక్క = 0;
+స్థిర దీర్ఘ retained_లెక్క = 0;
+స్థిర దీర్ఘ client_లెక్క = 0;
+స్థిర దీర్ఘ subscription_లెక్క = 0;
+స్థిర దీర్ఘ client_సందేశం_లెక్క = 0;
 
-static int persist__restore_sub(const struct mosquitto_subscription *sub);
+స్థిర పూర్ణాంకం persist__restore_sub(స్థిరరాశి నిర్మాణం mosquitto_subscription *sub);
 
-static struct mosquitto *persist__find_or_add_context(const char *clientid, uint16_t last_mid)
+స్థిర నిర్మాణం mosquitto *persist_కనుగొను_or_కూడు_context(స్థిరరాశి అక్షరం *clientid, uint16_t చివరి_mid)
 {
-	struct mosquitto *context;
+	నిర్మాణం mosquitto *context;
 
-	if(!clientid){
-		return NULL;
+	ఒకవేళ(!clientid){
+		తిరిగి ఖాళీ;
 	}
 
-	context = NULL;
-	HASH_FIND(hh_id, db.contexts_by_id, clientid, strlen(clientid), context);
-	if(!context){
+	context = ఖాళీ;
+	HASH_కనుగొను(hh_id, db.contexts_by_id, clientid, అక్షరశ్రేణి_పొడవు(clientid), context);
+	ఒకవేళ(!context){
 		context = context__init();
-		if(!context){
-			return NULL;
+		ఒకవేళ(!context){
+			తిరిగి ఖాళీ;
 		}
 		context->id = mosquitto_strdup(clientid);
-		if(!context->id){
+		ఒకవేళ(!context->id){
 			mosquitto_FREE(context);
-			return NULL;
+			తిరిగి ఖాళీ;
 		}
 
-		context->clean_start = false;
+		context->clean_ప్రారంభం = false;
 
-		context__add_to_by_id(context);
+		context_కూడు_గమ్యం_by_id(context);
 	}
-	if(last_mid){
-		context->last_mid = last_mid;
+	ఒకవేళ(చివరి_mid){
+		context->చివరి_mid = చివరి_mid;
 	}
-	return context;
+	తిరిగి context;
 }
 
 
-int persist__read_string_len(FILE *db_fptr, char **str, uint16_t len)
+పూర్ణాంకం persist__read_string_len(FILE *db_fptr, అక్షరం **str, uint16_t len)
 {
-	char *s = NULL;
+	అక్షరం *s = ఖాళీ;
 
-	if(len){
+	ఒకవేళ(len){
 		s = mosquitto_malloc(len+1U);
-		if(!s){
-			log__printf(NULL, MOSQ_LOG_ERR, "Error: Out of memory.");
-			return MOSQ_ERR_NOMEM;
+		ఒకవేళ(!s){
+			log__printf(ఖాళీ, MOSQ_LOG_ERR, "Error: Out of memory.");
+			తిరిగి MOSQ_ERR_NOMEM;
 		}
-		if(fread(s, 1, len, db_fptr) != len){
+		ఒకవేళ(fread(s, 1, len, db_fptr) != len){
 			mosquitto_FREE(s);
-			return MOSQ_ERR_NOMEM;
+			తిరిగి MOSQ_ERR_NOMEM;
 		}
 		s[len] = '\0';
 	}
 
 	*str = s;
-	return MOSQ_ERR_SUCCESS;
+	తిరిగి MOSQ_ERR_SUCCESS;
 }
 
 
-int persist__read_string(FILE *db_fptr, char **str)
+పూర్ణాంకం persist__read_string(FILE *db_fptr, అక్షరం **str)
 {
 	uint16_t i16temp;
 	uint16_t slen;
 
-	if(fread(&i16temp, 1, sizeof(uint16_t), db_fptr) != sizeof(uint16_t)){
-		return MOSQ_ERR_INVAL;
+	ఒకవేళ(fread(&i16temp, 1, పరిమాణం(uint16_t), db_fptr) != పరిమాణం(uint16_t)){
+		తిరిగి MOSQ_ERR_INVAL;
 	}
 
 	slen = ntohs(i16temp);
-	return persist__read_string_len(db_fptr, str, slen);
+	తిరిగి persist__read_string_len(db_fptr, str, slen);
 }
 
 
-static int persist__client_msg_restore(struct P_client_msg *chunk)
+స్థిర పూర్ణాంకం persist_client_సందేశం_restore(నిర్మాణం P_client_సందేశం *chunk)
 {
-	struct mosquitto__client_msg *cmsg;
-	struct mosquitto__base_msg *msg;
-	struct mosquitto *context;
-	struct mosquitto_msg_data *msg_data;
+	నిర్మాణం mosquitto_client_సందేశం *cmsg;
+	నిర్మాణం mosquitto_పునాది_సందేశం *సందేశం;
+	నిర్మాణం mosquitto *context;
+	నిర్మాణం mosquitto_సందేశం_దత్తాంశం *సందేశం_దత్తాంశం;
 
-	HASH_FIND(hh, db.msg_store, &chunk->F.store_id, sizeof(chunk->F.store_id), msg);
-	if(!msg){
+	HASH_కనుగొను(hh, db.సందేశం_store, &chunk->F.store_id, పరిమాణం(chunk->F.store_id), సందేశం);
+	ఒకవేళ(!సందేశం){
 		/* Can't find message - probably expired */
-		return MOSQ_ERR_SUCCESS;
+		తిరిగి MOSQ_ERR_SUCCESS;
 	}
 
-	context = persist__find_or_add_context(chunk->clientid, 0);
-	if(!context){
-		log__printf(NULL, MOSQ_LOG_WARNING, "Warning: Persistence file contains client message with no matching client. File may be corrupt.");
-		return 0;
+	context = persist_కనుగొను_or_కూడు_context(chunk->clientid, 0);
+	ఒకవేళ(!context){
+		log__printf(ఖాళీ, MOSQ_LOG_WARNING, "Warning: Persistence file contains client message with no matching client. File may be corrupt.");
+		తిరిగి 0;
 	}
 
-	cmsg = mosquitto_calloc(1, sizeof(struct mosquitto__client_msg));
-	if(!cmsg){
-		log__printf(NULL, MOSQ_LOG_ERR, "Error: Out of memory.");
-		return MOSQ_ERR_NOMEM;
+	cmsg = mosquitto_calloc(1, పరిమాణం(నిర్మాణం mosquitto_client_సందేశం));
+	ఒకవేళ(!cmsg){
+		log__printf(ఖాళీ, MOSQ_LOG_ERR, "Error: Out of memory.");
+		తిరిగి MOSQ_ERR_NOMEM;
 	}
 
-	cmsg->next = NULL;
-	cmsg->base_msg = NULL;
-	cmsg->data.cmsg_id = ++context->last_cmsg_id;
-	cmsg->data.mid = chunk->F.mid;
-	cmsg->data.qos = chunk->F.qos;
-	cmsg->data.retain = (chunk->F.retain_dup&0xF0)>>4;
-	cmsg->data.direction = chunk->F.direction;
-	cmsg->data.state = chunk->F.state;
-	cmsg->data.dup = chunk->F.retain_dup&0x0F;
-	cmsg->data.subscription_identifier = chunk->subscription_identifier;
+	cmsg->తదుపరి = ఖాళీ;
+	cmsg->పునాది_సందేశం = ఖాళీ;
+	cmsg->దత్తాంశం.cmsg_id = ++context->చివరి_cmsg_id;
+	cmsg->దత్తాంశం.mid = chunk->F.mid;
+	cmsg->దత్తాంశం.qos = chunk->F.qos;
+	cmsg->దత్తాంశం.retain = (chunk->F.retain_dup&0xF0)>>4;
+	cmsg->దత్తాంశం.direction = chunk->F.direction;
+	cmsg->దత్తాంశం.state = chunk->F.state;
+	cmsg->దత్తాంశం.dup = chunk->F.retain_dup&0x0F;
+	cmsg->దత్తాంశం.subscription_identifier = chunk->subscription_identifier;
 
-	cmsg->base_msg = msg;
-	db__msg_store_ref_inc(cmsg->base_msg);
+	cmsg->పునాది_సందేశం = సందేశం;
+	db_సందేశం_store_ref_inc(cmsg->పునాది_సందేశం);
 
-	if(cmsg->data.direction == mosq_md_out){
-		msg_data = &context->msgs_out;
-	}else{
-		msg_data = &context->msgs_in;
+	ఒకవేళ(cmsg->దత్తాంశం.direction == mosq_md_బహిర్గతం){
+		సందేశం_దత్తాంశం = &context->msgs_బహిర్గతం;
+	}లేకపోతే{
+		సందేశం_దత్తాంశం = &context->msgs_లోపల;
 	}
 
-	if(chunk->F.state == mosq_ms_queued || (chunk->F.qos > 0 && msg_data->inflight_quota == 0)){
-		DL_APPEND(msg_data->queued, cmsg);
-		db__msg_add_to_queued_stats(msg_data, cmsg);
-	}else{
-		DL_APPEND(msg_data->inflight, cmsg);
-		if(chunk->F.qos > 0 && msg_data->inflight_quota > 0){
-			msg_data->inflight_quota--;
+	ఒకవేళ(chunk->F.state == mosq_ms_queued || (chunk->F.qos > 0 && సందేశం_దత్తాంశం->inflight_quota == 0)){
+		DL_APPEND(సందేశం_దత్తాంశం->queued, cmsg);
+		db_సందేశం_కూడు_గమ్యం_queued_stats(సందేశం_దత్తాంశం, cmsg);
+	}లేకపోతే{
+		DL_APPEND(సందేశం_దత్తాంశం->inflight, cmsg);
+		ఒకవేళ(chunk->F.qos > 0 && సందేశం_దత్తాంశం->inflight_quota > 0){
+			సందేశం_దత్తాంశం->inflight_quota--;
 		}
-		db__msg_add_to_inflight_stats(msg_data, cmsg);
+		db_సందేశం_కూడు_గమ్యం_inflight_stats(సందేశం_దత్తాంశం, cmsg);
 	}
 
-	return MOSQ_ERR_SUCCESS;
+	తిరిగి MOSQ_ERR_SUCCESS;
 }
 
 
-static int persist__client_chunk_restore(FILE *db_fptr)
+స్థిర పూర్ణాంకం persist__client_chunk_restore(FILE *db_fptr)
 {
-	int rc = 0;
-	struct mosquitto *context;
-	struct P_client chunk;
+	పూర్ణాంకం rc = 0;
+	నిర్మాణం mosquitto *context;
+	నిర్మాణం P_client chunk;
 
-	memset(&chunk, 0, sizeof(struct P_client));
+	memset(&chunk, 0, పరిమాణం(నిర్మాణం P_client));
 
-	if(db_version == 6 || db_version == 5){
-		rc = persist__chunk_client_read_v56(db_fptr, &chunk, db_version);
-	}else{
-		rc = persist__chunk_client_read_v234(db_fptr, &chunk, db_version);
+	ఒకవేళ(db_సంస్కరణ == 6 || db_సంస్కరణ == 5){
+		rc = persist__chunk_client_read_v56(db_fptr, &chunk, db_సంస్కరణ);
+	}లేకపోతే{
+		rc = persist__chunk_client_read_v234(db_fptr, &chunk, db_సంస్కరణ);
 	}
-	if(rc > 0){
-		return rc;
-	}else if(rc < 0){
+	ఒకవేళ(rc > 0){
+		తిరిగి rc;
+	}లేకపోతే ఒకవేళ(rc < 0){
 		/* Client not loaded, but otherwise not an error */
-		log__printf(NULL, MOSQ_LOG_WARNING, "Warning: Empty client entry found in persistence database, it may be corrupt.");
-		return MOSQ_ERR_SUCCESS;
+		log__printf(ఖాళీ, MOSQ_LOG_WARNING, "Warning: Empty client entry found in persistence database, it may be corrupt.");
+		తిరిగి MOSQ_ERR_SUCCESS;
 	}
 
-	context = persist__find_or_add_context(chunk.clientid, chunk.F.last_mid);
-	if(context){
-		context->session_expiry_time = chunk.F.session_expiry_time;
+	context = persist_కనుగొను_or_కూడు_context(chunk.clientid, chunk.F.చివరి_mid);
+	ఒకవేళ(context){
+		context->session_expiry_సమయం = chunk.F.session_expiry_సమయం;
 		context->session_expiry_interval = chunk.F.session_expiry_interval;
-		if(chunk.username && !context->username){
+		ఒకవేళ(chunk.username && !context->username){
 			/* username is not freed here, it is now owned by context */
 			context->username = chunk.username;
-			chunk.username = NULL;
+			chunk.username = ఖాళీ;
 		}
 		/* in per_listener_settings mode, try to find the listener by persisted port */
-		if(db.config->per_listener_settings && !context->listener && chunk.F.listener_port > 0){
-			for(int i=0; i < db.config->listener_count; i++){
-				if(db.config->listeners[i].port == chunk.F.listener_port){
+		ఒకవేళ(db.config->చొప్పున_listener_settings && !context->listener && chunk.F.listener_పోర్టు > 0){
+			కొరకు(పూర్ణాంకం i=0; i < db.config->listener_లెక్క; i++){
+				ఒకవేళ(db.config->listeners[i].పోర్టు == chunk.F.listener_పోర్టు){
 					context->listener = &db.config->listeners[i];
-					break;
+					ఆపు;
 				}
 			}
 		}
-		session_expiry__add_from_persistence(context, chunk.F.session_expiry_time);
-	}else{
+		session_expiry_కూడు_from_persistence(context, chunk.F.session_expiry_సమయం);
+	}లేకపోతే{
 		rc = 1;
 	}
 
 	mosquitto_FREE(chunk.clientid);
 	mosquitto_FREE(chunk.username);
-	if(rc == 0){
-		client_count++;
+	ఒకవేళ(rc == 0){
+		client_లెక్క++;
 	}
-	return rc;
+	తిరిగి rc;
 }
 
 
-static int persist__client_msg_chunk_restore(FILE *db_fptr, uint32_t length)
+స్థిర పూర్ణాంకం persist_client_సందేశం_chunk_restore(FILE *db_fptr, uint32_t నిడివి)
 {
-	struct P_client_msg chunk;
-	int rc;
+	నిర్మాణం P_client_సందేశం chunk;
+	పూర్ణాంకం rc;
 
-	memset(&chunk, 0, sizeof(struct P_client_msg));
+	memset(&chunk, 0, పరిమాణం(నిర్మాణం P_client_సందేశం));
 
-	if(db_version == 6 || db_version == 5){
-		rc = persist__chunk_client_msg_read_v56(db_fptr, &chunk, length);
-	}else{
-		rc = persist__chunk_client_msg_read_v234(db_fptr, &chunk);
+	ఒకవేళ(db_సంస్కరణ == 6 || db_సంస్కరణ == 5){
+		rc = persist_chunk_client_సందేశం_read_v56(db_fptr, &chunk, నిడివి);
+	}లేకపోతే{
+		rc = persist_chunk_client_సందేశం_read_v234(db_fptr, &chunk);
 	}
-	if(rc){
-		return rc;
+	ఒకవేళ(rc){
+		తిరిగి rc;
 	}
 
-	rc = persist__client_msg_restore(&chunk);
+	rc = persist_client_సందేశం_restore(&chunk);
 	mosquitto_FREE(chunk.clientid);
 
-	if(rc == 0){
-		client_msg_count++;
+	ఒకవేళ(rc == 0){
+		client_సందేశం_లెక్క++;
 	}
-	return rc;
+	తిరిగి rc;
 }
 
 
-static int persist__base_msg_chunk_restore(FILE *db_fptr, uint32_t length)
+స్థిర పూర్ణాంకం persist_పునాది_సందేశం_chunk_restore(FILE *db_fptr, uint32_t నిడివి)
 {
-	struct P_base_msg chunk;
-	struct mosquitto__base_msg *base_msg = NULL;
-	int64_t message_expiry_interval64;
-	uint32_t message_expiry_interval;
-	uint32_t *p_message_expiry_interval = NULL;
-	int rc = 0;
+	నిర్మాణం P_పునాది_సందేశం chunk;
+	నిర్మాణం mosquitto_పునాది_సందేశం *పునాది_సందేశం = ఖాళీ;
+	int64_t సందేశం_expiry_interval64;
+	uint32_t సందేశం_expiry_interval;
+	uint32_t *p_సందేశం_expiry_interval = ఖాళీ;
+	పూర్ణాంకం rc = 0;
 
-	memset(&chunk, 0, sizeof(struct P_base_msg));
+	memset(&chunk, 0, పరిమాణం(నిర్మాణం P_పునాది_సందేశం));
 
-	if(db_version == 6 || db_version == 5){
-		rc = persist__chunk_base_msg_read_v56(db_fptr, &chunk, length);
-	}else{
-		rc = persist__chunk_base_msg_read_v234(db_fptr, &chunk, db_version);
+	ఒకవేళ(db_సంస్కరణ == 6 || db_సంస్కరణ == 5){
+		rc = persist_chunk_పునాది_సందేశం_read_v56(db_fptr, &chunk, నిడివి);
+	}లేకపోతే{
+		rc = persist_chunk_పునాది_సందేశం_read_v234(db_fptr, &chunk, db_సంస్కరణ);
 	}
-	if(rc){
-		return rc;
+	ఒకవేళ(rc){
+		తిరిగి rc;
 	}
-	if(chunk.F.topic_len == 0){
+	ఒకవేళ(chunk.F.topic_len == 0){
 		rc = MOSQ_ERR_INVAL;
-		goto cleanup;
+		వెళ్ళు cleanup;
 	}
 
-	if(chunk.F.source_port){
-		for(int i=0; i<db.config->listener_count; i++){
-			if(db.config->listeners[i].port == chunk.F.source_port){
-				chunk.source.listener = &db.config->listeners[i];
-				break;
+	ఒకవేళ(chunk.F.ఆధారం_పోర్టు){
+		కొరకు(పూర్ణాంకం i=0; i<db.config->listener_లెక్క; i++){
+			ఒకవేళ(db.config->listeners[i].పోర్టు == chunk.F.ఆధారం_పోర్టు){
+				chunk.ఆధారం.listener = &db.config->listeners[i];
+				ఆపు;
 			}
 		}
 	}
 
-	if(chunk.F.expiry_time > 0){
-		message_expiry_interval64 = chunk.F.expiry_time - time(NULL);
-		if(message_expiry_interval64 < 0 || message_expiry_interval64 > UINT32_MAX){
+	ఒకవేళ(chunk.F.expiry_సమయం > 0){
+		సందేశం_expiry_interval64 = chunk.F.expiry_సమయం - సమయం(ఖాళీ);
+		ఒకవేళ(సందేశం_expiry_interval64 < 0 || సందేశం_expiry_interval64 > UINT32_MAX){
 			/* Expired message */
 			rc = MOSQ_ERR_SUCCESS;
-			goto cleanup;
-		}else{
-			message_expiry_interval = (uint32_t)message_expiry_interval64;
+			వెళ్ళు cleanup;
+		}లేకపోతే{
+			సందేశం_expiry_interval = (uint32_t)సందేశం_expiry_interval64;
 		}
-		p_message_expiry_interval = &message_expiry_interval;
+		p_సందేశం_expiry_interval = &సందేశం_expiry_interval;
 	}
 
-	base_msg = mosquitto_calloc(1, sizeof(struct mosquitto__base_msg));
-	if(base_msg == NULL){
-		log__printf(NULL, MOSQ_LOG_ERR, "Error: Out of memory.");
+	పునాది_సందేశం = mosquitto_calloc(1, పరిమాణం(నిర్మాణం mosquitto_పునాది_సందేశం));
+	ఒకవేళ(పునాది_సందేశం == ఖాళీ){
+		log__printf(ఖాళీ, MOSQ_LOG_ERR, "Error: Out of memory.");
 		rc = MOSQ_ERR_NOMEM;
-		goto cleanup;
+		వెళ్ళు cleanup;
 	}
 
-	base_msg->data.store_id = chunk.F.store_id;
-	base_msg->data.source_mid = chunk.F.source_mid;
-	base_msg->data.topic = chunk.topic;
-	base_msg->data.qos = chunk.F.qos;
-	base_msg->data.payloadlen = chunk.F.payloadlen;
-	base_msg->data.retain = chunk.F.retain;
-	base_msg->data.properties = chunk.properties;
-	base_msg->data.payload = chunk.payload;
-	base_msg->source_listener = chunk.source.listener;
+	పునాది_సందేశం->దత్తాంశం.store_id = chunk.F.store_id;
+	పునాది_సందేశం->దత్తాంశం.ఆధారం_mid = chunk.F.ఆధారం_mid;
+	పునాది_సందేశం->దత్తాంశం.topic = chunk.topic;
+	పునాది_సందేశం->దత్తాంశం.qos = chunk.F.qos;
+	పునాది_సందేశం->దత్తాంశం.payloadlen = chunk.F.payloadlen;
+	పునాది_సందేశం->దత్తాంశం.retain = chunk.F.retain;
+	పునాది_సందేశం->దత్తాంశం.properties = chunk.properties;
+	పునాది_సందేశం->దత్తాంశం.payload = chunk.payload;
+	పునాది_సందేశం->ఆధారం_listener = chunk.ఆధారం.listener;
 
-	rc = db__message_store(&chunk.source, base_msg, p_message_expiry_interval,
+	rc = db_సందేశం_store(&chunk.ఆధారం, పునాది_సందేశం, p_సందేశం_expiry_interval,
 			mosq_mo_client);
 
-	mosquitto_FREE(chunk.source.id);
-	mosquitto_FREE(chunk.source.username);
+	mosquitto_FREE(chunk.ఆధారం.id);
+	mosquitto_FREE(chunk.ఆధారం.username);
 
-	if(rc == MOSQ_ERR_SUCCESS){
-		base_msg_count++;
-		return MOSQ_ERR_SUCCESS;
-	}else{
-		return rc;
+	ఒకవేళ(rc == MOSQ_ERR_SUCCESS){
+		పునాది_సందేశం_లెక్క++;
+		తిరిగి MOSQ_ERR_SUCCESS;
+	}లేకపోతే{
+		తిరిగి rc;
 	}
 cleanup:
-	mosquitto_FREE(chunk.source.id);
-	mosquitto_FREE(chunk.source.username);
+	mosquitto_FREE(chunk.ఆధారం.id);
+	mosquitto_FREE(chunk.ఆధారం.username);
 	mosquitto_FREE(chunk.topic);
 	mosquitto_FREE(chunk.payload);
-	return rc;
+	తిరిగి rc;
 }
 
 
-static int persist__retain_chunk_restore(FILE *db_fptr)
+స్థిర పూర్ణాంకం persist__retain_chunk_restore(FILE *db_fptr)
 {
-	struct mosquitto__base_msg *base_msg;
-	struct P_retain chunk;
-	int rc;
-	char **split_topics;
-	char *local_topic;
+	నిర్మాణం mosquitto_పునాది_సందేశం *పునాది_సందేశం;
+	నిర్మాణం P_retain chunk;
+	పూర్ణాంకం rc;
+	అక్షరం **విభజించు_topics;
+	అక్షరం *local_topic;
 
-	memset(&chunk, 0, sizeof(struct P_retain));
+	memset(&chunk, 0, పరిమాణం(నిర్మాణం P_retain));
 
-	if(db_version == 6 || db_version == 5){
+	ఒకవేళ(db_సంస్కరణ == 6 || db_సంస్కరణ == 5){
 		rc = persist__chunk_retain_read_v56(db_fptr, &chunk);
-	}else{
+	}లేకపోతే{
 		rc = persist__chunk_retain_read_v234(db_fptr, &chunk);
 	}
-	if(rc){
-		return rc;
+	ఒకవేళ(rc){
+		తిరిగి rc;
 	}
 
-	HASH_FIND(hh, db.msg_store, &chunk.F.store_id, sizeof(chunk.F.store_id), base_msg);
-	if(base_msg){
-		rc = sub__topic_tokenise(base_msg->data.topic, &local_topic, &split_topics, NULL);
-		if(rc){
-			return rc;
+	HASH_కనుగొను(hh, db.సందేశం_store, &chunk.F.store_id, పరిమాణం(chunk.F.store_id), పునాది_సందేశం);
+	ఒకవేళ(పునాది_సందేశం){
+		rc = sub__topic_tokenise(పునాది_సందేశం->దత్తాంశం.topic, &local_topic, &విభజించు_topics, ఖాళీ);
+		ఒకవేళ(rc){
+			తిరిగి rc;
 		}
-		retain__store(base_msg->data.topic, base_msg, split_topics, true);
+		retain__store(పునాది_సందేశం->దత్తాంశం.topic, పునాది_సందేశం, విభజించు_topics, true);
 		mosquitto_FREE(local_topic);
-		mosquitto_FREE(split_topics);
-		retained_count++;
-	}else{
+		mosquitto_FREE(విభజించు_topics);
+		retained_లెక్క++;
+	}లేకపోతే{
 		/* Can't find the message - probably expired */
 	}
-	return MOSQ_ERR_SUCCESS;
+	తిరిగి MOSQ_ERR_SUCCESS;
 }
 
 
-static int persist__sub_chunk_restore(FILE *db_fptr)
+స్థిర పూర్ణాంకం persist__sub_chunk_restore(FILE *db_fptr)
 {
-	struct P_sub chunk;
-	int rc;
-	struct mosquitto_subscription sub;
+	నిర్మాణం P_sub chunk;
+	పూర్ణాంకం rc;
+	నిర్మాణం mosquitto_subscription sub;
 
-	memset(&chunk, 0, sizeof(struct P_sub));
+	memset(&chunk, 0, పరిమాణం(నిర్మాణం P_sub));
 
-	if(db_version == 6 || db_version == 5){
+	ఒకవేళ(db_సంస్కరణ == 6 || db_సంస్కరణ == 5){
 		rc = persist__chunk_sub_read_v56(db_fptr, &chunk);
-	}else{
+	}లేకపోతే{
 		rc = persist__chunk_sub_read_v234(db_fptr, &chunk);
 	}
-	if(rc){
-		return rc;
+	ఒకవేళ(rc){
+		తిరిగి rc;
 	}
 
 	sub.clientid = chunk.clientid;
@@ -398,200 +398,200 @@ static int persist__sub_chunk_restore(FILE *db_fptr)
 
 	mosquitto_FREE(chunk.clientid);
 	mosquitto_FREE(chunk.topic);
-	if(rc == 0){
-		subscription_count++;
+	ఒకవేళ(rc == 0){
+		subscription_లెక్క++;
 	}
 
-	return rc;
+	తిరిగి rc;
 }
 
 
-int persist__chunk_header_read(FILE *db_fptr, uint32_t *chunk, uint32_t *length)
+పూర్ణాంకం persist_chunk_శీర్షిక_read(FILE *db_fptr, uint32_t *chunk, uint32_t *నిడివి)
 {
-	if(db_version == 6 || db_version == 5){
-		return persist__chunk_header_read_v56(db_fptr, chunk, length);
-	}else{
-		return persist__chunk_header_read_v234(db_fptr, chunk, length);
+	ఒకవేళ(db_సంస్కరణ == 6 || db_సంస్కరణ == 5){
+		తిరిగి persist_chunk_శీర్షిక_read_v56(db_fptr, chunk, నిడివి);
+	}లేకపోతే{
+		తిరిగి persist_chunk_శీర్షిక_read_v234(db_fptr, chunk, నిడివి);
 	}
 }
 
 
-int persist__restore(void)
+పూర్ణాంకం persist__restore(శూన్య)
 {
 	FILE *fptr;
-	char header[15];
-	int rc = 0;
-	uint32_t crc;
+	అక్షరం శీర్షిక[15];
+	పూర్ణాంకం rc = 0;
+	uint32_t చక్రీయ_తనిఖీ;
 	uint32_t i32temp;
-	uint32_t chunk, length;
+	uint32_t chunk, నిడివి;
 	size_t rlen;
-	char *err;
-	struct PF_cfg cfg_chunk;
+	అక్షరం *err;
+	నిర్మాణం PF_cfg cfg_chunk;
 
-	assert(db.config);
+	ప్రతిజ్ఞా(db.config);
 
-	if(!db.config->persistence || db.config->persistence_filepath == NULL){
-		return MOSQ_ERR_SUCCESS;
+	ఒకవేళ(!db.config->persistence || db.config->persistence_filepath == ఖాళీ){
+		తిరిగి MOSQ_ERR_SUCCESS;
 	}
 
-	db.msg_store = NULL;
-	base_msg_count = 0;
-	retained_count = 0;
-	client_count = 0;
-	subscription_count = 0;
-	client_msg_count = 0;
+	db.సందేశం_store = ఖాళీ;
+	పునాది_సందేశం_లెక్క = 0;
+	retained_లెక్క = 0;
+	client_లెక్క = 0;
+	subscription_లెక్క = 0;
+	client_సందేశం_లెక్క = 0;
 
 	fptr = mosquitto_fopen(db.config->persistence_filepath, "rb", true);
-	if(fptr == NULL){
-		return MOSQ_ERR_SUCCESS;
+	ఒకవేళ(fptr == ఖాళీ){
+		తిరిగి MOSQ_ERR_SUCCESS;
 	}
-	rlen = fread(&header, 1, 15, fptr);
-	if(rlen == 0){
+	rlen = fread(&శీర్షిక, 1, 15, fptr);
+	ఒకవేళ(rlen == 0){
 		fclose(fptr);
-		log__printf(NULL, MOSQ_LOG_WARNING, "Warning: Persistence file is empty.");
-		return 0;
-	}else if(rlen != 15){
-		goto error;
+		log__printf(ఖాళీ, MOSQ_LOG_WARNING, "Warning: Persistence file is empty.");
+		తిరిగి 0;
+	}లేకపోతే ఒకవేళ(rlen != 15){
+		వెళ్ళు error;
 	}
-	if(!memcmp(header, magic, 15)){
+	ఒకవేళ(!memcmp(శీర్షిక, magic, 15)){
 		/* Restore DB as normal */
-		read_e(fptr, &crc, sizeof(uint32_t));
-		read_e(fptr, &i32temp, sizeof(uint32_t));
-		db_version = ntohl(i32temp);
+		read_e(fptr, &చక్రీయ_తనిఖీ, పరిమాణం(uint32_t));
+		read_e(fptr, &i32temp, పరిమాణం(uint32_t));
+		db_సంస్కరణ = ntohl(i32temp);
 		/* IMPORTANT - this is where compatibility checks are made.
 		 * Is your DB change still compatible with previous versions?
 		 */
-		if(db_version != MOSQ_DB_VERSION){
-			if(db_version == 5){
+		ఒకవేళ(db_సంస్కరణ != MOSQ_DB_సంస్కరణ){
+			ఒకవేళ(db_సంస్కరణ == 5){
 				/* Addition of username and listener_port to client chunk in v6 */
-			}else if(db_version == 4){
-			}else if(db_version == 3){
+			}లేకపోతే ఒకవేళ(db_సంస్కరణ == 4){
+			}లేకపోతే ఒకవేళ(db_సంస్కరణ == 3){
 				/* Addition of source_username and source_port to msg_store chunk in v4, v1.5.6 */
-			}else if(db_version == 2){
+			}లేకపోతే ఒకవేళ(db_సంస్కరణ == 2){
 				/* Addition of disconnect_t to client chunk in v3. */
-			}else{
+			}లేకపోతే{
 				fclose(fptr);
-				log__printf(NULL, MOSQ_LOG_ERR, "Error: Unsupported persistent database format version %d (need version %d).", db_version, MOSQ_DB_VERSION);
-				return MOSQ_ERR_INVAL;
+				log__printf(ఖాళీ, MOSQ_LOG_ERR, "Error: Unsupported persistent database format version %d (need version %d).", db_సంస్కరణ, MOSQ_DB_సంస్కరణ);
+				తిరిగి MOSQ_ERR_INVAL;
 			}
 		}
 
-		while(persist__chunk_header_read(fptr, &chunk, &length) == MOSQ_ERR_SUCCESS){
-			switch(chunk){
-				case DB_CHUNK_CFG:
-					if(db_version == 6 || db_version == 5){
+		అయితే(persist_chunk_శీర్షిక_read(fptr, &chunk, &నిడివి) == MOSQ_ERR_SUCCESS){
+			ఎంపిక(chunk){
+				స్థితి DB_CHUNK_CFG:
+					ఒకవేళ(db_సంస్కరణ == 6 || db_సంస్కరణ == 5){
 						rc = persist__chunk_cfg_read_v56(fptr, &cfg_chunk);
-						if(rc){
+						ఒకవేళ(rc){
 							fclose(fptr);
-							return rc;
+							తిరిగి rc;
 						}
-					}else{
+					}లేకపోతే{
 						rc = persist__chunk_cfg_read_v234(fptr, &cfg_chunk);
-						if(rc){
+						ఒకవేళ(rc){
 							fclose(fptr);
-							return rc;
+							తిరిగి rc;
 						}
 					}
-					if(cfg_chunk.dbid_size != sizeof(dbid_t)){
-						log__printf(NULL, MOSQ_LOG_ERR, "Error: Incompatible database configuration (dbid size is %d bytes, expected %lu)",
-								cfg_chunk.dbid_size, (unsigned long)sizeof(dbid_t));
+					ఒకవేళ(cfg_chunk.dbid_కొలత != పరిమాణం(dbid_t)){
+						log__printf(ఖాళీ, MOSQ_LOG_ERR, "Error: Incompatible database configuration (dbid size is %d bytes, expected %lu)",
+								cfg_chunk.dbid_కొలత, (గుర్తులేని దీర్ఘ)పరిమాణం(dbid_t));
 						fclose(fptr);
-						return MOSQ_ERR_INVAL;
+						తిరిగి MOSQ_ERR_INVAL;
 					}
-					db.last_db_id = cfg_chunk.last_db_id;
-					break;
+					db.చివరి_db_id = cfg_chunk.చివరి_db_id;
+					ఆపు;
 
-				case DB_CHUNK_BASE_MSG:
-					rc = persist__base_msg_chunk_restore(fptr, length);
-					if(rc){
+				స్థితి DB_CHUNK_పునాది_సందేశం:
+					rc = persist_పునాది_సందేశం_chunk_restore(fptr, నిడివి);
+					ఒకవేళ(rc){
 						fclose(fptr);
-						return rc;
+						తిరిగి rc;
 					}
-					break;
+					ఆపు;
 
-				case DB_CHUNK_CLIENT_MSG:
-					rc = persist__client_msg_chunk_restore(fptr, length);
-					if(rc){
+				స్థితి DB_CHUNK_CLIENT_సందేశం:
+					rc = persist_client_సందేశం_chunk_restore(fptr, నిడివి);
+					ఒకవేళ(rc){
 						fclose(fptr);
-						return rc;
+						తిరిగి rc;
 					}
-					break;
+					ఆపు;
 
-				case DB_CHUNK_RETAIN:
+				స్థితి DB_CHUNK_RETAIN:
 					rc = persist__retain_chunk_restore(fptr);
-					if(rc){
+					ఒకవేళ(rc){
 						fclose(fptr);
-						return rc;
+						తిరిగి rc;
 					}
-					break;
+					ఆపు;
 
-				case DB_CHUNK_SUB:
+				స్థితి DB_CHUNK_SUB:
 					rc = persist__sub_chunk_restore(fptr);
-					if(rc){
+					ఒకవేళ(rc){
 						fclose(fptr);
-						return rc;
+						తిరిగి rc;
 					}
-					break;
+					ఆపు;
 
-				case DB_CHUNK_CLIENT:
+				స్థితి DB_CHUNK_CLIENT:
 					rc = persist__client_chunk_restore(fptr);
-					if(rc){
+					ఒకవేళ(rc){
 						fclose(fptr);
-						return rc;
+						తిరిగి rc;
 					}
-					break;
+					ఆపు;
 
-				default:
-					log__printf(NULL, MOSQ_LOG_WARNING, "Warning: Unsupported chunk \"%d\" in persistent database file. Ignoring.", chunk);
-					if(fseek(fptr, length, SEEK_CUR) < 0){
+				అప్రమేయ:
+					log__printf(ఖాళీ, MOSQ_LOG_WARNING, "Warning: Unsupported chunk \"%d\" in persistent database file. Ignoring.", chunk);
+					ఒకవేళ(fseek(fptr, నిడివి, SEEK_CUR) < 0){
 						fclose(fptr);
-						return MOSQ_ERR_INVAL;
+						తిరిగి MOSQ_ERR_INVAL;
 					}
-					break;
+					ఆపు;
 			}
 		}
-	}else{
-		log__printf(NULL, MOSQ_LOG_ERR, "Error: Unable to restore persistent database. Unrecognised file format.");
+	}లేకపోతే{
+		log__printf(ఖాళీ, MOSQ_LOG_ERR, "Error: Unable to restore persistent database. Unrecognised file format.");
 		rc = 1;
 	}
 
 	fclose(fptr);
 
-	log__printf(NULL, MOSQ_LOG_INFO, "Restored %ld base messages", base_msg_count);
-	log__printf(NULL, MOSQ_LOG_INFO, "Restored %ld retained messages", retained_count);
-	log__printf(NULL, MOSQ_LOG_INFO, "Restored %ld clients", client_count);
-	log__printf(NULL, MOSQ_LOG_INFO, "Restored %ld subscriptions", subscription_count);
-	log__printf(NULL, MOSQ_LOG_INFO, "Restored %ld client messages", client_msg_count);
+	log__printf(ఖాళీ, MOSQ_LOG_INFO, "Restored %ld base messages", పునాది_సందేశం_లెక్క);
+	log__printf(ఖాళీ, MOSQ_LOG_INFO, "Restored %ld retained messages", retained_లెక్క);
+	log__printf(ఖాళీ, MOSQ_LOG_INFO, "Restored %ld clients", client_లెక్క);
+	log__printf(ఖాళీ, MOSQ_LOG_INFO, "Restored %ld subscriptions", subscription_లెక్క);
+	log__printf(ఖాళీ, MOSQ_LOG_INFO, "Restored %ld client messages", client_సందేశం_లెక్క);
 
-	return rc;
+	తిరిగి rc;
 error:
 	err = strerror(errno);
-	log__printf(NULL, MOSQ_LOG_ERR, "Error: %s.", err);
-	if(fptr){
+	log__printf(ఖాళీ, MOSQ_LOG_ERR, "Error: %s.", err);
+	ఒకవేళ(fptr){
 		fclose(fptr);
 	}
-	return MOSQ_ERR_ERRNO;
+	తిరిగి MOSQ_ERR_ERRNO;
 }
 
 
-static int persist__restore_sub(const struct mosquitto_subscription *sub)
+స్థిర పూర్ణాంకం persist__restore_sub(స్థిరరాశి నిర్మాణం mosquitto_subscription *sub)
 {
-	struct mosquitto *context;
+	నిర్మాణం mosquitto *context;
 
-	if(!sub->clientid){
-		log__printf(NULL, MOSQ_LOG_WARNING, "Warning: Persistence found a subscription with no client id, ignoring.");
-		return MOSQ_ERR_SUCCESS;
+	ఒకవేళ(!sub->clientid){
+		log__printf(ఖాళీ, MOSQ_LOG_WARNING, "Warning: Persistence found a subscription with no client id, ignoring.");
+		తిరిగి MOSQ_ERR_SUCCESS;
 	}
-	if(!sub->topic_filter){
-		log__printf(NULL, MOSQ_LOG_WARNING, "Warning: Persistence found a subscription with no topic filter, ignoring.");
-		return MOSQ_ERR_SUCCESS;
+	ఒకవేళ(!sub->topic_filter){
+		log__printf(ఖాళీ, MOSQ_LOG_WARNING, "Warning: Persistence found a subscription with no topic filter, ignoring.");
+		తిరిగి MOSQ_ERR_SUCCESS;
 	}
 
-	context = persist__find_or_add_context(sub->clientid, 0);
-	if(!context){
-		return MOSQ_ERR_INVAL;
+	context = persist_కనుగొను_or_కూడు_context(sub->clientid, 0);
+	ఒకవేళ(!context){
+		తిరిగి MOSQ_ERR_INVAL;
 	}
-	return sub__add(context, sub);
+	తిరిగి sub_కూడు(context, sub);
 }
 
-#endif
+#అయితే_ముగింపు

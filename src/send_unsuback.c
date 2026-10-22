@@ -16,43 +16,43 @@ Contributors:
    Roger Light - initial implementation and documentation.
 */
 
-#include "config.h"
+#అన్తర్భావ "config.h"
 
-#include <assert.h>
+#అన్తర్భావ <assert.h>
 
-#include "mosquitto_broker_internal.h"
-#include "mosquitto/mqtt_protocol.h"
-#include "packet_mosq.h"
-#include "property_mosq.h"
-#include "sys_tree.h"
+#అన్తర్భావ "mosquitto_broker_internal.h"
+#అన్తర్భావ "mosquitto/mqtt_protocol.h"
+#అన్తర్భావ "packet_mosq.h"
+#అన్తర్భావ "property_mosq.h"
+#అన్తర్భావ "sys_tree.h"
 
 
-int send__unsuback(struct mosquitto *mosq, uint16_t mid, int reason_code_count, uint8_t *reason_codes, const mosquitto_property *properties)
+పూర్ణాంకం send__unsuback(నిర్మాణం mosquitto *mosq, uint16_t mid, పూర్ణాంకం reason_సంకేతం_లెక్క, uint8_t *reason_codes, స్థిరరాశి mosquitto_property *properties)
 {
-	struct mosquitto__packet *packet = NULL;
-	int rc;
-	uint32_t remaining_length;
+	నిర్మాణం mosquitto__packet *packet = ఖాళీ;
+	పూర్ణాంకం rc;
+	uint32_t మిగిలిన_నిడివి;
 
-	assert(mosq);
+	ప్రతిజ్ఞా(mosq);
 
-	remaining_length = 2;
-	if(mosq->protocol == mosq_p_mqtt5){
-		remaining_length += mosquitto_property_get_remaining_length(properties);
-		remaining_length += (uint32_t)reason_code_count;
+	మిగిలిన_నిడివి = 2;
+	ఒకవేళ(mosq->protocol == mosq_p_mqtt5){
+		మిగిలిన_నిడివి += mosquitto_property_get_మిగిలిన_నిడివి(properties);
+		మిగిలిన_నిడివి += (uint32_t)reason_సంకేతం_లెక్క;
 	}
 
-	rc = packet__alloc(&packet, CMD_UNSUBACK, remaining_length);
-	if(rc){
-		return rc;
+	rc = packet__alloc(&packet, CMD_UNSUBACK, మిగిలిన_నిడివి);
+	ఒకవేళ(rc){
+		తిరిగి rc;
 	}
 
 	packet__write_uint16(packet, mid);
 
-	if(mosq->protocol == mosq_p_mqtt5){
+	ఒకవేళ(mosq->protocol == mosq_p_mqtt5){
 		property__write_all(packet, properties, true);
-		packet__write_bytes(packet, reason_codes, (uint32_t)reason_code_count);
+		packet_write_బైట్లు(packet, reason_codes, (uint32_t)reason_సంకేతం_లెక్క);
 	}
 
-	metrics__int_inc(mosq_counter_mqtt_unsuback_sent, 1);
-	return packet__queue(mosq, packet);
+	metrics__int_inc(mosq_counter_mqtt_unsuback_పంపిన, 1);
+	తిరిగి packet_వరుస(mosq, packet);
 }

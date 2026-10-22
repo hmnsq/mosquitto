@@ -17,116 +17,116 @@ Contributors:
    Tatsuzo Osawa - Add epoll.
 */
 
-#include "mux.h"
+#అన్తర్భావ "mux.h"
 
 
-int mux__init(void)
+పూర్ణాంకం mux__init(శూన్య)
 {
-#ifdef WITH_EPOLL
-	return mux_epoll__init();
-#elif defined(WITH_KQUEUE)
-	return mux_kqueue__init();
-#else
-	return mux_poll__init();
-#endif
+#నిర్వచితమైతే WITH_EPOLL
+	తిరిగి mux_epoll__init();
+#లేదావేళ defined(WITH_KQUEUE)
+	తిరిగి mux_kqueue__init();
+#లేకపోతే
+	తిరిగి mux_poll__init();
+#అయితే_ముగింపు
 }
 
 
-int mux__add_listeners(struct mosquitto__listener_sock *listensock, int listensock_count)
+పూర్ణాంకం mux_కూడు_listeners(నిర్మాణం mosquitto__listener_sock *listensock, పూర్ణాంకం listensock_లెక్క)
 {
-#ifdef WITH_EPOLL
-	return mux_epoll__add_listeners(listensock, listensock_count);
-#elif defined(WITH_KQUEUE)
-	return mux_kqueue__add_listeners(listensock, listensock_count);
-#else
-	return mux_poll__add_listeners(listensock, listensock_count);
-#endif
+#నిర్వచితమైతే WITH_EPOLL
+	తిరిగి mux_epoll_కూడు_listeners(listensock, listensock_లెక్క);
+#లేదావేళ defined(WITH_KQUEUE)
+	తిరిగి mux_kqueue_కూడు_listeners(listensock, listensock_లెక్క);
+#లేకపోతే
+	తిరిగి mux_poll_కూడు_listeners(listensock, listensock_లెక్క);
+#అయితే_ముగింపు
 }
 
 
-int mux__delete_listeners(struct mosquitto__listener_sock *listensock, int listensock_count)
+పూర్ణాంకం mux__delete_listeners(నిర్మాణం mosquitto__listener_sock *listensock, పూర్ణాంకం listensock_లెక్క)
 {
-#ifdef WITH_EPOLL
-	return mux_epoll__delete_listeners(listensock, listensock_count);
-#elif defined(WITH_KQUEUE)
-	return mux_kqueue__delete_listeners(listensock, listensock_count);
-#else
-	return mux_poll__delete_listeners(listensock, listensock_count);
-#endif
+#నిర్వచితమైతే WITH_EPOLL
+	తిరిగి mux_epoll__delete_listeners(listensock, listensock_లెక్క);
+#లేదావేళ defined(WITH_KQUEUE)
+	తిరిగి mux_kqueue__delete_listeners(listensock, listensock_లెక్క);
+#లేకపోతే
+	తిరిగి mux_poll__delete_listeners(listensock, listensock_లెక్క);
+#అయితే_ముగింపు
 }
 
 
-int mux__add_out(struct mosquitto *context)
+పూర్ణాంకం mux_కూడు_బహిర్గతం(నిర్మాణం mosquitto *context)
 {
-#ifdef WITH_EPOLL
-	return mux_epoll__add_out(context);
-#elif defined(WITH_KQUEUE)
-	return mux_kqueue__add_out(context);
-#else
-	return mux_poll__add_out(context);
-#endif
+#నిర్వచితమైతే WITH_EPOLL
+	తిరిగి mux_epoll_కూడు_బహిర్గతం(context);
+#లేదావేళ defined(WITH_KQUEUE)
+	తిరిగి mux_kqueue_కూడు_బహిర్గతం(context);
+#లేకపోతే
+	తిరిగి mux_poll_కూడు_బహిర్గతం(context);
+#అయితే_ముగింపు
 }
 
 
-int mux__remove_out(struct mosquitto *context)
+పూర్ణాంకం mux_remove_బహిర్గతం(నిర్మాణం mosquitto *context)
 {
-#ifdef WITH_EPOLL
-	return mux_epoll__remove_out(context);
-#elif defined(WITH_KQUEUE)
-	return mux_kqueue__remove_out(context);
-#else
-	return mux_poll__remove_out(context);
-#endif
+#నిర్వచితమైతే WITH_EPOLL
+	తిరిగి mux_epoll_remove_బహిర్గతం(context);
+#లేదావేళ defined(WITH_KQUEUE)
+	తిరిగి mux_kqueue_remove_బహిర్గతం(context);
+#లేకపోతే
+	తిరిగి mux_poll_remove_బహిర్గతం(context);
+#అయితే_ముగింపు
 }
 
 
-int mux__new(struct mosquitto *context)
+పూర్ణాంకం mux__new(నిర్మాణం mosquitto *context)
 {
-#ifdef WITH_EPOLL
-	return mux_epoll__new(context);
-#elif defined(WITH_KQUEUE)
-	return mux_kqueue__new(context);
-#else
-	return mux_poll__new(context);
-#endif
+#నిర్వచితమైతే WITH_EPOLL
+	తిరిగి mux_epoll__new(context);
+#లేదావేళ defined(WITH_KQUEUE)
+	తిరిగి mux_kqueue__new(context);
+#లేకపోతే
+	తిరిగి mux_poll__new(context);
+#అయితే_ముగింపు
 }
 
 
-int mux__delete(struct mosquitto *context)
+పూర్ణాంకం mux__delete(నిర్మాణం mosquitto *context)
 {
-#ifdef WITH_EPOLL
-	return mux_epoll__delete(context);
-#elif defined(WITH_KQUEUE)
-	return mux_kqueue__delete(context);
-#else
-	return mux_poll__delete(context);
-#endif
+#నిర్వచితమైతే WITH_EPOLL
+	తిరిగి mux_epoll__delete(context);
+#లేదావేళ defined(WITH_KQUEUE)
+	తిరిగి mux_kqueue__delete(context);
+#లేకపోతే
+	తిరిగి mux_poll__delete(context);
+#అయితే_ముగింపు
 }
 
 
-int mux__handle(struct mosquitto__listener_sock *listensock, int listensock_count)
+పూర్ణాంకం mux__handle(నిర్మాణం mosquitto__listener_sock *listensock, పూర్ణాంకం listensock_లెక్క)
 {
-#ifdef WITH_EPOLL
-	UNUSED(listensock);
-	UNUSED(listensock_count);
-	return mux_epoll__handle();
-#elif defined(WITH_KQUEUE)
-	UNUSED(listensock);
-	UNUSED(listensock_count);
-	return mux_kqueue__handle();
-#else
-	return mux_poll__handle(listensock, listensock_count);
-#endif
+#నిర్వచితమైతే WITH_EPOLL
+	వాడని(listensock);
+	వాడని(listensock_లెక్క);
+	తిరిగి mux_epoll__handle();
+#లేదావేళ defined(WITH_KQUEUE)
+	వాడని(listensock);
+	వాడని(listensock_లెక్క);
+	తిరిగి mux_kqueue__handle();
+#లేకపోతే
+	తిరిగి mux_poll__handle(listensock, listensock_లెక్క);
+#అయితే_ముగింపు
 }
 
 
-int mux__cleanup(void)
+పూర్ణాంకం mux__cleanup(శూన్య)
 {
-#ifdef WITH_EPOLL
-	return mux_epoll__cleanup();
-#elif defined(WITH_KQUEUE)
-	return mux_kqueue__cleanup();
-#else
-	return mux_poll__cleanup();
-#endif
+#నిర్వచితమైతే WITH_EPOLL
+	తిరిగి mux_epoll__cleanup();
+#లేదావేళ defined(WITH_KQUEUE)
+	తిరిగి mux_kqueue__cleanup();
+#లేకపోతే
+	తిరిగి mux_poll__cleanup();
+#అయితే_ముగింపు
 }

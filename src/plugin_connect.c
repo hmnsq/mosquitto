@@ -16,33 +16,33 @@ Contributors:
    Roger Light - initial implementation and documentation.
 */
 
-#include "config.h"
+#అన్తర్భావ "config.h"
 
-#include "mosquitto_broker_internal.h"
-#include "mosquitto_internal.h"
-#include "utlist.h"
+#అన్తర్భావ "mosquitto_broker_internal.h"
+#అన్తర్భావ "mosquitto_internal.h"
+#అన్తర్భావ "utlist.h"
 
 
-static void plugin__handle_connect_single(struct mosquitto__security_options *opts, struct mosquitto *context)
+స్థిర శూన్య plugin__handle_connect_single(నిర్మాణం mosquitto__security_options *opts, నిర్మాణం mosquitto *context)
 {
-	struct mosquitto_evt_connect event_data;
-	struct mosquitto__callback *cb_base, *cb_next;
+	నిర్మాణం mosquitto_evt_connect event_దత్తాంశం;
+	నిర్మాణం mosquitto__callback *cb_పునాది, *cb_తదుపరి;
 
-	memset(&event_data, 0, sizeof(event_data));
-	event_data.client = context;
-	DL_FOREACH_SAFE(opts->plugin_callbacks.connect, cb_base, cb_next){
-		cb_base->cb(MOSQ_EVT_CONNECT, &event_data, cb_base->userdata);
+	memset(&event_దత్తాంశం, 0, పరిమాణం(event_దత్తాంశం));
+	event_దత్తాంశం.client = context;
+	DL_FOREACH_సురక్షిత(opts->plugin_callbacks.connect, cb_పునాది, cb_తదుపరి){
+		cb_పునాది->cb(MOSQ_EVT_CONNECT, &event_దత్తాంశం, cb_పునాది->userdata);
 	}
 }
 
 
-void plugin__handle_connect(struct mosquitto *context)
+శూన్య plugin__handle_connect(నిర్మాణం mosquitto *context)
 {
 	/* Global plugins */
 	plugin__handle_connect_single(&db.config->security_options, context);
 
 	/* Per listener plugins */
-	if(context->listener){
+	ఒకవేళ(context->listener){
 		plugin__handle_connect_single(context->listener->security_options, context);
 	}
 }

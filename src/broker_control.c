@@ -16,75 +16,75 @@ Contributors:
    Roger Light - initial implementation and documentation.
 */
 
-#include "config.h"
+#అన్తర్భావ "config.h"
 
-#include <cjson/cJSON.h>
-#include <errno.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <sys/stat.h>
-#include <utlist.h>
+#అన్తర్భావ <cjson/cJSON.h>
+#అన్తర్భావ <errno.h>
+#అన్తర్భావ <stdio.h>
+#అన్తర్భావ <stdlib.h>
+#అన్తర్భావ <string.h>
+#అన్తర్భావ <sys/stat.h>
+#అన్తర్భావ <utlist.h>
 
-#include "json_help.h"
-#include "mosquitto.h"
-#include "mosquitto_broker_internal.h"
-#include "mosquitto/broker.h"
-#include "mosquitto/broker_control.h"
-#include "mosquitto/broker_plugin.h"
-#include "mosquitto/mqtt_protocol.h"
+#అన్తర్భావ "json_help.h"
+#అన్తర్భావ "mosquitto.h"
+#అన్తర్భావ "mosquitto_broker_internal.h"
+#అన్తర్భావ "mosquitto/broker.h"
+#అన్తర్భావ "mosquitto/broker_control.h"
+#అన్తర్భావ "mosquitto/broker_plugin.h"
+#అన్తర్భావ "mosquitto/mqtt_protocol.h"
 
-static mosquitto_plugin_id_t plg_id;
-static int broker__handle_control(struct mosquitto_control_cmd *cmd, void *userdata);
+స్థిర mosquitto_plugin_id_t plg_id;
+స్థిర పూర్ణాంకం broker__handle_control(నిర్మాణం mosquitto_control_cmd *cmd, శూన్య *userdata);
 
 
-static int add_plugin_info(cJSON *j_plugins, mosquitto_plugin_id_t *pid)
+స్థిర పూర్ణాంకం కూడు_plugin_info(cJSON *j_plugins, mosquitto_plugin_id_t *pid)
 {
 	cJSON *j_plugin, *j_eps, *j_ep;
-	struct control_endpoint *ep;
+	నిర్మాణం control_endpoint *ep;
 
-	if(pid->plugin_name == NULL){
-		return MOSQ_ERR_SUCCESS;
+	ఒకవేళ(pid->plugin_name == ఖాళీ){
+		తిరిగి MOSQ_ERR_SUCCESS;
 	}
 
 	j_plugin = cJSON_CreateObject();
-	if(j_plugin == NULL){
-		return MOSQ_ERR_NOMEM;
+	ఒకవేళ(j_plugin == ఖాళీ){
+		తిరిగి MOSQ_ERR_NOMEM;
 	}
 
-	if(cJSON_AddStringToObject(j_plugin, "name", pid->plugin_name) == NULL
-			|| (pid->plugin_version && cJSON_AddStringToObject(j_plugin, "version", pid->plugin_version) == NULL)
-			|| (pid->listener && cJSON_AddNumberToObject(j_plugin, "port", pid->listener->port) == NULL)
-			|| (j_eps = cJSON_AddArrayToObject(j_plugin, "control-endpoints")) == NULL
+	ఒకవేళ(c_JSON_కూడు_String_గమ్యం_Object(j_plugin, "name", pid->plugin_name) == ఖాళీ
+			|| (pid->plugin_సంస్కరణ && c_JSON_కూడు_String_గమ్యం_Object(j_plugin, "version", pid->plugin_సంస్కరణ) == ఖాళీ)
+			|| (pid->listener && c_JSON_కూడు_సంఖ్య_గమ్యం_Object(j_plugin, "port", pid->listener->పోర్టు) == ఖాళీ)
+			|| (j_eps = c_JSON_కూడు_Array_గమ్యం_Object(j_plugin, "control-endpoints")) == ఖాళీ
 			){
 
 		cJSON_Delete(j_plugin);
-		return MOSQ_ERR_NOMEM;
+		తిరిగి MOSQ_ERR_NOMEM;
 	}
 
 	DL_FOREACH(pid->control_endpoints, ep){
 		j_ep = cJSON_CreateString(ep->topic);
-		if(j_ep == NULL){
+		ఒకవేళ(j_ep == ఖాళీ){
 			cJSON_Delete(j_plugin);
-			return MOSQ_ERR_NOMEM;
+			తిరిగి MOSQ_ERR_NOMEM;
 		}
-		cJSON_AddItemToArray(j_eps, j_ep);
+		c_JSON_కూడు_అంశం_గమ్యం_Array(j_eps, j_ep);
 	}
 
-	cJSON_AddItemToArray(j_plugins, j_plugin);
-	return MOSQ_ERR_SUCCESS;
+	c_JSON_కూడు_అంశం_గమ్యం_Array(j_plugins, j_plugin);
+	తిరిగి MOSQ_ERR_SUCCESS;
 }
 
 
-static int broker__process_list_plugins(struct mosquitto_control_cmd *cmd)
+స్థిర పూర్ణాంకం broker__process_list_plugins(నిర్మాణం mosquitto_control_cmd *cmd)
 {
-	cJSON *tree, *j_data, *j_plugins;
-	const char *admin_clientid, *admin_username;
+	cJSON *వృక్షం, *j_దత్తాంశం, *j_plugins;
+	స్థిరరాశి అక్షరం *admin_clientid, *admin_username;
 
-	tree = cJSON_CreateObject();
-	if(tree == NULL){
-		mosquitto_control_command_reply(cmd, "Internal error");
-		return MOSQ_ERR_NOMEM;
+	వృక్షం = cJSON_CreateObject();
+	ఒకవేళ(వృక్షం == ఖాళీ){
+		mosquitto_control_command_జవాబు(cmd, "Internal error");
+		తిరిగి MOSQ_ERR_NOMEM;
 	}
 
 	admin_clientid = mosquitto_client_id(cmd->client);
@@ -92,88 +92,88 @@ static int broker__process_list_plugins(struct mosquitto_control_cmd *cmd)
 	mosquitto_log_printf(MOSQ_LOG_INFO, "Broker: %s/%s | listPlugins",
 			admin_clientid, admin_username);
 
-	if(cJSON_AddStringToObject(tree, "command", "listPlugins") == NULL
-			|| ((j_data = cJSON_AddObjectToObject(tree, "data")) == NULL)
-			|| (cmd->correlation_data && cJSON_AddStringToObject(tree, "correlationData", cmd->correlation_data) == NULL)
+	ఒకవేళ(c_JSON_కూడు_String_గమ్యం_Object(వృక్షం, "command", "listPlugins") == ఖాళీ
+			|| ((j_దత్తాంశం = c_JSON_కూడు_Object_గమ్యం_Object(వృక్షం, "data")) == ఖాళీ)
+			|| (cmd->correlation_దత్తాంశం && c_JSON_కూడు_String_గమ్యం_Object(వృక్షం, "correlationData", cmd->correlation_దత్తాంశం) == ఖాళీ)
 			){
 
-		goto internal_error;
+		వెళ్ళు అంతర్గత_error;
 	}
 
-	j_plugins = cJSON_AddArrayToObject(j_data, "plugins");
-	if(j_plugins == NULL){
-		goto internal_error;
+	j_plugins = c_JSON_కూడు_Array_గమ్యం_Object(j_దత్తాంశం, "plugins");
+	ఒకవేళ(j_plugins == ఖాళీ){
+		వెళ్ళు అంతర్గత_error;
 	}
 
-	for(int i=0; i<db.plugin_count; i++){
-		if(add_plugin_info(j_plugins, db.plugins[i])){
-			goto internal_error;
+	కొరకు(పూర్ణాంకం i=0; i<db.plugin_లెక్క; i++){
+		ఒకవేళ(కూడు_plugin_info(j_plugins, db.plugins[i])){
+			వెళ్ళు అంతర్గత_error;
 		}
 	}
 
-	cJSON_AddItemToArray(cmd->j_responses, tree);
+	c_JSON_కూడు_అంశం_గమ్యం_Array(cmd->j_responses, వృక్షం);
 
-	return MOSQ_ERR_SUCCESS;
+	తిరిగి MOSQ_ERR_SUCCESS;
 
-internal_error:
-	cJSON_Delete(tree);
-	mosquitto_control_command_reply(cmd, "Internal error");
-	return MOSQ_ERR_NOMEM;
+అంతర్గత_error:
+	cJSON_Delete(వృక్షం);
+	mosquitto_control_command_జవాబు(cmd, "Internal error");
+	తిరిగి MOSQ_ERR_NOMEM;
 }
 
 
-static int add_listener(cJSON *j_listeners, struct mosquitto__listener *listener)
+స్థిర పూర్ణాంకం కూడు_listener(cJSON *j_listeners, నిర్మాణం mosquitto__listener *listener)
 {
 	cJSON *j_listener;
-	const char *protocol = NULL;
+	స్థిరరాశి అక్షరం *protocol = ఖాళీ;
 
 	j_listener = cJSON_CreateObject();
-	if(j_listener == NULL){
-		return MOSQ_ERR_NOMEM;
+	ఒకవేళ(j_listener == ఖాళీ){
+		తిరిగి MOSQ_ERR_NOMEM;
 	}
-	cJSON_AddItemToArray(j_listeners, j_listener);
+	c_JSON_కూడు_అంశం_గమ్యం_Array(j_listeners, j_listener);
 
-	if(listener->protocol == mp_mqtt){
+	ఒకవేళ(listener->protocol == mp_mqtt){
 		protocol = "mqtt";
-	}else if(listener->protocol == mp_websockets){
+	}లేకపోతే ఒకవేళ(listener->protocol == mp_websockets){
 		protocol = "mqtt+websockets";
 	}
 
-	if(cJSON_AddNumberToObject(j_listener, "port", listener->port) == NULL
-			|| (protocol && cJSON_AddStringToObject(j_listener, "protocol", protocol) == NULL)
-			|| (listener->host && cJSON_AddStringToObject(j_listener, "bind-address", listener->host) == NULL)
-#ifdef WITH_UNIX_SOCKETS
-			|| (listener->unix_socket_path && cJSON_AddStringToObject(j_listener, "socket-path", listener->unix_socket_path) == NULL)
-#endif
+	ఒకవేళ(c_JSON_కూడు_సంఖ్య_గమ్యం_Object(j_listener, "port", listener->పోర్టు) == ఖాళీ
+			|| (protocol && c_JSON_కూడు_String_గమ్యం_Object(j_listener, "protocol", protocol) == ఖాళీ)
+			|| (listener->host && c_JSON_కూడు_String_గమ్యం_Object(j_listener, "bind-address", listener->host) == ఖాళీ)
+#నిర్వచితమైతే WITH_UNIX_SOCKETS
+			|| (listener->unix_socket_మార్గం && c_JSON_కూడు_String_గమ్యం_Object(j_listener, "socket-path", listener->unix_socket_మార్గం) == ఖాళీ)
+#అయితే_ముగింపు
 			){
 
-		return MOSQ_ERR_NOMEM;
+		తిరిగి MOSQ_ERR_NOMEM;
 	}
 
-	if(
-#ifdef WITH_TLS
-			cJSON_AddBoolToObject(j_listener, "tls", listener->ssl_ctx != NULL) == NULL
-#else
-			cJSON_AddBoolToObject(j_listener, "tls", false) == NULL
-#endif
+	ఒకవేళ(
+#నిర్వచితమైతే WITH_TLS
+			c_JSON_కూడు_Bool_గమ్యం_Object(j_listener, "tls", listener->ssl_ctx != ఖాళీ) == ఖాళీ
+#లేకపోతే
+			c_JSON_కూడు_Bool_గమ్యం_Object(j_listener, "tls", false) == ఖాళీ
+#అయితే_ముగింపు
 			){
 
-		return MOSQ_ERR_NOMEM;
+		తిరిగి MOSQ_ERR_NOMEM;
 	}
 
-	return MOSQ_ERR_SUCCESS;
+	తిరిగి MOSQ_ERR_SUCCESS;
 }
 
 
-static int broker__process_list_listeners(struct mosquitto_control_cmd *cmd)
+స్థిర పూర్ణాంకం broker__process_list_listeners(నిర్మాణం mosquitto_control_cmd *cmd)
 {
-	cJSON *tree, *j_data, *j_listeners;
-	const char *admin_clientid, *admin_username;
+	cJSON *వృక్షం, *j_దత్తాంశం, *j_listeners;
+	స్థిరరాశి అక్షరం *admin_clientid, *admin_username;
 
-	tree = cJSON_CreateObject();
-	if(tree == NULL){
-		mosquitto_control_command_reply(cmd, "Internal error");
-		return MOSQ_ERR_NOMEM;
+	వృక్షం = cJSON_CreateObject();
+	ఒకవేళ(వృక్షం == ఖాళీ){
+		mosquitto_control_command_జవాబు(cmd, "Internal error");
+		తిరిగి MOSQ_ERR_NOMEM;
 	}
 
 	admin_clientid = mosquitto_client_id(cmd->client);
@@ -181,63 +181,63 @@ static int broker__process_list_listeners(struct mosquitto_control_cmd *cmd)
 	mosquitto_log_printf(MOSQ_LOG_INFO, "Broker: %s/%s | listListeners",
 			admin_clientid, admin_username);
 
-	if(cJSON_AddStringToObject(tree, "command", "listListeners") == NULL
-			|| ((j_data = cJSON_AddObjectToObject(tree, "data")) == NULL)
-			|| (cmd->correlation_data && cJSON_AddStringToObject(tree, "correlationData", cmd->correlation_data) == NULL)
+	ఒకవేళ(c_JSON_కూడు_String_గమ్యం_Object(వృక్షం, "command", "listListeners") == ఖాళీ
+			|| ((j_దత్తాంశం = c_JSON_కూడు_Object_గమ్యం_Object(వృక్షం, "data")) == ఖాళీ)
+			|| (cmd->correlation_దత్తాంశం && c_JSON_కూడు_String_గమ్యం_Object(వృక్షం, "correlationData", cmd->correlation_దత్తాంశం) == ఖాళీ)
 			){
 
-		goto internal_error;
+		వెళ్ళు అంతర్గత_error;
 	}
 
-	j_listeners = cJSON_AddArrayToObject(j_data, "listeners");
-	if(j_listeners == NULL){
-		goto internal_error;
+	j_listeners = c_JSON_కూడు_Array_గమ్యం_Object(j_దత్తాంశం, "listeners");
+	ఒకవేళ(j_listeners == ఖాళీ){
+		వెళ్ళు అంతర్గత_error;
 	}
 
-	for(int i=0; i<db.config->listener_count; i++){
-		if(add_listener(j_listeners, &db.config->listeners[i])){
-			goto internal_error;
+	కొరకు(పూర్ణాంకం i=0; i<db.config->listener_లెక్క; i++){
+		ఒకవేళ(కూడు_listener(j_listeners, &db.config->listeners[i])){
+			వెళ్ళు అంతర్గత_error;
 		}
 	}
 
-	cJSON_AddItemToArray(cmd->j_responses, tree);
+	c_JSON_కూడు_అంశం_గమ్యం_Array(cmd->j_responses, వృక్షం);
 
-	return MOSQ_ERR_SUCCESS;
+	తిరిగి MOSQ_ERR_SUCCESS;
 
-internal_error:
-	cJSON_Delete(tree);
-	mosquitto_control_command_reply(cmd, "Internal error");
-	return MOSQ_ERR_NOMEM;
+అంతర్గత_error:
+	cJSON_Delete(వృక్షం);
+	mosquitto_control_command_జవాబు(cmd, "Internal error");
+	తిరిగి MOSQ_ERR_NOMEM;
 }
 
 
-static int broker_control_callback(int event, void *event_data, void *userdata)
+స్థిర పూర్ణాంకం broker_control_callback(పూర్ణాంకం event, శూన్య *event_దత్తాంశం, శూన్య *userdata)
 {
-	struct mosquitto_evt_control *ed = event_data;
+	నిర్మాణం mosquitto_evt_control *ed = event_దత్తాంశం;
 
-	UNUSED(event);
+	వాడని(event);
 
-	return mosquitto_control_generic_callback(ed, "$CONTROL/broker/v1/response", userdata, broker__handle_control);
+	తిరిగి mosquitto_control_generic_callback(ed, "$CONTROL/broker/v1/response", userdata, broker__handle_control);
 }
 
 
-void broker_control__init(void)
+శూన్య broker_control__init(శూన్య)
 {
-	memset(&plg_id, 0, sizeof(plg_id));
+	memset(&plg_id, 0, పరిమాణం(plg_id));
 
-	if(db.config->enable_control_api){
-		mosquitto_callback_register(&plg_id, MOSQ_EVT_CONTROL, broker_control_callback, "$CONTROL/broker/v1", NULL);
+	ఒకవేళ(db.config->enable_control_api){
+		mosquitto_callback_రిజిస్టరు(&plg_id, MOSQ_EVT_CONTROL, broker_control_callback, "$CONTROL/broker/v1", ఖాళీ);
 	}
 }
 
 
-void broker_control__cleanup(void)
+శూన్య broker_control__cleanup(శూన్య)
 {
 	mosquitto_callback_unregister(&plg_id, MOSQ_EVT_CONTROL, broker_control_callback, "$CONTROL/broker/v1");
 }
 
 
-void broker_control__reload(void)
+శూన్య broker_control__reload(శూన్య)
 {
 	broker_control__cleanup();
 	broker_control__init();
@@ -251,21 +251,21 @@ void broker_control__reload(void)
  * ################################################################ */
 
 
-static int broker__handle_control(struct mosquitto_control_cmd *cmd, void *userdata)
+స్థిర పూర్ణాంకం broker__handle_control(నిర్మాణం mosquitto_control_cmd *cmd, శూన్య *userdata)
 {
-	int rc = MOSQ_ERR_SUCCESS;
+	పూర్ణాంకం rc = MOSQ_ERR_SUCCESS;
 
-	UNUSED(userdata);
+	వాడని(userdata);
 
-	if(!strcasecmp(cmd->command_name, "listPlugins")){
+	ఒకవేళ(!strcasecmp(cmd->command_name, "listPlugins")){
 		rc = broker__process_list_plugins(cmd);
-	}else if(!strcasecmp(cmd->command_name, "listListeners")){
+	}లేకపోతే ఒకవేళ(!strcasecmp(cmd->command_name, "listListeners")){
 		rc = broker__process_list_listeners(cmd);
 
 		/* Unknown */
-	}else{
-		mosquitto_control_command_reply(cmd, "Unknown command");
+	}లేకపోతే{
+		mosquitto_control_command_జవాబు(cmd, "Unknown command");
 		rc = MOSQ_ERR_INVAL;
 	}
-	return rc;
+	తిరిగి rc;
 }

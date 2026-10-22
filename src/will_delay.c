@@ -16,101 +16,101 @@ Contributors:
    Roger Light - initial implementation and documentation.
 */
 
-#include "config.h"
+#అన్తర్భావ "config.h"
 
-#include <math.h>
-#include <stdio.h>
-#include <utlist.h>
+#అన్తర్భావ <math.h>
+#అన్తర్భావ <stdio.h>
+#అన్తర్భావ <utlist.h>
 
-#include "mosquitto_broker_internal.h"
+#అన్తర్భావ "mosquitto_broker_internal.h"
 
-static struct will_delay_list *delay_list = NULL;
-static time_t last_check = 0;
+స్థిర నిర్మాణం will_delay_list *delay_list = ఖాళీ;
+స్థిర time_t చివరి_check = 0;
 
 
-static int will_delay__cmp(struct will_delay_list *i1, struct will_delay_list *i2)
+స్థిర పూర్ణాంకం will_delay__cmp(నిర్మాణం will_delay_list *i1, నిర్మాణం will_delay_list *i2)
 {
-	return (int)(i1->context->will_delay_interval - i2->context->will_delay_interval);
+	తిరిగి (పూర్ణాంకం)(i1->context->will_delay_interval - i2->context->will_delay_interval);
 }
 
 
-int will_delay__add(struct mosquitto *context)
+పూర్ణాంకం will_delay_కూడు(నిర్మాణం mosquitto *context)
 {
-	struct will_delay_list *item;
+	నిర్మాణం will_delay_list *అంశం;
 
-	if(context->will_delay_entry){
-		return MOSQ_ERR_SUCCESS;
+	ఒకవేళ(context->will_delay_నమోదు){
+		తిరిగి MOSQ_ERR_SUCCESS;
 	}
 
-	item = mosquitto_calloc(1, sizeof(struct will_delay_list));
-	if(!item){
-		return MOSQ_ERR_NOMEM;
+	అంశం = mosquitto_calloc(1, పరిమాణం(నిర్మాణం will_delay_list));
+	ఒకవేళ(!అంశం){
+		తిరిగి MOSQ_ERR_NOMEM;
 	}
 
-	item->context = context;
-	context->will_delay_entry = item;
-	item->context->will_delay_time = db.now_real_s + item->context->will_delay_interval;
+	అంశం->context = context;
+	context->will_delay_నమోదు = అంశం;
+	అంశం->context->will_delay_సమయం = db.now_real_s + అంశం->context->will_delay_interval;
 
-	DL_INSERT_INORDER(delay_list, item, will_delay__cmp);
+	DL_చొప్పించు_మధ్యక్రమం(delay_list, అంశం, will_delay__cmp);
 
-	loop__update_next_event(item->context->will_delay_interval*1000);
+	loop_update_తదుపరి_event(అంశం->context->will_delay_interval*1000);
 	plugin_persist__handle_client_update(context);
 
-	return MOSQ_ERR_SUCCESS;
+	తిరిగి MOSQ_ERR_SUCCESS;
 }
 
 
 /* Call on broker shutdown only */
-void will_delay__send_all(void)
+శూన్య will_delay__send_all(శూన్య)
 {
-	struct will_delay_list *item, *tmp;
+	నిర్మాణం will_delay_list *అంశం, *tmp;
 
-	DL_FOREACH_SAFE(delay_list, item, tmp){
-		DL_DELETE(delay_list, item);
-		item->context->will_delay_interval = 0;
-		item->context->will_delay_entry = NULL;
-		context__send_will(item->context);
-		mosquitto_FREE(item);
+	DL_FOREACH_సురక్షిత(delay_list, అంశం, tmp){
+		DL_DELETE(delay_list, అంశం);
+		అంశం->context->will_delay_interval = 0;
+		అంశం->context->will_delay_నమోదు = ఖాళీ;
+		context__send_will(అంశం->context);
+		mosquitto_FREE(అంశం);
 	}
 }
 
 
-void will_delay__check(void)
+శూన్య will_delay__check(శూన్య)
 {
-	struct will_delay_list *item, *tmp;
+	నిర్మాణం will_delay_list *అంశం, *tmp;
 
-	if(db.now_real_s <= last_check){
-		if(delay_list){
-			loop__update_next_event(1000);
+	ఒకవేళ(db.now_real_s <= చివరి_check){
+		ఒకవేళ(delay_list){
+			loop_update_తదుపరి_event(1000);
 		}
-		return;
+		తిరిగి;
 	}
 
-	last_check = db.now_real_s;
+	చివరి_check = db.now_real_s;
 
-	DL_FOREACH_SAFE(delay_list, item, tmp){
-		if(item->context->will_delay_time <= db.now_real_s){
-			DL_DELETE(delay_list, item);
-			item->context->will_delay_interval = 0;
-			item->context->will_delay_entry = NULL;
-			context__send_will(item->context);
-			if(item->context->session_expiry_interval == MQTT_SESSION_EXPIRY_IMMEDIATE){
-				context__add_to_disused(item->context);
+	DL_FOREACH_సురక్షిత(delay_list, అంశం, tmp){
+		ఒకవేళ(అంశం->context->will_delay_సమయం <= db.now_real_s){
+			DL_DELETE(delay_list, అంశం);
+			అంశం->context->will_delay_interval = 0;
+			అంశం->context->will_delay_నమోదు = ఖాళీ;
+			context__send_will(అంశం->context);
+			ఒకవేళ(అంశం->context->session_expiry_interval == MQTT_SESSION_EXPIRY_తక్షణ){
+				context_కూడు_గమ్యం_disused(అంశం->context);
 			}
-			mosquitto_FREE(item);
-		}else{
-			loop__update_next_event((item->context->will_delay_time - db.now_real_s)*1000);
-			return;
+			mosquitto_FREE(అంశం);
+		}లేకపోతే{
+			loop_update_తదుపరి_event((అంశం->context->will_delay_సమయం - db.now_real_s)*1000);
+			తిరిగి;
 		}
 	}
 }
 
 
-void will_delay__remove(struct mosquitto *mosq)
+శూన్య will_delay__remove(నిర్మాణం mosquitto *mosq)
 {
-	if(mosq->will_delay_entry != NULL){
-		DL_DELETE(delay_list, mosq->will_delay_entry);
-		mosquitto_FREE(mosq->will_delay_entry);
+	ఒకవేళ(mosq->will_delay_నమోదు != ఖాళీ){
+		DL_DELETE(delay_list, mosq->will_delay_నమోదు);
+		mosquitto_FREE(mosq->will_delay_నమోదు);
 	}
 }
 

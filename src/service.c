@@ -16,41 +16,41 @@ Contributors:
    Roger Light - initial implementation and documentation.
 */
 
-#if defined(WIN32) || defined(__CYGWIN__)
+#ఒకవేళ defined(WIN32) || defined(__CYGWIN__)
 
-#include "config.h"
+#అన్తర్భావ "config.h"
 
-#include "mosquitto_broker_internal.h"
-#include <windows.h>
+#అన్తర్భావ "mosquitto_broker_internal.h"
+#అన్తర్భావ <windows.h>
 
-extern int g_run;
-SERVICE_STATUS_HANDLE service_handle = 0;
-static SERVICE_STATUS service_status;
-int main(int argc, char *argv[]);
+బాహ్య పూర్ణాంకం g_నిరంతరం;
+SERVICE_స్థితి_HANDLE service_handle = 0;
+స్థిర SERVICE_స్థితి service_స్థితి;
+పూర్ణాంకం ప్రధాన(పూర్ణాంకం argc, అక్షరం *argv[]);
 
 
-static char *fix_name(char *name)
+స్థిర అక్షరం *fix_name(అక్షరం *name)
 {
 	size_t len;
 
-	if(strrchr(name, '\\')){
+	ఒకవేళ(strrchr(name, '\\')){
 		name = strrchr(name, '\\') + 1;
 	}
-	len = strlen(name);
-	if(!strcasecmp(&name[len-4], ".exe")){
+	len = అక్షరశ్రేణి_పొడవు(name);
+	ఒకవేళ(!strcasecmp(&name[len-4], ".exe")){
 		name[len-4] = '\0';
 	}
 
-	return name;
+	తిరిగి name;
 }
 
 
-static void print_error(void)
+స్థిర శూన్య print_error(శూన్య)
 {
-	char *buf = NULL;
+	అక్షరం *buf = ఖాళీ;
 
-	FormatMessage(FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM,
-			NULL, GetLastError(), LANG_NEUTRAL, (LPTSTR)&buf, 0, NULL);
+	Format_సందేశం(FORMAT_సందేశం_ALLOCATE_బఫరు | FORMAT_సందేశం_FROM_SYSTEM,
+			ఖాళీ, Get_చివరి_Error(), LANG_NEUTRAL, (LPTSTR)&buf, 0, ఖాళీ);
 
 	fprintf(stderr, "Error: %s\n", buf);
 	LocalFree(buf);
@@ -58,168 +58,168 @@ static void print_error(void)
 
 
 /* Service control callback */
-void __stdcall service_handler(DWORD fdwControl)
+శూన్య __stdcall service_handler(DWORD fdwControl)
 {
-	switch(fdwControl){
-		case SERVICE_CONTROL_CONTINUE:
+	ఎంపిక(fdwControl){
+		స్థితి SERVICE_CONTROL_CONTINUE:
 			/* Continue from Paused state. */
-			break;
-		case SERVICE_CONTROL_PAUSE:
+			ఆపు;
+		స్థితి SERVICE_CONTROL_PAUSE:
 			/* Pause service. */
-			break;
-		case SERVICE_CONTROL_SHUTDOWN:
+			ఆపు;
+		స్థితి SERVICE_CONTROL_SHUTDOWN:
 		/* System is shutting down. */
-		case SERVICE_CONTROL_STOP:
+		స్థితి SERVICE_CONTROL_STOP:
 			/* Service should stop. */
-			service_status.dwCurrentState = SERVICE_STOP_PENDING;
-			SetServiceStatus(service_handle, &service_status);
-			g_run = 0;
-			break;
+			service_స్థితి.dwCurrentState = SERVICE_STOP_PENDING;
+			సమితి_Service_స్థితి(service_handle, &service_స్థితి);
+			g_నిరంతరం = 0;
+			ఆపు;
 	}
 }
 
 
 /* Function called when started as a service. */
-void __stdcall service_main(DWORD dwArgc, LPTSTR *lpszArgv)
+శూన్య __stdcall service_main(DWORD dwArgc, LPTSTR *lpszArgv)
 {
-	char **argv;
-	int argc = 1;
-	char conf_path[MAX_PATH + 20];
-	int rc;
-	char *name;
-	char env_name[MAX_PATH];
+	అక్షరం **argv;
+	పూర్ణాంకం argc = 1;
+	అక్షరం conf_మార్గం[MAX_మార్గం + 20];
+	పూర్ణాంకం rc;
+	అక్షరం *name;
+	అక్షరం env_name[MAX_మార్గం];
 
-	UNUSED(dwArgc);
+	వాడని(dwArgc);
 
 	name = fix_name(lpszArgv[0]);
-	snprintf(env_name, sizeof(env_name), "%s_DIR", name);
-	for(int i=0; i<strlen(env_name); i++){
-		if(env_name[i]>='A' && env_name[i]<='Z'){
+	snprintf(env_name, పరిమాణం(env_name), "%s_DIR", name);
+	కొరకు(పూర్ణాంకం i=0; i<అక్షరశ్రేణి_పొడవు(env_name); i++){
+		ఒకవేళ(env_name[i]>='A' && env_name[i]<='Z'){
 			/* Keep upper case letter */
-		}else if(env_name[i]>='0' && env_name[i]<='9'){
+		}లేకపోతే ఒకవేళ(env_name[i]>='0' && env_name[i]<='9'){
 			/* Keep number */
-		}else if(env_name[i]>='a' && env_name[i]<='z'){
+		}లేకపోతే ఒకవేళ(env_name[i]>='a' && env_name[i]<='z'){
 			/* Convert lower case to upper case */
 			env_name[i] -= 32;
-		}else{
+		}లేకపోతే{
 			env_name[i] = '_';
 		}
 	}
 
-	service_handle = RegisterServiceCtrlHandler(name, service_handler);
-	if(service_handle){
-		memset(conf_path, 0, sizeof(conf_path));
-		rc = GetEnvironmentVariable(env_name, conf_path, MAX_PATH);
-		if(!rc || rc == MAX_PATH){
-			service_status.dwCurrentState = SERVICE_STOPPED;
-			SetServiceStatus(service_handle, &service_status);
-			return;
+	service_handle = రిజిస్టరు_Service_Ctrl_Handler(name, service_handler);
+	ఒకవేళ(service_handle){
+		memset(conf_మార్గం, 0, పరిమాణం(conf_మార్గం));
+		rc = GetEnvironmentVariable(env_name, conf_మార్గం, MAX_మార్గం);
+		ఒకవేళ(!rc || rc == MAX_మార్గం){
+			service_స్థితి.dwCurrentState = SERVICE_STOPPED;
+			సమితి_Service_స్థితి(service_handle, &service_స్థితి);
+			తిరిగి;
 		}
-		strcat(conf_path, "\\mosquitto.conf");
+		strcat(conf_మార్గం, "\\mosquitto.conf");
 
-		argv = mosquitto_malloc(sizeof(char *)*3);
+		argv = mosquitto_malloc(పరిమాణం(అక్షరం *)*3);
 		argv[0] = name;
 		argv[1] = "-c";
-		argv[2] = conf_path;
+		argv[2] = conf_మార్గం;
 		argc = 3;
 
-		service_status.dwServiceType = SERVICE_WIN32_OWN_PROCESS;
-		service_status.dwCurrentState = SERVICE_RUNNING;
-		service_status.dwControlsAccepted = SERVICE_ACCEPT_SHUTDOWN | SERVICE_ACCEPT_STOP;
-		service_status.dwWin32ExitCode = NO_ERROR;
-		service_status.dwCheckPoint = 0;
-		SetServiceStatus(service_handle, &service_status);
+		service_స్థితి.dwServiceType = SERVICE_WIN32_OWN_PROCESS;
+		service_స్థితి.dwCurrentState = SERVICE_RUNNING;
+		service_స్థితి.dwControlsAccepted = SERVICE_ACCEPT_SHUTDOWN | SERVICE_ACCEPT_STOP;
+		service_స్థితి.dw_Win32_Exit_సంకేతం = NO_ERROR;
+		service_స్థితి.dw_Check_బిందువు = 0;
+		సమితి_Service_స్థితి(service_handle, &service_స్థితి);
 
-		main(argc, argv);
+		ప్రధాన(argc, argv);
 		mosquitto_FREE(argv);
 
-		service_status.dwCurrentState = SERVICE_STOPPED;
-		SetServiceStatus(service_handle, &service_status);
+		service_స్థితి.dwCurrentState = SERVICE_STOPPED;
+		సమితి_Service_స్థితి(service_handle, &service_స్థితి);
 	}
 }
 
 
-void service_install(char *name)
+శూన్య service_install(అక్షరం *name)
 {
 	SC_HANDLE sc_manager, svc_handle;
-	char service_string[MAX_PATH + 20];
-	char exe_path[MAX_PATH + 1];
-	char display_name[MAX_PATH+1];
+	అక్షరం service_string[MAX_మార్గం + 20];
+	అక్షరం exe_మార్గం[MAX_మార్గం + 1];
+	అక్షరం display_name[MAX_మార్గం+1];
 	SERVICE_DESCRIPTION svc_desc;
 
-	memset(exe_path, 0, sizeof(exe_path));
-	if(GetModuleFileName(NULL, exe_path, MAX_PATH) == MAX_PATH){
+	memset(exe_మార్గం, 0, పరిమాణం(exe_మార్గం));
+	ఒకవేళ(GetModuleFileName(ఖాళీ, exe_మార్గం, MAX_మార్గం) == MAX_మార్గం){
 		fprintf(stderr, "Error: Path too long.\n");
-		return;
+		తిరిగి;
 	}
-	snprintf(service_string, sizeof(service_string), "\"%s\" run", exe_path);
+	snprintf(service_string, పరిమాణం(service_string), "\"%s\" run", exe_మార్గం);
 
 	name = fix_name(name);
 
-	sc_manager = OpenSCManager(NULL, NULL, SC_MANAGER_CREATE_SERVICE);
-	if(sc_manager){
-		if(!strcmp(name, "mosquitto")){
-			snprintf(display_name, sizeof(display_name), "Mosquitto Broker");
-		}else{
-			snprintf(display_name, sizeof(display_name), "Mosquitto Broker (%s.exe)", name);
+	sc_manager = OpenSCManager(ఖాళీ, ఖాళీ, SC_MANAGER_CREATE_SERVICE);
+	ఒకవేళ(sc_manager){
+		ఒకవేళ(!strcmp(name, "mosquitto")){
+			snprintf(display_name, పరిమాణం(display_name), "Mosquitto Broker");
+		}లేకపోతే{
+			snprintf(display_name, పరిమాణం(display_name), "Mosquitto Broker (%s.exe)", name);
 		}
 
 		svc_handle = CreateService(sc_manager, name, display_name,
-				SERVICE_START | SERVICE_STOP | SERVICE_CHANGE_CONFIG,
-				SERVICE_WIN32_OWN_PROCESS, SERVICE_AUTO_START, SERVICE_ERROR_NORMAL,
-				service_string, NULL, NULL, NULL, NULL, NULL);
+				SERVICE_ప్రారంభం | SERVICE_STOP | SERVICE_CHANGE_CONFIG,
+				SERVICE_WIN32_OWN_PROCESS, SERVICE_AUTO_ప్రారంభం, SERVICE_ERROR_సాధారణ,
+				service_string, ఖాళీ, ఖాళీ, ఖాళీ, ఖాళీ, ఖాళీ);
 
-		if(svc_handle){
-			memset(&svc_desc, 0, sizeof(svc_desc));
+		ఒకవేళ(svc_handle){
+			memset(&svc_desc, 0, పరిమాణం(svc_desc));
 			svc_desc.lpDescription = "Eclipse Mosquitto MQTT v5/v3.1.1 broker";
 			ChangeServiceConfig2(svc_handle, SERVICE_CONFIG_DESCRIPTION, &svc_desc);
 			CloseServiceHandle(svc_handle);
-		}else{
+		}లేకపోతే{
 			print_error();
 		}
 		CloseServiceHandle(sc_manager);
-	}else{
+	}లేకపోతే{
 		print_error();
 	}
 }
 
 
-void service_uninstall(char *name)
+శూన్య service_uninstall(అక్షరం *name)
 {
 	SC_HANDLE sc_manager, svc_handle;
-	SERVICE_STATUS status;
+	SERVICE_స్థితి స్థితి_2;
 
 	name = fix_name(name);
 
-	sc_manager = OpenSCManager(NULL, SERVICES_ACTIVE_DATABASE, SC_MANAGER_CONNECT);
-	if(sc_manager){
-		svc_handle = OpenService(sc_manager, name, SERVICE_QUERY_STATUS | DELETE);
-		if(svc_handle){
-			if(QueryServiceStatus(svc_handle, &status)){
-				if(status.dwCurrentState == SERVICE_STOPPED){
+	sc_manager = OpenSCManager(ఖాళీ, SERVICES_చురుకైన_DATABASE, SC_MANAGER_CONNECT);
+	ఒకవేళ(sc_manager){
+		svc_handle = OpenService(sc_manager, name, SERVICE_QUERY_స్థితి | DELETE);
+		ఒకవేళ(svc_handle){
+			ఒకవేళ(Query_Service_స్థితి(svc_handle, &స్థితి_2)){
+				ఒకవేళ(స్థితి_2.dwCurrentState == SERVICE_STOPPED){
 					DeleteService(svc_handle);
 				}
 			}
 			CloseServiceHandle(svc_handle);
-		}else{
+		}లేకపోతే{
 			print_error();
 		}
 		CloseServiceHandle(sc_manager);
-	}else{
+	}లేకపోతే{
 		print_error();
 	}
 }
 
 
-void service_run(char *name)
+శూన్య service_నిరంతరం(అక్షరం *name)
 {
-	SERVICE_TABLE_ENTRY ste[] = {
+	SERVICE_పట్టిక_నమోదు ste[] = {
 		{ name, service_main },
-		{ NULL, NULL }
+		{ ఖాళీ, ఖాళీ }
 	};
 	name = fix_name(name);
 	ste[0].lpServiceName = name;
-	StartServiceCtrlDispatcher(ste);
+	ప్రారంభం_Service_Ctrl_Dispatcher(ste);
 }
 
-#endif
+#అయితే_ముగింపు

@@ -16,16 +16,16 @@ Contributors:
    Roger Light - initial implementation and documentation.
 */
 
-#include "config.h"
+#అన్తర్భావ "config.h"
 
-#include <assert.h>
-#include <stdio.h>
-#include <utlist.h>
+#అన్తర్భావ <assert.h>
+#అన్తర్భావ <stdio.h>
+#అన్తర్భావ <utlist.h>
 
-#include "mosquitto_broker_internal.h"
-#include "send_mosq.h"
-#include "sys_tree.h"
-#include "util_mosq.h"
+#అన్తర్భావ "mosquitto_broker_internal.h"
+#అన్తర్భావ "send_mosq.h"
+#అన్తర్భావ "sys_tree.h"
+#అన్తర్భావ "util_mosq.h"
 
 
 /**
@@ -34,57 +34,57 @@ Contributors:
  * @param qos qos for the packet of interest
  * @return true if more in flight are allowed.
  */
-bool db__ready_for_flight(struct mosquitto *context, enum mosquitto_msg_direction dir, int qos)
+bool db__ready_for_flight(నిర్మాణం mosquitto *context, గణన mosquitto_సందేశం_direction dir, పూర్ణాంకం qos)
 {
-	struct mosquitto_msg_data *msgs;
-	bool valid_bytes;
-	bool valid_count;
+	నిర్మాణం mosquitto_సందేశం_దత్తాంశం *msgs;
+	bool valid_బైట్లు;
+	bool valid_లెక్క;
 
-	if(dir == mosq_md_out){
-		msgs = &context->msgs_out;
-	}else{
-		msgs = &context->msgs_in;
+	ఒకవేళ(dir == mosq_md_బహిర్గతం){
+		msgs = &context->msgs_బహిర్గతం;
+	}లేకపోతే{
+		msgs = &context->msgs_లోపల;
 	}
 
-	if(msgs->inflight_maximum == 0 && db.config->max_inflight_bytes == 0){
-		return true;
+	ఒకవేళ(msgs->inflight_గరిష్ఠ == 0 && db.config->max_inflight_బైట్లు == 0){
+		తిరిగి true;
 	}
 
-	if(qos == 0){
+	ఒకవేళ(qos == 0){
 		/* Deliver QoS 0 messages unless the queue is already full.
 		 * For QoS 0 messages the choice is either "inflight" or dropped.
 		 * There is no queueing option, unless the client is offline and
 		 * queue_qos0_messages is enabled.
 		 */
-		if(db.config->max_queued_messages == 0 && db.config->max_inflight_bytes == 0){
-			return true;
+		ఒకవేళ(db.config->max_queued_messages == 0 && db.config->max_inflight_బైట్లు == 0){
+			తిరిగి true;
 		}
-		valid_bytes = ((msgs->inflight_bytes - (ssize_t)db.config->max_inflight_bytes) < (ssize_t)db.config->max_queued_bytes);
-		if(dir == mosq_md_out){
-			valid_count = context->out_packet_count < db.config->max_queued_messages;
-		}else{
-			valid_count = msgs->inflight_count - msgs->inflight_maximum < db.config->max_queued_messages;
+		valid_బైట్లు = ((msgs->inflight_బైట్లు - (ssize_t)db.config->max_inflight_బైట్లు) < (ssize_t)db.config->max_queued_బైట్లు);
+		ఒకవేళ(dir == mosq_md_బహిర్గతం){
+			valid_లెక్క = context->బహిర్గతం_packet_లెక్క < db.config->max_queued_messages;
+		}లేకపోతే{
+			valid_లెక్క = msgs->inflight_లెక్క - msgs->inflight_గరిష్ఠ < db.config->max_queued_messages;
 		}
 
-		if(db.config->max_queued_messages == 0){
-			return valid_bytes;
+		ఒకవేళ(db.config->max_queued_messages == 0){
+			తిరిగి valid_బైట్లు;
 		}
-		if(db.config->max_queued_bytes == 0){
-			return valid_count;
+		ఒకవేళ(db.config->max_queued_బైట్లు == 0){
+			తిరిగి valid_లెక్క;
 		}
-	}else{
-		valid_bytes = (ssize_t)msgs->inflight_bytes12 < (ssize_t)db.config->max_inflight_bytes;
-		valid_count = msgs->inflight_quota > 0;
+	}లేకపోతే{
+		valid_బైట్లు = (ssize_t)msgs->inflight_bytes12 < (ssize_t)db.config->max_inflight_బైట్లు;
+		valid_లెక్క = msgs->inflight_quota > 0;
 
-		if(msgs->inflight_maximum == 0){
-			return valid_bytes;
+		ఒకవేళ(msgs->inflight_గరిష్ఠ == 0){
+			తిరిగి valid_బైట్లు;
 		}
-		if(db.config->max_inflight_bytes == 0){
-			return valid_count;
+		ఒకవేళ(db.config->max_inflight_బైట్లు == 0){
+			తిరిగి valid_లెక్క;
 		}
 	}
 
-	return valid_bytes && valid_count;
+	తిరిగి valid_బైట్లు && valid_లెక్క;
 }
 
 
@@ -96,137 +96,137 @@ bool db__ready_for_flight(struct mosquitto *context, enum mosquitto_msg_directio
  * @param qos destination qos for the packet of interest
  * @return true if queuing is allowed, false if should be dropped
  */
-bool db__ready_for_queue(struct mosquitto *context, int qos, struct mosquitto_msg_data *msg_data)
+bool db_ready_for_వరుస(నిర్మాణం mosquitto *context, పూర్ణాంకం qos, నిర్మాణం mosquitto_సందేశం_దత్తాంశం *సందేశం_దత్తాంశం)
 {
-	int source_count;
-	int adjust_count;
-	long source_bytes;
-	ssize_t adjust_bytes = (ssize_t)db.config->max_inflight_bytes;
-	bool valid_bytes;
-	bool valid_count;
+	పూర్ణాంకం ఆధారం_లెక్క;
+	పూర్ణాంకం adjust_లెక్క;
+	దీర్ఘ ఆధారం_బైట్లు;
+	ssize_t adjust_బైట్లు = (ssize_t)db.config->max_inflight_బైట్లు;
+	bool valid_బైట్లు;
+	bool valid_లెక్క;
 
-	if(db.config->max_queued_messages == 0 && db.config->max_queued_bytes == 0){
-		return true;
+	ఒకవేళ(db.config->max_queued_messages == 0 && db.config->max_queued_బైట్లు == 0){
+		తిరిగి true;
 	}
 
-	if(qos == 0 && db.config->queue_qos0_messages == false){
-		return false; /* This case is handled in db__ready_for_flight() */
-	}else{
-		source_bytes = (ssize_t)msg_data->queued_bytes12;
-		source_count = msg_data->queued_count12;
+	ఒకవేళ(qos == 0 && db.config->వరుస_qos0_messages == false){
+		తిరిగి false; /* This case is handled in db__ready_for_flight() */
+	}లేకపోతే{
+		ఆధారం_బైట్లు = (ssize_t)సందేశం_దత్తాంశం->queued_bytes12;
+		ఆధారం_లెక్క = సందేశం_దత్తాంశం->queued_count12;
 	}
-	adjust_count = msg_data->inflight_maximum;
+	adjust_లెక్క = సందేశం_దత్తాంశం->inflight_గరిష్ఠ;
 
 	/* nothing in flight for offline clients */
-	if(!net__is_connected(context)){
-		adjust_bytes = 0;
-		adjust_count = 0;
+	ఒకవేళ(!net__is_connected(context)){
+		adjust_బైట్లు = 0;
+		adjust_లెక్క = 0;
 	}
 
-	valid_bytes = (source_bytes - (ssize_t)adjust_bytes) < (ssize_t)db.config->max_queued_bytes;
-	valid_count = source_count - adjust_count < db.config->max_queued_messages;
+	valid_బైట్లు = (ఆధారం_బైట్లు - (ssize_t)adjust_బైట్లు) < (ssize_t)db.config->max_queued_బైట్లు;
+	valid_లెక్క = ఆధారం_లెక్క - adjust_లెక్క < db.config->max_queued_messages;
 
-	if(db.config->max_queued_bytes == 0){
-		return valid_count;
+	ఒకవేళ(db.config->max_queued_బైట్లు == 0){
+		తిరిగి valid_లెక్క;
 	}
-	if(db.config->max_queued_messages == 0){
-		return valid_bytes;
+	ఒకవేళ(db.config->max_queued_messages == 0){
+		తిరిగి valid_బైట్లు;
 	}
 
-	return valid_bytes && valid_count;
+	తిరిగి valid_బైట్లు && valid_లెక్క;
 }
 
 
-void db__msg_add_to_inflight_stats(struct mosquitto_msg_data *msg_data, struct mosquitto__client_msg *client_msg)
+శూన్య db_సందేశం_కూడు_గమ్యం_inflight_stats(నిర్మాణం mosquitto_సందేశం_దత్తాంశం *సందేశం_దత్తాంశం, నిర్మాణం mosquitto_client_సందేశం *client_సందేశం)
 {
-	msg_data->inflight_count++;
-	msg_data->inflight_bytes += client_msg->base_msg->data.payloadlen;
-	if(client_msg->data.qos != 0){
-		msg_data->inflight_count12++;
-		msg_data->inflight_bytes12 += client_msg->base_msg->data.payloadlen;
-	}
-}
-
-
-static void db__msg_remove_from_inflight_stats(struct mosquitto_msg_data *msg_data, struct mosquitto__client_msg *client_msg)
-{
-	msg_data->inflight_count--;
-	msg_data->inflight_bytes -= client_msg->base_msg->data.payloadlen;
-	if(client_msg->data.qos != 0){
-		msg_data->inflight_count12--;
-		msg_data->inflight_bytes12 -= client_msg->base_msg->data.payloadlen;
+	సందేశం_దత్తాంశం->inflight_లెక్క++;
+	సందేశం_దత్తాంశం->inflight_బైట్లు += client_సందేశం->పునాది_సందేశం->దత్తాంశం.payloadlen;
+	ఒకవేళ(client_సందేశం->దత్తాంశం.qos != 0){
+		సందేశం_దత్తాంశం->inflight_count12++;
+		సందేశం_దత్తాంశం->inflight_bytes12 += client_సందేశం->పునాది_సందేశం->దత్తాంశం.payloadlen;
 	}
 }
 
 
-void db__msg_add_to_queued_stats(struct mosquitto_msg_data *msg_data, struct mosquitto__client_msg *client_msg)
+స్థిర శూన్య db_సందేశం_remove_from_inflight_stats(నిర్మాణం mosquitto_సందేశం_దత్తాంశం *సందేశం_దత్తాంశం, నిర్మాణం mosquitto_client_సందేశం *client_సందేశం)
 {
-	msg_data->queued_count++;
-	msg_data->queued_bytes += client_msg->base_msg->data.payloadlen;
-	if(client_msg->data.qos != 0){
-		msg_data->queued_count12++;
-		msg_data->queued_bytes12 += client_msg->base_msg->data.payloadlen;
+	సందేశం_దత్తాంశం->inflight_లెక్క--;
+	సందేశం_దత్తాంశం->inflight_బైట్లు -= client_సందేశం->పునాది_సందేశం->దత్తాంశం.payloadlen;
+	ఒకవేళ(client_సందేశం->దత్తాంశం.qos != 0){
+		సందేశం_దత్తాంశం->inflight_count12--;
+		సందేశం_దత్తాంశం->inflight_bytes12 -= client_సందేశం->పునాది_సందేశం->దత్తాంశం.payloadlen;
 	}
 }
 
 
-static void db__msg_remove_from_queued_stats(struct mosquitto_msg_data *msg_data, struct mosquitto__client_msg *client_msg)
+శూన్య db_సందేశం_కూడు_గమ్యం_queued_stats(నిర్మాణం mosquitto_సందేశం_దత్తాంశం *సందేశం_దత్తాంశం, నిర్మాణం mosquitto_client_సందేశం *client_సందేశం)
 {
-	msg_data->queued_count--;
-	msg_data->queued_bytes -= client_msg->base_msg->data.payloadlen;
-	if(client_msg->data.qos != 0){
-		msg_data->queued_count12--;
-		msg_data->queued_bytes12 -= client_msg->base_msg->data.payloadlen;
+	సందేశం_దత్తాంశం->queued_లెక్క++;
+	సందేశం_దత్తాంశం->queued_బైట్లు += client_సందేశం->పునాది_సందేశం->దత్తాంశం.payloadlen;
+	ఒకవేళ(client_సందేశం->దత్తాంశం.qos != 0){
+		సందేశం_దత్తాంశం->queued_count12++;
+		సందేశం_దత్తాంశం->queued_bytes12 += client_సందేశం->పునాది_సందేశం->దత్తాంశం.payloadlen;
 	}
 }
 
 
-int db__open(struct mosquitto__config *config)
+స్థిర శూన్య db_సందేశం_remove_from_queued_stats(నిర్మాణం mosquitto_సందేశం_దత్తాంశం *సందేశం_దత్తాంశం, నిర్మాణం mosquitto_client_సందేశం *client_సందేశం)
 {
-	if(!config){
-		return MOSQ_ERR_INVAL;
+	సందేశం_దత్తాంశం->queued_లెక్క--;
+	సందేశం_దత్తాంశం->queued_బైట్లు -= client_సందేశం->పునాది_సందేశం->దత్తాంశం.payloadlen;
+	ఒకవేళ(client_సందేశం->దత్తాంశం.qos != 0){
+		సందేశం_దత్తాంశం->queued_count12--;
+		సందేశం_దత్తాంశం->queued_bytes12 -= client_సందేశం->పునాది_సందేశం->దత్తాంశం.payloadlen;
+	}
+}
+
+
+పూర్ణాంకం db__open(నిర్మాణం mosquitto__config *config)
+{
+	ఒకవేళ(!config){
+		తిరిగి MOSQ_ERR_INVAL;
 	}
 
-	db.contexts_by_id = NULL;
-	db.contexts_by_sock = NULL;
-	db.contexts_for_free = NULL;
-#ifdef WITH_BRIDGE
-	db.bridges = NULL;
-	db.bridge_count = 0;
-#endif
+	db.contexts_by_id = ఖాళీ;
+	db.contexts_by_sock = ఖాళీ;
+	db.contexts_for_free = ఖాళీ;
+#నిర్వచితమైతే WITH_BRIDGE
+	db.bridges = ఖాళీ;
+	db.bridge_లెక్క = 0;
+#అయితే_ముగింపు
 
 	/* Initialize the hashtable */
-	db.clientid_index_hash = NULL;
+	db.clientid_సూచీ_hash = ఖాళీ;
 
-	db.normal_subs = NULL;
-	db.shared_subs = NULL;
+	db.సాధారణ_subs = ఖాళీ;
+	db.shared_subs = ఖాళీ;
 
 	sub__init();
 	retain__init();
 
-	db.config->security_options.unpwd = NULL;
+	db.config->security_options.unpwd = ఖాళీ;
 
-#ifdef WITH_PERSISTENCE
-	if(persist__restore()){
-		return 1;
+#నిర్వచితమైతే WITH_PERSISTENCE
+	ఒకవేళ(persist__restore()){
+		తిరిగి 1;
 	}
-#endif
+#అయితే_ముగింపు
 
-	return MOSQ_ERR_SUCCESS;
+	తిరిగి MOSQ_ERR_SUCCESS;
 }
 
 
-static void subhier_clean(struct mosquitto__subhier **subhier)
+స్థిర శూన్య subhier_clean(నిర్మాణం mosquitto__subhier **subhier)
 {
-	struct mosquitto__subhier *peer, *subhier_tmp;
-	struct mosquitto__subleaf *leaf, *nextleaf;
+	నిర్మాణం mosquitto__subhier *peer, *subhier_tmp;
+	నిర్మాణం mosquitto__subleaf *ఆకు, *nextleaf;
 
 	HASH_ITER(hh, *subhier, peer, subhier_tmp){
-		leaf = peer->subs;
-		while(leaf){
-			nextleaf = leaf->next;
-			mosquitto_FREE(leaf);
-			leaf = nextleaf;
+		ఆకు = peer->subs;
+		అయితే(ఆకు){
+			nextleaf = ఆకు->తదుపరి;
+			mosquitto_FREE(ఆకు);
+			ఆకు = nextleaf;
 		}
 		subhier_clean(&peer->children);
 
@@ -236,345 +236,345 @@ static void subhier_clean(struct mosquitto__subhier **subhier)
 }
 
 
-int db__close(void)
+పూర్ణాంకం db__close(శూన్య)
 {
-	subhier_clean(&db.normal_subs);
+	subhier_clean(&db.సాధారణ_subs);
 	subhier_clean(&db.shared_subs);
 	retain__clean(&db.retains);
-	db__msg_store_clean();
+	db_సందేశం_store_clean();
 
-	return MOSQ_ERR_SUCCESS;
+	తిరిగి MOSQ_ERR_SUCCESS;
 }
 
 
-int db__msg_store_add(struct mosquitto__base_msg *base_msg)
+పూర్ణాంకం db_సందేశం_store_కూడు(నిర్మాణం mosquitto_పునాది_సందేశం *పునాది_సందేశం)
 {
-	struct mosquitto__base_msg *found;
-	unsigned hashv;
+	నిర్మాణం mosquitto_పునాది_సందేశం *దొరికింది;
+	గుర్తులేని hashv;
 
-	HASH_VALUE(&base_msg->data.store_id, sizeof(base_msg->data.store_id), hashv);
-	HASH_FIND_BYHASHVALUE(hh, db.msg_store, &base_msg->data.store_id, sizeof(base_msg->data.store_id), hashv, found);
-	if(found == NULL){
-		HASH_ADD_KEYPTR_BYHASHVALUE(hh, db.msg_store, &base_msg->data.store_id, sizeof(base_msg->data.store_id), hashv, base_msg);
-		return MOSQ_ERR_SUCCESS;
-	}else{
-		return MOSQ_ERR_ALREADY_EXISTS;
+	HASH_విలువ(&పునాది_సందేశం->దత్తాంశం.store_id, పరిమాణం(పునాది_సందేశం->దత్తాంశం.store_id), hashv);
+	HASH_కనుగొను_BYHASHVALUE(hh, db.సందేశం_store, &పునాది_సందేశం->దత్తాంశం.store_id, పరిమాణం(పునాది_సందేశం->దత్తాంశం.store_id), hashv, దొరికింది);
+	ఒకవేళ(దొరికింది == ఖాళీ){
+		HASH_కూడు_KEYPTR_BYHASHVALUE(hh, db.సందేశం_store, &పునాది_సందేశం->దత్తాంశం.store_id, పరిమాణం(పునాది_సందేశం->దత్తాంశం.store_id), hashv, పునాది_సందేశం);
+		తిరిగి MOSQ_ERR_SUCCESS;
+	}లేకపోతే{
+		తిరిగి MOSQ_ERR_ALREADY_EXISTS;
 	}
 }
 
 
-void db__msg_store_free(struct mosquitto__base_msg *base_msg)
+శూన్య db_సందేశం_store_free(నిర్మాణం mosquitto_పునాది_సందేశం *పునాది_సందేశం)
 {
-	mosquitto_FREE(base_msg->data.source_id);
-	mosquitto_FREE(base_msg->data.source_username);
-	if(base_msg->dest_ids){
-		for(int i=0; i<base_msg->dest_id_count; i++){
-			mosquitto_FREE(base_msg->dest_ids[i]);
+	mosquitto_FREE(పునాది_సందేశం->దత్తాంశం.ఆధారం_id);
+	mosquitto_FREE(పునాది_సందేశం->దత్తాంశం.ఆధారం_username);
+	ఒకవేళ(పునాది_సందేశం->dest_ids){
+		కొరకు(పూర్ణాంకం i=0; i<పునాది_సందేశం->dest_id_లెక్క; i++){
+			mosquitto_FREE(పునాది_సందేశం->dest_ids[i]);
 		}
-		mosquitto_FREE(base_msg->dest_ids);
+		mosquitto_FREE(పునాది_సందేశం->dest_ids);
 	}
-	mosquitto_FREE(base_msg->data.topic);
-	mosquitto_property_free_all(&base_msg->data.properties);
-	mosquitto_FREE(base_msg->data.payload);
-	mosquitto_FREE(base_msg);
+	mosquitto_FREE(పునాది_సందేశం->దత్తాంశం.topic);
+	mosquitto_property_free_all(&పునాది_సందేశం->దత్తాంశం.properties);
+	mosquitto_FREE(పునాది_సందేశం->దత్తాంశం.payload);
+	mosquitto_FREE(పునాది_సందేశం);
 }
 
 
-void db__msg_store_remove(struct mosquitto__base_msg *base_msg, bool notify)
+శూన్య db_సందేశం_store_remove(నిర్మాణం mosquitto_పునాది_సందేశం *పునాది_సందేశం, bool notify)
 {
-	if(base_msg == NULL){
-		return;
+	ఒకవేళ(పునాది_సందేశం == ఖాళీ){
+		తిరిగి;
 	}
-	HASH_DELETE(hh, db.msg_store, base_msg);
-	db.msg_store_count--;
-	db.msg_store_bytes -= base_msg->data.payloadlen;
-	if(notify == true){
-		plugin_persist__handle_base_msg_delete(base_msg);
+	HASH_DELETE(hh, db.సందేశం_store, పునాది_సందేశం);
+	db.సందేశం_store_లెక్క--;
+	db.సందేశం_store_బైట్లు -= పునాది_సందేశం->దత్తాంశం.payloadlen;
+	ఒకవేళ(notify == true){
+		plugin_persist_handle_పునాది_సందేశం_delete(పునాది_సందేశం);
 	}
-	db__msg_store_free(base_msg);
+	db_సందేశం_store_free(పునాది_సందేశం);
 }
 
 
-void db__msg_store_clean(void)
+శూన్య db_సందేశం_store_clean(శూన్య)
 {
-	struct mosquitto__base_msg *base_msg, *base_msg_tmp;
+	నిర్మాణం mosquitto_పునాది_సందేశం *పునాది_సందేశం, *పునాది_సందేశం_tmp;
 
-	HASH_ITER(hh, db.msg_store, base_msg, base_msg_tmp){
-		db__msg_store_remove(base_msg, false);
-	}
-}
-
-
-void db__msg_store_ref_inc(struct mosquitto__base_msg *base_msg)
-{
-	base_msg->ref_count++;
-}
-
-
-void db__msg_store_ref_dec(struct mosquitto__base_msg **base_msg)
-{
-	(*base_msg)->ref_count--;
-	if((*base_msg)->ref_count == 0){
-		db__msg_store_remove(*base_msg, true);
-		*base_msg = NULL;
+	HASH_ITER(hh, db.సందేశం_store, పునాది_సందేశం, పునాది_సందేశం_tmp){
+		db_సందేశం_store_remove(పునాది_సందేశం, false);
 	}
 }
 
 
-void db__msg_store_compact(void)
+శూన్య db_సందేశం_store_ref_inc(నిర్మాణం mosquitto_పునాది_సందేశం *పునాది_సందేశం)
 {
-	struct mosquitto__base_msg *base_msg, *base_msg_tmp;
+	పునాది_సందేశం->ref_లెక్క++;
+}
 
-	HASH_ITER(hh, db.msg_store, base_msg, base_msg_tmp){
-		if(base_msg->ref_count < 1){
-			db__msg_store_remove(base_msg, true);
+
+శూన్య db_సందేశం_store_ref_dec(నిర్మాణం mosquitto_పునాది_సందేశం **పునాది_సందేశం)
+{
+	(*పునాది_సందేశం)->ref_లెక్క--;
+	ఒకవేళ((*పునాది_సందేశం)->ref_లెక్క == 0){
+		db_సందేశం_store_remove(*పునాది_సందేశం, true);
+		*పునాది_సందేశం = ఖాళీ;
+	}
+}
+
+
+శూన్య db_సందేశం_store_compact(శూన్య)
+{
+	నిర్మాణం mosquitto_పునాది_సందేశం *పునాది_సందేశం, *పునాది_సందేశం_tmp;
+
+	HASH_ITER(hh, db.సందేశం_store, పునాది_సందేశం, పునాది_సందేశం_tmp){
+		ఒకవేళ(పునాది_సందేశం->ref_లెక్క < 1){
+			db_సందేశం_store_remove(పునాది_సందేశం, true);
 		}
 	}
 }
 
 
-static void db__message_remove_inflight(struct mosquitto *context, struct mosquitto_msg_data *msg_data, struct mosquitto__client_msg *item)
+స్థిర శూన్య db_సందేశం_remove_inflight(నిర్మాణం mosquitto *context, నిర్మాణం mosquitto_సందేశం_దత్తాంశం *సందేశం_దత్తాంశం, నిర్మాణం mosquitto_client_సందేశం *అంశం)
 {
-	if(!context || !msg_data || !item){
-		return;
+	ఒకవేళ(!context || !సందేశం_దత్తాంశం || !అంశం){
+		తిరిగి;
 	}
 
-	plugin_persist__handle_client_msg_delete(context, item);
+	plugin_persist_handle_client_సందేశం_delete(context, అంశం);
 
-	DL_DELETE(msg_data->inflight, item);
-	if(item->base_msg){
-		db__msg_remove_from_inflight_stats(msg_data, item);
-		db__msg_store_ref_dec(&item->base_msg);
+	DL_DELETE(సందేశం_దత్తాంశం->inflight, అంశం);
+	ఒకవేళ(అంశం->పునాది_సందేశం){
+		db_సందేశం_remove_from_inflight_stats(సందేశం_దత్తాంశం, అంశం);
+		db_సందేశం_store_ref_dec(&అంశం->పునాది_సందేశం);
 	}
 
-	mosquitto_FREE(item);
+	mosquitto_FREE(అంశం);
 }
 
 
-static void db__message_remove_queued(struct mosquitto *context, struct mosquitto_msg_data *msg_data, struct mosquitto__client_msg *item)
+స్థిర శూన్య db_సందేశం_remove_queued(నిర్మాణం mosquitto *context, నిర్మాణం mosquitto_సందేశం_దత్తాంశం *సందేశం_దత్తాంశం, నిర్మాణం mosquitto_client_సందేశం *అంశం)
 {
-	if(!context || !msg_data || !item){
-		return;
+	ఒకవేళ(!context || !సందేశం_దత్తాంశం || !అంశం){
+		తిరిగి;
 	}
 
-	plugin_persist__handle_client_msg_delete(context, item);
+	plugin_persist_handle_client_సందేశం_delete(context, అంశం);
 
-	DL_DELETE(msg_data->queued, item);
-	if(item->base_msg){
-		db__msg_remove_from_queued_stats(msg_data, item);
-		db__msg_store_ref_dec(&item->base_msg);
+	DL_DELETE(సందేశం_దత్తాంశం->queued, అంశం);
+	ఒకవేళ(అంశం->పునాది_సందేశం){
+		db_సందేశం_remove_from_queued_stats(సందేశం_దత్తాంశం, అంశం);
+		db_సందేశం_store_ref_dec(&అంశం->పునాది_సందేశం);
 	}
 
-	mosquitto_FREE(item);
+	mosquitto_FREE(అంశం);
 }
 
 
-static void db__fill_inflight_out_from_queue(struct mosquitto *context)
+స్థిర శూన్య db_fill_inflight_బహిర్గతం_from_వరుస(నిర్మాణం mosquitto *context)
 {
-	struct mosquitto__client_msg *client_msg, *tmp;
+	నిర్మాణం mosquitto_client_సందేశం *client_సందేశం, *tmp;
 
-	DL_FOREACH_SAFE(context->msgs_out.queued, client_msg, tmp){
-		if(!db__ready_for_flight(context, mosq_md_out, client_msg->data.qos)){
-			return;
+	DL_FOREACH_సురక్షిత(context->msgs_బహిర్గతం.queued, client_సందేశం, tmp){
+		ఒకవేళ(!db__ready_for_flight(context, mosq_md_బహిర్గతం, client_సందేశం->దత్తాంశం.qos)){
+			తిరిగి;
 		}
-		switch(client_msg->data.qos){
-			case 0:
-				client_msg->data.state = mosq_ms_publish_qos0;
-				break;
-			case 1:
-				client_msg->data.state = mosq_ms_publish_qos1;
-				break;
-			case 2:
-				client_msg->data.state = mosq_ms_publish_qos2;
-				break;
+		ఎంపిక(client_సందేశం->దత్తాంశం.qos){
+			స్థితి 0:
+				client_సందేశం->దత్తాంశం.state = mosq_ms_publish_qos0;
+				ఆపు;
+			స్థితి 1:
+				client_సందేశం->దత్తాంశం.state = mosq_ms_publish_qos1;
+				ఆపు;
+			స్థితి 2:
+				client_సందేశం->దత్తాంశం.state = mosq_ms_publish_qos2;
+				ఆపు;
 		}
-		if(client_msg->base_msg->data.expiry_time && db.now_real_s > client_msg->base_msg->data.expiry_time){
-			db__message_remove_queued(context, &context->msgs_out, client_msg);
-			continue;
+		ఒకవేళ(client_సందేశం->పునాది_సందేశం->దత్తాంశం.expiry_సమయం && db.now_real_s > client_సందేశం->పునాది_సందేశం->దత్తాంశం.expiry_సమయం){
+			db_సందేశం_remove_queued(context, &context->msgs_బహిర్గతం, client_సందేశం);
+			కొనసాగు;
 		}
-		plugin_persist__handle_client_msg_update(context, client_msg);
-		db__message_dequeue_first(context, &context->msgs_out);
+		plugin_persist_handle_client_సందేశం_update(context, client_సందేశం);
+		db_సందేశం_వరుస_నుండి_తీయి_మొదటి(context, &context->msgs_బహిర్గతం);
 	}
 }
 
 
-void db__message_dequeue_first(struct mosquitto *context, struct mosquitto_msg_data *msg_data)
+శూన్య db_సందేశం_వరుస_నుండి_తీయి_మొదటి(నిర్మాణం mosquitto *context, నిర్మాణం mosquitto_సందేశం_దత్తాంశం *సందేశం_దత్తాంశం)
 {
-	struct mosquitto__client_msg *client_msg;
+	నిర్మాణం mosquitto_client_సందేశం *client_సందేశం;
 
-	UNUSED(context);
+	వాడని(context);
 
-	client_msg = msg_data->queued;
-	DL_DELETE(msg_data->queued, client_msg);
-	DL_APPEND(msg_data->inflight, client_msg);
-	if(msg_data->inflight_quota > 0){
-		msg_data->inflight_quota--;
+	client_సందేశం = సందేశం_దత్తాంశం->queued;
+	DL_DELETE(సందేశం_దత్తాంశం->queued, client_సందేశం);
+	DL_APPEND(సందేశం_దత్తాంశం->inflight, client_సందేశం);
+	ఒకవేళ(సందేశం_దత్తాంశం->inflight_quota > 0){
+		సందేశం_దత్తాంశం->inflight_quota--;
 	}
 
-	db__msg_remove_from_queued_stats(msg_data, client_msg);
-	db__msg_add_to_inflight_stats(msg_data, client_msg);
+	db_సందేశం_remove_from_queued_stats(సందేశం_దత్తాంశం, client_సందేశం);
+	db_సందేశం_కూడు_గమ్యం_inflight_stats(సందేశం_దత్తాంశం, client_సందేశం);
 }
 
 
-int db__message_delete_outgoing(struct mosquitto *context, uint16_t mid, enum mosquitto_msg_state expect_state, int qos)
+పూర్ణాంకం db_సందేశం_delete_outgoing(నిర్మాణం mosquitto *context, uint16_t mid, గణన mosquitto_సందేశం_state expect_state, పూర్ణాంకం qos)
 {
-	struct mosquitto__client_msg *client_msg, *tmp;
+	నిర్మాణం mosquitto_client_సందేశం *client_సందేశం, *tmp;
 	bool deleted = false;
 
-	if(!context){
-		return MOSQ_ERR_INVAL;
+	ఒకవేళ(!context){
+		తిరిగి MOSQ_ERR_INVAL;
 	}
 
-	DL_FOREACH_SAFE(context->msgs_out.inflight, client_msg, tmp){
-		if(client_msg->data.mid == mid){
-			if(client_msg->data.qos != qos){
-				log__printf(NULL, MOSQ_LOG_INFO, "Protocol error from %s: Mismatched QoS (%d:%d) when deleting outgoing message.",
-						context->id, client_msg->data.qos, qos);
-				return MOSQ_ERR_PROTOCOL;
-			}else if(qos == 2 && client_msg->data.state != expect_state && expect_state != mosq_ms_any){
-				log__printf(NULL, MOSQ_LOG_INFO, "Protocol error from %s: Mismatched state (%d:%d) when deleting outgoing message.",
-						context->id, client_msg->data.state, expect_state);
-				return MOSQ_ERR_PROTOCOL;
+	DL_FOREACH_సురక్షిత(context->msgs_బహిర్గతం.inflight, client_సందేశం, tmp){
+		ఒకవేళ(client_సందేశం->దత్తాంశం.mid == mid){
+			ఒకవేళ(client_సందేశం->దత్తాంశం.qos != qos){
+				log__printf(ఖాళీ, MOSQ_LOG_INFO, "Protocol error from %s: Mismatched QoS (%d:%d) when deleting outgoing message.",
+						context->id, client_సందేశం->దత్తాంశం.qos, qos);
+				తిరిగి MOSQ_ERR_PROTOCOL;
+			}లేకపోతే ఒకవేళ(qos == 2 && client_సందేశం->దత్తాంశం.state != expect_state && expect_state != mosq_ms_any){
+				log__printf(ఖాళీ, MOSQ_LOG_INFO, "Protocol error from %s: Mismatched state (%d:%d) when deleting outgoing message.",
+						context->id, client_సందేశం->దత్తాంశం.state, expect_state);
+				తిరిగి MOSQ_ERR_PROTOCOL;
 			}
-			db__message_remove_inflight(context, &context->msgs_out, client_msg);
+			db_సందేశం_remove_inflight(context, &context->msgs_బహిర్గతం, client_సందేశం);
 			deleted = true;
-			break;
+			ఆపు;
 		}
 	}
 
-	if(deleted == false){
-		DL_FOREACH_SAFE(context->msgs_out.queued, client_msg, tmp){
-			if(client_msg->data.mid == mid){
-				if(client_msg->data.qos != qos){
-					return MOSQ_ERR_PROTOCOL;
-				}else if(qos == 2 && client_msg->data.state != expect_state && expect_state != mosq_ms_any){
-					return MOSQ_ERR_PROTOCOL;
+	ఒకవేళ(deleted == false){
+		DL_FOREACH_సురక్షిత(context->msgs_బహిర్గతం.queued, client_సందేశం, tmp){
+			ఒకవేళ(client_సందేశం->దత్తాంశం.mid == mid){
+				ఒకవేళ(client_సందేశం->దత్తాంశం.qos != qos){
+					తిరిగి MOSQ_ERR_PROTOCOL;
+				}లేకపోతే ఒకవేళ(qos == 2 && client_సందేశం->దత్తాంశం.state != expect_state && expect_state != mosq_ms_any){
+					తిరిగి MOSQ_ERR_PROTOCOL;
 				}
-				db__message_remove_queued(context, &context->msgs_out, client_msg);
-				break;
+				db_సందేశం_remove_queued(context, &context->msgs_బహిర్గతం, client_సందేశం);
+				ఆపు;
 			}
 		}
 	}
-	db__fill_inflight_out_from_queue(context);
-#ifdef WITH_PERSISTENCE
+	db_fill_inflight_బహిర్గతం_from_వరుస(context);
+#నిర్వచితమైతే WITH_PERSISTENCE
 	db.persistence_changes++;
-#endif
+#అయితే_ముగింపు
 
-	return db__message_write_inflight_out_latest(context);
+	తిరిగి db_సందేశం_write_inflight_బహిర్గతం_latest(context);
 }
 
 
 /* Only for QoS 2 messages */
-int db__message_insert_incoming(struct mosquitto *context, uint64_t cmsg_id, struct mosquitto__base_msg *base_msg, bool persist)
+పూర్ణాంకం db_సందేశం_చొప్పించు_incoming(నిర్మాణం mosquitto *context, uint64_t cmsg_id, నిర్మాణం mosquitto_పునాది_సందేశం *పునాది_సందేశం, bool persist)
 {
-	struct mosquitto__client_msg *client_msg;
-	struct mosquitto_msg_data *msg_data;
-	enum mosquitto_msg_state state = mosq_ms_invalid;
-	int rc = 0;
+	నిర్మాణం mosquitto_client_సందేశం *client_సందేశం;
+	నిర్మాణం mosquitto_సందేశం_దత్తాంశం *సందేశం_దత్తాంశం;
+	గణన mosquitto_సందేశం_state state = mosq_ms_invalid;
+	పూర్ణాంకం rc = 0;
 
-	assert(base_msg);
-	if(!context){
-		return MOSQ_ERR_INVAL;
+	ప్రతిజ్ఞా(పునాది_సందేశం);
+	ఒకవేళ(!context){
+		తిరిగి MOSQ_ERR_INVAL;
 	}
-	if(!context->id){
+	ఒకవేళ(!context->id){
 		/* Protect against unlikely "client is disconnected but not entirely freed" scenario */
-		return MOSQ_ERR_SUCCESS;
+		తిరిగి MOSQ_ERR_SUCCESS;
 
 	}
-	msg_data = &context->msgs_in;
+	సందేశం_దత్తాంశం = &context->msgs_లోపల;
 
-	if(db__ready_for_flight(context, mosq_md_in, base_msg->data.qos)){
+	ఒకవేళ(db__ready_for_flight(context, mosq_md_లోపల, పునాది_సందేశం->దత్తాంశం.qos)){
 		state = mosq_ms_wait_for_pubrel;
-	}else if(base_msg->data.qos != 0 && db__ready_for_queue(context, base_msg->data.qos, msg_data)){
+	}లేకపోతే ఒకవేళ(పునాది_సందేశం->దత్తాంశం.qos != 0 && db_ready_for_వరుస(context, పునాది_సందేశం->దత్తాంశం.qos, సందేశం_దత్తాంశం)){
 		state = mosq_ms_queued;
 		rc = 2;
-	}else{
+	}లేకపోతే{
 		/* Dropping message due to full queue. */
-		if(context->is_dropping == false){
+		ఒకవేళ(context->is_dropping == false){
 			context->is_dropping = true;
-			log__printf(NULL, MOSQ_LOG_NOTICE,
+			log__printf(ఖాళీ, MOSQ_LOG_NOTICE,
 					"Outgoing messages are being dropped for client %s.",
 					context->id);
 		}
 		metrics__int_inc(mosq_counter_mqtt_publish_dropped, 1);
 		context->stats.messages_dropped++;
 
-		return 2;
+		తిరిగి 2;
 	}
 
-	assert(state != mosq_ms_invalid);
+	ప్రతిజ్ఞా(state != mosq_ms_invalid);
 
-#ifdef WITH_PERSISTENCE
-	if(state == mosq_ms_queued){
+#నిర్వచితమైతే WITH_PERSISTENCE
+	ఒకవేళ(state == mosq_ms_queued){
 		db.persistence_changes++;
 	}
-#endif
+#అయితే_ముగింపు
 
-	client_msg = mosquitto_malloc(sizeof(struct mosquitto__client_msg));
-	if(!client_msg){
-		return MOSQ_ERR_NOMEM;
+	client_సందేశం = mosquitto_malloc(పరిమాణం(నిర్మాణం mosquitto_client_సందేశం));
+	ఒకవేళ(!client_సందేశం){
+		తిరిగి MOSQ_ERR_NOMEM;
 	}
-	client_msg->prev = NULL;
-	client_msg->next = NULL;
-	if(cmsg_id){
-		client_msg->data.cmsg_id = cmsg_id;
-	}else{
-		client_msg->data.cmsg_id = ++context->last_cmsg_id;
+	client_సందేశం->prev = ఖాళీ;
+	client_సందేశం->తదుపరి = ఖాళీ;
+	ఒకవేళ(cmsg_id){
+		client_సందేశం->దత్తాంశం.cmsg_id = cmsg_id;
+	}లేకపోతే{
+		client_సందేశం->దత్తాంశం.cmsg_id = ++context->చివరి_cmsg_id;
 	}
-	client_msg->base_msg = base_msg;
-	db__msg_store_ref_inc(client_msg->base_msg);
-	client_msg->data.mid = base_msg->data.source_mid;
-	client_msg->data.direction = mosq_md_in;
-	client_msg->data.state = (uint8_t)state;
-	client_msg->data.dup = false;
-	if(base_msg->data.qos > context->max_qos){
-		client_msg->data.qos = context->max_qos;
-	}else{
-		client_msg->data.qos = base_msg->data.qos;
+	client_సందేశం->పునాది_సందేశం = పునాది_సందేశం;
+	db_సందేశం_store_ref_inc(client_సందేశం->పునాది_సందేశం);
+	client_సందేశం->దత్తాంశం.mid = పునాది_సందేశం->దత్తాంశం.ఆధారం_mid;
+	client_సందేశం->దత్తాంశం.direction = mosq_md_లోపల;
+	client_సందేశం->దత్తాంశం.state = (uint8_t)state;
+	client_సందేశం->దత్తాంశం.dup = false;
+	ఒకవేళ(పునాది_సందేశం->దత్తాంశం.qos > context->max_qos){
+		client_సందేశం->దత్తాంశం.qos = context->max_qos;
+	}లేకపోతే{
+		client_సందేశం->దత్తాంశం.qos = పునాది_సందేశం->దత్తాంశం.qos;
 	}
-	client_msg->data.retain = base_msg->data.retain;
-	client_msg->data.subscription_identifier = 0;
+	client_సందేశం->దత్తాంశం.retain = పునాది_సందేశం->దత్తాంశం.retain;
+	client_సందేశం->దత్తాంశం.subscription_identifier = 0;
 
-	if(state == mosq_ms_queued){
-		DL_APPEND(msg_data->queued, client_msg);
-		db__msg_add_to_queued_stats(msg_data, client_msg);
-	}else{
-		DL_APPEND(msg_data->inflight, client_msg);
-		db__msg_add_to_inflight_stats(msg_data, client_msg);
-	}
-
-	if(persist && context->is_persisted){
-		plugin_persist__handle_base_msg_add(client_msg->base_msg);
-		plugin_persist__handle_client_msg_add(context, client_msg);
+	ఒకవేళ(state == mosq_ms_queued){
+		DL_APPEND(సందేశం_దత్తాంశం->queued, client_సందేశం);
+		db_సందేశం_కూడు_గమ్యం_queued_stats(సందేశం_దత్తాంశం, client_సందేశం);
+	}లేకపోతే{
+		DL_APPEND(సందేశం_దత్తాంశం->inflight, client_సందేశం);
+		db_సందేశం_కూడు_గమ్యం_inflight_stats(సందేశం_దత్తాంశం, client_సందేశం);
 	}
 
-	if(client_msg->base_msg->data.qos > 0){
+	ఒకవేళ(persist && context->is_persisted){
+		plugin_persist_handle_పునాది_సందేశం_కూడు(client_సందేశం->పునాది_సందేశం);
+		plugin_persist_handle_client_సందేశం_కూడు(context, client_సందేశం);
+	}
+
+	ఒకవేళ(client_సందేశం->పునాది_సందేశం->దత్తాంశం.qos > 0){
 		util__decrement_receive_quota(context);
 	}
-	return rc;
+	తిరిగి rc;
 }
 
 
-int db__message_insert_outgoing(struct mosquitto *context, uint64_t cmsg_id, uint16_t mid, uint8_t qos, bool retain, struct mosquitto__base_msg *base_msg, uint32_t subscription_identifier, bool update, bool persist)
+పూర్ణాంకం db_సందేశం_చొప్పించు_outgoing(నిర్మాణం mosquitto *context, uint64_t cmsg_id, uint16_t mid, uint8_t qos, bool retain, నిర్మాణం mosquitto_పునాది_సందేశం *పునాది_సందేశం, uint32_t subscription_identifier, bool update, bool persist)
 {
-	struct mosquitto__client_msg *client_msg;
-	struct mosquitto_msg_data *msg_data;
-	enum mosquitto_msg_state state = mosq_ms_invalid;
-	int rc = 0;
-	char **dest_ids;
+	నిర్మాణం mosquitto_client_సందేశం *client_సందేశం;
+	నిర్మాణం mosquitto_సందేశం_దత్తాంశం *సందేశం_దత్తాంశం;
+	గణన mosquitto_సందేశం_state state = mosq_ms_invalid;
+	పూర్ణాంకం rc = 0;
+	అక్షరం **dest_ids;
 
-	assert(base_msg);
-	if(!context){
-		return MOSQ_ERR_INVAL;
+	ప్రతిజ్ఞా(పునాది_సందేశం);
+	ఒకవేళ(!context){
+		తిరిగి MOSQ_ERR_INVAL;
 	}
-	if(!context->id){
+	ఒకవేళ(!context->id){
 		/* Protect against unlikely "client is disconnected but not entirely freed" scenario */
-		return MOSQ_ERR_SUCCESS;
+		తిరిగి MOSQ_ERR_SUCCESS;
 
 	}
-	context->stats.messages_sent++;
+	context->stats.messages_పంపిన++;
 
-	msg_data = &context->msgs_out;
+	సందేశం_దత్తాంశం = &context->msgs_బహిర్గతం;
 
 	/* Check whether we've already sent this message to this client
 	 * for outgoing messages only.
@@ -583,121 +583,121 @@ int db__message_insert_outgoing(struct mosquitto *context, uint64_t cmsg_id, uin
 	 * multiple times for overlapping subscriptions, although this is only the
 	 * case for SUBSCRIPTION with multiple subs in so is a minor concern.
 	 */
-	if(context->protocol != mosq_p_mqtt5
+	ఒకవేళ(context->protocol != mosq_p_mqtt5
 			&& db.config->allow_duplicate_messages == false
-			&& retain == false && base_msg->dest_ids){
+			&& retain == false && పునాది_సందేశం->dest_ids){
 
-		for(int i=0; i<base_msg->dest_id_count; i++){
-			if(base_msg->dest_ids[i] && !strcmp(base_msg->dest_ids[i], context->id)){
+		కొరకు(పూర్ణాంకం i=0; i<పునాది_సందేశం->dest_id_లెక్క; i++){
+			ఒకవేళ(పునాది_సందేశం->dest_ids[i] && !strcmp(పునాది_సందేశం->dest_ids[i], context->id)){
 				/* We have already sent this message to this client. */
-				return MOSQ_ERR_SUCCESS;
+				తిరిగి MOSQ_ERR_SUCCESS;
 			}
 		}
 	}
-	if(!net__is_connected(context)){
+	ఒకవేళ(!net__is_connected(context)){
 		/* Client is not connected only queue messages with QoS>0. */
-		if(qos == 0 && !db.config->queue_qos0_messages){
-			if(!context->bridge){
-				return 2;
-			}else{
-				if(context->bridge->start_type != bst_lazy){
-					return 2;
+		ఒకవేళ(qos == 0 && !db.config->వరుస_qos0_messages){
+			ఒకవేళ(!context->bridge){
+				తిరిగి 2;
+			}లేకపోతే{
+				ఒకవేళ(context->bridge->ప్రారంభం_type != bst_lazy){
+					తిరిగి 2;
 				}
 			}
 		}
-		if(context->bridge && context->bridge->clean_start_local == true){
-			return 2;
+		ఒకవేళ(context->bridge && context->bridge->clean_ప్రారంభం_local == true){
+			తిరిగి 2;
 		}
 	}
 
-	if(net__is_connected(context)){
-		if(db__ready_for_flight(context, mosq_md_out, qos)){
-			switch(qos){
-				case 0:
+	ఒకవేళ(net__is_connected(context)){
+		ఒకవేళ(db__ready_for_flight(context, mosq_md_బహిర్గతం, qos)){
+			ఎంపిక(qos){
+				స్థితి 0:
 					state = mosq_ms_publish_qos0;
-					break;
-				case 1:
+					ఆపు;
+				స్థితి 1:
 					state = mosq_ms_publish_qos1;
-					break;
-				case 2:
+					ఆపు;
+				స్థితి 2:
 					state = mosq_ms_publish_qos2;
-					break;
+					ఆపు;
 			}
-		}else if(qos != 0 && db__ready_for_queue(context, qos, msg_data)){
+		}లేకపోతే ఒకవేళ(qos != 0 && db_ready_for_వరుస(context, qos, సందేశం_దత్తాంశం)){
 			state = mosq_ms_queued;
 			rc = 2;
-		}else{
+		}లేకపోతే{
 			/* Dropping message due to full queue. */
-			if(context->is_dropping == false){
+			ఒకవేళ(context->is_dropping == false){
 				context->is_dropping = true;
-				log__printf(NULL, MOSQ_LOG_NOTICE,
+				log__printf(ఖాళీ, MOSQ_LOG_NOTICE,
 						"Outgoing messages are being dropped for client %s.",
 						context->id);
 			}
 			metrics__int_inc(mosq_counter_mqtt_publish_dropped, 1);
-			return 2;
+			తిరిగి 2;
 		}
-	}else{
-		if(db__ready_for_queue(context, qos, msg_data)){
+	}లేకపోతే{
+		ఒకవేళ(db_ready_for_వరుస(context, qos, సందేశం_దత్తాంశం)){
 			state = mosq_ms_queued;
-		}else{
+		}లేకపోతే{
 			metrics__int_inc(mosq_counter_mqtt_publish_dropped, 1);
-			if(context->is_dropping == false){
+			ఒకవేళ(context->is_dropping == false){
 				context->is_dropping = true;
-				log__printf(NULL, MOSQ_LOG_NOTICE,
+				log__printf(ఖాళీ, MOSQ_LOG_NOTICE,
 						"Outgoing messages are being dropped for client %s.",
 						context->id);
 			}
-			return 2;
+			తిరిగి 2;
 		}
 	}
-	assert(state != mosq_ms_invalid);
+	ప్రతిజ్ఞా(state != mosq_ms_invalid);
 
-#ifdef WITH_PERSISTENCE
-	if(state == mosq_ms_queued){
+#నిర్వచితమైతే WITH_PERSISTENCE
+	ఒకవేళ(state == mosq_ms_queued){
 		db.persistence_changes++;
 	}
-#endif
+#అయితే_ముగింపు
 
-	client_msg = mosquitto_malloc(sizeof(struct mosquitto__client_msg));
-	if(!client_msg){
-		return MOSQ_ERR_NOMEM;
+	client_సందేశం = mosquitto_malloc(పరిమాణం(నిర్మాణం mosquitto_client_సందేశం));
+	ఒకవేళ(!client_సందేశం){
+		తిరిగి MOSQ_ERR_NOMEM;
 	}
-	client_msg->prev = NULL;
-	client_msg->next = NULL;
-	if(cmsg_id){
-		client_msg->data.cmsg_id = cmsg_id;
-	}else{
-		client_msg->data.cmsg_id = ++context->last_cmsg_id;
+	client_సందేశం->prev = ఖాళీ;
+	client_సందేశం->తదుపరి = ఖాళీ;
+	ఒకవేళ(cmsg_id){
+		client_సందేశం->దత్తాంశం.cmsg_id = cmsg_id;
+	}లేకపోతే{
+		client_సందేశం->దత్తాంశం.cmsg_id = ++context->చివరి_cmsg_id;
 	}
-	client_msg->base_msg = base_msg;
-	db__msg_store_ref_inc(client_msg->base_msg);
-	client_msg->data.mid = mid;
-	client_msg->data.direction = mosq_md_out;
-	client_msg->data.state = (uint8_t)state;
-	client_msg->data.dup = false;
-	if(qos > context->max_qos){
-		client_msg->data.qos = context->max_qos;
-	}else{
-		client_msg->data.qos = qos;
+	client_సందేశం->పునాది_సందేశం = పునాది_సందేశం;
+	db_సందేశం_store_ref_inc(client_సందేశం->పునాది_సందేశం);
+	client_సందేశం->దత్తాంశం.mid = mid;
+	client_సందేశం->దత్తాంశం.direction = mosq_md_బహిర్గతం;
+	client_సందేశం->దత్తాంశం.state = (uint8_t)state;
+	client_సందేశం->దత్తాంశం.dup = false;
+	ఒకవేళ(qos > context->max_qos){
+		client_సందేశం->దత్తాంశం.qos = context->max_qos;
+	}లేకపోతే{
+		client_సందేశం->దత్తాంశం.qos = qos;
 	}
-	client_msg->data.retain = retain;
-	client_msg->data.subscription_identifier = subscription_identifier;
+	client_సందేశం->దత్తాంశం.retain = retain;
+	client_సందేశం->దత్తాంశం.subscription_identifier = subscription_identifier;
 
-	if(state == mosq_ms_queued){
-		DL_APPEND(msg_data->queued, client_msg);
-		db__msg_add_to_queued_stats(msg_data, client_msg);
-	}else{
-		DL_APPEND(msg_data->inflight, client_msg);
-		db__msg_add_to_inflight_stats(msg_data, client_msg);
-	}
-
-	if(persist && context->is_persisted){
-		plugin_persist__handle_base_msg_add(client_msg->base_msg);
-		plugin_persist__handle_client_msg_add(context, client_msg);
+	ఒకవేళ(state == mosq_ms_queued){
+		DL_APPEND(సందేశం_దత్తాంశం->queued, client_సందేశం);
+		db_సందేశం_కూడు_గమ్యం_queued_stats(సందేశం_దత్తాంశం, client_సందేశం);
+	}లేకపోతే{
+		DL_APPEND(సందేశం_దత్తాంశం->inflight, client_సందేశం);
+		db_సందేశం_కూడు_గమ్యం_inflight_stats(సందేశం_దత్తాంశం, client_సందేశం);
 	}
 
-	if(db.config->allow_duplicate_messages == false && retain == false){
+	ఒకవేళ(persist && context->is_persisted){
+		plugin_persist_handle_పునాది_సందేశం_కూడు(client_సందేశం->పునాది_సందేశం);
+		plugin_persist_handle_client_సందేశం_కూడు(context, client_సందేశం);
+	}
+
+	ఒకవేళ(db.config->allow_duplicate_messages == false && retain == false){
 		/* Record which client ids this message has been sent to so we can avoid duplicates.
 		 * Outgoing messages only.
 		 * If retain==true then this is a stale retained message and so should be
@@ -705,220 +705,220 @@ int db__message_insert_outgoing(struct mosquitto *context, uint64_t cmsg_id, uin
 		 * multiple times for overlapping subscriptions, although this is only the
 		 * case for SUBSCRIPTION with multiple subs in so is a minor concern.
 		 */
-		dest_ids = mosquitto_realloc(base_msg->dest_ids, sizeof(char *)*(size_t)(base_msg->dest_id_count+1));
-		if(dest_ids){
-			base_msg->dest_ids = dest_ids;
-			base_msg->dest_id_count++;
-			base_msg->dest_ids[base_msg->dest_id_count-1] = mosquitto_strdup(context->id);
-			if(!base_msg->dest_ids[base_msg->dest_id_count-1]){
-				return MOSQ_ERR_NOMEM;
+		dest_ids = mosquitto_realloc(పునాది_సందేశం->dest_ids, పరిమాణం(అక్షరం *)*(size_t)(పునాది_సందేశం->dest_id_లెక్క+1));
+		ఒకవేళ(dest_ids){
+			పునాది_సందేశం->dest_ids = dest_ids;
+			పునాది_సందేశం->dest_id_లెక్క++;
+			పునాది_సందేశం->dest_ids[పునాది_సందేశం->dest_id_లెక్క-1] = mosquitto_strdup(context->id);
+			ఒకవేళ(!పునాది_సందేశం->dest_ids[పునాది_సందేశం->dest_id_లెక్క-1]){
+				తిరిగి MOSQ_ERR_NOMEM;
 			}
-		}else{
-			return MOSQ_ERR_NOMEM;
+		}లేకపోతే{
+			తిరిగి MOSQ_ERR_NOMEM;
 		}
 	}
-#ifdef WITH_BRIDGE
-	if(context->bridge && context->bridge->start_type == bst_lazy
+#నిర్వచితమైతే WITH_BRIDGE
+	ఒకవేళ(context->bridge && context->bridge->ప్రారంభం_type == bst_lazy
 			&& !net__is_connected(context)
-			&& context->msgs_out.inflight_count + context->msgs_out.queued_count >= context->bridge->threshold){
+			&& context->msgs_బహిర్గతం.inflight_లెక్క + context->msgs_బహిర్గతం.queued_లెక్క >= context->bridge->పరిమితి){
 
 		context->bridge->lazy_reconnect = true;
 	}
-#endif
+#అయితే_ముగింపు
 
-	if(client_msg->data.qos > 0 && state != mosq_ms_queued){
+	ఒకవేళ(client_సందేశం->దత్తాంశం.qos > 0 && state != mosq_ms_queued){
 		util__decrement_send_quota(context);
 	}
 
-	if(update){
-		rc = db__message_write_inflight_out_latest(context);
-		if(rc){
-			return rc;
+	ఒకవేళ(update){
+		rc = db_సందేశం_write_inflight_బహిర్గతం_latest(context);
+		ఒకవేళ(rc){
+			తిరిగి rc;
 		}
-		rc = db__message_write_queued_out(context);
-		if(rc){
-			return rc;
+		rc = db_సందేశం_write_queued_బహిర్గతం(context);
+		ఒకవేళ(rc){
+			తిరిగి rc;
 		}
 	}
 
-	return rc;
+	తిరిగి rc;
 }
 
 
-static inline int db__message_update_outgoing_state(struct mosquitto *context, struct mosquitto__client_msg *head,
-		uint16_t mid, enum mosquitto_msg_state state, int qos, bool persist)
+స్థిర అంతఃవరుస పూర్ణాంకం db_సందేశం_update_outgoing_state(నిర్మాణం mosquitto *context, నిర్మాణం mosquitto_client_సందేశం *తల,
+		uint16_t mid, గణన mosquitto_సందేశం_state state, పూర్ణాంకం qos, bool persist)
 {
-	struct mosquitto__client_msg *client_msg;
+	నిర్మాణం mosquitto_client_సందేశం *client_సందేశం;
 
-	DL_FOREACH(head, client_msg){
-		if(client_msg->data.mid == mid){
-			if(client_msg->data.qos != qos){
-				log__printf(NULL, MOSQ_LOG_INFO, "Protocol error from %s: Mismatched QoS (%d:%d) when updating outgoing message.",
-						context->id, client_msg->data.qos, qos);
-				return MOSQ_ERR_PROTOCOL;
+	DL_FOREACH(తల, client_సందేశం){
+		ఒకవేళ(client_సందేశం->దత్తాంశం.mid == mid){
+			ఒకవేళ(client_సందేశం->దత్తాంశం.qos != qos){
+				log__printf(ఖాళీ, MOSQ_LOG_INFO, "Protocol error from %s: Mismatched QoS (%d:%d) when updating outgoing message.",
+						context->id, client_సందేశం->దత్తాంశం.qos, qos);
+				తిరిగి MOSQ_ERR_PROTOCOL;
 			}
-			client_msg->data.state = (uint8_t)state;
-			if(persist){
-				plugin_persist__handle_client_msg_update(context, client_msg);
+			client_సందేశం->దత్తాంశం.state = (uint8_t)state;
+			ఒకవేళ(persist){
+				plugin_persist_handle_client_సందేశం_update(context, client_సందేశం);
 			}
-			return MOSQ_ERR_SUCCESS;
+			తిరిగి MOSQ_ERR_SUCCESS;
 		}
 	}
-	return MOSQ_ERR_NOT_FOUND;
+	తిరిగి MOSQ_ERR_NOT_దొరికింది;
 }
 
 
-int db__message_update_outgoing(struct mosquitto *context, uint16_t mid, enum mosquitto_msg_state state, int qos, bool persist)
+పూర్ణాంకం db_సందేశం_update_outgoing(నిర్మాణం mosquitto *context, uint16_t mid, గణన mosquitto_సందేశం_state state, పూర్ణాంకం qos, bool persist)
 {
-	int rc;
+	పూర్ణాంకం rc;
 
-	rc = db__message_update_outgoing_state(context, context->msgs_out.inflight, mid, state, qos, persist);
-	if(!persist && rc == MOSQ_ERR_NOT_FOUND){
-		rc = db__message_update_outgoing_state(context, context->msgs_out.queued, mid, state, qos, persist);
+	rc = db_సందేశం_update_outgoing_state(context, context->msgs_బహిర్గతం.inflight, mid, state, qos, persist);
+	ఒకవేళ(!persist && rc == MOSQ_ERR_NOT_దొరికింది){
+		rc = db_సందేశం_update_outgoing_state(context, context->msgs_బహిర్గతం.queued, mid, state, qos, persist);
 	}
-	return rc;
+	తిరిగి rc;
 }
 
 
-static void db__messages_delete_list(struct mosquitto__client_msg **head)
+స్థిర శూన్య db__messages_delete_list(నిర్మాణం mosquitto_client_సందేశం **తల)
 {
-	struct mosquitto__client_msg *client_msg, *tmp;
+	నిర్మాణం mosquitto_client_సందేశం *client_సందేశం, *tmp;
 
-	DL_FOREACH_SAFE(*head, client_msg, tmp){
-		DL_DELETE(*head, client_msg);
-		db__msg_store_ref_dec(&client_msg->base_msg);
-		mosquitto_FREE(client_msg);
+	DL_FOREACH_సురక్షిత(*తల, client_సందేశం, tmp){
+		DL_DELETE(*తల, client_సందేశం);
+		db_సందేశం_store_ref_dec(&client_సందేశం->పునాది_సందేశం);
+		mosquitto_FREE(client_సందేశం);
 	}
-	*head = NULL;
+	*తల = ఖాళీ;
 }
 
 
-int db__messages_delete_incoming(struct mosquitto *context)
+పూర్ణాంకం db__messages_delete_incoming(నిర్మాణం mosquitto *context)
 {
-	if(!context){
-		return MOSQ_ERR_INVAL;
+	ఒకవేళ(!context){
+		తిరిగి MOSQ_ERR_INVAL;
 	}
 
-	db__messages_delete_list(&context->msgs_in.inflight);
-	db__messages_delete_list(&context->msgs_in.queued);
-	context->msgs_in.inflight_bytes = 0;
-	context->msgs_in.inflight_bytes12 = 0;
-	context->msgs_in.inflight_count = 0;
-	context->msgs_in.inflight_count12 = 0;
-	context->msgs_in.queued_bytes = 0;
-	context->msgs_in.queued_bytes12 = 0;
-	context->msgs_in.queued_count = 0;
-	context->msgs_in.queued_count12 = 0;
+	db__messages_delete_list(&context->msgs_లోపల.inflight);
+	db__messages_delete_list(&context->msgs_లోపల.queued);
+	context->msgs_లోపల.inflight_బైట్లు = 0;
+	context->msgs_లోపల.inflight_bytes12 = 0;
+	context->msgs_లోపల.inflight_లెక్క = 0;
+	context->msgs_లోపల.inflight_count12 = 0;
+	context->msgs_లోపల.queued_బైట్లు = 0;
+	context->msgs_లోపల.queued_bytes12 = 0;
+	context->msgs_లోపల.queued_లెక్క = 0;
+	context->msgs_లోపల.queued_count12 = 0;
 
-	return MOSQ_ERR_SUCCESS;
+	తిరిగి MOSQ_ERR_SUCCESS;
 }
 
 
-int db__messages_delete_outgoing(struct mosquitto *context)
+పూర్ణాంకం db__messages_delete_outgoing(నిర్మాణం mosquitto *context)
 {
-	if(!context){
-		return MOSQ_ERR_INVAL;
+	ఒకవేళ(!context){
+		తిరిగి MOSQ_ERR_INVAL;
 	}
 
-	db__messages_delete_list(&context->msgs_out.inflight);
-	db__messages_delete_list(&context->msgs_out.queued);
-	context->msgs_out.inflight_bytes = 0;
-	context->msgs_out.inflight_bytes12 = 0;
-	context->msgs_out.inflight_count = 0;
-	context->msgs_out.inflight_count12 = 0;
-	context->msgs_out.queued_bytes = 0;
-	context->msgs_out.queued_bytes12 = 0;
-	context->msgs_out.queued_count = 0;
-	context->msgs_out.queued_count12 = 0;
+	db__messages_delete_list(&context->msgs_బహిర్గతం.inflight);
+	db__messages_delete_list(&context->msgs_బహిర్గతం.queued);
+	context->msgs_బహిర్గతం.inflight_బైట్లు = 0;
+	context->msgs_బహిర్గతం.inflight_bytes12 = 0;
+	context->msgs_బహిర్గతం.inflight_లెక్క = 0;
+	context->msgs_బహిర్గతం.inflight_count12 = 0;
+	context->msgs_బహిర్గతం.queued_బైట్లు = 0;
+	context->msgs_బహిర్గతం.queued_bytes12 = 0;
+	context->msgs_బహిర్గతం.queued_లెక్క = 0;
+	context->msgs_బహిర్గతం.queued_count12 = 0;
 
-	return MOSQ_ERR_SUCCESS;
+	తిరిగి MOSQ_ERR_SUCCESS;
 }
 
 
-int db__messages_delete(struct mosquitto *context, bool force_free)
+పూర్ణాంకం db__messages_delete(నిర్మాణం mosquitto *context, bool force_free)
 {
-	if(!context){
-		return MOSQ_ERR_INVAL;
+	ఒకవేళ(!context){
+		తిరిగి MOSQ_ERR_INVAL;
 	}
 
-	if(force_free || context->clean_start || (context->bridge && context->bridge->clean_start)){
+	ఒకవేళ(force_free || context->clean_ప్రారంభం || (context->bridge && context->bridge->clean_ప్రారంభం)){
 		db__messages_delete_incoming(context);
 	}
 
-	if(force_free || (context->bridge && context->bridge->clean_start_local)
-			|| (context->bridge == NULL && context->clean_start)){
+	ఒకవేళ(force_free || (context->bridge && context->bridge->clean_ప్రారంభం_local)
+			|| (context->bridge == ఖాళీ && context->clean_ప్రారంభం)){
 
 		db__messages_delete_outgoing(context);
 	}
 
-	return MOSQ_ERR_SUCCESS;
+	తిరిగి MOSQ_ERR_SUCCESS;
 }
 
 
-int db__messages_easy_queue(struct mosquitto *context, const char *topic, uint8_t qos, uint32_t payloadlen, const void *payload, int retain, uint32_t message_expiry_interval, mosquitto_property **properties)
+పూర్ణాంకం db_messages_easy_వరుస(నిర్మాణం mosquitto *context, స్థిరరాశి అక్షరం *topic, uint8_t qos, uint32_t payloadlen, స్థిరరాశి శూన్య *payload, పూర్ణాంకం retain, uint32_t సందేశం_expiry_interval, mosquitto_property **properties)
 {
-	struct mosquitto__base_msg *base_msg;
-	const char *source_id;
-	enum mosquitto_msg_origin origin;
+	నిర్మాణం mosquitto_పునాది_సందేశం *పునాది_సందేశం;
+	స్థిరరాశి అక్షరం *ఆధారం_id;
+	గణన mosquitto_సందేశం_origin origin;
 
-	if(!topic){
-		return MOSQ_ERR_INVAL;
+	ఒకవేళ(!topic){
+		తిరిగి MOSQ_ERR_INVAL;
 	}
 
-	base_msg = mosquitto_calloc(1, sizeof(struct mosquitto__base_msg));
-	if(base_msg == NULL){
-		return MOSQ_ERR_NOMEM;
+	పునాది_సందేశం = mosquitto_calloc(1, పరిమాణం(నిర్మాణం mosquitto_పునాది_సందేశం));
+	ఒకవేళ(పునాది_సందేశం == ఖాళీ){
+		తిరిగి MOSQ_ERR_NOMEM;
 	}
 
-	base_msg->data.topic = mosquitto_strdup(topic);
-	if(base_msg->data.topic == NULL){
-		db__msg_store_free(base_msg);
-		return MOSQ_ERR_INVAL;
+	పునాది_సందేశం->దత్తాంశం.topic = mosquitto_strdup(topic);
+	ఒకవేళ(పునాది_సందేశం->దత్తాంశం.topic == ఖాళీ){
+		db_సందేశం_store_free(పునాది_సందేశం);
+		తిరిగి MOSQ_ERR_INVAL;
 	}
 
-	base_msg->data.qos = qos;
-	if(db.config->retain_available == false){
-		base_msg->data.retain = 0;
-	}else{
-		base_msg->data.retain = retain;
+	పునాది_సందేశం->దత్తాంశం.qos = qos;
+	ఒకవేళ(db.config->retain_అందుబాటు == false){
+		పునాది_సందేశం->దత్తాంశం.retain = 0;
+	}లేకపోతే{
+		పునాది_సందేశం->దత్తాంశం.retain = retain;
 	}
 
-	base_msg->data.payloadlen = payloadlen;
-	if(payloadlen > 0){
-		base_msg->data.payload = mosquitto_malloc(base_msg->data.payloadlen+1);
-		if(base_msg->data.payload == NULL){
-			db__msg_store_free(base_msg);
-			return MOSQ_ERR_NOMEM;
+	పునాది_సందేశం->దత్తాంశం.payloadlen = payloadlen;
+	ఒకవేళ(payloadlen > 0){
+		పునాది_సందేశం->దత్తాంశం.payload = mosquitto_malloc(పునాది_సందేశం->దత్తాంశం.payloadlen+1);
+		ఒకవేళ(పునాది_సందేశం->దత్తాంశం.payload == ఖాళీ){
+			db_సందేశం_store_free(పునాది_సందేశం);
+			తిరిగి MOSQ_ERR_NOMEM;
 		}
 		/* Ensure payload is always zero terminated, this is the reason for the extra byte above */
-		((uint8_t *)base_msg->data.payload)[base_msg->data.payloadlen] = 0;
-		memcpy(base_msg->data.payload, payload, base_msg->data.payloadlen);
+		((uint8_t *)పునాది_సందేశం->దత్తాంశం.payload)[పునాది_సందేశం->దత్తాంశం.payloadlen] = 0;
+		జ్ఞాపకం_నకలు(పునాది_సందేశం->దత్తాంశం.payload, payload, పునాది_సందేశం->దత్తాంశం.payloadlen);
 	}
 
-	if(context && context->id){
-		source_id = context->id;
-	}else{
-		source_id = "";
+	ఒకవేళ(context && context->id){
+		ఆధారం_id = context->id;
+	}లేకపోతే{
+		ఆధారం_id = "";
 	}
-	if(properties){
-		base_msg->data.properties = *properties;
-		*properties = NULL;
+	ఒకవేళ(properties){
+		పునాది_సందేశం->దత్తాంశం.properties = *properties;
+		*properties = ఖాళీ;
 	}
 
-	if(context){
+	ఒకవేళ(context){
 		origin = mosq_mo_client;
-	}else{
+	}లేకపోతే{
 		origin = mosq_mo_broker;
 	}
-	if(db__message_store(context, base_msg, &message_expiry_interval, origin)){
-		return 1;
+	ఒకవేళ(db_సందేశం_store(context, పునాది_సందేశం, &సందేశం_expiry_interval, origin)){
+		తిరిగి 1;
 	}
 
-	return sub__messages_queue(source_id, base_msg->data.qos, &base_msg);
+	తిరిగి sub_messages_వరుస(ఆధారం_id, పునాది_సందేశం->దత్తాంశం.qos, &పునాది_సందేశం);
 }
 
 
-#define MOSQ_UUID_EPOCH 1637168273
+#నిర్వచించు MOSQ_UUID_EPOCH 1637168273
 
 
 /* db__new_msg_id() attempts to generate a new unique id on the broker, or a
@@ -941,169 +941,169 @@ int db__messages_easy_queue(struct mosquitto *context, const char *topic, uint8_
  * 23-bit fractional seconds gives a resolution of 120ns, or 8.4 million
  *    messages per second per broker.
  */
-uint64_t db__new_msg_id(void)
+uint64_t db_new_సందేశం_id(శూన్య)
 {
-#ifdef WIN32
+#నిర్వచితమైతే WIN32
 	FILETIME ftime;
 	uint64_t ftime64;
-#else
-	struct timespec ts;
-#endif
+#లేకపోతే
+	నిర్మాణం timespec ts;
+#అయితే_ముగింపు
 	uint64_t id;
 	uint64_t tmp;
 	time_t sec;
-	long nsec;
+	దీర్ఘ nsec;
 
-	id = db.node_id_shifted; /* Top 10-bits */
+	id = db.కణుపు_id_shifted; /* Top 10-bits */
 
-#ifdef WIN32
-	GetSystemTimePreciseAsFileTime(&ftime);
-	ftime64 = (((uint64_t)ftime.dwHighDateTime)<<32) + ftime.dwLowDateTime;
+#నిర్వచితమైతే WIN32
+	Get_System_సమయం_Precise_As_File_సమయం(&ftime);
+	ftime64 = (((uint64_t)ftime.dw_ఎగువ_Date_సమయం)<<32) + ftime.dw_దిగువ_Date_సమయం;
 	tmp = ftime64 - 116444736000000000LL; /* Convert offset to unix epoch, still in counts of 100ns */
 	sec = tmp / 10000000; /* Convert to seconds */
-	nsec = (long)(tmp - sec)*100; /* Remove seconds, convert to counts of 1ns */
-#else
+	nsec = (దీర్ఘ)(tmp - sec)*100; /* Remove seconds, convert to counts of 1ns */
+#లేకపోతే
 	clock_gettime(CLOCK_REALTIME, &ts);
 	sec = ts.tv_sec;
 	nsec = ts.tv_nsec;
-#endif
+#అయితే_ముగింపు
 	tmp = (sec - MOSQ_UUID_EPOCH) & 0x7FFFFFFF;
 	id = id | (tmp << 23); /* Seconds, 31-bits (68 years) */
 
 	tmp = (nsec & 0x7FFFFF80); /* top 23-bits of the bottom 30 bits (1 billion ns), ~100 ns resolution */
 	id = id | (tmp >> 7);
 
-	if(id <= db.last_db_id){
-		id = db.last_db_id + 1;
+	ఒకవేళ(id <= db.చివరి_db_id){
+		id = db.చివరి_db_id + 1;
 	}
-	db.last_db_id = id;
+	db.చివరి_db_id = id;
 
-	return id;
+	తిరిగి id;
 }
 
 
 /* This function requires topic to be allocated on the heap. Once called, it owns topic and will free it on error. Likewise payload and properties. */
-int db__message_store(const struct mosquitto *source, struct mosquitto__base_msg *base_msg, uint32_t *message_expiry_interval, enum mosquitto_msg_origin origin)
+పూర్ణాంకం db_సందేశం_store(స్థిరరాశి నిర్మాణం mosquitto *ఆధారం, నిర్మాణం mosquitto_పునాది_సందేశం *పునాది_సందేశం, uint32_t *సందేశం_expiry_interval, గణన mosquitto_సందేశం_origin origin)
 {
-	int rc;
+	పూర్ణాంకం rc;
 
-	assert(base_msg);
+	ప్రతిజ్ఞా(పునాది_సందేశం);
 
-	if(source && source->id){
-		base_msg->data.source_id = mosquitto_strdup(source->id);
-	}else{
-		base_msg->data.source_id = mosquitto_strdup("");
+	ఒకవేళ(ఆధారం && ఆధారం->id){
+		పునాది_సందేశం->దత్తాంశం.ఆధారం_id = mosquitto_strdup(ఆధారం->id);
+	}లేకపోతే{
+		పునాది_సందేశం->దత్తాంశం.ఆధారం_id = mosquitto_strdup("");
 	}
-	if(!base_msg->data.source_id){
-		log__printf(NULL, MOSQ_LOG_ERR, "Error: Out of memory.");
-		db__msg_store_free(base_msg);
-		return MOSQ_ERR_NOMEM;
+	ఒకవేళ(!పునాది_సందేశం->దత్తాంశం.ఆధారం_id){
+		log__printf(ఖాళీ, MOSQ_LOG_ERR, "Error: Out of memory.");
+		db_సందేశం_store_free(పునాది_సందేశం);
+		తిరిగి MOSQ_ERR_NOMEM;
 	}
 
-	if(source && source->username){
-		base_msg->data.source_username = mosquitto_strdup(source->username);
-		if(!base_msg->data.source_username){
-			db__msg_store_free(base_msg);
-			return MOSQ_ERR_NOMEM;
+	ఒకవేళ(ఆధారం && ఆధారం->username){
+		పునాది_సందేశం->దత్తాంశం.ఆధారం_username = mosquitto_strdup(ఆధారం->username);
+		ఒకవేళ(!పునాది_సందేశం->దత్తాంశం.ఆధారం_username){
+			db_సందేశం_store_free(పునాది_సందేశం);
+			తిరిగి MOSQ_ERR_NOMEM;
 		}
 	}
-	if(source){
-		base_msg->source_listener = source->listener;
+	ఒకవేళ(ఆధారం){
+		పునాది_సందేశం->ఆధారం_listener = ఆధారం->listener;
 	}
-	base_msg->origin = origin;
-	if(message_expiry_interval){
-		if(*message_expiry_interval > 0 && *message_expiry_interval != MSG_EXPIRY_INFINITE){
-			base_msg->data.expiry_time = db.now_real_s + *message_expiry_interval;
-		}else{
-			base_msg->data.expiry_time = 0;
+	పునాది_సందేశం->origin = origin;
+	ఒకవేళ(సందేశం_expiry_interval){
+		ఒకవేళ(*సందేశం_expiry_interval > 0 && *సందేశం_expiry_interval != సందేశం_EXPIRY_INFINITE){
+			పునాది_సందేశం->దత్తాంశం.expiry_సమయం = db.now_real_s + *సందేశం_expiry_interval;
+		}లేకపోతే{
+			పునాది_సందేశం->దత్తాంశం.expiry_సమయం = 0;
 		}
 	}
 
-	base_msg->dest_ids = NULL;
-	base_msg->dest_id_count = 0;
-	db.msg_store_count++;
-	db.msg_store_bytes += base_msg->data.payloadlen;
+	పునాది_సందేశం->dest_ids = ఖాళీ;
+	పునాది_సందేశం->dest_id_లెక్క = 0;
+	db.సందేశం_store_లెక్క++;
+	db.సందేశం_store_బైట్లు += పునాది_సందేశం->దత్తాంశం.payloadlen;
 
-	if(!base_msg->data.store_id){
-		base_msg->data.store_id = db__new_msg_id();
+	ఒకవేళ(!పునాది_సందేశం->దత్తాంశం.store_id){
+		పునాది_సందేశం->దత్తాంశం.store_id = db_new_సందేశం_id();
 	}
 
-	rc = db__msg_store_add(base_msg);
-	if(rc){
-		db__msg_store_free(base_msg);
-		return rc;
+	rc = db_సందేశం_store_కూడు(పునాది_సందేశం);
+	ఒకవేళ(rc){
+		db_సందేశం_store_free(పునాది_సందేశం);
+		తిరిగి rc;
 	}
 
-	return MOSQ_ERR_SUCCESS;
+	తిరిగి MOSQ_ERR_SUCCESS;
 }
 
 
-int db__message_store_find(struct mosquitto *context, uint16_t mid, struct mosquitto__client_msg **client_msg)
+పూర్ణాంకం db_సందేశం_store_కనుగొను(నిర్మాణం mosquitto *context, uint16_t mid, నిర్మాణం mosquitto_client_సందేశం **client_సందేశం)
 {
-	struct mosquitto__client_msg *cmsg;
+	నిర్మాణం mosquitto_client_సందేశం *cmsg;
 
-	*client_msg = NULL;
+	*client_సందేశం = ఖాళీ;
 
-	if(!context){
-		return MOSQ_ERR_INVAL;
+	ఒకవేళ(!context){
+		తిరిగి MOSQ_ERR_INVAL;
 	}
 
-	DL_FOREACH(context->msgs_in.inflight, cmsg){
-		if(cmsg->base_msg->data.source_mid == mid){
-			*client_msg = cmsg;
-			return MOSQ_ERR_SUCCESS;
+	DL_FOREACH(context->msgs_లోపల.inflight, cmsg){
+		ఒకవేళ(cmsg->పునాది_సందేశం->దత్తాంశం.ఆధారం_mid == mid){
+			*client_సందేశం = cmsg;
+			తిరిగి MOSQ_ERR_SUCCESS;
 		}
 	}
 
-	DL_FOREACH(context->msgs_in.queued, cmsg){
-		if(cmsg->base_msg->data.source_mid == mid){
-			*client_msg = cmsg;
-			return MOSQ_ERR_SUCCESS;
+	DL_FOREACH(context->msgs_లోపల.queued, cmsg){
+		ఒకవేళ(cmsg->పునాది_సందేశం->దత్తాంశం.ఆధారం_mid == mid){
+			*client_సందేశం = cmsg;
+			తిరిగి MOSQ_ERR_SUCCESS;
 		}
 	}
 
-	return 1;
+	తిరిగి 1;
 }
 
 
 /* Called on reconnect to set outgoing messages to a sensible state and force a
  * retry, and to set incoming messages to expect an appropriate retry. */
-static int db__message_reconnect_reset_outgoing(struct mosquitto *context)
+స్థిర పూర్ణాంకం db_సందేశం_reconnect_reset_outgoing(నిర్మాణం mosquitto *context)
 {
-	struct mosquitto__client_msg *client_msg, *tmp;
+	నిర్మాణం mosquitto_client_సందేశం *client_సందేశం, *tmp;
 
-	context->msgs_out.inflight_bytes = 0;
-	context->msgs_out.inflight_bytes12 = 0;
-	context->msgs_out.inflight_count = 0;
-	context->msgs_out.inflight_count12 = 0;
-	context->msgs_out.queued_bytes = 0;
-	context->msgs_out.queued_bytes12 = 0;
-	context->msgs_out.queued_count = 0;
-	context->msgs_out.queued_count12 = 0;
-	context->msgs_out.inflight_quota = context->msgs_out.inflight_maximum;
+	context->msgs_బహిర్గతం.inflight_బైట్లు = 0;
+	context->msgs_బహిర్గతం.inflight_bytes12 = 0;
+	context->msgs_బహిర్గతం.inflight_లెక్క = 0;
+	context->msgs_బహిర్గతం.inflight_count12 = 0;
+	context->msgs_బహిర్గతం.queued_బైట్లు = 0;
+	context->msgs_బహిర్గతం.queued_bytes12 = 0;
+	context->msgs_బహిర్గతం.queued_లెక్క = 0;
+	context->msgs_బహిర్గతం.queued_count12 = 0;
+	context->msgs_బహిర్గతం.inflight_quota = context->msgs_బహిర్గతం.inflight_గరిష్ఠ;
 
-	DL_FOREACH_SAFE(context->msgs_out.inflight, client_msg, tmp){
-		db__msg_add_to_inflight_stats(&context->msgs_out, client_msg);
-		if(client_msg->data.qos > 0){
+	DL_FOREACH_సురక్షిత(context->msgs_బహిర్గతం.inflight, client_సందేశం, tmp){
+		db_సందేశం_కూడు_గమ్యం_inflight_stats(&context->msgs_బహిర్గతం, client_సందేశం);
+		ఒకవేళ(client_సందేశం->దత్తాంశం.qos > 0){
 			util__decrement_send_quota(context);
 		}
 
-		switch(client_msg->data.qos){
-			case 0:
-				client_msg->data.state = mosq_ms_publish_qos0;
-				break;
-			case 1:
-				client_msg->data.state = mosq_ms_publish_qos1;
-				break;
-			case 2:
-				if(client_msg->data.state == mosq_ms_wait_for_pubcomp){
-					client_msg->data.state = mosq_ms_resend_pubrel;
-				}else{
-					client_msg->data.state = mosq_ms_publish_qos2;
+		ఎంపిక(client_సందేశం->దత్తాంశం.qos){
+			స్థితి 0:
+				client_సందేశం->దత్తాంశం.state = mosq_ms_publish_qos0;
+				ఆపు;
+			స్థితి 1:
+				client_సందేశం->దత్తాంశం.state = mosq_ms_publish_qos1;
+				ఆపు;
+			స్థితి 2:
+				ఒకవేళ(client_సందేశం->దత్తాంశం.state == mosq_ms_wait_for_pubcomp){
+					client_సందేశం->దత్తాంశం.state = mosq_ms_resend_pubrel;
+				}లేకపోతే{
+					client_సందేశం->దత్తాంశం.state = mosq_ms_publish_qos2;
 				}
-				break;
+				ఆపు;
 		}
-		plugin_persist__handle_client_msg_update(context, client_msg);
+		plugin_persist_handle_client_సందేశం_update(context, client_సందేశం);
 	}
 	/* Messages received when the client was disconnected are put
 	 * in the mosq_ms_queued state. If we don't change them to the
@@ -1111,44 +1111,44 @@ static int db__message_reconnect_reset_outgoing(struct mosquitto *context)
 	 * get sent until the client next receives a message - and they
 	 * will be sent out of order.
 	 */
-	DL_FOREACH_SAFE(context->msgs_out.queued, client_msg, tmp){
-		db__msg_add_to_queued_stats(&context->msgs_out, client_msg);
+	DL_FOREACH_సురక్షిత(context->msgs_బహిర్గతం.queued, client_సందేశం, tmp){
+		db_సందేశం_కూడు_గమ్యం_queued_stats(&context->msgs_బహిర్గతం, client_సందేశం);
 	}
-	db__fill_inflight_out_from_queue(context);
+	db_fill_inflight_బహిర్గతం_from_వరుస(context);
 
-	return MOSQ_ERR_SUCCESS;
+	తిరిగి MOSQ_ERR_SUCCESS;
 }
 
 
 /* Called on reconnect to set incoming messages to expect an appropriate retry. */
-static int db__message_reconnect_reset_incoming(struct mosquitto *context)
+స్థిర పూర్ణాంకం db_సందేశం_reconnect_reset_incoming(నిర్మాణం mosquitto *context)
 {
-	struct mosquitto__client_msg *client_msg, *tmp;
+	నిర్మాణం mosquitto_client_సందేశం *client_సందేశం, *tmp;
 
-	context->msgs_in.inflight_bytes = 0;
-	context->msgs_in.inflight_bytes12 = 0;
-	context->msgs_in.inflight_count = 0;
-	context->msgs_in.inflight_count12 = 0;
-	context->msgs_in.queued_bytes = 0;
-	context->msgs_in.queued_bytes12 = 0;
-	context->msgs_in.queued_count = 0;
-	context->msgs_in.queued_count12 = 0;
-	context->msgs_in.inflight_quota = context->msgs_in.inflight_maximum;
+	context->msgs_లోపల.inflight_బైట్లు = 0;
+	context->msgs_లోపల.inflight_bytes12 = 0;
+	context->msgs_లోపల.inflight_లెక్క = 0;
+	context->msgs_లోపల.inflight_count12 = 0;
+	context->msgs_లోపల.queued_బైట్లు = 0;
+	context->msgs_లోపల.queued_bytes12 = 0;
+	context->msgs_లోపల.queued_లెక్క = 0;
+	context->msgs_లోపల.queued_count12 = 0;
+	context->msgs_లోపల.inflight_quota = context->msgs_లోపల.inflight_గరిష్ఠ;
 
-	DL_FOREACH_SAFE(context->msgs_in.inflight, client_msg, tmp){
-		db__msg_add_to_inflight_stats(&context->msgs_in, client_msg);
-		if(client_msg->data.qos > 0){
+	DL_FOREACH_సురక్షిత(context->msgs_లోపల.inflight, client_సందేశం, tmp){
+		db_సందేశం_కూడు_గమ్యం_inflight_stats(&context->msgs_లోపల, client_సందేశం);
+		ఒకవేళ(client_సందేశం->దత్తాంశం.qos > 0){
 			util__decrement_receive_quota(context);
 		}
 
-		if(client_msg->data.qos != 2){
+		ఒకవేళ(client_సందేశం->దత్తాంశం.qos != 2){
 			/* Anything <QoS 2 can be completely retried by the client at
 			 * no harm. */
-			db__message_remove_inflight(context, &context->msgs_in, client_msg);
-		}else{
+			db_సందేశం_remove_inflight(context, &context->msgs_లోపల, client_సందేశం);
+		}లేకపోతే{
 			/* Message state can be preserved here because it should match
 			 * whatever the client has got. */
-			client_msg->data.dup = 0;
+			client_సందేశం->దత్తాంశం.dup = 0;
 		}
 	}
 
@@ -1158,402 +1158,402 @@ static int db__message_reconnect_reset_incoming(struct mosquitto *context)
 	 * get sent until the client next receives a message - and they
 	 * will be sent out of order.
 	 */
-	DL_FOREACH_SAFE(context->msgs_in.queued, client_msg, tmp){
-		client_msg->data.dup = 0;
-		db__msg_add_to_queued_stats(&context->msgs_in, client_msg);
-		if(db__ready_for_flight(context, mosq_md_in, client_msg->data.qos)){
-			switch(client_msg->data.qos){
-				case 0:
-					client_msg->data.state = mosq_ms_publish_qos0;
-					break;
-				case 1:
-					client_msg->data.state = mosq_ms_publish_qos1;
-					break;
-				case 2:
-					client_msg->data.state = mosq_ms_publish_qos2;
-					break;
+	DL_FOREACH_సురక్షిత(context->msgs_లోపల.queued, client_సందేశం, tmp){
+		client_సందేశం->దత్తాంశం.dup = 0;
+		db_సందేశం_కూడు_గమ్యం_queued_stats(&context->msgs_లోపల, client_సందేశం);
+		ఒకవేళ(db__ready_for_flight(context, mosq_md_లోపల, client_సందేశం->దత్తాంశం.qos)){
+			ఎంపిక(client_సందేశం->దత్తాంశం.qos){
+				స్థితి 0:
+					client_సందేశం->దత్తాంశం.state = mosq_ms_publish_qos0;
+					ఆపు;
+				స్థితి 1:
+					client_సందేశం->దత్తాంశం.state = mosq_ms_publish_qos1;
+					ఆపు;
+				స్థితి 2:
+					client_సందేశం->దత్తాంశం.state = mosq_ms_publish_qos2;
+					ఆపు;
 			}
-			db__message_dequeue_first(context, &context->msgs_in);
-			plugin_persist__handle_client_msg_update(context, client_msg);
+			db_సందేశం_వరుస_నుండి_తీయి_మొదటి(context, &context->msgs_లోపల);
+			plugin_persist_handle_client_సందేశం_update(context, client_సందేశం);
 		}
 	}
 
-	return MOSQ_ERR_SUCCESS;
+	తిరిగి MOSQ_ERR_SUCCESS;
 }
 
 
-int db__message_reconnect_reset(struct mosquitto *context)
+పూర్ణాంకం db_సందేశం_reconnect_reset(నిర్మాణం mosquitto *context)
 {
-	int rc;
+	పూర్ణాంకం rc;
 
-	rc = db__message_reconnect_reset_outgoing(context);
-	if(rc){
-		return rc;
+	rc = db_సందేశం_reconnect_reset_outgoing(context);
+	ఒకవేళ(rc){
+		తిరిగి rc;
 	}
-	return db__message_reconnect_reset_incoming(context);
+	తిరిగి db_సందేశం_reconnect_reset_incoming(context);
 }
 
 
-int db__message_remove_incoming(struct mosquitto *context, uint16_t mid)
+పూర్ణాంకం db_సందేశం_remove_incoming(నిర్మాణం mosquitto *context, uint16_t mid)
 {
-	struct mosquitto__client_msg *client_msg, *tmp;
+	నిర్మాణం mosquitto_client_సందేశం *client_సందేశం, *tmp;
 
-	if(!context){
-		return MOSQ_ERR_INVAL;
+	ఒకవేళ(!context){
+		తిరిగి MOSQ_ERR_INVAL;
 	}
 
-	DL_FOREACH_SAFE(context->msgs_in.inflight, client_msg, tmp){
-		if(client_msg->data.mid == mid){
-			if(client_msg->base_msg->data.qos != 2){
-				log__printf(NULL, MOSQ_LOG_INFO, "Protocol error from %s: Incorrect QoS (%d) when deleting incoming message.",
-						context->id, client_msg->base_msg->data.qos);
-				return MOSQ_ERR_PROTOCOL;
+	DL_FOREACH_సురక్షిత(context->msgs_లోపల.inflight, client_సందేశం, tmp){
+		ఒకవేళ(client_సందేశం->దత్తాంశం.mid == mid){
+			ఒకవేళ(client_సందేశం->పునాది_సందేశం->దత్తాంశం.qos != 2){
+				log__printf(ఖాళీ, MOSQ_LOG_INFO, "Protocol error from %s: Incorrect QoS (%d) when deleting incoming message.",
+						context->id, client_సందేశం->పునాది_సందేశం->దత్తాంశం.qos);
+				తిరిగి MOSQ_ERR_PROTOCOL;
 			}
-			db__message_remove_inflight(context, &context->msgs_in, client_msg);
-			return MOSQ_ERR_SUCCESS;
+			db_సందేశం_remove_inflight(context, &context->msgs_లోపల, client_సందేశం);
+			తిరిగి MOSQ_ERR_SUCCESS;
 		}
 	}
 
-	return MOSQ_ERR_NOT_FOUND;
+	తిరిగి MOSQ_ERR_NOT_దొరికింది;
 }
 
 
-int db__message_release_incoming(struct mosquitto *context, uint16_t mid)
+పూర్ణాంకం db_సందేశం_release_incoming(నిర్మాణం mosquitto *context, uint16_t mid)
 {
-	struct mosquitto__client_msg *client_msg, *tmp;
+	నిర్మాణం mosquitto_client_సందేశం *client_సందేశం, *tmp;
 	bool deleted = false;
-	int rc;
+	పూర్ణాంకం rc;
 
-	if(!context){
-		return MOSQ_ERR_INVAL;
+	ఒకవేళ(!context){
+		తిరిగి MOSQ_ERR_INVAL;
 	}
 
-	DL_FOREACH_SAFE(context->msgs_in.inflight, client_msg, tmp){
-		if(client_msg->data.mid == mid){
-			if(client_msg->base_msg->data.qos != 2){
-				log__printf(NULL, MOSQ_LOG_INFO, "Protocol error from %s: Incorrect QoS (%d) when releasing incoming message.",
-						context->id, client_msg->base_msg->data.qos);
-				return MOSQ_ERR_PROTOCOL;
+	DL_FOREACH_సురక్షిత(context->msgs_లోపల.inflight, client_సందేశం, tmp){
+		ఒకవేళ(client_సందేశం->దత్తాంశం.mid == mid){
+			ఒకవేళ(client_సందేశం->పునాది_సందేశం->దత్తాంశం.qos != 2){
+				log__printf(ఖాళీ, MOSQ_LOG_INFO, "Protocol error from %s: Incorrect QoS (%d) when releasing incoming message.",
+						context->id, client_సందేశం->పునాది_సందేశం->దత్తాంశం.qos);
+				తిరిగి MOSQ_ERR_PROTOCOL;
 			}
-			const char *topic = client_msg->base_msg->data.topic;
-			const char *source_id = client_msg->base_msg->data.source_id;
+			స్థిరరాశి అక్షరం *topic = client_సందేశం->పునాది_సందేశం->దత్తాంశం.topic;
+			స్థిరరాశి అక్షరం *ఆధారం_id = client_సందేశం->పునాది_సందేశం->దత్తాంశం.ఆధారం_id;
 
 			/* topic==NULL should be a QoS 2 message that was
 			 * denied/dropped and is being processed so the client doesn't
 			 * keep resending it. That means we don't send it to other
 			 * clients. */
-			if(topic == NULL){
-				db__message_remove_inflight(context, &context->msgs_in, client_msg);
+			ఒకవేళ(topic == ఖాళీ){
+				db_సందేశం_remove_inflight(context, &context->msgs_లోపల, client_సందేశం);
 				deleted = true;
-			}else{
-				rc = sub__messages_queue(source_id, 2, &client_msg->base_msg);
-				if(rc == MOSQ_ERR_SUCCESS || rc == MOSQ_ERR_NO_SUBSCRIBERS){
-					db__message_remove_inflight(context, &context->msgs_in, client_msg);
+			}లేకపోతే{
+				rc = sub_messages_వరుస(ఆధారం_id, 2, &client_సందేశం->పునాది_సందేశం);
+				ఒకవేళ(rc == MOSQ_ERR_SUCCESS || rc == MOSQ_ERR_NO_SUBSCRIBERS){
+					db_సందేశం_remove_inflight(context, &context->msgs_లోపల, client_సందేశం);
 					deleted = true;
-				}else{
-					return 1;
+				}లేకపోతే{
+					తిరిగి 1;
 				}
 			}
 		}
 	}
 
-	DL_FOREACH_SAFE(context->msgs_in.queued, client_msg, tmp){
-		if(db__ready_for_flight(context, mosq_md_in, client_msg->data.qos)){
-			break;
+	DL_FOREACH_సురక్షిత(context->msgs_లోపల.queued, client_సందేశం, tmp){
+		ఒకవేళ(db__ready_for_flight(context, mosq_md_లోపల, client_సందేశం->దత్తాంశం.qos)){
+			ఆపు;
 		}
 
-		if(client_msg->data.qos == 2){
-			send__pubrec(context, client_msg->data.mid, 0, NULL);
-			client_msg->data.state = mosq_ms_wait_for_pubrel;
-			db__message_dequeue_first(context, &context->msgs_in);
-			plugin_persist__handle_client_msg_update(context, client_msg);
+		ఒకవేళ(client_సందేశం->దత్తాంశం.qos == 2){
+			send__pubrec(context, client_సందేశం->దత్తాంశం.mid, 0, ఖాళీ);
+			client_సందేశం->దత్తాంశం.state = mosq_ms_wait_for_pubrel;
+			db_సందేశం_వరుస_నుండి_తీయి_మొదటి(context, &context->msgs_లోపల);
+			plugin_persist_handle_client_సందేశం_update(context, client_సందేశం);
 		}
 	}
-	if(deleted){
-		return MOSQ_ERR_SUCCESS;
-	}else{
-		return MOSQ_ERR_NOT_FOUND;
+	ఒకవేళ(deleted){
+		తిరిగి MOSQ_ERR_SUCCESS;
+	}లేకపోతే{
+		తిరిగి MOSQ_ERR_NOT_దొరికింది;
 	}
 }
 
 
-void db__expire_all_messages(struct mosquitto *context)
+శూన్య db__expire_all_messages(నిర్మాణం mosquitto *context)
 {
-	struct mosquitto__client_msg *client_msg, *tmp;
+	నిర్మాణం mosquitto_client_సందేశం *client_సందేశం, *tmp;
 
-	DL_FOREACH_SAFE(context->msgs_out.inflight, client_msg, tmp){
-		if(client_msg->base_msg->data.expiry_time && db.now_real_s > client_msg->base_msg->data.expiry_time){
-			if(client_msg->data.qos > 0){
+	DL_FOREACH_సురక్షిత(context->msgs_బహిర్గతం.inflight, client_సందేశం, tmp){
+		ఒకవేళ(client_సందేశం->పునాది_సందేశం->దత్తాంశం.expiry_సమయం && db.now_real_s > client_సందేశం->పునాది_సందేశం->దత్తాంశం.expiry_సమయం){
+			ఒకవేళ(client_సందేశం->దత్తాంశం.qos > 0){
 				util__increment_send_quota(context);
 			}
-			db__message_remove_inflight(context, &context->msgs_out, client_msg);
+			db_సందేశం_remove_inflight(context, &context->msgs_బహిర్గతం, client_సందేశం);
 		}
 	}
-	db__fill_inflight_out_from_queue(context);
-	DL_FOREACH_SAFE(context->msgs_out.queued, client_msg, tmp){
-		if(client_msg->base_msg->data.expiry_time && db.now_real_s > client_msg->base_msg->data.expiry_time){
-			db__message_remove_queued(context, &context->msgs_out, client_msg);
+	db_fill_inflight_బహిర్గతం_from_వరుస(context);
+	DL_FOREACH_సురక్షిత(context->msgs_బహిర్గతం.queued, client_సందేశం, tmp){
+		ఒకవేళ(client_సందేశం->పునాది_సందేశం->దత్తాంశం.expiry_సమయం && db.now_real_s > client_సందేశం->పునాది_సందేశం->దత్తాంశం.expiry_సమయం){
+			db_సందేశం_remove_queued(context, &context->msgs_బహిర్గతం, client_సందేశం);
 		}
 	}
-	DL_FOREACH_SAFE(context->msgs_in.inflight, client_msg, tmp){
-		if(client_msg->base_msg->data.expiry_time && db.now_real_s > client_msg->base_msg->data.expiry_time){
-			if(client_msg->data.qos > 0){
+	DL_FOREACH_సురక్షిత(context->msgs_లోపల.inflight, client_సందేశం, tmp){
+		ఒకవేళ(client_సందేశం->పునాది_సందేశం->దత్తాంశం.expiry_సమయం && db.now_real_s > client_సందేశం->పునాది_సందేశం->దత్తాంశం.expiry_సమయం){
+			ఒకవేళ(client_సందేశం->దత్తాంశం.qos > 0){
 				util__increment_receive_quota(context);
 			}
-			db__message_remove_inflight(context, &context->msgs_in, client_msg);
+			db_సందేశం_remove_inflight(context, &context->msgs_లోపల, client_సందేశం);
 		}
 	}
-	DL_FOREACH_SAFE(context->msgs_in.queued, client_msg, tmp){
-		if(client_msg->base_msg->data.expiry_time && db.now_real_s > client_msg->base_msg->data.expiry_time){
-			db__message_remove_queued(context, &context->msgs_in, client_msg);
+	DL_FOREACH_సురక్షిత(context->msgs_లోపల.queued, client_సందేశం, tmp){
+		ఒకవేళ(client_సందేశం->పునాది_సందేశం->దత్తాంశం.expiry_సమయం && db.now_real_s > client_సందేశం->పునాది_సందేశం->దత్తాంశం.expiry_సమయం){
+			db_సందేశం_remove_queued(context, &context->msgs_లోపల, client_సందేశం);
 		}
 	}
 }
 
 
-static void db__client_messages_check_acl(struct mosquitto *context, struct mosquitto_msg_data *msg_data, struct mosquitto__client_msg **head,
-		void (*decrement_stats_fn)(struct mosquitto_msg_data *msg_data, struct mosquitto__client_msg *client_msg))
+స్థిర శూన్య db__client_messages_check_acl(నిర్మాణం mosquitto *context, నిర్మాణం mosquitto_సందేశం_దత్తాంశం *సందేశం_దత్తాంశం, నిర్మాణం mosquitto_client_సందేశం **తల,
+		శూన్య (*decrement_stats_fn)(నిర్మాణం mosquitto_సందేశం_దత్తాంశం *సందేశం_దత్తాంశం, నిర్మాణం mosquitto_client_సందేశం *client_సందేశం))
 {
-	struct mosquitto__client_msg *client_msg, *tmp;
-	struct mosquitto__base_msg *base_msg;
-	int access;
+	నిర్మాణం mosquitto_client_సందేశం *client_సందేశం, *tmp;
+	నిర్మాణం mosquitto_పునాది_సందేశం *పునాది_సందేశం;
+	పూర్ణాంకం access;
 
-	DL_FOREACH_SAFE((*head), client_msg, tmp){
-		base_msg = client_msg->base_msg;
-		if(client_msg->data.direction == mosq_md_out){
+	DL_FOREACH_సురక్షిత((*తల), client_సందేశం, tmp){
+		పునాది_సందేశం = client_సందేశం->పునాది_సందేశం;
+		ఒకవేళ(client_సందేశం->దత్తాంశం.direction == mosq_md_బహిర్గతం){
 			access = MOSQ_ACL_READ;
-		}else{
+		}లేకపోతే{
 			access = MOSQ_ACL_WRITE;
 		}
-		if(mosquitto_acl_check(context, base_msg->data.topic,
-				base_msg->data.payloadlen, base_msg->data.payload,
-				base_msg->data.qos, base_msg->data.retain,
-				base_msg->data.properties, access) != MOSQ_ERR_SUCCESS){
+		ఒకవేళ(mosquitto_acl_check(context, పునాది_సందేశం->దత్తాంశం.topic,
+				పునాది_సందేశం->దత్తాంశం.payloadlen, పునాది_సందేశం->దత్తాంశం.payload,
+				పునాది_సందేశం->దత్తాంశం.qos, పునాది_సందేశం->దత్తాంశం.retain,
+				పునాది_సందేశం->దత్తాంశం.properties, access) != MOSQ_ERR_SUCCESS){
 
-			DL_DELETE((*head), client_msg);
-			decrement_stats_fn(msg_data, client_msg);
-			plugin_persist__handle_client_msg_delete(context, client_msg);
-			db__msg_store_ref_dec(&client_msg->base_msg);
-			mosquitto_FREE(client_msg);
+			DL_DELETE((*తల), client_సందేశం);
+			decrement_stats_fn(సందేశం_దత్తాంశం, client_సందేశం);
+			plugin_persist_handle_client_సందేశం_delete(context, client_సందేశం);
+			db_సందేశం_store_ref_dec(&client_సందేశం->పునాది_సందేశం);
+			mosquitto_FREE(client_సందేశం);
 		}
 	}
 }
 
 
-void db__check_acl_of_all_messages(struct mosquitto *context)
+శూన్య db_check_acl_యొక్క_all_messages(నిర్మాణం mosquitto *context)
 {
-	db__client_messages_check_acl(context, &context->msgs_in, &context->msgs_in.inflight, &db__msg_remove_from_inflight_stats);
-	db__client_messages_check_acl(context, &context->msgs_in, &context->msgs_in.queued, &db__msg_remove_from_queued_stats);
-	db__client_messages_check_acl(context, &context->msgs_out, &context->msgs_out.inflight, &db__msg_remove_from_inflight_stats);
-	db__client_messages_check_acl(context, &context->msgs_out, &context->msgs_out.queued, &db__msg_remove_from_queued_stats);
+	db__client_messages_check_acl(context, &context->msgs_లోపల, &context->msgs_లోపల.inflight, &db_సందేశం_remove_from_inflight_stats);
+	db__client_messages_check_acl(context, &context->msgs_లోపల, &context->msgs_లోపల.queued, &db_సందేశం_remove_from_queued_stats);
+	db__client_messages_check_acl(context, &context->msgs_బహిర్గతం, &context->msgs_బహిర్గతం.inflight, &db_సందేశం_remove_from_inflight_stats);
+	db__client_messages_check_acl(context, &context->msgs_బహిర్గతం, &context->msgs_బహిర్గతం.queued, &db_సందేశం_remove_from_queued_stats);
 }
 
 
-static int db__message_write_inflight_out_single(struct mosquitto *context, struct mosquitto__client_msg *client_msg)
+స్థిర పూర్ణాంకం db_సందేశం_write_inflight_బహిర్గతం_single(నిర్మాణం mosquitto *context, నిర్మాణం mosquitto_client_సందేశం *client_సందేశం)
 {
-	struct mosquitto__base_msg *base_msg;
-	mosquitto_property *base_msg_props = NULL;
-	int rc;
+	నిర్మాణం mosquitto_పునాది_సందేశం *పునాది_సందేశం;
+	mosquitto_property *పునాది_సందేశం_props = ఖాళీ;
+	పూర్ణాంకం rc;
 	uint16_t mid;
-	int retries;
-	int retain;
-	const char *topic;
+	పూర్ణాంకం retries;
+	పూర్ణాంకం retain;
+	స్థిరరాశి అక్షరం *topic;
 	uint8_t qos;
 	uint32_t payloadlen;
-	const void *payload;
+	స్థిరరాశి శూన్య *payload;
 	uint32_t expiry_interval;
 	uint32_t subscription_id;
 
-	base_msg = client_msg->base_msg;
+	పునాది_సందేశం = client_సందేశం->పునాది_సందేశం;
 
 	expiry_interval = 0;
-	if(base_msg->data.expiry_time){
-		if(db.now_real_s > base_msg->data.expiry_time){
+	ఒకవేళ(పునాది_సందేశం->దత్తాంశం.expiry_సమయం){
+		ఒకవేళ(db.now_real_s > పునాది_సందేశం->దత్తాంశం.expiry_సమయం){
 			/* Message is expired, must not send. */
-			if(client_msg->data.direction == mosq_md_out && client_msg->data.qos > 0){
+			ఒకవేళ(client_సందేశం->దత్తాంశం.direction == mosq_md_బహిర్గతం && client_సందేశం->దత్తాంశం.qos > 0){
 				util__increment_send_quota(context);
 			}
-			db__message_remove_inflight(context, &context->msgs_out, client_msg);
-			db__fill_inflight_out_from_queue(context);
-			return MOSQ_ERR_SUCCESS;
-		}else{
-			expiry_interval = (uint32_t)(base_msg->data.expiry_time - db.now_real_s);
+			db_సందేశం_remove_inflight(context, &context->msgs_బహిర్గతం, client_సందేశం);
+			db_fill_inflight_బహిర్గతం_from_వరుస(context);
+			తిరిగి MOSQ_ERR_SUCCESS;
+		}లేకపోతే{
+			expiry_interval = (uint32_t)(పునాది_సందేశం->దత్తాంశం.expiry_సమయం - db.now_real_s);
 		}
 	}
-	mid = client_msg->data.mid;
-	retries = client_msg->data.dup;
-	retain = client_msg->data.retain;
-	topic = base_msg->data.topic;
-	qos = (uint8_t)client_msg->data.qos;
-	payloadlen = base_msg->data.payloadlen;
-	payload = base_msg->data.payload;
-	subscription_id = client_msg->data.subscription_identifier;
-	base_msg_props = base_msg->data.properties;
+	mid = client_సందేశం->దత్తాంశం.mid;
+	retries = client_సందేశం->దత్తాంశం.dup;
+	retain = client_సందేశం->దత్తాంశం.retain;
+	topic = పునాది_సందేశం->దత్తాంశం.topic;
+	qos = (uint8_t)client_సందేశం->దత్తాంశం.qos;
+	payloadlen = పునాది_సందేశం->దత్తాంశం.payloadlen;
+	payload = పునాది_సందేశం->దత్తాంశం.payload;
+	subscription_id = client_సందేశం->దత్తాంశం.subscription_identifier;
+	పునాది_సందేశం_props = పునాది_సందేశం->దత్తాంశం.properties;
 
-	switch(client_msg->data.state){
-		case mosq_ms_publish_qos0:
-			rc = send__publish(context, mid, topic, payloadlen, payload, qos, retain, retries, subscription_id, base_msg_props, expiry_interval);
-			if(rc == MOSQ_ERR_SUCCESS || rc == MOSQ_ERR_OVERSIZE_PACKET){
-				db__message_remove_inflight(context, &context->msgs_out, client_msg);
-			}else{
-				return rc;
+	ఎంపిక(client_సందేశం->దత్తాంశం.state){
+		స్థితి mosq_ms_publish_qos0:
+			rc = send__publish(context, mid, topic, payloadlen, payload, qos, retain, retries, subscription_id, పునాది_సందేశం_props, expiry_interval);
+			ఒకవేళ(rc == MOSQ_ERR_SUCCESS || rc == MOSQ_ERR_OVERSIZE_PACKET){
+				db_సందేశం_remove_inflight(context, &context->msgs_బహిర్గతం, client_సందేశం);
+			}లేకపోతే{
+				తిరిగి rc;
 			}
-			break;
+			ఆపు;
 
-		case mosq_ms_publish_qos1:
-			rc = send__publish(context, mid, topic, payloadlen, payload, qos, retain, retries, subscription_id, base_msg_props, expiry_interval);
-			if(rc == MOSQ_ERR_SUCCESS){
-				client_msg->data.dup = 1; /* Any retry attempts are a duplicate. */
-				client_msg->data.state = mosq_ms_wait_for_puback;
-				plugin_persist__handle_client_msg_update(context, client_msg);
-			}else if(rc == MOSQ_ERR_OVERSIZE_PACKET){
-				db__message_remove_inflight(context, &context->msgs_out, client_msg);
-			}else{
-				return rc;
+		స్థితి mosq_ms_publish_qos1:
+			rc = send__publish(context, mid, topic, payloadlen, payload, qos, retain, retries, subscription_id, పునాది_సందేశం_props, expiry_interval);
+			ఒకవేళ(rc == MOSQ_ERR_SUCCESS){
+				client_సందేశం->దత్తాంశం.dup = 1; /* Any retry attempts are a duplicate. */
+				client_సందేశం->దత్తాంశం.state = mosq_ms_wait_for_puback;
+				plugin_persist_handle_client_సందేశం_update(context, client_సందేశం);
+			}లేకపోతే ఒకవేళ(rc == MOSQ_ERR_OVERSIZE_PACKET){
+				db_సందేశం_remove_inflight(context, &context->msgs_బహిర్గతం, client_సందేశం);
+			}లేకపోతే{
+				తిరిగి rc;
 			}
-			break;
+			ఆపు;
 
-		case mosq_ms_publish_qos2:
-			rc = send__publish(context, mid, topic, payloadlen, payload, qos, retain, retries, subscription_id, base_msg_props, expiry_interval);
-			if(rc == MOSQ_ERR_SUCCESS){
-				client_msg->data.dup = 1; /* Any retry attempts are a duplicate. */
-				client_msg->data.state = mosq_ms_wait_for_pubrec;
-				plugin_persist__handle_client_msg_update(context, client_msg);
-			}else if(rc == MOSQ_ERR_OVERSIZE_PACKET){
-				db__message_remove_inflight(context, &context->msgs_out, client_msg);
-			}else{
-				return rc;
+		స్థితి mosq_ms_publish_qos2:
+			rc = send__publish(context, mid, topic, payloadlen, payload, qos, retain, retries, subscription_id, పునాది_సందేశం_props, expiry_interval);
+			ఒకవేళ(rc == MOSQ_ERR_SUCCESS){
+				client_సందేశం->దత్తాంశం.dup = 1; /* Any retry attempts are a duplicate. */
+				client_సందేశం->దత్తాంశం.state = mosq_ms_wait_for_pubrec;
+				plugin_persist_handle_client_సందేశం_update(context, client_సందేశం);
+			}లేకపోతే ఒకవేళ(rc == MOSQ_ERR_OVERSIZE_PACKET){
+				db_సందేశం_remove_inflight(context, &context->msgs_బహిర్గతం, client_సందేశం);
+			}లేకపోతే{
+				తిరిగి rc;
 			}
-			break;
+			ఆపు;
 
-		case mosq_ms_resend_pubrel:
-			rc = send__pubrel(context, mid, NULL);
-			if(!rc){
-				client_msg->data.state = mosq_ms_wait_for_pubcomp;
-				plugin_persist__handle_client_msg_update(context, client_msg);
-			}else{
-				return rc;
+		స్థితి mosq_ms_resend_pubrel:
+			rc = send__pubrel(context, mid, ఖాళీ);
+			ఒకవేళ(!rc){
+				client_సందేశం->దత్తాంశం.state = mosq_ms_wait_for_pubcomp;
+				plugin_persist_handle_client_సందేశం_update(context, client_సందేశం);
+			}లేకపోతే{
+				తిరిగి rc;
 			}
-			break;
+			ఆపు;
 
-		case mosq_ms_invalid:
-		case mosq_ms_send_pubrec:
-		case mosq_ms_resend_pubcomp:
-		case mosq_ms_wait_for_puback:
-		case mosq_ms_wait_for_pubrec:
-		case mosq_ms_wait_for_pubrel:
-		case mosq_ms_wait_for_pubcomp:
-		case mosq_ms_queued:
-			break;
+		స్థితి mosq_ms_invalid:
+		స్థితి mosq_ms_send_pubrec:
+		స్థితి mosq_ms_resend_pubcomp:
+		స్థితి mosq_ms_wait_for_puback:
+		స్థితి mosq_ms_wait_for_pubrec:
+		స్థితి mosq_ms_wait_for_pubrel:
+		స్థితి mosq_ms_wait_for_pubcomp:
+		స్థితి mosq_ms_queued:
+			ఆపు;
 	}
-	return MOSQ_ERR_SUCCESS;
+	తిరిగి MOSQ_ERR_SUCCESS;
 }
 
 
-int db__message_write_inflight_out_all(struct mosquitto *context)
+పూర్ణాంకం db_సందేశం_write_inflight_బహిర్గతం_all(నిర్మాణం mosquitto *context)
 {
-	struct mosquitto__client_msg *client_msg, *tmp;
-	int rc;
+	నిర్మాణం mosquitto_client_సందేశం *client_సందేశం, *tmp;
+	పూర్ణాంకం rc;
 
-	if(context->state != mosq_cs_active || !net__is_connected(context)){
-		return MOSQ_ERR_SUCCESS;
+	ఒకవేళ(context->state != mosq_cs_చురుకైన || !net__is_connected(context)){
+		తిరిగి MOSQ_ERR_SUCCESS;
 	}
 
-	DL_FOREACH_SAFE(context->msgs_out.inflight, client_msg, tmp){
-		rc = db__message_write_inflight_out_single(context, client_msg);
-		if(rc){
-			return rc;
+	DL_FOREACH_సురక్షిత(context->msgs_బహిర్గతం.inflight, client_సందేశం, tmp){
+		rc = db_సందేశం_write_inflight_బహిర్గతం_single(context, client_సందేశం);
+		ఒకవేళ(rc){
+			తిరిగి rc;
 		}
 	}
-	return MOSQ_ERR_SUCCESS;
+	తిరిగి MOSQ_ERR_SUCCESS;
 }
 
 
-int db__message_write_inflight_out_latest(struct mosquitto *context)
+పూర్ణాంకం db_సందేశం_write_inflight_బహిర్గతం_latest(నిర్మాణం mosquitto *context)
 {
-	struct mosquitto__client_msg *client_msg, *next;
-	int rc;
+	నిర్మాణం mosquitto_client_సందేశం *client_సందేశం, *తదుపరి;
+	పూర్ణాంకం rc;
 
-	if(context->state != mosq_cs_active
+	ఒకవేళ(context->state != mosq_cs_చురుకైన
 			|| !net__is_connected(context)
-			|| context->msgs_out.inflight == NULL){
+			|| context->msgs_బహిర్గతం.inflight == ఖాళీ){
 
-		return MOSQ_ERR_SUCCESS;
+		తిరిగి MOSQ_ERR_SUCCESS;
 	}
 
-	if(context->msgs_out.inflight->prev == context->msgs_out.inflight){
+	ఒకవేళ(context->msgs_బహిర్గతం.inflight->prev == context->msgs_బహిర్గతం.inflight){
 		/* Only one message */
-		return db__message_write_inflight_out_single(context, context->msgs_out.inflight);
+		తిరిగి db_సందేశం_write_inflight_బహిర్గతం_single(context, context->msgs_బహిర్గతం.inflight);
 	}
 
 	/* Start at the end of the list and work backwards looking for the first
 	 * message in a non-publish state */
-	client_msg = context->msgs_out.inflight->prev;
-	while(client_msg != context->msgs_out.inflight &&
-			(client_msg->data.state == mosq_ms_publish_qos0
-			|| client_msg->data.state == mosq_ms_publish_qos1
-			|| client_msg->data.state == mosq_ms_publish_qos2)){
+	client_సందేశం = context->msgs_బహిర్గతం.inflight->prev;
+	అయితే(client_సందేశం != context->msgs_బహిర్గతం.inflight &&
+			(client_సందేశం->దత్తాంశం.state == mosq_ms_publish_qos0
+			|| client_సందేశం->దత్తాంశం.state == mosq_ms_publish_qos1
+			|| client_సందేశం->దత్తాంశం.state == mosq_ms_publish_qos2)){
 
-		client_msg = client_msg->prev;
+		client_సందేశం = client_సందేశం->prev;
 	}
 
 	/* Tail is now either the head of the list, if that message is waiting for
 	 * publish, or the oldest message not waiting for a publish. In the latter
 	 * case, any pending publishes should be next after this message. */
-	if(client_msg != context->msgs_out.inflight){
-		client_msg = client_msg->next;
+	ఒకవేళ(client_సందేశం != context->msgs_బహిర్గతం.inflight){
+		client_సందేశం = client_సందేశం->తదుపరి;
 	}
 
-	while(client_msg){
-		next = client_msg->next;
-		rc = db__message_write_inflight_out_single(context, client_msg);
-		if(rc){
-			return rc;
+	అయితే(client_సందేశం){
+		తదుపరి = client_సందేశం->తదుపరి;
+		rc = db_సందేశం_write_inflight_బహిర్గతం_single(context, client_సందేశం);
+		ఒకవేళ(rc){
+			తిరిగి rc;
 		}
-		client_msg = next;
+		client_సందేశం = తదుపరి;
 	}
-	return MOSQ_ERR_SUCCESS;
+	తిరిగి MOSQ_ERR_SUCCESS;
 }
 
 
-int db__message_write_queued_in(struct mosquitto *context)
+పూర్ణాంకం db_సందేశం_write_queued_లోపల(నిర్మాణం mosquitto *context)
 {
-	struct mosquitto__client_msg *client_msg, *tmp;
-	int rc;
+	నిర్మాణం mosquitto_client_సందేశం *client_సందేశం, *tmp;
+	పూర్ణాంకం rc;
 
-	if(context->state != mosq_cs_active){
-		return MOSQ_ERR_SUCCESS;
+	ఒకవేళ(context->state != mosq_cs_చురుకైన){
+		తిరిగి MOSQ_ERR_SUCCESS;
 	}
 
-	DL_FOREACH_SAFE(context->msgs_in.queued, client_msg, tmp){
-		if(context->msgs_in.inflight_maximum != 0 && context->msgs_in.inflight_quota == 0){
-			break;
+	DL_FOREACH_సురక్షిత(context->msgs_లోపల.queued, client_సందేశం, tmp){
+		ఒకవేళ(context->msgs_లోపల.inflight_గరిష్ఠ != 0 && context->msgs_లోపల.inflight_quota == 0){
+			ఆపు;
 		}
 
-		if(client_msg->data.qos == 2){
-			client_msg->data.state = mosq_ms_send_pubrec;
-			db__message_dequeue_first(context, &context->msgs_in);
-			rc = send__pubrec(context, client_msg->data.mid, 0, NULL);
-			if(!rc){
-				client_msg->data.state = mosq_ms_wait_for_pubrel;
-				plugin_persist__handle_client_msg_update(context, client_msg);
-			}else{
-				plugin_persist__handle_client_msg_update(context, client_msg);
-				return rc;
+		ఒకవేళ(client_సందేశం->దత్తాంశం.qos == 2){
+			client_సందేశం->దత్తాంశం.state = mosq_ms_send_pubrec;
+			db_సందేశం_వరుస_నుండి_తీయి_మొదటి(context, &context->msgs_లోపల);
+			rc = send__pubrec(context, client_సందేశం->దత్తాంశం.mid, 0, ఖాళీ);
+			ఒకవేళ(!rc){
+				client_సందేశం->దత్తాంశం.state = mosq_ms_wait_for_pubrel;
+				plugin_persist_handle_client_సందేశం_update(context, client_సందేశం);
+			}లేకపోతే{
+				plugin_persist_handle_client_సందేశం_update(context, client_సందేశం);
+				తిరిగి rc;
 			}
 		}
 	}
-	return MOSQ_ERR_SUCCESS;
+	తిరిగి MOSQ_ERR_SUCCESS;
 }
 
 
-int db__message_write_queued_out(struct mosquitto *context)
+పూర్ణాంకం db_సందేశం_write_queued_బహిర్గతం(నిర్మాణం mosquitto *context)
 {
-	if(context->state != mosq_cs_active){
-		return MOSQ_ERR_SUCCESS;
+	ఒకవేళ(context->state != mosq_cs_చురుకైన){
+		తిరిగి MOSQ_ERR_SUCCESS;
 	}
 
-	db__fill_inflight_out_from_queue(context);
+	db_fill_inflight_బహిర్గతం_from_వరుస(context);
 
-	return MOSQ_ERR_SUCCESS;
+	తిరిగి MOSQ_ERR_SUCCESS;
 }

@@ -17,37 +17,37 @@ Contributors:
    Roger Light - initial implementation and documentation.
 */
 
-#include "config.h"
+#అన్తర్భావ "config.h"
 
-#include "mosquitto_broker_internal.h"
-#include "utlist.h"
+#అన్తర్భావ "mosquitto_broker_internal.h"
+#అన్తర్భావ "utlist.h"
 
 
-static void plugin__handle_client_offline_single(struct mosquitto__security_options *opts, struct mosquitto *context, int reason)
+స్థిర శూన్య plugin__handle_client_offline_single(నిర్మాణం mosquitto__security_options *opts, నిర్మాణం mosquitto *context, పూర్ణాంకం reason)
 {
-	struct mosquitto_evt_client_offline event_data;
-	struct mosquitto__callback *cb_base, *cb_next;
+	నిర్మాణం mosquitto_evt_client_offline event_దత్తాంశం;
+	నిర్మాణం mosquitto__callback *cb_పునాది, *cb_తదుపరి;
 
-	if(context->id == NULL){
-		return;
+	ఒకవేళ(context->id == ఖాళీ){
+		తిరిగి;
 	}
 
-	memset(&event_data, 0, sizeof(event_data));
-	event_data.client = context;
-	event_data.reason = reason;
-	DL_FOREACH_SAFE(opts->plugin_callbacks.client_offline, cb_base, cb_next){
-		cb_base->cb(MOSQ_EVT_CLIENT_OFFLINE, &event_data, cb_base->userdata);
+	memset(&event_దత్తాంశం, 0, పరిమాణం(event_దత్తాంశం));
+	event_దత్తాంశం.client = context;
+	event_దత్తాంశం.reason = reason;
+	DL_FOREACH_సురక్షిత(opts->plugin_callbacks.client_offline, cb_పునాది, cb_తదుపరి){
+		cb_పునాది->cb(MOSQ_EVT_CLIENT_OFFLINE, &event_దత్తాంశం, cb_పునాది->userdata);
 	}
 }
 
 
-void plugin__handle_client_offline(struct mosquitto *context, int reason)
+శూన్య plugin__handle_client_offline(నిర్మాణం mosquitto *context, పూర్ణాంకం reason)
 {
 	/* Global plugins */
 	plugin__handle_client_offline_single(&db.config->security_options, context, reason);
 
 	/* Per listener plugins */
-	if(context->listener){
+	ఒకవేళ(context->listener){
 		plugin__handle_client_offline_single(context->listener->security_options, context, reason);
 	}
 }

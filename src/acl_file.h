@@ -15,38 +15,38 @@ SPDX-License-Identifier: EPL-2.0 OR BSD-3-Clause
 Contributors:
    Roger Light - initial implementation and documentation.
 */
-#ifndef ACL_FILE_H
-#define ACL_FILE_H
+#నిర్వచితం_కాకపోతే ACL_FILE_H
+#నిర్వచించు ACL_FILE_H
 
-#include <uthash.h>
+#అన్తర్భావ <uthash.h>
 
-struct acl__entry {
-	struct acl__entry *next, *prev;
-	char *topic;
-	int access;
-	int ucount;
-	int ccount;
+నిర్మాణం acl_నమోదు {
+	నిర్మాణం acl_నమోదు *తదుపరి, *prev;
+	అక్షరం *topic;
+	పూర్ణాంకం access;
+	పూర్ణాంకం ucount;
+	పూర్ణాంకం ccount;
 };
 
 
-struct acl__user {
+నిర్మాణం acl__user {
 	UT_hash_handle hh;
-	char *username;
-	struct acl__entry *acl;
+	అక్షరం *username;
+	నిర్మాణం acl_నమోదు *acl;
 };
 
 
-struct acl_file_data {
-	char *acl_file;
-	struct acl__user *acl_users;
-	struct acl__user acl_anon;
-	struct acl__entry *acl_patterns;
+నిర్మాణం acl_file_దత్తాంశం {
+	అక్షరం *acl_file;
+	నిర్మాణం acl__user *acl_users;
+	నిర్మాణం acl__user acl_anon;
+	నిర్మాణం acl_నమోదు *acl_patterns;
 };
 
 
-int acl_file__parse(struct acl_file_data *data);
-int acl_file__check(int event, void *event_data, void *userdata);
-int acl_file__reload(int event, void *event_data, void *userdata);
-void acl_file__cleanup(struct acl_file_data *data);
+పూర్ణాంకం acl_file__parse(నిర్మాణం acl_file_దత్తాంశం *దత్తాంశం);
+పూర్ణాంకం acl_file__check(పూర్ణాంకం event, శూన్య *event_దత్తాంశం, శూన్య *userdata);
+పూర్ణాంకం acl_file__reload(పూర్ణాంకం event, శూన్య *event_దత్తాంశం, శూన్య *userdata);
+శూన్య acl_file__cleanup(నిర్మాణం acl_file_దత్తాంశం *దత్తాంశం);
 
-#endif
+#అయితే_ముగింపు
