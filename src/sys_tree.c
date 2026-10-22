@@ -47,7 +47,7 @@ struct metric {
 struct metric_load {
 	double current;
 	const char *topic;
-	int load_ref;
+	ціле load_ref;
 	uint8_t interval;
 };
 
@@ -65,7 +65,7 @@ struct metric metrics[mosq_metric_max] = {
 #ifdef WITH_MEMORY_TRACKING
 	{ 1, 0, "$SYS/broker/heap/current", NULL, false }, /* mosq_gauge_heap_current */
 	{ 1, 0, "$SYS/broker/heap/maximum", NULL, true }, /* mosq_gauge_heap_maximum */
-#else
+#інакше
 	{ 1, 0, NULL, NULL, 0 }, /* mosq_gauge_heap_current */
 	{ 1, 0, NULL, NULL, 0 }, /* mosq_gauge_heap_maximum */
 #endif
@@ -147,7 +147,7 @@ static time_t last_update = 0;
 
 time_t broker_uptime(void)
 {
-	return db.now_s - start_time;
+	повернути db.now_s - start_time;
 }
 
 
@@ -159,7 +159,7 @@ static void calc_load(char *buf, double exponent, double i_mult, struct metric_l
 
 	interval = (double)(metrics[m->load_ref].next - metrics[m->load_ref].current)*i_mult;
 	new_value = interval + exponent*(m->current - interval);
-	if(fabs(new_value - (m->current)) >= 0.01 || force){
+	якщо(fabs(new_value - (m->current)) >= 0.01 || force){
 		len = (uint32_t)snprintf(buf, BUFLEN, "%.2f", new_value);
 		db__messages_easy_queue(NULL, m->topic, SYS_TREE_QOS, len, buf, 1, MSG_EXPIRY_INFINITE, NULL);
 	}
@@ -172,8 +172,8 @@ void sys_tree__init(void)
 	char buf[BUFLEN];
 	uint32_t len;
 
-	if(db.config->sys_interval == 0){
-		return;
+	якщо(db.config->sys_interval == 0){
+		повернути;
 	}
 
 	/* Set static $SYS messages */
@@ -186,12 +186,12 @@ void sys_tree__init(void)
 	sys_tree__update(true);
 
 	/* Force published load values to 0 */
-	for(int i=0; i<mosq_metric_load_max; i++){
-		if(metric_loads[i].interval == METRIC_LOAD_1MIN){
+	для(ціле i=0; i<mosq_metric_load_max; i++){
+		якщо(metric_loads[i].interval == METRIC_LOAD_1MIN){
 			calc_load(buf, 0.0, 0.0, &metric_loads[i], true);
-		}else if(metric_loads[i].interval == METRIC_LOAD_5MIN){
+		}інакше якщо(metric_loads[i].interval == METRIC_LOAD_5MIN){
 			calc_load(buf, 0.0, 0.0, &metric_loads[i], true);
-		}else{
+		}інакше{
 			calc_load(buf, 0.0, 0.0, &metric_loads[i], true);
 		}
 	}
@@ -200,7 +200,7 @@ void sys_tree__init(void)
 
 void metrics__int_inc(enum mosq_metric_type m, int64_t value)
 {
-	if(m < mosq_metric_max){
+	якщо(m < mosq_metric_max){
 		metrics[m].next += value;
 	}
 }
@@ -208,7 +208,7 @@ void metrics__int_inc(enum mosq_metric_type m, int64_t value)
 
 void metrics__int_dec(enum mosq_metric_type m, int64_t value)
 {
-	if(m < mosq_metric_max){
+	якщо(m < mosq_metric_max){
 		metrics[m].next -= value;
 	}
 }
@@ -228,15 +228,15 @@ void sys_tree__update(bool force)
 	time_t next_event;
 	static time_t last_update_real = 0;
 
-	if(db.config->sys_interval){
+	якщо(db.config->sys_interval){
 		next_event = db.config->sys_interval - db.now_real_s % db.config->sys_interval - 1;
-		if(next_event <= 0){
+		якщо(next_event <= 0){
 			next_event = db.config->sys_interval;
 		}
 		loop__update_next_event(next_event*1000);
 	}
 
-	if(db.config->sys_interval
+	якщо(db.config->sys_interval
 			&& ((db.now_real_s % db.config->sys_interval == 0 && last_update_real != db.now_real_s) || force)){
 
 		uptime = db.now_s - start_time;
@@ -259,34 +259,34 @@ void sys_tree__update(bool force)
 		metrics[mosq_gauge_clients_disconnected].next = HASH_CNT(hh_id, db.contexts_by_id) - HASH_CNT(hh_sock, db.contexts_by_sock);
 
 		/* Handle loads first, because they reference other metrics and need next != current */
-		if(db.now_s > last_update){
+		якщо(db.now_s > last_update){
 			double i_mult = 60.0/(double)(db.now_s-last_update);
 
 			double exponent_1min = exp(-1.0*(double)(db.now_s-last_update)/60.0);
 			double exponent_5min = exp(-1.0*(double)(db.now_s-last_update)/300.0);
 			double exponent_15min = exp(-1.0*(double)(db.now_s-last_update)/900.0);
 
-			for(int i=0; i<mosq_metric_load_max; i++){
-				if(metric_loads[i].interval == METRIC_LOAD_1MIN){
+			для(ціле i=0; i<mosq_metric_load_max; i++){
+				якщо(metric_loads[i].interval == METRIC_LOAD_1MIN){
 					calc_load(buf, exponent_1min, i_mult, &metric_loads[i], false);
-				}else if(metric_loads[i].interval == METRIC_LOAD_5MIN){
+				}інакше якщо(metric_loads[i].interval == METRIC_LOAD_5MIN){
 					calc_load(buf, exponent_5min, i_mult, &metric_loads[i], false);
-				}else{
+				}інакше{
 					calc_load(buf, exponent_15min, i_mult, &metric_loads[i], false);
 				}
 			}
 		}
 
-		for(int i=0; i<mosq_metric_max; i++){
-			if((metrics[i].is_max && metrics[i].next > metrics[i].current) ||
+		для(ціле i=0; i<mosq_metric_max; i++){
+			якщо((metrics[i].is_max && metrics[i].next > metrics[i].current) ||
 					(!metrics[i].is_max && metrics[i].next != metrics[i].current)){
 
 				metrics[i].current = metrics[i].next;
 				len = (uint32_t)snprintf(buf, BUFLEN, "%lu", metrics[i].current);
-				if(metrics[i].topic){
+				якщо(metrics[i].topic){
 					db__messages_easy_queue(NULL, metrics[i].topic, SYS_TREE_QOS, len, buf, 1, MSG_EXPIRY_INFINITE, NULL);
 				}
-				if(metrics[i].topic_alias){
+				якщо(metrics[i].topic_alias){
 					db__messages_easy_queue(NULL, metrics[i].topic_alias, SYS_TREE_QOS, len, buf, 1, MSG_EXPIRY_INFINITE, NULL);
 				}
 			}

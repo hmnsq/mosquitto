@@ -34,7 +34,7 @@ Contributors:
 #include "net_mosq.h"
 
 
-static void client_cost(FILE *fptr, struct mosquitto *context, int fn_index)
+static void client_cost(FILE *fptr, struct mosquitto *context, ціле fn_index)
 {
 	long pkt_count, pkt_bytes;
 	long cmsg_count;
@@ -50,7 +50,7 @@ static void client_cost(FILE *fptr, struct mosquitto *context, int fn_index)
 	cmsg_bytes += context->msgs_out.inflight_bytes + context->msgs_out.queued_bytes;
 
 	tBytes = pkt_bytes + cmsg_bytes;
-	if(context->id){
+	якщо(context->id){
 		tBytes += (long)strlen(context->id);
 	}
 	fprintf(fptr, "%d %ld %lu %lu %lu %lu %d 0 0 %" PRIu64 " %" PRIu64 " %" PRIu64 "\n", fn_index,
@@ -65,36 +65,36 @@ static void client_cost(FILE *fptr, struct mosquitto *context, int fn_index)
 }
 
 
-static void report_subscriptions(FILE *fptr, struct mosquitto *context, int *fn_index_max)
+static void report_subscriptions(FILE *fptr, struct mosquitto *context, ціле *fn_index_max)
 {
-	for(int i=0; i<context->subs_count; i++){
-		if(context->subs && context->subs[i]){
+	для(ціле i=0; i<context->subs_count; i++){
+		якщо(context->subs && context->subs[i]){
 			struct mosquitto__subhier *subhier = context->subs[i]->hier;
-			int topic_count = 0;
+			ціле topic_count = 0;
 			char *topics[100];
 
 			do{
 				topics[topic_count] = subhier->topic;
 				subhier = subhier->parent;
 				topic_count++;
-				if(topic_count == 100){
+				якщо(topic_count == 100){
 					break;
 				}
-			}while(subhier);
-			if(topic_count == 100){
+			}поки(subhier);
+			якщо(topic_count == 100){
 				continue;
 			}
 
 			fprintf(fptr, "cfn=(%d) ", *fn_index_max);
-			if(topics[topic_count-2] && topics[topic_count-2][0] == '\0'){
+			якщо(topics[topic_count-2] && topics[topic_count-2][0] == '\0'){
 				topic_count--;
 			}
-			for(int j=topic_count-2; j>0; j--){
-				if(topics[j]){
+			для(ціле j=topic_count-2; j>0; j--){
+				якщо(topics[j]){
 					fprintf(fptr, "%s/", topics[j]);
 				}
 			}
-			if(topics[0]){
+			якщо(topics[0]){
 				fprintf(fptr, "%s\n", topics[0]);
 			}
 
@@ -112,15 +112,15 @@ void xtreport(void)
 	char filename[40];
 	FILE *fptr;
 	struct mosquitto *context, *ctxt_tmp;
-	int fn_index = 2, fn_index_max;
-	static int iter = 1;
+	ціле fn_index = 2, fn_index_max;
+	static ціле iter = 1;
 
 	pid = getpid();
 	snprintf(filename, 40, "/tmp/xtmosquitto.kcg.%d.%d", pid, iter);
 	iter++;
 	fptr = fopen(filename, "wt");
-	if(fptr == NULL){
-		return;
+	якщо(fptr == NULL){
+		повернути;
 	}
 
 	fprintf(fptr, "# callgrind format\n");
@@ -148,9 +148,9 @@ void xtreport(void)
 
 	fn_index = 2;
 	HASH_ITER(hh_id, db.contexts_by_id, context, ctxt_tmp){
-		if(context->id){
+		якщо(context->id){
 			fprintf(fptr, "cfn=(%d) %s\n", fn_index, context->id);
-		}else{
+		}інакше{
 			fprintf(fptr, "cfn=(%d) unknown\n", fn_index);
 		}
 		fprintf(fptr, "calls=1 %d\n", fn_index);
@@ -174,7 +174,7 @@ void xtreport(void)
 	struct mosquitto__base_msg *base_msg, *base_msg_tmp;
 
 	HASH_ITER(hh, db.msg_store, base_msg, base_msg_tmp){
-		if(base_msg->ref_count > 1){
+		якщо(base_msg->ref_count > 1){
 			fprintf(fptr, "cfn=(%d) %" PRIu64 "\n", fn_index_max, base_msg->data.store_id);
 			fprintf(fptr, "calls=%d %d\n", base_msg->ref_count, fn_index_max);
 			fprintf(fptr, "%d 0 0 0 0 0 0 0 %d 0 0 0\n", fn_index_max, base_msg->ref_count);

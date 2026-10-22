@@ -32,95 +32,95 @@ static char *strtok_hier(char *str, char **saveptr)
 {
 	char *c;
 
-	if(str != NULL){
+	якщо(str != NULL){
 		*saveptr = str;
 	}
 
-	if(*saveptr == NULL){
-		return NULL;
+	якщо(*saveptr == NULL){
+		повернути NULL;
 	}
 
 	c = strchr(*saveptr, '/');
-	if(c){
+	якщо(c){
 		str = *saveptr;
 		*saveptr = c+1;
 		c[0] = '\0';
-	}else if(*saveptr){
+	}інакше якщо(*saveptr){
 		/* No match, but surplus string */
 		str = *saveptr;
 		*saveptr = NULL;
 	}
-	return str;
+	повернути str;
 }
 
 
-int sub__topic_tokenise(const char *subtopic, char **local_sub, char ***topics, const char **sharename)
+ціле sub__topic_tokenise(const char *subtopic, char **local_sub, char ***topics, const char **sharename)
 {
 	char *saveptr = NULL;
 	char *token;
-	int count;
-	int topic_index = 0;
+	ціле count;
+	ціле topic_index = 0;
 	size_t len;
 
-	if(!subtopic){
-		return MOSQ_ERR_INVAL;
+	якщо(!subtopic){
+		повернути MOSQ_ERR_INVAL;
 	}
 
 	len = strlen(subtopic);
-	if(len == 0){
-		return MOSQ_ERR_INVAL;
+	якщо(len == 0){
+		повернути MOSQ_ERR_INVAL;
 	}
 
 	*local_sub = mosquitto_strdup(subtopic);
-	if((*local_sub) == NULL){
-		return MOSQ_ERR_NOMEM;
+	якщо((*local_sub) == NULL){
+		повернути MOSQ_ERR_NOMEM;
 	}
 
 	count = 0;
 	saveptr = *local_sub;
-	while(saveptr){
+	поки(saveptr){
 		saveptr = strchr(&saveptr[1], '/');
 		count++;
 	}
 	*topics = mosquitto_calloc((size_t)(count+3) /* 3=$shared,sharename,NULL */, sizeof(char *));
-	if((*topics) == NULL){
+	якщо((*topics) == NULL){
 		mosquitto_FREE(*local_sub);
-		return MOSQ_ERR_NOMEM;
+		повернути MOSQ_ERR_NOMEM;
 	}
 
-	if((*local_sub)[0] != '$'){
+	якщо((*local_sub)[0] != '$'){
 		(*topics)[topic_index] = "";
 		topic_index++;
 	}
 
 	token = strtok_hier((*local_sub), &saveptr);
-	while(token){
+	поки(token){
 		(*topics)[topic_index] = token;
 		topic_index++;
 		token = strtok_hier(NULL, &saveptr);
 	}
 
-	if(!strcmp((*topics)[0], "$share")){
-		if(count < 3 || (count == 3 && strlen((*topics)[2]) == 0)){
+	якщо(!strcmp((*topics)[0], "$share")){
+		якщо(count < 3 || (count == 3 && strlen((*topics)[2]) == 0)){
 			mosquitto_FREE(*local_sub);
 			mosquitto_FREE(*topics);
-			return MOSQ_ERR_PROTOCOL;
+			повернути MOSQ_ERR_PROTOCOL;
 		}
 
-		if(sharename){
-			if(strpbrk((*topics)[1], "+#")){
+		якщо(sharename){
+			якщо(strpbrk((*topics)[1], "+#")){
 				mosquitto_FREE(*local_sub);
 				mosquitto_FREE(*topics);
-				return MOSQ_ERR_PROTOCOL;
+				повернути MOSQ_ERR_PROTOCOL;
 			}
 			(*sharename) = (*topics)[1];
 		}
 
-		for(int i=1; i<count-1; i++){
+		для(ціле i=1; i<count-1; i++){
 			(*topics)[i] = (*topics)[i+1];
 		}
 		(*topics)[0] = "";
 		(*topics)[count-1] = NULL;
 	}
-	return MOSQ_ERR_SUCCESS;
+	повернути MOSQ_ERR_SUCCESS;
 }

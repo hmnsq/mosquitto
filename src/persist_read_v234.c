@@ -35,78 +35,78 @@ Contributors:
 #include "util_mosq.h"
 
 
-int persist__chunk_header_read_v234(FILE *db_fptr, uint32_t *chunk, uint32_t *length)
+ціле persist__chunk_header_read_v234(FILE *db_fptr, uint32_t *chunk, uint32_t *length)
 {
 	size_t rlen;
 	uint16_t i16temp;
 	uint32_t i32temp;
 
 	rlen = fread(&i16temp, sizeof(uint16_t), 1, db_fptr);
-	if(rlen != 1){
-		return 1;
+	якщо(rlen != 1){
+		повернути 1;
 	}
 
 	rlen = fread(&i32temp, sizeof(uint32_t), 1, db_fptr);
-	if(rlen != 1){
-		return 1;
+	якщо(rlen != 1){
+		повернути 1;
 	}
 
 	*chunk = ntohs(i16temp);
 	*length = ntohl(i32temp);
 
-	return MOSQ_ERR_SUCCESS;
+	повернути MOSQ_ERR_SUCCESS;
 }
 
 
-int persist__chunk_cfg_read_v234(FILE *db_fptr, struct PF_cfg *chunk)
+ціле persist__chunk_cfg_read_v234(FILE *db_fptr, struct PF_cfg *chunk)
 {
-	int rc = MOSQ_ERR_UNKNOWN;
+	ціле rc = MOSQ_ERR_UNKNOWN;
 
 	read_e(db_fptr, &chunk->shutdown, sizeof(uint8_t)); /* shutdown */
 	read_e(db_fptr, &chunk->dbid_size, sizeof(uint8_t)); /* sizeof(dbid_t) */
 	read_e(db_fptr, &chunk->last_db_id, sizeof(dbid_t));
 
-	return MOSQ_ERR_SUCCESS;
+	повернути MOSQ_ERR_SUCCESS;
 error:
 	log__printf(NULL, MOSQ_LOG_ERR, "Error: %s.", strerror(errno));
-	return rc;
+	повернути rc;
 }
 
 
-int persist__chunk_client_read_v234(FILE *db_fptr, struct P_client *chunk, uint32_t db_version)
+ціле persist__chunk_client_read_v234(FILE *db_fptr, struct P_client *chunk, uint32_t db_version)
 {
 	uint16_t i16temp;
-	int rc;
+	ціле rc;
 	time_t temp;
 
 	rc = persist__read_string(db_fptr, &chunk->clientid);
-	if(rc){
-		return rc;
+	якщо(rc){
+		повернути rc;
 	}
 
 	read_e(db_fptr, &i16temp, sizeof(uint16_t));
 	chunk->F.last_mid = ntohs(i16temp);
-	if(db_version != 2){
+	якщо(db_version != 2){
 		read_e(db_fptr, &temp, sizeof(time_t));
 	}
 
-	return MOSQ_ERR_SUCCESS;
+	повернути MOSQ_ERR_SUCCESS;
 error:
 	log__printf(NULL, MOSQ_LOG_ERR, "Error: %s.", strerror(errno));
 	mosquitto_FREE(chunk->clientid);
-	return 1;
+	повернути 1;
 }
 
 
-int persist__chunk_client_msg_read_v234(FILE *db_fptr, struct P_client_msg *chunk)
+ціле persist__chunk_client_msg_read_v234(FILE *db_fptr, struct P_client_msg *chunk)
 {
 	uint16_t i16temp;
-	int rc;
+	ціле rc;
 	uint8_t retain, dup;
 
 	rc = persist__read_string(db_fptr, &chunk->clientid);
-	if(rc){
-		return rc;
+	якщо(rc){
+		повернути rc;
 	}
 
 	read_e(db_fptr, &chunk->F.store_id, sizeof(dbid_t));
@@ -122,31 +122,31 @@ int persist__chunk_client_msg_read_v234(FILE *db_fptr, struct P_client_msg *chun
 
 	chunk->F.retain_dup = (uint8_t)((retain&0x0F)<<4 | (dup&0x0F));
 
-	return MOSQ_ERR_SUCCESS;
+	повернути MOSQ_ERR_SUCCESS;
 error:
 	log__printf(NULL, MOSQ_LOG_ERR, "Error: %s.", strerror(errno));
 	mosquitto_FREE(chunk->clientid);
-	return 1;
+	повернути 1;
 }
 
 
-int persist__chunk_base_msg_read_v234(FILE *db_fptr, struct P_base_msg *chunk, uint32_t db_version)
+ціле persist__chunk_base_msg_read_v234(FILE *db_fptr, struct P_base_msg *chunk, uint32_t db_version)
 {
 	uint32_t i32temp;
 	uint16_t i16temp;
-	int rc = 0;
+	ціле rc = 0;
 	size_t slen;
 
 	read_e(db_fptr, &chunk->F.store_id, sizeof(dbid_t));
 
 	rc = persist__read_string(db_fptr, &chunk->source.id);
-	if(rc){
-		return rc;
+	якщо(rc){
+		повернути rc;
 	}
 
-	if(db_version == 4){
+	якщо(db_version == 4){
 		rc = persist__read_string(db_fptr, &chunk->source.username);
-		if(rc){
+		якщо(rc){
 			goto error;
 		}
 		read_e(db_fptr, &i16temp, sizeof(uint16_t));
@@ -160,15 +160,15 @@ int persist__chunk_base_msg_read_v234(FILE *db_fptr, struct P_base_msg *chunk, u
 	read_e(db_fptr, &i16temp, sizeof(uint16_t));
 
 	rc = persist__read_string(db_fptr, &chunk->topic);
-	if(rc){
+	якщо(rc){
 		goto error;
 	}
-	if(!chunk->topic){
+	якщо(!chunk->topic){
 		rc = MOSQ_ERR_INVAL;
 		goto error;
 	}
 	slen = strlen(chunk->topic);
-	if(slen > UINT16_MAX){
+	якщо(slen > UINT16_MAX){
 		rc = MOSQ_ERR_INVAL;
 		goto error;
 	}
@@ -180,13 +180,13 @@ int persist__chunk_base_msg_read_v234(FILE *db_fptr, struct P_base_msg *chunk, u
 	read_e(db_fptr, &i32temp, sizeof(uint32_t));
 	chunk->F.payloadlen = ntohl(i32temp);
 
-	if(chunk->F.payloadlen){
-		if(chunk->F.payloadlen > MQTT_MAX_PAYLOAD){
+	якщо(chunk->F.payloadlen){
+		якщо(chunk->F.payloadlen > MQTT_MAX_PAYLOAD){
 			rc = MOSQ_ERR_INVAL;
 			goto error;
 		}
 		chunk->payload = mosquitto_malloc(chunk->F.payloadlen+1);
-		if(chunk->payload == NULL){
+		якщо(chunk->payload == NULL){
 			rc = MOSQ_ERR_NOMEM;
 			goto error;
 		}
@@ -195,51 +195,51 @@ int persist__chunk_base_msg_read_v234(FILE *db_fptr, struct P_base_msg *chunk, u
 		((uint8_t *)chunk->payload)[chunk->F.payloadlen] = 0;
 	}
 
-	return MOSQ_ERR_SUCCESS;
+	повернути MOSQ_ERR_SUCCESS;
 error:
 	mosquitto_FREE(chunk->payload);
 	mosquitto_FREE(chunk->source.id);
 	mosquitto_FREE(chunk->source.username);
 	mosquitto_FREE(chunk->topic);
-	return rc;
+	повернути rc;
 }
 
 
-int persist__chunk_retain_read_v234(FILE *db_fptr, struct P_retain *chunk)
+ціле persist__chunk_retain_read_v234(FILE *db_fptr, struct P_retain *chunk)
 {
 	dbid_t i64temp;
 
-	if(fread(&i64temp, sizeof(dbid_t), 1, db_fptr) != 1){
+	якщо(fread(&i64temp, sizeof(dbid_t), 1, db_fptr) != 1){
 		log__printf(NULL, MOSQ_LOG_ERR, "Error: %s.", strerror(errno));
-		return 1;
+		повернути 1;
 	}
 	chunk->F.store_id = i64temp;
 
-	return MOSQ_ERR_SUCCESS;
+	повернути MOSQ_ERR_SUCCESS;
 }
 
 
-int persist__chunk_sub_read_v234(FILE *db_fptr, struct P_sub *chunk)
+ціле persist__chunk_sub_read_v234(FILE *db_fptr, struct P_sub *chunk)
 {
-	int rc;
+	ціле rc;
 
 	rc = persist__read_string(db_fptr, &chunk->clientid);
-	if(rc){
+	якщо(rc){
 		goto error;
 	}
 
 	rc = persist__read_string(db_fptr, &chunk->topic);
-	if(rc){
+	якщо(rc){
 		goto error;
 	}
 
 	read_e(db_fptr, &chunk->F.qos, sizeof(uint8_t));
 
-	return MOSQ_ERR_SUCCESS;
+	повернути MOSQ_ERR_SUCCESS;
 error:
 	mosquitto_FREE(chunk->clientid);
 	mosquitto_FREE(chunk->topic);
-	return rc;
+	повернути rc;
 }
 
 #endif

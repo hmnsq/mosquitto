@@ -1,7 +1,7 @@
 #ifdef WIN32
 #  include <winsock2.h>
 #  include <ws2tcpip.h>
-#else
+#інакше
 #  include <arpa/inet.h>
 #  include <netinet/in.h>
 #endif
@@ -10,7 +10,7 @@
 #include "mosquitto_internal.h"
 #include "net_mosq.h"
 
-#if !defined(WITH_WEBSOCKETS) || WITH_WEBSOCKETS == WS_IS_BUILTIN
+#якщо !defined(WITH_WEBSOCKETS) || WITH_WEBSOCKETS == WS_IS_BUILTIN
 
 #define PROXY_V1_PACKET_LIMIT 108
 
@@ -25,53 +25,53 @@ static void proxy_cleanup(struct mosquitto *context)
 }
 
 
-static int update_transport(struct mosquitto *context)
+static ціле update_transport(struct mosquitto *context)
 {
-#if defined(WITH_WEBSOCKETS) && WITH_WEBSOCKETS == WS_IS_BUILTIN
-	if(context->listener->protocol == mp_websockets){
-		return http__context_init(context);
-	}else
+#якщо defined(WITH_WEBSOCKETS) && WITH_WEBSOCKETS == WS_IS_BUILTIN
+	якщо(context->listener->protocol == mp_websockets){
+		повернути http__context_init(context);
+	}інакше
 #endif
 	{
 		context->transport = mosq_t_tcp;
 	}
-	return MOSQ_ERR_SUCCESS;
+	повернути MOSQ_ERR_SUCCESS;
 }
 
 
-static int get_address_for_unknown(struct mosquitto *context)
+static ціле get_address_for_unknown(struct mosquitto *context)
 {
 	char address[1024];
 
 	proxy_cleanup(context);
 
-	if(!net__socket_get_address(context->sock, address, sizeof(address), &context->remote_port)){
+	якщо(!net__socket_get_address(context->sock, address, sizeof(address), &context->remote_port)){
 		context->address = mosquitto_strdup(address);
 	}
-	if(!context->address){
-		return MOSQ_ERR_NOMEM;
+	якщо(!context->address){
+		повернути MOSQ_ERR_NOMEM;
 	}
-	return update_transport(context);
+	повернути update_transport(context);
 }
 
 
-static int proxy_v1__decode(struct mosquitto *context)
+static ціле proxy_v1__decode(struct mosquitto *context)
 {
 	char *saddr_s, *daddr_s, *sport_s, *dport_s;
 	char *saveptr = NULL;
-	int sport, dport;
+	ціле sport, dport;
 	struct in6_addr addr;
 
-	if(context->proxy.pos >= sizeof(signatureU) && !memcmp(context->proxy.buf, signatureU, sizeof(signatureU))){
-		return get_address_for_unknown(context);
-	}else if(context->proxy.pos >= sizeof(signature4) && !memcmp(context->proxy.buf, signature4, sizeof(signature4))){
+	якщо(context->proxy.pos >= sizeof(signatureU) && !memcmp(context->proxy.buf, signatureU, sizeof(signatureU))){
+		повернути get_address_for_unknown(context);
+	}інакше якщо(context->proxy.pos >= sizeof(signature4) && !memcmp(context->proxy.buf, signature4, sizeof(signature4))){
 		context->proxy.fam = AF_INET;
-	}else if(context->proxy.pos >= sizeof(signature6) && !memcmp(context->proxy.buf, signature6, sizeof(signature6))){
+	}інакше якщо(context->proxy.pos >= sizeof(signature6) && !memcmp(context->proxy.buf, signature6, sizeof(signature6))){
 		context->proxy.fam = AF_INET6;
-	}else{
+	}інакше{
 		log__printf(NULL, MOSQ_LOG_NOTICE, "Connection rejected, corrupt PROXY header.");
 		proxy_cleanup(context);
-		return MOSQ_ERR_INVAL;
+		повернути MOSQ_ERR_INVAL;
 	}
 
 	context->proxy.buf[context->proxy.pos-1] = '\0';
@@ -82,82 +82,82 @@ static int proxy_v1__decode(struct mosquitto *context)
 	dport_s = strtok_r(NULL, " ", &saveptr);
 
 
-	if(!saddr_s || !daddr_s || !sport_s || !dport_s || (saveptr && strlen(saveptr) > 0)){
+	якщо(!saddr_s || !daddr_s || !sport_s || !dport_s || (saveptr && strlen(saveptr) > 0)){
 		log__printf(NULL, MOSQ_LOG_NOTICE, "Connection rejected, corrupt PROXY header.");
 		proxy_cleanup(context);
-		return MOSQ_ERR_INVAL;
+		повернути MOSQ_ERR_INVAL;
 	}
 
 	/* Verify ports */
 	sport = atoi(sport_s);
 	dport = atoi(dport_s);
-	if(sport < 1 || sport > 65535 || dport < 1 || dport > 65535){
+	якщо(sport < 1 || sport > 65535 || dport < 1 || dport > 65535){
 		log__printf(NULL, MOSQ_LOG_NOTICE, "Connection rejected, corrupt PROXY header.");
 		proxy_cleanup(context);
-		return MOSQ_ERR_INVAL;
+		повернути MOSQ_ERR_INVAL;
 	}
 
 	/* Verify addresses */
-	if(context->proxy.fam == AF_INET){
-		if(inet_pton(AF_INET, saddr_s, &addr) != 1
+	якщо(context->proxy.fam == AF_INET){
+		якщо(inet_pton(AF_INET, saddr_s, &addr) != 1
 				|| inet_pton(AF_INET, daddr_s, &addr) != 1){
 
 			log__printf(NULL, MOSQ_LOG_NOTICE, "Connection rejected, corrupt PROXY header.");
 			proxy_cleanup(context);
-			return MOSQ_ERR_INVAL;
+			повернути MOSQ_ERR_INVAL;
 		}
-	}else if(context->proxy.fam == AF_INET6){
-		if(inet_pton(AF_INET6, saddr_s, &addr) != 1
+	}інакше якщо(context->proxy.fam == AF_INET6){
+		якщо(inet_pton(AF_INET6, saddr_s, &addr) != 1
 				|| inet_pton(AF_INET6, daddr_s, &addr) != 1){
 
 			log__printf(NULL, MOSQ_LOG_NOTICE, "Connection rejected, corrupt PROXY header.");
 			proxy_cleanup(context);
-			return MOSQ_ERR_INVAL;
+			повернути MOSQ_ERR_INVAL;
 		}
 	}
 
 	context->address = mosquitto_strdup(saddr_s);
-	if(!context->address){
+	якщо(!context->address){
 		proxy_cleanup(context);
-		return MOSQ_ERR_NOMEM;
+		повернути MOSQ_ERR_NOMEM;
 	}
 	context->remote_port = (uint16_t )sport;
 	proxy_cleanup(context);
-	return update_transport(context);
+	повернути update_transport(context);
 }
 
 
-int proxy_v1__read(struct mosquitto *context)
+ціле proxy_v1__read(struct mosquitto *context)
 {
-	if(context->proxy.buf == NULL){
+	якщо(context->proxy.buf == NULL){
 		context->proxy.buf = mosquitto_calloc(1, PROXY_V1_PACKET_LIMIT);
-		if(!context->proxy.buf){
-			return MOSQ_ERR_NOMEM;
+		якщо(!context->proxy.buf){
+			повернути MOSQ_ERR_NOMEM;
 		}
 		context->proxy.pos = 0;
 	}
 
-	while(context->proxy.pos < PROXY_V1_PACKET_LIMIT){
-		if(net__read(context, &(context->proxy.buf[context->proxy.pos]), 1) != 1){
+	поки(context->proxy.pos < PROXY_V1_PACKET_LIMIT){
+		якщо(net__read(context, &(context->proxy.buf[context->proxy.pos]), 1) != 1){
 			proxy_cleanup(context);
-			return MOSQ_ERR_CONN_LOST;
+			повернути MOSQ_ERR_CONN_LOST;
 		}
 		context->proxy.pos++;
-		if(context->proxy.pos > 2){ /* FIXME: Figure out better limit */
-			if(context->proxy.buf[context->proxy.pos-1] == '\n'
+		якщо(context->proxy.pos > 2){ /* FIXME: Figure out better limit */
+			якщо(context->proxy.buf[context->proxy.pos-1] == '\n'
 					&& context->proxy.buf[context->proxy.pos-2] == '\r'){
 
 				/* Line received, now decode */
-				return proxy_v1__decode(context);
+				повернути proxy_v1__decode(context);
 			}
 		}
 	}
-	if(context->proxy.pos == PROXY_V1_PACKET_LIMIT){
+	якщо(context->proxy.pos == PROXY_V1_PACKET_LIMIT){
 		log__printf(NULL, MOSQ_LOG_NOTICE, "Connection rejected, corrupt PROXY header.");
 		proxy_cleanup(context);
-		return MOSQ_ERR_INVAL;
+		повернути MOSQ_ERR_INVAL;
 	}
 
-	return MOSQ_ERR_SUCCESS;
+	повернути MOSQ_ERR_SUCCESS;
 }
 #endif
