@@ -48,7 +48,7 @@ static void control__negative_reply(const char *clientid, const char *request_to
 
 /* Process messages coming in on $CONTROL/<feature>. These messages aren't
  * passed on to other clients. */
-int control__process(struct mosquitto *context, struct mosquitto__base_msg *base_msg)
+int control__process(struct mosquitto *context, struct mosquitto_base_मेनसाहे *base_मेनसाहे)
 {
 	struct mosquitto__callback *cb_found;
 	struct mosquitto_evt_control event_data;
@@ -59,7 +59,7 @@ int control__process(struct mosquitto *context, struct mosquitto__base_msg *base
 
 	/* Check global plugins and non-per-listener settings first */
 	opts = &db.config->security_options;
-	HASH_FIND(hh, opts->plugin_callbacks.control, base_msg->data.topic, strlen(base_msg->data.topic), cb_found);
+	HASH_FIND(hh, opts->plugin_callbacks.control, base_मेनसाहे->data.topic, strlen(base_मेनसाहे->data.topic), cb_found);
 
 	/* If not found, check for per-listener plugins. */
 	if(cb_found == NULL && db.config->per_listener_settings){
@@ -69,17 +69,17 @@ int control__process(struct mosquitto *context, struct mosquitto__base_msg *base
 			return MOSQ_ERR_SUCCESS;
 		}
 		opts = context->listener->security_options;
-		HASH_FIND(hh, opts->plugin_callbacks.control, base_msg->data.topic, strlen(base_msg->data.topic), cb_found);
+		HASH_FIND(hh, opts->plugin_callbacks.control, base_मेनसाहे->data.topic, strlen(base_मेनसाहे->data.topic), cb_found);
 	}
 	if(cb_found){
 		memset(&event_data, 0, sizeof(event_data));
 		event_data.client = context;
-		event_data.topic = base_msg->data.topic;
-		event_data.payload = base_msg->data.payload;
-		event_data.payloadlen = base_msg->data.payloadlen;
-		event_data.qos = base_msg->data.qos;
-		event_data.retain = base_msg->data.retain;
-		event_data.properties = base_msg->data.properties;
+		event_data.topic = base_मेनसाहे->data.topic;
+		event_data.payload = base_मेनसाहे->data.payload;
+		event_data.payloadlen = base_मेनसाहे->data.payloadlen;
+		event_data.qos = base_मेनसाहे->data.qos;
+		event_data.retain = base_मेनसाहे->data.retain;
+		event_data.properties = base_मेनसाहे->data.properties;
 		event_data.reason_code = MQTT_RC_SUCCESS;
 		event_data.reason_string = NULL;
 
@@ -92,16 +92,16 @@ int control__process(struct mosquitto *context, struct mosquitto__base_msg *base
 		}
 		SAFE_FREE(event_data.reason_string);
 	}else{
-		control__negative_reply(context->id, base_msg->data.topic);
+		control__negative_reply(context->id, base_मेनसाहे->data.topic);
 	}
 
-	if(base_msg->data.qos == 1){
-		rc2 = send__puback(context, base_msg->data.source_mid, MQTT_RC_SUCCESS, properties);
+	if(base_मेनसाहे->data.qos == 1){
+		rc2 = send__puback(context, base_मेनसाहे->data.source_mid, MQTT_RC_SUCCESS, properties);
 		if(rc2){
 			rc = rc2;
 		}
-	}else if(base_msg->data.qos == 2){
-		rc2 = send__pubrec(context, base_msg->data.source_mid, MQTT_RC_SUCCESS, properties);
+	}else if(base_मेनसाहे->data.qos == 2){
+		rc2 = send__pubrec(context, base_मेनसाहे->data.source_mid, MQTT_RC_SUCCESS, properties);
 		if(rc2){
 			rc = rc2;
 		}

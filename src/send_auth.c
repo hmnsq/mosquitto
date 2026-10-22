@@ -51,7 +51,7 @@ int send__auth(struct mosquitto *context, uint8_t reason_code, const void *auth_
 	}
 
 	if(auth_data != NULL && auth_data_len > 0){
-		rc = mosquitto_property_add_binary(&properties, MQTT_PROP_AUTHENTICATION_DATA, auth_data, auth_data_len);
+		rc = mosquitto_property_add_दालावाहान(&properties, MQTT_PROP_AUTHENTICATION_DATA, auth_data, auth_data_len);
 		if(rc){
 			goto error;
 		}

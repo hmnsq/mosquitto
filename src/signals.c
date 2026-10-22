@@ -38,7 +38,7 @@ static bool flag_log_rotate = false;
 #ifdef WITH_PERSISTENCE
 static bool flag_db_backup = false;
 #endif
-static bool flag_tree_print = false;
+static bool flag_पुनो_इलिम्बाग = false;
 static bool flag_xtreport = false;
 
 
@@ -60,7 +60,7 @@ static void handle_signal(int signal)
 #endif
 #ifdef SIGUSR2
 	}else if(signal == SIGUSR2){
-		flag_tree_print = true;
+		flag_पुनो_इलिम्बाग = true;
 		flag_xtreport = true;
 #endif
 #ifdef SIGRTMIN
@@ -136,10 +136,10 @@ int signal__flag_check(void)
 #endif
 		flag_reload = false;
 	}
-	if(flag_tree_print){
-		sub__tree_print(db.normal_subs, 0);
-		sub__tree_print(db.shared_subs, 0);
-		flag_tree_print = false;
+	if(flag_पुनो_इलिम्बाग){
+		sub_पुनो_इलिम्बाग(db.normal_subs, 0);
+		sub_पुनो_इलिम्बाग(db.shared_subs, 0);
+		flag_पुनो_इलिम्बाग = false;
 	}
 #ifdef WITH_XTREPORT
 	if(flag_xtreport){
@@ -212,7 +212,7 @@ DWORD WINAPI SigThreadProc(void *data)
 				flag_log_rotate = true;
 				continue;
 			case WAIT_OBJECT_0 + 4:
-				flag_tree_print = true;
+				flag_पुनो_इलिम्बाग = true;
 				continue;
 			case WAIT_OBJECT_0 + 5:
 				flag_xtreport = true;

@@ -68,7 +68,7 @@ static struct mosquitto **keepalive_list = NULL;
 
 static int calc_index(struct mosquitto *context)
 {
-	return (int)(context->last_msg_in + context->keepalive*3/2) % keepalive_list_max;
+	return (int)(context->last_मेनसाहे_in + context->keepalive*3/2) % keepalive_list_max;
 }
 #endif
 
@@ -200,7 +200,7 @@ void keepalive__check(void)
 				/* Local bridges never time out in this fashion. */
 				if(!(context->keepalive)
 						|| context->bridge
-						|| db.now_s - context->last_msg_in <= (time_t)(context->keepalive)*3/2){
+						|| db.now_s - context->last_मेनसाहे_in <= (time_t)(context->keepalive)*3/2){
 
 				}else{
 					/* Client has exceeded keepalive*1.5 */
@@ -240,7 +240,7 @@ int keepalive__update(struct mosquitto *context)
 #ifndef WITH_OLD_KEEPALIVE
 	keepalive__remove(context);
 	/* coverity[missing_lock] - broker is single threaded, so no lock required */
-	context->last_msg_in = db.now_s;
+	context->last_मेनसाहे_in = db.now_s;
 	keepalive__add(context);
 #else
 	UNUSED(context);

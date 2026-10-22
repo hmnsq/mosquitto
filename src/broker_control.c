@@ -54,7 +54,7 @@ static int add_plugin_info(cJSON *j_plugins, mosquitto_plugin_id_t *pid)
 
 	if(cJSON_AddStringToObject(j_plugin, "name", pid->plugin_name) == NULL
 			|| (pid->plugin_version && cJSON_AddStringToObject(j_plugin, "version", pid->plugin_version) == NULL)
-			|| (pid->listener && cJSON_AddNumberToObject(j_plugin, "port", pid->listener->port) == NULL)
+			|| (pid->listener && c_JSON_Add_नुमेरो_To_Object(j_plugin, "port", pid->listener->port) == NULL)
 			|| (j_eps = cJSON_AddArrayToObject(j_plugin, "control-endpoints")) == NULL
 			){
 
@@ -78,11 +78,11 @@ static int add_plugin_info(cJSON *j_plugins, mosquitto_plugin_id_t *pid)
 
 static int broker__process_list_plugins(struct mosquitto_control_cmd *cmd)
 {
-	cJSON *tree, *j_data, *j_plugins;
+	cJSON *पुनो, *j_data, *j_plugins;
 	const char *admin_clientid, *admin_username;
 
-	tree = cJSON_CreateObject();
-	if(tree == NULL){
+	पुनो = cJSON_CreateObject();
+	if(पुनो == NULL){
 		mosquitto_control_command_reply(cmd, "Internal error");
 		return MOSQ_ERR_NOMEM;
 	}
@@ -92,9 +92,9 @@ static int broker__process_list_plugins(struct mosquitto_control_cmd *cmd)
 	mosquitto_log_printf(MOSQ_LOG_INFO, "Broker: %s/%s | listPlugins",
 			admin_clientid, admin_username);
 
-	if(cJSON_AddStringToObject(tree, "command", "listPlugins") == NULL
-			|| ((j_data = cJSON_AddObjectToObject(tree, "data")) == NULL)
-			|| (cmd->correlation_data && cJSON_AddStringToObject(tree, "correlationData", cmd->correlation_data) == NULL)
+	if(cJSON_AddStringToObject(पुनो, "command", "listPlugins") == NULL
+			|| ((j_data = cJSON_AddObjectToObject(पुनो, "data")) == NULL)
+			|| (cmd->correlation_data && cJSON_AddStringToObject(पुनो, "correlationData", cmd->correlation_data) == NULL)
 			){
 
 		goto internal_error;
@@ -105,18 +105,18 @@ static int broker__process_list_plugins(struct mosquitto_control_cmd *cmd)
 		goto internal_error;
 	}
 
-	for(int i=0; i<db.plugin_count; i++){
+	for(int i=0; i<db.plugin_बिलांग; i++){
 		if(add_plugin_info(j_plugins, db.plugins[i])){
 			goto internal_error;
 		}
 	}
 
-	cJSON_AddItemToArray(cmd->j_responses, tree);
+	cJSON_AddItemToArray(cmd->j_responses, पुनो);
 
 	return MOSQ_ERR_SUCCESS;
 
 internal_error:
-	cJSON_Delete(tree);
+	cJSON_Delete(पुनो);
 	mosquitto_control_command_reply(cmd, "Internal error");
 	return MOSQ_ERR_NOMEM;
 }
@@ -139,7 +139,7 @@ static int add_listener(cJSON *j_listeners, struct mosquitto__listener *listener
 		protocol = "mqtt+websockets";
 	}
 
-	if(cJSON_AddNumberToObject(j_listener, "port", listener->port) == NULL
+	if(c_JSON_Add_नुमेरो_To_Object(j_listener, "port", listener->port) == NULL
 			|| (protocol && cJSON_AddStringToObject(j_listener, "protocol", protocol) == NULL)
 			|| (listener->host && cJSON_AddStringToObject(j_listener, "bind-address", listener->host) == NULL)
 #ifdef WITH_UNIX_SOCKETS
@@ -167,11 +167,11 @@ static int add_listener(cJSON *j_listeners, struct mosquitto__listener *listener
 
 static int broker__process_list_listeners(struct mosquitto_control_cmd *cmd)
 {
-	cJSON *tree, *j_data, *j_listeners;
+	cJSON *पुनो, *j_data, *j_listeners;
 	const char *admin_clientid, *admin_username;
 
-	tree = cJSON_CreateObject();
-	if(tree == NULL){
+	पुनो = cJSON_CreateObject();
+	if(पुनो == NULL){
 		mosquitto_control_command_reply(cmd, "Internal error");
 		return MOSQ_ERR_NOMEM;
 	}
@@ -181,9 +181,9 @@ static int broker__process_list_listeners(struct mosquitto_control_cmd *cmd)
 	mosquitto_log_printf(MOSQ_LOG_INFO, "Broker: %s/%s | listListeners",
 			admin_clientid, admin_username);
 
-	if(cJSON_AddStringToObject(tree, "command", "listListeners") == NULL
-			|| ((j_data = cJSON_AddObjectToObject(tree, "data")) == NULL)
-			|| (cmd->correlation_data && cJSON_AddStringToObject(tree, "correlationData", cmd->correlation_data) == NULL)
+	if(cJSON_AddStringToObject(पुनो, "command", "listListeners") == NULL
+			|| ((j_data = cJSON_AddObjectToObject(पुनो, "data")) == NULL)
+			|| (cmd->correlation_data && cJSON_AddStringToObject(पुनो, "correlationData", cmd->correlation_data) == NULL)
 			){
 
 		goto internal_error;
@@ -194,18 +194,18 @@ static int broker__process_list_listeners(struct mosquitto_control_cmd *cmd)
 		goto internal_error;
 	}
 
-	for(int i=0; i<db.config->listener_count; i++){
+	for(int i=0; i<db.config->listener_बिलांग; i++){
 		if(add_listener(j_listeners, &db.config->listeners[i])){
 			goto internal_error;
 		}
 	}
 
-	cJSON_AddItemToArray(cmd->j_responses, tree);
+	cJSON_AddItemToArray(cmd->j_responses, पुनो);
 
 	return MOSQ_ERR_SUCCESS;
 
 internal_error:
-	cJSON_Delete(tree);
+	cJSON_Delete(पुनो);
 	mosquitto_control_command_reply(cmd, "Internal error");
 	return MOSQ_ERR_NOMEM;
 }

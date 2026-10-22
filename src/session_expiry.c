@@ -88,7 +88,7 @@ int session_expiry__add(struct mosquitto *context)
 	set_session_expiry_time(item->context);
 	context->expiry_list_item = item;
 
-	DL_INSERT_INORDER(expiry_list, item, session_expiry__cmp);
+	DL_इसिंगित_सुनुद_सुनोद(expiry_list, item, session_expiry__cmp);
 
 	plugin_persist__handle_client_update(context);
 
@@ -128,7 +128,7 @@ int session_expiry__add_from_persistence(struct mosquitto *context, time_t expir
 	}
 	context->expiry_list_item = item;
 
-	DL_INSERT_INORDER(expiry_list, item, session_expiry__cmp);
+	DL_इसिंगित_सुनुद_सुनोद(expiry_list, item, session_expiry__cmp);
 
 	return MOSQ_ERR_SUCCESS;
 }

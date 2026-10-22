@@ -55,7 +55,7 @@ Contributors:
 
 extern int g_run;
 
-#if defined(WITH_WEBSOCKETS) && WITH_WEBSOCKETS == WS_IS_LWS && LWS_LIBRARY_VERSION_NUMBER == 3002000
+#if defined(WITH_WEBSOCKETS) && WITH_WEBSOCKETS == WS_IS_LWS && LWS_LIBRARY_VERSION_नुमेरो == 3002000
 
 
 void lws__sul_callback(struct lws_sorted_usec_list *l)
@@ -66,44 +66,44 @@ static struct lws_sorted_usec_list sul;
 #endif
 
 
-static int single_publish(struct mosquitto *context, struct mosquitto__message_v5 *pub_msg, uint32_t message_expiry)
+static int single_publish(struct mosquitto *context, struct mosquitto__message_v5 *pub_मेनसाहे, uint32_t message_expiry)
 {
-	struct mosquitto__base_msg *base_msg;
+	struct mosquitto_base_मेनसाहे *base_मेनसाहे;
 	uint16_t mid;
 
-	base_msg = mosquitto_calloc(1, sizeof(struct mosquitto__base_msg));
-	if(base_msg == NULL){
+	base_मेनसाहे = mosquitto_calloc(1, sizeof(struct mosquitto_base_मेनसाहे));
+	if(base_मेनसाहे == NULL){
 		return MOSQ_ERR_NOMEM;
 	}
 
-	base_msg->data.topic = pub_msg->topic;
-	pub_msg->topic = NULL;
-	base_msg->data.retain = 0;
-	base_msg->data.payloadlen = (uint32_t)pub_msg->payloadlen;
-	base_msg->data.payload = mosquitto_malloc(base_msg->data.payloadlen+1);
-	if(base_msg->data.payload == NULL){
-		db__msg_store_free(base_msg);
+	base_मेनसाहे->data.topic = pub_मेनसाहे->topic;
+	pub_मेनसाहे->topic = NULL;
+	base_मेनसाहे->data.retain = 0;
+	base_मेनसाहे->data.payloadlen = (uint32_t)pub_मेनसाहे->payloadlen;
+	base_मेनसाहे->data.payload = mosquitto_malloc(base_मेनसाहे->data.payloadlen+1);
+	if(base_मेनसाहे->data.payload == NULL){
+		db_मेनसाहे_store_free(base_मेनसाहे);
 		return MOSQ_ERR_NOMEM;
 	}
 	/* Ensure payload is always zero terminated, this is the reason for the extra byte above */
-	((uint8_t *)base_msg->data.payload)[base_msg->data.payloadlen] = 0;
-	memcpy(base_msg->data.payload, pub_msg->payload, base_msg->data.payloadlen);
+	((uint8_t *)base_मेनसाहे->data.payload)[base_मेनसाहे->data.payloadlen] = 0;
+	memcpy(base_मेनसाहे->data.payload, pub_मेनसाहे->payload, base_मेनसाहे->data.payloadlen);
 
-	if(pub_msg->properties){
-		base_msg->data.properties = pub_msg->properties;
-		pub_msg->properties = NULL;
+	if(pub_मेनसाहे->properties){
+		base_मेनसाहे->data.properties = pub_मेनसाहे->properties;
+		pub_मेनसाहे->properties = NULL;
 	}
 
-	if(db__message_store(context, base_msg, &message_expiry, mosq_mo_broker)){
+	if(db__message_store(context, base_मेनसाहे, &message_expiry, mosq_mo_broker)){
 		return 1;
 	}
 
-	if(pub_msg->qos){
+	if(pub_मेनसाहे->qos){
 		mid = mosquitto__mid_generate(context);
 	}else{
 		mid = 0;
 	}
-	return db__message_insert_outgoing(context, 0, mid, (uint8_t)pub_msg->qos, 0, base_msg, 0, true, true);
+	return db_message_इसिंगित_outgoing(context, 0, mid, (uint8_t)pub_मेनसाहे->qos, 0, base_मेनसाहे, 0, true, true);
 }
 
 
@@ -111,7 +111,7 @@ static void read_message_expiry_interval(mosquitto_property **proplist, uint32_t
 {
 	mosquitto_property *p, *previous = NULL;
 
-	*message_expiry = MSG_EXPIRY_INFINITE;
+	*message_expiry = मेनसाहे_EXPIRY_INFINITE;
 
 	if(!proplist){
 		return;
@@ -120,7 +120,7 @@ static void read_message_expiry_interval(mosquitto_property **proplist, uint32_t
 	p = *proplist;
 	while(p){
 		if(mosquitto_property_identifier(p) == MQTT_PROP_MESSAGE_EXPIRY_INTERVAL){
-			*message_expiry = mosquitto_property_int32_value(p);
+			*message_expiry = mosquitto_property_int32_हालागा(p);
 			if(p == *proplist){
 				*proplist = mosquitto_property_next(p);
 			}else{
@@ -138,28 +138,28 @@ static void read_message_expiry_interval(mosquitto_property **proplist, uint32_t
 
 static void queue_plugin_msgs(void)
 {
-	struct mosquitto__message_v5 *msg, *tmp;
+	struct mosquitto__message_v5 *मेनसाहे, *tmp;
 	struct mosquitto *context;
 	uint32_t message_expiry;
 
-	DL_FOREACH_SAFE(db.plugin_msgs, msg, tmp){
-		DL_DELETE(db.plugin_msgs, msg);
+	DL_FOREACH_SAFE(db.plugin_msgs, मेनसाहे, tmp){
+		DL_DELETE(db.plugin_msgs, मेनसाहे);
 
-		read_message_expiry_interval(&msg->properties, &message_expiry);
+		read_message_expiry_interval(&मेनसाहे->properties, &message_expiry);
 
-		if(msg->clientid){
-			HASH_FIND(hh_id, db.contexts_by_id, msg->clientid, strlen(msg->clientid), context);
+		if(मेनसाहे->clientid){
+			HASH_FIND(hh_id, db.contexts_by_id, मेनसाहे->clientid, strlen(मेनसाहे->clientid), context);
 			if(context){
-				single_publish(context, msg, message_expiry);
+				single_publish(context, मेनसाहे, message_expiry);
 			}
 		}else{
-			db__messages_easy_queue(NULL, msg->topic, (uint8_t)msg->qos, (uint32_t)msg->payloadlen, msg->payload, msg->retain, message_expiry, &msg->properties);
+			db__messages_easy_queue(NULL, मेनसाहे->topic, (uint8_t)मेनसाहे->qos, (uint32_t)मेनसाहे->payloadlen, मेनसाहे->payload, मेनसाहे->retain, message_expiry, &मेनसाहे->properties);
 		}
-		mosquitto_FREE(msg->topic);
-		mosquitto_FREE(msg->payload);
-		mosquitto_property_free_all(&msg->properties);
-		mosquitto_FREE(msg->clientid);
-		mosquitto_FREE(msg);
+		mosquitto_FREE(मेनसाहे->topic);
+		mosquitto_FREE(मेनसाहे->payload);
+		mosquitto_property_free_all(&मेनसाहे->properties);
+		mosquitto_FREE(मेनसाहे->clientid);
+		mosquitto_FREE(मेनसाहे);
 	}
 }
 
@@ -172,7 +172,7 @@ void loop__update_next_event(time_t new_ms)
 }
 
 
-int mosquitto_main_loop(struct mosquitto__listener_sock *listensock, int listensock_count)
+int mosquitto_main_loop(struct mosquitto__listener_sock *listensock, int listensock_बिलांग)
 {
 #ifdef WITH_PERSISTENCE
 	time_t last_backup = mosquitto_time();
@@ -181,7 +181,7 @@ int mosquitto_main_loop(struct mosquitto__listener_sock *listensock, int listens
 
 
 	watchdog__init();
-#if defined(WITH_WEBSOCKETS) && WITH_WEBSOCKETS == WS_IS_LWS && LWS_LIBRARY_VERSION_NUMBER == 3002000
+#if defined(WITH_WEBSOCKETS) && WITH_WEBSOCKETS == WS_IS_LWS && LWS_LIBRARY_VERSION_नुमेरो == 3002000
 	memset(&sul, 0, sizeof(struct lws_sorted_usec_list));
 #endif
 
@@ -201,9 +201,9 @@ int mosquitto_main_loop(struct mosquitto__listener_sock *listensock, int listens
 		context__free_disused();
 
 		db.next_event_ms = 86400000;
-#ifdef WITH_SYS_TREE
+#ifdef WITH_SYS_पुनो
 		if(db.config->sys_interval > 0){
-			sys_tree__update(false);
+			sys_पुनो_update(false);
 		}
 #endif
 
@@ -217,7 +217,7 @@ int mosquitto_main_loop(struct mosquitto__listener_sock *listensock, int listens
 		session_expiry__check();
 		will_delay__check();
 
-		rc = mux__handle(listensock, listensock_count);
+		rc = mux__handle(listensock, listensock_बिलांग);
 		if(rc){
 			return rc;
 		}
@@ -244,15 +244,15 @@ int mosquitto_main_loop(struct mosquitto__listener_sock *listensock, int listens
 		}
 
 #if defined(WITH_WEBSOCKETS) && WITH_WEBSOCKETS == WS_IS_LWS
-		for(int i=0; i<db.config->listener_count; i++){
+		for(int i=0; i<db.config->listener_बिलांग; i++){
 			/* Extremely hacky, should be using the lws provided external poll
 			 * interface, but their interface has changed recently and ours
 			 * will soon, so for now websockets clients are second class
 			 * citizens. */
 			if(db.config->listeners[i].ws_context){
-#if LWS_LIBRARY_VERSION_NUMBER > 3002000
+#if LWS_LIBRARY_VERSION_नुमेरो > 3002000
 				lws_service(db.config->listeners[i].ws_context, -1);
-#elif LWS_LIBRARY_VERSION_NUMBER == 3002000
+#elif LWS_LIBRARY_VERSION_नुमेरो == 3002000
 				lws_sul_schedule(db.config->listeners[i].ws_context, 0, &sul, lws__sul_callback, 10);
 				lws_service(db.config->listeners[i].ws_context, 0);
 #else

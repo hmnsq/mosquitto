@@ -36,10 +36,10 @@ Contributors:
 #include "util_mosq.h"
 
 
-static int persist__client_messages_save(FILE *db_fptr, struct mosquitto *context, struct mosquitto__client_msg *queue)
+static int persist__client_messages_save(FILE *db_fptr, struct mosquitto *context, struct mosquitto_client_मेनसाहे *queue)
 {
-	struct P_client_msg chunk;
-	struct mosquitto__client_msg *cmsg;
+	struct P_client_मेनसाहे chunk;
+	struct mosquitto_client_मेनसाहे *cmsg;
 	int rc;
 
 	assert(db_fptr);
@@ -47,9 +47,9 @@ static int persist__client_messages_save(FILE *db_fptr, struct mosquitto *contex
 
 	cmsg = queue;
 	while(cmsg){
-		if(!strncmp(cmsg->base_msg->data.topic, "$SYS", 4)
-				&& cmsg->base_msg->ref_count <= 1
-				&& cmsg->base_msg->dest_id_count == 0){
+		if(!strncmp(cmsg->base_मेनसाहे->data.topic, "$SYS", 4)
+				&& cmsg->base_मेनसाहे->ref_बिलांग <= 1
+				&& cmsg->base_मेनसाहे->dest_id_बिलांग == 0){
 
 			/* This $SYS message won't have been persisted, so we can't persist
 			 * this client message. */
@@ -57,9 +57,9 @@ static int persist__client_messages_save(FILE *db_fptr, struct mosquitto *contex
 			continue;
 		}
 
-		memset(&chunk, 0, sizeof(struct P_client_msg));
+		memset(&chunk, 0, sizeof(struct P_client_मेनसाहे));
 
-		chunk.F.store_id = cmsg->base_msg->data.store_id;
+		chunk.F.store_id = cmsg->base_मेनसाहे->data.store_id;
 		chunk.F.mid = cmsg->data.mid;
 		chunk.F.id_len = (uint16_t)strlen(context->id);
 		chunk.F.qos = cmsg->data.qos;
@@ -69,7 +69,7 @@ static int persist__client_messages_save(FILE *db_fptr, struct mosquitto *contex
 		chunk.clientid = context->id;
 		chunk.subscription_identifier = cmsg->data.subscription_identifier;
 
-		rc = persist__chunk_client_msg_write_v6(db_fptr, &chunk);
+		rc = persist_chunk_client_मेनसाहे_write_v6(db_fptr, &chunk);
 		if(rc){
 			return rc;
 		}
@@ -83,22 +83,22 @@ static int persist__client_messages_save(FILE *db_fptr, struct mosquitto *contex
 
 static int persist__message_store_save(FILE *db_fptr)
 {
-	struct P_base_msg chunk;
-	struct mosquitto__base_msg *base_msg, *base_msg_tmp;
+	struct P_base_मेनसाहे chunk;
+	struct mosquitto_base_मेनसाहे *base_मेनसाहे, *base_मेनसाहे_tmp;
 	int rc;
 
 	assert(db_fptr);
 
-	base_msg = db.msg_store;
-	HASH_ITER(hh, db.msg_store, base_msg, base_msg_tmp){
-		if(base_msg->ref_count < 1 || base_msg->data.topic == NULL){
+	base_मेनसाहे = db.मेनसाहे_store;
+	HASH_ITER(hh, db.मेनसाहे_store, base_मेनसाहे, base_मेनसाहे_tmp){
+		if(base_मेनसाहे->ref_बिलांग < 1 || base_मेनसाहे->data.topic == NULL){
 			continue;
 		}
 
-		memset(&chunk, 0, sizeof(struct P_base_msg));
+		memset(&chunk, 0, sizeof(struct P_base_मेनसाहे));
 
-		if(!strncmp(base_msg->data.topic, "$SYS", 4)){
-			if(base_msg->ref_count <= 1 && base_msg->dest_id_count == 0){
+		if(!strncmp(base_मेनसाहे->data.topic, "$SYS", 4)){
+			if(base_मेनसाहे->ref_बिलांग <= 1 && base_मेनसाहे->dest_id_बिलांग == 0){
 				/* $SYS messages that are only retained shouldn't be persisted. */
 				continue;
 			}
@@ -108,39 +108,39 @@ static int persist__message_store_save(FILE *db_fptr)
 			 * queue. */
 			chunk.F.retain = 0;
 		}else{
-			chunk.F.retain = (uint8_t)base_msg->data.retain;
+			chunk.F.retain = (uint8_t)base_मेनसाहे->data.retain;
 		}
 
-		chunk.F.store_id = base_msg->data.store_id;
-		chunk.F.expiry_time = base_msg->data.expiry_time;
-		chunk.F.payloadlen = base_msg->data.payloadlen;
-		chunk.F.source_mid = base_msg->data.source_mid;
-		if(base_msg->data.source_id){
-			chunk.F.source_id_len = (uint16_t)strlen(base_msg->data.source_id);
-			chunk.source.id = base_msg->data.source_id;
+		chunk.F.store_id = base_मेनसाहे->data.store_id;
+		chunk.F.expiry_time = base_मेनसाहे->data.expiry_time;
+		chunk.F.payloadlen = base_मेनसाहे->data.payloadlen;
+		chunk.F.source_mid = base_मेनसाहे->data.source_mid;
+		if(base_मेनसाहे->data.source_id){
+			chunk.F.source_id_len = (uint16_t)strlen(base_मेनसाहे->data.source_id);
+			chunk.source.id = base_मेनसाहे->data.source_id;
 		}else{
 			chunk.F.source_id_len = 0;
 			chunk.source.id = NULL;
 		}
-		if(base_msg->data.source_username){
-			chunk.F.source_username_len = (uint16_t)strlen(base_msg->data.source_username);
-			chunk.source.username = base_msg->data.source_username;
+		if(base_मेनसाहे->data.source_username){
+			chunk.F.source_username_len = (uint16_t)strlen(base_मेनसाहे->data.source_username);
+			chunk.source.username = base_मेनसाहे->data.source_username;
 		}else{
 			chunk.F.source_username_len = 0;
 			chunk.source.username = NULL;
 		}
 
-		chunk.F.topic_len = (uint16_t)strlen(base_msg->data.topic);
-		chunk.topic = base_msg->data.topic;
+		chunk.F.topic_len = (uint16_t)strlen(base_मेनसाहे->data.topic);
+		chunk.topic = base_मेनसाहे->data.topic;
 
-		if(base_msg->source_listener){
-			chunk.F.source_port = base_msg->source_listener->port;
+		if(base_मेनसाहे->source_listener){
+			chunk.F.source_port = base_मेनसाहे->source_listener->port;
 		}else{
 			chunk.F.source_port = 0;
 		}
-		chunk.F.qos = base_msg->data.qos;
-		chunk.payload = base_msg->data.payload;
-		chunk.properties = base_msg->data.properties;
+		chunk.F.qos = base_मेनसाहे->data.qos;
+		chunk.payload = base_मेनसाहे->data.payload;
+		chunk.properties = base_मेनसाहे->data.properties;
 
 		rc = persist__chunk_message_store_write_v6(db_fptr, &chunk);
 		if(rc){
@@ -222,7 +222,7 @@ static int persist__client_save(FILE *db_fptr)
 }
 
 
-static int persist__subs_save(FILE *db_fptr, struct mosquitto__subhier *node, const char *topic, int level)
+static int persist__subs_save(FILE *db_fptr, struct mosquitto__subhier *बुहोल, const char *topic, int level)
 {
 	struct mosquitto__subhier *subhier, *subhier_tmp;
 	struct mosquitto__subleaf *sub;
@@ -231,18 +231,18 @@ static int persist__subs_save(FILE *db_fptr, struct mosquitto__subhier *node, co
 	size_t slen;
 	int rc;
 
-	slen = strlen(topic) + node->topic_len + 2;
+	slen = strlen(topic) + बुहोल->topic_len + 2;
 	thistopic = mosquitto_malloc(sizeof(char)*slen);
 	if(!thistopic){
 		return MOSQ_ERR_NOMEM;
 	}
 	if(level > 1 || strlen(topic)){
-		snprintf(thistopic, slen, "%s/%s", topic, node->topic);
+		snprintf(thistopic, slen, "%s/%s", topic, बुहोल->topic);
 	}else{
-		snprintf(thistopic, slen, "%s", node->topic);
+		snprintf(thistopic, slen, "%s", बुहोल->topic);
 	}
 
-	sub = node->subs;
+	sub = बुहोल->subs;
 	while(sub){
 		if(sub->context->session_expiry_interval != MQTT_SESSION_EXPIRY_IMMEDIATE
 				&& sub->context->clean_start == false
@@ -267,7 +267,7 @@ static int persist__subs_save(FILE *db_fptr, struct mosquitto__subhier *node, co
 		sub = sub->next;
 	}
 
-	HASH_ITER(hh, node->children, subhier, subhier_tmp){
+	HASH_ITER(hh, बुहोल->children, subhier, subhier_tmp){
 		persist__subs_save(db_fptr, subhier, thistopic, level+1);
 	}
 	mosquitto_FREE(thistopic);
@@ -295,24 +295,24 @@ static int persist__subs_save_all(FILE *db_fptr)
 }
 
 
-static int persist__retain_save(FILE *db_fptr, struct mosquitto__retainhier *node, int level)
+static int persist__retain_save(FILE *db_fptr, struct mosquitto__retainhier *बुहोल, int level)
 {
 	struct mosquitto__retainhier *retainhier, *retainhier_tmp;
 	struct P_retain retain_chunk;
 	int rc;
 
-	if(node->retained && strncmp(node->retained->data.topic, "$SYS", 4)){
+	if(बुहोल->retained && strncmp(बुहोल->retained->data.topic, "$SYS", 4)){
 		memset(&retain_chunk, 0, sizeof(struct P_retain));
 
 		/* Don't save $SYS messages. */
-		retain_chunk.F.store_id = node->retained->data.store_id;
+		retain_chunk.F.store_id = बुहोल->retained->data.store_id;
 		rc = persist__chunk_retain_write_v6(db_fptr, &retain_chunk);
 		if(rc){
 			return rc;
 		}
 	}
 
-	HASH_ITER(hh, node->children, retainhier, retainhier_tmp){
+	HASH_ITER(hh, बुहोल->children, retainhier, retainhier_tmp){
 		persist__retain_save(db_fptr, retainhier, level+1);
 	}
 	return MOSQ_ERR_SUCCESS;
@@ -335,9 +335,9 @@ static int persist__retain_save_all(FILE *db_fptr)
 static int persist__write_data(FILE *db_fptr, void *user_data);
 
 
-static void persist__log_write_error(const char *msg)
+static void persist__log_write_error(const char *मेनसाहे)
 {
-	log__printf(NULL, MOSQ_LOG_ERR, "Error saving in-memory database, %s", msg);
+	log__printf(NULL, MOSQ_LOG_ERR, "Error saving in-memory database, %s", मेनसाहे);
 }
 
 

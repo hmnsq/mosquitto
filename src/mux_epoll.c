@@ -57,9 +57,9 @@ int mux_epoll__init(void)
 }
 
 
-int mux_epoll__add_listeners(struct mosquitto__listener_sock *listensock, int listensock_count)
+int mux_epoll__add_listeners(struct mosquitto__listener_sock *listensock, int listensock_बिलांग)
 {
-	for(int i=0; i<listensock_count; i++){
+	for(int i=0; i<listensock_बिलांग; i++){
 		struct epoll_event ev;
 
 		memset(&ev, 0, sizeof(struct epoll_event));
@@ -75,9 +75,9 @@ int mux_epoll__add_listeners(struct mosquitto__listener_sock *listensock, int li
 }
 
 
-int mux_epoll__delete_listeners(struct mosquitto__listener_sock *listensock, int listensock_count)
+int mux_epoll__delete_listeners(struct mosquitto__listener_sock *listensock, int listensock_बिलांग)
 {
-	for(int i=0; i<listensock_count; i++){
+	for(int i=0; i<listensock_बिलांग; i++){
 		if(epoll_ctl(db.epollfd, EPOLL_CTL_DEL, listensock[i].sock, NULL) == -1){
 			return MOSQ_ERR_UNKNOWN;
 		}
@@ -158,19 +158,19 @@ int mux_epoll__handle(void)
 	struct epoll_event ev;
 	struct mosquitto *context;
 	struct mosquitto__listener_sock *listensock;
-	int event_count;
+	int event_बिलांग;
 
 	memset(&ev, 0, sizeof(struct epoll_event));
 #if defined(WITH_WEBSOCKETS)
-	event_count = epoll_wait(db.epollfd, ep_events, MAX_EVENTS, 100);
+	event_बिलांग = epoll_wait(db.epollfd, ep_events, MAX_EVENTS, 100);
 #else
-	event_count = epoll_wait(db.epollfd, ep_events, MAX_EVENTS, db.next_event_ms);
+	event_बिलांग = epoll_wait(db.epollfd, ep_events, MAX_EVENTS, db.next_event_ms);
 #endif
 
 	db.now_s = mosquitto_time();
 	db.now_real_s = time(NULL);
 
-	switch(event_count){
+	switch(event_बिलांग){
 		case -1:
 			if(errno != EINTR){
 				log__printf(NULL, MOSQ_LOG_ERR, "Error in epoll waiting: %s.", strerror(errno));
@@ -179,7 +179,7 @@ int mux_epoll__handle(void)
 		case 0:
 			break;
 		default:
-			for(int i=0; i<event_count; i++){
+			for(int i=0; i<event_बिलांग; i++){
 				context = ep_events[i].data.ptr;
 				if(context->ident == id_client){
 					loop_handle_reads_writes(context, ep_events[i].events);

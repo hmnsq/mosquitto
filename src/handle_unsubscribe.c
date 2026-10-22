@@ -33,7 +33,7 @@ int handle__unsubscribe(struct mosquitto *context)
 	uint16_t slen;
 	int rc;
 	uint8_t reason = 0;
-	int reason_code_count = 0;
+	int reason_code_बिलांग = 0;
 	int reason_code_max;
 	uint8_t *reason_codes = NULL, *reason_tmp;
 	mosquitto_property *properties = NULL;
@@ -156,9 +156,9 @@ int handle__unsubscribe(struct mosquitto *context)
 			return rc;
 		}
 
-		reason_codes[reason_code_count] = reason;
-		reason_code_count++;
-		if(reason_code_count == reason_code_max){
+		reason_codes[reason_code_बिलांग] = reason;
+		reason_code_बिलांग++;
+		if(reason_code_बिलांग == reason_code_max){
 			reason_tmp = mosquitto_realloc(reason_codes, (size_t)(reason_code_max*2));
 			if(!reason_tmp){
 				mosquitto_FREE(reason_codes);
@@ -175,7 +175,7 @@ int handle__unsubscribe(struct mosquitto *context)
 	log__printf(NULL, MOSQ_LOG_DEBUG, "Sending UNSUBACK to %s", context->id);
 
 	/* We don't use Reason String or User Property yet. */
-	rc = send__unsuback(context, mid, reason_code_count, reason_codes, NULL);
+	rc = send__unsuback(context, mid, reason_code_बिलांग, reason_codes, NULL);
 	mosquitto_FREE(reason_codes);
 	return rc;
 }

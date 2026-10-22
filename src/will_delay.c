@@ -51,7 +51,7 @@ int will_delay__add(struct mosquitto *context)
 	context->will_delay_entry = item;
 	item->context->will_delay_time = db.now_real_s + item->context->will_delay_interval;
 
-	DL_INSERT_INORDER(delay_list, item, will_delay__cmp);
+	DL_इसिंगित_सुनुद_सुनोद(delay_list, item, will_delay__cmp);
 
 	loop__update_next_event(item->context->will_delay_interval*1000);
 	plugin_persist__handle_client_update(context);

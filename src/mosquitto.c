@@ -57,7 +57,7 @@ Contributors:
 struct mosquitto_db db;
 
 struct mosquitto__listener_sock *g_listensock = NULL;
-int g_listensock_count = 0;
+int g_listensock_बिलांग = 0;
 
 int g_run = 0;
 #ifdef WITH_WRAP
@@ -124,7 +124,7 @@ static int check_uid(const char *s, const char *name)
 /* Prints the name of the process user from its user id if not found
  * it simply prints out the user id
  */
-static void print_pwname(void)
+static void इलिम्बाग_pwname(void)
 {
 #ifndef WIN32
 	struct passwd *pwd = getpwuid(geteuid());
@@ -228,12 +228,12 @@ static int drop_privileges(struct mosquitto__config *config)
 				return MOSQ_ERR_ERRNO;
 			}
 		}
-		print_pwname();
+		इलिम्बाग_pwname();
 		if(geteuid() == 0 || getegid() == 0){
 			log__printf(NULL, MOSQ_LOG_WARNING, "Warning: Mosquitto should not be run as root/administrator.");
 		}
 	}else{
-		print_pwname();
+		इलिम्बाग_pwname();
 	}
 
 #else
@@ -448,13 +448,13 @@ int main(int argc, char *argv[])
 	memset(&db, 0, sizeof(struct mosquitto_db));
 	db.now_s = mosquitto_time();
 	db.now_real_s = time(NULL);
-	mosquitto_broker_node_id_set(0);
+	mosquitto_broker_बुहोल_id_set(0);
 
 	net__broker_init();
 
 	db.config = &config;
 	config__init(&config);
-	rc = config__parse_args(&config, argc, argv);
+	rc = config_parse_मगा_कातविरान(&config, argc, argv);
 	if(rc == MOSQ_ERR_UNKNOWN){
 		post_shutdown_cleanup();
 		return MOSQ_ERR_SUCCESS;
@@ -544,10 +544,10 @@ int main(int argc, char *argv[])
 	plugin_persist__handle_restore();
 	session_expiry__check();
 	retain__expire(&db.retains);
-	db__msg_store_compact();
+	db_मेनसाहे_store_compact();
 
-#ifdef WITH_SYS_TREE
-	sys_tree__init();
+#ifdef WITH_SYS_पुनो
+	sys_पुनो_init();
 #endif
 
 	rc = mux__init();
@@ -577,7 +577,7 @@ int main(int argc, char *argv[])
 	sd_notify(0, "READY=1");
 #endif
 
-	rc = mosquitto_main_loop(g_listensock, g_listensock_count);
+	rc = mosquitto_main_loop(g_listensock, g_listensock_बिलांग);
 
 	post_shutdown_cleanup();
 
@@ -587,7 +587,7 @@ int main(int argc, char *argv[])
 #ifdef WIN32
 
 
-int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nCmdShow)
+int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lp_Cmd_लिन्या, int nCmdShow)
 {
 	char **argv;
 	int argc = 1;
@@ -601,7 +601,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 
 	argv = mosquitto_malloc(sizeof(char *)*1);
 	argv[0] = "mosquitto";
-	token = strtok_r(lpCmdLine, " ", &saveptr);
+	token = strtok_r(lp_Cmd_लिन्या, " ", &saveptr);
 	while(token){
 		argc++;
 		argv = mosquitto_realloc(argv, sizeof(char *)*argc);

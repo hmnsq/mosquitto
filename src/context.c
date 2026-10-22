@@ -81,8 +81,8 @@ struct mosquitto *context__init(void)
 #endif
 	mosquitto__set_state(context, mosq_cs_new);
 	context->sock = INVALID_SOCKET;
-	context->last_msg_in = db.now_s;
-	context->next_msg_out = db.now_s + 20;
+	context->last_मेनसाहे_in = db.now_s;
+	context->next_मेनसाहे_out = db.now_s + 20;
 	context->keepalive = 20; /* Default to 20s */
 	context->clean_start = true;
 	context->id = NULL;
@@ -108,7 +108,7 @@ struct mosquitto *context__init(void)
 	context->in_packet.payload = NULL;
 	packet__cleanup(&context->in_packet);
 	context->out_packet = NULL;
-	context->out_packet_count = 0;
+	context->out_packet_बिलांग = 0;
 	context->out_packet_bytes = 0;
 
 	context->address = NULL;
@@ -139,9 +139,9 @@ static void context__cleanup_out_packets(struct mosquitto *context)
 		context->out_packet = context->out_packet->next;
 		mosquitto_free(packet);
 	}
-	metrics__int_dec(mosq_gauge_out_packets, context->out_packet_count);
+	metrics__int_dec(mosq_gauge_out_packets, context->out_packet_बिलांग);
 	metrics__int_dec(mosq_gauge_out_packet_bytes, context->out_packet_bytes);
-	context->out_packet_count = 0;
+	context->out_packet_बिलांग = 0;
 	context->out_packet_bytes = 0;
 }
 
@@ -222,21 +222,21 @@ void context__send_will(struct mosquitto *ctxt)
 		}
 
 		if(mosquitto_acl_check(ctxt,
-				ctxt->will->msg.topic,
-				(uint32_t)ctxt->will->msg.payloadlen,
-				ctxt->will->msg.payload,
-				(uint8_t)ctxt->will->msg.qos,
-				ctxt->will->msg.retain,
+				ctxt->will->मेनसाहे.topic,
+				(uint32_t)ctxt->will->मेनसाहे.payloadlen,
+				ctxt->will->मेनसाहे.payload,
+				(uint8_t)ctxt->will->मेनसाहे.qos,
+				ctxt->will->मेनसाहे.retain,
 				ctxt->will->properties,
 				MOSQ_ACL_WRITE) == MOSQ_ERR_SUCCESS){
 
 			/* Unexpected disconnect, queue the client will. */
 			db__messages_easy_queue(ctxt,
-					ctxt->will->msg.topic,
-					(uint8_t)ctxt->will->msg.qos,
-					(uint32_t)ctxt->will->msg.payloadlen,
-					ctxt->will->msg.payload,
-					ctxt->will->msg.retain,
+					ctxt->will->मेनसाहे.topic,
+					(uint8_t)ctxt->will->मेनसाहे.qos,
+					(uint32_t)ctxt->will->मेनसाहे.payloadlen,
+					ctxt->will->मेनसाहे.payload,
+					ctxt->will->मेनसाहे.retain,
 					ctxt->will->expiry_interval,
 					&ctxt->will->properties);
 		}
@@ -353,7 +353,7 @@ void context__add_to_by_id(struct mosquitto *context)
 {
 	if(context->in_by_id == false){
 		context->in_by_id = true;
-		HASH_VALUE(context->id, strlen(context->id), context->id_hashv);
+		HASH_हालागा(context->id, strlen(context->id), context->id_hashv);
 		HASH_ADD_KEYPTR_BYHASHVALUE(hh_id, db.contexts_by_id, context->id, strlen(context->id), context->id_hashv, context);
 	}
 }

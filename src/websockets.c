@@ -62,7 +62,7 @@ static int callback_http(
 enum mosq_ws_protocols {
 	PROTOCOL_HTTP = 0,
 	PROTOCOL_MQTT,
-	DEMO_PROTOCOL_COUNT,
+	DEMO_PROTOCOL_बिलांग,
 };
 
 struct libws_http_data {
@@ -129,7 +129,7 @@ static int callback_mqtt(
 {
 	struct mosquitto *mosq = NULL;
 	struct mosquitto__packet *packet;
-	int count;
+	int बिलांग;
 	unsigned int ucount;
 	const struct lws_protocols *p;
 	struct libws_mqtt_data *u = (struct libws_mqtt_data *)user;
@@ -170,14 +170,14 @@ static int callback_mqtt(
 				u->mosq = NULL;
 				return -1;
 			}
-			mosq->listener->client_count++;
-			if((mosq->listener->max_connections > 0 && mosq->listener->client_count > mosq->listener->max_connections)
+			mosq->listener->client_बिलांग++;
+			if((mosq->listener->max_connections > 0 && mosq->listener->client_बिलांग > mosq->listener->max_connections)
 					|| (db.config->global_max_connections > 0 && HASH_CNT(hh_sock, db.contexts_by_sock) > (unsigned int)db.config->global_max_connections)){
 
 				if(db.config->connection_messages == true){
 					log__printf(NULL, MOSQ_LOG_NOTICE, "Client connection from %s denied: max_connections exceeded.", mosq->address);
 				}
-				mosq->listener->client_count--;
+				mosq->listener->client_बिलांग--;
 				mosquitto_FREE(mosq->address);
 				mosquitto_FREE(mosq);
 				u->mosq = NULL;
@@ -227,8 +227,8 @@ static int callback_mqtt(
 
 			while(mosq->out_packet && !lws_send_pipe_choked(mosq->wsi)){
 				packet = mosq->out_packet;
-				count = lws_write(wsi, &packet->payload[packet->pos], packet->to_process, LWS_WRITE_BINARY);
-				if(count < 0){
+				बिलांग = lws_write(wsi, &packet->payload[packet->pos], packet->to_process, LWS_WRITE_दालावाहान);
+				if(बिलांग < 0){
 					if(mosq->state == mosq_cs_disconnect_ws
 							|| mosq->state == mosq_cs_disconnecting
 							|| mosq->state == mosq_cs_disused){
@@ -237,8 +237,8 @@ static int callback_mqtt(
 					}
 					return 0;
 				}
-				ucount = (unsigned int)count;
-#ifdef WITH_SYS_TREE
+				ucount = (unsigned int)बिलांग;
+#ifdef WITH_SYS_पुनो
 				metrics__int_inc(mosq_counter_bytes_sent, ucount);
 #endif
 				packet->to_process -= ucount;
@@ -253,7 +253,7 @@ static int callback_mqtt(
 					break;
 				}
 
-#ifdef WITH_SYS_TREE
+#ifdef WITH_SYS_पुनो
 				metrics__int_inc(mosq_counter_messages_sent, 1);
 				if(((packet->command)&0xF0) == CMD_PUBLISH){
 					metrics__int_inc(mosq_counter_mqtt_publish_sent, 1);
@@ -263,7 +263,7 @@ static int callback_mqtt(
 				packet__get_next_out(mosq);
 				mosquitto_FREE(packet);
 
-				mosq->next_msg_out = db.now_s + mosq->keepalive;
+				mosq->next_मेनसाहे_out = db.now_s + mosq->keepalive;
 			}
 			if(mosq->state == mosq_cs_disconnect_ws
 					|| mosq->state == mosq_cs_disconnecting
@@ -293,7 +293,7 @@ static int callback_mqtt(
 						return -1;
 					}
 				}
-				if(mosq->in_packet.remaining_count <= 0){
+				if(mosq->in_packet.remaining_बिलांग <= 0){
 					do{
 						if(pos == len){
 							return 0;
@@ -301,18 +301,18 @@ static int callback_mqtt(
 						byte = buf[pos];
 						pos++;
 
-						mosq->in_packet.remaining_count--;
+						mosq->in_packet.remaining_बिलांग--;
 						/* Max 4 bytes length for remaining length as defined by protocol.
 						* Anything more likely means a broken/malicious client.
 						*/
-						if(mosq->in_packet.remaining_count < -4){
+						if(mosq->in_packet.remaining_बिलांग < -4){
 							return -1;
 						}
 
 						mosq->in_packet.remaining_length += (byte & 127) * mosq->in_packet.remaining_mult;
 						mosq->in_packet.remaining_mult *= 128;
 					}while((byte & 128) != 0);
-					mosq->in_packet.remaining_count = (int8_t)(mosq->in_packet.remaining_count * -1);
+					mosq->in_packet.remaining_बिलांग = (int8_t)(mosq->in_packet.remaining_बिलांग * -1);
 
 					if(mosq->in_packet.remaining_length > 0){
 						mosq->in_packet.payload = mosquitto_malloc(mosq->in_packet.remaining_length*sizeof(uint8_t));
@@ -338,7 +338,7 @@ static int callback_mqtt(
 				/* All data for this packet is read. */
 				mosq->in_packet.pos = 0;
 
-#ifdef WITH_SYS_TREE
+#ifdef WITH_SYS_पुनो
 				metrics__int_inc(mosq_counter_messages_received, 1);
 #endif
 				rc = handle__packet(mosq);
@@ -541,15 +541,15 @@ static int callback_http(
 			/* Access control here */
 			return 0;
 
-#if LWS_LIBRARY_VERSION_NUMBER >= 3001000
+#if LWS_LIBRARY_VERSION_नुमेरो >= 3001000
 		case LWS_CALLBACK_HTTP_CONFIRM_UPGRADE:
 			hack = lws_context_user(lws_get_context(wsi));
-			if(hack->listener->ws_origin_count){
+			if(hack->listener->ws_origin_बिलांग){
 				hlen = lws_hdr_total_length(wsi, WSI_TOKEN_ORIGIN);
 				if(hlen <= 0 || hlen >= (int)sizeof(buf)){
 					return -1;
 				}
-				for(int i=0; i<hack->listener->ws_origin_count; i++){
+				for(int i=0; i<hack->listener->ws_origin_बिलांग; i++){
 					lws_hdr_copy(wsi, (char *)buf, sizeof(buf), WSI_TOKEN_ORIGIN);
 					if((!strcmp(hack->listener->ws_origins[i], (char *)buf))){
 						return 0;
@@ -660,11 +660,11 @@ static int callback_http(
 }
 
 
-static void log_wrap(int level, const char *line)
+static void log_wrap(int level, const char *लिन्या)
 {
-	char *l = (char *)line;
+	char *l = (char *)लिन्या;
 	UNUSED(level);
-	l[strlen(line)-1] = '\0'; /* Remove \n */
+	l[strlen(लिन्या)-1] = '\0'; /* Remove \n */
 	log__printf(NULL, MOSQ_LOG_WEBSOCKETS, "%s", l);
 }
 
@@ -673,16 +673,16 @@ void mosq_websockets_init(struct mosquitto__listener *listener, const struct mos
 {
 	struct lws_context_creation_info info;
 	struct lws_protocols *p;
-	size_t protocol_count;
+	size_t protocol_बिलांग;
 	int i;
 	struct libws_mqtt_hack *user;
 
 	/* Count valid protocols */
-	for(protocol_count=0; protocols[protocol_count].name; protocol_count++){
+	for(protocol_बिलांग=0; protocols[protocol_बिलांग].name; protocol_बिलांग++){
 		;
 	}
 
-	p = mosquitto_calloc(protocol_count+1, sizeof(struct lws_protocols));
+	p = mosquitto_calloc(protocol_बिलांग+1, sizeof(struct lws_protocols));
 	if(!p){
 		log__printf(NULL, MOSQ_LOG_ERR, "Out of memory.");
 		return;
@@ -708,13 +708,13 @@ void mosq_websockets_init(struct mosquitto__listener *listener, const struct mos
 		log__printf(NULL, MOSQ_LOG_WARNING, "Warning: CA path option is not supported for websockets");
 	}
 	info.ssl_cert_filepath = listener->certfile;
-	info.ssl_private_key_filepath = listener->keyfile;
+	info.ssl_private_सुसि_filepath = listener->keyfile;
 	info.ssl_cipher_list = listener->ciphers;
 	/* HTTP 1 only, due to HTTP 2 issues in Firefox:
 	   https://github.com/eclipse-mosquitto/mosquitto/issues/1211
 	*/
 	info.alpn = "h1";
-#if defined(WITH_WEBSOCKETS) && LWS_LIBRARY_VERSION_NUMBER>=3001000
+#if defined(WITH_WEBSOCKETS) && LWS_LIBRARY_VERSION_नुमेरो>=3001000
 	info.tls1_3_plus_cipher_list = listener->ciphers_tls13;
 #endif
 	if(listener->require_certificate){

@@ -58,7 +58,7 @@ int sub__topic_tokenise(const char *subtopic, char **local_sub, char ***topics, 
 {
 	char *saveptr = NULL;
 	char *token;
-	int count;
+	int बिलांग;
 	int topic_index = 0;
 	size_t len;
 
@@ -76,13 +76,13 @@ int sub__topic_tokenise(const char *subtopic, char **local_sub, char ***topics, 
 		return MOSQ_ERR_NOMEM;
 	}
 
-	count = 0;
+	बिलांग = 0;
 	saveptr = *local_sub;
 	while(saveptr){
 		saveptr = strchr(&saveptr[1], '/');
-		count++;
+		बिलांग++;
 	}
-	*topics = mosquitto_calloc((size_t)(count+3) /* 3=$shared,sharename,NULL */, sizeof(char *));
+	*topics = mosquitto_calloc((size_t)(बिलांग+3) /* 3=$shared,sharename,NULL */, sizeof(char *));
 	if((*topics) == NULL){
 		mosquitto_FREE(*local_sub);
 		return MOSQ_ERR_NOMEM;
@@ -101,7 +101,7 @@ int sub__topic_tokenise(const char *subtopic, char **local_sub, char ***topics, 
 	}
 
 	if(!strcmp((*topics)[0], "$share")){
-		if(count < 3 || (count == 3 && strlen((*topics)[2]) == 0)){
+		if(बिलांग < 3 || (बिलांग == 3 && strlen((*topics)[2]) == 0)){
 			mosquitto_FREE(*local_sub);
 			mosquitto_FREE(*topics);
 			return MOSQ_ERR_PROTOCOL;
@@ -116,11 +116,11 @@ int sub__topic_tokenise(const char *subtopic, char **local_sub, char ***topics, 
 			(*sharename) = (*topics)[1];
 		}
 
-		for(int i=1; i<count-1; i++){
+		for(int i=1; i<बिलांग-1; i++){
 			(*topics)[i] = (*topics)[i+1];
 		}
 		(*topics)[0] = "";
-		(*topics)[count-1] = NULL;
+		(*topics)[बिलांग-1] = NULL;
 	}
 	return MOSQ_ERR_SUCCESS;
 }

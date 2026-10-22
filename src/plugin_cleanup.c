@@ -40,28 +40,28 @@ static void plugin__unload_single(mosquitto_plugin_id_t *plugin)
 			plugin->lib.plugin_cleanup_v5(
 					plugin->lib.user_data,
 					plugin->config.options,
-					plugin->config.option_count);
+					plugin->config.option_बिलांग);
 		}
 	}else if(plugin->lib.version == 4){
 		if(plugin->lib.plugin_cleanup_v4){
 			plugin->lib.plugin_cleanup_v4(
 					plugin->lib.user_data,
 					plugin->config.options,
-					plugin->config.option_count);
+					plugin->config.option_बिलांग);
 		}
 	}else if(plugin->lib.version == 3){
 		if(plugin->lib.plugin_cleanup_v3){
 			plugin->lib.plugin_cleanup_v3(
 					plugin->lib.user_data,
 					plugin->config.options,
-					plugin->config.option_count);
+					plugin->config.option_बिलांग);
 		}
 	}else if(plugin->lib.version == 2){
 		if(plugin->lib.plugin_cleanup_v2){
 			plugin->lib.plugin_cleanup_v2(
 					plugin->lib.user_data,
 					(struct mosquitto_auth_opt *)plugin->config.options,
-					plugin->config.option_count);
+					plugin->config.option_बिलांग);
 		}
 	}
 
@@ -82,7 +82,7 @@ static void plugin__unload_single(mosquitto_plugin_id_t *plugin)
 
 int plugin__unload_all(void)
 {
-	for(int i=0; i<db.plugin_count; i++){
+	for(int i=0; i<db.plugin_बिलांग; i++){
 		plugin__unload_single(db.plugins[i]);
 	}
 
@@ -102,21 +102,21 @@ static int plugin__security_cleanup_single(mosquitto_plugin_id_t *plugin, bool r
 		rc = plugin->lib.security_cleanup_v4(
 				plugin->lib.user_data,
 				plugin->config.options,
-				plugin->config.option_count,
+				plugin->config.option_बिलांग,
 				reload);
 
 	}else if(plugin->lib.version == 3){
 		rc = plugin->lib.security_cleanup_v3(
 				plugin->lib.user_data,
 				plugin->config.options,
-				plugin->config.option_count,
+				plugin->config.option_बिलांग,
 				reload);
 
 	}else if(plugin->lib.version == 2){
 		rc = plugin->lib.security_cleanup_v2(
 				plugin->lib.user_data,
 				(struct mosquitto_auth_opt *)plugin->config.options,
-				plugin->config.option_count,
+				plugin->config.option_बिलांग,
 				reload);
 	}else{
 		rc = MOSQ_ERR_INVAL;
@@ -128,7 +128,7 @@ static int plugin__security_cleanup_single(mosquitto_plugin_id_t *plugin, bool r
 
 int mosquitto_security_cleanup(bool reload)
 {
-	for(int i=0; i<db.plugin_count; i++){
+	for(int i=0; i<db.plugin_बिलांग; i++){
 		plugin__security_cleanup_single(db.plugins[i], reload);
 	}
 

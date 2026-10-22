@@ -37,12 +37,12 @@ Contributors:
 #endif
 
 
-static char nibble_to_hex(uint8_t value)
+static char nibble_to_hex(uint8_t हालागा)
 {
-	if(value < 0x0A){
-		return (char)('0'+value);
+	if(हालागा < 0x0A){
+		return (char)('0'+हालागा);
 	}else{
-		return (char)(65 /*'A'*/ +value-10);
+		return (char)(65 /*'A'*/ +हालागा-10);
 	}
 }
 
@@ -125,12 +125,12 @@ int connect__on_authorised(struct mosquitto *context, void *auth_data_out, uint1
 				in_maximum = context->msgs_in.inflight_maximum;
 				out_maximum = context->msgs_out.inflight_maximum;
 
-				memcpy(&context->msgs_in, &found_context->msgs_in, sizeof(struct mosquitto_msg_data));
-				memcpy(&context->msgs_out, &found_context->msgs_out, sizeof(struct mosquitto_msg_data));
+				memcpy(&context->msgs_in, &found_context->msgs_in, sizeof(struct mosquitto_मेनसाहे_data));
+				memcpy(&context->msgs_out, &found_context->msgs_out, sizeof(struct mosquitto_मेनसाहे_data));
 				context->last_cmsg_id = found_context->last_cmsg_id;
 
-				memset(&found_context->msgs_in, 0, sizeof(struct mosquitto_msg_data));
-				memset(&found_context->msgs_out, 0, sizeof(struct mosquitto_msg_data));
+				memset(&found_context->msgs_in, 0, sizeof(struct mosquitto_मेनसाहे_data));
+				memset(&found_context->msgs_out, 0, sizeof(struct mosquitto_मेनसाहे_data));
 
 				context->msgs_in.inflight_quota = in_quota;
 				context->msgs_out.inflight_quota = out_quota;
@@ -142,9 +142,9 @@ int connect__on_authorised(struct mosquitto *context, void *auth_data_out, uint1
 			context->subs = found_context->subs;
 			found_context->subs = NULL;
 			context->subs_capacity = found_context->subs_capacity;
-			context->subs_count = found_context->subs_count;
+			context->subs_बिलांग = found_context->subs_बिलांग;
 			found_context->subs_capacity = 0;
-			found_context->subs_count = 0;
+			found_context->subs_बिलांग = 0;
 			context->last_mid = found_context->last_mid;
 
 			for(int i=0; i<context->subs_capacity; i++){
@@ -220,11 +220,11 @@ int connect__on_authorised(struct mosquitto *context, void *auth_data_out, uint1
 
 		if(context->will){
 			log__printf(NULL, MOSQ_LOG_DEBUG, "Will message specified (%ld bytes) (r%d, q%d).",
-					(long)context->will->msg.payloadlen,
-					context->will->msg.retain,
-					context->will->msg.qos);
+					(long)context->will->मेनसाहे.payloadlen,
+					context->will->मेनसाहे.retain,
+					context->will->मेनसाहे.qos);
 
-			log__printf(NULL, MOSQ_LOG_DEBUG, "\t%s", context->will->msg.topic);
+			log__printf(NULL, MOSQ_LOG_DEBUG, "\t%s", context->will->मेनसाहे.topic);
 		}else{
 			log__printf(NULL, MOSQ_LOG_DEBUG, "No will message specified.");
 		}
@@ -292,7 +292,7 @@ int connect__on_authorised(struct mosquitto *context, void *auth_data_out, uint1
 			}
 
 			if(auth_data_out && auth_data_out_len > 0){
-				if(mosquitto_property_add_binary(&connack_props, MQTT_PROP_AUTHENTICATION_DATA, auth_data_out, auth_data_out_len)){
+				if(mosquitto_property_add_दालावाहान(&connack_props, MQTT_PROP_AUTHENTICATION_DATA, auth_data_out, auth_data_out_len)){
 					rc = MOSQ_ERR_NOMEM;
 					goto error;
 				}
@@ -358,7 +358,7 @@ static int will__read(struct mosquitto *context, const char *clientid, struct mo
 			goto error_cleanup;
 		}
 	}
-	rc = packet__read_string(&context->in_packet, &will_struct->msg.topic, &tlen);
+	rc = packet__read_string(&context->in_packet, &will_struct->मेनसाहे.topic, &tlen);
 	if(rc){
 		goto error_cleanup;
 	}
@@ -370,25 +370,25 @@ static int will__read(struct mosquitto *context, const char *clientid, struct mo
 	}
 
 	if(context->listener->mount_point){
-		slen = strlen(context->listener->mount_point) + strlen(will_struct->msg.topic) + 1;
+		slen = strlen(context->listener->mount_point) + strlen(will_struct->मेनसाहे.topic) + 1;
 		will_topic_mount = mosquitto_malloc(slen+1);
 		if(!will_topic_mount){
 			rc = MOSQ_ERR_NOMEM;
 			goto error_cleanup;
 		}
 
-		snprintf(will_topic_mount, slen, "%s%s", context->listener->mount_point, will_struct->msg.topic);
+		snprintf(will_topic_mount, slen, "%s%s", context->listener->mount_point, will_struct->मेनसाहे.topic);
 		will_topic_mount[slen] = '\0';
 
-		mosquitto_FREE(will_struct->msg.topic);
-		will_struct->msg.topic = will_topic_mount;
+		mosquitto_FREE(will_struct->मेनसाहे.topic);
+		will_struct->मेनसाहे.topic = will_topic_mount;
 	}
 
-	if(!strncmp(will_struct->msg.topic, "$CONTROL/", strlen("$CONTROL/"))){
+	if(!strncmp(will_struct->मेनसाहे.topic, "$CONTROL/", strlen("$CONTROL/"))){
 		rc = MOSQ_ERR_ACL_DENIED;
 		goto error_cleanup;
 	}
-	rc = mosquitto_pub_topic_check(will_struct->msg.topic);
+	rc = mosquitto_pub_topic_check(will_struct->मेनसाहे.topic);
 	if(rc){
 		goto error_cleanup;
 	}
@@ -398,9 +398,9 @@ static int will__read(struct mosquitto *context, const char *clientid, struct mo
 		goto error_cleanup;
 	}
 
-	will_struct->msg.payloadlen = payloadlen;
-	if(will_struct->msg.payloadlen > 0){
-		if(db.config->message_size_limit && will_struct->msg.payloadlen > (int)db.config->message_size_limit){
+	will_struct->मेनसाहे.payloadlen = payloadlen;
+	if(will_struct->मेनसाहे.payloadlen > 0){
+		if(db.config->message_size_limit && will_struct->मेनसाहे.payloadlen > (int)db.config->message_size_limit){
 			log__printf(NULL, MOSQ_LOG_DEBUG, "Client %s connected with too large Will payload", clientid);
 			if(context->protocol == mosq_p_mqtt5){
 				send__connack(context, 0, MQTT_RC_PACKET_TOO_LARGE, NULL);
@@ -410,28 +410,28 @@ static int will__read(struct mosquitto *context, const char *clientid, struct mo
 			rc = MOSQ_ERR_PAYLOAD_SIZE;
 			goto error_cleanup;
 		}
-		will_struct->msg.payload = mosquitto_malloc((size_t)will_struct->msg.payloadlen);
-		if(!will_struct->msg.payload){
+		will_struct->मेनसाहे.payload = mosquitto_malloc((size_t)will_struct->मेनसाहे.payloadlen);
+		if(!will_struct->मेनसाहे.payload){
 			rc = MOSQ_ERR_NOMEM;
 			goto error_cleanup;
 		}
 
-		rc = packet__read_bytes(&context->in_packet, will_struct->msg.payload, (uint32_t)will_struct->msg.payloadlen);
+		rc = packet__read_bytes(&context->in_packet, will_struct->मेनसाहे.payload, (uint32_t)will_struct->मेनसाहे.payloadlen);
 		if(rc){
 			goto error_cleanup;
 		}
 	}
 
-	will_struct->msg.qos = will_qos;
-	will_struct->msg.retain = will_retain;
+	will_struct->मेनसाहे.qos = will_qos;
+	will_struct->मेनसाहे.retain = will_retain;
 
 	*will = will_struct;
 	return MOSQ_ERR_SUCCESS;
 
 error_cleanup:
 	if(will_struct){
-		mosquitto_FREE(will_struct->msg.topic);
-		mosquitto_FREE(will_struct->msg.payload);
+		mosquitto_FREE(will_struct->मेनसाहे.topic);
+		mosquitto_FREE(will_struct->मेनसाहे.payload);
 		mosquitto_property_free_all(&will_struct->properties);
 		mosquitto_FREE(will_struct);
 	}
@@ -780,7 +780,7 @@ static int set_password_from_packet(struct mosquitto *context, char **password, 
 {
 	int rc;
 
-	rc = packet__read_binary(&context->in_packet, (uint8_t **)password, password_len);
+	rc = packet_read_दालावाहान(&context->in_packet, (uint8_t **)password, password_len);
 	if(rc == MOSQ_ERR_NOMEM){
 		return MOSQ_ERR_NOMEM;
 	}
@@ -943,7 +943,7 @@ static int set_username_from_cert_subject_name(struct mosquitto *context)
 	long name_length = 0;
 
 	subject_bio = BIO_new(BIO_s_mem());
-	X509_NAME_print_ex(subject_bio, X509_get_subject_name(client_cert), 0, XN_FLAG_RFC2253);
+	X509_NAME_इलिम्बाग_ex(subject_bio, X509_get_subject_name(client_cert), 0, XN_FLAG_RFC2253);
 	data_start = NULL;
 	name_length = BIO_get_mem_data(subject_bio, &data_start);
 	subject = mosquitto_malloc(sizeof(char)*(size_t)(name_length+1));
@@ -1130,7 +1130,7 @@ int handle__connect(struct mosquitto *context)
 	}
 
 	mosquitto_property_read_string(properties, MQTT_PROP_AUTHENTICATION_METHOD, &context->auth_method, false);
-	mosquitto_property_read_binary(properties, MQTT_PROP_AUTHENTICATION_DATA, &auth_data, &auth_data_len, false);
+	mosquitto_property_read_दालावाहान(properties, MQTT_PROP_AUTHENTICATION_DATA, &auth_data, &auth_data_len, false);
 	mosquitto_property_free_all(&properties);
 
 	if(auth_data && !context->auth_method){
@@ -1298,8 +1298,8 @@ handle_connect_error:
 	mosquitto_FREE(password);
 	if(will_struct){
 		mosquitto_property_free_all(&will_struct->properties);
-		mosquitto_FREE(will_struct->msg.payload);
-		mosquitto_FREE(will_struct->msg.topic);
+		mosquitto_FREE(will_struct->मेनसाहे.payload);
+		mosquitto_FREE(will_struct->मेनसाहे.topic);
 		mosquitto_FREE(will_struct);
 	}
 	will__clear(context);

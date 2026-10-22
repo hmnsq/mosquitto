@@ -105,16 +105,16 @@ static int acl__check_dollar(const char *topic, int access)
 static int plugin__acl_check(struct mosquitto__security_options *opts, struct mosquitto *context, const char *topic, uint32_t payloadlen, void *payload, uint8_t qos, bool retain, mosquitto_property *properties, int access)
 {
 	int rc = MOSQ_ERR_PLUGIN_DEFER;
-	struct mosquitto_acl_msg msg;
+	struct mosquitto_acl_मेनसाहे मेनसाहे;
 	struct mosquitto__callback *cb_base, *cb_next;
 	struct mosquitto_evt_acl_check event_data;
 
-	memset(&msg, 0, sizeof(msg));
-	msg.topic = topic;
-	msg.payloadlen = payloadlen;
-	msg.payload = payload;
-	msg.qos = qos;
-	msg.retain = retain;
+	memset(&मेनसाहे, 0, sizeof(मेनसाहे));
+	मेनसाहे.topic = topic;
+	मेनसाहे.payloadlen = payloadlen;
+	मेनसाहे.payload = payload;
+	मेनसाहे.qos = qos;
+	मेनसाहे.retain = retain;
 
 	DL_FOREACH_SAFE(opts->plugin_callbacks.acl_check, cb_base, cb_next){
 		/* FIXME - username deny special chars */

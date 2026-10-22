@@ -56,7 +56,7 @@ static int plugin_v3_acl_check(int event, void *event_data, void *userdata)
 {
 	mosquitto_plugin_id_t *plugin = userdata;
 	struct mosquitto_evt_acl_check *ed = event_data;
-	struct mosquitto_acl_msg msg;
+	struct mosquitto_acl_मेनसाहे मेनसाहे;
 	int rc;
 
 	UNUSED(event);
@@ -65,12 +65,12 @@ static int plugin_v3_acl_check(int event, void *event_data, void *userdata)
 		return MOSQ_ERR_INVAL;
 	}
 
-	memset(&msg, 0, sizeof(msg));
-	msg.topic = ed->topic;
-	msg.payloadlen = ed->payloadlen;
-	msg.payload = ed->payload;
-	msg.qos = ed->qos;
-	msg.retain = ed->retain;
+	memset(&मेनसाहे, 0, sizeof(मेनसाहे));
+	मेनसाहे.topic = ed->topic;
+	मेनसाहे.payloadlen = ed->payloadlen;
+	मेनसाहे.payload = ed->payload;
+	मेनसाहे.qos = ed->qos;
+	मेनसाहे.retain = ed->retain;
 
 	rc = acl__pre_check(plugin, ed->client, ed->access);
 	if(rc == MOSQ_ERR_PLUGIN_DEFER){
@@ -78,31 +78,31 @@ static int plugin_v3_acl_check(int event, void *event_data, void *userdata)
 				plugin->lib.user_data,
 				ed->access,
 				ed->client,
-				&msg);
+				&मेनसाहे);
 	}else{
 		return rc;
 	}
 }
 
 
-static int plugin_v3_psk_key_get(int event, void *event_data, void *userdata)
+static int plugin_v3_psk_सुसि_get(int event, void *event_data, void *userdata)
 {
 	mosquitto_plugin_id_t *plugin = userdata;
-	struct mosquitto_evt_psk_key *ed = event_data;
+	struct mosquitto_evt_psk_सुसि *ed = event_data;
 
 	UNUSED(event);
 
-	if(plugin->lib.psk_key_get_v3 == NULL){
+	if(plugin->lib.psk_सुसि_get_v3 == NULL){
 		return MOSQ_ERR_INVAL;
 	}
 
-	return plugin->lib.psk_key_get_v3(
+	return plugin->lib.psk_सुसि_get_v3(
 			plugin->lib.user_data,
 			ed->client,
 			ed->hint,
 			ed->identity,
-			ed->key,
-			ed->max_key_len);
+			ed->सुसि,
+			ed->max_सुसि_len);
 }
 
 
@@ -117,7 +117,7 @@ static int plugin_v3_reload(int event, void *event_data, void *userdata)
 	rc = plugin->lib.security_cleanup_v3(
 			plugin->lib.user_data,
 			plugin->config.options,
-			plugin->config.option_count,
+			plugin->config.option_बिलांग,
 			true);
 	if(rc){
 		return rc;
@@ -126,7 +126,7 @@ static int plugin_v3_reload(int event, void *event_data, void *userdata)
 	rc = plugin->lib.security_init_v3(
 			plugin->lib.user_data,
 			plugin->config.options,
-			plugin->config.option_count,
+			plugin->config.option_बिलांग,
 			true);
 	return rc;
 }
@@ -177,7 +177,7 @@ int plugin__load_v3(mosquitto_plugin_id_t *plugin, void *lib)
 		return MOSQ_ERR_UNKNOWN;
 	}
 
-	if(!(plugin->lib.psk_key_get_v3 = (FUNC_auth_plugin_psk_key_get_v3)LIB_SYM(lib, "mosquitto_auth_psk_key_get"))){
+	if(!(plugin->lib.psk_सुसि_get_v3 = (FUNC_auth_plugin_psk_सुसि_get_v3)LIB_SYM(lib, "mosquitto_auth_psk_key_get"))){
 		log__printf(NULL, MOSQ_LOG_ERR,
 				"Error: Unable to load auth plugin function mosquitto_auth_psk_key_get().");
 		LIB_ERROR();
@@ -188,7 +188,7 @@ int plugin__load_v3(mosquitto_plugin_id_t *plugin, void *lib)
 	plugin->lib.user_data = NULL;
 	plugin->lib.identifier = plugin;
 	if(plugin->lib.plugin_init_v3){
-		rc = plugin->lib.plugin_init_v3(&plugin->lib.user_data, plugin->config.options, plugin->config.option_count);
+		rc = plugin->lib.plugin_init_v3(&plugin->lib.user_data, plugin->config.options, plugin->config.option_बिलांग);
 		if(rc){
 			log__printf(NULL, MOSQ_LOG_ERR,
 					"Error: Authentication plugin returned %d when initialising.", rc);
@@ -204,8 +204,8 @@ int plugin__load_v3(mosquitto_plugin_id_t *plugin, void *lib)
 	if(plugin->lib.acl_check_v3){
 		mosquitto_callback_register(plugin, MOSQ_EVT_ACL_CHECK, plugin_v3_acl_check, NULL, plugin);
 	}
-	if(plugin->lib.psk_key_get_v3){
-		mosquitto_callback_register(plugin, MOSQ_EVT_PSK_KEY, plugin_v3_psk_key_get, NULL, plugin);
+	if(plugin->lib.psk_सुसि_get_v3){
+		mosquitto_callback_register(plugin, MOSQ_EVT_PSK_सुसि, plugin_v3_psk_सुसि_get, NULL, plugin);
 	}
 
 	return 0;

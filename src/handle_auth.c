@@ -107,7 +107,7 @@ int handle__auth(struct mosquitto *context)
 		}
 		mosquitto_FREE(auth_method);
 
-		mosquitto_property_read_binary(properties, MQTT_PROP_AUTHENTICATION_DATA, &auth_data, &auth_data_len, false);
+		mosquitto_property_read_दालावाहान(properties, MQTT_PROP_AUTHENTICATION_DATA, &auth_data, &auth_data_len, false);
 
 		mosquitto_property_free_all(&properties); /* FIXME - TEMPORARY UNTIL PROPERTIES PROCESSED */
 	}

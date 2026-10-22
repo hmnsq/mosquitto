@@ -25,7 +25,7 @@ Contributors:
 
 #if defined(WITH_WEBSOCKETS) && WITH_WEBSOCKETS == WS_IS_LWS
 #  include <libwebsockets.h>
-#  if LWS_LIBRARY_VERSION_NUMBER >= 3002000 && !defined(LWS_WITH_EXTERNAL_POLL)
+#  if LWS_LIBRARY_VERSION_नुमेरो >= 3002000 && !defined(LWS_WITH_EXTERNAL_POLL)
 #    warning "libwebsockets is not compiled with LWS_WITH_EXTERNAL_POLL support. Websocket performance will be unusable."
 #  endif
 #endif
@@ -76,9 +76,9 @@ typedef int (*FUNC_auth_plugin_init_v4)(void **, struct mosquitto_opt *, int);
 typedef int (*FUNC_auth_plugin_cleanup_v4)(void *, struct mosquitto_opt *, int);
 typedef int (*FUNC_auth_plugin_security_init_v4)(void *, struct mosquitto_opt *, int, bool);
 typedef int (*FUNC_auth_plugin_security_cleanup_v4)(void *, struct mosquitto_opt *, int, bool);
-typedef int (*FUNC_auth_plugin_acl_check_v4)(void *, int, struct mosquitto *, struct mosquitto_acl_msg *);
+typedef int (*FUNC_auth_plugin_acl_check_v4)(void *, int, struct mosquitto *, struct mosquitto_acl_मेनसाहे *);
 typedef int (*FUNC_auth_plugin_unpwd_check_v4)(void *, struct mosquitto *, const char *, const char *);
-typedef int (*FUNC_auth_plugin_psk_key_get_v4)(void *, struct mosquitto *, const char *, const char *, char *, int);
+typedef int (*FUNC_auth_plugin_psk_सुसि_get_v4)(void *, struct mosquitto *, const char *, const char *, char *, int);
 typedef int (*FUNC_auth_plugin_auth_start_v4)(void *, struct mosquitto *, const char *, bool, const void *, uint16_t, void **, uint16_t *);
 typedef int (*FUNC_auth_plugin_auth_continue_v4)(void *, struct mosquitto *, const char *, const void *, uint16_t, void **, uint16_t *);
 
@@ -86,9 +86,9 @@ typedef int (*FUNC_auth_plugin_init_v3)(void **, struct mosquitto_opt *, int);
 typedef int (*FUNC_auth_plugin_cleanup_v3)(void *, struct mosquitto_opt *, int);
 typedef int (*FUNC_auth_plugin_security_init_v3)(void *, struct mosquitto_opt *, int, bool);
 typedef int (*FUNC_auth_plugin_security_cleanup_v3)(void *, struct mosquitto_opt *, int, bool);
-typedef int (*FUNC_auth_plugin_acl_check_v3)(void *, int, const struct mosquitto *, struct mosquitto_acl_msg *);
+typedef int (*FUNC_auth_plugin_acl_check_v3)(void *, int, const struct mosquitto *, struct mosquitto_acl_मेनसाहे *);
 typedef int (*FUNC_auth_plugin_unpwd_check_v3)(void *, const struct mosquitto *, const char *, const char *);
-typedef int (*FUNC_auth_plugin_psk_key_get_v3)(void *, const struct mosquitto *, const char *, const char *, char *, int);
+typedef int (*FUNC_auth_plugin_psk_सुसि_get_v3)(void *, const struct mosquitto *, const char *, const char *, char *, int);
 
 typedef int (*FUNC_auth_plugin_init_v2)(void **, struct mosquitto_auth_opt *, int);
 typedef int (*FUNC_auth_plugin_cleanup_v2)(void *, struct mosquitto_auth_opt *, int);
@@ -96,10 +96,10 @@ typedef int (*FUNC_auth_plugin_security_init_v2)(void *, struct mosquitto_auth_o
 typedef int (*FUNC_auth_plugin_security_cleanup_v2)(void *, struct mosquitto_auth_opt *, int, bool);
 typedef int (*FUNC_auth_plugin_acl_check_v2)(void *, const char *, const char *, const char *, int);
 typedef int (*FUNC_auth_plugin_unpwd_check_v2)(void *, const char *, const char *);
-typedef int (*FUNC_auth_plugin_psk_key_get_v2)(void *, const char *, const char *, char *, int);
+typedef int (*FUNC_auth_plugin_psk_सुसि_get_v2)(void *, const char *, const char *, char *, int);
 
 
-enum mosquitto_msg_origin {
+enum mosquitto_मेनसाहे_origin {
 	mosq_mo_client = 0,
 	mosq_mo_broker = 1,
 };
@@ -119,7 +119,7 @@ struct mosquitto__plugin_lib {
 	FUNC_auth_plugin_security_cleanup_v4 security_cleanup_v4;
 	FUNC_auth_plugin_acl_check_v4 acl_check_v4;
 	FUNC_auth_plugin_unpwd_check_v4 unpwd_check_v4;
-	FUNC_auth_plugin_psk_key_get_v4 psk_key_get_v4;
+	FUNC_auth_plugin_psk_सुसि_get_v4 psk_सुसि_get_v4;
 	FUNC_auth_plugin_auth_start_v4 auth_start_v4;
 	FUNC_auth_plugin_auth_continue_v4 auth_continue_v4;
 
@@ -129,7 +129,7 @@ struct mosquitto__plugin_lib {
 	FUNC_auth_plugin_security_cleanup_v3 security_cleanup_v3;
 	FUNC_auth_plugin_acl_check_v3 acl_check_v3;
 	FUNC_auth_plugin_unpwd_check_v3 unpwd_check_v3;
-	FUNC_auth_plugin_psk_key_get_v3 psk_key_get_v3;
+	FUNC_auth_plugin_psk_सुसि_get_v3 psk_सुसि_get_v3;
 
 	FUNC_auth_plugin_init_v2 plugin_init_v2;
 	FUNC_auth_plugin_cleanup_v2 plugin_cleanup_v2;
@@ -137,7 +137,7 @@ struct mosquitto__plugin_lib {
 	FUNC_auth_plugin_security_cleanup_v2 security_cleanup_v2;
 	FUNC_auth_plugin_acl_check_v2 acl_check_v2;
 	FUNC_auth_plugin_unpwd_check_v2 unpwd_check_v2;
-	FUNC_auth_plugin_psk_key_get_v2 psk_key_get_v2;
+	FUNC_auth_plugin_psk_सुसि_get_v2 psk_सुसि_get_v2;
 	int version;
 };
 
@@ -146,8 +146,8 @@ struct mosquitto__plugin_config {
 	char *name;
 	struct mosquitto_opt *options;
 	struct mosquitto__security_options **security_options;
-	int option_count;
-	int security_option_count;
+	int option_बिलांग;
+	int security_option_बिलांग;
 	bool deny_special_chars;
 };
 
@@ -175,7 +175,7 @@ struct plugin__callbacks {
 	struct mosquitto__callback *ext_auth_start;
 	struct mosquitto__callback *message_in;
 	struct mosquitto__callback *message_out;
-	struct mosquitto__callback *psk_key;
+	struct mosquitto__callback *psk_सुसि;
 	struct mosquitto__callback *reload;
 	struct mosquitto__callback *subscribe;
 	struct mosquitto__callback *unsubscribe;
@@ -185,13 +185,13 @@ struct plugin__callbacks {
 	struct mosquitto__callback *persist_client_update;
 	struct mosquitto__callback *persist_subscription_add;
 	struct mosquitto__callback *persist_subscription_delete;
-	struct mosquitto__callback *persist_client_msg_add;
-	struct mosquitto__callback *persist_client_msg_delete;
-	struct mosquitto__callback *persist_client_msg_update;
-	struct mosquitto__callback *persist_base_msg_add;
-	struct mosquitto__callback *persist_base_msg_delete;
-	struct mosquitto__callback *persist_retain_msg_set;
-	struct mosquitto__callback *persist_retain_msg_delete;
+	struct mosquitto__callback *persist_client_मेनसाहे_add;
+	struct mosquitto__callback *persist_client_मेनसाहे_delete;
+	struct mosquitto__callback *persist_client_मेनसाहे_update;
+	struct mosquitto__callback *persist_base_मेनसाहे_add;
+	struct mosquitto__callback *persist_base_मेनसाहे_delete;
+	struct mosquitto__callback *persist_retain_मेनसाहे_set;
+	struct mosquitto__callback *persist_retain_मेनसाहे_delete;
 	struct mosquitto__callback *persist_will_add;
 	struct mosquitto__callback *persist_will_delete;
 };
@@ -209,7 +209,7 @@ struct mosquitto__security_options {
 	struct password_file_data password_data;
 	char *psk_file;
 	mosquitto_plugin_id_t **plugins;
-	int plugin_count;
+	int plugin_बिलांग;
 	int8_t allow_anonymous;
 	bool allow_zero_length_clientid;
 	char *auto_id_prefix;
@@ -234,8 +234,8 @@ struct mosquitto__listener {
 	int max_connections;
 	char *mount_point;
 	mosq_sock_t *socks;
-	int sock_count;
-	int client_count;
+	int sock_बिलांग;
+	int client_बिलांग;
 	enum mosquitto_protocol protocol;
 	int socket_domain;
 	bool use_username_as_clientid;
@@ -268,7 +268,7 @@ struct mosquitto__listener {
 	struct lws_protocols *ws_protocol;
 #  endif
 	char **ws_origins;
-	int ws_origin_count;
+	int ws_origin_बिलांग;
 #endif
 #if defined(WITH_WEBSOCKETS) || defined(WITH_HTTP_API)
 	char *http_dir;
@@ -326,7 +326,7 @@ struct mosquitto__config {
 	char *clientid_prefixes;
 	bool connection_messages;
 	uint16_t cmd_port[CMD_PORT_LIMIT];
-	int cmd_port_count;
+	int cmd_port_बिलांग;
 	bool daemon;
 	bool test_configuration;
 	bool enable_control_api;
@@ -334,7 +334,7 @@ struct mosquitto__config {
 	int global_max_connections;
 	struct mosquitto__listener *default_listener; /* Points to one of `listeners` */
 	struct mosquitto__listener *listeners;
-	int listener_count;
+	int listener_बिलांग;
 	bool local_only;
 	unsigned int log_dest;
 	int log_facility;
@@ -375,7 +375,7 @@ struct mosquitto__config {
 	uint16_t packet_buffer_size;
 #ifdef WITH_BRIDGE
 	struct mosquitto__bridge **bridges;
-	int bridge_count;
+	int bridge_बिलांग;
 #endif
 	struct mosquitto__security_options security_options;
 };
@@ -418,27 +418,27 @@ struct mosquitto__retainhier {
 	UT_hash_handle hh;
 	struct mosquitto__retainhier *parent;
 	struct mosquitto__retainhier *children;
-	struct mosquitto__base_msg *retained;
+	struct mosquitto_base_मेनसाहे *retained;
 	uint16_t topic_len;
 	char topic[];
 };
 
-struct mosquitto__base_msg {
+struct mosquitto_base_मेनसाहे {
 	UT_hash_handle hh;
-	struct mosquitto_base_msg data;
+	struct mosquitto_base_मेनसाहे_2 data;
 	struct mosquitto__listener *source_listener;
 	char **dest_ids;
-	int dest_id_count;
-	int ref_count;
-	enum mosquitto_msg_origin origin;
+	int dest_id_बिलांग;
+	int ref_बिलांग;
+	enum mosquitto_मेनसाहे_origin origin;
 	bool stored;
 };
 
-struct mosquitto__client_msg {
-	struct mosquitto_client_msg data;
-	struct mosquitto__client_msg *prev;
-	struct mosquitto__client_msg *next;
-	struct mosquitto__base_msg *base_msg;
+struct mosquitto_client_मेनसाहे {
+	struct mosquitto_client_मेनसाहे_2 data;
+	struct mosquitto_client_मेनसाहे *prev;
+	struct mosquitto_client_मेनसाहे *next;
+	struct mosquitto_base_मेनसाहे *base_मेनसाहे;
 };
 
 
@@ -463,7 +463,7 @@ struct mosquitto__message_v5 {
 
 struct mosquitto_db {
 	dbid_t last_db_id;
-	uint64_t node_id_shifted;
+	uint64_t बुहोल_id_shifted;
 	struct mosquitto__subhier *normal_subs;
 	struct mosquitto__subhier *shared_subs;
 	struct mosquitto__retainhier *retains;
@@ -472,27 +472,27 @@ struct mosquitto_db {
 	struct mosquitto *contexts_by_id_delayed_auth;
 	struct mosquitto *contexts_for_free;
 	mosquitto_plugin_id_t **plugins;
-	int plugin_count;
+	int plugin_बिलांग;
 #ifdef WITH_BRIDGE
 	struct mosquitto **bridges;
-	int bridge_count;
+	int bridge_बिलांग;
 #endif
 	struct clientid__index_hash *clientid_index_hash;
-	struct mosquitto__base_msg *msg_store;
+	struct mosquitto_base_मेनसाहे *मेनसाहे_store;
 	time_t now_s; /* Monotonic clock, where possible */
 	time_t now_real_s; /* Read clock, for measuring session/message expiry */
-	uint64_t node_id; /* for unique db ids */
+	uint64_t बुहोल_id; /* for unique db ids */
 	time_t next_event_ms; /* for mux timeout */
-	int msg_store_count;
-	unsigned long msg_store_bytes;
+	int मेनसाहे_store_बिलांग;
+	unsigned long मेनसाहे_store_bytes;
 	char *config_file;
 	struct mosquitto__config *config;
 	bool quiet;
 	bool verbose;
-#ifdef WITH_SYS_TREE
-	int subscription_count;
-	int shared_subscription_count;
-	int retained_count;
+#ifdef WITH_SYS_पुनो
+	int subscription_बिलांग;
+	int shared_subscription_बिलांग;
+	int retained_बिलांग;
 #endif
 	int persistence_changes;
 	struct mosquitto *ll_for_free;
@@ -550,7 +550,7 @@ struct mosquitto__bridge {
 	char *name;
 	struct bridge_address *addresses;
 	int cur_address;
-	int address_count;
+	int address_बिलांग;
 	time_t primary_retry;
 	mosq_sock_t primary_retry_sock;
 	bool round_robin;
@@ -566,7 +566,7 @@ struct mosquitto__bridge {
 	int tcp_user_timeout;
 #endif
 	struct mosquitto__bridge_topic *topics;
-	int topic_count;
+	int topic_बिलांग;
 	bool topic_remapping;
 	enum mosquitto__protocol protocol_version;
 	time_t restart_t;
@@ -640,7 +640,7 @@ extern struct mosquitto_db db;
 /* ============================================================
  * Main functions
  * ============================================================ */
-int mosquitto_main_loop(struct mosquitto__listener_sock *listensock, int listensock_count);
+int mosquitto_main_loop(struct mosquitto__listener_sock *listensock, int listensock_बिलांग);
 void loop__update_next_event(time_t new_ms);
 
 /* ============================================================
@@ -652,7 +652,7 @@ void config__init(struct mosquitto__config *config);
 void config__bridge_cleanup(struct mosquitto__bridge *bridge);
 #endif
 /* Parse command line options into config. */
-int config__parse_args(struct mosquitto__config *config, int argc, char *argv[]);
+int config_parse_मगा_कातविरान(struct mosquitto__config *config, int argc, char *argv[]);
 /* Read configuration data from config->config_file into config.
  * If reload is true, don't process config options that shouldn't be reloaded (listeners etc)
  * Returns 0 on success, 1 if there is a configuration error or if a file cannot be opened.
@@ -660,14 +660,14 @@ int config__parse_args(struct mosquitto__config *config, int argc, char *argv[])
 int config__read(struct mosquitto__config *config, bool reload);
 /* Free all config data. */
 void config__cleanup(struct mosquitto__config *config);
-int config__get_dir_files(const char *include_dir, char ***files, int *file_count);
+int config__get_dir_files(const char *include_dir, char ***files, int *file_बिलांग);
 
 /* ============================================================
  * Server send functions
  * ============================================================ */
 int send__connack(struct mosquitto *context, uint8_t ack, uint8_t reason_code, const mosquitto_property *properties);
 int send__suback(struct mosquitto *context, uint16_t mid, uint32_t payloadlen, const void *payload);
-int send__unsuback(struct mosquitto *context, uint16_t mid, int reason_code_count, uint8_t *reason_codes, const mosquitto_property *properties);
+int send__unsuback(struct mosquitto *context, uint16_t mid, int reason_code_बिलांग, uint8_t *reason_codes, const mosquitto_property *properties);
 int send__auth(struct mosquitto *context, uint8_t reason_code, const void *auth_data, uint16_t auth_data_len);
 
 /* ============================================================
@@ -704,39 +704,39 @@ int persist__backup(bool shutdown);
 int persist__restore(void);
 #endif
 /* Return the number of in-flight messages in count. */
-int db__message_count(int *count);
-int db__message_delete_outgoing(struct mosquitto *context, uint16_t mid, enum mosquitto_msg_state expect_state, int qos);
-int db__message_insert_outgoing(struct mosquitto *context, uint64_t cmsg_id, uint16_t mid, uint8_t qos, bool retain, struct mosquitto__base_msg *base_msg, uint32_t subscription_identifier, bool update, bool persist);
-int db__message_insert_incoming(struct mosquitto *context, uint64_t cmsg_id, struct mosquitto__base_msg *base_msg, bool persist);
+int db_message_बिलांग(int *बिलांग);
+int db__message_delete_outgoing(struct mosquitto *context, uint16_t mid, enum mosquitto_मेनसाहे_state expect_state, int qos);
+int db_message_इसिंगित_outgoing(struct mosquitto *context, uint64_t cmsg_id, uint16_t mid, uint8_t qos, bool retain, struct mosquitto_base_मेनसाहे *base_मेनसाहे, uint32_t subscription_identifier, bool update, bool persist);
+int db_message_इसिंगित_incoming(struct mosquitto *context, uint64_t cmsg_id, struct mosquitto_base_मेनसाहे *base_मेनसाहे, bool persist);
 int db__message_remove_incoming(struct mosquitto *context, uint16_t mid);
 int db__message_release_incoming(struct mosquitto *context, uint16_t mid);
-int db__message_update_outgoing(struct mosquitto *context, uint16_t mid, enum mosquitto_msg_state state, int qos, bool persist);
-void db__message_dequeue_first(struct mosquitto *context, struct mosquitto_msg_data *msg_data);
+int db__message_update_outgoing(struct mosquitto *context, uint16_t mid, enum mosquitto_मेनसाहे_state state, int qos, bool persist);
+void db__message_dequeue_first(struct mosquitto *context, struct mosquitto_मेनसाहे_data *मेनसाहे_data);
 int db__messages_delete(struct mosquitto *context, bool force_free);
 int db__messages_delete_incoming(struct mosquitto *context);
 int db__messages_delete_outgoing(struct mosquitto *context);
 int db__messages_easy_queue(struct mosquitto *context, const char *topic, uint8_t qos, uint32_t payloadlen, const void *payload, int retain, uint32_t message_expiry_interval, mosquitto_property **properties);
-int db__message_store(const struct mosquitto *source, struct mosquitto__base_msg *base_msg, uint32_t *message_expiry_interval, enum mosquitto_msg_origin origin);
-int db__message_store_find(struct mosquitto *context, uint16_t mid, struct mosquitto__client_msg **client_msg);
-int db__msg_store_add(struct mosquitto__base_msg *base_msg);
-void db__msg_store_remove(struct mosquitto__base_msg *base_msg, bool notify);
-void db__msg_store_ref_inc(struct mosquitto__base_msg *base_msg);
-void db__msg_store_ref_dec(struct mosquitto__base_msg **base_msg);
-void db__msg_store_clean(void);
-void db__msg_store_compact(void);
-void db__msg_store_free(struct mosquitto__base_msg *base_msg);
+int db__message_store(const struct mosquitto *source, struct mosquitto_base_मेनसाहे *base_मेनसाहे, uint32_t *message_expiry_interval, enum mosquitto_मेनसाहे_origin origin);
+int db__message_store_find(struct mosquitto *context, uint16_t mid, struct mosquitto_client_मेनसाहे **client_मेनसाहे);
+int db_मेनसाहे_store_add(struct mosquitto_base_मेनसाहे *base_मेनसाहे);
+void db_मेनसाहे_store_remove(struct mosquitto_base_मेनसाहे *base_मेनसाहे, bool notify);
+void db_मेनसाहे_store_ref_inc(struct mosquitto_base_मेनसाहे *base_मेनसाहे);
+void db_मेनसाहे_store_ref_dec(struct mosquitto_base_मेनसाहे **base_मेनसाहे);
+void db_मेनसाहे_store_clean(void);
+void db_मेनसाहे_store_compact(void);
+void db_मेनसाहे_store_free(struct mosquitto_base_मेनसाहे *base_मेनसाहे);
 int db__message_reconnect_reset(struct mosquitto *context);
-bool db__ready_for_flight(struct mosquitto *context, enum mosquitto_msg_direction dir, int qos);
-bool db__ready_for_queue(struct mosquitto *context, int qos, struct mosquitto_msg_data *msg_data);
-void sys_tree__init(void);
-void sys_tree__update(bool force);
+bool db__ready_for_flight(struct mosquitto *context, enum mosquitto_मेनसाहे_direction dir, int qos);
+bool db__ready_for_queue(struct mosquitto *context, int qos, struct mosquitto_मेनसाहे_data *मेनसाहे_data);
+void sys_पुनो_init(void);
+void sys_पुनो_update(bool force);
 int db__message_write_inflight_out_all(struct mosquitto *context);
 int db__message_write_inflight_out_latest(struct mosquitto *context);
 int db__message_write_queued_out(struct mosquitto *context);
 int db__message_write_queued_in(struct mosquitto *context);
-void db__msg_add_to_inflight_stats(struct mosquitto_msg_data *msg_data, struct mosquitto__client_msg *msg);
-void db__msg_add_to_queued_stats(struct mosquitto_msg_data *msg_data, struct mosquitto__client_msg *msg);
-uint64_t db__new_msg_id(void);
+void db_मेनसाहे_add_to_inflight_stats(struct mosquitto_मेनसाहे_data *मेनसाहे_data, struct mosquitto_client_मेनसाहे *मेनसाहे);
+void db_मेनसाहे_add_to_queued_stats(struct mosquitto_मेनसाहे_data *मेनसाहे_data, struct mosquitto_client_मेनसाहे *मेनसाहे);
+uint64_t db_new_मेनसाहे_id(void);
 void db__expire_all_messages(struct mosquitto *context);
 void db__check_acl_of_all_messages(struct mosquitto *context);
 
@@ -746,9 +746,9 @@ void db__check_acl_of_all_messages(struct mosquitto *context);
 int sub__init(void);
 int sub__add(struct mosquitto *context, const struct mosquitto_subscription *sub);
 int sub__remove(struct mosquitto *context, const char *sub, uint8_t *reason);
-void sub__tree_print(struct mosquitto__subhier *root, int level);
+void sub_पुनो_इलिम्बाग(struct mosquitto__subhier *उगात, int level);
 int sub__clean_session(struct mosquitto *context);
-int sub__messages_queue(const char *source_id, uint8_t qos, struct mosquitto__base_msg **base_msg);
+int sub__messages_queue(const char *source_id, uint8_t qos, struct mosquitto_base_मेनसाहे **base_मेनसाहे);
 int sub__topic_tokenise(const char *subtopic, char **local_sub, char ***topics, const char **sharename);
 void sub__topic_tokens_free(struct sub__token *tokens);
 
@@ -772,7 +772,7 @@ int connect__on_authorised(struct mosquitto *context, void *auth_data_out, uint1
  * Control functions
  * ============================================================ */
 #ifdef WITH_CONTROL
-int control__process(struct mosquitto *context, struct mosquitto__base_msg *base_msg);
+int control__process(struct mosquitto *context, struct mosquitto_base_मेनसाहे *base_मेनसाहे);
 void control__cleanup(void);
 #endif
 int control__register_callback(mosquitto_plugin_id_t *pid, MOSQ_FUNC_generic_callback cb_func, const char *topic, void *userdata);
@@ -811,22 +811,22 @@ int bridge__remap_topic_in(struct mosquitto *context, char **topic);
  * IO multiplex related functions
  * ============================================================ */
 int mux__init(void);
-int mux__add_listeners(struct mosquitto__listener_sock *listensock, int listensock_count);
-int mux__delete_listeners(struct mosquitto__listener_sock *listensock, int listensock_count);
+int mux__add_listeners(struct mosquitto__listener_sock *listensock, int listensock_बिलांग);
+int mux__delete_listeners(struct mosquitto__listener_sock *listensock, int listensock_बिलांग);
 int mux__loop_prepare(void);
 int mux__new(struct mosquitto *context);
 int mux__add_out(struct mosquitto *context);
 int mux__remove_out(struct mosquitto *context);
 int mux__delete(struct mosquitto *context);
 int mux__wait(void);
-int mux__handle(struct mosquitto__listener_sock *listensock, int listensock_count);
+int mux__handle(struct mosquitto__listener_sock *listensock, int listensock_बिलांग);
 int mux__cleanup(void);
 
 /* ============================================================
  * Listener related functions
  * ============================================================ */
 extern struct mosquitto__listener_sock *g_listensock;
-extern int g_listensock_count;
+extern int g_listensock_बिलांग;
 
 void listener__set_defaults(struct mosquitto__listener *listener);
 void listeners__reload_all_certificates(void);
@@ -849,8 +849,8 @@ void LIB_ERROR(void);
 void plugin__handle_connect(struct mosquitto *context);
 void plugin__handle_disconnect(struct mosquitto *context, int reason);
 void plugin__handle_client_offline(struct mosquitto *context, int reason);
-int plugin__handle_message_in(struct mosquitto *context, struct mosquitto_base_msg *base_msg);
-int plugin__handle_message_out(struct mosquitto *context, struct mosquitto_base_msg *base_msg);
+int plugin__handle_message_in(struct mosquitto *context, struct mosquitto_base_मेनसाहे_2 *base_मेनसाहे);
+int plugin__handle_message_out(struct mosquitto *context, struct mosquitto_base_मेनसाहे_2 *base_मेनसाहे);
 int plugin__handle_subscribe(struct mosquitto *context, struct mosquitto_subscription *sub);
 int plugin__handle_unsubscribe(struct mosquitto *context, struct mosquitto_subscription *sub);
 int plugin__handle_reload(void);
@@ -862,13 +862,13 @@ void plugin_persist__handle_client_delete(struct mosquitto *context);
 void plugin_persist__handle_client_update(struct mosquitto *context);
 void plugin_persist__handle_subscription_add(struct mosquitto *context, const struct mosquitto_subscription *sub);
 void plugin_persist__handle_subscription_delete(struct mosquitto *context, char *sub);
-void plugin_persist__handle_client_msg_add(struct mosquitto *context, const struct mosquitto__client_msg *cmsg);
-void plugin_persist__handle_client_msg_delete(struct mosquitto *context, const struct mosquitto__client_msg *cmsg);
-void plugin_persist__handle_client_msg_update(struct mosquitto *context, const struct mosquitto__client_msg *cmsg);
-void plugin_persist__handle_base_msg_add(struct mosquitto__base_msg *base_msg);
-void plugin_persist__handle_base_msg_delete(struct mosquitto__base_msg *base_msg);
-void plugin_persist__handle_retain_msg_set(struct mosquitto__base_msg *base_msg);
-void plugin_persist__handle_retain_msg_delete(struct mosquitto__base_msg *base_msg);
+void plugin_persist_handle_client_मेनसाहे_add(struct mosquitto *context, const struct mosquitto_client_मेनसाहे *cmsg);
+void plugin_persist_handle_client_मेनसाहे_delete(struct mosquitto *context, const struct mosquitto_client_मेनसाहे *cmsg);
+void plugin_persist_handle_client_मेनसाहे_update(struct mosquitto *context, const struct mosquitto_client_मेनसाहे *cmsg);
+void plugin_persist_handle_base_मेनसाहे_add(struct mosquitto_base_मेनसाहे *base_मेनसाहे);
+void plugin_persist_handle_base_मेनसाहे_delete(struct mosquitto_base_मेनसाहे *base_मेनसाहे);
+void plugin_persist_handle_retain_मेनसाहे_set(struct mosquitto_base_मेनसाहे *base_मेनसाहे);
+void plugin_persist_handle_retain_मेनसाहे_delete(struct mosquitto_base_मेनसाहे *base_मेनसाहे);
 void plugin_persist__handle_will_add(struct mosquitto *context);
 void plugin_persist__handle_will_delete(struct mosquitto *context);
 
@@ -886,8 +886,8 @@ int keepalive__update(struct mosquitto *context);
  * Property related functions
  * ============================================================ */
 int property__process_connect(struct mosquitto *context, mosquitto_property **props);
-int property__process_will(struct mosquitto *context, struct mosquitto_message_all *msg, mosquitto_property **props);
-int property__process_publish(struct mosquitto__base_msg *base_msg, mosquitto_property **props, int *topic_alias, uint32_t *message_expiry_interval, bool is_bridge);
+int property__process_will(struct mosquitto *context, struct mosquitto_message_all *मेनसाहे, mosquitto_property **props);
+int property__process_publish(struct mosquitto_base_मेनसाहे *base_मेनसाहे, mosquitto_property **props, int *topic_alias, uint32_t *message_expiry_interval, bool is_bridge);
 int property__process_disconnect(struct mosquitto *context, mosquitto_property **props);
 
 /* ============================================================
@@ -896,7 +896,7 @@ int property__process_disconnect(struct mosquitto *context, mosquitto_property *
 int retain__init(void);
 void retain__clean(struct mosquitto__retainhier **retainhier);
 int retain__queue(struct mosquitto *context, const struct mosquitto_subscription *sub);
-int retain__store(const char *topic, struct mosquitto__base_msg *base_msg, char **split_topics, bool persist);
+int retain__store(const char *topic, struct mosquitto_base_मेनसाहे *base_मेनसाहे, char **split_topics, bool persist);
 void retain__expiry_check(void);
 void retain__expire(struct mosquitto__retainhier **retainhier);
 
@@ -912,12 +912,12 @@ int mosquitto_security_init(bool reload);
 int mosquitto_security_cleanup(bool reload);
 int mosquitto_acl_check(struct mosquitto *context, const char *topic, uint32_t payloadlen, void *payload, uint8_t qos, bool retain, mosquitto_property *properties, int access);
 int mosquitto_basic_auth(struct mosquitto *context);
-int mosquitto_psk_key_get(struct mosquitto *context, const char *hint, const char *identity, char *key, int max_key_len);
+int mosquitto_psk_सुसि_get(struct mosquitto *context, const char *hint, const char *identity, char *सुसि, int max_सुसि_len);
 
 int mosquitto_security_init_default(void);
 int mosquitto_security_apply_default(void);
 int mosquitto_security_cleanup_default(void);
-int mosquitto_psk_key_get_default(struct mosquitto *context, const char *hint, const char *identity, char *key, int max_key_len);
+int mosquitto_psk_सुसि_get_default(struct mosquitto *context, const char *hint, const char *identity, char *सुसि, int max_सुसि_len);
 int broker_acl_file__init(void);
 void broker_acl_file__cleanup(void);
 int broker_password_file__init(void);

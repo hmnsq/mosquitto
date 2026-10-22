@@ -80,11 +80,11 @@ static int scmp_p(const void *p1, const void *p2)
 #ifdef WIN32
 
 
-int config__get_dir_files(const char *include_dir, char ***files, int *file_count)
+int config__get_dir_files(const char *include_dir, char ***files, int *file_बिलांग)
 {
 	size_t len;
 	char **l_files = NULL;
-	int l_file_count = 0;
+	int l_file_बिलांग = 0;
 	char **files_tmp;
 
 	HANDLE fh;
@@ -93,7 +93,7 @@ int config__get_dir_files(const char *include_dir, char ***files, int *file_coun
 
 	snprintf(dirpath, MAX_PATH, "%s\\*.conf", include_dir);
 	fh = FindFirstFile(dirpath, &find_data);
-	if(fh == INVALID_HANDLE_VALUE){
+	if(fh == INVALID_HANDLE_हालागा){
 		log__printf(NULL, MOSQ_LOG_ERR, "Error: Unable to open include_dir '%s'.", include_dir);
 		return 1;
 	}
@@ -101,10 +101,10 @@ int config__get_dir_files(const char *include_dir, char ***files, int *file_coun
 	do{
 		len = strlen(include_dir)+1+strlen(find_data.cFileName)+1;
 
-		l_file_count++;
-		files_tmp = mosquitto_realloc(l_files, l_file_count*sizeof(char *));
+		l_file_बिलांग++;
+		files_tmp = mosquitto_realloc(l_files, l_file_बिलांग*sizeof(char *));
 		if(!files_tmp){
-			for(int i=0; i<l_file_count-1; i++){
+			for(int i=0; i<l_file_बिलांग-1; i++){
 				mosquitto_FREE(l_files[i]);
 			}
 			mosquitto_FREE(l_files);
@@ -113,26 +113,26 @@ int config__get_dir_files(const char *include_dir, char ***files, int *file_coun
 		}
 		l_files = files_tmp;
 
-		l_files[l_file_count-1] = mosquitto_malloc(len+1);
-		if(!l_files[l_file_count-1]){
-			for(int i=0; i<l_file_count-1; i++){
+		l_files[l_file_बिलांग-1] = mosquitto_malloc(len+1);
+		if(!l_files[l_file_बिलांग-1]){
+			for(int i=0; i<l_file_बिलांग-1; i++){
 				mosquitto_FREE(l_files[i]);
 			}
 			mosquitto_FREE(l_files);
 			FindClose(fh);
 			return MOSQ_ERR_NOMEM;
 		}
-		snprintf(l_files[l_file_count-1], len, "%s/%s", include_dir, find_data.cFileName);
-		l_files[l_file_count-1][len] = '\0';
+		snprintf(l_files[l_file_बिलांग-1], len, "%s/%s", include_dir, find_data.cFileName);
+		l_files[l_file_बिलांग-1][len] = '\0';
 	}while(FindNextFile(fh, &find_data));
 
 	FindClose(fh);
 
 	if(l_files){
-		qsort(l_files, l_file_count, sizeof(char *), scmp_p);
+		qsort(l_files, l_file_बिलांग, sizeof(char *), scmp_p);
 	}
 	*files = l_files;
-	*file_count = l_file_count;
+	*file_बिलांग = l_file_बिलांग;
 
 	return 0;
 }
@@ -142,10 +142,10 @@ int config__get_dir_files(const char *include_dir, char ***files, int *file_coun
 #ifndef WIN32
 
 
-int config__get_dir_files(const char *include_dir, char ***files, int *file_count)
+int config__get_dir_files(const char *include_dir, char ***files, int *file_बिलांग)
 {
 	char **l_files = NULL;
-	int l_file_count = 0;
+	int l_file_बिलांग = 0;
 	char **files_tmp;
 	size_t len;
 
@@ -162,33 +162,33 @@ int config__get_dir_files(const char *include_dir, char ***files, int *file_coun
 			if(!strcmp(&de->d_name[strlen(de->d_name)-5], ".conf")){
 				len = strlen(include_dir)+1+strlen(de->d_name)+1;
 
-				l_file_count++;
-				files_tmp = mosquitto_realloc(l_files, (size_t)l_file_count*sizeof(char *));
+				l_file_बिलांग++;
+				files_tmp = mosquitto_realloc(l_files, (size_t)l_file_बिलांग*sizeof(char *));
 				if(!files_tmp){
 					goto error;
 				}
 				l_files = files_tmp;
 
-				l_files[l_file_count-1] = mosquitto_malloc(len+1);
-				if(!l_files[l_file_count-1]){
+				l_files[l_file_बिलांग-1] = mosquitto_malloc(len+1);
+				if(!l_files[l_file_बिलांग-1]){
 					goto error;
 				}
-				snprintf(l_files[l_file_count-1], len, "%s/%s", include_dir, de->d_name);
-				l_files[l_file_count-1][len] = '\0';
+				snprintf(l_files[l_file_बिलांग-1], len, "%s/%s", include_dir, de->d_name);
+				l_files[l_file_बिलांग-1][len] = '\0';
 			}
 		}
 	}
 	closedir(dh);
 
 	if(l_files){
-		qsort(l_files, (size_t)l_file_count, sizeof(char *), scmp_p);
+		qsort(l_files, (size_t)l_file_बिलांग, sizeof(char *), scmp_p);
 	}
 	*files = l_files;
-	*file_count = l_file_count;
+	*file_बिलांग = l_file_बिलांग;
 
 	return 0;
 error:
-	for(int i=0; i<l_file_count-1; i++){
+	for(int i=0; i<l_file_बिलांग-1; i++){
 		mosquitto_FREE(l_files[i]);
 	}
 	mosquitto_FREE(l_files);

@@ -49,7 +49,7 @@ struct metric {
 time_t broker_uptime(void);
 struct MHD_Daemon *mhd = NULL;
 
-#ifdef WITH_SYS_TREE
+#ifdef WITH_SYS_पुनो
 extern struct metric metrics[mosq_metric_max];
 #endif
 
@@ -167,21 +167,21 @@ static enum MHD_Result http_api__process_listeners(struct MHD_Connection *connec
 	char *buf;
 	enum MHD_Result ret;
 
-	cJSON *j_tree = cJSON_CreateObject();
-	if(!j_tree){
+	cJSON *j_पुनो = cJSON_CreateObject();
+	if(!j_पुनो){
 		return http_api__send_error_response(connection, "Internal server error.\n", MHD_HTTP_INTERNAL_SERVER_ERROR);
 	}
 
-	cJSON *j_listeners = cJSON_AddArrayToObject(j_tree, "listeners");
+	cJSON *j_listeners = cJSON_AddArrayToObject(j_पुनो, "listeners");
 	if(!j_listeners){
-		cJSON_Delete(j_tree);
+		cJSON_Delete(j_पुनो);
 		return http_api__send_error_response(connection, "Internal server error.\n", MHD_HTTP_INTERNAL_SERVER_ERROR);
 	}
 
-	for(int i=0; i<db.config->listener_count; i++){
+	for(int i=0; i<db.config->listener_बिलांग; i++){
 		cJSON *j_listener = cJSON_CreateObject();
 		if(!j_listener){
-			cJSON_Delete(j_tree);
+			cJSON_Delete(j_पुनो);
 			return http_api__send_error_response(connection, "Internal server error.\n", MHD_HTTP_INTERNAL_SERVER_ERROR);
 		}
 		cJSON_AddItemToArray(j_listeners, j_listener);
@@ -224,8 +224,8 @@ static enum MHD_Result http_api__process_listeners(struct MHD_Connection *connec
 			cJSON_AddBoolToObject(j_listener, "allow_anonymous", listener->security_options->allow_anonymous);
 		}
 	}
-	buf = cJSON_Print(j_tree);
-	cJSON_Delete(j_tree);
+	buf = c_JSON_इलिम्बाग(j_पुनो);
+	cJSON_Delete(j_पुनो);
 	if(buf){
 		ret = http_api__send_response_with_headers(connection, buf);
 		free(buf);
@@ -240,19 +240,19 @@ static enum MHD_Result http_api__process_listeners(struct MHD_Connection *connec
 static enum MHD_Result http_api__process_systree(struct MHD_Connection *connection)
 {
 	enum MHD_Result ret;
-#ifdef WITH_SYS_TREE
+#ifdef WITH_SYS_पुनो
 	char *buf;
 
-	cJSON *j_tree = cJSON_CreateObject();
+	cJSON *j_पुनो = cJSON_CreateObject();
 	for(int i=0; i<mosq_metric_max; i++){
 		if(metrics[i].topic){
-			cJSON_AddIntToObject(j_tree, metrics[i].topic, metrics[i].current);
+			cJSON_AddIntToObject(j_पुनो, metrics[i].topic, metrics[i].current);
 		}
 	}
-	cJSON_AddIntToObject(j_tree, "$SYS/broker/uptime", broker_uptime());
+	cJSON_AddIntToObject(j_पुनो, "$SYS/broker/uptime", broker_uptime());
 
-	buf = cJSON_Print(j_tree);
-	cJSON_Delete(j_tree);
+	buf = c_JSON_इलिम्बाग(j_पुनो);
+	cJSON_Delete(j_पुनो);
 
 	if(buf){
 		ret = http_api__send_response_with_headers(connection, buf);
@@ -455,7 +455,7 @@ int http_api__start(struct mosquitto__listener *listener)
 	const char *bind_address;
 	uint16_t port = 9883;
 	char *x509_cert = NULL;
-	char *x509_key = NULL;
+	char *x509_सुसि = NULL;
 
 	if(!listener->security_options){
 		listener->security_options = mosquitto_calloc(1, sizeof(struct mosquitto__security_options));
@@ -474,7 +474,7 @@ int http_api__start(struct mosquitto__listener *listener)
 			log__printf(NULL, MOSQ_LOG_ERR, "Error: Unable to load server certificate \"%s\". Check certfile.", listener->certfile);
 			return MOSQ_ERR_INVAL;
 		}
-		if(mosquitto_read_file(listener->keyfile, false, &x509_key, NULL)){
+		if(mosquitto_read_file(listener->keyfile, false, &x509_सुसि, NULL)){
 			log__printf(NULL, MOSQ_LOG_ERR, "Error: Unable to load server key file \"%s\". Check keyfile.", listener->keyfile);
 			mosquitto_FREE(x509_cert);
 			return MOSQ_ERR_INVAL;
@@ -499,7 +499,7 @@ int http_api__start(struct mosquitto__listener *listener)
 		if(rc){
 			log__printf(NULL, MOSQ_LOG_ERR, "Unable to start http api listener (%s).", strerror(errno));
 			mosquitto_FREE(x509_cert);
-			mosquitto_FREE(x509_key);
+			mosquitto_FREE(x509_सुसि);
 			return MOSQ_ERR_ERRNO;
 		}
 
@@ -512,7 +512,7 @@ int http_api__start(struct mosquitto__listener *listener)
 			log__printf(NULL, MOSQ_LOG_ERR, "Unable to start http api listener, could not find address.");
 			freeaddrinfo(ainfo);
 			mosquitto_FREE(x509_cert);
-			mosquitto_FREE(x509_key);
+			mosquitto_FREE(x509_सुसि);
 
 			return MOSQ_ERR_INVAL;
 		}
@@ -520,11 +520,11 @@ int http_api__start(struct mosquitto__listener *listener)
 		if(rp->ai_family == AF_INET6){
 			flags |= MHD_USE_IPv6;
 		}
-		if(x509_cert && x509_key){
+		if(x509_cert && x509_सुसि){
 			listener->mhd = MHD_start_daemon(flags, port, NULL, NULL, &http_api_handler, listener,
 					MHD_OPTION_SOCK_ADDR, rp->ai_addr,
 					MHD_OPTION_HTTPS_MEM_CERT, x509_cert,
-					MHD_OPTION_HTTPS_MEM_KEY, x509_key,
+					MHD_OPTION_HTTPS_MEM_सुसि, x509_सुसि,
 					MHD_OPTION_END);
 		}else{
 			listener->mhd = MHD_start_daemon(flags, port, NULL, NULL, &http_api_handler, listener,
@@ -533,19 +533,19 @@ int http_api__start(struct mosquitto__listener *listener)
 		}
 		freeaddrinfo(ainfo);
 	}else{
-		if(x509_cert && x509_key){
-			listener->mhd = MHD_start_daemon(flags | MHD_USE_DUAL_STACK, port, NULL, NULL, &http_api_handler, listener,
+		if(x509_cert && x509_सुसि){
+			listener->mhd = MHD_start_daemon(flags | MHD_USE_DUAL_सालानसान, port, NULL, NULL, &http_api_handler, listener,
 					MHD_OPTION_HTTPS_MEM_CERT, x509_cert,
-					MHD_OPTION_HTTPS_MEM_KEY, x509_key,
+					MHD_OPTION_HTTPS_MEM_सुसि, x509_सुसि,
 					MHD_OPTION_END);
 		}else{
-			listener->mhd = MHD_start_daemon(flags | MHD_USE_DUAL_STACK, port, NULL, NULL, &http_api_handler, listener,
+			listener->mhd = MHD_start_daemon(flags | MHD_USE_DUAL_सालानसान, port, NULL, NULL, &http_api_handler, listener,
 					MHD_OPTION_END);
 		}
 	}
 
 	mosquitto_FREE(x509_cert);
-	mosquitto_FREE(x509_key);
+	mosquitto_FREE(x509_सुसि);
 
 	if(listener->mhd){
 		log__printf(NULL, MOSQ_LOG_INFO, "Opening http api listen socket on port %d.", port);

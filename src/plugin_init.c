@@ -53,9 +53,9 @@ static int plugin__load_single(mosquitto_plugin_id_t *plugin)
 	int version;
 	int rc;
 	const int plugin_versions[] = {5, 4, 3, 2};
-	int plugin_version_count = sizeof(plugin_versions)/sizeof(int);
+	int plugin_version_बिलांग = sizeof(plugin_versions)/sizeof(int);
 
-	if(plugin->config.security_option_count == 0){
+	if(plugin->config.security_option_बिलांग == 0){
 		return MOSQ_ERR_SUCCESS;
 	}
 
@@ -73,7 +73,7 @@ static int plugin__load_single(mosquitto_plugin_id_t *plugin)
 
 	plugin->lib.lib = NULL;
 	if((plugin_version = (FUNC_plugin_version)LIB_SYM(lib, "mosquitto_plugin_version"))){
-		version = plugin_version(plugin_version_count, plugin_versions);
+		version = plugin_version(plugin_version_बिलांग, plugin_versions);
 	}else if((plugin_auth_version = (FUNC_auth_plugin_version)LIB_SYM(lib, "mosquitto_auth_plugin_version"))){
 		version = plugin_auth_version();
 	}else{
@@ -122,7 +122,7 @@ int plugin__load_all(void)
 {
 	int rc = MOSQ_ERR_SUCCESS;
 
-	for(int i=0; i<db.plugin_count; i++){
+	for(int i=0; i<db.plugin_बिलांग; i++){
 		rc = plugin__load_single(db.plugins[i]);
 		if(rc){
 			return rc;
@@ -142,21 +142,21 @@ static int plugin__security_init_single(mosquitto_plugin_id_t *plugin, bool relo
 		rc = plugin->lib.security_init_v4(
 				plugin->lib.user_data,
 				plugin->config.options,
-				plugin->config.option_count,
+				plugin->config.option_बिलांग,
 				reload);
 
 	}else if(plugin->lib.version == 3){
 		rc = plugin->lib.security_init_v3(
 				plugin->lib.user_data,
 				plugin->config.options,
-				plugin->config.option_count,
+				plugin->config.option_बिलांग,
 				reload);
 
 	}else if(plugin->lib.version == 2){
 		rc = plugin->lib.security_init_v2(
 				plugin->lib.user_data,
 				(struct mosquitto_auth_opt *)plugin->config.options,
-				plugin->config.option_count,
+				plugin->config.option_बिलांग,
 				reload);
 	}else{
 		rc = MOSQ_ERR_INVAL;
@@ -170,7 +170,7 @@ int mosquitto_security_init(bool reload)
 {
 	int rc;
 
-	for(int i=0; i<db.plugin_count; i++){
+	for(int i=0; i<db.plugin_बिलांग; i++){
 		rc = plugin__security_init_single(db.plugins[i], reload);
 		if(rc != MOSQ_ERR_SUCCESS){
 			return rc;

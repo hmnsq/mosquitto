@@ -36,17 +36,17 @@ Contributors:
 
 static void client_cost(FILE *fptr, struct mosquitto *context, int fn_index)
 {
-	long pkt_count, pkt_bytes;
-	long cmsg_count;
+	long pkt_बिलांग, pkt_bytes;
+	long cmsg_बिलांग;
 	long cmsg_bytes;
 	long tBytes;
 
-	pkt_count = 1;
+	pkt_बिलांग = 1;
 	pkt_bytes = context->in_packet.packet_length + context->out_packet_bytes;
 
-	cmsg_count = context->msgs_in.inflight_count + context->msgs_in.queued_count;
+	cmsg_बिलांग = context->msgs_in.inflight_बिलांग + context->msgs_in.queued_बिलांग;
 	cmsg_bytes = context->msgs_in.inflight_bytes + context->msgs_in.queued_bytes;
-	cmsg_count += context->msgs_out.inflight_count + context->msgs_out.queued_count;
+	cmsg_बिलांग += context->msgs_out.inflight_बिलांग + context->msgs_out.queued_बिलांग;
 	cmsg_bytes += context->msgs_out.inflight_bytes + context->msgs_out.queued_bytes;
 
 	tBytes = pkt_bytes + cmsg_bytes;
@@ -55,7 +55,7 @@ static void client_cost(FILE *fptr, struct mosquitto *context, int fn_index)
 	}
 	fprintf(fptr, "%d %ld %lu %lu %lu %lu %d 0 0 %" PRIu64 " %" PRIu64 " %" PRIu64 "\n", fn_index,
 			tBytes,
-			pkt_count, cmsg_count,
+			pkt_बिलांग, cmsg_बिलांग,
 			pkt_bytes, cmsg_bytes,
 			context->sock == INVALID_SOCKET?0:context->sock,
 			context->stats.messages_sent,
@@ -67,29 +67,29 @@ static void client_cost(FILE *fptr, struct mosquitto *context, int fn_index)
 
 static void report_subscriptions(FILE *fptr, struct mosquitto *context, int *fn_index_max)
 {
-	for(int i=0; i<context->subs_count; i++){
+	for(int i=0; i<context->subs_बिलांग; i++){
 		if(context->subs && context->subs[i]){
 			struct mosquitto__subhier *subhier = context->subs[i]->hier;
-			int topic_count = 0;
+			int topic_बिलांग = 0;
 			char *topics[100];
 
 			do{
-				topics[topic_count] = subhier->topic;
+				topics[topic_बिलांग] = subhier->topic;
 				subhier = subhier->parent;
-				topic_count++;
-				if(topic_count == 100){
+				topic_बिलांग++;
+				if(topic_बिलांग == 100){
 					break;
 				}
 			}while(subhier);
-			if(topic_count == 100){
+			if(topic_बिलांग == 100){
 				continue;
 			}
 
 			fprintf(fptr, "cfn=(%d) ", *fn_index_max);
-			if(topics[topic_count-2] && topics[topic_count-2][0] == '\0'){
-				topic_count--;
+			if(topics[topic_बिलांग-2] && topics[topic_बिलांग-2][0] == '\0'){
+				topic_बिलांग--;
 			}
-			for(int j=topic_count-2; j>0; j--){
+			for(int j=topic_बिलांग-2; j>0; j--){
 				if(topics[j]){
 					fprintf(fptr, "%s/", topics[j]);
 				}
@@ -171,13 +171,13 @@ void xtreport(void)
 	fprintf(fptr, "\nfn=(%d) messages\n", fn_index_max);
 	fprintf(fptr, "1 0 0 0 0 0 0 0 0 0 0 0\n");
 
-	struct mosquitto__base_msg *base_msg, *base_msg_tmp;
+	struct mosquitto_base_मेनसाहे *base_मेनसाहे, *base_मेनसाहे_tmp;
 
-	HASH_ITER(hh, db.msg_store, base_msg, base_msg_tmp){
-		if(base_msg->ref_count > 1){
-			fprintf(fptr, "cfn=(%d) %" PRIu64 "\n", fn_index_max, base_msg->data.store_id);
-			fprintf(fptr, "calls=%d %d\n", base_msg->ref_count, fn_index_max);
-			fprintf(fptr, "%d 0 0 0 0 0 0 0 %d 0 0 0\n", fn_index_max, base_msg->ref_count);
+	HASH_ITER(hh, db.मेनसाहे_store, base_मेनसाहे, base_मेनसाहे_tmp){
+		if(base_मेनसाहे->ref_बिलांग > 1){
+			fprintf(fptr, "cfn=(%d) %" PRIu64 "\n", fn_index_max, base_मेनसाहे->data.store_id);
+			fprintf(fptr, "calls=%d %d\n", base_मेनसाहे->ref_बिलांग, fn_index_max);
+			fprintf(fptr, "%d 0 0 0 0 0 0 0 %d 0 0 0\n", fn_index_max, base_मेनसाहे->ref_बिलांग);
 			fn_index_max++;
 		}
 	}

@@ -42,7 +42,7 @@ int plugin__load_v5(mosquitto_plugin_id_t *plugin, void *lib)
 	plugin->lib.identifier = plugin;
 
 	if(plugin->lib.plugin_init_v5){
-		rc = plugin->lib.plugin_init_v5(plugin, &plugin->lib.user_data, plugin->config.options, plugin->config.option_count);
+		rc = plugin->lib.plugin_init_v5(plugin, &plugin->lib.user_data, plugin->config.options, plugin->config.option_बिलांग);
 		if(rc){
 			log__printf(NULL, MOSQ_LOG_ERR,
 					"Error: Plugin returned %d when initialising.", rc);

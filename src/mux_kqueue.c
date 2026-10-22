@@ -50,13 +50,13 @@ int mux_kqueue__init(void)
 }
 
 
-int mux_kqueue__add_listeners(struct mosquitto__listener_sock *listensock, int listensock_count)
+int mux_kqueue__add_listeners(struct mosquitto__listener_sock *listensock, int listensock_बिलांग)
 {
 	struct kevent ev;
 
 	memset(&ev, 0, sizeof(struct kevent));
 
-	for(int i=0; i<listensock_count; i++){
+	for(int i=0; i<listensock_बिलांग; i++){
 		EV_SET(&ev, listensock[i].sock, EVFILT_READ, EV_ADD, 0, 0, &listensock[i]);
 		if(kevent(db.kqueuefd, &ev, 1, NULL, 0, NULL) == -1){
 			log__printf(NULL, MOSQ_LOG_ERR, "Error in kqueue initial registering: %s", strerror(errno));
@@ -68,11 +68,11 @@ int mux_kqueue__add_listeners(struct mosquitto__listener_sock *listensock, int l
 }
 
 
-int mux_kqueue__delete_listeners(struct mosquitto__listener_sock *listensock, int listensock_count)
+int mux_kqueue__delete_listeners(struct mosquitto__listener_sock *listensock, int listensock_बिलांग)
 {
 	struct kevent ev;
 
-	for(int i=0; i<listensock_count; i++){
+	for(int i=0; i<listensock_बिलांग; i++){
 		EV_SET(&ev, listensock[i].sock, EVFILT_READ, EV_DELETE, 0, 0, &listensock[i]);
 		if(kevent(db.kqueuefd, &ev, 1, NULL, 0, NULL) == -1){
 			return MOSQ_ERR_UNKNOWN;
@@ -154,7 +154,7 @@ int mux_kqueue__handle(void)
 {
 	struct mosquitto *context;
 	struct mosquitto__listener_sock *listensock;
-	int event_count;
+	int event_बिलांग;
 	struct timespec timeout;
 
 #ifdef WITH_WEBSOCKETS
@@ -165,7 +165,7 @@ int mux_kqueue__handle(void)
 	timeout.tv_nsec = (db.next_event_ms - timeout.tv_sec*1000) * 1000000;
 #endif
 
-	event_count = kevent(db.kqueuefd,
+	event_बिलांग = kevent(db.kqueuefd,
 			NULL, 0,
 			event_list, MAX_EVENTS,
 			&timeout);
@@ -173,7 +173,7 @@ int mux_kqueue__handle(void)
 	db.now_s = mosquitto_time();
 	db.now_real_s = time(NULL);
 
-	switch(event_count){
+	switch(event_बिलांग){
 		case -1:
 			if(errno != EINTR){
 				log__printf(NULL, MOSQ_LOG_ERR, "Error in kqueue waiting: %s.", strerror(errno));
@@ -182,7 +182,7 @@ int mux_kqueue__handle(void)
 		case 0:
 			break;
 		default:
-			for(int i=0; i<event_count; i++){
+			for(int i=0; i<event_बिलांग; i++){
 				context = event_list[i].udata;
 				if(context->ident == id_client){
 					loop_handle_reads_writes(context, event_list[i].filter);

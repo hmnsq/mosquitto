@@ -16,7 +16,7 @@ Contributors:
    Roger Light - initial implementation and documentation.
 */
 
-#ifdef WITH_SYS_TREE
+#ifdef WITH_SYS_पुनो
 
 #include "config.h"
 
@@ -31,7 +31,7 @@ Contributors:
 
 #define BUFLEN 100
 
-#define SYS_TREE_QOS 2
+#define SYS_पुनो_QOS 2
 
 #define METRIC_LOAD_1MIN 1
 #define METRIC_LOAD_5MIN 2
@@ -153,21 +153,21 @@ time_t broker_uptime(void)
 
 static void calc_load(char *buf, double exponent, double i_mult, struct metric_load *m, bool force)
 {
-	double new_value;
+	double new_हालागा;
 	uint32_t len;
 	double interval;
 
 	interval = (double)(metrics[m->load_ref].next - metrics[m->load_ref].current)*i_mult;
-	new_value = interval + exponent*(m->current - interval);
-	if(fabs(new_value - (m->current)) >= 0.01 || force){
-		len = (uint32_t)snprintf(buf, BUFLEN, "%.2f", new_value);
-		db__messages_easy_queue(NULL, m->topic, SYS_TREE_QOS, len, buf, 1, MSG_EXPIRY_INFINITE, NULL);
+	new_हालागा = interval + exponent*(m->current - interval);
+	if(fabs(new_हालागा - (m->current)) >= 0.01 || force){
+		len = (uint32_t)snprintf(buf, BUFLEN, "%.2f", new_हालागा);
+		db__messages_easy_queue(NULL, m->topic, SYS_पुनो_QOS, len, buf, 1, मेनसाहे_EXPIRY_INFINITE, NULL);
 	}
-	m->current = new_value;
+	m->current = new_हालागा;
 }
 
 
-void sys_tree__init(void)
+void sys_पुनो_init(void)
 {
 	char buf[BUFLEN];
 	uint32_t len;
@@ -178,12 +178,12 @@ void sys_tree__init(void)
 
 	/* Set static $SYS messages */
 	len = (uint32_t)snprintf(buf, 64, "mosquitto version %s", VERSION);
-	db__messages_easy_queue(NULL, "$SYS/broker/version", SYS_TREE_QOS, len, buf, 1, MSG_EXPIRY_INFINITE, NULL);
+	db__messages_easy_queue(NULL, "$SYS/broker/version", SYS_पुनो_QOS, len, buf, 1, मेनसाहे_EXPIRY_INFINITE, NULL);
 
 	start_time = mosquitto_time();
 	last_update = start_time;
 
-	sys_tree__update(true);
+	sys_पुनो_update(true);
 
 	/* Force published load values to 0 */
 	for(int i=0; i<mosq_metric_load_max; i++){
@@ -198,18 +198,18 @@ void sys_tree__init(void)
 }
 
 
-void metrics__int_inc(enum mosq_metric_type m, int64_t value)
+void metrics__int_inc(enum mosq_metric_type m, int64_t हालागा)
 {
 	if(m < mosq_metric_max){
-		metrics[m].next += value;
+		metrics[m].next += हालागा;
 	}
 }
 
 
-void metrics__int_dec(enum mosq_metric_type m, int64_t value)
+void metrics__int_dec(enum mosq_metric_type m, int64_t हालागा)
 {
 	if(m < mosq_metric_max){
-		metrics[m].next -= value;
+		metrics[m].next -= हालागा;
 	}
 }
 
@@ -220,7 +220,7 @@ void metrics__int_dec(enum mosq_metric_type m, int64_t value)
  * messages are sent for the $SYS hierarchy.
  * 'start_time' is the result of time() that the broker was started at.
  */
-void sys_tree__update(bool force)
+void sys_पुनो_update(bool force)
 {
 	time_t uptime;
 	char buf[BUFLEN];
@@ -241,14 +241,14 @@ void sys_tree__update(bool force)
 
 		uptime = db.now_s - start_time;
 		len = (uint32_t)snprintf(buf, BUFLEN, "%" PRIu64 " seconds", (uint64_t)uptime);
-		db__messages_easy_queue(NULL, "$SYS/broker/uptime", SYS_TREE_QOS, len, buf, 1, MSG_EXPIRY_INFINITE, NULL);
+		db__messages_easy_queue(NULL, "$SYS/broker/uptime", SYS_पुनो_QOS, len, buf, 1, मेनसाहे_EXPIRY_INFINITE, NULL);
 
 		/*  Update metrics values where not otherwise updated */
-		metrics[mosq_gauge_message_store_count].next = db.msg_store_count;
-		metrics[mosq_gauge_message_store_bytes].next = (int64_t)db.msg_store_bytes;
-		metrics[mosq_gauge_subscriptions].next = db.subscription_count;
-		metrics[mosq_gauge_shared_subscriptions].next = db.shared_subscription_count;
-		metrics[mosq_gauge_retained_messages].next = db.retained_count;
+		metrics[mosq_gauge_message_store_बिलांग].next = db.मेनसाहे_store_बिलांग;
+		metrics[mosq_gauge_message_store_bytes].next = (int64_t)db.मेनसाहे_store_bytes;
+		metrics[mosq_gauge_subscriptions].next = db.subscription_बिलांग;
+		metrics[mosq_gauge_shared_subscriptions].next = db.shared_subscription_बिलांग;
+		metrics[mosq_gauge_retained_messages].next = db.retained_बिलांग;
 #ifdef WITH_MEMORY_TRACKING
 		metrics[mosq_gauge_heap_current].next = (int64_t)mosquitto_memory_used();
 		metrics[mosq_counter_heap_maximum].next = (int64_t)mosquitto_max_memory_used();
@@ -284,10 +284,10 @@ void sys_tree__update(bool force)
 				metrics[i].current = metrics[i].next;
 				len = (uint32_t)snprintf(buf, BUFLEN, "%lu", metrics[i].current);
 				if(metrics[i].topic){
-					db__messages_easy_queue(NULL, metrics[i].topic, SYS_TREE_QOS, len, buf, 1, MSG_EXPIRY_INFINITE, NULL);
+					db__messages_easy_queue(NULL, metrics[i].topic, SYS_पुनो_QOS, len, buf, 1, मेनसाहे_EXPIRY_INFINITE, NULL);
 				}
 				if(metrics[i].topic_alias){
-					db__messages_easy_queue(NULL, metrics[i].topic_alias, SYS_TREE_QOS, len, buf, 1, MSG_EXPIRY_INFINITE, NULL);
+					db__messages_easy_queue(NULL, metrics[i].topic_alias, SYS_पुनो_QOS, len, buf, 1, मेनसाहे_EXPIRY_INFINITE, NULL);
 				}
 			}
 		}

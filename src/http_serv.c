@@ -58,11 +58,11 @@ int http__read(struct mosquitto *mosq)
 	const char *http_method, *http_path;
 	size_t http_method_len, http_path_len;
 	int http_minor_version;
-	size_t http_header_count = 100;
+	size_t http_header_बिलांग = 100;
 	struct phr_header http_headers[100];
-	const char *client_key = NULL;
-	size_t client_key_len = 0;
-	char *accept_key;
+	const char *client_सुसि = NULL;
+	size_t client_सुसि_len = 0;
+	char *accept_सुसि;
 	bool header_have_upgrade;
 	bool header_have_connection;
 	struct mosquitto__packet *packet;
@@ -110,7 +110,7 @@ int http__read(struct mosquitto *mosq)
 			&http_method, &http_method_len,
 			&http_path, &http_path_len,
 			&http_minor_version,
-			http_headers, &http_header_count,
+			http_headers, &http_header_बिलांग,
 			0);
 	// FIXME - deal with partial read !
 	if(header_length == -2){
@@ -133,19 +133,19 @@ int http__read(struct mosquitto *mosq)
 	header_have_connection = false;
 	subprotocol = NULL;
 
-	for(size_t i=0; i<http_header_count; i++){
+	for(size_t i=0; i<http_header_बिलांग; i++){
 		if(!strncasecmp(http_headers[i].name, "Upgrade", http_headers[i].name_len)){
-			if(!strncasecmp(http_headers[i].value, "websocket", http_headers[i].value_len)){
+			if(!strncasecmp(http_headers[i].हालागा, "websocket", http_headers[i].हालागा_len)){
 				header_have_upgrade = true;
 			}
 		}else if(!strncasecmp(http_headers[i].name, "Connection", http_headers[i].name_len)){
 			/* Check for "upgrade" */
-			const char *str = http_headers[i].value;
+			const char *str = http_headers[i].हालागा;
 			size_t start = 0;
 			size_t j;
-			for(j=0; j<http_headers[i].value_len; j++){
+			for(j=0; j<http_headers[i].हालागा_len; j++){
 				if(str[j] == ','){
-					if(!strncasecmp(&str[start], "upgrade", http_headers[i].value_len-j)){
+					if(!strncasecmp(&str[start], "upgrade", http_headers[i].हालागा_len-j)){
 						header_have_connection = true;
 						break;
 					}else{
@@ -155,17 +155,17 @@ int http__read(struct mosquitto *mosq)
 					start = j+1;
 				}
 			}
-			if(!strncasecmp(&str[start], "upgrade", http_headers[i].value_len-j)){
+			if(!strncasecmp(&str[start], "upgrade", http_headers[i].हालागा_len-j)){
 				header_have_connection = true;
 			}
 		}else if(!strncasecmp(http_headers[i].name, "Sec-WebSocket-Key", http_headers[i].name_len)){
-			client_key = http_headers[i].value;
-			client_key_len = http_headers[i].value_len;
+			client_सुसि = http_headers[i].हालागा;
+			client_सुसि_len = http_headers[i].हालागा_len;
 		}else if(!strncasecmp(http_headers[i].name, "Sec-WebSocket-Version", http_headers[i].name_len)){
 			/* Check for "13" */
-			if(http_headers[i].value_len != 2
-					|| http_headers[i].value[0] != '1'
-					|| http_headers[i].value[1] != '3'
+			if(http_headers[i].हालागा_len != 2
+					|| http_headers[i].हालागा[0] != '1'
+					|| http_headers[i].हालागा[1] != '3'
 					){
 
 				/* FIXME - not supported */
@@ -173,11 +173,11 @@ int http__read(struct mosquitto *mosq)
 			}
 		}else if(!strncasecmp(http_headers[i].name, "Sec-WebSocket-Protocol", http_headers[i].name_len)){
 			/* Check for "mqtt" */
-			if(!strncmp(http_headers[i].value, "mqtt", http_headers[i].value_len)
-					|| !strncmp(http_headers[i].value, "mqttv3.1", http_headers[i].value_len)){
+			if(!strncmp(http_headers[i].हालागा, "mqtt", http_headers[i].हालागा_len)
+					|| !strncmp(http_headers[i].हालागा, "mqttv3.1", http_headers[i].हालागा_len)){
 
-				subprotocol = http_headers[i].value;
-				subprotocol_len = (int)http_headers[i].value_len;
+				subprotocol = http_headers[i].हालागा;
+				subprotocol_len = (int)http_headers[i].हालागा_len;
 			}
 		}else if(!strncasecmp(http_headers[i].name, "X-Forwarded-For", http_headers[i].name_len)){
 			/* Before implementing this, refer to:
@@ -194,13 +194,13 @@ int http__read(struct mosquitto *mosq)
 		}else if(!strncasecmp(http_headers[i].name, "Origin", http_headers[i].name_len)){
 			if(mosq->listener){
 				bool have_match = false;
-				for(int j=0; j<mosq->listener->ws_origin_count; j++){
-					if(!strncmp(mosq->listener->ws_origins[j], http_headers[i].value, http_headers[i].value_len)){
+				for(int j=0; j<mosq->listener->ws_origin_बिलांग; j++){
+					if(!strncmp(mosq->listener->ws_origins[j], http_headers[i].हालागा, http_headers[i].हालागा_len)){
 						have_match = true;
 						break;
 					}
 				}
-				if(!have_match && mosq->listener->ws_origin_count > 0){
+				if(!have_match && mosq->listener->ws_origin_बिलांग > 0){
 					return MOSQ_ERR_HTTP_BAD_ORIGIN;
 				}
 			}
@@ -215,19 +215,19 @@ int http__read(struct mosquitto *mosq)
 	}
 
 	if(header_have_upgrade == false || header_have_connection == false
-			|| client_key == NULL || client_key_len == 0){
+			|| client_सुसि == NULL || client_सुसि_len == 0){
 
 		// FIXME - 404
 		return MOSQ_ERR_UNKNOWN;
 	}
 
-	if(ws__create_accept_key(client_key, client_key_len, &accept_key)){
+	if(ws_create_accept_सुसि(client_सुसि, client_सुसि_len, &accept_सुसि)){
 		return MOSQ_ERR_UNKNOWN;
 	}
 
 	packet = mosquitto_calloc(1, sizeof(struct mosquitto__packet) + 1024 + WS_PACKET_OFFSET);
 	if(!packet){
-		SAFE_FREE(accept_key);
+		SAFE_FREE(accept_सुसि);
 		return MOSQ_ERR_NOMEM;
 	}
 	packet->packet_length = (uint32_t )snprintf((char *)&packet->payload[WS_PACKET_OFFSET], 1024,
@@ -236,8 +236,8 @@ int http__read(struct mosquitto *mosq)
 			"Connection: Upgrade\r\n"
 			"Sec-WebSocket-Accept: %s\r\n"
 			"Sec-WebSocket-Protocol: %.*s\r\n"
-			"\r\n", accept_key, subprotocol_len, subprotocol) + WS_PACKET_OFFSET;
-	SAFE_FREE(accept_key);
+			"\r\n", accept_सुसि, subprotocol_len, subprotocol) + WS_PACKET_OFFSET;
+	SAFE_FREE(accept_सुसि);
 	packet->to_process = packet->packet_length;
 
 	memset(mosq->in_packet.packet_buffer, 0, db.config->packet_buffer_size);

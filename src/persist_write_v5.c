@@ -85,7 +85,7 @@ error:
 }
 
 
-int persist__chunk_client_msg_write_v6(FILE *db_fptr, struct P_client_msg *chunk)
+int persist_chunk_client_मेनसाहे_write_v6(FILE *db_fptr, struct P_client_मेनसाहे *chunk)
 {
 	struct PF_header header;
 	struct mosquitto__packet *prop_packet = NULL;
@@ -97,18 +97,18 @@ int persist__chunk_client_msg_write_v6(FILE *db_fptr, struct P_client_msg *chunk
 	};
 
 	if(chunk->subscription_identifier){
-		subscription_id_prop.value.varint = chunk->subscription_identifier;
+		subscription_id_prop.हालागा.varint = chunk->subscription_identifier;
 		proplen += mosquitto_property_get_remaining_length(&subscription_id_prop);
 	}
 
 	chunk->F.mid = htons(chunk->F.mid);
 	chunk->F.id_len = htons(chunk->F.id_len);
 
-	header.chunk = htonl(DB_CHUNK_CLIENT_MSG);
-	header.length = htonl((uint32_t)sizeof(struct PF_client_msg) + id_len + proplen);
+	header.chunk = htonl(DB_CHUNK_CLIENT_मेनसाहे);
+	header.length = htonl((uint32_t)sizeof(struct PF_client_मेनसाहे) + id_len + proplen);
 
 	write_e(db_fptr, &header, sizeof(struct PF_header));
-	write_e(db_fptr, &chunk->F, sizeof(struct PF_client_msg));
+	write_e(db_fptr, &chunk->F, sizeof(struct PF_client_मेनसाहे));
 	write_e(db_fptr, chunk->clientid, id_len);
 	if(chunk->subscription_identifier){
 		if(proplen > 0){
@@ -137,7 +137,7 @@ error:
 }
 
 
-int persist__chunk_message_store_write_v6(FILE *db_fptr, struct P_base_msg *chunk)
+int persist__chunk_message_store_write_v6(FILE *db_fptr, struct P_base_मेनसाहे *chunk)
 {
 	struct PF_header header;
 	uint32_t payloadlen = chunk->F.payloadlen;
@@ -158,13 +158,13 @@ int persist__chunk_message_store_write_v6(FILE *db_fptr, struct P_base_msg *chun
 	chunk->F.topic_len = htons(chunk->F.topic_len);
 	chunk->F.source_port = htons(chunk->F.source_port);
 
-	header.chunk = htonl(DB_CHUNK_BASE_MSG);
-	header.length = htonl((uint32_t)sizeof(struct PF_base_msg) +
+	header.chunk = htonl(DB_CHUNK_BASE_मेनसाहे);
+	header.length = htonl((uint32_t)sizeof(struct PF_base_मेनसाहे) +
 			topic_len + payloadlen +
 			source_id_len + source_username_len + proplen);
 
 	write_e(db_fptr, &header, sizeof(struct PF_header));
-	write_e(db_fptr, &chunk->F, sizeof(struct PF_base_msg));
+	write_e(db_fptr, &chunk->F, sizeof(struct PF_base_मेनसाहे));
 	if(source_id_len){
 		write_e(db_fptr, chunk->source.id, source_id_len);
 	}

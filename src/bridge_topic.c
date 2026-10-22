@@ -191,7 +191,7 @@ int bridge__add_topic(struct mosquitto__bridge *bridge, const char *topic, enum 
 		return MOSQ_ERR_SUCCESS;
 	}
 
-	bridge->topic_count++;
+	bridge->topic_बिलांग++;
 	cur_topic = mosquitto_calloc(1, sizeof(struct mosquitto__bridge_topic));
 	if(cur_topic == NULL){
 		log__printf(NULL, MOSQ_LOG_ERR, "Error: Out of memory.");

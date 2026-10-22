@@ -235,8 +235,8 @@ static int log__vprintf(unsigned int priority, const char *fmt, va_list va)
 {
 	const char *topic;
 	int syslog_priority;
-	char log_line[1000];
-	size_t log_line_pos;
+	char log_लिन्या[1000];
+	size_t log_लिन्या_pos;
 #ifdef WIN32
 	char *sp;
 #endif
@@ -330,33 +330,33 @@ static int log__vprintf(unsigned int priority, const char *fmt, va_list va)
 			if(log_timestamp_format){
 				struct tm *ti = NULL;
 				get_time(&ti);
-				log_line_pos = strftime(log_line, sizeof(log_line), log_timestamp_format, ti);
-				if(log_line_pos == 0){
-					log_line_pos = (size_t)snprintf(log_line, sizeof(log_line), "Time error");
+				log_लिन्या_pos = strftime(log_लिन्या, sizeof(log_लिन्या), log_timestamp_format, ti);
+				if(log_लिन्या_pos == 0){
+					log_लिन्या_pos = (size_t)snprintf(log_लिन्या, sizeof(log_लिन्या), "Time error");
 				}
 			}else{
-				log_line_pos = (size_t)snprintf(log_line, sizeof(log_line), "%" PRIu64, (uint64_t)db.now_real_s);
+				log_लिन्या_pos = (size_t)snprintf(log_लिन्या, sizeof(log_लिन्या), "%" PRIu64, (uint64_t)db.now_real_s);
 			}
-			if(log_line_pos < sizeof(log_line)-3){
-				log_line[log_line_pos] = ':';
-				log_line[log_line_pos+1] = ' ';
-				log_line[log_line_pos+2] = '\0';
-				log_line_pos += 2;
+			if(log_लिन्या_pos < sizeof(log_लिन्या)-3){
+				log_लिन्या[log_लिन्या_pos] = ':';
+				log_लिन्या[log_लिन्या_pos+1] = ' ';
+				log_लिन्या[log_लिन्या_pos+2] = '\0';
+				log_लिन्या_pos += 2;
 			}
 		}else{
-			log_line_pos = 0;
+			log_लिन्या_pos = 0;
 		}
-		vsnprintf(&log_line[log_line_pos], sizeof(log_line)-log_line_pos, fmt, va);
-		log_line[sizeof(log_line)-1] = '\0'; /* Ensure string is null terminated. */
+		vsnprintf(&log_लिन्या[log_लिन्या_pos], sizeof(log_लिन्या)-log_लिन्या_pos, fmt, va);
+		log_लिन्या[sizeof(log_लिन्या)-1] = '\0'; /* Ensure string is null terminated. */
 
 		if(log_destinations & MQTT3_LOG_STDOUT){
-			fprintf(stdout, "%s\n", log_line);
+			fprintf(stdout, "%s\n", log_लिन्या);
 		}
 		if(log_destinations & MQTT3_LOG_STDERR){
-			fprintf(stderr, "%s\n", log_line);
+			fprintf(stderr, "%s\n", log_लिन्या);
 		}
 		if(log_destinations & MQTT3_LOG_FILE && log_fptr){
-			fprintf(log_fptr, "%s\n", log_line);
+			fprintf(log_fptr, "%s\n", log_लिन्या);
 #ifdef WIN32
 			/* Windows doesn't support line buffering, so flush. */
 			fflush(log_fptr);
@@ -364,23 +364,23 @@ static int log__vprintf(unsigned int priority, const char *fmt, va_list va)
 		}
 		if(log_destinations & MQTT3_LOG_SYSLOG){
 #ifndef WIN32
-			syslog(syslog_priority, "%s", log_line);
+			syslog(syslog_priority, "%s", log_लिन्या);
 #else
-			sp = (char *)log_line;
+			sp = (char *)log_लिन्या;
 			ReportEvent(syslog_h, syslog_priority, 0, 0, NULL, 1, 0, (const char **)&sp, NULL);
 #endif
 		}
 		if(log_destinations & MQTT3_LOG_TOPIC && priority != MOSQ_LOG_DEBUG && priority != MOSQ_LOG_INTERNAL){
-			db__messages_easy_queue(NULL, topic, 2, (uint32_t)strlen(log_line), log_line, 0, 20, NULL);
+			db__messages_easy_queue(NULL, topic, 2, (uint32_t)strlen(log_लिन्या), log_लिन्या, 0, 20, NULL);
 		}
 #ifdef WITH_DLT
 		if(log_destinations & MQTT3_LOG_DLT && priority != MOSQ_LOG_INTERNAL){
-			DLT_LOG_STRING(dltContext, get_dlt_level(priority), log_line);
+			DLT_LOG_STRING(dltContext, get_dlt_level(priority), log_लिन्या);
 		}
 #endif
 #ifdef ANDROID
 		if(log_destinations & MQTT3_LOG_ANDROID && priority != MOSQ_LOG_INTERNAL){
-			__android_log_write(get_android_level(priority), LOG_TAG, log_line);
+			__android_log_write(get_android_level(priority), LOG_TAG, log_लिन्या);
 		}
 #endif
 	}

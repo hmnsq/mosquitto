@@ -39,11 +39,11 @@ Contributors:
 uint32_t db_version;
 
 const unsigned char magic[15] = {0x00, 0xB5, 0x00, 'm', 'o', 's', 'q', 'u', 'i', 't', 't', 'o', ' ', 'd', 'b'};
-static long base_msg_count = 0;
-static long retained_count = 0;
-static long client_count = 0;
-static long subscription_count = 0;
-static long client_msg_count = 0;
+static long base_मेनसाहे_बिलांग = 0;
+static long retained_बिलांग = 0;
+static long client_बिलांग = 0;
+static long subscription_बिलांग = 0;
+static long client_मेनसाहे_बिलांग = 0;
 
 static int persist__restore_sub(const struct mosquitto_subscription *sub);
 
@@ -115,15 +115,15 @@ int persist__read_string(FILE *db_fptr, char **str)
 }
 
 
-static int persist__client_msg_restore(struct P_client_msg *chunk)
+static int persist_client_मेनसाहे_restore(struct P_client_मेनसाहे *chunk)
 {
-	struct mosquitto__client_msg *cmsg;
-	struct mosquitto__base_msg *msg;
+	struct mosquitto_client_मेनसाहे *cmsg;
+	struct mosquitto_base_मेनसाहे *मेनसाहे;
 	struct mosquitto *context;
-	struct mosquitto_msg_data *msg_data;
+	struct mosquitto_मेनसाहे_data *मेनसाहे_data;
 
-	HASH_FIND(hh, db.msg_store, &chunk->F.store_id, sizeof(chunk->F.store_id), msg);
-	if(!msg){
+	HASH_FIND(hh, db.मेनसाहे_store, &chunk->F.store_id, sizeof(chunk->F.store_id), मेनसाहे);
+	if(!मेनसाहे){
 		/* Can't find message - probably expired */
 		return MOSQ_ERR_SUCCESS;
 	}
@@ -134,14 +134,14 @@ static int persist__client_msg_restore(struct P_client_msg *chunk)
 		return 0;
 	}
 
-	cmsg = mosquitto_calloc(1, sizeof(struct mosquitto__client_msg));
+	cmsg = mosquitto_calloc(1, sizeof(struct mosquitto_client_मेनसाहे));
 	if(!cmsg){
 		log__printf(NULL, MOSQ_LOG_ERR, "Error: Out of memory.");
 		return MOSQ_ERR_NOMEM;
 	}
 
 	cmsg->next = NULL;
-	cmsg->base_msg = NULL;
+	cmsg->base_मेनसाहे = NULL;
 	cmsg->data.cmsg_id = ++context->last_cmsg_id;
 	cmsg->data.mid = chunk->F.mid;
 	cmsg->data.qos = chunk->F.qos;
@@ -151,24 +151,24 @@ static int persist__client_msg_restore(struct P_client_msg *chunk)
 	cmsg->data.dup = chunk->F.retain_dup&0x0F;
 	cmsg->data.subscription_identifier = chunk->subscription_identifier;
 
-	cmsg->base_msg = msg;
-	db__msg_store_ref_inc(cmsg->base_msg);
+	cmsg->base_मेनसाहे = मेनसाहे;
+	db_मेनसाहे_store_ref_inc(cmsg->base_मेनसाहे);
 
 	if(cmsg->data.direction == mosq_md_out){
-		msg_data = &context->msgs_out;
+		मेनसाहे_data = &context->msgs_out;
 	}else{
-		msg_data = &context->msgs_in;
+		मेनसाहे_data = &context->msgs_in;
 	}
 
-	if(chunk->F.state == mosq_ms_queued || (chunk->F.qos > 0 && msg_data->inflight_quota == 0)){
-		DL_APPEND(msg_data->queued, cmsg);
-		db__msg_add_to_queued_stats(msg_data, cmsg);
+	if(chunk->F.state == mosq_ms_queued || (chunk->F.qos > 0 && मेनसाहे_data->inflight_quota == 0)){
+		DL_APPEND(मेनसाहे_data->queued, cmsg);
+		db_मेनसाहे_add_to_queued_stats(मेनसाहे_data, cmsg);
 	}else{
-		DL_APPEND(msg_data->inflight, cmsg);
-		if(chunk->F.qos > 0 && msg_data->inflight_quota > 0){
-			msg_data->inflight_quota--;
+		DL_APPEND(मेनसाहे_data->inflight, cmsg);
+		if(chunk->F.qos > 0 && मेनसाहे_data->inflight_quota > 0){
+			मेनसाहे_data->inflight_quota--;
 		}
-		db__msg_add_to_inflight_stats(msg_data, cmsg);
+		db_मेनसाहे_add_to_inflight_stats(मेनसाहे_data, cmsg);
 	}
 
 	return MOSQ_ERR_SUCCESS;
@@ -207,7 +207,7 @@ static int persist__client_chunk_restore(FILE *db_fptr)
 		}
 		/* in per_listener_settings mode, try to find the listener by persisted port */
 		if(db.config->per_listener_settings && !context->listener && chunk.F.listener_port > 0){
-			for(int i=0; i < db.config->listener_count; i++){
+			for(int i=0; i < db.config->listener_बिलांग; i++){
 				if(db.config->listeners[i].port == chunk.F.listener_port){
 					context->listener = &db.config->listeners[i];
 					break;
@@ -222,53 +222,53 @@ static int persist__client_chunk_restore(FILE *db_fptr)
 	mosquitto_FREE(chunk.clientid);
 	mosquitto_FREE(chunk.username);
 	if(rc == 0){
-		client_count++;
+		client_बिलांग++;
 	}
 	return rc;
 }
 
 
-static int persist__client_msg_chunk_restore(FILE *db_fptr, uint32_t length)
+static int persist_client_मेनसाहे_chunk_restore(FILE *db_fptr, uint32_t length)
 {
-	struct P_client_msg chunk;
+	struct P_client_मेनसाहे chunk;
 	int rc;
 
-	memset(&chunk, 0, sizeof(struct P_client_msg));
+	memset(&chunk, 0, sizeof(struct P_client_मेनसाहे));
 
 	if(db_version == 6 || db_version == 5){
-		rc = persist__chunk_client_msg_read_v56(db_fptr, &chunk, length);
+		rc = persist_chunk_client_मेनसाहे_read_v56(db_fptr, &chunk, length);
 	}else{
-		rc = persist__chunk_client_msg_read_v234(db_fptr, &chunk);
+		rc = persist_chunk_client_मेनसाहे_read_v234(db_fptr, &chunk);
 	}
 	if(rc){
 		return rc;
 	}
 
-	rc = persist__client_msg_restore(&chunk);
+	rc = persist_client_मेनसाहे_restore(&chunk);
 	mosquitto_FREE(chunk.clientid);
 
 	if(rc == 0){
-		client_msg_count++;
+		client_मेनसाहे_बिलांग++;
 	}
 	return rc;
 }
 
 
-static int persist__base_msg_chunk_restore(FILE *db_fptr, uint32_t length)
+static int persist_base_मेनसाहे_chunk_restore(FILE *db_fptr, uint32_t length)
 {
-	struct P_base_msg chunk;
-	struct mosquitto__base_msg *base_msg = NULL;
+	struct P_base_मेनसाहे chunk;
+	struct mosquitto_base_मेनसाहे *base_मेनसाहे = NULL;
 	int64_t message_expiry_interval64;
 	uint32_t message_expiry_interval;
 	uint32_t *p_message_expiry_interval = NULL;
 	int rc = 0;
 
-	memset(&chunk, 0, sizeof(struct P_base_msg));
+	memset(&chunk, 0, sizeof(struct P_base_मेनसाहे));
 
 	if(db_version == 6 || db_version == 5){
-		rc = persist__chunk_base_msg_read_v56(db_fptr, &chunk, length);
+		rc = persist_chunk_base_मेनसाहे_read_v56(db_fptr, &chunk, length);
 	}else{
-		rc = persist__chunk_base_msg_read_v234(db_fptr, &chunk, db_version);
+		rc = persist_chunk_base_मेनसाहे_read_v234(db_fptr, &chunk, db_version);
 	}
 	if(rc){
 		return rc;
@@ -279,7 +279,7 @@ static int persist__base_msg_chunk_restore(FILE *db_fptr, uint32_t length)
 	}
 
 	if(chunk.F.source_port){
-		for(int i=0; i<db.config->listener_count; i++){
+		for(int i=0; i<db.config->listener_बिलांग; i++){
 			if(db.config->listeners[i].port == chunk.F.source_port){
 				chunk.source.listener = &db.config->listeners[i];
 				break;
@@ -299,31 +299,31 @@ static int persist__base_msg_chunk_restore(FILE *db_fptr, uint32_t length)
 		p_message_expiry_interval = &message_expiry_interval;
 	}
 
-	base_msg = mosquitto_calloc(1, sizeof(struct mosquitto__base_msg));
-	if(base_msg == NULL){
+	base_मेनसाहे = mosquitto_calloc(1, sizeof(struct mosquitto_base_मेनसाहे));
+	if(base_मेनसाहे == NULL){
 		log__printf(NULL, MOSQ_LOG_ERR, "Error: Out of memory.");
 		rc = MOSQ_ERR_NOMEM;
 		goto cleanup;
 	}
 
-	base_msg->data.store_id = chunk.F.store_id;
-	base_msg->data.source_mid = chunk.F.source_mid;
-	base_msg->data.topic = chunk.topic;
-	base_msg->data.qos = chunk.F.qos;
-	base_msg->data.payloadlen = chunk.F.payloadlen;
-	base_msg->data.retain = chunk.F.retain;
-	base_msg->data.properties = chunk.properties;
-	base_msg->data.payload = chunk.payload;
-	base_msg->source_listener = chunk.source.listener;
+	base_मेनसाहे->data.store_id = chunk.F.store_id;
+	base_मेनसाहे->data.source_mid = chunk.F.source_mid;
+	base_मेनसाहे->data.topic = chunk.topic;
+	base_मेनसाहे->data.qos = chunk.F.qos;
+	base_मेनसाहे->data.payloadlen = chunk.F.payloadlen;
+	base_मेनसाहे->data.retain = chunk.F.retain;
+	base_मेनसाहे->data.properties = chunk.properties;
+	base_मेनसाहे->data.payload = chunk.payload;
+	base_मेनसाहे->source_listener = chunk.source.listener;
 
-	rc = db__message_store(&chunk.source, base_msg, p_message_expiry_interval,
+	rc = db__message_store(&chunk.source, base_मेनसाहे, p_message_expiry_interval,
 			mosq_mo_client);
 
 	mosquitto_FREE(chunk.source.id);
 	mosquitto_FREE(chunk.source.username);
 
 	if(rc == MOSQ_ERR_SUCCESS){
-		base_msg_count++;
+		base_मेनसाहे_बिलांग++;
 		return MOSQ_ERR_SUCCESS;
 	}else{
 		return rc;
@@ -339,7 +339,7 @@ cleanup:
 
 static int persist__retain_chunk_restore(FILE *db_fptr)
 {
-	struct mosquitto__base_msg *base_msg;
+	struct mosquitto_base_मेनसाहे *base_मेनसाहे;
 	struct P_retain chunk;
 	int rc;
 	char **split_topics;
@@ -356,16 +356,16 @@ static int persist__retain_chunk_restore(FILE *db_fptr)
 		return rc;
 	}
 
-	HASH_FIND(hh, db.msg_store, &chunk.F.store_id, sizeof(chunk.F.store_id), base_msg);
-	if(base_msg){
-		rc = sub__topic_tokenise(base_msg->data.topic, &local_topic, &split_topics, NULL);
+	HASH_FIND(hh, db.मेनसाहे_store, &chunk.F.store_id, sizeof(chunk.F.store_id), base_मेनसाहे);
+	if(base_मेनसाहे){
+		rc = sub__topic_tokenise(base_मेनसाहे->data.topic, &local_topic, &split_topics, NULL);
 		if(rc){
 			return rc;
 		}
-		retain__store(base_msg->data.topic, base_msg, split_topics, true);
+		retain__store(base_मेनसाहे->data.topic, base_मेनसाहे, split_topics, true);
 		mosquitto_FREE(local_topic);
 		mosquitto_FREE(split_topics);
-		retained_count++;
+		retained_बिलांग++;
 	}else{
 		/* Can't find the message - probably expired */
 	}
@@ -399,7 +399,7 @@ static int persist__sub_chunk_restore(FILE *db_fptr)
 	mosquitto_FREE(chunk.clientid);
 	mosquitto_FREE(chunk.topic);
 	if(rc == 0){
-		subscription_count++;
+		subscription_बिलांग++;
 	}
 
 	return rc;
@@ -434,12 +434,12 @@ int persist__restore(void)
 		return MOSQ_ERR_SUCCESS;
 	}
 
-	db.msg_store = NULL;
-	base_msg_count = 0;
-	retained_count = 0;
-	client_count = 0;
-	subscription_count = 0;
-	client_msg_count = 0;
+	db.मेनसाहे_store = NULL;
+	base_मेनसाहे_बिलांग = 0;
+	retained_बिलांग = 0;
+	client_बिलांग = 0;
+	subscription_बिलांग = 0;
+	client_मेनसाहे_बिलांग = 0;
 
 	fptr = mosquitto_fopen(db.config->persistence_filepath, "rb", true);
 	if(fptr == NULL){
@@ -501,16 +501,16 @@ int persist__restore(void)
 					db.last_db_id = cfg_chunk.last_db_id;
 					break;
 
-				case DB_CHUNK_BASE_MSG:
-					rc = persist__base_msg_chunk_restore(fptr, length);
+				case DB_CHUNK_BASE_मेनसाहे:
+					rc = persist_base_मेनसाहे_chunk_restore(fptr, length);
 					if(rc){
 						fclose(fptr);
 						return rc;
 					}
 					break;
 
-				case DB_CHUNK_CLIENT_MSG:
-					rc = persist__client_msg_chunk_restore(fptr, length);
+				case DB_CHUNK_CLIENT_मेनसाहे:
+					rc = persist_client_मेनसाहे_chunk_restore(fptr, length);
 					if(rc){
 						fclose(fptr);
 						return rc;
@@ -557,11 +557,11 @@ int persist__restore(void)
 
 	fclose(fptr);
 
-	log__printf(NULL, MOSQ_LOG_INFO, "Restored %ld base messages", base_msg_count);
-	log__printf(NULL, MOSQ_LOG_INFO, "Restored %ld retained messages", retained_count);
-	log__printf(NULL, MOSQ_LOG_INFO, "Restored %ld clients", client_count);
-	log__printf(NULL, MOSQ_LOG_INFO, "Restored %ld subscriptions", subscription_count);
-	log__printf(NULL, MOSQ_LOG_INFO, "Restored %ld client messages", client_msg_count);
+	log__printf(NULL, MOSQ_LOG_INFO, "Restored %ld base messages", base_मेनसाहे_बिलांग);
+	log__printf(NULL, MOSQ_LOG_INFO, "Restored %ld retained messages", retained_बिलांग);
+	log__printf(NULL, MOSQ_LOG_INFO, "Restored %ld clients", client_बिलांग);
+	log__printf(NULL, MOSQ_LOG_INFO, "Restored %ld subscriptions", subscription_बिलांग);
+	log__printf(NULL, MOSQ_LOG_INFO, "Restored %ld client messages", client_मेनसाहे_बिलांग);
 
 	return rc;
 error:

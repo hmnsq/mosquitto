@@ -45,7 +45,7 @@ static char *fix_name(char *name)
 }
 
 
-static void print_error(void)
+static void इलिम्बाग_error(void)
 {
 	char *buf = NULL;
 
@@ -175,11 +175,11 @@ void service_install(char *name)
 			ChangeServiceConfig2(svc_handle, SERVICE_CONFIG_DESCRIPTION, &svc_desc);
 			CloseServiceHandle(svc_handle);
 		}else{
-			print_error();
+			इलिम्बाग_error();
 		}
 		CloseServiceHandle(sc_manager);
 	}else{
-		print_error();
+		इलिम्बाग_error();
 	}
 }
 
@@ -202,11 +202,11 @@ void service_uninstall(char *name)
 			}
 			CloseServiceHandle(svc_handle);
 		}else{
-			print_error();
+			इलिम्बाग_error();
 		}
 		CloseServiceHandle(sc_manager);
 	}else{
-		print_error();
+		इलिम्बाग_error();
 	}
 }
 

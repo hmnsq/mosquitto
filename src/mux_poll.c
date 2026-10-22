@@ -82,11 +82,11 @@ int mux_poll__init(void)
 }
 
 
-int mux_poll__add_listeners(struct mosquitto__listener_sock *listensock, int listensock_count)
+int mux_poll__add_listeners(struct mosquitto__listener_sock *listensock, int listensock_बिलांग)
 {
 	size_t pollfd_index = 0;
 
-	for(size_t i=0; i<(size_t )listensock_count; i++){
+	for(size_t i=0; i<(size_t )listensock_बिलांग; i++){
 		pollfds[pollfd_index].fd = listensock[i].sock;
 		pollfds[pollfd_index].events = POLLIN;
 		pollfds[pollfd_index].revents = 0;
@@ -100,13 +100,13 @@ int mux_poll__add_listeners(struct mosquitto__listener_sock *listensock, int lis
 }
 
 
-int mux_poll__delete_listeners(struct mosquitto__listener_sock *listensock, int listensock_count)
+int mux_poll__delete_listeners(struct mosquitto__listener_sock *listensock, int listensock_बिलांग)
 {
 	size_t pollfd_index = 0;
 
 	UNUSED(listensock);
 
-	for(size_t i=0; i<(size_t )listensock_count; i++){
+	for(size_t i=0; i<(size_t )listensock_बिलांग; i++){
 		pollfds[pollfd_index].fd = INVALID_SOCKET;
 		pollfds[pollfd_index].events = 0;
 		pollfds[pollfd_index].revents = 0;
@@ -195,7 +195,7 @@ int mux_poll__delete(struct mosquitto *context)
 }
 
 
-int mux_poll__handle(struct mosquitto__listener_sock *listensock, int listensock_count)
+int mux_poll__handle(struct mosquitto__listener_sock *listensock, int listensock_बिलांग)
 {
 	struct mosquitto *context;
 	int fdcount;
@@ -232,7 +232,7 @@ int mux_poll__handle(struct mosquitto__listener_sock *listensock, int listensock
 	}else{
 		loop_handle_reads_writes();
 
-		for(int i=0; i<listensock_count; i++){
+		for(int i=0; i<listensock_बिलांग; i++){
 			if(pollfds[i].revents & POLLIN){
 #if defined(WITH_WEBSOCKETS) && WITH_WEBSOCKETS == WS_IS_LWS
 				if(listensock[i].listener->ws_context){

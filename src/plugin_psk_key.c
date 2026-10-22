@@ -28,21 +28,21 @@ Contributors:
 #include "utlist.h"
 
 
-static int plugin__psk_key_get(struct mosquitto__security_options *opts, struct mosquitto *context, const char *hint, const char *identity, char *key, int max_key_len)
+static int plugin_psk_सुसि_get(struct mosquitto__security_options *opts, struct mosquitto *context, const char *hint, const char *identity, char *सुसि, int max_सुसि_len)
 {
-	struct mosquitto_evt_psk_key event_data;
+	struct mosquitto_evt_psk_सुसि event_data;
 	struct mosquitto__callback *cb_base, *cb_next;
 	int rc;
 	int rc_final = MOSQ_ERR_SUCCESS;
 
-	DL_FOREACH_SAFE(opts->plugin_callbacks.psk_key, cb_base, cb_next){
+	DL_FOREACH_SAFE(opts->plugin_callbacks.psk_सुसि, cb_base, cb_next){
 		memset(&event_data, 0, sizeof(event_data));
 		event_data.client = context;
 		event_data.hint = hint;
 		event_data.identity = identity;
-		event_data.key = key;
-		event_data.max_key_len = max_key_len;
-		rc = cb_base->cb(MOSQ_EVT_PSK_KEY, &event_data, cb_base->userdata);
+		event_data.सुसि = सुसि;
+		event_data.max_सुसि_len = max_सुसि_len;
+		rc = cb_base->cb(MOSQ_EVT_PSK_सुसि, &event_data, cb_base->userdata);
 		if(rc == MOSQ_ERR_PLUGIN_IGNORE){
 			/* Do nothing */
 		}else if(rc == MOSQ_ERR_PLUGIN_DEFER){
@@ -55,15 +55,15 @@ static int plugin__psk_key_get(struct mosquitto__security_options *opts, struct 
 }
 
 
-int mosquitto_psk_key_get(struct mosquitto *context, const char *hint, const char *identity, char *key, int max_key_len)
+int mosquitto_psk_सुसि_get(struct mosquitto *context, const char *hint, const char *identity, char *सुसि, int max_सुसि_len)
 {
 	int rc;
 	int rc_final = MOSQ_ERR_SUCCESS;
 
 	/* Global plugins */
-	if(db.config->security_options.plugin_callbacks.psk_key){
-		rc = plugin__psk_key_get(&db.config->security_options, context,
-				hint, identity, key, max_key_len);
+	if(db.config->security_options.plugin_callbacks.psk_सुसि){
+		rc = plugin_psk_सुसि_get(&db.config->security_options, context,
+				hint, identity, सुसि, max_सुसि_len);
 
 		if(rc == MOSQ_ERR_PLUGIN_IGNORE){
 			/* Do nothing */
@@ -76,9 +76,9 @@ int mosquitto_psk_key_get(struct mosquitto *context, const char *hint, const cha
 
 	/* Per listener plugins */
 	if(context->listener){
-		if(context->listener->security_options->plugin_callbacks.psk_key){
-			rc = plugin__psk_key_get(context->listener->security_options, context,
-					hint, identity, key, max_key_len);
+		if(context->listener->security_options->plugin_callbacks.psk_सुसि){
+			rc = plugin_psk_सुसि_get(context->listener->security_options, context,
+					hint, identity, सुसि, max_सुसि_len);
 
 			if(rc == MOSQ_ERR_PLUGIN_IGNORE){
 				/* Do nothing */
@@ -94,7 +94,7 @@ int mosquitto_psk_key_get(struct mosquitto *context, const char *hint, const cha
 		}
 	}
 
-	rc = mosquitto_psk_key_get_default(context, hint, identity, key, max_key_len);
+	rc = mosquitto_psk_सुसि_get_default(context, hint, identity, सुसि, max_सुसि_len);
 	if(rc == MOSQ_ERR_PLUGIN_IGNORE){
 		/* Do nothing */
 	}else if(rc == MOSQ_ERR_PLUGIN_DEFER){

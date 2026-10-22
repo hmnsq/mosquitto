@@ -156,10 +156,10 @@ extern SERVICE_STATUS_HANDLE service_handle;
 
 static struct mosquitto__security_options *cur_security_options = NULL;
 
-static int conf__parse_bool(char **token, const char *name, bool *value, char **saveptr);
-static int conf__parse_int(char **token, const char *name, int *value, char **saveptr);
-static int conf__parse_ssize_t(char **token, const char *name, ssize_t *value, char **saveptr);
-static int conf__parse_string(char **token, const char *name, char **value, char **saveptr);
+static int conf__parse_bool(char **token, const char *name, bool *हालागा, char **saveptr);
+static int conf__parse_int(char **token, const char *name, int *हालागा, char **saveptr);
+static int conf__parse_ssize_t(char **token, const char *name, ssize_t *हालागा, char **saveptr);
+static int conf__parse_string(char **token, const char *name, char **हालागा, char **saveptr);
 static int config__read_file(struct mosquitto__config *config, bool reload, const char *file, struct config_recurse *config_tmp, int level, int *lineno);
 static int config__check(struct mosquitto__config *config);
 static void config__cleanup_plugins(void);
@@ -175,20 +175,20 @@ static int config__add_listener(struct mosquitto__config *config)
 	int def_listener = -1;
 
 	if(config->default_listener){
-		for(int i=0; i<config->listener_count; i++){
+		for(int i=0; i<config->listener_बिलांग; i++){
 			if(&config->listeners[i] == config->default_listener){
 				def_listener = i;
 				break;
 			}
 		}
 	}
-	new_listeners = mosquitto_realloc(config->listeners, sizeof(struct mosquitto__listener)*(size_t)(config->listener_count+1));
+	new_listeners = mosquitto_realloc(config->listeners, sizeof(struct mosquitto__listener)*(size_t)(config->listener_बिलांग+1));
 	if(!new_listeners){
 		log__printf(NULL, MOSQ_LOG_ERR, "Error: Out of memory.");
 		return MOSQ_ERR_NOMEM;
 	}
 	config->listeners = new_listeners;
-	listener = &config->listeners[config->listener_count];
+	listener = &config->listeners[config->listener_बिलांग];
 	memset(listener, 0, sizeof(struct mosquitto__listener));
 	listener->security_options = mosquitto_calloc(1, sizeof(struct mosquitto__security_options));
 	if(!listener->security_options){
@@ -198,7 +198,7 @@ static int config__add_listener(struct mosquitto__config *config)
 	if(def_listener != -1){
 		config->default_listener = &config->listeners[def_listener];
 	}
-	config->listener_count++;
+	config->listener_बिलांग++;
 
 	return MOSQ_ERR_SUCCESS;
 }
@@ -216,7 +216,7 @@ static int config__create_default_listener(struct mosquitto__config *config, con
 		return MOSQ_ERR_NOMEM;
 	}
 
-	config->default_listener = &config->listeners[config->listener_count-1];
+	config->default_listener = &config->listeners[config->listener_बिलांग-1];
 	listener__set_defaults(config->default_listener);
 	config->default_listener->port = 1883;
 
@@ -240,7 +240,7 @@ static void conf__set_cur_security_options(struct mosquitto__config *config, str
 }
 
 
-static int conf__attempt_resolve(const char *host, const char *text, unsigned int log, const char *msg)
+static int conf__attempt_resolve(const char *host, const char *text, unsigned int log, const char *मेनसाहे)
 {
 	struct addrinfo gai_hints;
 	struct addrinfo *gai_res;
@@ -258,16 +258,16 @@ static int conf__attempt_resolve(const char *host, const char *text, unsigned in
 #ifndef WIN32
 		if(rc == EAI_SYSTEM){
 			if(errno == ENOENT){
-				log__printf(NULL, log, "%s: Unable to resolve %s %s.", msg, text, host);
+				log__printf(NULL, log, "%s: Unable to resolve %s %s.", मेनसाहे, text, host);
 			}else{
-				log__printf(NULL, log, "%s: Error resolving %s: %s.", msg, text, strerror(errno));
+				log__printf(NULL, log, "%s: Error resolving %s: %s.", मेनसाहे, text, strerror(errno));
 			}
 		}else{
-			log__printf(NULL, log, "%s: Error resolving %s: %s.", msg, text, gai_strerror(rc));
+			log__printf(NULL, log, "%s: Error resolving %s: %s.", मेनसाहे, text, gai_strerror(rc));
 		}
 #else
 		if(rc == WSAHOST_NOT_FOUND){
-			log__printf(NULL, log, "%s: Error resolving %s.", msg, text);
+			log__printf(NULL, log, "%s: Error resolving %s.", मेनसाहे, text);
 		}
 #endif
 		return MOSQ_ERR_INVAL;
@@ -279,7 +279,7 @@ static int conf__attempt_resolve(const char *host, const char *text, unsigned in
 static void config__init_reload(struct mosquitto__config *config)
 {
 	/* Set defaults */
-	for(int i=0; i<config->listener_count; i++){
+	for(int i=0; i<config->listener_बिलांग; i++){
 		listener__set_defaults(&config->listeners[i]);
 	}
 
@@ -365,12 +365,12 @@ static void config__cleanup_plugin_config(mosquitto_plugin_id_t *plugin)
 	mosquitto_FREE(plugin->config.name);
 
 	if(plugin->config.options){
-		for(int j=0; j<plugin->config.option_count; j++){
-			mosquitto_FREE(plugin->config.options[j].key);
-			mosquitto_FREE(plugin->config.options[j].value);
+		for(int j=0; j<plugin->config.option_बिलांग; j++){
+			mosquitto_FREE(plugin->config.options[j].सुसि);
+			mosquitto_FREE(plugin->config.options[j].हालागा);
 		}
 		mosquitto_FREE(plugin->config.options);
-		plugin->config.option_count = 0;
+		plugin->config.option_बिलांग = 0;
 	}
 	mosquitto_FREE(plugin->config.security_options);
 	mosquitto_FREE(plugin);
@@ -379,7 +379,7 @@ static void config__cleanup_plugin_config(mosquitto_plugin_id_t *plugin)
 
 static void config__cleanup_plugins(void)
 {
-	for(int i=0; i<db.plugin_count; i++){
+	for(int i=0; i<db.plugin_बिलांग; i++){
 		config__cleanup_plugin_config(db.plugins[i]);
 	}
 	mosquitto_FREE(db.plugins);
@@ -410,7 +410,7 @@ void config__cleanup(struct mosquitto__config *config)
 	mosquitto_FREE(config->user);
 	mosquitto_FREE(config->log_timestamp_format);
 	if(config->listeners){
-		for(int i=0; i<config->listener_count; i++){
+		for(int i=0; i<config->listener_बिलांग; i++){
 			mosquitto_FREE(config->listeners[i].host);
 			mosquitto_FREE(config->listeners[i].bind_interface);
 			mosquitto_FREE(config->listeners[i].mount_point);
@@ -447,7 +447,7 @@ void config__cleanup(struct mosquitto__config *config)
 			mosquitto_FREE(config->listeners[i].http_dir);
 #endif
 #ifdef WITH_WEBSOCKETS
-			for(int j=0; j<config->listeners[i].ws_origin_count; j++){
+			for(int j=0; j<config->listeners[i].ws_origin_बिलांग; j++){
 				mosquitto_FREE(config->listeners[i].ws_origins[j]);
 			}
 			mosquitto_FREE(config->listeners[i].ws_origins);
@@ -460,7 +460,7 @@ void config__cleanup(struct mosquitto__config *config)
 	}
 #ifdef WITH_BRIDGE
 	if(config->bridges){
-		for(int i=0; i<config->bridge_count; i++){
+		for(int i=0; i<config->bridge_बिलांग; i++){
 			config__bridge_cleanup(config->bridges[i]);
 		}
 		mosquitto_FREE(config->bridges);
@@ -489,7 +489,7 @@ void config__bridge_cleanup(struct mosquitto__bridge *bridge)
 
 	mosquitto_FREE(bridge->name);
 	if(bridge->addresses){
-		for(int i=0; i<bridge->address_count; i++){
+		for(int i=0; i<bridge->address_बिलांग; i++){
 			mosquitto_FREE(bridge->addresses[i].address);
 		}
 		mosquitto_FREE(bridge->addresses);
@@ -535,7 +535,7 @@ void config__bridge_cleanup(struct mosquitto__bridge *bridge)
 #endif
 
 
-static void print_version(void)
+static void इलिम्बाग_version(void)
 {
 	printf("mosquitto %s\n", VERSION);
 	printf("Copyright © 2025 Roger Light.\n");
@@ -543,7 +543,7 @@ static void print_version(void)
 }
 
 
-static void print_usage(void)
+static void इलिम्बाग_usage(void)
 {
 	printf("mosquitto version %s\n\n", VERSION);
 	printf("mosquitto is an MQTT v5.0/v3.1.1/v3.1 broker.\n\n");
@@ -566,7 +566,7 @@ static void print_usage(void)
 }
 
 
-int config__parse_args(struct mosquitto__config *config, int argc, char *argv[])
+int config_parse_मगा_कातविरान(struct mosquitto__config *config, int argc, char *argv[])
 {
 	int i;
 	int port_tmp;
@@ -587,10 +587,10 @@ int config__parse_args(struct mosquitto__config *config, int argc, char *argv[])
 		}else if(!strcmp(argv[i], "-d") || !strcmp(argv[i], "--daemon")){
 			config->daemon = true;
 		}else if(!strcmp(argv[i], "-h") || !strcmp(argv[i], "--help")){
-			print_usage();
+			इलिम्बाग_usage();
 			return MOSQ_ERR_UNKNOWN;
 		}else if(!strcmp(argv[i], "--version")){
-			print_version();
+			इलिम्बाग_version();
 			return MOSQ_ERR_UNKNOWN;
 		}else if(!strcmp(argv[i], "-p") || !strcmp(argv[i], "--port")){
 			if(i<argc-1){
@@ -599,12 +599,12 @@ int config__parse_args(struct mosquitto__config *config, int argc, char *argv[])
 					log__printf(NULL, MOSQ_LOG_ERR, "Error: Invalid port specified (%d).", port_tmp);
 					return MOSQ_ERR_INVAL;
 				}else{
-					if(config->cmd_port_count == CMD_PORT_LIMIT){
+					if(config->cmd_port_बिलांग == CMD_PORT_LIMIT){
 						log__printf(NULL, MOSQ_LOG_ERR, "Error: Only %d ports can be specified on the command line.", CMD_PORT_LIMIT);
 						return MOSQ_ERR_INVAL;
 					}
-					config->cmd_port[config->cmd_port_count] = (uint16_t)port_tmp;
-					config->cmd_port_count++;
+					config->cmd_port[config->cmd_port_बिलांग] = (uint16_t)port_tmp;
+					config->cmd_port_बिलांग++;
 				}
 			}else{
 				log__printf(NULL, MOSQ_LOG_ERR, "Error: -p argument given, but no port specified.");
@@ -636,7 +636,7 @@ int config__parse_args(struct mosquitto__config *config, int argc, char *argv[])
 			config->test_configuration = true;
 		}else{
 			fprintf(stderr, "Error: Unknown option '%s'.\n", argv[i]);
-			print_usage();
+			इलिम्बाग_usage();
 			return MOSQ_ERR_INVAL;
 		}
 	}
@@ -693,7 +693,7 @@ static void config__copy(struct mosquitto__config *src, struct mosquitto__config
 	dest->security_options.psk_file = src->security_options.psk_file;
 
 	mosquitto_FREE(dest->security_options.plugins);
-	dest->security_options.plugin_count = src->security_options.plugin_count;
+	dest->security_options.plugin_बिलांग = src->security_options.plugin_बिलांग;
 	dest->security_options.plugins = src->security_options.plugins;
 
 	dest->allow_duplicate_messages = src->allow_duplicate_messages;
@@ -742,14 +742,14 @@ static void config__copy(struct mosquitto__config *src, struct mosquitto__config
 #endif
 
 #ifdef WITH_BRIDGE
-	for(int i=0; i<dest->bridge_count; i++){
+	for(int i=0; i<dest->bridge_बिलांग; i++){
 		if(dest->bridges[i]){
 			config__bridge_cleanup(dest->bridges[i]);
 		}
 	}
 	mosquitto_FREE(dest->bridges);
 	dest->bridges = src->bridges;
-	dest->bridge_count = src->bridge_count;
+	dest->bridge_बिलांग = src->bridge_बिलांग;
 #endif
 }
 
@@ -782,7 +782,7 @@ int config__read(struct mosquitto__config *config, bool reload)
 		/* Re-initialise appropriate config vars to default for reload. */
 		config__init_reload(&config_reload);
 		config_reload.listeners = config->listeners;
-		config_reload.listener_count = config->listener_count;
+		config_reload.listener_बिलांग = config->listener_बिलांग;
 		cur_security_options = NULL;
 		rc = config__read_file(&config_reload, reload, db.config_file, &cr, 0, &lineno);
 	}else{
@@ -802,7 +802,7 @@ int config__read(struct mosquitto__config *config, bool reload)
 	/* If auth/access options are set and allow_anonymous not explicitly set, disallow anon. */
 	if(config->local_only == false){
 		if(config->per_listener_settings){
-			for(i=0; i<config->listener_count; i++){
+			for(i=0; i<config->listener_बिलांग; i++){
 				/* Default option if no security options set */
 				if(config->listeners[i].security_options->allow_anonymous == -1){
 					config->listeners[i].security_options->allow_anonymous = false;
@@ -850,7 +850,7 @@ int config__read(struct mosquitto__config *config, bool reload)
 	}
 
 #ifdef WITH_BRIDGE
-	for(i=0; i<config->bridge_count; i++){
+	for(i=0; i<config->bridge_बिलांग; i++){
 		if(!config->bridges[i]->name){
 			log__printf(NULL, MOSQ_LOG_ERR, "Error: Invalid bridge configuration: bridge name not defined.");
 			return MOSQ_ERR_INVAL;
@@ -859,7 +859,7 @@ int config__read(struct mosquitto__config *config, bool reload)
 			log__printf(NULL, MOSQ_LOG_ERR, "Error: Invalid bridge configuration: no remote addresses defined.");
 			return MOSQ_ERR_INVAL;
 		}
-		if(config->bridges[i]->topic_count == 0){
+		if(config->bridges[i]->topic_बिलांग == 0){
 			log__printf(NULL, MOSQ_LOG_ERR, "Error: Invalid bridge configuration: no topics defined.");
 			return MOSQ_ERR_INVAL;
 		}
@@ -897,7 +897,7 @@ int config__read(struct mosquitto__config *config, bool reload)
 static mosquitto_plugin_id_t *config__plugin_find(const char *name)
 {
 	if(db.plugins && name){
-		for(int i=0; i<db.plugin_count; i++){
+		for(int i=0; i<db.plugin_बिलांग; i++){
 			if(db.plugins[i]->config.name && !strcmp(db.plugins[i]->config.name, name)){
 				return db.plugins[i];
 			}
@@ -935,18 +935,18 @@ static mosquitto_plugin_id_t *config__plugin_load(const char *name, const char *
 		goto error;
 	}
 	plugin->config.options = NULL;
-	plugin->config.option_count = 0;
+	plugin->config.option_बिलांग = 0;
 	plugin->config.deny_special_chars = true;
 
 	/* Add to db list */
-	plugins = mosquitto_realloc(db.plugins, (size_t)(db.plugin_count+1)*sizeof(struct mosquitto__plugin_config *));
+	plugins = mosquitto_realloc(db.plugins, (size_t)(db.plugin_बिलांग+1)*sizeof(struct mosquitto__plugin_config *));
 	if(!plugins){
 		goto error;
 	}
 
-	plugins[db.plugin_count] = plugin;
+	plugins[db.plugin_बिलांग] = plugin;
 	db.plugins = plugins;
-	db.plugin_count++;
+	db.plugin_बिलांग++;
 
 	return plugin;
 error:
@@ -965,8 +965,8 @@ int config__plugin_add_secopt(mosquitto_plugin_id_t *plugin, struct mosquitto__s
 	struct mosquitto__security_options **new_options;
 	mosquitto_plugin_id_t **new_plugins;
 
-	new_options = mosquitto_realloc(plugin->config.security_options, (size_t)(plugin->config.security_option_count+1)*sizeof(struct mosquitto__security_options *));
-	new_plugins = mosquitto_realloc(security_options->plugins, (size_t)(security_options->plugin_count+1)*sizeof(mosquitto_plugin_id_t *));
+	new_options = mosquitto_realloc(plugin->config.security_options, (size_t)(plugin->config.security_option_बिलांग+1)*sizeof(struct mosquitto__security_options *));
+	new_plugins = mosquitto_realloc(security_options->plugins, (size_t)(security_options->plugin_बिलांग+1)*sizeof(mosquitto_plugin_id_t *));
 
 	if(!new_options || !new_plugins){
 		mosquitto_FREE(new_options);
@@ -975,13 +975,13 @@ int config__plugin_add_secopt(mosquitto_plugin_id_t *plugin, struct mosquitto__s
 		return MOSQ_ERR_NOMEM;
 	}
 
-	new_options[plugin->config.security_option_count] = security_options;
+	new_options[plugin->config.security_option_बिलांग] = security_options;
 	plugin->config.security_options = new_options;
-	plugin->config.security_option_count++;
+	plugin->config.security_option_बिलांग++;
 
-	new_plugins[security_options->plugin_count] = plugin;
+	new_plugins[security_options->plugin_बिलांग] = plugin;
 	security_options->plugins = new_plugins;
-	security_options->plugin_count++;
+	security_options->plugin_बिलांग++;
 
 	return MOSQ_ERR_SUCCESS;
 }
@@ -999,7 +999,7 @@ static int config__read_file_core(struct mosquitto__config *config, bool reload,
 #endif
 	mosquitto_plugin_id_t *cur_plugin = NULL;
 
-	char *key;
+	char *सुसि;
 	struct mosquitto__listener *cur_listener = NULL;
 	int i;
 	int lineno_ext = 0;
@@ -1069,21 +1069,21 @@ static int config__read_file_core(struct mosquitto__config *config, bool reload,
 						if(token[0] == '#'){
 							break;
 						}
-						struct bridge_address *new_addresses = mosquitto_realloc(cur_bridge->addresses, sizeof(struct bridge_address)*(size_t)(cur_bridge->address_count+1));
+						struct bridge_address *new_addresses = mosquitto_realloc(cur_bridge->addresses, sizeof(struct bridge_address)*(size_t)(cur_bridge->address_बिलांग+1));
 						if(!new_addresses){
 							log__printf(NULL, MOSQ_LOG_ERR, "Error: Out of memory.");
 							return MOSQ_ERR_NOMEM;
 						}
-						cur_bridge->address_count++;
+						cur_bridge->address_बिलांग++;
 						cur_bridge->addresses = new_addresses;
-						memset(&cur_bridge->addresses[cur_bridge->address_count-1], 0, sizeof(struct bridge_address));
-						cur_bridge->addresses[cur_bridge->address_count-1].address = mosquitto_strdup(token);
-						if(!cur_bridge->addresses[cur_bridge->address_count-1].address){
+						memset(&cur_bridge->addresses[cur_bridge->address_बिलांग-1], 0, sizeof(struct bridge_address));
+						cur_bridge->addresses[cur_bridge->address_बिलांग-1].address = mosquitto_strdup(token);
+						if(!cur_bridge->addresses[cur_bridge->address_बिलांग-1].address){
 							log__printf(NULL, MOSQ_LOG_ERR, "Error: Out of memory.");
 							return MOSQ_ERR_NOMEM;
 						}
 					}
-					for(i=0; i<cur_bridge->address_count; i++){
+					for(i=0; i<cur_bridge->address_बिलांग; i++){
 						/* cur_bridge->addresses[i].address is now
 						 * "address[:port]". If address is an IPv6 address,
 						 * then port is required. We must check for the :
@@ -1106,7 +1106,7 @@ static int config__read_file_core(struct mosquitto__config *config, bool reload,
 						}
 						conf__attempt_resolve(cur_bridge->addresses[i].address, "bridge address", MOSQ_LOG_WARNING, "Warning");
 					}
-					if(cur_bridge->address_count == 0){
+					if(cur_bridge->address_बिलांग == 0){
 						log__printf(NULL, MOSQ_LOG_ERR, "Error: Empty address value in configuration.");
 						return MOSQ_ERR_INVAL;
 					}
@@ -1148,13 +1148,13 @@ static int config__read_file_core(struct mosquitto__config *config, bool reload,
 						log__printf(NULL, MOSQ_LOG_ERR, "Error: Invalid 'plugin_opt_' config option.");
 						return MOSQ_ERR_INVAL;
 					}
-					key = mosquitto_strdup(&token[prefix_len]);
-					if(!key){
+					सुसि = mosquitto_strdup(&token[prefix_len]);
+					if(!सुसि){
 						log__printf(NULL, MOSQ_LOG_ERR, "Error: Out of memory.");
 						return MOSQ_ERR_NOMEM;
-					}else if(STREMPTY(key)){
+					}else if(STREMPTY(सुसि)){
 						log__printf(NULL, MOSQ_LOG_ERR, "Error: Empty 'plugin_opt_' config option.");
-						mosquitto_FREE(key);
+						mosquitto_FREE(सुसि);
 						return MOSQ_ERR_INVAL;
 					}
 					token = saveptr;
@@ -1162,23 +1162,23 @@ static int config__read_file_core(struct mosquitto__config *config, bool reload,
 						while(token[0] == ' ' || token[0] == '\t'){
 							token++;
 						}
-						struct mosquitto_opt *new_options = mosquitto_realloc(cur_plugin->config.options, (size_t)(cur_plugin->config.option_count+1)*sizeof(struct mosquitto_opt));
+						struct mosquitto_opt *new_options = mosquitto_realloc(cur_plugin->config.options, (size_t)(cur_plugin->config.option_बिलांग+1)*sizeof(struct mosquitto_opt));
 						if(!new_options){
 							log__printf(NULL, MOSQ_LOG_ERR, "Error: Out of memory.");
-							mosquitto_FREE(key);
+							mosquitto_FREE(सुसि);
 							return MOSQ_ERR_NOMEM;
 						}
-						cur_plugin->config.option_count++;
+						cur_plugin->config.option_बिलांग++;
 						cur_plugin->config.options = new_options;
-						cur_plugin->config.options[cur_plugin->config.option_count-1].key = key;
-						cur_plugin->config.options[cur_plugin->config.option_count-1].value = mosquitto_strdup(token);
-						if(!cur_plugin->config.options[cur_plugin->config.option_count-1].value){
+						cur_plugin->config.options[cur_plugin->config.option_बिलांग-1].सुसि = सुसि;
+						cur_plugin->config.options[cur_plugin->config.option_बिलांग-1].हालागा = mosquitto_strdup(token);
+						if(!cur_plugin->config.options[cur_plugin->config.option_बिलांग-1].हालागा){
 							log__printf(NULL, MOSQ_LOG_ERR, "Error: Out of memory.");
 							return MOSQ_ERR_NOMEM;
 						}
 					}else{
-						log__printf(NULL, MOSQ_LOG_ERR, "Error: Empty '%s' value in configuration.", key);
-						mosquitto_FREE(key);
+						log__printf(NULL, MOSQ_LOG_ERR, "Error: Empty '%s' value in configuration.", सुसि);
+						mosquitto_FREE(सुसि);
 						return MOSQ_ERR_INVAL;
 					}
 				}else if(!strcmp(token, "auth_plugin") || !strcmp(token, "plugin") || !strcmp(token, "global_plugin")){
@@ -1659,7 +1659,7 @@ static int config__read_file_core(struct mosquitto__config *config, bool reload,
 					log__printf(NULL, MOSQ_LOG_WARNING, "Warning: TLS support not available.");
 #endif
 				}else if(!strcmp(token, "ciphers_tls1.3")){
-#if defined(WITH_TLS) && (!defined(LIBRESSL_VERSION_NUMBER) || LIBRESSL_VERSION_NUMBER > 0x3040000FL)
+#if defined(WITH_TLS) && (!defined(LIBRESSL_VERSION_नुमेरो) || LIBRESSL_VERSION_नुमेरो > 0x3040000FL)
 					REQUIRE_LISTENER_OR_DEFAULT_LISTENER(token);
 					mosquitto_FREE(cur_listener->ciphers_tls13);
 					if(conf__parse_string(&token, "ciphers_tls1.3", &cur_listener->ciphers_tls13, &saveptr)){
@@ -1707,14 +1707,14 @@ static int config__read_file_core(struct mosquitto__config *config, bool reload,
 					REQUIRE_NON_EMPTY_OPTION(token, "connection");
 
 					/* Check for existing bridge name. */
-					for(i=0; i<config->bridge_count; i++){
+					for(i=0; i<config->bridge_बिलांग; i++){
 						if(!strcmp(config->bridges[i]->name, token)){
 							log__printf(NULL, MOSQ_LOG_ERR, "Error: Duplicate bridge name '%s'.", token);
 							return MOSQ_ERR_INVAL;
 						}
 					}
 
-					struct mosquitto__bridge **bridges_new = mosquitto_realloc(config->bridges, (size_t)(config->bridge_count+1)*sizeof(struct mosquitto__bridge *));
+					struct mosquitto__bridge **bridges_new = mosquitto_realloc(config->bridges, (size_t)(config->bridge_बिलांग+1)*sizeof(struct mosquitto__bridge *));
 					if(!bridges_new){
 						log__printf(NULL, MOSQ_LOG_ERR, "Error: Out of memory.");
 						return MOSQ_ERR_NOMEM;
@@ -1726,8 +1726,8 @@ static int config__read_file_core(struct mosquitto__config *config, bool reload,
 						return MOSQ_ERR_NOMEM;
 					}
 
-					config->bridge_count++;
-					config->bridges[config->bridge_count-1] = cur_bridge;
+					config->bridge_बिलांग++;
+					config->bridges[config->bridge_बिलांग-1] = cur_bridge;
 
 					memset(cur_bridge, 0, sizeof(struct mosquitto__bridge));
 					cur_bridge->name = mosquitto_strdup(token);
@@ -1861,18 +1861,18 @@ static int config__read_file_core(struct mosquitto__config *config, bool reload,
 				}else if(!strcmp(token, "include_dir")){
 					if(level == 0){
 						char **files;
-						int file_count;
+						int file_बिलांग;
 
 						/* Only process include_dir from the main config file. */
 						token = strtok_r(NULL, "", &saveptr);
 						REQUIRE_NON_EMPTY_OPTION(token, "include_dir");
 
-						rc = config__get_dir_files(token, &files, &file_count);
+						rc = config__get_dir_files(token, &files, &file_बिलांग);
 						if(rc){
 							return rc;
 						}
 
-						for(i=0; i<file_count; i++){
+						for(i=0; i<file_बिलांग; i++){
 							log__printf(NULL, MOSQ_LOG_INFO, "Loading config file '%s'", files[i]);
 
 							rc = config__read_file(config, reload, files[i], cr, level+1, &lineno_ext);
@@ -1884,7 +1884,7 @@ static int config__read_file_core(struct mosquitto__config *config, bool reload,
 								break;
 							}
 						}
-						for(i=0; i<file_count; i++){
+						for(i=0; i<file_बिलांग; i++){
 							mosquitto_FREE(files[i]);
 						}
 						mosquitto_FREE(files);
@@ -1955,7 +1955,7 @@ static int config__read_file_core(struct mosquitto__config *config, bool reload,
 						cur_listener = NULL;
 #ifdef WITH_UNIX_SOCKETS
 						if(tmp_int == 0){
-							for(i=0; i<config->listener_count; i++){
+							for(i=0; i<config->listener_बिलांग; i++){
 								if(config->listeners[i].unix_socket_path != NULL
 										&& strcmp(config->listeners[i].unix_socket_path, token) == 0){
 
@@ -1966,7 +1966,7 @@ static int config__read_file_core(struct mosquitto__config *config, bool reload,
 						}else
 #endif
 						{
-							for(i=0; i<config->listener_count; i++){
+							for(i=0; i<config->listener_बिलांग; i++){
 								if(config->listeners[i].port == tmp_int){
 									/* Now check we have a matching bind address, if defined */
 									if(config->listeners[i].host){
@@ -1995,7 +1995,7 @@ static int config__read_file_core(struct mosquitto__config *config, bool reload,
 							log__printf(NULL, MOSQ_LOG_ERR, "Error: Out of memory.");
 							return MOSQ_ERR_NOMEM;
 						}
-						cur_listener = &config->listeners[config->listener_count-1];
+						cur_listener = &config->listeners[config->listener_बिलांग-1];
 					}
 
 					listener__set_defaults(cur_listener);
@@ -2901,19 +2901,19 @@ static int config__read_file_core(struct mosquitto__config *config, bool reload,
 					config->packet_buffer_size = (uint16_t)tmp_int;
 				}else if(!strcmp(token, "websockets_origin")){
 #ifdef WITH_WEBSOCKETS
-#  if LWS_LIBRARY_VERSION_NUMBER >= 3001000 || WITH_WEBSOCKETS == WS_IS_BUILTIN
+#  if LWS_LIBRARY_VERSION_नुमेरो >= 3001000 || WITH_WEBSOCKETS == WS_IS_BUILTIN
 					REQUIRE_LISTENER(token);
-					ws_origins = mosquitto_realloc(cur_listener->ws_origins, sizeof(char *)*(size_t)(cur_listener->ws_origin_count+1));
+					ws_origins = mosquitto_realloc(cur_listener->ws_origins, sizeof(char *)*(size_t)(cur_listener->ws_origin_बिलांग+1));
 					if(ws_origins == NULL){
 						log__printf(NULL, MOSQ_LOG_ERR, "Error: Out of memory.");
 						return MOSQ_ERR_NOMEM;
 					}
-					ws_origins[cur_listener->ws_origin_count] = NULL;
+					ws_origins[cur_listener->ws_origin_बिलांग] = NULL;
 					cur_listener->ws_origins = ws_origins;
-					if(conf__parse_string(&token, "websockets_origin", &ws_origins[cur_listener->ws_origin_count], &saveptr)){
+					if(conf__parse_string(&token, "websockets_origin", &ws_origins[cur_listener->ws_origin_बिलांग], &saveptr)){
 						return MOSQ_ERR_INVAL;
 					}
-					cur_listener->ws_origin_count++;
+					cur_listener->ws_origin_बिलांग++;
 #  else
 					log__printf(NULL, MOSQ_LOG_WARNING, "Warning: websockets_origin support not available, libwebsockets version is too old.");
 #  endif
@@ -2974,7 +2974,7 @@ int config__read_file(struct mosquitto__config *config, bool reload, const char 
 
 static int config__check_proxy(struct mosquitto__config *config)
 {
-	for(int i=0; i<config->listener_count; i++){
+	for(int i=0; i<config->listener_बिलांग; i++){
 		struct mosquitto__listener *l = &config->listeners[i];
 
 		if(l->enable_proxy_protocol == 2){
@@ -3011,7 +3011,7 @@ static int config__check(struct mosquitto__config *config)
 	}
 
 	/* Default to auto_id_prefix = 'auto-' if none set. */
-	for(int i=0; i<config->listener_count; i++){
+	for(int i=0; i<config->listener_बिलांग; i++){
 		if(!config->listeners[i].security_options->auto_id_prefix){
 			config->listeners[i].security_options->auto_id_prefix = mosquitto_strdup(id_prefix);
 			if(!config->listeners[i].security_options->auto_id_prefix){
@@ -3035,7 +3035,7 @@ static int config__check_bridges(struct mosquitto__config *config)
 
 	/* Check for bridge duplicate local_clientid, need to generate missing IDs
 	 * first. */
-	for(int i=0; i<config->bridge_count; i++){
+	for(int i=0; i<config->bridge_बिलांग; i++){
 		bridge1 = config->bridges[i];
 
 		if(!bridge1->remote_clientid){
@@ -3062,9 +3062,9 @@ static int config__check_bridges(struct mosquitto__config *config)
 		}
 	}
 
-	for(int i=0; i<config->bridge_count; i++){
+	for(int i=0; i<config->bridge_बिलांग; i++){
 		bridge1 = config->bridges[i];
-		for(int j=i+1; j<config->bridge_count; j++){
+		for(int j=i+1; j<config->bridge_बिलांग; j++){
 			bridge2 = config->bridges[j];
 			if(!strcmp(bridge1->local_clientid, bridge2->local_clientid)){
 				log__printf(NULL, MOSQ_LOG_ERR, "Error: Bridge local_clientid "
@@ -3078,7 +3078,7 @@ static int config__check_bridges(struct mosquitto__config *config)
 
 #ifdef WITH_TLS
 	/* Check for missing TLS cafile/capath/certfile/keyfile */
-	for(int i=0; i<config->listener_count; i++){
+	for(int i=0; i<config->listener_बिलांग; i++){
 		bool cafile = !!config->listeners[i].cafile;
 		bool capath = !!config->listeners[i].capath;
 		bool certfile = !!config->listeners[i].certfile;
@@ -3103,14 +3103,14 @@ static int config__check_bridges(struct mosquitto__config *config)
 #endif
 
 
-static int conf__parse_bool(char **token, const char *name, bool *value, char **saveptr)
+static int conf__parse_bool(char **token, const char *name, bool *हालागा, char **saveptr)
 {
 	*token = strtok_r(NULL, " ", saveptr);
 	if(*token){
 		if(!strcmp(*token, "false") || !strcmp(*token, "0")){
-			*value = false;
+			*हालागा = false;
 		}else if(!strcmp(*token, "true") || !strcmp(*token, "1")){
-			*value = true;
+			*हालागा = true;
 		}else{
 			log__printf(NULL, MOSQ_LOG_ERR, "Error: Invalid '%s' value (%s).", name, *token);
 			return MOSQ_ERR_INVAL;
@@ -3124,7 +3124,7 @@ static int conf__parse_bool(char **token, const char *name, bool *value, char **
 }
 
 
-static int conf__parse_int(char **token, const char *name, int *value, char **saveptr)
+static int conf__parse_int(char **token, const char *name, int *हालागा, char **saveptr)
 {
 	*token = strtok_r(NULL, " ", saveptr);
 	if(*token){
@@ -3138,7 +3138,7 @@ static int conf__parse_int(char **token, const char *name, int *value, char **sa
 			log__printf(NULL, MOSQ_LOG_ERR, "Error: '%s' value out of range.", name);
 			return MOSQ_ERR_INVAL;
 		}
-		*value = (int)l;
+		*हालागा = (int)l;
 	}else{
 		log__printf(NULL, MOSQ_LOG_ERR, "Error: Empty '%s' value in configuration.", name);
 		return MOSQ_ERR_INVAL;
@@ -3148,11 +3148,11 @@ static int conf__parse_int(char **token, const char *name, int *value, char **sa
 }
 
 
-static int conf__parse_ssize_t(char **token, const char *name, ssize_t *value, char **saveptr)
+static int conf__parse_ssize_t(char **token, const char *name, ssize_t *हालागा, char **saveptr)
 {
 	*token = strtok_r(NULL, " ", saveptr);
 	if(*token){
-		*value = atol(*token);
+		*हालागा = atol(*token);
 	}else{
 		log__printf(NULL, MOSQ_LOG_ERR, "Error: Empty '%s' value in configuration.", name);
 		return MOSQ_ERR_INVAL;
@@ -3162,13 +3162,13 @@ static int conf__parse_ssize_t(char **token, const char *name, ssize_t *value, c
 }
 
 
-static int conf__parse_string(char **token, const char *name, char **value, char **saveptr)
+static int conf__parse_string(char **token, const char *name, char **हालागा, char **saveptr)
 {
 	size_t tlen;
 
 	*token = strtok_r(NULL, "", saveptr);
 	if(*token){
-		if(*value){
+		if(*हालागा){
 			log__printf(NULL, MOSQ_LOG_ERR, "Error: Duplicate '%s' value in configuration.", name);
 			return MOSQ_ERR_INVAL;
 		}
@@ -3187,8 +3187,8 @@ static int conf__parse_string(char **token, const char *name, char **value, char
 			log__printf(NULL, MOSQ_LOG_ERR, "Error: Malformed UTF-8 in configuration.");
 			return MOSQ_ERR_INVAL;
 		}
-		*value = mosquitto_strdup(*token);
-		if(!*value){
+		*हालागा = mosquitto_strdup(*token);
+		if(!*हालागा){
 			log__printf(NULL, MOSQ_LOG_ERR, "Error: Out of memory.");
 			return MOSQ_ERR_NOMEM;
 		}

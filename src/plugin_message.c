@@ -28,7 +28,7 @@ struct should_free {
 };
 
 
-static int plugin__handle_message_single(struct mosquitto__callback *callbacks, enum mosquitto_plugin_event ev_type, struct should_free *to_free, struct mosquitto *context, struct mosquitto_base_msg *stored)
+static int plugin__handle_message_single(struct mosquitto__callback *callbacks, enum mosquitto_plugin_event ev_type, struct should_free *to_free, struct mosquitto *context, struct mosquitto_base_मेनसाहे_2 *stored)
 {
 	struct mosquitto_evt_message event_data;
 	struct mosquitto__callback *cb_base, *cb_next;
@@ -84,7 +84,7 @@ static int plugin__handle_message_single(struct mosquitto__callback *callbacks, 
 }
 
 
-int plugin__handle_message_out(struct mosquitto *context, struct mosquitto_base_msg *stored)
+int plugin__handle_message_out(struct mosquitto *context, struct mosquitto_base_मेनसाहे_2 *stored)
 {
 	int rc = MOSQ_ERR_SUCCESS;
 	struct should_free to_free = {false, false, false}; /* in msg_out, original data will be freed later */
@@ -105,7 +105,7 @@ int plugin__handle_message_out(struct mosquitto *context, struct mosquitto_base_
 }
 
 
-int plugin__handle_message_in(struct mosquitto *context, struct mosquitto_base_msg *stored)
+int plugin__handle_message_in(struct mosquitto *context, struct mosquitto_base_मेनसाहे_2 *stored)
 {
 	int rc = MOSQ_ERR_SUCCESS;
 	struct should_free to_free = {true, true, true}; /* in msg_in, original data should be freed */

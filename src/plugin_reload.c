@@ -58,7 +58,7 @@ int plugin__handle_reload(void)
 		return rc;
 	}
 
-	for(int i=0; i<db.config->listener_count; i++){
+	for(int i=0; i<db.config->listener_बिलांग; i++){
 		opts = db.config->listeners[i].security_options;
 		if(opts && opts->plugin_callbacks.reload){
 			rc = plugin__handle_reload_single(opts);

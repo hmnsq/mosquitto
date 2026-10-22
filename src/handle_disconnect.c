@@ -72,7 +72,7 @@ int handle__disconnect(struct mosquitto *context)
 		return MOSQ_ERR_PROTOCOL;
 	}
 	log__printf(NULL, MOSQ_LOG_DEBUG, "Received DISCONNECT from %s", context->id);
-	if(reason_code == MQTT_RC_DISCONNECT_WITH_WILL_MSG){
+	if(reason_code == MQTT_RC_DISCONNECT_WITH_WILL_मेनसाहे){
 		mosquitto__set_state(context, mosq_cs_disconnect_with_will);
 	}else{
 		will__clear(context);

@@ -136,11 +136,11 @@ static struct mosquitto *bridge__new(struct mosquitto__bridge *bridge)
 		}
 	}
 
-	bridges = mosquitto_realloc(db.bridges, (size_t)(db.bridge_count+1)*sizeof(struct mosquitto *));
+	bridges = mosquitto_realloc(db.bridges, (size_t)(db.bridge_बिलांग+1)*sizeof(struct mosquitto *));
 	if(bridges){
 		db.bridges = bridges;
-		db.bridge_count++;
-		db.bridges[db.bridge_count-1] = new_context;
+		db.bridge_बिलांग++;
+		db.bridges[db.bridge_बिलांग-1] = new_context;
 	}else{
 		return NULL;
 	}
@@ -158,7 +158,7 @@ static void bridge__destroy(struct mosquitto *context)
 
 void bridge__start_all(void)
 {
-	for(int i=0; i<db.config->bridge_count; i++){
+	for(int i=0; i<db.config->bridge_बिलांग; i++){
 		struct mosquitto *context;
 		int ret;
 
@@ -263,8 +263,8 @@ static int bridge__connect_step1(struct mosquitto *context)
 
 	mosquitto__set_state(context, mosq_cs_new);
 	context->sock = INVALID_SOCKET;
-	context->last_msg_in = db.now_s;
-	context->next_msg_out = db.now_s + context->bridge->keepalive;
+	context->last_मेनसाहे_in = db.now_s;
+	context->next_मेनसाहे_out = db.now_s + context->bridge->keepalive;
 	context->keepalive = context->bridge->keepalive;
 	context->clean_start = context->bridge->clean_start;
 	context->in_packet.payload = NULL;
@@ -310,7 +310,7 @@ static int bridge__connect_step1(struct mosquitto *context)
 		if(context->bridge->notification_topic){
 			if(!context->bridge->initial_notification_done){
 				notification_payload = '0';
-				db__messages_easy_queue(context, context->bridge->notification_topic, qos, 1, &notification_payload, 1, MSG_EXPIRY_INFINITE, NULL);
+				db__messages_easy_queue(context, context->bridge->notification_topic, qos, 1, &notification_payload, 1, मेनसाहे_EXPIRY_INFINITE, NULL);
 				context->bridge->initial_notification_done = true;
 			}
 			notification_payload = '0';
@@ -329,7 +329,7 @@ static int bridge__connect_step1(struct mosquitto *context)
 
 			if(!context->bridge->initial_notification_done){
 				notification_payload = '0';
-				db__messages_easy_queue(context, notification_topic, qos, 1, &notification_payload, 1, MSG_EXPIRY_INFINITE, NULL);
+				db__messages_easy_queue(context, notification_topic, qos, 1, &notification_payload, 1, मेनसाहे_EXPIRY_INFINITE, NULL);
 				context->bridge->initial_notification_done = true;
 			}
 
@@ -434,7 +434,7 @@ int bridge__connect_step3(struct mosquitto *context)
 #endif
 
 	if(context->bridge->receive_maximum != 0){
-		receive_maximum.value.i16 = context->bridge->receive_maximum;
+		receive_maximum.हालागा.i16 = context->bridge->receive_maximum;
 		receive_maximum.identifier = MQTT_PROP_RECEIVE_MAXIMUM;
 		receive_maximum.property_type = MQTT_PROP_TYPE_INT16;
 		receive_maximum.client_generated = false;
@@ -442,7 +442,7 @@ int bridge__connect_step3(struct mosquitto *context)
 		properties = &receive_maximum;
 	}
 	if(context->bridge->session_expiry_interval != MQTT_SESSION_EXPIRY_IMMEDIATE){
-		session_expiry_interval.value.i32 = context->bridge->session_expiry_interval;
+		session_expiry_interval.हालागा.i32 = context->bridge->session_expiry_interval;
 		session_expiry_interval.identifier = MQTT_PROP_SESSION_EXPIRY_INTERVAL;
 		session_expiry_interval.property_type = MQTT_PROP_TYPE_INT32;
 		session_expiry_interval.client_generated = false;
@@ -450,7 +450,7 @@ int bridge__connect_step3(struct mosquitto *context)
 		properties = &session_expiry_interval;
 	}
 	if(context->bridge->max_topic_alias != 0){
-		topic_alias_max.value.i16 = context->bridge->max_topic_alias;
+		topic_alias_max.हालागा.i16 = context->bridge->max_topic_alias;
 		topic_alias_max.identifier = MQTT_PROP_TOPIC_ALIAS_MAXIMUM;
 		topic_alias_max.property_type = MQTT_PROP_TYPE_INT16;
 		topic_alias_max.client_generated = false;
@@ -500,9 +500,9 @@ int bridge__connect(struct mosquitto *context)
 	mosquitto__set_state(context, mosq_cs_new);
 	context->sock = INVALID_SOCKET;
 	/* coverity[missing_lock] - broker is single threaded, so no lock required */
-	context->last_msg_in = db.now_s;
+	context->last_मेनसाहे_in = db.now_s;
 	/* coverity[missing_lock] - broker is single threaded, so no lock required */
-	context->next_msg_out = db.now_s + context->bridge->keepalive;
+	context->next_मेनसाहे_out = db.now_s + context->bridge->keepalive;
 	context->keepalive = context->bridge->keepalive;
 	context->clean_start = context->bridge->clean_start;
 	context->in_packet.payload = NULL;
@@ -547,7 +547,7 @@ int bridge__connect(struct mosquitto *context)
 		if(context->bridge->notification_topic){
 			if(!context->bridge->initial_notification_done){
 				notification_payload = '0';
-				db__messages_easy_queue(context, context->bridge->notification_topic, qos, 1, &notification_payload, 1, MSG_EXPIRY_INFINITE, NULL);
+				db__messages_easy_queue(context, context->bridge->notification_topic, qos, 1, &notification_payload, 1, मेनसाहे_EXPIRY_INFINITE, NULL);
 				context->bridge->initial_notification_done = true;
 			}
 
@@ -567,7 +567,7 @@ int bridge__connect(struct mosquitto *context)
 
 			if(!context->bridge->initial_notification_done){
 				notification_payload = '0';
-				db__messages_easy_queue(context, notification_topic, qos, 1, &notification_payload, 1, MSG_EXPIRY_INFINITE, NULL);
+				db__messages_easy_queue(context, notification_topic, qos, 1, &notification_payload, 1, मेनसाहे_EXPIRY_INFINITE, NULL);
 				context->bridge->initial_notification_done = true;
 			}
 
@@ -617,7 +617,7 @@ int bridge__connect(struct mosquitto *context)
 #endif
 
 	if(context->bridge->receive_maximum != 0){
-		receive_maximum.value.i16 = context->bridge->receive_maximum;
+		receive_maximum.हालागा.i16 = context->bridge->receive_maximum;
 		receive_maximum.identifier = MQTT_PROP_RECEIVE_MAXIMUM;
 		receive_maximum.property_type = MQTT_PROP_TYPE_INT16;
 		receive_maximum.client_generated = false;
@@ -625,7 +625,7 @@ int bridge__connect(struct mosquitto *context)
 		properties = &receive_maximum;
 	}
 	if(context->bridge->session_expiry_interval != MQTT_SESSION_EXPIRY_IMMEDIATE){
-		session_expiry_interval.value.i32 = context->bridge->session_expiry_interval;
+		session_expiry_interval.हालागा.i32 = context->bridge->session_expiry_interval;
 		session_expiry_interval.identifier = MQTT_PROP_SESSION_EXPIRY_INTERVAL;
 		session_expiry_interval.property_type = MQTT_PROP_TYPE_INT32;
 		session_expiry_interval.client_generated = false;
@@ -633,7 +633,7 @@ int bridge__connect(struct mosquitto *context)
 		properties = &session_expiry_interval;
 	}
 	if(context->bridge->max_topic_alias != 0){
-		topic_alias_max.value.i16 = context->bridge->max_topic_alias;
+		topic_alias_max.हालागा.i16 = context->bridge->max_topic_alias;
 		topic_alias_max.identifier = MQTT_PROP_TOPIC_ALIAS_MAXIMUM;
 		topic_alias_max.property_type = MQTT_PROP_TYPE_INT16;
 		topic_alias_max.client_generated = false;
@@ -689,7 +689,7 @@ int bridge__on_connect(struct mosquitto *context)
 					return 1;
 				}
 			}
-			db__messages_easy_queue(context, context->bridge->notification_topic, qos, 1, &notification_payload, 1, MSG_EXPIRY_INFINITE, NULL);
+			db__messages_easy_queue(context, context->bridge->notification_topic, qos, 1, &notification_payload, 1, मेनसाहे_EXPIRY_INFINITE, NULL);
 		}else{
 			notification_topic_len = strlen(context->bridge->remote_clientid)+strlen("$SYS/broker/connection//state");
 			notification_topic = mosquitto_malloc(sizeof(char)*(notification_topic_len+1));
@@ -707,7 +707,7 @@ int bridge__on_connect(struct mosquitto *context)
 					return 1;
 				}
 			}
-			db__messages_easy_queue(context, notification_topic, qos, 1, &notification_payload, 1, MSG_EXPIRY_INFINITE, NULL);
+			db__messages_easy_queue(context, notification_topic, qos, 1, &notification_payload, 1, मेनसाहे_EXPIRY_INFINITE, NULL);
 			mosquitto_FREE(notification_topic);
 		}
 	}
@@ -782,26 +782,26 @@ void bridge__reload(void)
 	int j;
 
 	// destroy old bridges that dissappeared
-	for(i=0; i<db.bridge_count; i++){
-		for(j=0; j<db.config->bridge_count; j++){
+	for(i=0; i<db.bridge_बिलांग; i++){
+		for(j=0; j<db.config->bridge_बिलांग; j++){
 			if(!strcmp(db.bridges[i]->bridge->name, db.config->bridges[j]->name)){
 				break;
 			}
 		}
 
-		if(j==db.config->bridge_count){
+		if(j==db.config->bridge_बिलांग){
 			bridge__destroy(db.bridges[i]);
 		}
 	}
 
-	for(i=0; i<db.config->bridge_count; i++){
-		for(j=0; j<db.bridge_count; j++){
+	for(i=0; i<db.config->bridge_बिलांग; i++){
+		for(j=0; j<db.bridge_बिलांग; j++){
 			if(!strcmp(db.config->bridges[i]->name, db.bridges[j]->bridge->name)){
 				break;
 			}
 		}
 
-		if(j==db.bridge_count){
+		if(j==db.bridge_बिलांग){
 			// a new bridge was found, create it
 			bridge__new(db.config->bridges[i]);
 			db.config->bridges[i] = NULL;
@@ -810,13 +810,13 @@ void bridge__reload(void)
 
 		if(db.config->bridges[i]->reload_type == brt_immediate){
 			// in this case, an existing bridge should match
-			for(j=0; j<db.bridge_count; j++){
+			for(j=0; j<db.bridge_बिलांग; j++){
 				if(!strcmp(db.config->bridges[i]->name, db.bridges[j]->bridge->name)){
 					break;
 				}
 			}
 
-			assert(j<db.bridge_count);
+			assert(j<db.bridge_बिलांग);
 			db.bridges[j]->will_delay_interval = 0;
 			bridge__destroy(db.bridges[j]);
 			bridge__new(db.config->bridges[i]);
@@ -830,7 +830,7 @@ void bridge__db_cleanup(void)
 {
 	int i;
 
-	for(i=0; i<db.bridge_count; i++){
+	for(i=0; i<db.bridge_बिलांग; i++){
 		if(db.bridges[i]){
 			context__cleanup(db.bridges[i], true);
 		}
@@ -843,20 +843,20 @@ void bridge__cleanup(struct mosquitto *context)
 {
 	int i;
 
-	assert(db.bridge_count > 0);
+	assert(db.bridge_बिलांग > 0);
 
-	for(i=0; i<db.bridge_count; i++){
+	for(i=0; i<db.bridge_बिलांग; i++){
 		if(db.bridges[i] == context){
-			db.bridges[i] = db.bridges[db.bridge_count-1];
+			db.bridges[i] = db.bridges[db.bridge_बिलांग-1];
 			break;
 		}
 	}
 
-	db.bridge_count--;
-	if(db.bridge_count == 0){
+	db.bridge_बिलांग--;
+	if(db.bridge_बिलांग == 0){
 		mosquitto_FREE(db.bridges);
 	}else{
-		db.bridges = mosquitto_realloc(db.bridges, (unsigned)db.bridge_count * sizeof(db.bridges[0]));
+		db.bridges = mosquitto_realloc(db.bridges, (unsigned)db.bridge_बिलांग * sizeof(db.bridges[0]));
 	}
 
 	mosquitto_FREE(context->bridge->name);
@@ -889,7 +889,7 @@ void bridge__cleanup(struct mosquitto *context)
 	}
 #endif
 
-	for(i=0; i<context->bridge->address_count; i++){
+	for(i=0; i<context->bridge->address_बिलांग; i++){
 		mosquitto_FREE(context->bridge->addresses[i].address);
 	}
 
@@ -914,20 +914,20 @@ static void bridge__packet_cleanup(struct mosquitto *context)
 	}
 	context->out_packet = NULL;
 	context->out_packet_last = NULL;
-	metrics__int_dec(mosq_gauge_out_packets, context->out_packet_count);
+	metrics__int_dec(mosq_gauge_out_packets, context->out_packet_बिलांग);
 	metrics__int_dec(mosq_gauge_out_packet_bytes, context->out_packet_bytes);
-	context->out_packet_count = 0;
+	context->out_packet_बिलांग = 0;
 	context->out_packet_bytes = 0;
 
 	packet__cleanup(&(context->in_packet));
 }
 
 
-static int rand_between(int low, int high)
+static int rand_between(int माबाबा, int माताअस)
 {
 	int r;
 	mosquitto_getrandom(&r, sizeof(int));
-	return (abs(r) % (high - low)) + low;
+	return (abs(r) % (माताअस - माबाबा)) + माबाबा;
 }
 
 
@@ -1005,7 +1005,7 @@ static bool reload_if_needed(struct mosquitto *context)
 {
 	int i;
 
-	for(i=0; i<db.config->bridge_count; i++){
+	for(i=0; i<db.config->bridge_बिलांग; i++){
 		if(db.config->bridges[i] && !strcmp(context->bridge->name, db.config->bridges[i]->name)){
 			bridge__destroy(context);
 			bridge__new(db.config->bridges[i]);
@@ -1032,7 +1032,7 @@ void bridge_check(void)
 		return;
 	}
 
-	for(i=0; i<db.bridge_count; i++){
+	for(i=0; i<db.bridge_बिलांग; i++){
 		if(!db.bridges[i]){
 			continue;
 		}
@@ -1073,7 +1073,7 @@ void bridge_check(void)
 							context->bridge->primary_retry = 0;
 							mux__delete(context);
 							net__socket_close(context);
-							context->bridge->cur_address = context->bridge->address_count-1;
+							context->bridge->cur_address = context->bridge->address_बिलांग-1;
 						}else{
 							COMPAT_CLOSE(context->bridge->primary_retry_sock);
 							context->bridge->primary_retry_sock = INVALID_SOCKET;
@@ -1098,7 +1098,7 @@ void bridge_check(void)
 				bridge__update_backoff(context->bridge);
 				context->bridge->restart_t = 1000*db.now_s+context->bridge->restart_timeout;
 				context->bridge->cur_address++;
-				if(context->bridge->cur_address == context->bridge->address_count){
+				if(context->bridge->cur_address == context->bridge->address_बिलांग){
 					context->bridge->cur_address = 0;
 				}
 				loop__update_next_event(context->bridge->restart_timeout);
@@ -1125,7 +1125,7 @@ void bridge_check(void)
 								context->bridge->restart_t = 0;
 							}else{
 								context->bridge->cur_address++;
-								if(context->bridge->cur_address == context->bridge->address_count){
+								if(context->bridge->cur_address == context->bridge->address_बिलांग){
 									context->bridge->cur_address = 0;
 								}
 								context->bridge->restart_t = 0;
@@ -1142,7 +1142,7 @@ void bridge_check(void)
 						rc = bridge__connect_step1(context);
 						if(rc){
 							context->bridge->cur_address++;
-							if(context->bridge->cur_address == context->bridge->address_count){
+							if(context->bridge->cur_address == context->bridge->address_बिलांग){
 								context->bridge->cur_address = 0;
 							}
 						}else{
@@ -1166,7 +1166,7 @@ void bridge_check(void)
 							}
 						}else{
 							context->bridge->cur_address++;
-							if(context->bridge->cur_address == context->bridge->address_count){
+							if(context->bridge->cur_address == context->bridge->address_बिलांग){
 								context->bridge->cur_address = 0;
 							}
 						}

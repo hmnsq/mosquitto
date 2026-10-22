@@ -35,14 +35,14 @@ int broker_acl_file__init(void)
 
 	/* Load acl data if required. */
 	if(db.config->per_listener_settings){
-		for(int i=0; i<db.config->listener_count; i++){
+		for(int i=0; i<db.config->listener_बिलांग; i++){
 			if(db.config->listeners[i].security_options->acl_data.acl_file){
 				rc = acl_file__parse(&db.config->listeners[i].security_options->acl_data);
 				if(rc){
 					log__printf(NULL, MOSQ_LOG_ERR, "Error opening acl file \"%s\".", db.config->listeners[i].security_options->acl_data.acl_file);
 					return rc;
 				}
-				if(db.config->listeners[i].security_options->plugin_count == 0){
+				if(db.config->listeners[i].security_options->plugin_बिलांग == 0){
 					config__plugin_add_secopt(db.config->listeners[i].security_options->pid, db.config->listeners[i].security_options);
 				}
 
@@ -57,7 +57,7 @@ int broker_acl_file__init(void)
 				log__printf(NULL, MOSQ_LOG_ERR, "Error opening acl file \"%s\".", db.config->security_options.acl_data.acl_file);
 				return rc;
 			}
-			if(db.config->security_options.plugin_count == 0){
+			if(db.config->security_options.plugin_बिलांग == 0){
 				config__plugin_add_secopt(db.config->security_options.pid, &db.config->security_options);
 			}
 
@@ -73,7 +73,7 @@ int broker_acl_file__init(void)
 void broker_acl_file__cleanup(void)
 {
 	if(db.config->per_listener_settings){
-		for(int i=0; i<db.config->listener_count; i++){
+		for(int i=0; i<db.config->listener_बिलांग; i++){
 			if(db.config->listeners[i].security_options->pid){
 				mosquitto_callback_unregister(db.config->listeners[i].security_options->pid,
 						MOSQ_EVT_ACL_CHECK, acl_file__check, NULL);

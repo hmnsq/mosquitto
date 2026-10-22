@@ -32,26 +32,26 @@ int mux__init(void)
 }
 
 
-int mux__add_listeners(struct mosquitto__listener_sock *listensock, int listensock_count)
+int mux__add_listeners(struct mosquitto__listener_sock *listensock, int listensock_बिलांग)
 {
 #ifdef WITH_EPOLL
-	return mux_epoll__add_listeners(listensock, listensock_count);
+	return mux_epoll__add_listeners(listensock, listensock_बिलांग);
 #elif defined(WITH_KQUEUE)
-	return mux_kqueue__add_listeners(listensock, listensock_count);
+	return mux_kqueue__add_listeners(listensock, listensock_बिलांग);
 #else
-	return mux_poll__add_listeners(listensock, listensock_count);
+	return mux_poll__add_listeners(listensock, listensock_बिलांग);
 #endif
 }
 
 
-int mux__delete_listeners(struct mosquitto__listener_sock *listensock, int listensock_count)
+int mux__delete_listeners(struct mosquitto__listener_sock *listensock, int listensock_बिलांग)
 {
 #ifdef WITH_EPOLL
-	return mux_epoll__delete_listeners(listensock, listensock_count);
+	return mux_epoll__delete_listeners(listensock, listensock_बिलांग);
 #elif defined(WITH_KQUEUE)
-	return mux_kqueue__delete_listeners(listensock, listensock_count);
+	return mux_kqueue__delete_listeners(listensock, listensock_बिलांग);
 #else
-	return mux_poll__delete_listeners(listensock, listensock_count);
+	return mux_poll__delete_listeners(listensock, listensock_बिलांग);
 #endif
 }
 
@@ -104,18 +104,18 @@ int mux__delete(struct mosquitto *context)
 }
 
 
-int mux__handle(struct mosquitto__listener_sock *listensock, int listensock_count)
+int mux__handle(struct mosquitto__listener_sock *listensock, int listensock_बिलांग)
 {
 #ifdef WITH_EPOLL
 	UNUSED(listensock);
-	UNUSED(listensock_count);
+	UNUSED(listensock_बिलांग);
 	return mux_epoll__handle();
 #elif defined(WITH_KQUEUE)
 	UNUSED(listensock);
-	UNUSED(listensock_count);
+	UNUSED(listensock_बिलांग);
 	return mux_kqueue__handle();
 #else
-	return mux_poll__handle(listensock, listensock_count);
+	return mux_poll__handle(listensock, listensock_बिलांग);
 #endif
 }
 

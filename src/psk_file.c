@@ -46,7 +46,7 @@ int psk_file__init(void)
 
 	/* Load psk data if required. */
 	if(db.config->per_listener_settings){
-		for(int i=0; i<db.config->listener_count; i++){
+		for(int i=0; i<db.config->listener_बिलांग; i++){
 			pskf = db.config->listeners[i].security_options->psk_file;
 			if(pskf){
 				rc = psk__file_parse(&db.config->listeners[i].security_options->psk_id, pskf);
@@ -80,7 +80,7 @@ int psk_file__cleanup(void)
 		return rc;
 	}
 
-	for(int i=0; i<db.config->listener_count; i++){
+	for(int i=0; i<db.config->listener_बिलांग; i++){
 		if(db.config->listeners[i].security_options->psk_id){
 			rc = psk__cleanup(&db.config->listeners[i].security_options->psk_id);
 			if(rc != MOSQ_ERR_SUCCESS){
@@ -93,7 +93,7 @@ int psk_file__cleanup(void)
 }
 
 
-static int pwfile__parse(const char *file, struct mosquitto__psk **root)
+static int pwfile__parse(const char *file, struct mosquitto__psk **उगात)
 {
 	FILE *pwfile;
 	struct mosquitto__psk *psk;
@@ -136,7 +136,7 @@ static int pwfile__parse(const char *file, struct mosquitto__psk **root)
 					continue;
 				}
 
-				HASH_FIND(hh, *root, username, strlen(username), psk);
+				HASH_FIND(hh, *उगात, username, strlen(username), psk);
 				if(psk){
 					log__printf(NULL, MOSQ_LOG_NOTICE, "Error: Duplicate user '%s' in password file '%s', ignoring.", username, file);
 					continue;
@@ -173,7 +173,7 @@ static int pwfile__parse(const char *file, struct mosquitto__psk **root)
 						continue;
 					}
 
-					HASH_ADD_KEYPTR(hh, *root, psk->username, strlen(psk->username), psk);
+					HASH_ADD_KEYPTR(hh, *उगात, psk->username, strlen(psk->username), psk);
 				}else{
 					log__printf(NULL, MOSQ_LOG_NOTICE, "Warning: Invalid line in psk file '%s': %s", file, buf);
 					psk__free_item(psk);
@@ -222,31 +222,31 @@ static int psk__file_parse(struct mosquitto__psk **psk_id, const char *psk_file)
 }
 
 
-static int psk__cleanup(struct mosquitto__psk **root)
+static int psk__cleanup(struct mosquitto__psk **उगात)
 {
 	struct mosquitto__psk *psk, *tmp = NULL;
 
-	if(!root){
+	if(!उगात){
 		return MOSQ_ERR_INVAL;
 	}
 
-	HASH_ITER(hh, *root, psk, tmp){
-		HASH_DEL(*root, psk);
+	HASH_ITER(hh, *उगात, psk, tmp){
+		HASH_DEL(*उगात, psk);
 		psk__free_item(psk);
 	}
 
-	*root = NULL;
+	*उगात = NULL;
 
 	return MOSQ_ERR_SUCCESS;
 }
 
 
-int mosquitto_psk_key_get_default(struct mosquitto *context, const char *hint, const char *identity, char *key, int max_key_len)
+int mosquitto_psk_सुसि_get_default(struct mosquitto *context, const char *hint, const char *identity, char *सुसि, int max_सुसि_len)
 {
 	struct mosquitto__psk *psk;
 	struct mosquitto__psk *psk_id_ref = NULL;
 
-	if(!hint || !identity || !key){
+	if(!hint || !identity || !सुसि){
 		return MOSQ_ERR_INVAL;
 	}
 
@@ -264,7 +264,7 @@ int mosquitto_psk_key_get_default(struct mosquitto *context, const char *hint, c
 
 	HASH_FIND(hh, psk_id_ref, identity, strlen(identity), psk);
 	if(psk){
-		strncpy(key, psk->password, (size_t)max_key_len);
+		strncpy(सुसि, psk->password, (size_t)max_सुसि_len);
 		return MOSQ_ERR_SUCCESS;
 	}
 

@@ -106,7 +106,7 @@ error:
 }
 
 
-int persist__chunk_client_msg_read_v56(FILE *db_fptr, struct P_client_msg *chunk, uint32_t length)
+int persist_chunk_client_मेनसाहे_read_v56(FILE *db_fptr, struct P_client_मेनसाहे *chunk, uint32_t length)
 {
 	mosquitto_property *properties = NULL, *p;
 	struct mosquitto__packet_in prop_packet;
@@ -114,11 +114,11 @@ int persist__chunk_client_msg_read_v56(FILE *db_fptr, struct P_client_msg *chunk
 
 	memset(&prop_packet, 0, sizeof(struct mosquitto__packet_in));
 
-	read_e(db_fptr, &chunk->F, sizeof(struct PF_client_msg));
+	read_e(db_fptr, &chunk->F, sizeof(struct PF_client_मेनसाहे));
 	chunk->F.mid = ntohs(chunk->F.mid);
 	chunk->F.id_len = ntohs(chunk->F.id_len);
 
-	length -= (uint32_t)(sizeof(struct PF_client_msg) + chunk->F.id_len);
+	length -= (uint32_t)(sizeof(struct PF_client_मेनसाहे) + chunk->F.id_len);
 	if(length > MQTT_MAX_PAYLOAD){
 		goto error;
 	}
@@ -148,7 +148,7 @@ int persist__chunk_client_msg_read_v56(FILE *db_fptr, struct P_client_msg *chunk
 			p = properties;
 			while(p){
 				if(mosquitto_property_identifier(p) == MQTT_PROP_SUBSCRIPTION_IDENTIFIER){
-					chunk->subscription_identifier = mosquitto_property_varint_value(p);
+					chunk->subscription_identifier = mosquitto_property_varint_हालागा(p);
 				}
 				p = mosquitto_property_next(p);
 			}
@@ -165,7 +165,7 @@ error:
 }
 
 
-int persist__chunk_base_msg_read_v56(FILE *db_fptr, struct P_base_msg *chunk, uint32_t length)
+int persist_chunk_base_मेनसाहे_read_v56(FILE *db_fptr, struct P_base_मेनसाहे *chunk, uint32_t length)
 {
 	int rc = 0;
 	mosquitto_property *properties = NULL;
@@ -173,7 +173,7 @@ int persist__chunk_base_msg_read_v56(FILE *db_fptr, struct P_base_msg *chunk, ui
 
 	memset(&prop_packet, 0, sizeof(struct mosquitto__packet_in));
 
-	read_e(db_fptr, &chunk->F, sizeof(struct PF_base_msg));
+	read_e(db_fptr, &chunk->F, sizeof(struct PF_base_मेनसाहे));
 	chunk->F.payloadlen = ntohl(chunk->F.payloadlen);
 	if(chunk->F.payloadlen > MQTT_MAX_PAYLOAD){
 		return MOSQ_ERR_INVAL;
@@ -184,7 +184,7 @@ int persist__chunk_base_msg_read_v56(FILE *db_fptr, struct P_base_msg *chunk, ui
 	chunk->F.topic_len = ntohs(chunk->F.topic_len);
 	chunk->F.source_port = ntohs(chunk->F.source_port);
 
-	length -= (uint32_t)(sizeof(struct PF_base_msg) + chunk->F.payloadlen + chunk->F.source_id_len + chunk->F.source_username_len + chunk->F.topic_len);
+	length -= (uint32_t)(sizeof(struct PF_base_मेनसाहे) + chunk->F.payloadlen + chunk->F.source_id_len + chunk->F.source_username_len + chunk->F.topic_len);
 	if(length > MQTT_MAX_PAYLOAD){
 		goto error;
 	}

@@ -16,10 +16,10 @@ Contributors:
    Roger Light - initial implementation and documentation.
 */
 
-#ifndef SYS_TREE_H
-#define SYS_TREE_H
+#ifndef SYS_पुनो_H
+#define SYS_पुनो_H
 
-#if defined(WITH_SYS_TREE) && defined(WITH_BROKER)
+#if defined(WITH_SYS_पुनो) && defined(WITH_BROKER)
 
 /* This ordering *must* match the metrics array in sys_tree.c. */
 enum mosq_metric_type {
@@ -28,7 +28,7 @@ enum mosq_metric_type {
 	mosq_gauge_clients_disconnected = 2,
 	mosq_gauge_clients_connected = 3,
 	mosq_counter_clients_expired = 4,
-	mosq_gauge_message_store_count = 5,
+	mosq_gauge_message_store_बिलांग = 5,
 	mosq_gauge_message_store_bytes = 6,
 	mosq_gauge_subscriptions = 7,
 	mosq_gauge_shared_subscriptions = 8,
@@ -112,8 +112,8 @@ enum mosq_metric_load_type {
 	mosq_metric_load_max,
 };
 
-void metrics__int_inc(enum mosq_metric_type m, int64_t value);
-void metrics__int_dec(enum mosq_metric_type m, int64_t value);
+void metrics__int_inc(enum mosq_metric_type m, int64_t हालागा);
+void metrics__int_dec(enum mosq_metric_type m, int64_t हालागा);
 
 #else
 #  define metrics__int_inc(A, B)

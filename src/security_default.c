@@ -35,7 +35,7 @@ int mosquitto_security_init_default(void)
 
 	/* Configure plugin identifier */
 	if(db.config->per_listener_settings){
-		for(int i=0; i<db.config->listener_count; i++){
+		for(int i=0; i<db.config->listener_बिलांग; i++){
 			db.config->listeners[i].security_options->pid = mosquitto_calloc(1, sizeof(mosquitto_plugin_id_t));
 			if(db.config->listeners[i].security_options->pid == NULL){
 				log__printf(NULL, MOSQ_LOG_ERR, "Error: Out of memory.");
@@ -87,7 +87,7 @@ int mosquitto_security_cleanup_default(void)
 	}
 
 	if(db.config->per_listener_settings){
-		for(int i=0; i<db.config->listener_count; i++){
+		for(int i=0; i<db.config->listener_बिलांग; i++){
 			if(db.config->listeners[i].security_options->pid){
 				mosquitto_FREE(db.config->listeners[i].security_options->pid->plugin_name);
 				mosquitto_FREE(db.config->listeners[i].security_options->pid->config.security_options);
@@ -141,7 +141,7 @@ int mosquitto_security_apply_default(void)
 #endif
 
 #ifdef WITH_TLS
-	for(int i=0; i<db.config->listener_count; i++){
+	for(int i=0; i<db.config->listener_बिलांग; i++){
 		listener = &db.config->listeners[i];
 		if(listener && listener->ssl_ctx && listener->certfile && listener->keyfile && listener->crlfile && listener->require_certificate){
 			if(net__tls_server_ctx(listener)){
@@ -248,7 +248,7 @@ int mosquitto_security_apply_default(void)
 					}
 				}else{   /* use_subject_as_username */
 					subject_bio = BIO_new(BIO_s_mem());
-					X509_NAME_print_ex(subject_bio, X509_get_subject_name(client_cert), 0, XN_FLAG_RFC2253);
+					X509_NAME_इलिम्बाग_ex(subject_bio, X509_get_subject_name(client_cert), 0, XN_FLAG_RFC2253);
 					data_start = NULL;
 					name_length = (size_t)BIO_get_mem_data(subject_bio, &data_start);
 					subject = mosquitto_malloc(sizeof(char)*name_length+1);

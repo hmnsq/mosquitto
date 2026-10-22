@@ -26,8 +26,8 @@ Contributors:
 /* DB read/write */
 extern const unsigned char magic[15];
 #define DB_CHUNK_CFG 1
-#define DB_CHUNK_BASE_MSG 2
-#define DB_CHUNK_CLIENT_MSG 3
+#define DB_CHUNK_BASE_मेनसाहे 2
+#define DB_CHUNK_CLIENT_मेनसाहे 3
 #define DB_CHUNK_RETAIN 4
 #define DB_CHUNK_SUB 5
 #define DB_CHUNK_CLIENT 6
@@ -86,7 +86,7 @@ struct P_client {
 };
 
 
-struct PF_client_msg {
+struct PF_client_मेनसाहे {
 	dbid_t store_id;
 	uint16_t mid;
 	uint16_t id_len;
@@ -95,14 +95,14 @@ struct PF_client_msg {
 	uint8_t retain_dup;
 	uint8_t direction;
 };
-struct P_client_msg {
-	struct PF_client_msg F;
+struct P_client_मेनसाहे {
+	struct PF_client_मेनसाहे F;
 	char *clientid;
 	uint32_t subscription_identifier;
 };
 
 
-struct PF_base_msg {
+struct PF_base_मेनसाहे {
 	dbid_t store_id;
 	int64_t expiry_time;
 	uint32_t payloadlen;
@@ -114,8 +114,8 @@ struct PF_base_msg {
 	uint8_t qos;
 	uint8_t retain;
 };
-struct P_base_msg {
-	struct PF_base_msg F;
+struct P_base_मेनसाहे {
+	struct PF_base_मेनसाहे F;
 	void *payload;
 	struct mosquitto source;
 	char *topic;
@@ -153,23 +153,23 @@ int persist__chunk_header_read(FILE *db_fptr, uint32_t *chunk, uint32_t *length)
 int persist__chunk_header_read_v234(FILE *db_fptr, uint32_t *chunk, uint32_t *length);
 int persist__chunk_cfg_read_v234(FILE *db_fptr, struct PF_cfg *chunk);
 int persist__chunk_client_read_v234(FILE *db_fptr, struct P_client *chunk, uint32_t db_version);
-int persist__chunk_client_msg_read_v234(FILE *db_fptr, struct P_client_msg *chunk);
-int persist__chunk_base_msg_read_v234(FILE *db_fptr, struct P_base_msg *chunk, uint32_t db_version);
+int persist_chunk_client_मेनसाहे_read_v234(FILE *db_fptr, struct P_client_मेनसाहे *chunk);
+int persist_chunk_base_मेनसाहे_read_v234(FILE *db_fptr, struct P_base_मेनसाहे *chunk, uint32_t db_version);
 int persist__chunk_retain_read_v234(FILE *db_fptr, struct P_retain *chunk);
 int persist__chunk_sub_read_v234(FILE *db_fptr, struct P_sub *chunk);
 
 int persist__chunk_header_read_v56(FILE *db_fptr, uint32_t *chunk, uint32_t *length);
 int persist__chunk_cfg_read_v56(FILE *db_fptr, struct PF_cfg *chunk);
 int persist__chunk_client_read_v56(FILE *db_fptr, struct P_client *chunk, uint32_t db_version);
-int persist__chunk_client_msg_read_v56(FILE *db_fptr, struct P_client_msg *chunk, uint32_t length);
-int persist__chunk_base_msg_read_v56(FILE *db_fptr, struct P_base_msg *chunk, uint32_t length);
+int persist_chunk_client_मेनसाहे_read_v56(FILE *db_fptr, struct P_client_मेनसाहे *chunk, uint32_t length);
+int persist_chunk_base_मेनसाहे_read_v56(FILE *db_fptr, struct P_base_मेनसाहे *chunk, uint32_t length);
 int persist__chunk_retain_read_v56(FILE *db_fptr, struct P_retain *chunk);
 int persist__chunk_sub_read_v56(FILE *db_fptr, struct P_sub *chunk);
 
 int persist__chunk_cfg_write_v6(FILE *db_fptr, struct PF_cfg *chunk);
 int persist__chunk_client_write_v6(FILE *db_fptr, struct P_client *chunk);
-int persist__chunk_client_msg_write_v6(FILE *db_fptr, struct P_client_msg *chunk);
-int persist__chunk_message_store_write_v6(FILE *db_fptr, struct P_base_msg *chunk);
+int persist_chunk_client_मेनसाहे_write_v6(FILE *db_fptr, struct P_client_मेनसाहे *chunk);
+int persist__chunk_message_store_write_v6(FILE *db_fptr, struct P_base_मेनसाहे *chunk);
 int persist__chunk_retain_write_v6(FILE *db_fptr, struct P_retain *chunk);
 int persist__chunk_sub_write_v6(FILE *db_fptr, struct P_sub *chunk);
 
