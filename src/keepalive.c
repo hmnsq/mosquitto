@@ -16,10 +16,10 @@ Contributors:
    Roger Light - initial implementation and documentation.
 */
 
-#include "config.h"
-#include <time.h>
-#include "mosquitto_broker_internal.h"
-#include <utlist.h>
+#அந்தர்பாவ "config.h"
+#அந்தர்பாவ <time.h>
+#அந்தர்பாவ "mosquitto_broker_internal.h"
+#அந்தர்பாவ <utlist.h>
 
 
 /* This contains code for checking whether clients have exceeded their keepalive timeouts.
@@ -57,117 +57,117 @@ Contributors:
  * problem for you please get in touch.
  */
 
-static time_t last_keepalive_check = 0;
+நிலையான time_t last_keepalive_check = 0;
 #ifndef WITH_OLD_KEEPALIVE
-static int keepalive_list_max = 0;
-static struct mosquitto **keepalive_list = NULL;
+நிலையான முழு keepalive_list_max = 0;
+நிலையான கட்டமைப்பு mosquitto **keepalive_list = வெற்று;
 #endif
 
 #ifndef WITH_OLD_KEEPALIVE
 
 
-static int calc_index(struct mosquitto *context)
+நிலையான முழு calc_index(கட்டமைப்பு mosquitto *context)
 {
-	return (int)(context->last_msg_in + context->keepalive*3/2) % keepalive_list_max;
+	திரும்பு (முழு)(context->last_செய்தி_in + context->keepalive*3/2) % keepalive_list_max;
 }
 #endif
 
 
-int keepalive__init(void)
+முழு keepalive__init(வெறுமை)
 {
 #ifndef WITH_OLD_KEEPALIVE
-	struct mosquitto *context, *ctxt_tmp;
+	கட்டமைப்பு mosquitto *context, *ctxt_tmp;
 
-	if(db.config->max_keepalive <= 0){
+	எனில்(db.config->max_keepalive <= 0){
 		keepalive_list_max = (UINT16_MAX * 3)/2 + 1;
-	}else{
+	}இல்லையெனில்{
 		keepalive_list_max = (db.config->max_keepalive * 3)/2 + 1;
 	}
-	keepalive_list = mosquitto_calloc((size_t)keepalive_list_max, sizeof(struct mosquitto *));
-	if(keepalive_list == NULL){
-		log__printf(NULL, MOSQ_LOG_ERR, "Error: Out of memory.");
+	keepalive_list = mosquitto_calloc((size_t)keepalive_list_max, அளவு(கட்டமைப்பு mosquitto *));
+	எனில்(keepalive_list == வெற்று){
+		log__printf(வெற்று, MOSQ_LOG_ERR, "Error: Out of memory.");
 		keepalive_list_max = 0;
-		return MOSQ_ERR_NOMEM;
+		திரும்பு MOSQ_ERR_NOMEM;
 	}
 
 	/* Add existing clients - should only be applicable on MOSQ_EVT_RELOAD */
 	HASH_ITER(hh_sock, db.contexts_by_sock, context, ctxt_tmp){
-		if(net__is_connected(context) && !context->bridge && context->keepalive > 0){
+		எனில்(net__is_connected(context) && !context->bridge && context->keepalive > 0){
 			keepalive__add(context);
 		}
 	}
 #endif
 	last_keepalive_check = db.now_s;
-	return MOSQ_ERR_SUCCESS;
+	திரும்பு MOSQ_ERR_SUCCESS;
 }
 
 
-void keepalive__cleanup(void)
+வெறுமை keepalive__cleanup(வெறுமை)
 {
 #ifndef WITH_OLD_KEEPALIVE
-	for(int idx=0; idx<keepalive_list_max; idx++){
-		struct mosquitto *context, *ctxt_tmp;
+	க்கு(முழு idx=0; idx<keepalive_list_max; idx++){
+		கட்டமைப்பு mosquitto *context, *ctxt_tmp;
 		DL_FOREACH_SAFE2(keepalive_list[idx], context, ctxt_tmp, keepalive_next){
 			DL_DELETE2(keepalive_list[idx], context, keepalive_prev, keepalive_next);
 		}
 	}
 	mosquitto_free(keepalive_list);
-	keepalive_list = NULL;
+	keepalive_list = வெற்று;
 	keepalive_list_max = 0;
 #endif
 }
 
 
-int keepalive__add(struct mosquitto *context)
+முழு keepalive__add(கட்டமைப்பு mosquitto *context)
 {
 #ifndef WITH_OLD_KEEPALIVE
-	if(context->keepalive <= 0 || !net__is_connected(context)){
-		return MOSQ_ERR_SUCCESS;
+	எனில்(context->keepalive <= 0 || !net__is_connected(context)){
+		திரும்பு MOSQ_ERR_SUCCESS;
 	}
 #ifdef WITH_BRIDGE
-	if(context->bridge){
-		return MOSQ_ERR_SUCCESS;
+	எனில்(context->bridge){
+		திரும்பு MOSQ_ERR_SUCCESS;
 	}
 #endif
 
 	DL_APPEND2(keepalive_list[calc_index(context)], context, keepalive_prev, keepalive_next);
 	context->keepalive_add_time = db.now_s;
-#else
+#இல்லையெனில்
 	UNUSED(context);
 #endif
-	return MOSQ_ERR_SUCCESS;
+	திரும்பு MOSQ_ERR_SUCCESS;
 }
 
 
 #ifndef WITH_OLD_KEEPALIVE
 
 
-void keepalive__check(void)
+வெறுமை keepalive__check(வெறுமை)
 {
-	struct mosquitto *context, *ctxt_tmp;
+	கட்டமைப்பு mosquitto *context, *ctxt_tmp;
 	time_t timeout;
 
-	if(db.contexts_by_sock){
+	எனில்(db.contexts_by_sock){
 		/* Check the next 5 seconds for upcoming expiries */
 		/* FIXME - find the actual next entry without having to iterate over
 		 * the whole list */
 		timeout = 5;
-		for(time_t i=5; i>0; i--){
-			if(keepalive_list[(db.now_s + i) % keepalive_list_max]){
+		க்கு(time_t i=5; i>0; i--){
+			எனில்(keepalive_list[(db.now_s + i) % keepalive_list_max]){
 				timeout = i;
 			}
 		}
 		loop__update_next_event(timeout*1000);
 	}
-	for(time_t i=last_keepalive_check; i<db.now_s; i++){
-		int idx = (int)(i % keepalive_list_max);
-		if(keepalive_list[idx]){
+	க்கு(time_t i=last_keepalive_check; i<db.now_s; i++){
+		முழு idx = (முழு)(i % keepalive_list_max);
+		எனில்(keepalive_list[idx]){
 			DL_FOREACH_SAFE2(keepalive_list[idx], context, ctxt_tmp, keepalive_next){
 				/* keepalive_add_time lets us account for the client adding itself to the keepalive
 				 * list when its last_msg_in value is greater than the last_keepalive_check.
 				 * Without this, the client would be expired if it has keepalive == max_keepalive.
 				 */
-				if(context->keepalive_add_time <= last_keepalive_check && net__is_connected(context)){
+				எனில்(context->keepalive_add_time <= last_keepalive_check && net__is_connected(context)){
 					/* Client has exceeded keepalive*1.5 */
 					do_disconnect(context, MOSQ_ERR_KEEPALIVE);
 				}
@@ -177,32 +177,32 @@ void keepalive__check(void)
 
 	last_keepalive_check = db.now_s;
 }
-#else
+#இல்லையெனில்
 
 
-void keepalive__check(void)
+வெறுமை keepalive__check(வெறுமை)
 {
-	struct mosquitto *context, *ctxt_tmp;
+	கட்டமைப்பு mosquitto *context, *ctxt_tmp;
 	time_t timeout;
 
-	if(db.contexts_by_sock){
+	எனில்(db.contexts_by_sock){
 		timeout = (last_keepalive_check + 5 - db.now_s);
-		if(timeout <= 0){
+		எனில்(timeout <= 0){
 			timeout = 5;
 		}
 		loop__update_next_event(timeout*1000);
 	}
-	if(last_keepalive_check + 5 <= db.now_s){
+	எனில்(last_keepalive_check + 5 <= db.now_s){
 		last_keepalive_check = db.now_s;
 
 		HASH_ITER(hh_sock, db.contexts_by_sock, context, ctxt_tmp){
-			if(net__is_connected(context)){
+			எனில்(net__is_connected(context)){
 				/* Local bridges never time out in this fashion. */
-				if(!(context->keepalive)
+				எனில்(!(context->keepalive)
 						|| context->bridge
-						|| db.now_s - context->last_msg_in <= (time_t)(context->keepalive)*3/2){
+						|| db.now_s - context->last_செய்தி_in <= (time_t)(context->keepalive)*3/2){
 
-				}else{
+				}இல்லையெனில்{
 					/* Client has exceeded keepalive*1.5 */
 					do_disconnect(context, MOSQ_ERR_KEEPALIVE);
 				}
@@ -213,37 +213,37 @@ void keepalive__check(void)
 #endif
 
 
-int keepalive__remove(struct mosquitto *context)
+முழு keepalive__remove(கட்டமைப்பு mosquitto *context)
 {
 #ifndef WITH_OLD_KEEPALIVE
-	int idx;
+	முழு idx;
 
-	if(context->keepalive <= 0 || context->keepalive_prev == NULL){
-		return MOSQ_ERR_SUCCESS;
+	எனில்(context->keepalive <= 0 || context->keepalive_prev == வெற்று){
+		திரும்பு MOSQ_ERR_SUCCESS;
 	}
 
 	idx = calc_index(context);
-	if(keepalive_list[idx]){
+	எனில்(keepalive_list[idx]){
 		DL_DELETE2(keepalive_list[idx], context, keepalive_prev, keepalive_next);
-		context->keepalive_next = NULL;
-		context->keepalive_prev = NULL;
+		context->keepalive_next = வெற்று;
+		context->keepalive_prev = வெற்று;
 	}
-#else
+#இல்லையெனில்
 	UNUSED(context);
 #endif
-	return MOSQ_ERR_SUCCESS;
+	திரும்பு MOSQ_ERR_SUCCESS;
 }
 
 
-int keepalive__update(struct mosquitto *context)
+முழு keepalive__update(கட்டமைப்பு mosquitto *context)
 {
 #ifndef WITH_OLD_KEEPALIVE
 	keepalive__remove(context);
 	/* coverity[missing_lock] - broker is single threaded, so no lock required */
-	context->last_msg_in = db.now_s;
+	context->last_செய்தி_in = db.now_s;
 	keepalive__add(context);
-#else
+#இல்லையெனில்
 	UNUSED(context);
 #endif
-	return MOSQ_ERR_SUCCESS;
+	திரும்பு MOSQ_ERR_SUCCESS;
 }

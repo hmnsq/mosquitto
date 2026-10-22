@@ -16,22 +16,22 @@ Contributors:
    Roger Light - initial implementation and documentation.
 */
 
-#include "config.h"
+#அந்தர்பாவ "config.h"
 
-#include "mosquitto_broker_internal.h"
-#include "utlist.h"
+#அந்தர்பாவ "mosquitto_broker_internal.h"
+#அந்தர்பாவ "utlist.h"
 
 
-static void plugin__handle_disconnect_single(struct mosquitto__security_options *opts, struct mosquitto *context, int reason)
+நிலையான வெறுமை plugin__handle_disconnect_single(கட்டமைப்பு mosquitto__security_options *opts, கட்டமைப்பு mosquitto *context, முழு reason)
 {
-	struct mosquitto_evt_disconnect event_data;
-	struct mosquitto__callback *cb_base, *cb_next;
+	கட்டமைப்பு mosquitto_evt_disconnect event_data;
+	கட்டமைப்பு mosquitto__callback *cb_base, *cb_next;
 
-	if(context->id == NULL){
-		return;
+	எனில்(context->id == வெற்று){
+		திரும்பு;
 	}
 
-	memset(&event_data, 0, sizeof(event_data));
+	memset(&event_data, 0, அளவு(event_data));
 	event_data.client = context;
 	event_data.reason = reason;
 	DL_FOREACH_SAFE(opts->plugin_callbacks.disconnect, cb_base, cb_next){
@@ -40,13 +40,13 @@ static void plugin__handle_disconnect_single(struct mosquitto__security_options 
 }
 
 
-void plugin__handle_disconnect(struct mosquitto *context, int reason)
+வெறுமை plugin__handle_disconnect(கட்டமைப்பு mosquitto *context, முழு reason)
 {
 	/* Global plugins */
 	plugin__handle_disconnect_single(&db.config->security_options, context, reason);
 
 	/* Per listener plugins */
-	if(context->listener){
+	எனில்(context->listener){
 		plugin__handle_disconnect_single(context->listener->security_options, context, reason);
 	}
 }

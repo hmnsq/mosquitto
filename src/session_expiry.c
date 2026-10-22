@@ -16,44 +16,44 @@ Contributors:
    Roger Light - initial implementation and documentation.
 */
 
-#include "config.h"
+#அந்தர்பாவ "config.h"
 
-#include <math.h>
-#include <stdio.h>
-#include <utlist.h>
+#அந்தர்பாவ <math.h>
+#அந்தர்பாவ <stdio.h>
+#அந்தர்பாவ <utlist.h>
 
-#include "mosquitto_broker_internal.h"
-#include "sys_tree.h"
+#அந்தர்பாவ "mosquitto_broker_internal.h"
+#அந்தர்பாவ "sys_tree.h"
 
-static struct session_expiry_list *expiry_list = NULL;
-static time_t last_check = 0;
+நிலையான கட்டமைப்பு session_expiry_list *expiry_list = வெற்று;
+நிலையான time_t last_check = 0;
 
 
-static int session_expiry__cmp(struct session_expiry_list *i1, struct session_expiry_list *i2)
+நிலையான முழு session_expiry__cmp(கட்டமைப்பு session_expiry_list *i1, கட்டமைப்பு session_expiry_list *i2)
 {
-	if(i1->context->session_expiry_time == i2->context->session_expiry_time){
-		return 0;
-	}else if(i1->context->session_expiry_time > i2->context->session_expiry_time){
-		return 1;
-	}else{
-		return -1;
+	எனில்(i1->context->session_expiry_time == i2->context->session_expiry_time){
+		திரும்பு 0;
+	}இல்லையெனில் எனில்(i1->context->session_expiry_time > i2->context->session_expiry_time){
+		திரும்பு 1;
+	}இல்லையெனில்{
+		திரும்பு -1;
 	}
 }
 
 
-static void set_session_expiry_time(struct mosquitto *context)
+நிலையான வெறுமை set_session_expiry_time(கட்டமைப்பு mosquitto *context)
 {
 	context->session_expiry_time = db.now_real_s;
 
-	if(db.config->persistent_client_expiration == 0){
+	எனில்(db.config->persistent_client_expiration == 0){
 		/* No global expiry, so use the client expiration interval */
 		context->session_expiry_time += context->session_expiry_interval;
-	}else{
+	}இல்லையெனில்{
 		/* We have a global expiry interval */
-		if(db.config->persistent_client_expiration < context->session_expiry_interval){
+		எனில்(db.config->persistent_client_expiration < context->session_expiry_interval){
 			/* The client expiry is longer than the global expiry, so use the global */
 			context->session_expiry_time += db.config->persistent_client_expiration;
-		}else{
+		}இல்லையெனில்{
 			/* The global expiry is longer than the client expiry, so use the client */
 			context->session_expiry_time += context->session_expiry_interval;
 		}
@@ -61,85 +61,85 @@ static void set_session_expiry_time(struct mosquitto *context)
 }
 
 
-int session_expiry__add(struct mosquitto *context)
+முழு session_expiry__add(கட்டமைப்பு mosquitto *context)
 {
-	struct session_expiry_list *item;
+	கட்டமைப்பு session_expiry_list *item;
 
-	if(context->expiry_list_item){
+	எனில்(context->expiry_list_item){
 		/* Already added, may happen in cases like a client disconnecting then
 		 * being kicked by a plugin. */
-		return MOSQ_ERR_SUCCESS;
+		திரும்பு MOSQ_ERR_SUCCESS;
 	}
 
-	if(db.config->persistent_client_expiration == 0){
-		if(context->session_expiry_interval == MQTT_SESSION_EXPIRY_NEVER){
+	எனில்(db.config->persistent_client_expiration == 0){
+		எனில்(context->session_expiry_interval == MQTT_SESSION_EXPIRY_NEVER){
 			/* There isn't a global expiry set, and the client has asked to
 			 * never expire, so we don't add it to the list. */
-			return MOSQ_ERR_SUCCESS;
+			திரும்பு MOSQ_ERR_SUCCESS;
 		}
 	}
 
-	item = mosquitto_calloc(1, sizeof(struct session_expiry_list));
-	if(!item){
-		return MOSQ_ERR_NOMEM;
+	item = mosquitto_calloc(1, அளவு(கட்டமைப்பு session_expiry_list));
+	எனில்(!item){
+		திரும்பு MOSQ_ERR_NOMEM;
 	}
 
 	item->context = context;
 	set_session_expiry_time(item->context);
 	context->expiry_list_item = item;
 
-	DL_INSERT_INORDER(expiry_list, item, session_expiry__cmp);
+	DL_செருகு_இடைவரிசை(expiry_list, item, session_expiry__cmp);
 
 	plugin_persist__handle_client_update(context);
 
-	return MOSQ_ERR_SUCCESS;
+	திரும்பு MOSQ_ERR_SUCCESS;
 }
 
 
-int session_expiry__add_from_persistence(struct mosquitto *context, time_t expiry_time)
+முழு session_expiry__add_from_persistence(கட்டமைப்பு mosquitto *context, time_t expiry_time)
 {
-	struct session_expiry_list *item;
+	கட்டமைப்பு session_expiry_list *item;
 
-	if(context->expiry_list_item){
+	எனில்(context->expiry_list_item){
 		/* Already added, may happen in cases like a client disconnecting then
 		 * being kicked by a plugin. */
-		return MOSQ_ERR_SUCCESS;
+		திரும்பு MOSQ_ERR_SUCCESS;
 	}
 
-	if(db.config->persistent_client_expiration == 0){
-		if(context->session_expiry_interval == MQTT_SESSION_EXPIRY_NEVER){
+	எனில்(db.config->persistent_client_expiration == 0){
+		எனில்(context->session_expiry_interval == MQTT_SESSION_EXPIRY_NEVER){
 			/* There isn't a global expiry set, and the client has asked to
 			 * never expire, so we don't add it to the list. */
-			return MOSQ_ERR_SUCCESS;
+			திரும்பு MOSQ_ERR_SUCCESS;
 		}
 	}
 
-	item = mosquitto_calloc(1, sizeof(struct session_expiry_list));
-	if(!item){
-		return MOSQ_ERR_NOMEM;
+	item = mosquitto_calloc(1, அளவு(கட்டமைப்பு session_expiry_list));
+	எனில்(!item){
+		திரும்பு MOSQ_ERR_NOMEM;
 	}
 
 	item->context = context;
-	if(expiry_time){
+	எனில்(expiry_time){
 		item->context->session_expiry_time = expiry_time;
-	}else{
+	}இல்லையெனில்{
 		set_session_expiry_time(item->context);
 
 	}
 	context->expiry_list_item = item;
 
-	DL_INSERT_INORDER(expiry_list, item, session_expiry__cmp);
+	DL_செருகு_இடைவரிசை(expiry_list, item, session_expiry__cmp);
 
-	return MOSQ_ERR_SUCCESS;
+	திரும்பு MOSQ_ERR_SUCCESS;
 }
 
 
-void session_expiry__add_on_shutdown(void)
+வெறுமை session_expiry__add_on_shutdown(வெறுமை)
 {
-	struct mosquitto *ctxt, *ctxt_tmp;
+	கட்டமைப்பு mosquitto *ctxt, *ctxt_tmp;
 
 	HASH_ITER(hh_id, db.contexts_by_id, ctxt, ctxt_tmp){
-		if(ctxt->bridge == NULL
+		எனில்(ctxt->bridge == வெற்று
 				&& ctxt->is_persisted
 				&& ctxt->session_expiry_interval != MQTT_SESSION_EXPIRY_IMMEDIATE
 				){
@@ -150,9 +150,9 @@ void session_expiry__add_on_shutdown(void)
 }
 
 
-void session_expiry__remove(struct mosquitto *context)
+வெறுமை session_expiry__remove(கட்டமைப்பு mosquitto *context)
 {
-	if(context->expiry_list_item){
+	எனில்(context->expiry_list_item){
 		DL_DELETE(expiry_list, context->expiry_list_item);
 		mosquitto_FREE(context->expiry_list_item);
 	}
@@ -160,10 +160,10 @@ void session_expiry__remove(struct mosquitto *context)
 
 
 /* Call on broker shutdown only */
-void session_expiry__remove_all(void)
+வெறுமை session_expiry__remove_all(வெறுமை)
 {
-	struct session_expiry_list *item, *tmp;
-	struct mosquitto *context;
+	கட்டமைப்பு session_expiry_list *item, *tmp;
+	கட்டமைப்பு mosquitto *context;
 
 	DL_FOREACH_SAFE(expiry_list, item, tmp){
 		context = item->context;
@@ -176,35 +176,35 @@ void session_expiry__remove_all(void)
 }
 
 
-void session_expiry__check(void)
+வெறுமை session_expiry__check(வெறுமை)
 {
-	struct session_expiry_list *item, *tmp;
-	struct mosquitto *context;
+	கட்டமைப்பு session_expiry_list *item, *tmp;
+	கட்டமைப்பு mosquitto *context;
 	time_t timeout;
 
-	if(last_check != 0 && db.now_real_s <= last_check){
-		if(expiry_list){
+	எனில்(last_check != 0 && db.now_real_s <= last_check){
+		எனில்(expiry_list){
 			/* Next event is the first item of the list, we must set the timeout even if we aren't
 			 * checking the full list */
 			timeout = (expiry_list->context->session_expiry_time - db.now_real_s) * 1000;
-			if(timeout <= 0){
+			எனில்(timeout <= 0){
 				timeout = 100;
 			}
 			loop__update_next_event(timeout);
 		}
-		return;
+		திரும்பு;
 	}
 
 	last_check = db.now_real_s;
 
 	DL_FOREACH_SAFE(expiry_list, item, tmp){
-		if(item->context->session_expiry_time < db.now_real_s){
+		எனில்(item->context->session_expiry_time < db.now_real_s){
 
 			context = item->context;
 			session_expiry__remove(context);
 
-			if(context->id){
-				log__printf(NULL, MOSQ_LOG_NOTICE, "Expiring client %s due to timeout.", context->id);
+			எனில்(context->id){
+				log__printf(வெற்று, MOSQ_LOG_NOTICE, "Expiring client %s due to timeout.", context->id);
 			}
 			metrics__int_inc(mosq_counter_clients_expired, 1);
 
@@ -216,13 +216,13 @@ void session_expiry__check(void)
 			context__send_will(context);
 			plugin_persist__handle_client_delete(context);
 			context__add_to_disused(context);
-		}else{
+		}இல்லையெனில்{
 			timeout = (item->context->session_expiry_time - db.now_real_s + 1) * 1000;
-			if(timeout <= 0){
+			எனில்(timeout <= 0){
 				timeout = 100;
 			}
 			loop__update_next_event(timeout);
-			return;
+			திரும்பு;
 		}
 	}
 }

@@ -17,54 +17,54 @@ Contributors:
    Roger Light - initial implementation and documentation.
 */
 
-#include "config.h"
+#அந்தர்பாவ "config.h"
 
-#include "mosquitto_broker_internal.h"
-#include "utlist.h"
+#அந்தர்பாவ "mosquitto_broker_internal.h"
+#அந்தர்பாவ "utlist.h"
 
 
-static int plugin__handle_unsubscribe_single(struct mosquitto__security_options *opts, struct mosquitto *context, struct mosquitto_subscription *sub)
+நிலையான முழு plugin__handle_unsubscribe_single(கட்டமைப்பு mosquitto__security_options *opts, கட்டமைப்பு mosquitto *context, கட்டமைப்பு mosquitto_subscription *sub)
 {
-	struct mosquitto_evt_unsubscribe event_data;
-	struct mosquitto__callback *cb_base, *cb_next;
-	int rc = MOSQ_ERR_SUCCESS;
+	கட்டமைப்பு mosquitto_evt_unsubscribe event_data;
+	கட்டமைப்பு mosquitto__callback *cb_base, *cb_next;
+	முழு rc = MOSQ_ERR_SUCCESS;
 
-	memset(&event_data, 0, sizeof(event_data));
+	memset(&event_data, 0, அளவு(event_data));
 	event_data.client = context;
 	event_data.data.topic_filter = sub->topic_filter;
 	event_data.data.properties = sub->properties;
 
 	DL_FOREACH_SAFE(opts->plugin_callbacks.unsubscribe, cb_base, cb_next){
 		rc = cb_base->cb(MOSQ_EVT_UNSUBSCRIBE, &event_data, cb_base->userdata);
-		if(rc != MOSQ_ERR_SUCCESS){
-			break;
+		எனில்(rc != MOSQ_ERR_SUCCESS){
+			நிறுத்து;
 		}
 
-		if(sub->topic_filter != event_data.data.topic_filter){
+		எனில்(sub->topic_filter != event_data.data.topic_filter){
 			mosquitto_free(sub->topic_filter);
 			sub->topic_filter = event_data.data.topic_filter;
 		}
 	}
 
-	return rc;
+	திரும்பு rc;
 }
 
 
-int plugin__handle_unsubscribe(struct mosquitto *context, struct mosquitto_subscription *sub)
+முழு plugin__handle_unsubscribe(கட்டமைப்பு mosquitto *context, கட்டமைப்பு mosquitto_subscription *sub)
 {
-	int rc = MOSQ_ERR_SUCCESS;
+	முழு rc = MOSQ_ERR_SUCCESS;
 
 	/* Global plugins */
 	rc = plugin__handle_unsubscribe_single(&db.config->security_options,
 			context, sub);
-	if(rc){
-		return rc;
+	எனில்(rc){
+		திரும்பு rc;
 	}
 
-	if(context->listener){
+	எனில்(context->listener){
 		rc = plugin__handle_unsubscribe_single(context->listener->security_options,
 				context, sub);
 	}
 
-	return rc;
+	திரும்பு rc;
 }

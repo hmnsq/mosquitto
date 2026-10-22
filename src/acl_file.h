@@ -18,35 +18,35 @@ Contributors:
 #ifndef ACL_FILE_H
 #define ACL_FILE_H
 
-#include <uthash.h>
+#அந்தர்பாவ <uthash.h>
 
-struct acl__entry {
-	struct acl__entry *next, *prev;
-	char *topic;
-	int access;
-	int ucount;
-	int ccount;
+கட்டமைப்பு acl__entry {
+	கட்டமைப்பு acl__entry *next, *prev;
+	எழுத்து *topic;
+	முழு access;
+	முழு ucount;
+	முழு ccount;
 };
 
 
-struct acl__user {
+கட்டமைப்பு acl__user {
 	UT_hash_handle hh;
-	char *username;
-	struct acl__entry *acl;
+	எழுத்து *username;
+	கட்டமைப்பு acl__entry *acl;
 };
 
 
-struct acl_file_data {
-	char *acl_file;
-	struct acl__user *acl_users;
-	struct acl__user acl_anon;
-	struct acl__entry *acl_patterns;
+கட்டமைப்பு acl_file_data {
+	எழுத்து *acl_file;
+	கட்டமைப்பு acl__user *acl_users;
+	கட்டமைப்பு acl__user acl_anon;
+	கட்டமைப்பு acl__entry *acl_patterns;
 };
 
 
-int acl_file__parse(struct acl_file_data *data);
-int acl_file__check(int event, void *event_data, void *userdata);
-int acl_file__reload(int event, void *event_data, void *userdata);
-void acl_file__cleanup(struct acl_file_data *data);
+முழு acl_file__parse(கட்டமைப்பு acl_file_data *data);
+முழு acl_file__check(முழு event, வெறுமை *event_data, வெறுமை *userdata);
+முழு acl_file__reload(முழு event, வெறுமை *event_data, வெறுமை *userdata);
+வெறுமை acl_file__cleanup(கட்டமைப்பு acl_file_data *data);
 
 #endif

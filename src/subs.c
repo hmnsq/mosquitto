@@ -47,72 +47,72 @@ Contributors:
  *	a/b/d
  */
 
-#include "config.h"
+#அந்தர்பாவ "config.h"
 
-#include <assert.h>
-#include <stdio.h>
-#include <string.h>
+#அந்தர்பாவ <assert.h>
+#அந்தர்பாவ <stdio.h>
+#அந்தர்பாவ <string.h>
 
-#include "mosquitto_broker_internal.h"
-#include "mosquitto/mqtt_protocol.h"
-#include "util_mosq.h"
+#அந்தர்பாவ "mosquitto_broker_internal.h"
+#அந்தர்பாவ "mosquitto/mqtt_protocol.h"
+#அந்தர்பாவ "util_mosq.h"
 
-#include "utlist.h"
+#அந்தர்பாவ "utlist.h"
 
-static struct mosquitto__subhier *sub__add_hier_entry(struct mosquitto__subhier *parent, struct mosquitto__subhier **sibling, const char *topic, uint16_t len);
+நிலையான கட்டமைப்பு mosquitto__subhier *sub__add_hier_entry(கட்டமைப்பு mosquitto__subhier *parent, கட்டமைப்பு mosquitto__subhier **sibling, மாறிலி எழுத்து *topic, uint16_t len);
 
-static unsigned int hashv_plus = 0;
-static unsigned int hashv_hash = 0;
+நிலையான unsigned முழு hashv_plus = 0;
+நிலையான unsigned முழு hashv_hash = 0;
 
 
-static int subs__send(struct mosquitto__subleaf *leaf, const char *topic, uint8_t qos, int retain, struct mosquitto__base_msg *stored)
+நிலையான முழு subs__send(கட்டமைப்பு mosquitto__subleaf *leaf, மாறிலி எழுத்து *topic, uint8_t qos, முழு retain, கட்டமைப்பு mosquitto_base_செய்தி *stored)
 {
 	bool client_retain;
 	uint16_t mid;
-	uint8_t client_qos, msg_qos;
-	int rc2;
+	uint8_t client_qos, செய்தி_qos;
+	முழு rc2;
 
 	/* Check for ACL topic access. */
 	rc2 = mosquitto_acl_check(leaf->context, topic, stored->data.payloadlen, stored->data.payload, stored->data.qos, stored->data.retain, stored->data.properties, MOSQ_ACL_READ);
-	if(rc2 == MOSQ_ERR_ACL_DENIED){
-		return MOSQ_ERR_SUCCESS;
-	}else if(rc2 == MOSQ_ERR_SUCCESS){
+	எனில்(rc2 == MOSQ_ERR_ACL_DENIED){
+		திரும்பு MOSQ_ERR_SUCCESS;
+	}இல்லையெனில் எனில்(rc2 == MOSQ_ERR_SUCCESS){
 		client_qos = MQTT_SUB_OPT_GET_QOS(leaf->subscription_options);
 
-		if(db.config->upgrade_outgoing_qos){
-			msg_qos = client_qos;
-		}else{
-			if(qos > client_qos){
-				msg_qos = client_qos;
-			}else{
-				msg_qos = qos;
+		எனில்(db.config->upgrade_outgoing_qos){
+			செய்தி_qos = client_qos;
+		}இல்லையெனில்{
+			எனில்(qos > client_qos){
+				செய்தி_qos = client_qos;
+			}இல்லையெனில்{
+				செய்தி_qos = qos;
 			}
 		}
-		if(msg_qos){
+		எனில்(செய்தி_qos){
 			mid = mosquitto__mid_generate(leaf->context);
-		}else{
+		}இல்லையெனில்{
 			mid = 0;
 		}
-		if(MQTT_SUB_OPT_GET_RETAIN_AS_PUBLISHED(leaf->subscription_options)){
+		எனில்(MQTT_SUB_OPT_GET_RETAIN_AS_PUBLISHED(leaf->subscription_options)){
 			client_retain = retain;
-		}else{
+		}இல்லையெனில்{
 			client_retain = false;
 		}
-		if(db__message_insert_outgoing(leaf->context, 0, mid, msg_qos, client_retain, stored, leaf->identifier, true, true) == 1){
-			return 1;
+		எனில்(db_message_செருகு_outgoing(leaf->context, 0, mid, செய்தி_qos, client_retain, stored, leaf->identifier, true, true) == 1){
+			திரும்பு 1;
 		}
-	}else{
-		return 1; /* Application error */
+	}இல்லையெனில்{
+		திரும்பு 1; /* Application error */
 	}
-	return 0;
+	திரும்பு 0;
 }
 
 
-static int subs__shared_process(struct mosquitto__subhier *hier, const char *topic, uint8_t qos, int retain, struct mosquitto__base_msg *stored)
+நிலையான முழு subs__shared_process(கட்டமைப்பு mosquitto__subhier *hier, மாறிலி எழுத்து *topic, uint8_t qos, முழு retain, கட்டமைப்பு mosquitto_base_செய்தி *stored)
 {
-	int rc = 0, rc2;
-	struct mosquitto__subshared *shared, *shared_tmp;
-	struct mosquitto__subleaf *leaf;
+	முழு rc = 0, rc2;
+	கட்டமைப்பு mosquitto__subshared *shared, *shared_tmp;
+	கட்டமைப்பு mosquitto__subleaf *leaf;
 
 	HASH_ITER(hh, hier->shared, shared, shared_tmp){
 		leaf = shared->subs;
@@ -121,64 +121,64 @@ static int subs__shared_process(struct mosquitto__subhier *hier, const char *top
 		DL_DELETE(shared->subs, leaf);
 		DL_APPEND(shared->subs, leaf);
 
-		if(rc2){
+		எனில்(rc2){
 			rc = 1;
 		}
 	}
 
-	return rc;
+	திரும்பு rc;
 }
 
 
-static int subs__process(struct mosquitto__subhier *hier, const char *source_id, const char *topic, uint8_t qos, int retain, struct mosquitto__base_msg *stored)
+நிலையான முழு subs__process(கட்டமைப்பு mosquitto__subhier *hier, மாறிலி எழுத்து *source_id, மாறிலி எழுத்து *topic, uint8_t qos, முழு retain, கட்டமைப்பு mosquitto_base_செய்தி *stored)
 {
-	int rc = 0;
-	int rc2;
-	struct mosquitto__subleaf *leaf;
+	முழு rc = 0;
+	முழு rc2;
+	கட்டமைப்பு mosquitto__subleaf *leaf;
 
 	rc = subs__shared_process(hier, topic, qos, retain, stored);
 
 	leaf = hier->subs;
-	while(source_id && leaf){
-		if(!leaf->context->id || (MQTT_SUB_OPT_GET_NO_LOCAL(leaf->subscription_options) && !strcmp(leaf->context->id, source_id))){
+	போது(source_id && leaf){
+		எனில்(!leaf->context->id || (MQTT_SUB_OPT_GET_NO_LOCAL(leaf->subscription_options) && !strcmp(leaf->context->id, source_id))){
 			leaf = leaf->next;
-			continue;
+			தொடர்;
 		}
 		rc2 = subs__send(leaf, topic, qos, retain, stored);
-		if(rc2){
+		எனில்(rc2){
 			rc = 1;
 		}
 		leaf = leaf->next;
 	}
-	if(hier->subs || hier->shared){
-		return rc;
-	}else{
-		return MOSQ_ERR_NO_SUBSCRIBERS;
+	எனில்(hier->subs || hier->shared){
+		திரும்பு rc;
+	}இல்லையெனில்{
+		திரும்பு MOSQ_ERR_NO_SUBSCRIBERS;
 	}
 }
 
 
-static int sub__add_leaf(struct mosquitto *context, const struct mosquitto_subscription *sub, struct mosquitto__subleaf **head, struct mosquitto__subleaf **newleaf)
+நிலையான முழு sub__add_leaf(கட்டமைப்பு mosquitto *context, மாறிலி கட்டமைப்பு mosquitto_subscription *sub, கட்டமைப்பு mosquitto__subleaf **head, கட்டமைப்பு mosquitto__subleaf **newleaf)
 {
-	struct mosquitto__subleaf *leaf;
+	கட்டமைப்பு mosquitto__subleaf *leaf;
 
-	*newleaf = NULL;
+	*newleaf = வெற்று;
 	leaf = *head;
 
-	while(leaf){
-		if(leaf->context && leaf->context->id && !strcmp(leaf->context->id, context->id)){
+	போது(leaf){
+		எனில்(leaf->context && leaf->context->id && !strcmp(leaf->context->id, context->id)){
 			/* Client making a second subscription to same topic. Only
 			 * need to update QoS. Return MOSQ_ERR_SUB_EXISTS to
 			 * indicate this to the calling function. */
 			leaf->identifier = sub->identifier;
 			leaf->subscription_options = sub->options;
-			return MOSQ_ERR_SUB_EXISTS;
+			திரும்பு MOSQ_ERR_SUB_EXISTS;
 		}
 		leaf = leaf->next;
 	}
-	leaf = mosquitto_calloc(1, sizeof(struct mosquitto__subleaf) + strlen(sub->topic_filter) + 1);
-	if(!leaf){
-		return MOSQ_ERR_NOMEM;
+	leaf = mosquitto_calloc(1, அளவு(கட்டமைப்பு mosquitto__subleaf) + strlen(sub->topic_filter) + 1);
+	எனில்(!leaf){
+		திரும்பு MOSQ_ERR_NOMEM;
 	}
 	leaf->context = context;
 	leaf->identifier = sub->identifier;
@@ -188,38 +188,38 @@ static int sub__add_leaf(struct mosquitto *context, const struct mosquitto_subsc
 	DL_APPEND(*head, leaf);
 	*newleaf = leaf;
 
-	return MOSQ_ERR_SUCCESS;
+	திரும்பு MOSQ_ERR_SUCCESS;
 }
 
 
-static void sub__remove_shared_leaf(struct mosquitto__subhier *subhier, struct mosquitto__subshared *shared, struct mosquitto__subleaf *leaf)
+நிலையான வெறுமை sub__remove_shared_leaf(கட்டமைப்பு mosquitto__subhier *subhier, கட்டமைப்பு mosquitto__subshared *shared, கட்டமைப்பு mosquitto__subleaf *leaf)
 {
 	DL_DELETE(shared->subs, leaf);
-	if(shared->subs == NULL){
+	எனில்(shared->subs == வெற்று){
 		HASH_DELETE(hh, subhier->shared, shared);
 		mosquitto_FREE(shared);
 	}
 }
 
 
-static int sub__add_shared(struct mosquitto *context, const struct mosquitto_subscription *sub, struct mosquitto__subhier *subhier, const char *sharename)
+நிலையான முழு sub__add_shared(கட்டமைப்பு mosquitto *context, மாறிலி கட்டமைப்பு mosquitto_subscription *sub, கட்டமைப்பு mosquitto__subhier *subhier, மாறிலி எழுத்து *sharename)
 {
-	struct mosquitto__subleaf *newleaf;
-	struct mosquitto__subshared *shared = NULL;
-	struct mosquitto__subleaf **subs;
+	கட்டமைப்பு mosquitto__subleaf *newleaf;
+	கட்டமைப்பு mosquitto__subshared *shared = வெற்று;
+	கட்டமைப்பு mosquitto__subleaf **subs;
 	size_t slen;
-	int rc;
+	முழு rc;
 	unsigned hashv;
 
 	slen = strlen(sharename);
 
-	HASH_VALUE(sharename, slen, hashv);
+	HASH_மதிப்பு(sharename, slen, hashv);
 
 	HASH_FIND_BYHASHVALUE(hh, subhier->shared, sharename, slen, hashv, shared);
-	if(shared == NULL){
-		shared = mosquitto_calloc(1, sizeof(struct mosquitto__subshared) + slen + 1);
-		if(!shared){
-			return MOSQ_ERR_NOMEM;
+	எனில்(shared == வெற்று){
+		shared = mosquitto_calloc(1, அளவு(கட்டமைப்பு mosquitto__subshared) + slen + 1);
+		எனில்(!shared){
+			திரும்பு MOSQ_ERR_NOMEM;
 		}
 		strncpy(shared->name, sharename, slen+1);
 
@@ -227,123 +227,123 @@ static int sub__add_shared(struct mosquitto *context, const struct mosquitto_sub
 	}
 
 	rc = sub__add_leaf(context, sub, &shared->subs, &newleaf);
-	if(rc > 0){
-		if(shared->subs == NULL){
+	எனில்(rc > 0){
+		எனில்(shared->subs == வெற்று){
 			HASH_DELETE(hh, subhier->shared, shared);
 			mosquitto_FREE(shared);
 		}
-		return rc;
+		திரும்பு rc;
 	}
 
-	if(rc != MOSQ_ERR_SUB_EXISTS){
+	எனில்(rc != MOSQ_ERR_SUB_EXISTS){
 		newleaf->hier = subhier;
 		newleaf->shared = shared;
 
 		bool assigned = false;
-		for(int i=0; i<context->subs_capacity; i++){
-			if(!context->subs[i]){
+		க்கு(முழு i=0; i<context->subs_capacity; i++){
+			எனில்(!context->subs[i]){
 				context->subs[i] = newleaf;
-				context->subs_count++;
+				context->subs_மொத்தம்++;
 				assigned = true;
-				break;
+				நிறுத்து;
 			}
 		}
-		if(assigned == false){
-			subs = mosquitto_realloc(context->subs, sizeof(struct mosquitto__subleaf *)*(size_t)(context->subs_capacity + 1));
-			if(!subs){
+		எனில்(assigned == false){
+			subs = mosquitto_realloc(context->subs, அளவு(கட்டமைப்பு mosquitto__subleaf *)*(size_t)(context->subs_capacity + 1));
+			எனில்(!subs){
 				sub__remove_shared_leaf(subhier, shared, newleaf);
 				mosquitto_FREE(newleaf);
-				return MOSQ_ERR_NOMEM;
+				திரும்பு MOSQ_ERR_NOMEM;
 			}
 			context->subs = subs;
 			context->subs_capacity++;
-			context->subs_count++;
+			context->subs_மொத்தம்++;
 			context->subs[context->subs_capacity-1] = newleaf;
 		}
-#ifdef WITH_SYS_TREE
-		db.shared_subscription_count++;
+#ifdef WITH_SYS_மரம்
+		db.shared_subscription_மொத்தம்++;
 #endif
 	}
 
-	if(context->protocol == mosq_p_mqtt31 || context->protocol == mosq_p_mqtt5){
-		return rc;
-	}else{
+	எனில்(context->protocol == mosq_p_mqtt31 || context->protocol == mosq_p_mqtt5){
+		திரும்பு rc;
+	}இல்லையெனில்{
 		/* mqttv311/mqttv5 requires retained messages are resent on
 		 * resubscribe. */
-		return MOSQ_ERR_SUCCESS;
+		திரும்பு MOSQ_ERR_SUCCESS;
 	}
 }
 
 
-static int sub__add_normal(struct mosquitto *context, const struct mosquitto_subscription *sub, struct mosquitto__subhier *subhier)
+நிலையான முழு sub__add_normal(கட்டமைப்பு mosquitto *context, மாறிலி கட்டமைப்பு mosquitto_subscription *sub, கட்டமைப்பு mosquitto__subhier *subhier)
 {
-	struct mosquitto__subleaf *newleaf = NULL;
-	struct mosquitto__subleaf **subs;
-	int rc;
+	கட்டமைப்பு mosquitto__subleaf *newleaf = வெற்று;
+	கட்டமைப்பு mosquitto__subleaf **subs;
+	முழு rc;
 
 	rc = sub__add_leaf(context, sub, &subhier->subs, &newleaf);
-	if(rc > 0){
-		return rc;
+	எனில்(rc > 0){
+		திரும்பு rc;
 	}
 
-	if(rc != MOSQ_ERR_SUB_EXISTS){
+	எனில்(rc != MOSQ_ERR_SUB_EXISTS){
 		newleaf->hier = subhier;
-		newleaf->shared = NULL;
+		newleaf->shared = வெற்று;
 
 		bool assigned = false;
-		for(int i=0; i<context->subs_capacity; i++){
-			if(!context->subs[i]){
+		க்கு(முழு i=0; i<context->subs_capacity; i++){
+			எனில்(!context->subs[i]){
 				context->subs[i] = newleaf;
-				context->subs_count++;
+				context->subs_மொத்தம்++;
 				assigned = true;
-				break;
+				நிறுத்து;
 			}
 		}
-		if(assigned == false){
-			subs = mosquitto_realloc(context->subs, sizeof(struct mosquitto__subleaf *)*(size_t)(context->subs_capacity + 1));
-			if(!subs){
+		எனில்(assigned == false){
+			subs = mosquitto_realloc(context->subs, அளவு(கட்டமைப்பு mosquitto__subleaf *)*(size_t)(context->subs_capacity + 1));
+			எனில்(!subs){
 				DL_DELETE(subhier->subs, newleaf);
 				mosquitto_FREE(newleaf);
-				return MOSQ_ERR_NOMEM;
+				திரும்பு MOSQ_ERR_NOMEM;
 			}
 			context->subs = subs;
 			context->subs_capacity++;
-			context->subs_count++;
+			context->subs_மொத்தம்++;
 			context->subs[context->subs_capacity-1] = newleaf;
 		}
-#ifdef WITH_SYS_TREE
-		db.subscription_count++;
+#ifdef WITH_SYS_மரம்
+		db.subscription_மொத்தம்++;
 #endif
 	}
 
-	if(context->protocol == mosq_p_mqtt31 || context->protocol == mosq_p_mqtt5){
-		return rc;
-	}else{
+	எனில்(context->protocol == mosq_p_mqtt31 || context->protocol == mosq_p_mqtt5){
+		திரும்பு rc;
+	}இல்லையெனில்{
 		/* mqttv311/mqttv5 requires retained messages are resent on
 		 * resubscribe. */
-		return MOSQ_ERR_SUCCESS;
+		திரும்பு MOSQ_ERR_SUCCESS;
 	}
 }
 
 
-static int sub__add_context(struct mosquitto *context, const struct mosquitto_subscription *sub, struct mosquitto__subhier *subhier, char *const *const topics, const char *sharename)
+நிலையான முழு sub__add_context(கட்டமைப்பு mosquitto *context, மாறிலி கட்டமைப்பு mosquitto_subscription *sub, கட்டமைப்பு mosquitto__subhier *subhier, எழுத்து *மாறிலி *மாறிலி topics, மாறிலி எழுத்து *sharename)
 {
-	struct mosquitto__subhier *branch;
-	int topic_index = 0;
+	கட்டமைப்பு mosquitto__subhier *branch;
+	முழு topic_index = 0;
 	size_t topiclen;
 
 	/* Find leaf node */
-	while(topics && topics[topic_index] != NULL){
+	போது(topics && topics[topic_index] != வெற்று){
 		topiclen = strlen(topics[topic_index]);
-		if(topiclen > UINT16_MAX){
-			return MOSQ_ERR_INVAL;
+		எனில்(topiclen > UINT16_MAX){
+			திரும்பு MOSQ_ERR_INVAL;
 		}
 		HASH_FIND(hh, subhier->children, topics[topic_index], topiclen, branch);
-		if(!branch){
+		எனில்(!branch){
 			/* Not found */
 			branch = sub__add_hier_entry(subhier, &subhier->children, topics[topic_index], (uint16_t)topiclen);
-			if(!branch){
-				return MOSQ_ERR_NOMEM;
+			எனில்(!branch){
+				திரும்பு MOSQ_ERR_NOMEM;
 			}
 		}
 		subhier = branch;
@@ -351,27 +351,27 @@ static int sub__add_context(struct mosquitto *context, const struct mosquitto_su
 	}
 
 	/* Add add our context */
-	if(context && context->id){
-		if(sharename){
-			return sub__add_shared(context, sub, subhier, sharename);
-		}else{
-			return sub__add_normal(context, sub, subhier);
+	எனில்(context && context->id){
+		எனில்(sharename){
+			திரும்பு sub__add_shared(context, sub, subhier, sharename);
+		}இல்லையெனில்{
+			திரும்பு sub__add_normal(context, sub, subhier);
 		}
-	}else{
-		return MOSQ_ERR_SUCCESS;
+	}இல்லையெனில்{
+		திரும்பு MOSQ_ERR_SUCCESS;
 	}
 }
 
 
-static int sub__remove_normal(struct mosquitto *context, struct mosquitto__subhier *subhier, uint8_t *reason)
+நிலையான முழு sub__remove_normal(கட்டமைப்பு mosquitto *context, கட்டமைப்பு mosquitto__subhier *subhier, uint8_t *reason)
 {
-	struct mosquitto__subleaf *leaf;
+	கட்டமைப்பு mosquitto__subleaf *leaf;
 
 	leaf = subhier->subs;
-	while(leaf){
-		if(leaf->context==context){
-#ifdef WITH_SYS_TREE
-			db.subscription_count--;
+	போது(leaf){
+		எனில்(leaf->context==context){
+#ifdef WITH_SYS_மரம்
+			db.subscription_மொத்தம்--;
 #endif
 			DL_DELETE(subhier->subs, leaf);
 
@@ -379,34 +379,34 @@ static int sub__remove_normal(struct mosquitto *context, struct mosquitto__subhi
 			 * It would be nice to be able to use the reference directly,
 			 * but that would involve keeping a copy of the topic string in
 			 * each subleaf. Might be worth considering though. */
-			for(int i=0; i<context->subs_capacity; i++){
-				if(context->subs[i] && context->subs[i]->hier == subhier){
-					context->subs_count--;
+			க்கு(முழு i=0; i<context->subs_capacity; i++){
+				எனில்(context->subs[i] && context->subs[i]->hier == subhier){
+					context->subs_மொத்தம்--;
 					mosquitto_free(context->subs[i]);
-					context->subs[i] = NULL;
-					break;
+					context->subs[i] = வெற்று;
+					நிறுத்து;
 				}
 			}
 			*reason = 0;
-			return MOSQ_ERR_SUCCESS;
+			திரும்பு MOSQ_ERR_SUCCESS;
 		}
 		leaf = leaf->next;
 	}
-	return MOSQ_ERR_NO_SUBSCRIBERS;
+	திரும்பு MOSQ_ERR_NO_SUBSCRIBERS;
 }
 
 
-static int sub__remove_shared(struct mosquitto *context, struct mosquitto__subhier *subhier, uint8_t *reason, const char *sharename)
+நிலையான முழு sub__remove_shared(கட்டமைப்பு mosquitto *context, கட்டமைப்பு mosquitto__subhier *subhier, uint8_t *reason, மாறிலி எழுத்து *sharename)
 {
-	struct mosquitto__subshared *shared;
+	கட்டமைப்பு mosquitto__subshared *shared;
 
 	HASH_FIND(hh, subhier->shared, sharename, strlen(sharename), shared);
-	if(shared){
-		struct mosquitto__subleaf *leaf = shared->subs;
-		while(leaf){
-			if(leaf->context==context){
-#ifdef WITH_SYS_TREE
-				db.shared_subscription_count--;
+	எனில்(shared){
+		கட்டமைப்பு mosquitto__subleaf *leaf = shared->subs;
+		போது(leaf){
+			எனில்(leaf->context==context){
+#ifdef WITH_SYS_மரம்
+				db.shared_subscription_மொத்தம்--;
 #endif
 				DL_DELETE(shared->subs, leaf);
 
@@ -414,83 +414,83 @@ static int sub__remove_shared(struct mosquitto *context, struct mosquitto__subhi
 				* It would be nice to be able to use the reference directly,
 				* but that would involve keeping a copy of the topic string in
 				* each subleaf. Might be worth considering though. */
-				for(int i=0; i<context->subs_capacity; i++){
-					if(context->subs[i]
+				க்கு(முழு i=0; i<context->subs_capacity; i++){
+					எனில்(context->subs[i]
 							&& context->subs[i]->hier == subhier
 							&& context->subs[i]->shared == shared){
 
 						mosquitto_free(context->subs[i]);
-						context->subs[i] = NULL;
-						context->subs_count--;
-						break;
+						context->subs[i] = வெற்று;
+						context->subs_மொத்தம்--;
+						நிறுத்து;
 					}
 				}
 
-				if(shared->subs == NULL){
+				எனில்(shared->subs == வெற்று){
 					HASH_DELETE(hh, subhier->shared, shared);
 					mosquitto_FREE(shared);
 				}
 
 				*reason = 0;
-				return MOSQ_ERR_SUCCESS;
+				திரும்பு MOSQ_ERR_SUCCESS;
 			}
 			leaf = leaf->next;
 		}
-		return MOSQ_ERR_NO_SUBSCRIBERS;
-	}else{
-		return MOSQ_ERR_NO_SUBSCRIBERS;
+		திரும்பு MOSQ_ERR_NO_SUBSCRIBERS;
+	}இல்லையெனில்{
+		திரும்பு MOSQ_ERR_NO_SUBSCRIBERS;
 	}
 }
 
 
-static int sub__remove_recurse(struct mosquitto *context, struct mosquitto__subhier *subhier, char **topics, uint8_t *reason, const char *sharename)
+நிலையான முழு sub__remove_recurse(கட்டமைப்பு mosquitto *context, கட்டமைப்பு mosquitto__subhier *subhier, எழுத்து **topics, uint8_t *reason, மாறிலி எழுத்து *sharename)
 {
-	struct mosquitto__subhier *branch;
+	கட்டமைப்பு mosquitto__subhier *branch;
 
-	if(topics == NULL || topics[0] == NULL){
-		if(sharename){
-			return sub__remove_shared(context, subhier, reason, sharename);
-		}else{
-			return sub__remove_normal(context, subhier, reason);
+	எனில்(topics == வெற்று || topics[0] == வெற்று){
+		எனில்(sharename){
+			திரும்பு sub__remove_shared(context, subhier, reason, sharename);
+		}இல்லையெனில்{
+			திரும்பு sub__remove_normal(context, subhier, reason);
 		}
 	}
 
 	HASH_FIND(hh, subhier->children, topics[0], strlen(topics[0]), branch);
-	if(branch){
+	எனில்(branch){
 		sub__remove_recurse(context, branch, &(topics[1]), reason, sharename);
-		if(!branch->children && !branch->subs && !branch->shared){
+		எனில்(!branch->children && !branch->subs && !branch->shared){
 			HASH_DELETE(hh, subhier->children, branch);
 			mosquitto_FREE(branch);
 		}
 	}
-	return MOSQ_ERR_SUCCESS;
+	திரும்பு MOSQ_ERR_SUCCESS;
 }
 
 
-static int sub__search(struct mosquitto__subhier *subhier, char **split_topics, const char *source_id, const char *topic, uint8_t qos, int retain, struct mosquitto__base_msg *stored)
+நிலையான முழு sub_தேடல்(கட்டமைப்பு mosquitto__subhier *subhier, எழுத்து **split_topics, மாறிலி எழுத்து *source_id, மாறிலி எழுத்து *topic, uint8_t qos, முழு retain, கட்டமைப்பு mosquitto_base_செய்தி *stored)
 {
 	/* FIXME - need to take into account source_id if the client is a bridge */
-	struct mosquitto__subhier *branch;
-	int rc;
+	கட்டமைப்பு mosquitto__subhier *branch;
+	முழு rc;
 	bool have_subscribers = false;
 
-	if(split_topics && split_topics[0]){
+	எனில்(split_topics && split_topics[0]){
 		/* Check for literal match */
 		HASH_FIND(hh, subhier->children, split_topics[0], strlen(split_topics[0]), branch);
 
-		if(branch){
-			rc = sub__search(branch, &(split_topics[1]), source_id, topic, qos, retain, stored);
-			if(rc == MOSQ_ERR_SUCCESS){
+		எனில்(branch){
+			rc = sub_தேடல்(branch, &(split_topics[1]), source_id, topic, qos, retain, stored);
+			எனில்(rc == MOSQ_ERR_SUCCESS){
 				have_subscribers = true;
-			}else if(rc != MOSQ_ERR_NO_SUBSCRIBERS){
-				return rc;
+			}இல்லையெனில் எனில்(rc != MOSQ_ERR_NO_SUBSCRIBERS){
+				திரும்பு rc;
 			}
-			if(split_topics[1] == NULL){ /* End of list */
+			எனில்(split_topics[1] == வெற்று){ /* End of list */
 				rc = subs__process(branch, source_id, topic, qos, retain, stored);
-				if(rc == MOSQ_ERR_SUCCESS){
+				எனில்(rc == MOSQ_ERR_SUCCESS){
 					have_subscribers = true;
-				}else if(rc != MOSQ_ERR_NO_SUBSCRIBERS){
-					return rc;
+				}இல்லையெனில் எனில்(rc != MOSQ_ERR_NO_SUBSCRIBERS){
+					திரும்பு rc;
 				}
 			}
 		}
@@ -498,19 +498,19 @@ static int sub__search(struct mosquitto__subhier *subhier, char **split_topics, 
 		/* Check for + match */
 		HASH_FIND_BYHASHVALUE(hh, subhier->children, "+", 1, hashv_plus, branch);
 
-		if(branch){
-			rc = sub__search(branch, &(split_topics[1]), source_id, topic, qos, retain, stored);
-			if(rc == MOSQ_ERR_SUCCESS){
+		எனில்(branch){
+			rc = sub_தேடல்(branch, &(split_topics[1]), source_id, topic, qos, retain, stored);
+			எனில்(rc == MOSQ_ERR_SUCCESS){
 				have_subscribers = true;
-			}else if(rc != MOSQ_ERR_NO_SUBSCRIBERS){
-				return rc;
+			}இல்லையெனில் எனில்(rc != MOSQ_ERR_NO_SUBSCRIBERS){
+				திரும்பு rc;
 			}
-			if(split_topics[1] == NULL){ /* End of list */
+			எனில்(split_topics[1] == வெற்று){ /* End of list */
 				rc = subs__process(branch, source_id, topic, qos, retain, stored);
-				if(rc == MOSQ_ERR_SUCCESS){
+				எனில்(rc == MOSQ_ERR_SUCCESS){
 					have_subscribers = true;
-				}else if(rc != MOSQ_ERR_NO_SUBSCRIBERS){
-					return rc;
+				}இல்லையெனில் எனில்(rc != MOSQ_ERR_NO_SUBSCRIBERS){
+					திரும்பு rc;
 				}
 			}
 		}
@@ -518,94 +518,94 @@ static int sub__search(struct mosquitto__subhier *subhier, char **split_topics, 
 
 	/* Check for # match */
 	HASH_FIND_BYHASHVALUE(hh, subhier->children, "#", 1, hashv_hash, branch);
-	if(branch && !branch->children){
+	எனில்(branch && !branch->children){
 		/* The topic matches due to a # wildcard - process the
 		 * subscriptions but *don't* return. Although this branch has ended
 		 * there may still be other subscriptions to deal with.
 		 */
 		rc = subs__process(branch, source_id, topic, qos, retain, stored);
-		if(rc == MOSQ_ERR_SUCCESS){
+		எனில்(rc == MOSQ_ERR_SUCCESS){
 			have_subscribers = true;
-		}else if(rc != MOSQ_ERR_NO_SUBSCRIBERS){
-			return rc;
+		}இல்லையெனில் எனில்(rc != MOSQ_ERR_NO_SUBSCRIBERS){
+			திரும்பு rc;
 		}
 	}
 
-	if(have_subscribers){
-		return MOSQ_ERR_SUCCESS;
-	}else{
-		return MOSQ_ERR_NO_SUBSCRIBERS;
+	எனில்(have_subscribers){
+		திரும்பு MOSQ_ERR_SUCCESS;
+	}இல்லையெனில்{
+		திரும்பு MOSQ_ERR_NO_SUBSCRIBERS;
 	}
 }
 
 
-static struct mosquitto__subhier *sub__add_hier_entry(struct mosquitto__subhier *parent, struct mosquitto__subhier **sibling, const char *topic, uint16_t len)
+நிலையான கட்டமைப்பு mosquitto__subhier *sub__add_hier_entry(கட்டமைப்பு mosquitto__subhier *parent, கட்டமைப்பு mosquitto__subhier **sibling, மாறிலி எழுத்து *topic, uint16_t len)
 {
-	struct mosquitto__subhier *child;
+	கட்டமைப்பு mosquitto__subhier *child;
 
-	assert(sibling);
+	ப்ரதிஜ்ஞா(sibling);
 
-	child = mosquitto_calloc(1, sizeof(struct mosquitto__subhier) + len + 1);
-	if(!child){
-		log__printf(NULL, MOSQ_LOG_ERR, "Error: Out of memory.");
-		return NULL;
+	child = mosquitto_calloc(1, அளவு(கட்டமைப்பு mosquitto__subhier) + len + 1);
+	எனில்(!child){
+		log__printf(வெற்று, MOSQ_LOG_ERR, "Error: Out of memory.");
+		திரும்பு வெற்று;
 	}
 	child->parent = parent;
 	child->topic_len = len;
-	if(len > 0){
+	எனில்(len > 0){
 		strncpy(child->topic, topic, (size_t)(len+1));
 	}
 
 	HASH_ADD(hh, *sibling, topic, child->topic_len, child);
 
-	return child;
+	திரும்பு child;
 }
 
 
-int sub__add(struct mosquitto *context, const struct mosquitto_subscription *sub)
+முழு sub__add(கட்டமைப்பு mosquitto *context, மாறிலி கட்டமைப்பு mosquitto_subscription *sub)
 {
-	int rc = 0;
-	struct mosquitto__subhier *subhier;
-	const char *sharename = NULL;
-	char *local_sub;
-	char **topics;
+	முழு rc = 0;
+	கட்டமைப்பு mosquitto__subhier *subhier;
+	மாறிலி எழுத்து *sharename = வெற்று;
+	எழுத்து *local_sub;
+	எழுத்து **topics;
 	size_t topiclen;
 
-	assert(sub);
-	assert(sub->topic_filter);
+	ப்ரதிஜ்ஞா(sub);
+	ப்ரதிஜ்ஞா(sub->topic_filter);
 
 	rc = sub__topic_tokenise(sub->topic_filter, &local_sub, &topics, &sharename);
-	if(rc){
-		return rc;
+	எனில்(rc){
+		திரும்பு rc;
 	}
 
 	topiclen = strlen(topics[0]);
-	if(topiclen > UINT16_MAX){
+	எனில்(topiclen > UINT16_MAX){
 		mosquitto_FREE(local_sub);
 		mosquitto_FREE(topics);
-		return MOSQ_ERR_INVAL;
+		திரும்பு MOSQ_ERR_INVAL;
 	}
 
-	if(sharename){
+	எனில்(sharename){
 		HASH_FIND(hh, db.shared_subs, topics[0], topiclen, subhier);
-		if(!subhier){
-			subhier = sub__add_hier_entry(NULL, &db.shared_subs, topics[0], (uint16_t)topiclen);
-			if(!subhier){
+		எனில்(!subhier){
+			subhier = sub__add_hier_entry(வெற்று, &db.shared_subs, topics[0], (uint16_t)topiclen);
+			எனில்(!subhier){
 				mosquitto_FREE(local_sub);
 				mosquitto_FREE(topics);
-				log__printf(NULL, MOSQ_LOG_ERR, "Error: Out of memory.");
-				return MOSQ_ERR_NOMEM;
+				log__printf(வெற்று, MOSQ_LOG_ERR, "Error: Out of memory.");
+				திரும்பு MOSQ_ERR_NOMEM;
 			}
 		}
-	}else{
+	}இல்லையெனில்{
 		HASH_FIND(hh, db.normal_subs, topics[0], topiclen, subhier);
-		if(!subhier){
-			subhier = sub__add_hier_entry(NULL, &db.normal_subs, topics[0], (uint16_t)topiclen);
-			if(!subhier){
+		எனில்(!subhier){
+			subhier = sub__add_hier_entry(வெற்று, &db.normal_subs, topics[0], (uint16_t)topiclen);
+			எனில்(!subhier){
 				mosquitto_FREE(local_sub);
 				mosquitto_FREE(topics);
-				log__printf(NULL, MOSQ_LOG_ERR, "Error: Out of memory.");
-				return MOSQ_ERR_NOMEM;
+				log__printf(வெற்று, MOSQ_LOG_ERR, "Error: Out of memory.");
+				திரும்பு MOSQ_ERR_NOMEM;
 			}
 		}
 	}
@@ -614,31 +614,31 @@ int sub__add(struct mosquitto *context, const struct mosquitto_subscription *sub
 	mosquitto_FREE(local_sub);
 	mosquitto_FREE(topics);
 
-	return rc;
+	திரும்பு rc;
 }
 
 
-int sub__remove(struct mosquitto *context, const char *sub, uint8_t *reason)
+முழு sub__remove(கட்டமைப்பு mosquitto *context, மாறிலி எழுத்து *sub, uint8_t *reason)
 {
-	int rc = 0;
-	struct mosquitto__subhier *subhier;
-	const char *sharename = NULL;
-	char *local_sub = NULL;
-	char **topics = NULL;
+	முழு rc = 0;
+	கட்டமைப்பு mosquitto__subhier *subhier;
+	மாறிலி எழுத்து *sharename = வெற்று;
+	எழுத்து *local_sub = வெற்று;
+	எழுத்து **topics = வெற்று;
 
-	assert(sub);
+	ப்ரதிஜ்ஞா(sub);
 
 	rc = sub__topic_tokenise(sub, &local_sub, &topics, &sharename);
-	if(rc){
-		return rc;
+	எனில்(rc){
+		திரும்பு rc;
 	}
 
-	if(sharename){
+	எனில்(sharename){
 		HASH_FIND(hh, db.shared_subs, topics[0], strlen(topics[0]), subhier);
-	}else{
+	}இல்லையெனில்{
 		HASH_FIND(hh, db.normal_subs, topics[0], strlen(topics[0]), subhier);
 	}
-	if(subhier){
+	எனில்(subhier){
 		*reason = MQTT_RC_NO_SUBSCRIPTION_EXISTED;
 		rc = sub__remove_recurse(context, subhier, topics, reason, sharename);
 	}
@@ -646,61 +646,61 @@ int sub__remove(struct mosquitto *context, const char *sub, uint8_t *reason)
 	mosquitto_FREE(local_sub);
 	mosquitto_FREE(topics);
 
-	return rc;
+	திரும்பு rc;
 }
 
 
-int sub__messages_queue(const char *source_id, uint8_t qos, struct mosquitto__base_msg **stored)
+முழு sub__messages_queue(மாறிலி எழுத்து *source_id, uint8_t qos, கட்டமைப்பு mosquitto_base_செய்தி **stored)
 {
-	int rc = MOSQ_ERR_SUCCESS, rc2;
-	int rc_normal = MOSQ_ERR_NO_SUBSCRIBERS, rc_shared = MOSQ_ERR_NO_SUBSCRIBERS;
-	struct mosquitto__subhier *subhier;
-	char **split_topics = NULL;
-	char *local_topic = NULL;
+	முழு rc = MOSQ_ERR_SUCCESS, rc2;
+	முழு rc_normal = MOSQ_ERR_NO_SUBSCRIBERS, rc_shared = MOSQ_ERR_NO_SUBSCRIBERS;
+	கட்டமைப்பு mosquitto__subhier *subhier;
+	எழுத்து **split_topics = வெற்று;
+	எழுத்து *local_topic = வெற்று;
 	unsigned hashv;
 	size_t topiclen;
 	bool retain = (*stored)->data.retain;
-	const char *topic = (*stored)->data.topic;
+	மாறிலி எழுத்து *topic = (*stored)->data.topic;
 
-	assert(topic);
+	ப்ரதிஜ்ஞா(topic);
 
-	if(sub__topic_tokenise(topic, &local_topic, &split_topics, NULL)){
-		return 1;
+	எனில்(sub__topic_tokenise(topic, &local_topic, &split_topics, வெற்று)){
+		திரும்பு 1;
 	}
 
 	/* Protect this message until we have sent it to all
 	clients - this is required because websockets client calls
 	db__message_write(), which could remove the message if ref_count==0.
 	*/
-	db__msg_store_ref_inc(*stored);
+	db_செய்தி_store_ref_inc(*stored);
 
 	topiclen = strlen(split_topics[0]);
-	HASH_VALUE(split_topics[0], topiclen, hashv);
+	HASH_மதிப்பு(split_topics[0], topiclen, hashv);
 	HASH_FIND_BYHASHVALUE(hh, db.normal_subs, split_topics[0], topiclen, hashv, subhier);
-	if(subhier){
-		rc_normal = sub__search(subhier, split_topics, source_id, topic, qos, retain, *stored);
-		if(rc_normal > 0){
+	எனில்(subhier){
+		rc_normal = sub_தேடல்(subhier, split_topics, source_id, topic, qos, retain, *stored);
+		எனில்(rc_normal > 0){
 			rc = rc_normal;
-			goto end;
+			செல் end;
 		}
 	}
 
 	HASH_FIND_BYHASHVALUE(hh, db.shared_subs, split_topics[0], topiclen, hashv, subhier);
-	if(subhier){
-		rc_shared = sub__search(subhier, split_topics, source_id, topic, qos, retain, *stored);
-		if(rc_shared > 0){
+	எனில்(subhier){
+		rc_shared = sub_தேடல்(subhier, split_topics, source_id, topic, qos, retain, *stored);
+		எனில்(rc_shared > 0){
 			rc = rc_shared;
-			goto end;
+			செல் end;
 		}
 	}
 
-	if(rc_normal == MOSQ_ERR_NO_SUBSCRIBERS && rc_shared == MOSQ_ERR_NO_SUBSCRIBERS){
+	எனில்(rc_normal == MOSQ_ERR_NO_SUBSCRIBERS && rc_shared == MOSQ_ERR_NO_SUBSCRIBERS){
 		rc = MOSQ_ERR_NO_SUBSCRIBERS;
 	}
 
-	if(retain){
+	எனில்(retain){
 		rc2 = retain__store(topic, *stored, split_topics, true);
-		if(rc2){
+		எனில்(rc2){
 			rc = rc2;
 		}
 	}
@@ -709,116 +709,116 @@ end:
 	mosquitto_FREE(split_topics);
 	mosquitto_FREE(local_topic);
 	/* Remove our reference and free if needed. */
-	db__msg_store_ref_dec(stored);
+	db_செய்தி_store_ref_dec(stored);
 
-	return rc;
+	திரும்பு rc;
 }
 
 
 /* Remove a subhier element, and return its parent if that needs freeing as well. */
-static struct mosquitto__subhier *tmp_remove_subs(struct mosquitto__subhier *sub)
+நிலையான கட்டமைப்பு mosquitto__subhier *tmp_remove_subs(கட்டமைப்பு mosquitto__subhier *sub)
 {
-	struct mosquitto__subhier *parent;
+	கட்டமைப்பு mosquitto__subhier *parent;
 
-	if(!sub || !sub->parent){
-		return NULL;
+	எனில்(!sub || !sub->parent){
+		திரும்பு வெற்று;
 	}
 
-	if(sub->children || sub->subs){
-		return NULL;
+	எனில்(sub->children || sub->subs){
+		திரும்பு வெற்று;
 	}
 
 	parent = sub->parent;
 	HASH_DELETE(hh, parent->children, sub);
 	mosquitto_FREE(sub);
 
-	if(parent->subs == NULL
-			&& parent->children == NULL
-			&& parent->shared == NULL
+	எனில்(parent->subs == வெற்று
+			&& parent->children == வெற்று
+			&& parent->shared == வெற்று
 			&& parent->parent){
 
-		return parent;
-	}else{
-		return NULL;
+		திரும்பு parent;
+	}இல்லையெனில்{
+		திரும்பு வெற்று;
 	}
 }
 
 
 /* Remove all subscriptions for a client.
  */
-int sub__clean_session(struct mosquitto *context)
+முழு sub__clean_session(கட்டமைப்பு mosquitto *context)
 {
-	for(int i=0; i<context->subs_capacity; i++){
-		if(context->subs[i] == NULL || context->subs[i]->hier == NULL){
-			continue;
+	க்கு(முழு i=0; i<context->subs_capacity; i++){
+		எனில்(context->subs[i] == வெற்று || context->subs[i]->hier == வெற்று){
+			தொடர்;
 		}
 
-		struct mosquitto__subhier *hier = context->subs[i]->hier;
-		struct mosquitto__subleaf *leaf;
+		கட்டமைப்பு mosquitto__subhier *hier = context->subs[i]->hier;
+		கட்டமைப்பு mosquitto__subleaf *leaf;
 
 		plugin_persist__handle_subscription_delete(context, context->subs[i]->topic_filter);
-		if(context->subs[i]->shared){
+		எனில்(context->subs[i]->shared){
 			leaf = context->subs[i]->shared->subs;
-			while(leaf){
-				if(leaf->context==context){
-#ifdef WITH_SYS_TREE
-					db.shared_subscription_count--;
+			போது(leaf){
+				எனில்(leaf->context==context){
+#ifdef WITH_SYS_மரம்
+					db.shared_subscription_மொத்தம்--;
 #endif
 					sub__remove_shared_leaf(context->subs[i]->hier, context->subs[i]->shared, leaf);
-					break;
+					நிறுத்து;
 				}
 				leaf = leaf->next;
 			}
-		}else{
+		}இல்லையெனில்{
 			leaf = hier->subs;
-			while(leaf){
-				if(leaf->context==context){
-#ifdef WITH_SYS_TREE
-					db.subscription_count--;
+			போது(leaf){
+				எனில்(leaf->context==context){
+#ifdef WITH_SYS_மரம்
+					db.subscription_மொத்தம்--;
 #endif
 					DL_DELETE(hier->subs, leaf);
-					break;
+					நிறுத்து;
 				}
 				leaf = leaf->next;
 			}
 		}
 		mosquitto_FREE(context->subs[i]);
 
-		if(hier->subs == NULL
-				&& hier->children == NULL
-				&& hier->shared == NULL
+		எனில்(hier->subs == வெற்று
+				&& hier->children == வெற்று
+				&& hier->shared == வெற்று
 				&& hier->parent){
 
-			do{
+			செய்{
 				hier = tmp_remove_subs(hier);
-			}while(hier);
+			}போது(hier);
 		}
 	}
 	mosquitto_FREE(context->subs);
 	context->subs_capacity = 0;
-	context->subs_count = 0;
+	context->subs_மொத்தம் = 0;
 
-	return MOSQ_ERR_SUCCESS;
+	திரும்பு MOSQ_ERR_SUCCESS;
 }
 
 
-void sub__tree_print(struct mosquitto__subhier *root, int level)
+வெறுமை sub_மரம்_print(கட்டமைப்பு mosquitto__subhier *வேர், முழு level)
 {
-	int i;
-	struct mosquitto__subhier *branch, *branch_tmp;
-	struct mosquitto__subleaf *leaf;
+	முழு i;
+	கட்டமைப்பு mosquitto__subhier *branch, *branch_tmp;
+	கட்டமைப்பு mosquitto__subleaf *leaf;
 
-	HASH_ITER(hh, root, branch, branch_tmp){
-		if(level > -1){
-			for(i=0; i<(level+2)*2; i++){
+	HASH_ITER(hh, வேர், branch, branch_tmp){
+		எனில்(level > -1){
+			க்கு(i=0; i<(level+2)*2; i++){
 				printf(" ");
 			}
 			printf("%s", branch->topic);
 			leaf = branch->subs;
-			while(leaf){
-				if(leaf->context){
+			போது(leaf){
+				எனில்(leaf->context){
 					printf(" (%s, %d)", leaf->context->id, MQTT_SUB_OPT_GET_QOS(leaf->subscription_options));
-				}else{
+				}இல்லையெனில்{
 					printf(" (%s, %d)", "", MQTT_SUB_OPT_GET_QOS(leaf->subscription_options));
 				}
 				leaf = leaf->next;
@@ -826,23 +826,23 @@ void sub__tree_print(struct mosquitto__subhier *root, int level)
 			printf("\n");
 		}
 
-		sub__tree_print(branch->children, level+1);
+		sub_மரம்_print(branch->children, level+1);
 	}
 }
 
 
-int sub__init(void)
+முழு sub__init(வெறுமை)
 {
-	HASH_VALUE("+", 1, hashv_plus);
-	HASH_VALUE("#", 1, hashv_hash);
+	HASH_மதிப்பு("+", 1, hashv_plus);
+	HASH_மதிப்பு("#", 1, hashv_hash);
 
-	if(sub__add_hier_entry(NULL, &db.shared_subs, "", 0) == NULL
-			|| sub__add_hier_entry(NULL, &db.normal_subs, "", 0) == NULL
-			|| sub__add_hier_entry(NULL, &db.normal_subs, "$SYS", (uint16_t)strlen("$SYS")) == NULL
+	எனில்(sub__add_hier_entry(வெற்று, &db.shared_subs, "", 0) == வெற்று
+			|| sub__add_hier_entry(வெற்று, &db.normal_subs, "", 0) == வெற்று
+			|| sub__add_hier_entry(வெற்று, &db.normal_subs, "$SYS", (uint16_t)strlen("$SYS")) == வெற்று
 			){
 
-		return MOSQ_ERR_NOMEM;
-	}else{
-		return MOSQ_ERR_SUCCESS;
+		திரும்பு MOSQ_ERR_NOMEM;
+	}இல்லையெனில்{
+		திரும்பு MOSQ_ERR_SUCCESS;
 	}
 }

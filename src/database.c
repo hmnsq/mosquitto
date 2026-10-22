@@ -16,16 +16,16 @@ Contributors:
    Roger Light - initial implementation and documentation.
 */
 
-#include "config.h"
+#அந்தர்பாவ "config.h"
 
-#include <assert.h>
-#include <stdio.h>
-#include <utlist.h>
+#அந்தர்பாவ <assert.h>
+#அந்தர்பாவ <stdio.h>
+#அந்தர்பாவ <utlist.h>
 
-#include "mosquitto_broker_internal.h"
-#include "send_mosq.h"
-#include "sys_tree.h"
-#include "util_mosq.h"
+#அந்தர்பாவ "mosquitto_broker_internal.h"
+#அந்தர்பாவ "send_mosq.h"
+#அந்தர்பாவ "sys_tree.h"
+#அந்தர்பாவ "util_mosq.h"
 
 
 /**
@@ -34,57 +34,57 @@ Contributors:
  * @param qos qos for the packet of interest
  * @return true if more in flight are allowed.
  */
-bool db__ready_for_flight(struct mosquitto *context, enum mosquitto_msg_direction dir, int qos)
+bool db__ready_for_flight(கட்டமைப்பு mosquitto *context, எண்ணிக்கை mosquitto_செய்தி_direction dir, முழு qos)
 {
-	struct mosquitto_msg_data *msgs;
+	கட்டமைப்பு mosquitto_செய்தி_data *msgs;
 	bool valid_bytes;
-	bool valid_count;
+	bool valid_மொத்தம்;
 
-	if(dir == mosq_md_out){
+	எனில்(dir == mosq_md_out){
 		msgs = &context->msgs_out;
-	}else{
+	}இல்லையெனில்{
 		msgs = &context->msgs_in;
 	}
 
-	if(msgs->inflight_maximum == 0 && db.config->max_inflight_bytes == 0){
-		return true;
+	எனில்(msgs->inflight_maximum == 0 && db.config->max_inflight_bytes == 0){
+		திரும்பு true;
 	}
 
-	if(qos == 0){
+	எனில்(qos == 0){
 		/* Deliver QoS 0 messages unless the queue is already full.
 		 * For QoS 0 messages the choice is either "inflight" or dropped.
 		 * There is no queueing option, unless the client is offline and
 		 * queue_qos0_messages is enabled.
 		 */
-		if(db.config->max_queued_messages == 0 && db.config->max_inflight_bytes == 0){
-			return true;
+		எனில்(db.config->max_queued_messages == 0 && db.config->max_inflight_bytes == 0){
+			திரும்பு true;
 		}
 		valid_bytes = ((msgs->inflight_bytes - (ssize_t)db.config->max_inflight_bytes) < (ssize_t)db.config->max_queued_bytes);
-		if(dir == mosq_md_out){
-			valid_count = context->out_packet_count < db.config->max_queued_messages;
-		}else{
-			valid_count = msgs->inflight_count - msgs->inflight_maximum < db.config->max_queued_messages;
+		எனில்(dir == mosq_md_out){
+			valid_மொத்தம் = context->out_packet_மொத்தம் < db.config->max_queued_messages;
+		}இல்லையெனில்{
+			valid_மொத்தம் = msgs->inflight_மொத்தம் - msgs->inflight_maximum < db.config->max_queued_messages;
 		}
 
-		if(db.config->max_queued_messages == 0){
-			return valid_bytes;
+		எனில்(db.config->max_queued_messages == 0){
+			திரும்பு valid_bytes;
 		}
-		if(db.config->max_queued_bytes == 0){
-			return valid_count;
+		எனில்(db.config->max_queued_bytes == 0){
+			திரும்பு valid_மொத்தம்;
 		}
-	}else{
+	}இல்லையெனில்{
 		valid_bytes = (ssize_t)msgs->inflight_bytes12 < (ssize_t)db.config->max_inflight_bytes;
-		valid_count = msgs->inflight_quota > 0;
+		valid_மொத்தம் = msgs->inflight_quota > 0;
 
-		if(msgs->inflight_maximum == 0){
-			return valid_bytes;
+		எனில்(msgs->inflight_maximum == 0){
+			திரும்பு valid_bytes;
 		}
-		if(db.config->max_inflight_bytes == 0){
-			return valid_count;
+		எனில்(db.config->max_inflight_bytes == 0){
+			திரும்பு valid_மொத்தம்;
 		}
 	}
 
-	return valid_bytes && valid_count;
+	திரும்பு valid_bytes && valid_மொத்தம்;
 }
 
 
@@ -96,134 +96,134 @@ bool db__ready_for_flight(struct mosquitto *context, enum mosquitto_msg_directio
  * @param qos destination qos for the packet of interest
  * @return true if queuing is allowed, false if should be dropped
  */
-bool db__ready_for_queue(struct mosquitto *context, int qos, struct mosquitto_msg_data *msg_data)
+bool db__ready_for_queue(கட்டமைப்பு mosquitto *context, முழு qos, கட்டமைப்பு mosquitto_செய்தி_data *செய்தி_data)
 {
-	int source_count;
-	int adjust_count;
+	முழு source_மொத்தம்;
+	முழு adjust_மொத்தம்;
 	long source_bytes;
 	ssize_t adjust_bytes = (ssize_t)db.config->max_inflight_bytes;
 	bool valid_bytes;
-	bool valid_count;
+	bool valid_மொத்தம்;
 
-	if(db.config->max_queued_messages == 0 && db.config->max_queued_bytes == 0){
-		return true;
+	எனில்(db.config->max_queued_messages == 0 && db.config->max_queued_bytes == 0){
+		திரும்பு true;
 	}
 
-	if(qos == 0 && db.config->queue_qos0_messages == false){
-		return false; /* This case is handled in db__ready_for_flight() */
-	}else{
-		source_bytes = (ssize_t)msg_data->queued_bytes12;
-		source_count = msg_data->queued_count12;
+	எனில்(qos == 0 && db.config->queue_qos0_messages == false){
+		திரும்பு false; /* This case is handled in db__ready_for_flight() */
+	}இல்லையெனில்{
+		source_bytes = (ssize_t)செய்தி_data->queued_bytes12;
+		source_மொத்தம் = செய்தி_data->queued_count12;
 	}
-	adjust_count = msg_data->inflight_maximum;
+	adjust_மொத்தம் = செய்தி_data->inflight_maximum;
 
 	/* nothing in flight for offline clients */
-	if(!net__is_connected(context)){
+	எனில்(!net__is_connected(context)){
 		adjust_bytes = 0;
-		adjust_count = 0;
+		adjust_மொத்தம் = 0;
 	}
 
 	valid_bytes = (source_bytes - (ssize_t)adjust_bytes) < (ssize_t)db.config->max_queued_bytes;
-	valid_count = source_count - adjust_count < db.config->max_queued_messages;
+	valid_மொத்தம் = source_மொத்தம் - adjust_மொத்தம் < db.config->max_queued_messages;
 
-	if(db.config->max_queued_bytes == 0){
-		return valid_count;
+	எனில்(db.config->max_queued_bytes == 0){
+		திரும்பு valid_மொத்தம்;
 	}
-	if(db.config->max_queued_messages == 0){
-		return valid_bytes;
+	எனில்(db.config->max_queued_messages == 0){
+		திரும்பு valid_bytes;
 	}
 
-	return valid_bytes && valid_count;
+	திரும்பு valid_bytes && valid_மொத்தம்;
 }
 
 
-void db__msg_add_to_inflight_stats(struct mosquitto_msg_data *msg_data, struct mosquitto__client_msg *client_msg)
+வெறுமை db_செய்தி_add_to_inflight_stats(கட்டமைப்பு mosquitto_செய்தி_data *செய்தி_data, கட்டமைப்பு mosquitto_client_செய்தி *client_செய்தி)
 {
-	msg_data->inflight_count++;
-	msg_data->inflight_bytes += client_msg->base_msg->data.payloadlen;
-	if(client_msg->data.qos != 0){
-		msg_data->inflight_count12++;
-		msg_data->inflight_bytes12 += client_msg->base_msg->data.payloadlen;
-	}
-}
-
-
-static void db__msg_remove_from_inflight_stats(struct mosquitto_msg_data *msg_data, struct mosquitto__client_msg *client_msg)
-{
-	msg_data->inflight_count--;
-	msg_data->inflight_bytes -= client_msg->base_msg->data.payloadlen;
-	if(client_msg->data.qos != 0){
-		msg_data->inflight_count12--;
-		msg_data->inflight_bytes12 -= client_msg->base_msg->data.payloadlen;
+	செய்தி_data->inflight_மொத்தம்++;
+	செய்தி_data->inflight_bytes += client_செய்தி->base_செய்தி->data.payloadlen;
+	எனில்(client_செய்தி->data.qos != 0){
+		செய்தி_data->inflight_count12++;
+		செய்தி_data->inflight_bytes12 += client_செய்தி->base_செய்தி->data.payloadlen;
 	}
 }
 
 
-void db__msg_add_to_queued_stats(struct mosquitto_msg_data *msg_data, struct mosquitto__client_msg *client_msg)
+நிலையான வெறுமை db_செய்தி_remove_from_inflight_stats(கட்டமைப்பு mosquitto_செய்தி_data *செய்தி_data, கட்டமைப்பு mosquitto_client_செய்தி *client_செய்தி)
 {
-	msg_data->queued_count++;
-	msg_data->queued_bytes += client_msg->base_msg->data.payloadlen;
-	if(client_msg->data.qos != 0){
-		msg_data->queued_count12++;
-		msg_data->queued_bytes12 += client_msg->base_msg->data.payloadlen;
+	செய்தி_data->inflight_மொத்தம்--;
+	செய்தி_data->inflight_bytes -= client_செய்தி->base_செய்தி->data.payloadlen;
+	எனில்(client_செய்தி->data.qos != 0){
+		செய்தி_data->inflight_count12--;
+		செய்தி_data->inflight_bytes12 -= client_செய்தி->base_செய்தி->data.payloadlen;
 	}
 }
 
 
-static void db__msg_remove_from_queued_stats(struct mosquitto_msg_data *msg_data, struct mosquitto__client_msg *client_msg)
+வெறுமை db_செய்தி_add_to_queued_stats(கட்டமைப்பு mosquitto_செய்தி_data *செய்தி_data, கட்டமைப்பு mosquitto_client_செய்தி *client_செய்தி)
 {
-	msg_data->queued_count--;
-	msg_data->queued_bytes -= client_msg->base_msg->data.payloadlen;
-	if(client_msg->data.qos != 0){
-		msg_data->queued_count12--;
-		msg_data->queued_bytes12 -= client_msg->base_msg->data.payloadlen;
+	செய்தி_data->queued_மொத்தம்++;
+	செய்தி_data->queued_bytes += client_செய்தி->base_செய்தி->data.payloadlen;
+	எனில்(client_செய்தி->data.qos != 0){
+		செய்தி_data->queued_count12++;
+		செய்தி_data->queued_bytes12 += client_செய்தி->base_செய்தி->data.payloadlen;
 	}
 }
 
 
-int db__open(struct mosquitto__config *config)
+நிலையான வெறுமை db_செய்தி_remove_from_queued_stats(கட்டமைப்பு mosquitto_செய்தி_data *செய்தி_data, கட்டமைப்பு mosquitto_client_செய்தி *client_செய்தி)
 {
-	if(!config){
-		return MOSQ_ERR_INVAL;
+	செய்தி_data->queued_மொத்தம்--;
+	செய்தி_data->queued_bytes -= client_செய்தி->base_செய்தி->data.payloadlen;
+	எனில்(client_செய்தி->data.qos != 0){
+		செய்தி_data->queued_count12--;
+		செய்தி_data->queued_bytes12 -= client_செய்தி->base_செய்தி->data.payloadlen;
+	}
+}
+
+
+முழு db__open(கட்டமைப்பு mosquitto__config *config)
+{
+	எனில்(!config){
+		திரும்பு MOSQ_ERR_INVAL;
 	}
 
-	db.contexts_by_id = NULL;
-	db.contexts_by_sock = NULL;
-	db.contexts_for_free = NULL;
+	db.contexts_by_id = வெற்று;
+	db.contexts_by_sock = வெற்று;
+	db.contexts_for_free = வெற்று;
 #ifdef WITH_BRIDGE
-	db.bridges = NULL;
-	db.bridge_count = 0;
+	db.bridges = வெற்று;
+	db.bridge_மொத்தம் = 0;
 #endif
 
 	/* Initialize the hashtable */
-	db.clientid_index_hash = NULL;
+	db.clientid_index_hash = வெற்று;
 
-	db.normal_subs = NULL;
-	db.shared_subs = NULL;
+	db.normal_subs = வெற்று;
+	db.shared_subs = வெற்று;
 
 	sub__init();
 	retain__init();
 
-	db.config->security_options.unpwd = NULL;
+	db.config->security_options.unpwd = வெற்று;
 
 #ifdef WITH_PERSISTENCE
-	if(persist__restore()){
-		return 1;
+	எனில்(persist__restore()){
+		திரும்பு 1;
 	}
 #endif
 
-	return MOSQ_ERR_SUCCESS;
+	திரும்பு MOSQ_ERR_SUCCESS;
 }
 
 
-static void subhier_clean(struct mosquitto__subhier **subhier)
+நிலையான வெறுமை subhier_clean(கட்டமைப்பு mosquitto__subhier **subhier)
 {
-	struct mosquitto__subhier *peer, *subhier_tmp;
-	struct mosquitto__subleaf *leaf, *nextleaf;
+	கட்டமைப்பு mosquitto__subhier *peer, *subhier_tmp;
+	கட்டமைப்பு mosquitto__subleaf *leaf, *nextleaf;
 
 	HASH_ITER(hh, *subhier, peer, subhier_tmp){
 		leaf = peer->subs;
-		while(leaf){
+		போது(leaf){
 			nextleaf = leaf->next;
 			mosquitto_FREE(leaf);
 			leaf = nextleaf;
@@ -236,222 +236,222 @@ static void subhier_clean(struct mosquitto__subhier **subhier)
 }
 
 
-int db__close(void)
+முழு db__close(வெறுமை)
 {
 	subhier_clean(&db.normal_subs);
 	subhier_clean(&db.shared_subs);
 	retain__clean(&db.retains);
-	db__msg_store_clean();
+	db_செய்தி_store_clean();
 
-	return MOSQ_ERR_SUCCESS;
+	திரும்பு MOSQ_ERR_SUCCESS;
 }
 
 
-int db__msg_store_add(struct mosquitto__base_msg *base_msg)
+முழு db_செய்தி_store_add(கட்டமைப்பு mosquitto_base_செய்தி *base_செய்தி)
 {
-	struct mosquitto__base_msg *found;
+	கட்டமைப்பு mosquitto_base_செய்தி *found;
 	unsigned hashv;
 
-	HASH_VALUE(&base_msg->data.store_id, sizeof(base_msg->data.store_id), hashv);
-	HASH_FIND_BYHASHVALUE(hh, db.msg_store, &base_msg->data.store_id, sizeof(base_msg->data.store_id), hashv, found);
-	if(found == NULL){
-		HASH_ADD_KEYPTR_BYHASHVALUE(hh, db.msg_store, &base_msg->data.store_id, sizeof(base_msg->data.store_id), hashv, base_msg);
-		return MOSQ_ERR_SUCCESS;
-	}else{
-		return MOSQ_ERR_ALREADY_EXISTS;
+	HASH_மதிப்பு(&base_செய்தி->data.store_id, அளவு(base_செய்தி->data.store_id), hashv);
+	HASH_FIND_BYHASHVALUE(hh, db.செய்தி_store, &base_செய்தி->data.store_id, அளவு(base_செய்தி->data.store_id), hashv, found);
+	எனில்(found == வெற்று){
+		HASH_ADD_KEYPTR_BYHASHVALUE(hh, db.செய்தி_store, &base_செய்தி->data.store_id, அளவு(base_செய்தி->data.store_id), hashv, base_செய்தி);
+		திரும்பு MOSQ_ERR_SUCCESS;
+	}இல்லையெனில்{
+		திரும்பு MOSQ_ERR_ALREADY_EXISTS;
 	}
 }
 
 
-void db__msg_store_free(struct mosquitto__base_msg *base_msg)
+வெறுமை db_செய்தி_store_free(கட்டமைப்பு mosquitto_base_செய்தி *base_செய்தி)
 {
-	mosquitto_FREE(base_msg->data.source_id);
-	mosquitto_FREE(base_msg->data.source_username);
-	if(base_msg->dest_ids){
-		for(int i=0; i<base_msg->dest_id_count; i++){
-			mosquitto_FREE(base_msg->dest_ids[i]);
+	mosquitto_FREE(base_செய்தி->data.source_id);
+	mosquitto_FREE(base_செய்தி->data.source_username);
+	எனில்(base_செய்தி->dest_ids){
+		க்கு(முழு i=0; i<base_செய்தி->dest_id_மொத்தம்; i++){
+			mosquitto_FREE(base_செய்தி->dest_ids[i]);
 		}
-		mosquitto_FREE(base_msg->dest_ids);
+		mosquitto_FREE(base_செய்தி->dest_ids);
 	}
-	mosquitto_FREE(base_msg->data.topic);
-	mosquitto_property_free_all(&base_msg->data.properties);
-	mosquitto_FREE(base_msg->data.payload);
-	mosquitto_FREE(base_msg);
+	mosquitto_FREE(base_செய்தி->data.topic);
+	mosquitto_property_free_all(&base_செய்தி->data.properties);
+	mosquitto_FREE(base_செய்தி->data.payload);
+	mosquitto_FREE(base_செய்தி);
 }
 
 
-void db__msg_store_remove(struct mosquitto__base_msg *base_msg, bool notify)
+வெறுமை db_செய்தி_store_remove(கட்டமைப்பு mosquitto_base_செய்தி *base_செய்தி, bool notify)
 {
-	if(base_msg == NULL){
-		return;
+	எனில்(base_செய்தி == வெற்று){
+		திரும்பு;
 	}
-	HASH_DELETE(hh, db.msg_store, base_msg);
-	db.msg_store_count--;
-	db.msg_store_bytes -= base_msg->data.payloadlen;
-	if(notify == true){
-		plugin_persist__handle_base_msg_delete(base_msg);
+	HASH_DELETE(hh, db.செய்தி_store, base_செய்தி);
+	db.செய்தி_store_மொத்தம்--;
+	db.செய்தி_store_bytes -= base_செய்தி->data.payloadlen;
+	எனில்(notify == true){
+		plugin_persist_handle_base_செய்தி_delete(base_செய்தி);
 	}
-	db__msg_store_free(base_msg);
+	db_செய்தி_store_free(base_செய்தி);
 }
 
 
-void db__msg_store_clean(void)
+வெறுமை db_செய்தி_store_clean(வெறுமை)
 {
-	struct mosquitto__base_msg *base_msg, *base_msg_tmp;
+	கட்டமைப்பு mosquitto_base_செய்தி *base_செய்தி, *base_செய்தி_tmp;
 
-	HASH_ITER(hh, db.msg_store, base_msg, base_msg_tmp){
-		db__msg_store_remove(base_msg, false);
-	}
-}
-
-
-void db__msg_store_ref_inc(struct mosquitto__base_msg *base_msg)
-{
-	base_msg->ref_count++;
-}
-
-
-void db__msg_store_ref_dec(struct mosquitto__base_msg **base_msg)
-{
-	(*base_msg)->ref_count--;
-	if((*base_msg)->ref_count == 0){
-		db__msg_store_remove(*base_msg, true);
-		*base_msg = NULL;
+	HASH_ITER(hh, db.செய்தி_store, base_செய்தி, base_செய்தி_tmp){
+		db_செய்தி_store_remove(base_செய்தி, false);
 	}
 }
 
 
-void db__msg_store_compact(void)
+வெறுமை db_செய்தி_store_ref_inc(கட்டமைப்பு mosquitto_base_செய்தி *base_செய்தி)
 {
-	struct mosquitto__base_msg *base_msg, *base_msg_tmp;
+	base_செய்தி->ref_மொத்தம்++;
+}
 
-	HASH_ITER(hh, db.msg_store, base_msg, base_msg_tmp){
-		if(base_msg->ref_count < 1){
-			db__msg_store_remove(base_msg, true);
+
+வெறுமை db_செய்தி_store_ref_dec(கட்டமைப்பு mosquitto_base_செய்தி **base_செய்தி)
+{
+	(*base_செய்தி)->ref_மொத்தம்--;
+	எனில்((*base_செய்தி)->ref_மொத்தம் == 0){
+		db_செய்தி_store_remove(*base_செய்தி, true);
+		*base_செய்தி = வெற்று;
+	}
+}
+
+
+வெறுமை db_செய்தி_store_compact(வெறுமை)
+{
+	கட்டமைப்பு mosquitto_base_செய்தி *base_செய்தி, *base_செய்தி_tmp;
+
+	HASH_ITER(hh, db.செய்தி_store, base_செய்தி, base_செய்தி_tmp){
+		எனில்(base_செய்தி->ref_மொத்தம் < 1){
+			db_செய்தி_store_remove(base_செய்தி, true);
 		}
 	}
 }
 
 
-static void db__message_remove_inflight(struct mosquitto *context, struct mosquitto_msg_data *msg_data, struct mosquitto__client_msg *item)
+நிலையான வெறுமை db__message_remove_inflight(கட்டமைப்பு mosquitto *context, கட்டமைப்பு mosquitto_செய்தி_data *செய்தி_data, கட்டமைப்பு mosquitto_client_செய்தி *item)
 {
-	if(!context || !msg_data || !item){
-		return;
+	எனில்(!context || !செய்தி_data || !item){
+		திரும்பு;
 	}
 
-	plugin_persist__handle_client_msg_delete(context, item);
+	plugin_persist_handle_client_செய்தி_delete(context, item);
 
-	DL_DELETE(msg_data->inflight, item);
-	if(item->base_msg){
-		db__msg_remove_from_inflight_stats(msg_data, item);
-		db__msg_store_ref_dec(&item->base_msg);
+	DL_DELETE(செய்தி_data->inflight, item);
+	எனில்(item->base_செய்தி){
+		db_செய்தி_remove_from_inflight_stats(செய்தி_data, item);
+		db_செய்தி_store_ref_dec(&item->base_செய்தி);
 	}
 
 	mosquitto_FREE(item);
 }
 
 
-static void db__message_remove_queued(struct mosquitto *context, struct mosquitto_msg_data *msg_data, struct mosquitto__client_msg *item)
+நிலையான வெறுமை db__message_remove_queued(கட்டமைப்பு mosquitto *context, கட்டமைப்பு mosquitto_செய்தி_data *செய்தி_data, கட்டமைப்பு mosquitto_client_செய்தி *item)
 {
-	if(!context || !msg_data || !item){
-		return;
+	எனில்(!context || !செய்தி_data || !item){
+		திரும்பு;
 	}
 
-	plugin_persist__handle_client_msg_delete(context, item);
+	plugin_persist_handle_client_செய்தி_delete(context, item);
 
-	DL_DELETE(msg_data->queued, item);
-	if(item->base_msg){
-		db__msg_remove_from_queued_stats(msg_data, item);
-		db__msg_store_ref_dec(&item->base_msg);
+	DL_DELETE(செய்தி_data->queued, item);
+	எனில்(item->base_செய்தி){
+		db_செய்தி_remove_from_queued_stats(செய்தி_data, item);
+		db_செய்தி_store_ref_dec(&item->base_செய்தி);
 	}
 
 	mosquitto_FREE(item);
 }
 
 
-static void db__fill_inflight_out_from_queue(struct mosquitto *context)
+நிலையான வெறுமை db__fill_inflight_out_from_queue(கட்டமைப்பு mosquitto *context)
 {
-	struct mosquitto__client_msg *client_msg, *tmp;
+	கட்டமைப்பு mosquitto_client_செய்தி *client_செய்தி, *tmp;
 
-	DL_FOREACH_SAFE(context->msgs_out.queued, client_msg, tmp){
-		if(!db__ready_for_flight(context, mosq_md_out, client_msg->data.qos)){
-			return;
+	DL_FOREACH_SAFE(context->msgs_out.queued, client_செய்தி, tmp){
+		எனில்(!db__ready_for_flight(context, mosq_md_out, client_செய்தி->data.qos)){
+			திரும்பு;
 		}
-		switch(client_msg->data.qos){
-			case 0:
-				client_msg->data.state = mosq_ms_publish_qos0;
-				break;
-			case 1:
-				client_msg->data.state = mosq_ms_publish_qos1;
-				break;
-			case 2:
-				client_msg->data.state = mosq_ms_publish_qos2;
-				break;
+		தேர்வு(client_செய்தி->data.qos){
+			நிலை 0:
+				client_செய்தி->data.state = mosq_ms_publish_qos0;
+				நிறுத்து;
+			நிலை 1:
+				client_செய்தி->data.state = mosq_ms_publish_qos1;
+				நிறுத்து;
+			நிலை 2:
+				client_செய்தி->data.state = mosq_ms_publish_qos2;
+				நிறுத்து;
 		}
-		if(client_msg->base_msg->data.expiry_time && db.now_real_s > client_msg->base_msg->data.expiry_time){
-			db__message_remove_queued(context, &context->msgs_out, client_msg);
-			continue;
+		எனில்(client_செய்தி->base_செய்தி->data.expiry_time && db.now_real_s > client_செய்தி->base_செய்தி->data.expiry_time){
+			db__message_remove_queued(context, &context->msgs_out, client_செய்தி);
+			தொடர்;
 		}
-		plugin_persist__handle_client_msg_update(context, client_msg);
+		plugin_persist_handle_client_செய்தி_update(context, client_செய்தி);
 		db__message_dequeue_first(context, &context->msgs_out);
 	}
 }
 
 
-void db__message_dequeue_first(struct mosquitto *context, struct mosquitto_msg_data *msg_data)
+வெறுமை db__message_dequeue_first(கட்டமைப்பு mosquitto *context, கட்டமைப்பு mosquitto_செய்தி_data *செய்தி_data)
 {
-	struct mosquitto__client_msg *client_msg;
+	கட்டமைப்பு mosquitto_client_செய்தி *client_செய்தி;
 
 	UNUSED(context);
 
-	client_msg = msg_data->queued;
-	DL_DELETE(msg_data->queued, client_msg);
-	DL_APPEND(msg_data->inflight, client_msg);
-	if(msg_data->inflight_quota > 0){
-		msg_data->inflight_quota--;
+	client_செய்தி = செய்தி_data->queued;
+	DL_DELETE(செய்தி_data->queued, client_செய்தி);
+	DL_APPEND(செய்தி_data->inflight, client_செய்தி);
+	எனில்(செய்தி_data->inflight_quota > 0){
+		செய்தி_data->inflight_quota--;
 	}
 
-	db__msg_remove_from_queued_stats(msg_data, client_msg);
-	db__msg_add_to_inflight_stats(msg_data, client_msg);
+	db_செய்தி_remove_from_queued_stats(செய்தி_data, client_செய்தி);
+	db_செய்தி_add_to_inflight_stats(செய்தி_data, client_செய்தி);
 }
 
 
-int db__message_delete_outgoing(struct mosquitto *context, uint16_t mid, enum mosquitto_msg_state expect_state, int qos)
+முழு db__message_delete_outgoing(கட்டமைப்பு mosquitto *context, uint16_t mid, எண்ணிக்கை mosquitto_செய்தி_state expect_state, முழு qos)
 {
-	struct mosquitto__client_msg *client_msg, *tmp;
+	கட்டமைப்பு mosquitto_client_செய்தி *client_செய்தி, *tmp;
 	bool deleted = false;
 
-	if(!context){
-		return MOSQ_ERR_INVAL;
+	எனில்(!context){
+		திரும்பு MOSQ_ERR_INVAL;
 	}
 
-	DL_FOREACH_SAFE(context->msgs_out.inflight, client_msg, tmp){
-		if(client_msg->data.mid == mid){
-			if(client_msg->data.qos != qos){
-				log__printf(NULL, MOSQ_LOG_INFO, "Protocol error from %s: Mismatched QoS (%d:%d) when deleting outgoing message.",
-						context->id, client_msg->data.qos, qos);
-				return MOSQ_ERR_PROTOCOL;
-			}else if(qos == 2 && client_msg->data.state != expect_state && expect_state != mosq_ms_any){
-				log__printf(NULL, MOSQ_LOG_INFO, "Protocol error from %s: Mismatched state (%d:%d) when deleting outgoing message.",
-						context->id, client_msg->data.state, expect_state);
-				return MOSQ_ERR_PROTOCOL;
+	DL_FOREACH_SAFE(context->msgs_out.inflight, client_செய்தி, tmp){
+		எனில்(client_செய்தி->data.mid == mid){
+			எனில்(client_செய்தி->data.qos != qos){
+				log__printf(வெற்று, MOSQ_LOG_INFO, "Protocol error from %s: Mismatched QoS (%d:%d) when deleting outgoing message.",
+						context->id, client_செய்தி->data.qos, qos);
+				திரும்பு MOSQ_ERR_PROTOCOL;
+			}இல்லையெனில் எனில்(qos == 2 && client_செய்தி->data.state != expect_state && expect_state != mosq_ms_any){
+				log__printf(வெற்று, MOSQ_LOG_INFO, "Protocol error from %s: Mismatched state (%d:%d) when deleting outgoing message.",
+						context->id, client_செய்தி->data.state, expect_state);
+				திரும்பு MOSQ_ERR_PROTOCOL;
 			}
-			db__message_remove_inflight(context, &context->msgs_out, client_msg);
+			db__message_remove_inflight(context, &context->msgs_out, client_செய்தி);
 			deleted = true;
-			break;
+			நிறுத்து;
 		}
 	}
 
-	if(deleted == false){
-		DL_FOREACH_SAFE(context->msgs_out.queued, client_msg, tmp){
-			if(client_msg->data.mid == mid){
-				if(client_msg->data.qos != qos){
-					return MOSQ_ERR_PROTOCOL;
-				}else if(qos == 2 && client_msg->data.state != expect_state && expect_state != mosq_ms_any){
-					return MOSQ_ERR_PROTOCOL;
+	எனில்(deleted == false){
+		DL_FOREACH_SAFE(context->msgs_out.queued, client_செய்தி, tmp){
+			எனில்(client_செய்தி->data.mid == mid){
+				எனில்(client_செய்தி->data.qos != qos){
+					திரும்பு MOSQ_ERR_PROTOCOL;
+				}இல்லையெனில் எனில்(qos == 2 && client_செய்தி->data.state != expect_state && expect_state != mosq_ms_any){
+					திரும்பு MOSQ_ERR_PROTOCOL;
 				}
-				db__message_remove_queued(context, &context->msgs_out, client_msg);
-				break;
+				db__message_remove_queued(context, &context->msgs_out, client_செய்தி);
+				நிறுத்து;
 			}
 		}
 	}
@@ -460,121 +460,121 @@ int db__message_delete_outgoing(struct mosquitto *context, uint16_t mid, enum mo
 	db.persistence_changes++;
 #endif
 
-	return db__message_write_inflight_out_latest(context);
+	திரும்பு db__message_write_inflight_out_latest(context);
 }
 
 
 /* Only for QoS 2 messages */
-int db__message_insert_incoming(struct mosquitto *context, uint64_t cmsg_id, struct mosquitto__base_msg *base_msg, bool persist)
+முழு db_message_செருகு_incoming(கட்டமைப்பு mosquitto *context, uint64_t cmsg_id, கட்டமைப்பு mosquitto_base_செய்தி *base_செய்தி, bool persist)
 {
-	struct mosquitto__client_msg *client_msg;
-	struct mosquitto_msg_data *msg_data;
-	enum mosquitto_msg_state state = mosq_ms_invalid;
-	int rc = 0;
+	கட்டமைப்பு mosquitto_client_செய்தி *client_செய்தி;
+	கட்டமைப்பு mosquitto_செய்தி_data *செய்தி_data;
+	எண்ணிக்கை mosquitto_செய்தி_state state = mosq_ms_invalid;
+	முழு rc = 0;
 
-	assert(base_msg);
-	if(!context){
-		return MOSQ_ERR_INVAL;
+	ப்ரதிஜ்ஞா(base_செய்தி);
+	எனில்(!context){
+		திரும்பு MOSQ_ERR_INVAL;
 	}
-	if(!context->id){
+	எனில்(!context->id){
 		/* Protect against unlikely "client is disconnected but not entirely freed" scenario */
-		return MOSQ_ERR_SUCCESS;
+		திரும்பு MOSQ_ERR_SUCCESS;
 
 	}
-	msg_data = &context->msgs_in;
+	செய்தி_data = &context->msgs_in;
 
-	if(db__ready_for_flight(context, mosq_md_in, base_msg->data.qos)){
+	எனில்(db__ready_for_flight(context, mosq_md_in, base_செய்தி->data.qos)){
 		state = mosq_ms_wait_for_pubrel;
-	}else if(base_msg->data.qos != 0 && db__ready_for_queue(context, base_msg->data.qos, msg_data)){
+	}இல்லையெனில் எனில்(base_செய்தி->data.qos != 0 && db__ready_for_queue(context, base_செய்தி->data.qos, செய்தி_data)){
 		state = mosq_ms_queued;
 		rc = 2;
-	}else{
+	}இல்லையெனில்{
 		/* Dropping message due to full queue. */
-		if(context->is_dropping == false){
+		எனில்(context->is_dropping == false){
 			context->is_dropping = true;
-			log__printf(NULL, MOSQ_LOG_NOTICE,
+			log__printf(வெற்று, MOSQ_LOG_NOTICE,
 					"Outgoing messages are being dropped for client %s.",
 					context->id);
 		}
 		metrics__int_inc(mosq_counter_mqtt_publish_dropped, 1);
 		context->stats.messages_dropped++;
 
-		return 2;
+		திரும்பு 2;
 	}
 
-	assert(state != mosq_ms_invalid);
+	ப்ரதிஜ்ஞா(state != mosq_ms_invalid);
 
 #ifdef WITH_PERSISTENCE
-	if(state == mosq_ms_queued){
+	எனில்(state == mosq_ms_queued){
 		db.persistence_changes++;
 	}
 #endif
 
-	client_msg = mosquitto_malloc(sizeof(struct mosquitto__client_msg));
-	if(!client_msg){
-		return MOSQ_ERR_NOMEM;
+	client_செய்தி = mosquitto_malloc(அளவு(கட்டமைப்பு mosquitto_client_செய்தி));
+	எனில்(!client_செய்தி){
+		திரும்பு MOSQ_ERR_NOMEM;
 	}
-	client_msg->prev = NULL;
-	client_msg->next = NULL;
-	if(cmsg_id){
-		client_msg->data.cmsg_id = cmsg_id;
-	}else{
-		client_msg->data.cmsg_id = ++context->last_cmsg_id;
+	client_செய்தி->prev = வெற்று;
+	client_செய்தி->next = வெற்று;
+	எனில்(cmsg_id){
+		client_செய்தி->data.cmsg_id = cmsg_id;
+	}இல்லையெனில்{
+		client_செய்தி->data.cmsg_id = ++context->last_cmsg_id;
 	}
-	client_msg->base_msg = base_msg;
-	db__msg_store_ref_inc(client_msg->base_msg);
-	client_msg->data.mid = base_msg->data.source_mid;
-	client_msg->data.direction = mosq_md_in;
-	client_msg->data.state = (uint8_t)state;
-	client_msg->data.dup = false;
-	if(base_msg->data.qos > context->max_qos){
-		client_msg->data.qos = context->max_qos;
-	}else{
-		client_msg->data.qos = base_msg->data.qos;
+	client_செய்தி->base_செய்தி = base_செய்தி;
+	db_செய்தி_store_ref_inc(client_செய்தி->base_செய்தி);
+	client_செய்தி->data.mid = base_செய்தி->data.source_mid;
+	client_செய்தி->data.direction = mosq_md_in;
+	client_செய்தி->data.state = (uint8_t)state;
+	client_செய்தி->data.dup = false;
+	எனில்(base_செய்தி->data.qos > context->max_qos){
+		client_செய்தி->data.qos = context->max_qos;
+	}இல்லையெனில்{
+		client_செய்தி->data.qos = base_செய்தி->data.qos;
 	}
-	client_msg->data.retain = base_msg->data.retain;
-	client_msg->data.subscription_identifier = 0;
+	client_செய்தி->data.retain = base_செய்தி->data.retain;
+	client_செய்தி->data.subscription_identifier = 0;
 
-	if(state == mosq_ms_queued){
-		DL_APPEND(msg_data->queued, client_msg);
-		db__msg_add_to_queued_stats(msg_data, client_msg);
-	}else{
-		DL_APPEND(msg_data->inflight, client_msg);
-		db__msg_add_to_inflight_stats(msg_data, client_msg);
-	}
-
-	if(persist && context->is_persisted){
-		plugin_persist__handle_base_msg_add(client_msg->base_msg);
-		plugin_persist__handle_client_msg_add(context, client_msg);
+	எனில்(state == mosq_ms_queued){
+		DL_APPEND(செய்தி_data->queued, client_செய்தி);
+		db_செய்தி_add_to_queued_stats(செய்தி_data, client_செய்தி);
+	}இல்லையெனில்{
+		DL_APPEND(செய்தி_data->inflight, client_செய்தி);
+		db_செய்தி_add_to_inflight_stats(செய்தி_data, client_செய்தி);
 	}
 
-	if(client_msg->base_msg->data.qos > 0){
+	எனில்(persist && context->is_persisted){
+		plugin_persist_handle_base_செய்தி_add(client_செய்தி->base_செய்தி);
+		plugin_persist_handle_client_செய்தி_add(context, client_செய்தி);
+	}
+
+	எனில்(client_செய்தி->base_செய்தி->data.qos > 0){
 		util__decrement_receive_quota(context);
 	}
-	return rc;
+	திரும்பு rc;
 }
 
 
-int db__message_insert_outgoing(struct mosquitto *context, uint64_t cmsg_id, uint16_t mid, uint8_t qos, bool retain, struct mosquitto__base_msg *base_msg, uint32_t subscription_identifier, bool update, bool persist)
+முழு db_message_செருகு_outgoing(கட்டமைப்பு mosquitto *context, uint64_t cmsg_id, uint16_t mid, uint8_t qos, bool retain, கட்டமைப்பு mosquitto_base_செய்தி *base_செய்தி, uint32_t subscription_identifier, bool update, bool persist)
 {
-	struct mosquitto__client_msg *client_msg;
-	struct mosquitto_msg_data *msg_data;
-	enum mosquitto_msg_state state = mosq_ms_invalid;
-	int rc = 0;
-	char **dest_ids;
+	கட்டமைப்பு mosquitto_client_செய்தி *client_செய்தி;
+	கட்டமைப்பு mosquitto_செய்தி_data *செய்தி_data;
+	எண்ணிக்கை mosquitto_செய்தி_state state = mosq_ms_invalid;
+	முழு rc = 0;
+	எழுத்து **dest_ids;
 
-	assert(base_msg);
-	if(!context){
-		return MOSQ_ERR_INVAL;
+	ப்ரதிஜ்ஞா(base_செய்தி);
+	எனில்(!context){
+		திரும்பு MOSQ_ERR_INVAL;
 	}
-	if(!context->id){
+	எனில்(!context->id){
 		/* Protect against unlikely "client is disconnected but not entirely freed" scenario */
-		return MOSQ_ERR_SUCCESS;
+		திரும்பு MOSQ_ERR_SUCCESS;
 
 	}
 	context->stats.messages_sent++;
 
-	msg_data = &context->msgs_out;
+	செய்தி_data = &context->msgs_out;
 
 	/* Check whether we've already sent this message to this client
 	 * for outgoing messages only.
@@ -583,121 +583,121 @@ int db__message_insert_outgoing(struct mosquitto *context, uint64_t cmsg_id, uin
 	 * multiple times for overlapping subscriptions, although this is only the
 	 * case for SUBSCRIPTION with multiple subs in so is a minor concern.
 	 */
-	if(context->protocol != mosq_p_mqtt5
+	எனில்(context->protocol != mosq_p_mqtt5
 			&& db.config->allow_duplicate_messages == false
-			&& retain == false && base_msg->dest_ids){
+			&& retain == false && base_செய்தி->dest_ids){
 
-		for(int i=0; i<base_msg->dest_id_count; i++){
-			if(base_msg->dest_ids[i] && !strcmp(base_msg->dest_ids[i], context->id)){
+		க்கு(முழு i=0; i<base_செய்தி->dest_id_மொத்தம்; i++){
+			எனில்(base_செய்தி->dest_ids[i] && !strcmp(base_செய்தி->dest_ids[i], context->id)){
 				/* We have already sent this message to this client. */
-				return MOSQ_ERR_SUCCESS;
+				திரும்பு MOSQ_ERR_SUCCESS;
 			}
 		}
 	}
-	if(!net__is_connected(context)){
+	எனில்(!net__is_connected(context)){
 		/* Client is not connected only queue messages with QoS>0. */
-		if(qos == 0 && !db.config->queue_qos0_messages){
-			if(!context->bridge){
-				return 2;
-			}else{
-				if(context->bridge->start_type != bst_lazy){
-					return 2;
+		எனில்(qos == 0 && !db.config->queue_qos0_messages){
+			எனில்(!context->bridge){
+				திரும்பு 2;
+			}இல்லையெனில்{
+				எனில்(context->bridge->start_type != bst_lazy){
+					திரும்பு 2;
 				}
 			}
 		}
-		if(context->bridge && context->bridge->clean_start_local == true){
-			return 2;
+		எனில்(context->bridge && context->bridge->clean_start_local == true){
+			திரும்பு 2;
 		}
 	}
 
-	if(net__is_connected(context)){
-		if(db__ready_for_flight(context, mosq_md_out, qos)){
-			switch(qos){
-				case 0:
+	எனில்(net__is_connected(context)){
+		எனில்(db__ready_for_flight(context, mosq_md_out, qos)){
+			தேர்வு(qos){
+				நிலை 0:
 					state = mosq_ms_publish_qos0;
-					break;
-				case 1:
+					நிறுத்து;
+				நிலை 1:
 					state = mosq_ms_publish_qos1;
-					break;
-				case 2:
+					நிறுத்து;
+				நிலை 2:
 					state = mosq_ms_publish_qos2;
-					break;
+					நிறுத்து;
 			}
-		}else if(qos != 0 && db__ready_for_queue(context, qos, msg_data)){
+		}இல்லையெனில் எனில்(qos != 0 && db__ready_for_queue(context, qos, செய்தி_data)){
 			state = mosq_ms_queued;
 			rc = 2;
-		}else{
+		}இல்லையெனில்{
 			/* Dropping message due to full queue. */
-			if(context->is_dropping == false){
+			எனில்(context->is_dropping == false){
 				context->is_dropping = true;
-				log__printf(NULL, MOSQ_LOG_NOTICE,
+				log__printf(வெற்று, MOSQ_LOG_NOTICE,
 						"Outgoing messages are being dropped for client %s.",
 						context->id);
 			}
 			metrics__int_inc(mosq_counter_mqtt_publish_dropped, 1);
-			return 2;
+			திரும்பு 2;
 		}
-	}else{
-		if(db__ready_for_queue(context, qos, msg_data)){
+	}இல்லையெனில்{
+		எனில்(db__ready_for_queue(context, qos, செய்தி_data)){
 			state = mosq_ms_queued;
-		}else{
+		}இல்லையெனில்{
 			metrics__int_inc(mosq_counter_mqtt_publish_dropped, 1);
-			if(context->is_dropping == false){
+			எனில்(context->is_dropping == false){
 				context->is_dropping = true;
-				log__printf(NULL, MOSQ_LOG_NOTICE,
+				log__printf(வெற்று, MOSQ_LOG_NOTICE,
 						"Outgoing messages are being dropped for client %s.",
 						context->id);
 			}
-			return 2;
+			திரும்பு 2;
 		}
 	}
-	assert(state != mosq_ms_invalid);
+	ப்ரதிஜ்ஞா(state != mosq_ms_invalid);
 
 #ifdef WITH_PERSISTENCE
-	if(state == mosq_ms_queued){
+	எனில்(state == mosq_ms_queued){
 		db.persistence_changes++;
 	}
 #endif
 
-	client_msg = mosquitto_malloc(sizeof(struct mosquitto__client_msg));
-	if(!client_msg){
-		return MOSQ_ERR_NOMEM;
+	client_செய்தி = mosquitto_malloc(அளவு(கட்டமைப்பு mosquitto_client_செய்தி));
+	எனில்(!client_செய்தி){
+		திரும்பு MOSQ_ERR_NOMEM;
 	}
-	client_msg->prev = NULL;
-	client_msg->next = NULL;
-	if(cmsg_id){
-		client_msg->data.cmsg_id = cmsg_id;
-	}else{
-		client_msg->data.cmsg_id = ++context->last_cmsg_id;
+	client_செய்தி->prev = வெற்று;
+	client_செய்தி->next = வெற்று;
+	எனில்(cmsg_id){
+		client_செய்தி->data.cmsg_id = cmsg_id;
+	}இல்லையெனில்{
+		client_செய்தி->data.cmsg_id = ++context->last_cmsg_id;
 	}
-	client_msg->base_msg = base_msg;
-	db__msg_store_ref_inc(client_msg->base_msg);
-	client_msg->data.mid = mid;
-	client_msg->data.direction = mosq_md_out;
-	client_msg->data.state = (uint8_t)state;
-	client_msg->data.dup = false;
-	if(qos > context->max_qos){
-		client_msg->data.qos = context->max_qos;
-	}else{
-		client_msg->data.qos = qos;
+	client_செய்தி->base_செய்தி = base_செய்தி;
+	db_செய்தி_store_ref_inc(client_செய்தி->base_செய்தி);
+	client_செய்தி->data.mid = mid;
+	client_செய்தி->data.direction = mosq_md_out;
+	client_செய்தி->data.state = (uint8_t)state;
+	client_செய்தி->data.dup = false;
+	எனில்(qos > context->max_qos){
+		client_செய்தி->data.qos = context->max_qos;
+	}இல்லையெனில்{
+		client_செய்தி->data.qos = qos;
 	}
-	client_msg->data.retain = retain;
-	client_msg->data.subscription_identifier = subscription_identifier;
+	client_செய்தி->data.retain = retain;
+	client_செய்தி->data.subscription_identifier = subscription_identifier;
 
-	if(state == mosq_ms_queued){
-		DL_APPEND(msg_data->queued, client_msg);
-		db__msg_add_to_queued_stats(msg_data, client_msg);
-	}else{
-		DL_APPEND(msg_data->inflight, client_msg);
-		db__msg_add_to_inflight_stats(msg_data, client_msg);
-	}
-
-	if(persist && context->is_persisted){
-		plugin_persist__handle_base_msg_add(client_msg->base_msg);
-		plugin_persist__handle_client_msg_add(context, client_msg);
+	எனில்(state == mosq_ms_queued){
+		DL_APPEND(செய்தி_data->queued, client_செய்தி);
+		db_செய்தி_add_to_queued_stats(செய்தி_data, client_செய்தி);
+	}இல்லையெனில்{
+		DL_APPEND(செய்தி_data->inflight, client_செய்தி);
+		db_செய்தி_add_to_inflight_stats(செய்தி_data, client_செய்தி);
 	}
 
-	if(db.config->allow_duplicate_messages == false && retain == false){
+	எனில்(persist && context->is_persisted){
+		plugin_persist_handle_base_செய்தி_add(client_செய்தி->base_செய்தி);
+		plugin_persist_handle_client_செய்தி_add(context, client_செய்தி);
+	}
+
+	எனில்(db.config->allow_duplicate_messages == false && retain == false){
 		/* Record which client ids this message has been sent to so we can avoid duplicates.
 		 * Outgoing messages only.
 		 * If retain==true then this is a stale retained message and so should be
@@ -705,216 +705,216 @@ int db__message_insert_outgoing(struct mosquitto *context, uint64_t cmsg_id, uin
 		 * multiple times for overlapping subscriptions, although this is only the
 		 * case for SUBSCRIPTION with multiple subs in so is a minor concern.
 		 */
-		dest_ids = mosquitto_realloc(base_msg->dest_ids, sizeof(char *)*(size_t)(base_msg->dest_id_count+1));
-		if(dest_ids){
-			base_msg->dest_ids = dest_ids;
-			base_msg->dest_id_count++;
-			base_msg->dest_ids[base_msg->dest_id_count-1] = mosquitto_strdup(context->id);
-			if(!base_msg->dest_ids[base_msg->dest_id_count-1]){
-				return MOSQ_ERR_NOMEM;
+		dest_ids = mosquitto_realloc(base_செய்தி->dest_ids, அளவு(எழுத்து *)*(size_t)(base_செய்தி->dest_id_மொத்தம்+1));
+		எனில்(dest_ids){
+			base_செய்தி->dest_ids = dest_ids;
+			base_செய்தி->dest_id_மொத்தம்++;
+			base_செய்தி->dest_ids[base_செய்தி->dest_id_மொத்தம்-1] = mosquitto_strdup(context->id);
+			எனில்(!base_செய்தி->dest_ids[base_செய்தி->dest_id_மொத்தம்-1]){
+				திரும்பு MOSQ_ERR_NOMEM;
 			}
-		}else{
-			return MOSQ_ERR_NOMEM;
+		}இல்லையெனில்{
+			திரும்பு MOSQ_ERR_NOMEM;
 		}
 	}
 #ifdef WITH_BRIDGE
-	if(context->bridge && context->bridge->start_type == bst_lazy
+	எனில்(context->bridge && context->bridge->start_type == bst_lazy
 			&& !net__is_connected(context)
-			&& context->msgs_out.inflight_count + context->msgs_out.queued_count >= context->bridge->threshold){
+			&& context->msgs_out.inflight_மொத்தம் + context->msgs_out.queued_மொத்தம் >= context->bridge->threshold){
 
 		context->bridge->lazy_reconnect = true;
 	}
 #endif
 
-	if(client_msg->data.qos > 0 && state != mosq_ms_queued){
+	எனில்(client_செய்தி->data.qos > 0 && state != mosq_ms_queued){
 		util__decrement_send_quota(context);
 	}
 
-	if(update){
+	எனில்(update){
 		rc = db__message_write_inflight_out_latest(context);
-		if(rc){
-			return rc;
+		எனில்(rc){
+			திரும்பு rc;
 		}
 		rc = db__message_write_queued_out(context);
-		if(rc){
-			return rc;
+		எனில்(rc){
+			திரும்பு rc;
 		}
 	}
 
-	return rc;
+	திரும்பு rc;
 }
 
 
-static inline int db__message_update_outgoing_state(struct mosquitto *context, struct mosquitto__client_msg *head,
-		uint16_t mid, enum mosquitto_msg_state state, int qos, bool persist)
+நிலையான உள்வரி முழு db__message_update_outgoing_state(கட்டமைப்பு mosquitto *context, கட்டமைப்பு mosquitto_client_செய்தி *head,
+		uint16_t mid, எண்ணிக்கை mosquitto_செய்தி_state state, முழு qos, bool persist)
 {
-	struct mosquitto__client_msg *client_msg;
+	கட்டமைப்பு mosquitto_client_செய்தி *client_செய்தி;
 
-	DL_FOREACH(head, client_msg){
-		if(client_msg->data.mid == mid){
-			if(client_msg->data.qos != qos){
-				log__printf(NULL, MOSQ_LOG_INFO, "Protocol error from %s: Mismatched QoS (%d:%d) when updating outgoing message.",
-						context->id, client_msg->data.qos, qos);
-				return MOSQ_ERR_PROTOCOL;
+	DL_FOREACH(head, client_செய்தி){
+		எனில்(client_செய்தி->data.mid == mid){
+			எனில்(client_செய்தி->data.qos != qos){
+				log__printf(வெற்று, MOSQ_LOG_INFO, "Protocol error from %s: Mismatched QoS (%d:%d) when updating outgoing message.",
+						context->id, client_செய்தி->data.qos, qos);
+				திரும்பு MOSQ_ERR_PROTOCOL;
 			}
-			client_msg->data.state = (uint8_t)state;
-			if(persist){
-				plugin_persist__handle_client_msg_update(context, client_msg);
+			client_செய்தி->data.state = (uint8_t)state;
+			எனில்(persist){
+				plugin_persist_handle_client_செய்தி_update(context, client_செய்தி);
 			}
-			return MOSQ_ERR_SUCCESS;
+			திரும்பு MOSQ_ERR_SUCCESS;
 		}
 	}
-	return MOSQ_ERR_NOT_FOUND;
+	திரும்பு MOSQ_ERR_NOT_FOUND;
 }
 
 
-int db__message_update_outgoing(struct mosquitto *context, uint16_t mid, enum mosquitto_msg_state state, int qos, bool persist)
+முழு db__message_update_outgoing(கட்டமைப்பு mosquitto *context, uint16_t mid, எண்ணிக்கை mosquitto_செய்தி_state state, முழு qos, bool persist)
 {
-	int rc;
+	முழு rc;
 
 	rc = db__message_update_outgoing_state(context, context->msgs_out.inflight, mid, state, qos, persist);
-	if(!persist && rc == MOSQ_ERR_NOT_FOUND){
+	எனில்(!persist && rc == MOSQ_ERR_NOT_FOUND){
 		rc = db__message_update_outgoing_state(context, context->msgs_out.queued, mid, state, qos, persist);
 	}
-	return rc;
+	திரும்பு rc;
 }
 
 
-static void db__messages_delete_list(struct mosquitto__client_msg **head)
+நிலையான வெறுமை db__messages_delete_list(கட்டமைப்பு mosquitto_client_செய்தி **head)
 {
-	struct mosquitto__client_msg *client_msg, *tmp;
+	கட்டமைப்பு mosquitto_client_செய்தி *client_செய்தி, *tmp;
 
-	DL_FOREACH_SAFE(*head, client_msg, tmp){
-		DL_DELETE(*head, client_msg);
-		db__msg_store_ref_dec(&client_msg->base_msg);
-		mosquitto_FREE(client_msg);
+	DL_FOREACH_SAFE(*head, client_செய்தி, tmp){
+		DL_DELETE(*head, client_செய்தி);
+		db_செய்தி_store_ref_dec(&client_செய்தி->base_செய்தி);
+		mosquitto_FREE(client_செய்தி);
 	}
-	*head = NULL;
+	*head = வெற்று;
 }
 
 
-int db__messages_delete_incoming(struct mosquitto *context)
+முழு db__messages_delete_incoming(கட்டமைப்பு mosquitto *context)
 {
-	if(!context){
-		return MOSQ_ERR_INVAL;
+	எனில்(!context){
+		திரும்பு MOSQ_ERR_INVAL;
 	}
 
 	db__messages_delete_list(&context->msgs_in.inflight);
 	db__messages_delete_list(&context->msgs_in.queued);
 	context->msgs_in.inflight_bytes = 0;
 	context->msgs_in.inflight_bytes12 = 0;
-	context->msgs_in.inflight_count = 0;
+	context->msgs_in.inflight_மொத்தம் = 0;
 	context->msgs_in.inflight_count12 = 0;
 	context->msgs_in.queued_bytes = 0;
 	context->msgs_in.queued_bytes12 = 0;
-	context->msgs_in.queued_count = 0;
+	context->msgs_in.queued_மொத்தம் = 0;
 	context->msgs_in.queued_count12 = 0;
 
-	return MOSQ_ERR_SUCCESS;
+	திரும்பு MOSQ_ERR_SUCCESS;
 }
 
 
-int db__messages_delete_outgoing(struct mosquitto *context)
+முழு db__messages_delete_outgoing(கட்டமைப்பு mosquitto *context)
 {
-	if(!context){
-		return MOSQ_ERR_INVAL;
+	எனில்(!context){
+		திரும்பு MOSQ_ERR_INVAL;
 	}
 
 	db__messages_delete_list(&context->msgs_out.inflight);
 	db__messages_delete_list(&context->msgs_out.queued);
 	context->msgs_out.inflight_bytes = 0;
 	context->msgs_out.inflight_bytes12 = 0;
-	context->msgs_out.inflight_count = 0;
+	context->msgs_out.inflight_மொத்தம் = 0;
 	context->msgs_out.inflight_count12 = 0;
 	context->msgs_out.queued_bytes = 0;
 	context->msgs_out.queued_bytes12 = 0;
-	context->msgs_out.queued_count = 0;
+	context->msgs_out.queued_மொத்தம் = 0;
 	context->msgs_out.queued_count12 = 0;
 
-	return MOSQ_ERR_SUCCESS;
+	திரும்பு MOSQ_ERR_SUCCESS;
 }
 
 
-int db__messages_delete(struct mosquitto *context, bool force_free)
+முழு db__messages_delete(கட்டமைப்பு mosquitto *context, bool force_free)
 {
-	if(!context){
-		return MOSQ_ERR_INVAL;
+	எனில்(!context){
+		திரும்பு MOSQ_ERR_INVAL;
 	}
 
-	if(force_free || context->clean_start || (context->bridge && context->bridge->clean_start)){
+	எனில்(force_free || context->clean_start || (context->bridge && context->bridge->clean_start)){
 		db__messages_delete_incoming(context);
 	}
 
-	if(force_free || (context->bridge && context->bridge->clean_start_local)
-			|| (context->bridge == NULL && context->clean_start)){
+	எனில்(force_free || (context->bridge && context->bridge->clean_start_local)
+			|| (context->bridge == வெற்று && context->clean_start)){
 
 		db__messages_delete_outgoing(context);
 	}
 
-	return MOSQ_ERR_SUCCESS;
+	திரும்பு MOSQ_ERR_SUCCESS;
 }
 
 
-int db__messages_easy_queue(struct mosquitto *context, const char *topic, uint8_t qos, uint32_t payloadlen, const void *payload, int retain, uint32_t message_expiry_interval, mosquitto_property **properties)
+முழு db__messages_easy_queue(கட்டமைப்பு mosquitto *context, மாறிலி எழுத்து *topic, uint8_t qos, uint32_t payloadlen, மாறிலி வெறுமை *payload, முழு retain, uint32_t message_expiry_interval, mosquitto_property **properties)
 {
-	struct mosquitto__base_msg *base_msg;
-	const char *source_id;
-	enum mosquitto_msg_origin origin;
+	கட்டமைப்பு mosquitto_base_செய்தி *base_செய்தி;
+	மாறிலி எழுத்து *source_id;
+	எண்ணிக்கை mosquitto_செய்தி_origin origin;
 
-	if(!topic){
-		return MOSQ_ERR_INVAL;
+	எனில்(!topic){
+		திரும்பு MOSQ_ERR_INVAL;
 	}
 
-	base_msg = mosquitto_calloc(1, sizeof(struct mosquitto__base_msg));
-	if(base_msg == NULL){
-		return MOSQ_ERR_NOMEM;
+	base_செய்தி = mosquitto_calloc(1, அளவு(கட்டமைப்பு mosquitto_base_செய்தி));
+	எனில்(base_செய்தி == வெற்று){
+		திரும்பு MOSQ_ERR_NOMEM;
 	}
 
-	base_msg->data.topic = mosquitto_strdup(topic);
-	if(base_msg->data.topic == NULL){
-		db__msg_store_free(base_msg);
-		return MOSQ_ERR_INVAL;
+	base_செய்தி->data.topic = mosquitto_strdup(topic);
+	எனில்(base_செய்தி->data.topic == வெற்று){
+		db_செய்தி_store_free(base_செய்தி);
+		திரும்பு MOSQ_ERR_INVAL;
 	}
 
-	base_msg->data.qos = qos;
-	if(db.config->retain_available == false){
-		base_msg->data.retain = 0;
-	}else{
-		base_msg->data.retain = retain;
+	base_செய்தி->data.qos = qos;
+	எனில்(db.config->retain_available == false){
+		base_செய்தி->data.retain = 0;
+	}இல்லையெனில்{
+		base_செய்தி->data.retain = retain;
 	}
 
-	base_msg->data.payloadlen = payloadlen;
-	if(payloadlen > 0){
-		base_msg->data.payload = mosquitto_malloc(base_msg->data.payloadlen+1);
-		if(base_msg->data.payload == NULL){
-			db__msg_store_free(base_msg);
-			return MOSQ_ERR_NOMEM;
+	base_செய்தி->data.payloadlen = payloadlen;
+	எனில்(payloadlen > 0){
+		base_செய்தி->data.payload = mosquitto_malloc(base_செய்தி->data.payloadlen+1);
+		எனில்(base_செய்தி->data.payload == வெற்று){
+			db_செய்தி_store_free(base_செய்தி);
+			திரும்பு MOSQ_ERR_NOMEM;
 		}
 		/* Ensure payload is always zero terminated, this is the reason for the extra byte above */
-		((uint8_t *)base_msg->data.payload)[base_msg->data.payloadlen] = 0;
-		memcpy(base_msg->data.payload, payload, base_msg->data.payloadlen);
+		((uint8_t *)base_செய்தி->data.payload)[base_செய்தி->data.payloadlen] = 0;
+		memcpy(base_செய்தி->data.payload, payload, base_செய்தி->data.payloadlen);
 	}
 
-	if(context && context->id){
+	எனில்(context && context->id){
 		source_id = context->id;
-	}else{
+	}இல்லையெனில்{
 		source_id = "";
 	}
-	if(properties){
-		base_msg->data.properties = *properties;
-		*properties = NULL;
+	எனில்(properties){
+		base_செய்தி->data.properties = *properties;
+		*properties = வெற்று;
 	}
 
-	if(context){
+	எனில்(context){
 		origin = mosq_mo_client;
-	}else{
+	}இல்லையெனில்{
 		origin = mosq_mo_broker;
 	}
-	if(db__message_store(context, base_msg, &message_expiry_interval, origin)){
-		return 1;
+	எனில்(db__message_store(context, base_செய்தி, &message_expiry_interval, origin)){
+		திரும்பு 1;
 	}
 
-	return sub__messages_queue(source_id, base_msg->data.qos, &base_msg);
+	திரும்பு sub__messages_queue(source_id, base_செய்தி->data.qos, &base_செய்தி);
 }
 
 
@@ -941,28 +941,28 @@ int db__messages_easy_queue(struct mosquitto *context, const char *topic, uint8_
  * 23-bit fractional seconds gives a resolution of 120ns, or 8.4 million
  *    messages per second per broker.
  */
-uint64_t db__new_msg_id(void)
+uint64_t db_new_செய்தி_id(வெறுமை)
 {
 #ifdef WIN32
 	FILETIME ftime;
 	uint64_t ftime64;
-#else
-	struct timespec ts;
+#இல்லையெனில்
+	கட்டமைப்பு timespec ts;
 #endif
 	uint64_t id;
 	uint64_t tmp;
 	time_t sec;
 	long nsec;
 
-	id = db.node_id_shifted; /* Top 10-bits */
+	id = db.முனை_id_shifted; /* Top 10-bits */
 
 #ifdef WIN32
 	GetSystemTimePreciseAsFileTime(&ftime);
-	ftime64 = (((uint64_t)ftime.dwHighDateTime)<<32) + ftime.dwLowDateTime;
+	ftime64 = (((uint64_t)ftime.dw_உயர்வு_Date_Time)<<32) + ftime.dw_கீழ்_Date_Time;
 	tmp = ftime64 - 116444736000000000LL; /* Convert offset to unix epoch, still in counts of 100ns */
 	sec = tmp / 10000000; /* Convert to seconds */
 	nsec = (long)(tmp - sec)*100; /* Remove seconds, convert to counts of 1ns */
-#else
+#இல்லையெனில்
 	clock_gettime(CLOCK_REALTIME, &ts);
 	sec = ts.tv_sec;
 	nsec = ts.tv_nsec;
@@ -973,137 +973,137 @@ uint64_t db__new_msg_id(void)
 	tmp = (nsec & 0x7FFFFF80); /* top 23-bits of the bottom 30 bits (1 billion ns), ~100 ns resolution */
 	id = id | (tmp >> 7);
 
-	if(id <= db.last_db_id){
+	எனில்(id <= db.last_db_id){
 		id = db.last_db_id + 1;
 	}
 	db.last_db_id = id;
 
-	return id;
+	திரும்பு id;
 }
 
 
 /* This function requires topic to be allocated on the heap. Once called, it owns topic and will free it on error. Likewise payload and properties. */
-int db__message_store(const struct mosquitto *source, struct mosquitto__base_msg *base_msg, uint32_t *message_expiry_interval, enum mosquitto_msg_origin origin)
+முழு db__message_store(மாறிலி கட்டமைப்பு mosquitto *source, கட்டமைப்பு mosquitto_base_செய்தி *base_செய்தி, uint32_t *message_expiry_interval, எண்ணிக்கை mosquitto_செய்தி_origin origin)
 {
-	int rc;
+	முழு rc;
 
-	assert(base_msg);
+	ப்ரதிஜ்ஞா(base_செய்தி);
 
-	if(source && source->id){
-		base_msg->data.source_id = mosquitto_strdup(source->id);
-	}else{
-		base_msg->data.source_id = mosquitto_strdup("");
+	எனில்(source && source->id){
+		base_செய்தி->data.source_id = mosquitto_strdup(source->id);
+	}இல்லையெனில்{
+		base_செய்தி->data.source_id = mosquitto_strdup("");
 	}
-	if(!base_msg->data.source_id){
-		log__printf(NULL, MOSQ_LOG_ERR, "Error: Out of memory.");
-		db__msg_store_free(base_msg);
-		return MOSQ_ERR_NOMEM;
+	எனில்(!base_செய்தி->data.source_id){
+		log__printf(வெற்று, MOSQ_LOG_ERR, "Error: Out of memory.");
+		db_செய்தி_store_free(base_செய்தி);
+		திரும்பு MOSQ_ERR_NOMEM;
 	}
 
-	if(source && source->username){
-		base_msg->data.source_username = mosquitto_strdup(source->username);
-		if(!base_msg->data.source_username){
-			db__msg_store_free(base_msg);
-			return MOSQ_ERR_NOMEM;
+	எனில்(source && source->username){
+		base_செய்தி->data.source_username = mosquitto_strdup(source->username);
+		எனில்(!base_செய்தி->data.source_username){
+			db_செய்தி_store_free(base_செய்தி);
+			திரும்பு MOSQ_ERR_NOMEM;
 		}
 	}
-	if(source){
-		base_msg->source_listener = source->listener;
+	எனில்(source){
+		base_செய்தி->source_listener = source->listener;
 	}
-	base_msg->origin = origin;
-	if(message_expiry_interval){
-		if(*message_expiry_interval > 0 && *message_expiry_interval != MSG_EXPIRY_INFINITE){
-			base_msg->data.expiry_time = db.now_real_s + *message_expiry_interval;
-		}else{
-			base_msg->data.expiry_time = 0;
+	base_செய்தி->origin = origin;
+	எனில்(message_expiry_interval){
+		எனில்(*message_expiry_interval > 0 && *message_expiry_interval != செய்தி_EXPIRY_INFINITE){
+			base_செய்தி->data.expiry_time = db.now_real_s + *message_expiry_interval;
+		}இல்லையெனில்{
+			base_செய்தி->data.expiry_time = 0;
 		}
 	}
 
-	base_msg->dest_ids = NULL;
-	base_msg->dest_id_count = 0;
-	db.msg_store_count++;
-	db.msg_store_bytes += base_msg->data.payloadlen;
+	base_செய்தி->dest_ids = வெற்று;
+	base_செய்தி->dest_id_மொத்தம் = 0;
+	db.செய்தி_store_மொத்தம்++;
+	db.செய்தி_store_bytes += base_செய்தி->data.payloadlen;
 
-	if(!base_msg->data.store_id){
-		base_msg->data.store_id = db__new_msg_id();
+	எனில்(!base_செய்தி->data.store_id){
+		base_செய்தி->data.store_id = db_new_செய்தி_id();
 	}
 
-	rc = db__msg_store_add(base_msg);
-	if(rc){
-		db__msg_store_free(base_msg);
-		return rc;
+	rc = db_செய்தி_store_add(base_செய்தி);
+	எனில்(rc){
+		db_செய்தி_store_free(base_செய்தி);
+		திரும்பு rc;
 	}
 
-	return MOSQ_ERR_SUCCESS;
+	திரும்பு MOSQ_ERR_SUCCESS;
 }
 
 
-int db__message_store_find(struct mosquitto *context, uint16_t mid, struct mosquitto__client_msg **client_msg)
+முழு db__message_store_find(கட்டமைப்பு mosquitto *context, uint16_t mid, கட்டமைப்பு mosquitto_client_செய்தி **client_செய்தி)
 {
-	struct mosquitto__client_msg *cmsg;
+	கட்டமைப்பு mosquitto_client_செய்தி *cmsg;
 
-	*client_msg = NULL;
+	*client_செய்தி = வெற்று;
 
-	if(!context){
-		return MOSQ_ERR_INVAL;
+	எனில்(!context){
+		திரும்பு MOSQ_ERR_INVAL;
 	}
 
 	DL_FOREACH(context->msgs_in.inflight, cmsg){
-		if(cmsg->base_msg->data.source_mid == mid){
-			*client_msg = cmsg;
-			return MOSQ_ERR_SUCCESS;
+		எனில்(cmsg->base_செய்தி->data.source_mid == mid){
+			*client_செய்தி = cmsg;
+			திரும்பு MOSQ_ERR_SUCCESS;
 		}
 	}
 
 	DL_FOREACH(context->msgs_in.queued, cmsg){
-		if(cmsg->base_msg->data.source_mid == mid){
-			*client_msg = cmsg;
-			return MOSQ_ERR_SUCCESS;
+		எனில்(cmsg->base_செய்தி->data.source_mid == mid){
+			*client_செய்தி = cmsg;
+			திரும்பு MOSQ_ERR_SUCCESS;
 		}
 	}
 
-	return 1;
+	திரும்பு 1;
 }
 
 
 /* Called on reconnect to set outgoing messages to a sensible state and force a
  * retry, and to set incoming messages to expect an appropriate retry. */
-static int db__message_reconnect_reset_outgoing(struct mosquitto *context)
+நிலையான முழு db__message_reconnect_reset_outgoing(கட்டமைப்பு mosquitto *context)
 {
-	struct mosquitto__client_msg *client_msg, *tmp;
+	கட்டமைப்பு mosquitto_client_செய்தி *client_செய்தி, *tmp;
 
 	context->msgs_out.inflight_bytes = 0;
 	context->msgs_out.inflight_bytes12 = 0;
-	context->msgs_out.inflight_count = 0;
+	context->msgs_out.inflight_மொத்தம் = 0;
 	context->msgs_out.inflight_count12 = 0;
 	context->msgs_out.queued_bytes = 0;
 	context->msgs_out.queued_bytes12 = 0;
-	context->msgs_out.queued_count = 0;
+	context->msgs_out.queued_மொத்தம் = 0;
 	context->msgs_out.queued_count12 = 0;
 	context->msgs_out.inflight_quota = context->msgs_out.inflight_maximum;
 
-	DL_FOREACH_SAFE(context->msgs_out.inflight, client_msg, tmp){
-		db__msg_add_to_inflight_stats(&context->msgs_out, client_msg);
-		if(client_msg->data.qos > 0){
+	DL_FOREACH_SAFE(context->msgs_out.inflight, client_செய்தி, tmp){
+		db_செய்தி_add_to_inflight_stats(&context->msgs_out, client_செய்தி);
+		எனில்(client_செய்தி->data.qos > 0){
 			util__decrement_send_quota(context);
 		}
 
-		switch(client_msg->data.qos){
-			case 0:
-				client_msg->data.state = mosq_ms_publish_qos0;
-				break;
-			case 1:
-				client_msg->data.state = mosq_ms_publish_qos1;
-				break;
-			case 2:
-				if(client_msg->data.state == mosq_ms_wait_for_pubcomp){
-					client_msg->data.state = mosq_ms_resend_pubrel;
-				}else{
-					client_msg->data.state = mosq_ms_publish_qos2;
+		தேர்வு(client_செய்தி->data.qos){
+			நிலை 0:
+				client_செய்தி->data.state = mosq_ms_publish_qos0;
+				நிறுத்து;
+			நிலை 1:
+				client_செய்தி->data.state = mosq_ms_publish_qos1;
+				நிறுத்து;
+			நிலை 2:
+				எனில்(client_செய்தி->data.state == mosq_ms_wait_for_pubcomp){
+					client_செய்தி->data.state = mosq_ms_resend_pubrel;
+				}இல்லையெனில்{
+					client_செய்தி->data.state = mosq_ms_publish_qos2;
 				}
-				break;
+				நிறுத்து;
 		}
-		plugin_persist__handle_client_msg_update(context, client_msg);
+		plugin_persist_handle_client_செய்தி_update(context, client_செய்தி);
 	}
 	/* Messages received when the client was disconnected are put
 	 * in the mosq_ms_queued state. If we don't change them to the
@@ -1111,44 +1111,44 @@ static int db__message_reconnect_reset_outgoing(struct mosquitto *context)
 	 * get sent until the client next receives a message - and they
 	 * will be sent out of order.
 	 */
-	DL_FOREACH_SAFE(context->msgs_out.queued, client_msg, tmp){
-		db__msg_add_to_queued_stats(&context->msgs_out, client_msg);
+	DL_FOREACH_SAFE(context->msgs_out.queued, client_செய்தி, tmp){
+		db_செய்தி_add_to_queued_stats(&context->msgs_out, client_செய்தி);
 	}
 	db__fill_inflight_out_from_queue(context);
 
-	return MOSQ_ERR_SUCCESS;
+	திரும்பு MOSQ_ERR_SUCCESS;
 }
 
 
 /* Called on reconnect to set incoming messages to expect an appropriate retry. */
-static int db__message_reconnect_reset_incoming(struct mosquitto *context)
+நிலையான முழு db__message_reconnect_reset_incoming(கட்டமைப்பு mosquitto *context)
 {
-	struct mosquitto__client_msg *client_msg, *tmp;
+	கட்டமைப்பு mosquitto_client_செய்தி *client_செய்தி, *tmp;
 
 	context->msgs_in.inflight_bytes = 0;
 	context->msgs_in.inflight_bytes12 = 0;
-	context->msgs_in.inflight_count = 0;
+	context->msgs_in.inflight_மொத்தம் = 0;
 	context->msgs_in.inflight_count12 = 0;
 	context->msgs_in.queued_bytes = 0;
 	context->msgs_in.queued_bytes12 = 0;
-	context->msgs_in.queued_count = 0;
+	context->msgs_in.queued_மொத்தம் = 0;
 	context->msgs_in.queued_count12 = 0;
 	context->msgs_in.inflight_quota = context->msgs_in.inflight_maximum;
 
-	DL_FOREACH_SAFE(context->msgs_in.inflight, client_msg, tmp){
-		db__msg_add_to_inflight_stats(&context->msgs_in, client_msg);
-		if(client_msg->data.qos > 0){
+	DL_FOREACH_SAFE(context->msgs_in.inflight, client_செய்தி, tmp){
+		db_செய்தி_add_to_inflight_stats(&context->msgs_in, client_செய்தி);
+		எனில்(client_செய்தி->data.qos > 0){
 			util__decrement_receive_quota(context);
 		}
 
-		if(client_msg->data.qos != 2){
+		எனில்(client_செய்தி->data.qos != 2){
 			/* Anything <QoS 2 can be completely retried by the client at
 			 * no harm. */
-			db__message_remove_inflight(context, &context->msgs_in, client_msg);
-		}else{
+			db__message_remove_inflight(context, &context->msgs_in, client_செய்தி);
+		}இல்லையெனில்{
 			/* Message state can be preserved here because it should match
 			 * whatever the client has got. */
-			client_msg->data.dup = 0;
+			client_செய்தி->data.dup = 0;
 		}
 	}
 
@@ -1158,402 +1158,402 @@ static int db__message_reconnect_reset_incoming(struct mosquitto *context)
 	 * get sent until the client next receives a message - and they
 	 * will be sent out of order.
 	 */
-	DL_FOREACH_SAFE(context->msgs_in.queued, client_msg, tmp){
-		client_msg->data.dup = 0;
-		db__msg_add_to_queued_stats(&context->msgs_in, client_msg);
-		if(db__ready_for_flight(context, mosq_md_in, client_msg->data.qos)){
-			switch(client_msg->data.qos){
-				case 0:
-					client_msg->data.state = mosq_ms_publish_qos0;
-					break;
-				case 1:
-					client_msg->data.state = mosq_ms_publish_qos1;
-					break;
-				case 2:
-					client_msg->data.state = mosq_ms_publish_qos2;
-					break;
+	DL_FOREACH_SAFE(context->msgs_in.queued, client_செய்தி, tmp){
+		client_செய்தி->data.dup = 0;
+		db_செய்தி_add_to_queued_stats(&context->msgs_in, client_செய்தி);
+		எனில்(db__ready_for_flight(context, mosq_md_in, client_செய்தி->data.qos)){
+			தேர்வு(client_செய்தி->data.qos){
+				நிலை 0:
+					client_செய்தி->data.state = mosq_ms_publish_qos0;
+					நிறுத்து;
+				நிலை 1:
+					client_செய்தி->data.state = mosq_ms_publish_qos1;
+					நிறுத்து;
+				நிலை 2:
+					client_செய்தி->data.state = mosq_ms_publish_qos2;
+					நிறுத்து;
 			}
 			db__message_dequeue_first(context, &context->msgs_in);
-			plugin_persist__handle_client_msg_update(context, client_msg);
+			plugin_persist_handle_client_செய்தி_update(context, client_செய்தி);
 		}
 	}
 
-	return MOSQ_ERR_SUCCESS;
+	திரும்பு MOSQ_ERR_SUCCESS;
 }
 
 
-int db__message_reconnect_reset(struct mosquitto *context)
+முழு db__message_reconnect_reset(கட்டமைப்பு mosquitto *context)
 {
-	int rc;
+	முழு rc;
 
 	rc = db__message_reconnect_reset_outgoing(context);
-	if(rc){
-		return rc;
+	எனில்(rc){
+		திரும்பு rc;
 	}
-	return db__message_reconnect_reset_incoming(context);
+	திரும்பு db__message_reconnect_reset_incoming(context);
 }
 
 
-int db__message_remove_incoming(struct mosquitto *context, uint16_t mid)
+முழு db__message_remove_incoming(கட்டமைப்பு mosquitto *context, uint16_t mid)
 {
-	struct mosquitto__client_msg *client_msg, *tmp;
+	கட்டமைப்பு mosquitto_client_செய்தி *client_செய்தி, *tmp;
 
-	if(!context){
-		return MOSQ_ERR_INVAL;
+	எனில்(!context){
+		திரும்பு MOSQ_ERR_INVAL;
 	}
 
-	DL_FOREACH_SAFE(context->msgs_in.inflight, client_msg, tmp){
-		if(client_msg->data.mid == mid){
-			if(client_msg->base_msg->data.qos != 2){
-				log__printf(NULL, MOSQ_LOG_INFO, "Protocol error from %s: Incorrect QoS (%d) when deleting incoming message.",
-						context->id, client_msg->base_msg->data.qos);
-				return MOSQ_ERR_PROTOCOL;
+	DL_FOREACH_SAFE(context->msgs_in.inflight, client_செய்தி, tmp){
+		எனில்(client_செய்தி->data.mid == mid){
+			எனில்(client_செய்தி->base_செய்தி->data.qos != 2){
+				log__printf(வெற்று, MOSQ_LOG_INFO, "Protocol error from %s: Incorrect QoS (%d) when deleting incoming message.",
+						context->id, client_செய்தி->base_செய்தி->data.qos);
+				திரும்பு MOSQ_ERR_PROTOCOL;
 			}
-			db__message_remove_inflight(context, &context->msgs_in, client_msg);
-			return MOSQ_ERR_SUCCESS;
+			db__message_remove_inflight(context, &context->msgs_in, client_செய்தி);
+			திரும்பு MOSQ_ERR_SUCCESS;
 		}
 	}
 
-	return MOSQ_ERR_NOT_FOUND;
+	திரும்பு MOSQ_ERR_NOT_FOUND;
 }
 
 
-int db__message_release_incoming(struct mosquitto *context, uint16_t mid)
+முழு db__message_release_incoming(கட்டமைப்பு mosquitto *context, uint16_t mid)
 {
-	struct mosquitto__client_msg *client_msg, *tmp;
+	கட்டமைப்பு mosquitto_client_செய்தி *client_செய்தி, *tmp;
 	bool deleted = false;
-	int rc;
+	முழு rc;
 
-	if(!context){
-		return MOSQ_ERR_INVAL;
+	எனில்(!context){
+		திரும்பு MOSQ_ERR_INVAL;
 	}
 
-	DL_FOREACH_SAFE(context->msgs_in.inflight, client_msg, tmp){
-		if(client_msg->data.mid == mid){
-			if(client_msg->base_msg->data.qos != 2){
-				log__printf(NULL, MOSQ_LOG_INFO, "Protocol error from %s: Incorrect QoS (%d) when releasing incoming message.",
-						context->id, client_msg->base_msg->data.qos);
-				return MOSQ_ERR_PROTOCOL;
+	DL_FOREACH_SAFE(context->msgs_in.inflight, client_செய்தி, tmp){
+		எனில்(client_செய்தி->data.mid == mid){
+			எனில்(client_செய்தி->base_செய்தி->data.qos != 2){
+				log__printf(வெற்று, MOSQ_LOG_INFO, "Protocol error from %s: Incorrect QoS (%d) when releasing incoming message.",
+						context->id, client_செய்தி->base_செய்தி->data.qos);
+				திரும்பு MOSQ_ERR_PROTOCOL;
 			}
-			const char *topic = client_msg->base_msg->data.topic;
-			const char *source_id = client_msg->base_msg->data.source_id;
+			மாறிலி எழுத்து *topic = client_செய்தி->base_செய்தி->data.topic;
+			மாறிலி எழுத்து *source_id = client_செய்தி->base_செய்தி->data.source_id;
 
 			/* topic==NULL should be a QoS 2 message that was
 			 * denied/dropped and is being processed so the client doesn't
 			 * keep resending it. That means we don't send it to other
 			 * clients. */
-			if(topic == NULL){
-				db__message_remove_inflight(context, &context->msgs_in, client_msg);
+			எனில்(topic == வெற்று){
+				db__message_remove_inflight(context, &context->msgs_in, client_செய்தி);
 				deleted = true;
-			}else{
-				rc = sub__messages_queue(source_id, 2, &client_msg->base_msg);
-				if(rc == MOSQ_ERR_SUCCESS || rc == MOSQ_ERR_NO_SUBSCRIBERS){
-					db__message_remove_inflight(context, &context->msgs_in, client_msg);
+			}இல்லையெனில்{
+				rc = sub__messages_queue(source_id, 2, &client_செய்தி->base_செய்தி);
+				எனில்(rc == MOSQ_ERR_SUCCESS || rc == MOSQ_ERR_NO_SUBSCRIBERS){
+					db__message_remove_inflight(context, &context->msgs_in, client_செய்தி);
 					deleted = true;
-				}else{
-					return 1;
+				}இல்லையெனில்{
+					திரும்பு 1;
 				}
 			}
 		}
 	}
 
-	DL_FOREACH_SAFE(context->msgs_in.queued, client_msg, tmp){
-		if(db__ready_for_flight(context, mosq_md_in, client_msg->data.qos)){
-			break;
+	DL_FOREACH_SAFE(context->msgs_in.queued, client_செய்தி, tmp){
+		எனில்(db__ready_for_flight(context, mosq_md_in, client_செய்தி->data.qos)){
+			நிறுத்து;
 		}
 
-		if(client_msg->data.qos == 2){
-			send__pubrec(context, client_msg->data.mid, 0, NULL);
-			client_msg->data.state = mosq_ms_wait_for_pubrel;
+		எனில்(client_செய்தி->data.qos == 2){
+			send__pubrec(context, client_செய்தி->data.mid, 0, வெற்று);
+			client_செய்தி->data.state = mosq_ms_wait_for_pubrel;
 			db__message_dequeue_first(context, &context->msgs_in);
-			plugin_persist__handle_client_msg_update(context, client_msg);
+			plugin_persist_handle_client_செய்தி_update(context, client_செய்தி);
 		}
 	}
-	if(deleted){
-		return MOSQ_ERR_SUCCESS;
-	}else{
-		return MOSQ_ERR_NOT_FOUND;
+	எனில்(deleted){
+		திரும்பு MOSQ_ERR_SUCCESS;
+	}இல்லையெனில்{
+		திரும்பு MOSQ_ERR_NOT_FOUND;
 	}
 }
 
 
-void db__expire_all_messages(struct mosquitto *context)
+வெறுமை db__expire_all_messages(கட்டமைப்பு mosquitto *context)
 {
-	struct mosquitto__client_msg *client_msg, *tmp;
+	கட்டமைப்பு mosquitto_client_செய்தி *client_செய்தி, *tmp;
 
-	DL_FOREACH_SAFE(context->msgs_out.inflight, client_msg, tmp){
-		if(client_msg->base_msg->data.expiry_time && db.now_real_s > client_msg->base_msg->data.expiry_time){
-			if(client_msg->data.qos > 0){
+	DL_FOREACH_SAFE(context->msgs_out.inflight, client_செய்தி, tmp){
+		எனில்(client_செய்தி->base_செய்தி->data.expiry_time && db.now_real_s > client_செய்தி->base_செய்தி->data.expiry_time){
+			எனில்(client_செய்தி->data.qos > 0){
 				util__increment_send_quota(context);
 			}
-			db__message_remove_inflight(context, &context->msgs_out, client_msg);
+			db__message_remove_inflight(context, &context->msgs_out, client_செய்தி);
 		}
 	}
 	db__fill_inflight_out_from_queue(context);
-	DL_FOREACH_SAFE(context->msgs_out.queued, client_msg, tmp){
-		if(client_msg->base_msg->data.expiry_time && db.now_real_s > client_msg->base_msg->data.expiry_time){
-			db__message_remove_queued(context, &context->msgs_out, client_msg);
+	DL_FOREACH_SAFE(context->msgs_out.queued, client_செய்தி, tmp){
+		எனில்(client_செய்தி->base_செய்தி->data.expiry_time && db.now_real_s > client_செய்தி->base_செய்தி->data.expiry_time){
+			db__message_remove_queued(context, &context->msgs_out, client_செய்தி);
 		}
 	}
-	DL_FOREACH_SAFE(context->msgs_in.inflight, client_msg, tmp){
-		if(client_msg->base_msg->data.expiry_time && db.now_real_s > client_msg->base_msg->data.expiry_time){
-			if(client_msg->data.qos > 0){
+	DL_FOREACH_SAFE(context->msgs_in.inflight, client_செய்தி, tmp){
+		எனில்(client_செய்தி->base_செய்தி->data.expiry_time && db.now_real_s > client_செய்தி->base_செய்தி->data.expiry_time){
+			எனில்(client_செய்தி->data.qos > 0){
 				util__increment_receive_quota(context);
 			}
-			db__message_remove_inflight(context, &context->msgs_in, client_msg);
+			db__message_remove_inflight(context, &context->msgs_in, client_செய்தி);
 		}
 	}
-	DL_FOREACH_SAFE(context->msgs_in.queued, client_msg, tmp){
-		if(client_msg->base_msg->data.expiry_time && db.now_real_s > client_msg->base_msg->data.expiry_time){
-			db__message_remove_queued(context, &context->msgs_in, client_msg);
+	DL_FOREACH_SAFE(context->msgs_in.queued, client_செய்தி, tmp){
+		எனில்(client_செய்தி->base_செய்தி->data.expiry_time && db.now_real_s > client_செய்தி->base_செய்தி->data.expiry_time){
+			db__message_remove_queued(context, &context->msgs_in, client_செய்தி);
 		}
 	}
 }
 
 
-static void db__client_messages_check_acl(struct mosquitto *context, struct mosquitto_msg_data *msg_data, struct mosquitto__client_msg **head,
-		void (*decrement_stats_fn)(struct mosquitto_msg_data *msg_data, struct mosquitto__client_msg *client_msg))
+நிலையான வெறுமை db__client_messages_check_acl(கட்டமைப்பு mosquitto *context, கட்டமைப்பு mosquitto_செய்தி_data *செய்தி_data, கட்டமைப்பு mosquitto_client_செய்தி **head,
+		வெறுமை (*decrement_stats_fn)(கட்டமைப்பு mosquitto_செய்தி_data *செய்தி_data, கட்டமைப்பு mosquitto_client_செய்தி *client_செய்தி))
 {
-	struct mosquitto__client_msg *client_msg, *tmp;
-	struct mosquitto__base_msg *base_msg;
-	int access;
+	கட்டமைப்பு mosquitto_client_செய்தி *client_செய்தி, *tmp;
+	கட்டமைப்பு mosquitto_base_செய்தி *base_செய்தி;
+	முழு access;
 
-	DL_FOREACH_SAFE((*head), client_msg, tmp){
-		base_msg = client_msg->base_msg;
-		if(client_msg->data.direction == mosq_md_out){
+	DL_FOREACH_SAFE((*head), client_செய்தி, tmp){
+		base_செய்தி = client_செய்தி->base_செய்தி;
+		எனில்(client_செய்தி->data.direction == mosq_md_out){
 			access = MOSQ_ACL_READ;
-		}else{
+		}இல்லையெனில்{
 			access = MOSQ_ACL_WRITE;
 		}
-		if(mosquitto_acl_check(context, base_msg->data.topic,
-				base_msg->data.payloadlen, base_msg->data.payload,
-				base_msg->data.qos, base_msg->data.retain,
-				base_msg->data.properties, access) != MOSQ_ERR_SUCCESS){
+		எனில்(mosquitto_acl_check(context, base_செய்தி->data.topic,
+				base_செய்தி->data.payloadlen, base_செய்தி->data.payload,
+				base_செய்தி->data.qos, base_செய்தி->data.retain,
+				base_செய்தி->data.properties, access) != MOSQ_ERR_SUCCESS){
 
-			DL_DELETE((*head), client_msg);
-			decrement_stats_fn(msg_data, client_msg);
-			plugin_persist__handle_client_msg_delete(context, client_msg);
-			db__msg_store_ref_dec(&client_msg->base_msg);
-			mosquitto_FREE(client_msg);
+			DL_DELETE((*head), client_செய்தி);
+			decrement_stats_fn(செய்தி_data, client_செய்தி);
+			plugin_persist_handle_client_செய்தி_delete(context, client_செய்தி);
+			db_செய்தி_store_ref_dec(&client_செய்தி->base_செய்தி);
+			mosquitto_FREE(client_செய்தி);
 		}
 	}
 }
 
 
-void db__check_acl_of_all_messages(struct mosquitto *context)
+வெறுமை db__check_acl_of_all_messages(கட்டமைப்பு mosquitto *context)
 {
-	db__client_messages_check_acl(context, &context->msgs_in, &context->msgs_in.inflight, &db__msg_remove_from_inflight_stats);
-	db__client_messages_check_acl(context, &context->msgs_in, &context->msgs_in.queued, &db__msg_remove_from_queued_stats);
-	db__client_messages_check_acl(context, &context->msgs_out, &context->msgs_out.inflight, &db__msg_remove_from_inflight_stats);
-	db__client_messages_check_acl(context, &context->msgs_out, &context->msgs_out.queued, &db__msg_remove_from_queued_stats);
+	db__client_messages_check_acl(context, &context->msgs_in, &context->msgs_in.inflight, &db_செய்தி_remove_from_inflight_stats);
+	db__client_messages_check_acl(context, &context->msgs_in, &context->msgs_in.queued, &db_செய்தி_remove_from_queued_stats);
+	db__client_messages_check_acl(context, &context->msgs_out, &context->msgs_out.inflight, &db_செய்தி_remove_from_inflight_stats);
+	db__client_messages_check_acl(context, &context->msgs_out, &context->msgs_out.queued, &db_செய்தி_remove_from_queued_stats);
 }
 
 
-static int db__message_write_inflight_out_single(struct mosquitto *context, struct mosquitto__client_msg *client_msg)
+நிலையான முழு db__message_write_inflight_out_single(கட்டமைப்பு mosquitto *context, கட்டமைப்பு mosquitto_client_செய்தி *client_செய்தி)
 {
-	struct mosquitto__base_msg *base_msg;
-	mosquitto_property *base_msg_props = NULL;
-	int rc;
+	கட்டமைப்பு mosquitto_base_செய்தி *base_செய்தி;
+	mosquitto_property *base_செய்தி_props = வெற்று;
+	முழு rc;
 	uint16_t mid;
-	int retries;
-	int retain;
-	const char *topic;
+	முழு retries;
+	முழு retain;
+	மாறிலி எழுத்து *topic;
 	uint8_t qos;
 	uint32_t payloadlen;
-	const void *payload;
+	மாறிலி வெறுமை *payload;
 	uint32_t expiry_interval;
 	uint32_t subscription_id;
 
-	base_msg = client_msg->base_msg;
+	base_செய்தி = client_செய்தி->base_செய்தி;
 
 	expiry_interval = 0;
-	if(base_msg->data.expiry_time){
-		if(db.now_real_s > base_msg->data.expiry_time){
+	எனில்(base_செய்தி->data.expiry_time){
+		எனில்(db.now_real_s > base_செய்தி->data.expiry_time){
 			/* Message is expired, must not send. */
-			if(client_msg->data.direction == mosq_md_out && client_msg->data.qos > 0){
+			எனில்(client_செய்தி->data.direction == mosq_md_out && client_செய்தி->data.qos > 0){
 				util__increment_send_quota(context);
 			}
-			db__message_remove_inflight(context, &context->msgs_out, client_msg);
+			db__message_remove_inflight(context, &context->msgs_out, client_செய்தி);
 			db__fill_inflight_out_from_queue(context);
-			return MOSQ_ERR_SUCCESS;
-		}else{
-			expiry_interval = (uint32_t)(base_msg->data.expiry_time - db.now_real_s);
+			திரும்பு MOSQ_ERR_SUCCESS;
+		}இல்லையெனில்{
+			expiry_interval = (uint32_t)(base_செய்தி->data.expiry_time - db.now_real_s);
 		}
 	}
-	mid = client_msg->data.mid;
-	retries = client_msg->data.dup;
-	retain = client_msg->data.retain;
-	topic = base_msg->data.topic;
-	qos = (uint8_t)client_msg->data.qos;
-	payloadlen = base_msg->data.payloadlen;
-	payload = base_msg->data.payload;
-	subscription_id = client_msg->data.subscription_identifier;
-	base_msg_props = base_msg->data.properties;
+	mid = client_செய்தி->data.mid;
+	retries = client_செய்தி->data.dup;
+	retain = client_செய்தி->data.retain;
+	topic = base_செய்தி->data.topic;
+	qos = (uint8_t)client_செய்தி->data.qos;
+	payloadlen = base_செய்தி->data.payloadlen;
+	payload = base_செய்தி->data.payload;
+	subscription_id = client_செய்தி->data.subscription_identifier;
+	base_செய்தி_props = base_செய்தி->data.properties;
 
-	switch(client_msg->data.state){
-		case mosq_ms_publish_qos0:
-			rc = send__publish(context, mid, topic, payloadlen, payload, qos, retain, retries, subscription_id, base_msg_props, expiry_interval);
-			if(rc == MOSQ_ERR_SUCCESS || rc == MOSQ_ERR_OVERSIZE_PACKET){
-				db__message_remove_inflight(context, &context->msgs_out, client_msg);
-			}else{
-				return rc;
+	தேர்வு(client_செய்தி->data.state){
+		நிலை mosq_ms_publish_qos0:
+			rc = send__publish(context, mid, topic, payloadlen, payload, qos, retain, retries, subscription_id, base_செய்தி_props, expiry_interval);
+			எனில்(rc == MOSQ_ERR_SUCCESS || rc == MOSQ_ERR_OVERSIZE_PACKET){
+				db__message_remove_inflight(context, &context->msgs_out, client_செய்தி);
+			}இல்லையெனில்{
+				திரும்பு rc;
 			}
-			break;
+			நிறுத்து;
 
-		case mosq_ms_publish_qos1:
-			rc = send__publish(context, mid, topic, payloadlen, payload, qos, retain, retries, subscription_id, base_msg_props, expiry_interval);
-			if(rc == MOSQ_ERR_SUCCESS){
-				client_msg->data.dup = 1; /* Any retry attempts are a duplicate. */
-				client_msg->data.state = mosq_ms_wait_for_puback;
-				plugin_persist__handle_client_msg_update(context, client_msg);
-			}else if(rc == MOSQ_ERR_OVERSIZE_PACKET){
-				db__message_remove_inflight(context, &context->msgs_out, client_msg);
-			}else{
-				return rc;
+		நிலை mosq_ms_publish_qos1:
+			rc = send__publish(context, mid, topic, payloadlen, payload, qos, retain, retries, subscription_id, base_செய்தி_props, expiry_interval);
+			எனில்(rc == MOSQ_ERR_SUCCESS){
+				client_செய்தி->data.dup = 1; /* Any retry attempts are a duplicate. */
+				client_செய்தி->data.state = mosq_ms_wait_for_puback;
+				plugin_persist_handle_client_செய்தி_update(context, client_செய்தி);
+			}இல்லையெனில் எனில்(rc == MOSQ_ERR_OVERSIZE_PACKET){
+				db__message_remove_inflight(context, &context->msgs_out, client_செய்தி);
+			}இல்லையெனில்{
+				திரும்பு rc;
 			}
-			break;
+			நிறுத்து;
 
-		case mosq_ms_publish_qos2:
-			rc = send__publish(context, mid, topic, payloadlen, payload, qos, retain, retries, subscription_id, base_msg_props, expiry_interval);
-			if(rc == MOSQ_ERR_SUCCESS){
-				client_msg->data.dup = 1; /* Any retry attempts are a duplicate. */
-				client_msg->data.state = mosq_ms_wait_for_pubrec;
-				plugin_persist__handle_client_msg_update(context, client_msg);
-			}else if(rc == MOSQ_ERR_OVERSIZE_PACKET){
-				db__message_remove_inflight(context, &context->msgs_out, client_msg);
-			}else{
-				return rc;
+		நிலை mosq_ms_publish_qos2:
+			rc = send__publish(context, mid, topic, payloadlen, payload, qos, retain, retries, subscription_id, base_செய்தி_props, expiry_interval);
+			எனில்(rc == MOSQ_ERR_SUCCESS){
+				client_செய்தி->data.dup = 1; /* Any retry attempts are a duplicate. */
+				client_செய்தி->data.state = mosq_ms_wait_for_pubrec;
+				plugin_persist_handle_client_செய்தி_update(context, client_செய்தி);
+			}இல்லையெனில் எனில்(rc == MOSQ_ERR_OVERSIZE_PACKET){
+				db__message_remove_inflight(context, &context->msgs_out, client_செய்தி);
+			}இல்லையெனில்{
+				திரும்பு rc;
 			}
-			break;
+			நிறுத்து;
 
-		case mosq_ms_resend_pubrel:
-			rc = send__pubrel(context, mid, NULL);
-			if(!rc){
-				client_msg->data.state = mosq_ms_wait_for_pubcomp;
-				plugin_persist__handle_client_msg_update(context, client_msg);
-			}else{
-				return rc;
+		நிலை mosq_ms_resend_pubrel:
+			rc = send__pubrel(context, mid, வெற்று);
+			எனில்(!rc){
+				client_செய்தி->data.state = mosq_ms_wait_for_pubcomp;
+				plugin_persist_handle_client_செய்தி_update(context, client_செய்தி);
+			}இல்லையெனில்{
+				திரும்பு rc;
 			}
-			break;
+			நிறுத்து;
 
-		case mosq_ms_invalid:
-		case mosq_ms_send_pubrec:
-		case mosq_ms_resend_pubcomp:
-		case mosq_ms_wait_for_puback:
-		case mosq_ms_wait_for_pubrec:
-		case mosq_ms_wait_for_pubrel:
-		case mosq_ms_wait_for_pubcomp:
-		case mosq_ms_queued:
-			break;
+		நிலை mosq_ms_invalid:
+		நிலை mosq_ms_send_pubrec:
+		நிலை mosq_ms_resend_pubcomp:
+		நிலை mosq_ms_wait_for_puback:
+		நிலை mosq_ms_wait_for_pubrec:
+		நிலை mosq_ms_wait_for_pubrel:
+		நிலை mosq_ms_wait_for_pubcomp:
+		நிலை mosq_ms_queued:
+			நிறுத்து;
 	}
-	return MOSQ_ERR_SUCCESS;
+	திரும்பு MOSQ_ERR_SUCCESS;
 }
 
 
-int db__message_write_inflight_out_all(struct mosquitto *context)
+முழு db__message_write_inflight_out_all(கட்டமைப்பு mosquitto *context)
 {
-	struct mosquitto__client_msg *client_msg, *tmp;
-	int rc;
+	கட்டமைப்பு mosquitto_client_செய்தி *client_செய்தி, *tmp;
+	முழு rc;
 
-	if(context->state != mosq_cs_active || !net__is_connected(context)){
-		return MOSQ_ERR_SUCCESS;
+	எனில்(context->state != mosq_cs_active || !net__is_connected(context)){
+		திரும்பு MOSQ_ERR_SUCCESS;
 	}
 
-	DL_FOREACH_SAFE(context->msgs_out.inflight, client_msg, tmp){
-		rc = db__message_write_inflight_out_single(context, client_msg);
-		if(rc){
-			return rc;
+	DL_FOREACH_SAFE(context->msgs_out.inflight, client_செய்தி, tmp){
+		rc = db__message_write_inflight_out_single(context, client_செய்தி);
+		எனில்(rc){
+			திரும்பு rc;
 		}
 	}
-	return MOSQ_ERR_SUCCESS;
+	திரும்பு MOSQ_ERR_SUCCESS;
 }
 
 
-int db__message_write_inflight_out_latest(struct mosquitto *context)
+முழு db__message_write_inflight_out_latest(கட்டமைப்பு mosquitto *context)
 {
-	struct mosquitto__client_msg *client_msg, *next;
-	int rc;
+	கட்டமைப்பு mosquitto_client_செய்தி *client_செய்தி, *next;
+	முழு rc;
 
-	if(context->state != mosq_cs_active
+	எனில்(context->state != mosq_cs_active
 			|| !net__is_connected(context)
-			|| context->msgs_out.inflight == NULL){
+			|| context->msgs_out.inflight == வெற்று){
 
-		return MOSQ_ERR_SUCCESS;
+		திரும்பு MOSQ_ERR_SUCCESS;
 	}
 
-	if(context->msgs_out.inflight->prev == context->msgs_out.inflight){
+	எனில்(context->msgs_out.inflight->prev == context->msgs_out.inflight){
 		/* Only one message */
-		return db__message_write_inflight_out_single(context, context->msgs_out.inflight);
+		திரும்பு db__message_write_inflight_out_single(context, context->msgs_out.inflight);
 	}
 
 	/* Start at the end of the list and work backwards looking for the first
 	 * message in a non-publish state */
-	client_msg = context->msgs_out.inflight->prev;
-	while(client_msg != context->msgs_out.inflight &&
-			(client_msg->data.state == mosq_ms_publish_qos0
-			|| client_msg->data.state == mosq_ms_publish_qos1
-			|| client_msg->data.state == mosq_ms_publish_qos2)){
+	client_செய்தி = context->msgs_out.inflight->prev;
+	போது(client_செய்தி != context->msgs_out.inflight &&
+			(client_செய்தி->data.state == mosq_ms_publish_qos0
+			|| client_செய்தி->data.state == mosq_ms_publish_qos1
+			|| client_செய்தி->data.state == mosq_ms_publish_qos2)){
 
-		client_msg = client_msg->prev;
+		client_செய்தி = client_செய்தி->prev;
 	}
 
 	/* Tail is now either the head of the list, if that message is waiting for
 	 * publish, or the oldest message not waiting for a publish. In the latter
 	 * case, any pending publishes should be next after this message. */
-	if(client_msg != context->msgs_out.inflight){
-		client_msg = client_msg->next;
+	எனில்(client_செய்தி != context->msgs_out.inflight){
+		client_செய்தி = client_செய்தி->next;
 	}
 
-	while(client_msg){
-		next = client_msg->next;
-		rc = db__message_write_inflight_out_single(context, client_msg);
-		if(rc){
-			return rc;
+	போது(client_செய்தி){
+		next = client_செய்தி->next;
+		rc = db__message_write_inflight_out_single(context, client_செய்தி);
+		எனில்(rc){
+			திரும்பு rc;
 		}
-		client_msg = next;
+		client_செய்தி = next;
 	}
-	return MOSQ_ERR_SUCCESS;
+	திரும்பு MOSQ_ERR_SUCCESS;
 }
 
 
-int db__message_write_queued_in(struct mosquitto *context)
+முழு db__message_write_queued_in(கட்டமைப்பு mosquitto *context)
 {
-	struct mosquitto__client_msg *client_msg, *tmp;
-	int rc;
+	கட்டமைப்பு mosquitto_client_செய்தி *client_செய்தி, *tmp;
+	முழு rc;
 
-	if(context->state != mosq_cs_active){
-		return MOSQ_ERR_SUCCESS;
+	எனில்(context->state != mosq_cs_active){
+		திரும்பு MOSQ_ERR_SUCCESS;
 	}
 
-	DL_FOREACH_SAFE(context->msgs_in.queued, client_msg, tmp){
-		if(context->msgs_in.inflight_maximum != 0 && context->msgs_in.inflight_quota == 0){
-			break;
+	DL_FOREACH_SAFE(context->msgs_in.queued, client_செய்தி, tmp){
+		எனில்(context->msgs_in.inflight_maximum != 0 && context->msgs_in.inflight_quota == 0){
+			நிறுத்து;
 		}
 
-		if(client_msg->data.qos == 2){
-			client_msg->data.state = mosq_ms_send_pubrec;
+		எனில்(client_செய்தி->data.qos == 2){
+			client_செய்தி->data.state = mosq_ms_send_pubrec;
 			db__message_dequeue_first(context, &context->msgs_in);
-			rc = send__pubrec(context, client_msg->data.mid, 0, NULL);
-			if(!rc){
-				client_msg->data.state = mosq_ms_wait_for_pubrel;
-				plugin_persist__handle_client_msg_update(context, client_msg);
-			}else{
-				plugin_persist__handle_client_msg_update(context, client_msg);
-				return rc;
+			rc = send__pubrec(context, client_செய்தி->data.mid, 0, வெற்று);
+			எனில்(!rc){
+				client_செய்தி->data.state = mosq_ms_wait_for_pubrel;
+				plugin_persist_handle_client_செய்தி_update(context, client_செய்தி);
+			}இல்லையெனில்{
+				plugin_persist_handle_client_செய்தி_update(context, client_செய்தி);
+				திரும்பு rc;
 			}
 		}
 	}
-	return MOSQ_ERR_SUCCESS;
+	திரும்பு MOSQ_ERR_SUCCESS;
 }
 
 
-int db__message_write_queued_out(struct mosquitto *context)
+முழு db__message_write_queued_out(கட்டமைப்பு mosquitto *context)
 {
-	if(context->state != mosq_cs_active){
-		return MOSQ_ERR_SUCCESS;
+	எனில்(context->state != mosq_cs_active){
+		திரும்பு MOSQ_ERR_SUCCESS;
 	}
 
 	db__fill_inflight_out_from_queue(context);
 
-	return MOSQ_ERR_SUCCESS;
+	திரும்பு MOSQ_ERR_SUCCESS;
 }
