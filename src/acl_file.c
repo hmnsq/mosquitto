@@ -16,75 +16,75 @@ Contributors:
    Roger Light - initial implementation and documentation.
 */
 
-#include "config.h"
+#ضمن "config.h"
 
-#include <ctype.h>
-#include <stdio.h>
-#include <string.h>
+#ضمن <ctype.h>
+#ضمن <stdio.h>
+#ضمن <string.h>
 
-#include "acl_file.h"
-#include "mosquitto_broker_internal.h"
-#include "mosquitto/mqtt_protocol.h"
-#include "send_mosq.h"
-#include "util_mosq.h"
+#ضمن "acl_file.h"
+#ضمن "mosquitto_broker_internal.h"
+#ضمن "mosquitto/mqtt_protocol.h"
+#ضمن "send_mosq.h"
+#ضمن "util_mosq.h"
 
 
-int broker_acl_file__init(void)
+صحيح broker_acl_file__init(فراغ)
 {
-	int rc;
+	صحيح rc;
 
 	/* Load acl data if required. */
-	if(db.config->per_listener_settings){
-		for(int i=0; i<db.config->listener_count; i++){
-			if(db.config->listeners[i].security_options->acl_data.acl_file){
+	إذا(db.config->per_listener_settings){
+		لكل(صحيح i=0; i<db.config->listener_گنتی; i++){
+			إذا(db.config->listeners[i].security_options->acl_data.acl_file){
 				rc = acl_file__parse(&db.config->listeners[i].security_options->acl_data);
-				if(rc){
-					log__printf(NULL, MOSQ_LOG_ERR, "Error opening acl file \"%s\".", db.config->listeners[i].security_options->acl_data.acl_file);
-					return rc;
+				إذا(rc){
+					log__printf(عدم, MOSQ_LOG_ERR, "Error opening acl file \"%s\".", db.config->listeners[i].security_options->acl_data.acl_file);
+					أرجع rc;
 				}
-				if(db.config->listeners[i].security_options->plugin_count == 0){
+				إذا(db.config->listeners[i].security_options->plugin_گنتی == 0){
 					config__plugin_add_secopt(db.config->listeners[i].security_options->pid, db.config->listeners[i].security_options);
 				}
 
 				mosquitto_callback_register(db.config->listeners[i].security_options->pid,
-						MOSQ_EVT_ACL_CHECK, acl_file__check, NULL, &db.config->listeners[i].security_options->acl_data);
+						MOSQ_EVT_ACL_CHECK, acl_file__check, عدم, &db.config->listeners[i].security_options->acl_data);
 			}
 		}
-	}else{
-		if(db.config->security_options.acl_data.acl_file){
+	}وإلا{
+		إذا(db.config->security_options.acl_data.acl_file){
 			rc = acl_file__parse(&db.config->security_options.acl_data);
-			if(rc){
-				log__printf(NULL, MOSQ_LOG_ERR, "Error opening acl file \"%s\".", db.config->security_options.acl_data.acl_file);
-				return rc;
+			إذا(rc){
+				log__printf(عدم, MOSQ_LOG_ERR, "Error opening acl file \"%s\".", db.config->security_options.acl_data.acl_file);
+				أرجع rc;
 			}
-			if(db.config->security_options.plugin_count == 0){
+			إذا(db.config->security_options.plugin_گنتی == 0){
 				config__plugin_add_secopt(db.config->security_options.pid, &db.config->security_options);
 			}
 
 			mosquitto_callback_register(db.config->security_options.pid,
-					MOSQ_EVT_ACL_CHECK, acl_file__check, NULL, &db.config->security_options.acl_data);
+					MOSQ_EVT_ACL_CHECK, acl_file__check, عدم, &db.config->security_options.acl_data);
 		}
 	}
 
-	return MOSQ_ERR_SUCCESS;
+	أرجع MOSQ_ERR_SUCCESS;
 }
 
 
-void broker_acl_file__cleanup(void)
+فراغ broker_acl_file__cleanup(فراغ)
 {
-	if(db.config->per_listener_settings){
-		for(int i=0; i<db.config->listener_count; i++){
-			if(db.config->listeners[i].security_options->pid){
+	إذا(db.config->per_listener_settings){
+		لكل(صحيح i=0; i<db.config->listener_گنتی; i++){
+			إذا(db.config->listeners[i].security_options->pid){
 				mosquitto_callback_unregister(db.config->listeners[i].security_options->pid,
-						MOSQ_EVT_ACL_CHECK, acl_file__check, NULL);
+						MOSQ_EVT_ACL_CHECK, acl_file__check, عدم);
 
 				acl_file__cleanup(&db.config->listeners[i].security_options->acl_data);
 			}
 		}
-	}else{
-		if(db.config->security_options.pid){
+	}وإلا{
+		إذا(db.config->security_options.pid){
 			mosquitto_callback_unregister(db.config->security_options.pid,
-					MOSQ_EVT_ACL_CHECK, acl_file__check, NULL);
+					MOSQ_EVT_ACL_CHECK, acl_file__check, عدم);
 
 			acl_file__cleanup(&db.config->security_options.acl_data);
 		}
