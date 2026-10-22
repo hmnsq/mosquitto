@@ -22,19 +22,19 @@ Contributors:
  * compatible output file. It is for debugging purposes only and is most likely
  * of no interest to end users.
  */
-#include "config.h"
+#ضمن "config.h"
 
-#include <inttypes.h>
-#include <stdint.h>
-#include <stdio.h>
-#include <uthash.h>
+#ضمن <inttypes.h>
+#ضمن <stdint.h>
+#ضمن <stdio.h>
+#ضمن <uthash.h>
 
-#include "mosquitto_broker_internal.h"
-#include "mosquitto_internal.h"
-#include "net_mosq.h"
+#ضمن "mosquitto_broker_internal.h"
+#ضمن "mosquitto_internal.h"
+#ضمن "net_mosq.h"
 
 
-static void client_cost(FILE *fptr, struct mosquitto *context, int fn_index)
+ساكن فراغ client_cost(FILE *fptr, بنية mosquitto *context, صحيح fn_index)
 {
 	long pkt_count, pkt_bytes;
 	long cmsg_count;
@@ -50,7 +50,7 @@ static void client_cost(FILE *fptr, struct mosquitto *context, int fn_index)
 	cmsg_bytes += context->msgs_out.inflight_bytes + context->msgs_out.queued_bytes;
 
 	tBytes = pkt_bytes + cmsg_bytes;
-	if(context->id){
+	𐡄𐡍(context->id){
 		tBytes += (long)strlen(context->id);
 	}
 	fprintf(fptr, "%d %ld %lu %lu %lu %lu %d 0 0 %" PRIu64 " %" PRIu64 " %" PRIu64 "\n", fn_index,
@@ -65,36 +65,36 @@ static void client_cost(FILE *fptr, struct mosquitto *context, int fn_index)
 }
 
 
-static void report_subscriptions(FILE *fptr, struct mosquitto *context, int *fn_index_max)
+ساكن فراغ report_subscriptions(FILE *fptr, بنية mosquitto *context, صحيح *fn_index_max)
 {
-	for(int i=0; i<context->subs_count; i++){
-		if(context->subs && context->subs[i]){
-			struct mosquitto__subhier *subhier = context->subs[i]->hier;
-			int topic_count = 0;
-			char *topics[100];
+	لكل(صحيح i=0; i<context->subs_count; i++){
+		𐡄𐡍(context->subs && context->subs[i]){
+			بنية mosquitto__subhier *subhier = context->subs[i]->hier;
+			صحيح topic_count = 0;
+			حرف *topics[100];
 
-			do{
+			𐡏𐡁𐡃{
 				topics[topic_count] = subhier->topic;
 				subhier = subhier->parent;
 				topic_count++;
-				if(topic_count == 100){
-					break;
+				𐡄𐡍(topic_count == 100){
+					اكسر;
 				}
-			}while(subhier);
-			if(topic_count == 100){
-				continue;
+			}طالما(subhier);
+			𐡄𐡍(topic_count == 100){
+				استمر;
 			}
 
 			fprintf(fptr, "cfn=(%d) ", *fn_index_max);
-			if(topics[topic_count-2] && topics[topic_count-2][0] == '\0'){
+			𐡄𐡍(topics[topic_count-2] && topics[topic_count-2][0] == '\0'){
 				topic_count--;
 			}
-			for(int j=topic_count-2; j>0; j--){
-				if(topics[j]){
+			لكل(صحيح j=topic_count-2; j>0; j--){
+				𐡄𐡍(topics[j]){
 					fprintf(fptr, "%s/", topics[j]);
 				}
 			}
-			if(topics[0]){
+			𐡄𐡍(topics[0]){
 				fprintf(fptr, "%s\n", topics[0]);
 			}
 
@@ -106,21 +106,21 @@ static void report_subscriptions(FILE *fptr, struct mosquitto *context, int *fn_
 }
 
 
-void xtreport(void)
+فراغ xtreport(فراغ)
 {
 	pid_t pid;
-	char filename[40];
+	حرف filename[40];
 	FILE *fptr;
-	struct mosquitto *context, *ctxt_tmp;
-	int fn_index = 2, fn_index_max;
-	static int iter = 1;
+	بنية mosquitto *context, *ctxt_tmp;
+	صحيح fn_index = 2, fn_index_max;
+	ساكن صحيح iter = 1;
 
 	pid = getpid();
 	snprintf(filename, 40, "/tmp/xtmosquitto.kcg.%d.%d", pid, iter);
 	iter++;
 	fptr = fopen(filename, "wt");
-	if(fptr == NULL){
-		return;
+	𐡄𐡍(fptr == عدم){
+		أرجع;
 	}
 
 	fprintf(fptr, "# callgrind format\n");
@@ -148,9 +148,9 @@ void xtreport(void)
 
 	fn_index = 2;
 	HASH_ITER(hh_id, db.contexts_by_id, context, ctxt_tmp){
-		if(context->id){
+		𐡄𐡍(context->id){
 			fprintf(fptr, "cfn=(%d) %s\n", fn_index, context->id);
-		}else{
+		}وإلا{
 			fprintf(fptr, "cfn=(%d) unknown\n", fn_index);
 		}
 		fprintf(fptr, "calls=1 %d\n", fn_index);
@@ -171,10 +171,10 @@ void xtreport(void)
 	fprintf(fptr, "\nfn=(%d) messages\n", fn_index_max);
 	fprintf(fptr, "1 0 0 0 0 0 0 0 0 0 0 0\n");
 
-	struct mosquitto__base_msg *base_msg, *base_msg_tmp;
+	بنية mosquitto__base_msg *base_msg, *base_msg_tmp;
 
 	HASH_ITER(hh, db.msg_store, base_msg, base_msg_tmp){
-		if(base_msg->ref_count > 1){
+		𐡄𐡍(base_msg->ref_count > 1){
 			fprintf(fptr, "cfn=(%d) %" PRIu64 "\n", fn_index_max, base_msg->data.store_id);
 			fprintf(fptr, "calls=%d %d\n", base_msg->ref_count, fn_index_max);
 			fprintf(fptr, "%d 0 0 0 0 0 0 0 %d 0 0 0\n", fn_index_max, base_msg->ref_count);

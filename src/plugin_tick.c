@@ -16,27 +16,27 @@ Contributors:
    Roger Light - initial implementation and documentation.
 */
 
-#include "config.h"
+#ضمن "config.h"
 
-#include <string.h>
+#ضمن <string.h>
 
-#include "mosquitto_broker_internal.h"
-#include "mosquitto/broker.h"
-#include "utlist.h"
+#ضمن "mosquitto_broker_internal.h"
+#ضمن "mosquitto/broker.h"
+#ضمن "utlist.h"
 
 
-static void plugin__handle_tick_single(struct mosquitto__security_options *opts)
+ساكن فراغ plugin__handle_tick_single(بنية mosquitto__security_options *opts)
 {
-	struct mosquitto_evt_tick event_data;
-	struct mosquitto__callback *cb_base, *cb_next;
+	بنية mosquitto_evt_tick event_data;
+	بنية mosquitto__callback *cb_base, *cb_next;
 
-	memset(&event_data, 0, sizeof(event_data));
+	memset(&event_data, 0, حجم(event_data));
 
 	// Using DL_FOREACH_SAFE here, as tick callbacks might unregister themself
 	DL_FOREACH_SAFE(opts->plugin_callbacks.tick, cb_base, cb_next){
 		mosquitto_time_ns(&event_data.now_s, &event_data.now_ns);
 
-		if(mosquitto_time_cmp(event_data.now_s, event_data.now_ns,
+		𐡄𐡍(mosquitto_time_cmp(event_data.now_s, event_data.now_ns,
 				cb_base->data.next_tick.tv_sec, cb_base->data.next_tick.tv_nsec) > 0){
 
 			event_data.next_s = 0;
@@ -46,7 +46,7 @@ static void plugin__handle_tick_single(struct mosquitto__security_options *opts)
 
 			cb_base->data.next_tick.tv_sec = event_data.now_s + event_data.next_s;
 			cb_base->data.next_tick.tv_nsec = event_data.now_ns + 1000000*event_data.next_ms;
-			if(cb_base->data.next_tick.tv_nsec > 1000000000){
+			𐡄𐡍(cb_base->data.next_tick.tv_nsec > 1000000000){
 				cb_base->data.next_tick.tv_nsec -= 1000000000;
 				cb_base->data.next_tick.tv_sec += 1;
 			}
@@ -55,16 +55,16 @@ static void plugin__handle_tick_single(struct mosquitto__security_options *opts)
 }
 
 
-void plugin__handle_tick(void)
+فراغ plugin__handle_tick(فراغ)
 {
-	struct mosquitto__security_options *opts;
+	بنية mosquitto__security_options *opts;
 
 	/* Global plugins */
 	plugin__handle_tick_single(&db.config->security_options);
 
-	for(int i=0; i<db.config->listener_count; i++){
+	لكل(صحيح i=0; i<db.config->listener_count; i++){
 		opts = db.config->listeners[i].security_options;
-		if(opts && opts->plugin_callbacks.tick){
+		𐡄𐡍(opts && opts->plugin_callbacks.tick){
 			plugin__handle_tick_single(opts);
 		}
 	}

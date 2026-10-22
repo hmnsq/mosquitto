@@ -16,70 +16,70 @@ Contributors:
    Roger Light - initial implementation and documentation.
 */
 
-#include "config.h"
+#ضمن "config.h"
 
-#include <ctype.h>
-#include <stdio.h>
-#include <string.h>
+#ضمن <ctype.h>
+#ضمن <stdio.h>
+#ضمن <string.h>
 
-#include "mosquitto_broker_internal.h"
-#include "password_file.h"
+#ضمن "mosquitto_broker_internal.h"
+#ضمن "password_file.h"
 
 
-int broker_password_file__init(void)
+صحيح broker_password_file__init(فراغ)
 {
-	int rc;
+	صحيح rc;
 
 	/* Load username/password data if required. */
-	if(db.config->per_listener_settings){
-		for(int i=0; i<db.config->listener_count; i++){
-			if(db.config->listeners[i].security_options->password_data.password_file){
+	𐡄𐡍(db.config->per_listener_settings){
+		لكل(صحيح i=0; i<db.config->listener_count; i++){
+			𐡄𐡍(db.config->listeners[i].security_options->password_data.password_file){
 				rc = password_file__parse(&db.config->listeners[i].security_options->password_data);
-				if(rc){
-					return rc;
+				𐡄𐡍(rc){
+					أرجع rc;
 				}
-				if(db.config->listeners[i].security_options->plugin_count == 0){
+				𐡄𐡍(db.config->listeners[i].security_options->plugin_count == 0){
 					config__plugin_add_secopt(db.config->listeners[i].security_options->pid, db.config->listeners[i].security_options);
 				}
 
 				mosquitto_callback_register(db.config->listeners[i].security_options->pid,
-						MOSQ_EVT_BASIC_AUTH, password_file__check, NULL, &db.config->listeners[i].security_options->password_data);
+						MOSQ_EVT_BASIC_AUTH, password_file__check, عدم, &db.config->listeners[i].security_options->password_data);
 			}
 		}
-	}else{
-		if(db.config->security_options.password_data.password_file){
+	}وإلا{
+		𐡄𐡍(db.config->security_options.password_data.password_file){
 			rc = password_file__parse(&db.config->security_options.password_data);
-			if(rc){
-				return rc;
+			𐡄𐡍(rc){
+				أرجع rc;
 			}
-			if(db.config->security_options.plugin_count == 0){
+			𐡄𐡍(db.config->security_options.plugin_count == 0){
 				config__plugin_add_secopt(db.config->security_options.pid, &db.config->security_options);
 			}
 
 			mosquitto_callback_register(db.config->security_options.pid,
-					MOSQ_EVT_BASIC_AUTH, password_file__check, NULL, &db.config->security_options.password_data);
+					MOSQ_EVT_BASIC_AUTH, password_file__check, عدم, &db.config->security_options.password_data);
 		}
 	}
 
-	return MOSQ_ERR_SUCCESS;
+	أرجع MOSQ_ERR_SUCCESS;
 }
 
 
-void broker_password_file__cleanup(void)
+فراغ broker_password_file__cleanup(فراغ)
 {
-	if(db.config->per_listener_settings){
-		for(int i=0; i<db.config->listener_count; i++){
-			if(db.config->listeners[i].security_options->pid){
+	𐡄𐡍(db.config->per_listener_settings){
+		لكل(صحيح i=0; i<db.config->listener_count; i++){
+			𐡄𐡍(db.config->listeners[i].security_options->pid){
 				mosquitto_callback_unregister(db.config->listeners[i].security_options->pid,
-						MOSQ_EVT_BASIC_AUTH, password_file__check, NULL);
+						MOSQ_EVT_BASIC_AUTH, password_file__check, عدم);
 
 				password_file__cleanup(&db.config->listeners[i].security_options->password_data);
 			}
 		}
-	}else{
-		if(db.config->security_options.pid){
+	}وإلا{
+		𐡄𐡍(db.config->security_options.pid){
 			mosquitto_callback_unregister(db.config->security_options.pid,
-					MOSQ_EVT_BASIC_AUTH, password_file__check, NULL);
+					MOSQ_EVT_BASIC_AUTH, password_file__check, عدم);
 
 			password_file__cleanup(&db.config->security_options.password_data);
 		}

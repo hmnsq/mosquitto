@@ -23,112 +23,112 @@ Contributors:
 #  include <windows.h>
 #endif
 
-#include "config.h"
+#ضمن "config.h"
 
-#include <stdio.h>
-#include <stdbool.h>
-#include <signal.h>
+#ضمن <stdio.h>
+#ضمن <stdbool.h>
+#ضمن <signal.h>
 
-#include "mosquitto_broker_internal.h"
+#ضمن "mosquitto_broker_internal.h"
 
-extern int g_run;
+خارجي صحيح g_run;
 
-static bool flag_reload = false;
-static bool flag_log_rotate = false;
+ساكن bool flag_reload = false;
+ساكن bool flag_log_rotate = false;
 #ifdef WITH_PERSISTENCE
-static bool flag_db_backup = false;
+ساكن bool flag_db_backup = false;
 #endif
-static bool flag_tree_print = false;
-static bool flag_xtreport = false;
+ساكن bool flag_tree_print = false;
+ساكن bool flag_xtreport = false;
 
 
-static void handle_signal(int signal)
+ساكن فراغ handle_signal(صحيح إشارة)
 {
-	UNUSED(signal);
+	UNUSED(إشارة);
 
-	if(signal == SIGINT || signal == SIGTERM){
+	𐡄𐡍(إشارة == SIGINT || إشارة == SIGTERM){
 		g_run = 0;
 #ifdef SIGHUP
-	}else if(signal == SIGHUP){
+	}وإلا 𐡄𐡍(إشارة == SIGHUP){
 		flag_reload = true;
 #endif
 #ifdef SIGUSR1
-	}else if(signal == SIGUSR1){
+	}وإلا 𐡄𐡍(إشارة == SIGUSR1){
 #ifdef WITH_PERSISTENCE
 		flag_db_backup = true;
 #endif
 #endif
 #ifdef SIGUSR2
-	}else if(signal == SIGUSR2){
+	}وإلا 𐡄𐡍(إشارة == SIGUSR2){
 		flag_tree_print = true;
 		flag_xtreport = true;
 #endif
 #ifdef SIGRTMIN
-	}else if(signal == SIGRTMIN){
+	}وإلا 𐡄𐡍(إشارة == SIGRTMIN){
 		flag_log_rotate = true;
 #endif
 	}
 }
 
 
-void signal__setup(void)
+فراغ signal__setup(فراغ)
 {
-	signal(SIGINT, handle_signal);
-	signal(SIGTERM, handle_signal);
+	إشارة(SIGINT, handle_signal);
+	إشارة(SIGTERM, handle_signal);
 #ifdef SIGHUP
-	signal(SIGHUP, handle_signal);
+	إشارة(SIGHUP, handle_signal);
 #endif
 #ifndef WIN32
-	signal(SIGUSR1, handle_signal);
-	signal(SIGUSR2, handle_signal);
-	signal(SIGPIPE, SIG_IGN);
+	إشارة(SIGUSR1, handle_signal);
+	إشارة(SIGUSR2, handle_signal);
+	إشارة(SIGPIPE, SIG_IGN);
 #endif
 #ifdef SIGRTMIN
-	signal(SIGRTMIN, handle_signal);
+	إشارة(SIGRTMIN, handle_signal);
 #endif
 #ifdef WIN32
-	CreateThread(NULL, 0, SigThreadProc, NULL, 0, NULL);
+	CreateThread(عدم, 0, SigThreadProc, عدم, 0, عدم);
 #endif
 }
 
 
-int signal__flag_check(void)
+صحيح signal__flag_check(فراغ)
 {
 #ifdef WITH_PERSISTENCE
-	if(flag_db_backup){
+	𐡄𐡍(flag_db_backup){
 		persist__backup(false);
 		flag_db_backup = false;
 	}
 #endif
-	if(flag_log_rotate){
+	𐡄𐡍(flag_log_rotate){
 		log__close(db.config);
 		log__init(db.config);
 		flag_log_rotate = false;
 	}
-	if(flag_reload){
-		int rc;
-		log__printf(NULL, MOSQ_LOG_INFO, "Reloading config.");
+	𐡄𐡍(flag_reload){
+		صحيح rc;
+		log__printf(عدم, MOSQ_LOG_INFO, "Reloading config.");
 		config__read(db.config, true);
 		listeners__reload_all_certificates();
 		rc = plugin__handle_reload();
-		if(rc){
-			return rc;
+		𐡄𐡍(rc){
+			أرجع rc;
 		}
 		mosquitto_security_cleanup(true);
 		rc = mosquitto_security_init(true);
-		if(rc){
-			return rc;
+		𐡄𐡍(rc){
+			أرجع rc;
 		}
 		rc = mosquitto_security_apply_default();
-		if(rc){
-			return rc;
+		𐡄𐡍(rc){
+			أرجع rc;
 		}
 		log__close(db.config);
 		log__init(db.config);
 		keepalive__cleanup();
 		rc = keepalive__init();
-		if(rc){
-			return rc;
+		𐡄𐡍(rc){
+			أرجع rc;
 		}
 		broker_control__reload();
 #ifdef WITH_BRIDGE
@@ -136,19 +136,19 @@ int signal__flag_check(void)
 #endif
 		flag_reload = false;
 	}
-	if(flag_tree_print){
+	𐡄𐡍(flag_tree_print){
 		sub__tree_print(db.normal_subs, 0);
 		sub__tree_print(db.shared_subs, 0);
 		flag_tree_print = false;
 	}
 #ifdef WITH_XTREPORT
-	if(flag_xtreport){
+	𐡄𐡍(flag_xtreport){
 		xtreport();
 		flag_xtreport = false;
 	}
 #endif
 
-	return MOSQ_ERR_SUCCESS;
+	أرجع MOSQ_ERR_SUCCESS;
 }
 
 /*
@@ -172,12 +172,12 @@ int signal__flag_check(void)
 #define MOSQ_MAX_EVTS 6
 
 
-DWORD WINAPI SigThreadProc(void *data)
+DWORD WINAPI SigThreadProc(فراغ *data)
 {
 	TCHAR evt_name[MAX_PATH];
-	static HANDLE evt[MOSQ_MAX_EVTS];
-	int pid = GetCurrentProcessId();
-	const char *evt_names[MOSQ_MAX_EVTS] = {
+	ساكن HANDLE evt[MOSQ_MAX_EVTS];
+	صحيح pid = GetCurrentProcessId();
+	ثابت حرف *evt_names[MOSQ_MAX_EVTS] = {
 		"shutdown",
 		"reload",
 		"backup",
@@ -188,43 +188,43 @@ DWORD WINAPI SigThreadProc(void *data)
 
 	UNUSED(data);
 
-	for(int i=0; i<MOSQ_MAX_EVTS; i++){
+	لكل(صحيح i=0; i<MOSQ_MAX_EVTS; i++){
 		sprintf_s(evt_name, MAX_PATH, "mosq%d_%s", pid, evt_names[i]);
-		evt[i] = CreateEvent(NULL, FALSE, FALSE, evt_name);
+		evt[i] = CreateEvent(عدم, FALSE, FALSE, evt_name);
 	}
 
-	while(g_run){
-		int wr = WaitForMultipleObjects(MOSQ_MAX_EVTS, evt, FALSE, INFINITE);
-		switch(wr){
-			case WAIT_OBJECT_0 + 0:
+	طالما(g_run){
+		صحيح wr = WaitForMultipleObjects(MOSQ_MAX_EVTS, evt, FALSE, INFINITE);
+		بدل(wr){
+			حالة WAIT_OBJECT_0 + 0:
 				handle_signal(SIGINT);
-				break;
-			case WAIT_OBJECT_0 + 1:
+				اكسر;
+			حالة WAIT_OBJECT_0 + 1:
 				flag_reload = true;
-				continue;
-			case WAIT_OBJECT_0 + 2:
+				استمر;
+			حالة WAIT_OBJECT_0 + 2:
 #ifdef WITH_PERSISTENCE
 				flag_db_backup = true;
 #endif
-				continue;
-				break;
-			case WAIT_OBJECT_0 + 3:
+				استمر;
+				اكسر;
+			حالة WAIT_OBJECT_0 + 3:
 				flag_log_rotate = true;
-				continue;
-			case WAIT_OBJECT_0 + 4:
+				استمر;
+			حالة WAIT_OBJECT_0 + 4:
 				flag_tree_print = true;
-				continue;
-			case WAIT_OBJECT_0 + 5:
+				استمر;
+			حالة WAIT_OBJECT_0 + 5:
 				flag_xtreport = true;
-				continue;
+				استمر;
 		}
 	}
-	for(int i=0; i<MOSQ_MAX_EVTS; i++){
-		if(evt[i]){
+	لكل(صحيح i=0; i<MOSQ_MAX_EVTS; i++){
+		𐡄𐡍(evt[i]){
 			CloseHandle(evt[i]);
 		}
 	}
-	return 0;
+	أرجع 0;
 }
 #undef MOSQ_MAX_EVTS
 #endif
