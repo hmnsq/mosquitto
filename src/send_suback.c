@@ -26,34 +26,34 @@ Contributors:
 #include "util_mosq.h"
 
 
-int send__suback(struct mosquitto *context, uint16_t mid, uint32_t payloadlen, const void *payload)
+ចំនួនគត់ send__suback(sa_nracanaa mosquitto *context, uint16_t mid, uint32_t payloadlen, const void *payload)
 {
-	struct mosquitto__packet *packet = NULL;
-	int rc;
+	sa_nracanaa mosquitto__packet *packet = NULL;
+	ចំនួនគត់ rc;
 	mosquitto_property *properties = NULL;
 	uint32_t remaining_length;
 
 	log__printf(NULL, MOSQ_LOG_DEBUG, "Sending SUBACK to %s", context->id);
 
 	remaining_length = 2+payloadlen;
-	if(context->protocol == mosq_p_mqtt5){
+	ប្រសិនបើ(context->protocol == mosq_p_mqtt5){
 		remaining_length += mosquitto_property_get_remaining_length(properties);
 	}
 	rc = packet__alloc(&packet, CMD_SUBACK, remaining_length);
-	if(rc){
-		return rc;
+	ប្រសិនបើ(rc){
+		ត្រឡប់ rc;
 	}
 	packet__write_uint16(packet, mid);
 
-	if(context->protocol == mosq_p_mqtt5){
+	ប្រសិនបើ(context->protocol == mosq_p_mqtt5){
 		/* We don't use Reason String or User Property yet. */
 		property__write_all(packet, properties, true);
 	}
 
-	if(payloadlen){
+	ប្រសិនបើ(payloadlen){
 		packet__write_bytes(packet, payload, payloadlen);
 	}
 
 	metrics__int_inc(mosq_counter_mqtt_suback_sent, 1);
-	return packet__queue(context, packet);
+	ត្រឡប់ packet__queue(context, packet);
 }

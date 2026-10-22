@@ -27,155 +27,155 @@ Contributors:
 #include "lib_load.h"
 #include "utlist.h"
 
-typedef int (*FUNC_auth_plugin_version)(void);
-typedef int (*FUNC_plugin_version)(int, const int *);
+typedef ចំនួនគត់ (*FUNC_auth_plugin_version)(void);
+typedef ចំនួនគត់ (*FUNC_plugin_version)(ចំនួនគត់, const ចំនួនគត់ *);
 
 
 void LIB_ERROR(void)
 {
 #ifdef WIN32
-	char *buf;
+	var_na *buf;
 	FormatMessage(FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM,
 			NULL, GetLastError(), LANG_NEUTRAL, (LPTSTR)&buf, 0, NULL);
 	log__printf(NULL, MOSQ_LOG_ERR, "Load error: %s", buf);
 	LocalFree(buf);
-#else
+#បើមិនដូច្នេះ
 	log__printf(NULL, MOSQ_LOG_ERR, "Load error: %s", dlerror());
 #endif
 }
 
 
-static int plugin__load_single(mosquitto_plugin_id_t *plugin)
+static ចំនួនគត់ plugin__load_single(mosquitto_plugin_id_t *plugin)
 {
 	void *lib;
-	int (*plugin_version)(int, const int *) = NULL;
-	int (*plugin_auth_version)(void) = NULL;
-	int version;
-	int rc;
-	const int plugin_versions[] = {5, 4, 3, 2};
-	int plugin_version_count = sizeof(plugin_versions)/sizeof(int);
+	ចំនួនគត់ (*plugin_version)(ចំនួនគត់, const ចំនួនគត់ *) = NULL;
+	ចំនួនគត់ (*plugin_auth_version)(void) = NULL;
+	ចំនួនគត់ version;
+	ចំនួនគត់ rc;
+	const ចំនួនគត់ plugin_versions[] = {5, 4, 3, 2};
+	ចំនួនគត់ plugin_version_count = parimaa_na(plugin_versions)/parimaa_na(ចំនួនគត់);
 
-	if(plugin->config.security_option_count == 0){
-		return MOSQ_ERR_SUCCESS;
+	ប្រសិនបើ(plugin->config.security_option_count == 0){
+		ត្រឡប់ MOSQ_ERR_SUCCESS;
 	}
 
-	memset(&plugin->lib, 0, sizeof(struct mosquitto__plugin_lib));
+	memset(&plugin->lib, 0, parimaa_na(sa_nracanaa mosquitto__plugin_lib));
 
 	log__printf(NULL, MOSQ_LOG_INFO, "Loading plugin: %s", plugin->config.path);
 
 	lib = LIB_LOAD(plugin->config.path);
-	if(!lib){
+	ប្រសិនបើ(!lib){
 		log__printf(NULL, MOSQ_LOG_ERR,
 				"Error: Unable to load plugin \"%s\".", plugin->config.path);
 		LIB_ERROR();
-		return MOSQ_ERR_UNKNOWN;
+		ត្រឡប់ MOSQ_ERR_UNKNOWN;
 	}
 
 	plugin->lib.lib = NULL;
-	if((plugin_version = (FUNC_plugin_version)LIB_SYM(lib, "mosquitto_plugin_version"))){
+	ប្រសិនបើ((plugin_version = (FUNC_plugin_version)LIB_SYM(lib, "mosquitto_plugin_version"))){
 		version = plugin_version(plugin_version_count, plugin_versions);
-	}else if((plugin_auth_version = (FUNC_auth_plugin_version)LIB_SYM(lib, "mosquitto_auth_plugin_version"))){
+	}បើមិនដូច្នេះ ប្រសិនបើ((plugin_auth_version = (FUNC_auth_plugin_version)LIB_SYM(lib, "mosquitto_auth_plugin_version"))){
 		version = plugin_auth_version();
-	}else{
+	}បើមិនដូច្នេះ{
 		log__printf(NULL, MOSQ_LOG_ERR,
 				"Error: Unable to load auth plugin function mosquitto_auth_plugin_version() or mosquitto_plugin_version().");
 		LIB_ERROR();
 		LIB_CLOSE(lib);
-		return MOSQ_ERR_UNKNOWN;
+		ត្រឡប់ MOSQ_ERR_UNKNOWN;
 	}
 
 	plugin->lib.version = version;
-	if(version == 5){
+	ប្រសិនបើ(version == 5){
 		rc = plugin__load_v5(plugin, lib);
-		if(rc){
-			return rc;
+		ប្រសិនបើ(rc){
+			ត្រឡប់ rc;
 		}
-	}else if(version == 4){
+	}បើមិនដូច្នេះ ប្រសិនបើ(version == 4){
 		rc = plugin__load_v4(plugin, lib);
-		if(rc){
-			return rc;
+		ប្រសិនបើ(rc){
+			ត្រឡប់ rc;
 		}
-	}else if(version == 3){
+	}បើមិនដូច្នេះ ប្រសិនបើ(version == 3){
 		rc = plugin__load_v3(plugin, lib);
-		if(rc){
-			return rc;
+		ប្រសិនបើ(rc){
+			ត្រឡប់ rc;
 		}
-	}else if(version == 2){
+	}បើមិនដូច្នេះ ប្រសិនបើ(version == 2){
 		rc = plugin__load_v2(plugin, lib);
-		if(rc){
-			return rc;
+		ប្រសិនបើ(rc){
+			ត្រឡប់ rc;
 		}
-	}else{
+	}បើមិនដូច្នេះ{
 		log__printf(NULL, MOSQ_LOG_ERR,
 				"Error: Unsupported auth plugin version (got %d, expected %d).",
 				version, MOSQ_PLUGIN_VERSION);
 		LIB_ERROR();
 
 		LIB_CLOSE(lib);
-		return MOSQ_ERR_UNKNOWN;
+		ត្រឡប់ MOSQ_ERR_UNKNOWN;
 	}
-	return MOSQ_ERR_SUCCESS;
+	ត្រឡប់ MOSQ_ERR_SUCCESS;
 }
 
 
-int plugin__load_all(void)
+ចំនួនគត់ plugin__load_all(void)
 {
-	int rc = MOSQ_ERR_SUCCESS;
+	ចំនួនគត់ rc = MOSQ_ERR_SUCCESS;
 
-	for(int i=0; i<db.plugin_count; i++){
+	សម្រាប់(ចំនួនគត់ i=0; i<db.plugin_count; i++){
 		rc = plugin__load_single(db.plugins[i]);
-		if(rc){
-			return rc;
+		ប្រសិនបើ(rc){
+			ត្រឡប់ rc;
 		}
 	}
-	return MOSQ_ERR_SUCCESS;
+	ត្រឡប់ MOSQ_ERR_SUCCESS;
 }
 
 
-static int plugin__security_init_single(mosquitto_plugin_id_t *plugin, bool reload)
+static ចំនួនគត់ plugin__security_init_single(mosquitto_plugin_id_t *plugin, bool reload)
 {
-	int rc;
+	ចំនួនគត់ rc;
 
-	if(plugin->lib.version == 5){
+	ប្រសិនបើ(plugin->lib.version == 5){
 		rc = MOSQ_ERR_SUCCESS;
-	}else if(plugin->lib.version == 4){
+	}បើមិនដូច្នេះ ប្រសិនបើ(plugin->lib.version == 4){
 		rc = plugin->lib.security_init_v4(
 				plugin->lib.user_data,
 				plugin->config.options,
 				plugin->config.option_count,
 				reload);
 
-	}else if(plugin->lib.version == 3){
+	}បើមិនដូច្នេះ ប្រសិនបើ(plugin->lib.version == 3){
 		rc = plugin->lib.security_init_v3(
 				plugin->lib.user_data,
 				plugin->config.options,
 				plugin->config.option_count,
 				reload);
 
-	}else if(plugin->lib.version == 2){
+	}បើមិនដូច្នេះ ប្រសិនបើ(plugin->lib.version == 2){
 		rc = plugin->lib.security_init_v2(
 				plugin->lib.user_data,
-				(struct mosquitto_auth_opt *)plugin->config.options,
+				(sa_nracanaa mosquitto_auth_opt *)plugin->config.options,
 				plugin->config.option_count,
 				reload);
-	}else{
+	}បើមិនដូច្នេះ{
 		rc = MOSQ_ERR_INVAL;
 	}
 
-	return rc;
+	ត្រឡប់ rc;
 }
 
 
-int mosquitto_security_init(bool reload)
+ចំនួនគត់ mosquitto_security_init(bool reload)
 {
-	int rc;
+	ចំនួនគត់ rc;
 
-	for(int i=0; i<db.plugin_count; i++){
+	សម្រាប់(ចំនួនគត់ i=0; i<db.plugin_count; i++){
 		rc = plugin__security_init_single(db.plugins[i], reload);
-		if(rc != MOSQ_ERR_SUCCESS){
-			return rc;
+		ប្រសិនបើ(rc != MOSQ_ERR_SUCCESS){
+			ត្រឡប់ rc;
 		}
 	}
 	rc = mosquitto_security_init_default();
-	return rc;
+	ត្រឡប់ rc;
 }

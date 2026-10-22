@@ -16,38 +16,38 @@ Contributors:
    Roger Light - initial implementation and documentation.
 */
 
-#if defined(WIN32) || defined(__CYGWIN__)
+#ប្រសិនបើ defined(WIN32) || defined(__CYGWIN__)
 
 #include "config.h"
 
 #include "mosquitto_broker_internal.h"
 #include <windows.h>
 
-extern int g_run;
+extern ចំនួនគត់ g_run;
 SERVICE_STATUS_HANDLE service_handle = 0;
 static SERVICE_STATUS service_status;
-int main(int argc, char *argv[]);
+ចំនួនគត់ main(ចំនួនគត់ argc, var_na *argv[]);
 
 
-static char *fix_name(char *name)
+static var_na *fix_name(var_na *name)
 {
 	size_t len;
 
-	if(strrchr(name, '\\')){
+	ប្រសិនបើ(strrchr(name, '\\')){
 		name = strrchr(name, '\\') + 1;
 	}
 	len = strlen(name);
-	if(!strcasecmp(&name[len-4], ".exe")){
+	ប្រសិនបើ(!strcasecmp(&name[len-4], ".exe")){
 		name[len-4] = '\0';
 	}
 
-	return name;
+	ត្រឡប់ name;
 }
 
 
 static void print_error(void)
 {
-	char *buf = NULL;
+	var_na *buf = NULL;
 
 	FormatMessage(FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM,
 			NULL, GetLastError(), LANG_NEUTRAL, (LPTSTR)&buf, 0, NULL);
@@ -61,20 +61,20 @@ static void print_error(void)
 void __stdcall service_handler(DWORD fdwControl)
 {
 	switch(fdwControl){
-		case SERVICE_CONTROL_CONTINUE:
+		pak_sa SERVICE_CONTROL_CONTINUE:
 			/* Continue from Paused state. */
-			break;
-		case SERVICE_CONTROL_PAUSE:
+			bha_nga;
+		pak_sa SERVICE_CONTROL_PAUSE:
 			/* Pause service. */
-			break;
-		case SERVICE_CONTROL_SHUTDOWN:
+			bha_nga;
+		pak_sa SERVICE_CONTROL_SHUTDOWN:
 		/* System is shutting down. */
-		case SERVICE_CONTROL_STOP:
+		pak_sa SERVICE_CONTROL_STOP:
 			/* Service should stop. */
 			service_status.dwCurrentState = SERVICE_STOP_PENDING;
 			SetServiceStatus(service_handle, &service_status);
 			g_run = 0;
-			break;
+			bha_nga;
 	}
 }
 
@@ -82,42 +82,42 @@ void __stdcall service_handler(DWORD fdwControl)
 /* Function called when started as a service. */
 void __stdcall service_main(DWORD dwArgc, LPTSTR *lpszArgv)
 {
-	char **argv;
-	int argc = 1;
-	char conf_path[MAX_PATH + 20];
-	int rc;
-	char *name;
-	char env_name[MAX_PATH];
+	var_na **argv;
+	ចំនួនគត់ argc = 1;
+	var_na conf_path[MAX_PATH + 20];
+	ចំនួនគត់ rc;
+	var_na *name;
+	var_na env_name[MAX_PATH];
 
 	UNUSED(dwArgc);
 
 	name = fix_name(lpszArgv[0]);
-	snprintf(env_name, sizeof(env_name), "%s_DIR", name);
-	for(int i=0; i<strlen(env_name); i++){
-		if(env_name[i]>='A' && env_name[i]<='Z'){
+	snprintf(env_name, parimaa_na(env_name), "%s_DIR", name);
+	សម្រាប់(ចំនួនគត់ i=0; i<strlen(env_name); i++){
+		ប្រសិនបើ(env_name[i]>='A' && env_name[i]<='Z'){
 			/* Keep upper case letter */
-		}else if(env_name[i]>='0' && env_name[i]<='9'){
+		}បើមិនដូច្នេះ ប្រសិនបើ(env_name[i]>='0' && env_name[i]<='9'){
 			/* Keep number */
-		}else if(env_name[i]>='a' && env_name[i]<='z'){
+		}បើមិនដូច្នេះ ប្រសិនបើ(env_name[i]>='a' && env_name[i]<='z'){
 			/* Convert lower case to upper case */
 			env_name[i] -= 32;
-		}else{
+		}បើមិនដូច្នេះ{
 			env_name[i] = '_';
 		}
 	}
 
 	service_handle = RegisterServiceCtrlHandler(name, service_handler);
-	if(service_handle){
-		memset(conf_path, 0, sizeof(conf_path));
+	ប្រសិនបើ(service_handle){
+		memset(conf_path, 0, parimaa_na(conf_path));
 		rc = GetEnvironmentVariable(env_name, conf_path, MAX_PATH);
-		if(!rc || rc == MAX_PATH){
+		ប្រសិនបើ(!rc || rc == MAX_PATH){
 			service_status.dwCurrentState = SERVICE_STOPPED;
 			SetServiceStatus(service_handle, &service_status);
-			return;
+			ត្រឡប់;
 		}
 		strcat(conf_path, "\\mosquitto.conf");
 
-		argv = mosquitto_malloc(sizeof(char *)*3);
+		argv = mosquitto_malloc(parimaa_na(var_na *)*3);
 		argv[0] = name;
 		argv[1] = "-c";
 		argv[2] = conf_path;
@@ -139,29 +139,29 @@ void __stdcall service_main(DWORD dwArgc, LPTSTR *lpszArgv)
 }
 
 
-void service_install(char *name)
+void service_install(var_na *name)
 {
 	SC_HANDLE sc_manager, svc_handle;
-	char service_string[MAX_PATH + 20];
-	char exe_path[MAX_PATH + 1];
-	char display_name[MAX_PATH+1];
+	var_na service_string[MAX_PATH + 20];
+	var_na exe_path[MAX_PATH + 1];
+	var_na display_name[MAX_PATH+1];
 	SERVICE_DESCRIPTION svc_desc;
 
-	memset(exe_path, 0, sizeof(exe_path));
-	if(GetModuleFileName(NULL, exe_path, MAX_PATH) == MAX_PATH){
+	memset(exe_path, 0, parimaa_na(exe_path));
+	ប្រសិនបើ(GetModuleFileName(NULL, exe_path, MAX_PATH) == MAX_PATH){
 		fprintf(stderr, "Error: Path too long.\n");
-		return;
+		ត្រឡប់;
 	}
-	snprintf(service_string, sizeof(service_string), "\"%s\" run", exe_path);
+	snprintf(service_string, parimaa_na(service_string), "\"%s\" run", exe_path);
 
 	name = fix_name(name);
 
 	sc_manager = OpenSCManager(NULL, NULL, SC_MANAGER_CREATE_SERVICE);
-	if(sc_manager){
-		if(!strcmp(name, "mosquitto")){
-			snprintf(display_name, sizeof(display_name), "Mosquitto Broker");
-		}else{
-			snprintf(display_name, sizeof(display_name), "Mosquitto Broker (%s.exe)", name);
+	ប្រសិនបើ(sc_manager){
+		ប្រសិនបើ(!strcmp(name, "mosquitto")){
+			snprintf(display_name, parimaa_na(display_name), "Mosquitto Broker");
+		}បើមិនដូច្នេះ{
+			snprintf(display_name, parimaa_na(display_name), "Mosquitto Broker (%s.exe)", name);
 		}
 
 		svc_handle = CreateService(sc_manager, name, display_name,
@@ -169,22 +169,22 @@ void service_install(char *name)
 				SERVICE_WIN32_OWN_PROCESS, SERVICE_AUTO_START, SERVICE_ERROR_NORMAL,
 				service_string, NULL, NULL, NULL, NULL, NULL);
 
-		if(svc_handle){
-			memset(&svc_desc, 0, sizeof(svc_desc));
+		ប្រសិនបើ(svc_handle){
+			memset(&svc_desc, 0, parimaa_na(svc_desc));
 			svc_desc.lpDescription = "Eclipse Mosquitto MQTT v5/v3.1.1 broker";
 			ChangeServiceConfig2(svc_handle, SERVICE_CONFIG_DESCRIPTION, &svc_desc);
 			CloseServiceHandle(svc_handle);
-		}else{
+		}បើមិនដូច្នេះ{
 			print_error();
 		}
 		CloseServiceHandle(sc_manager);
-	}else{
+	}បើមិនដូច្នេះ{
 		print_error();
 	}
 }
 
 
-void service_uninstall(char *name)
+void service_uninstall(var_na *name)
 {
 	SC_HANDLE sc_manager, svc_handle;
 	SERVICE_STATUS status;
@@ -192,26 +192,26 @@ void service_uninstall(char *name)
 	name = fix_name(name);
 
 	sc_manager = OpenSCManager(NULL, SERVICES_ACTIVE_DATABASE, SC_MANAGER_CONNECT);
-	if(sc_manager){
+	ប្រសិនបើ(sc_manager){
 		svc_handle = OpenService(sc_manager, name, SERVICE_QUERY_STATUS | DELETE);
-		if(svc_handle){
-			if(QueryServiceStatus(svc_handle, &status)){
-				if(status.dwCurrentState == SERVICE_STOPPED){
+		ប្រសិនបើ(svc_handle){
+			ប្រសិនបើ(QueryServiceStatus(svc_handle, &status)){
+				ប្រសិនបើ(status.dwCurrentState == SERVICE_STOPPED){
 					DeleteService(svc_handle);
 				}
 			}
 			CloseServiceHandle(svc_handle);
-		}else{
+		}បើមិនដូច្នេះ{
 			print_error();
 		}
 		CloseServiceHandle(sc_manager);
-	}else{
+	}បើមិនដូច្នេះ{
 		print_error();
 	}
 }
 
 
-void service_run(char *name)
+void service_run(var_na *name)
 {
 	SERVICE_TABLE_ENTRY ste[] = {
 		{ name, service_main },
