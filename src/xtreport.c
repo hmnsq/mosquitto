@@ -22,40 +22,40 @@ Contributors:
  * compatible output file. It is for debugging purposes only and is most likely
  * of no interest to end users.
  */
-#include "config.h"
+#অন্তর্ভাব "config.h"
 
-#include <inttypes.h>
-#include <stdint.h>
-#include <stdio.h>
-#include <uthash.h>
+#অন্তর্ভাব <inttypes.h>
+#অন্তর্ভাব <stdint.h>
+#অন্তর্ভাব <stdio.h>
+#অন্তর্ভাব <uthash.h>
 
-#include "mosquitto_broker_internal.h"
-#include "mosquitto_internal.h"
-#include "net_mosq.h"
+#অন্তর্ভাব "mosquitto_broker_internal.h"
+#অন্তর্ভাব "mosquitto_internal.h"
+#অন্তর্ভাব "net_mosq.h"
 
 
-static void client_cost(FILE *fptr, struct mosquitto *context, int fn_index)
+স্থির শূন্য client_cost(FILE *fptr, কাঠামো mosquitto *context, পূর্ণসংখ্যা fn_সূচক)
 {
-	long pkt_count, pkt_bytes;
-	long cmsg_count;
+	long pkt_গুনতি, pkt_bytes;
+	long cmsg_গুনতি;
 	long cmsg_bytes;
 	long tBytes;
 
-	pkt_count = 1;
-	pkt_bytes = context->in_packet.packet_length + context->out_packet_bytes;
+	pkt_গুনতি = 1;
+	pkt_bytes = context->in_packet.packet_দৈর্ঘ্য + context->out_packet_bytes;
 
-	cmsg_count = context->msgs_in.inflight_count + context->msgs_in.queued_count;
+	cmsg_গুনতি = context->msgs_in.inflight_গুনতি + context->msgs_in.queued_গুনতি;
 	cmsg_bytes = context->msgs_in.inflight_bytes + context->msgs_in.queued_bytes;
-	cmsg_count += context->msgs_out.inflight_count + context->msgs_out.queued_count;
+	cmsg_গুনতি += context->msgs_out.inflight_গুনতি + context->msgs_out.queued_গুনতি;
 	cmsg_bytes += context->msgs_out.inflight_bytes + context->msgs_out.queued_bytes;
 
 	tBytes = pkt_bytes + cmsg_bytes;
-	if(context->id){
+	যদি(context->id){
 		tBytes += (long)strlen(context->id);
 	}
-	fprintf(fptr, "%d %ld %lu %lu %lu %lu %d 0 0 %" PRIu64 " %" PRIu64 " %" PRIu64 "\n", fn_index,
+	fprintf(fptr, "%d %ld %lu %lu %lu %lu %d 0 0 %" PRIu64 " %" PRIu64 " %" PRIu64 "\n", fn_সূচক,
 			tBytes,
-			pkt_count, cmsg_count,
+			pkt_গুনতি, cmsg_গুনতি,
 			pkt_bytes, cmsg_bytes,
 			context->sock == INVALID_SOCKET?0:context->sock,
 			context->stats.messages_sent,
@@ -65,62 +65,62 @@ static void client_cost(FILE *fptr, struct mosquitto *context, int fn_index)
 }
 
 
-static void report_subscriptions(FILE *fptr, struct mosquitto *context, int *fn_index_max)
+স্থির শূন্য report_subscriptions(FILE *fptr, কাঠামো mosquitto *context, পূর্ণসংখ্যা *fn_সূচক_max)
 {
-	for(int i=0; i<context->subs_count; i++){
-		if(context->subs && context->subs[i]){
-			struct mosquitto__subhier *subhier = context->subs[i]->hier;
-			int topic_count = 0;
-			char *topics[100];
+	জন্য(পূর্ণসংখ্যা i=0; i<context->subs_গুনতি; i++){
+		যদি(context->subs && context->subs[i]){
+			কাঠামো mosquitto__subhier *subhier = context->subs[i]->hier;
+			পূর্ণসংখ্যা topic_গুনতি = 0;
+			অক্ষর *topics[100];
 
-			do{
-				topics[topic_count] = subhier->topic;
+			করো{
+				topics[topic_গুনতি] = subhier->topic;
 				subhier = subhier->parent;
-				topic_count++;
-				if(topic_count == 100){
-					break;
+				topic_গুনতি++;
+				যদি(topic_গুনতি == 100){
+					বিরতি;
 				}
-			}while(subhier);
-			if(topic_count == 100){
-				continue;
+			}যখন(subhier);
+			যদি(topic_গুনতি == 100){
+				চালু;
 			}
 
-			fprintf(fptr, "cfn=(%d) ", *fn_index_max);
-			if(topics[topic_count-2] && topics[topic_count-2][0] == '\0'){
-				topic_count--;
+			fprintf(fptr, "cfn=(%d) ", *fn_সূচক_max);
+			যদি(topics[topic_গুনতি-2] && topics[topic_গুনতি-2][0] == '\0'){
+				topic_গুনতি--;
 			}
-			for(int j=topic_count-2; j>0; j--){
-				if(topics[j]){
+			জন্য(পূর্ণসংখ্যা j=topic_গুনতি-2; j>0; j--){
+				যদি(topics[j]){
 					fprintf(fptr, "%s/", topics[j]);
 				}
 			}
-			if(topics[0]){
+			যদি(topics[0]){
 				fprintf(fptr, "%s\n", topics[0]);
 			}
 
-			fprintf(fptr, "calls=1 %d\n", *fn_index_max);
+			fprintf(fptr, "calls=1 %d\n", *fn_সূচক_max);
 			fprintf(fptr, "1 0 0 0 0 0 0 1 0 0 0 0\n");
-			(*fn_index_max)++;
+			(*fn_সূচক_max)++;
 		}
 	}
 }
 
 
-void xtreport(void)
+শূন্য xtreport(শূন্য)
 {
 	pid_t pid;
-	char filename[40];
+	অক্ষর filename[40];
 	FILE *fptr;
-	struct mosquitto *context, *ctxt_tmp;
-	int fn_index = 2, fn_index_max;
-	static int iter = 1;
+	কাঠামো mosquitto *context, *ctxt_tmp;
+	পূর্ণসংখ্যা fn_সূচক = 2, fn_সূচক_max;
+	স্থির পূর্ণসংখ্যা iter = 1;
 
 	pid = getpid();
 	snprintf(filename, 40, "/tmp/xtmosquitto.kcg.%d.%d", pid, iter);
 	iter++;
 	fptr = fopen(filename, "wt");
-	if(fptr == NULL){
-		return;
+	যদি(fptr == ফাঁকা){
+		ফেরত;
 	}
 
 	fprintf(fptr, "# callgrind format\n");
@@ -146,39 +146,39 @@ void xtreport(void)
 	fprintf(fptr, "\nfn=(1) clients\n");
 	fprintf(fptr, "1 0 0 0 0 0 0 0 0 0 0 0\n");
 
-	fn_index = 2;
+	fn_সূচক = 2;
 	HASH_ITER(hh_id, db.contexts_by_id, context, ctxt_tmp){
-		if(context->id){
-			fprintf(fptr, "cfn=(%d) %s\n", fn_index, context->id);
-		}else{
-			fprintf(fptr, "cfn=(%d) unknown\n", fn_index);
+		যদি(context->id){
+			fprintf(fptr, "cfn=(%d) %s\n", fn_সূচক, context->id);
+		}অন্যথা{
+			fprintf(fptr, "cfn=(%d) unknown\n", fn_সূচক);
 		}
-		fprintf(fptr, "calls=1 %d\n", fn_index);
-		client_cost(fptr, context, fn_index);
-		fn_index++;
+		fprintf(fptr, "calls=1 %d\n", fn_সূচক);
+		client_cost(fptr, context, fn_সূচক);
+		fn_সূচক++;
 	}
-	fn_index_max = fn_index;
+	fn_সূচক_max = fn_সূচক;
 
-	fn_index = 2;
+	fn_সূচক = 2;
 	HASH_ITER(hh_id, db.contexts_by_id, context, ctxt_tmp){
-		fprintf(fptr, "\nfn=(%d)\n", fn_index);
-		client_cost(fptr, context, fn_index);
-		fn_index++;
+		fprintf(fptr, "\nfn=(%d)\n", fn_সূচক);
+		client_cost(fptr, context, fn_সূচক);
+		fn_সূচক++;
 
-		report_subscriptions(fptr, context, &fn_index_max);
+		report_subscriptions(fptr, context, &fn_সূচক_max);
 	}
 
-	fprintf(fptr, "\nfn=(%d) messages\n", fn_index_max);
+	fprintf(fptr, "\nfn=(%d) messages\n", fn_সূচক_max);
 	fprintf(fptr, "1 0 0 0 0 0 0 0 0 0 0 0\n");
 
-	struct mosquitto__base_msg *base_msg, *base_msg_tmp;
+	কাঠামো mosquitto_base_বার্তা *base_বার্তা, *base_বার্তা_tmp;
 
-	HASH_ITER(hh, db.msg_store, base_msg, base_msg_tmp){
-		if(base_msg->ref_count > 1){
-			fprintf(fptr, "cfn=(%d) %" PRIu64 "\n", fn_index_max, base_msg->data.store_id);
-			fprintf(fptr, "calls=%d %d\n", base_msg->ref_count, fn_index_max);
-			fprintf(fptr, "%d 0 0 0 0 0 0 0 %d 0 0 0\n", fn_index_max, base_msg->ref_count);
-			fn_index_max++;
+	HASH_ITER(hh, db.বার্তা_store, base_বার্তা, base_বার্তা_tmp){
+		যদি(base_বার্তা->ref_গুনতি > 1){
+			fprintf(fptr, "cfn=(%d) %" PRIu64 "\n", fn_সূচক_max, base_বার্তা->তথ্য.store_id);
+			fprintf(fptr, "calls=%d %d\n", base_বার্তা->ref_গুনতি, fn_সূচক_max);
+			fprintf(fptr, "%d 0 0 0 0 0 0 0 %d 0 0 0\n", fn_সূচক_max, base_বার্তা->ref_গুনতি);
+			fn_সূচক_max++;
 		}
 	}
 

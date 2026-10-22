@@ -16,77 +16,77 @@ Contributors:
    Roger Light - initial implementation and documentation.
 */
 
-#include "config.h"
+#অন্তর্ভাব "config.h"
 
-#include <ctype.h>
-#include <stdio.h>
-#include <string.h>
+#অন্তর্ভাব <ctype.h>
+#অন্তর্ভাব <stdio.h>
+#অন্তর্ভাব <string.h>
 
-#include "acl_file.h"
-#include "mosquitto_broker_internal.h"
-#include "mosquitto/mqtt_protocol.h"
-#include "send_mosq.h"
-#include "util_mosq.h"
+#অন্তর্ভাব "acl_file.h"
+#অন্তর্ভাব "mosquitto_broker_internal.h"
+#অন্তর্ভাব "mosquitto/mqtt_protocol.h"
+#অন্তর্ভাব "send_mosq.h"
+#অন্তর্ভাব "util_mosq.h"
 
 
-int broker_acl_file__init(void)
+পূর্ণসংখ্যা broker_acl_file__init(শূন্য)
 {
-	int rc;
+	পূর্ণসংখ্যা rc;
 
 	/* Load acl data if required. */
-	if(db.config->per_listener_settings){
-		for(int i=0; i<db.config->listener_count; i++){
-			if(db.config->listeners[i].security_options->acl_data.acl_file){
-				rc = acl_file__parse(&db.config->listeners[i].security_options->acl_data);
-				if(rc){
-					log__printf(NULL, MOSQ_LOG_ERR, "Error opening acl file \"%s\".", db.config->listeners[i].security_options->acl_data.acl_file);
-					return rc;
+	যদি(db.config->per_listener_settings){
+		জন্য(পূর্ণসংখ্যা i=0; i<db.config->listener_গুনতি; i++){
+			যদি(db.config->listeners[i].security_options->acl_তথ্য.acl_file){
+				rc = acl_file__parse(&db.config->listeners[i].security_options->acl_তথ্য);
+				যদি(rc){
+					log__printf(ফাঁকা, MOSQ_LOG_ERR, "Error opening acl file \"%s\".", db.config->listeners[i].security_options->acl_তথ্য.acl_file);
+					ফেরত rc;
 				}
-				if(db.config->listeners[i].security_options->plugin_count == 0){
+				যদি(db.config->listeners[i].security_options->plugin_গুনতি == 0){
 					config__plugin_add_secopt(db.config->listeners[i].security_options->pid, db.config->listeners[i].security_options);
 				}
 
 				mosquitto_callback_register(db.config->listeners[i].security_options->pid,
-						MOSQ_EVT_ACL_CHECK, acl_file__check, NULL, &db.config->listeners[i].security_options->acl_data);
+						MOSQ_EVT_ACL_CHECK, acl_file__check, ফাঁকা, &db.config->listeners[i].security_options->acl_তথ্য);
 			}
 		}
-	}else{
-		if(db.config->security_options.acl_data.acl_file){
-			rc = acl_file__parse(&db.config->security_options.acl_data);
-			if(rc){
-				log__printf(NULL, MOSQ_LOG_ERR, "Error opening acl file \"%s\".", db.config->security_options.acl_data.acl_file);
-				return rc;
+	}অন্যথা{
+		যদি(db.config->security_options.acl_তথ্য.acl_file){
+			rc = acl_file__parse(&db.config->security_options.acl_তথ্য);
+			যদি(rc){
+				log__printf(ফাঁকা, MOSQ_LOG_ERR, "Error opening acl file \"%s\".", db.config->security_options.acl_তথ্য.acl_file);
+				ফেরত rc;
 			}
-			if(db.config->security_options.plugin_count == 0){
+			যদি(db.config->security_options.plugin_গুনতি == 0){
 				config__plugin_add_secopt(db.config->security_options.pid, &db.config->security_options);
 			}
 
 			mosquitto_callback_register(db.config->security_options.pid,
-					MOSQ_EVT_ACL_CHECK, acl_file__check, NULL, &db.config->security_options.acl_data);
+					MOSQ_EVT_ACL_CHECK, acl_file__check, ফাঁকা, &db.config->security_options.acl_তথ্য);
 		}
 	}
 
-	return MOSQ_ERR_SUCCESS;
+	ফেরত MOSQ_ERR_SUCCESS;
 }
 
 
-void broker_acl_file__cleanup(void)
+শূন্য broker_acl_file__cleanup(শূন্য)
 {
-	if(db.config->per_listener_settings){
-		for(int i=0; i<db.config->listener_count; i++){
-			if(db.config->listeners[i].security_options->pid){
+	যদি(db.config->per_listener_settings){
+		জন্য(পূর্ণসংখ্যা i=0; i<db.config->listener_গুনতি; i++){
+			যদি(db.config->listeners[i].security_options->pid){
 				mosquitto_callback_unregister(db.config->listeners[i].security_options->pid,
-						MOSQ_EVT_ACL_CHECK, acl_file__check, NULL);
+						MOSQ_EVT_ACL_CHECK, acl_file__check, ফাঁকা);
 
-				acl_file__cleanup(&db.config->listeners[i].security_options->acl_data);
+				acl_file__cleanup(&db.config->listeners[i].security_options->acl_তথ্য);
 			}
 		}
-	}else{
-		if(db.config->security_options.pid){
+	}অন্যথা{
+		যদি(db.config->security_options.pid){
 			mosquitto_callback_unregister(db.config->security_options.pid,
-					MOSQ_EVT_ACL_CHECK, acl_file__check, NULL);
+					MOSQ_EVT_ACL_CHECK, acl_file__check, ফাঁকা);
 
-			acl_file__cleanup(&db.config->security_options.acl_data);
+			acl_file__cleanup(&db.config->security_options.acl_তথ্য);
 		}
 	}
 }

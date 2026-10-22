@@ -16,56 +16,56 @@ Contributors:
    Roger Light - initial implementation and documentation.
 */
 
-#include "config.h"
+#অন্তর্ভাব "config.h"
 
-#include <string.h>
+#অন্তর্ভাব <string.h>
 
-#include "mosquitto_broker_internal.h"
-#include "mosquitto/broker.h"
-#include "utlist.h"
+#অন্তর্ভাব "mosquitto_broker_internal.h"
+#অন্তর্ভাব "mosquitto/broker.h"
+#অন্তর্ভাব "utlist.h"
 
 
-static int plugin__handle_reload_single(struct mosquitto__security_options *opts)
+স্থির পূর্ণসংখ্যা plugin__handle_reload_single(কাঠামো mosquitto__security_options *opts)
 {
-	struct mosquitto_evt_reload event_data;
-	struct mosquitto__callback *cb_base, *cb_next;
+	কাঠামো mosquitto_evt_reload event_তথ্য;
+	কাঠামো mosquitto__callback *cb_base, *cb_পরবর্তী;
 
-	memset(&event_data, 0, sizeof(event_data));
+	memset(&event_তথ্য, 0, আকার(event_তথ্য));
 
 	// Using DL_FOREACH_SAFE here, as reload callbacks might unregister themself
-	DL_FOREACH_SAFE(opts->plugin_callbacks.reload, cb_base, cb_next){
-		int rc = cb_base->cb(MOSQ_EVT_RELOAD, &event_data, cb_base->userdata);
-		if(rc){
-			log__printf(NULL, MOSQ_LOG_ERR, "Error: Plugin %s produced error on reload: %s",
+	DL_FOREACH_SAFE(opts->plugin_callbacks.reload, cb_base, cb_পরবর্তী){
+		পূর্ণসংখ্যা rc = cb_base->cb(MOSQ_EVT_RELOAD, &event_তথ্য, cb_base->userdata);
+		যদি(rc){
+			log__printf(ফাঁকা, MOSQ_LOG_ERR, "Error: Plugin %s produced error on reload: %s",
 					cb_base->identifier->plugin_name?cb_base->identifier->plugin_name:"",
 					mosquitto_strerror(rc));
 
-			return rc;
+			ফেরত rc;
 		}
 	}
-	return MOSQ_ERR_SUCCESS;
+	ফেরত MOSQ_ERR_SUCCESS;
 }
 
 
-int plugin__handle_reload(void)
+পূর্ণসংখ্যা plugin__handle_reload(শূন্য)
 {
-	struct mosquitto__security_options *opts;
-	int rc;
+	কাঠামো mosquitto__security_options *opts;
+	পূর্ণসংখ্যা rc;
 
 	/* Global plugins */
 	rc = plugin__handle_reload_single(&db.config->security_options);
-	if(rc){
-		return rc;
+	যদি(rc){
+		ফেরত rc;
 	}
 
-	for(int i=0; i<db.config->listener_count; i++){
+	জন্য(পূর্ণসংখ্যা i=0; i<db.config->listener_গুনতি; i++){
 		opts = db.config->listeners[i].security_options;
-		if(opts && opts->plugin_callbacks.reload){
+		যদি(opts && opts->plugin_callbacks.reload){
 			rc = plugin__handle_reload_single(opts);
-			if(rc){
-				return rc;
+			যদি(rc){
+				ফেরত rc;
 			}
 		}
 	}
-	return MOSQ_ERR_SUCCESS;
+	ফেরত MOSQ_ERR_SUCCESS;
 }

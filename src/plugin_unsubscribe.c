@@ -17,54 +17,54 @@ Contributors:
    Roger Light - initial implementation and documentation.
 */
 
-#include "config.h"
+#অন্তর্ভাব "config.h"
 
-#include "mosquitto_broker_internal.h"
-#include "utlist.h"
+#অন্তর্ভাব "mosquitto_broker_internal.h"
+#অন্তর্ভাব "utlist.h"
 
 
-static int plugin__handle_unsubscribe_single(struct mosquitto__security_options *opts, struct mosquitto *context, struct mosquitto_subscription *sub)
+স্থির পূর্ণসংখ্যা plugin__handle_unsubscribe_single(কাঠামো mosquitto__security_options *opts, কাঠামো mosquitto *context, কাঠামো mosquitto_subscription *sub)
 {
-	struct mosquitto_evt_unsubscribe event_data;
-	struct mosquitto__callback *cb_base, *cb_next;
-	int rc = MOSQ_ERR_SUCCESS;
+	কাঠামো mosquitto_evt_unsubscribe event_তথ্য;
+	কাঠামো mosquitto__callback *cb_base, *cb_পরবর্তী;
+	পূর্ণসংখ্যা rc = MOSQ_ERR_SUCCESS;
 
-	memset(&event_data, 0, sizeof(event_data));
-	event_data.client = context;
-	event_data.data.topic_filter = sub->topic_filter;
-	event_data.data.properties = sub->properties;
+	memset(&event_তথ্য, 0, আকার(event_তথ্য));
+	event_তথ্য.client = context;
+	event_তথ্য.তথ্য.topic_filter = sub->topic_filter;
+	event_তথ্য.তথ্য.properties = sub->properties;
 
-	DL_FOREACH_SAFE(opts->plugin_callbacks.unsubscribe, cb_base, cb_next){
-		rc = cb_base->cb(MOSQ_EVT_UNSUBSCRIBE, &event_data, cb_base->userdata);
-		if(rc != MOSQ_ERR_SUCCESS){
-			break;
+	DL_FOREACH_SAFE(opts->plugin_callbacks.unsubscribe, cb_base, cb_পরবর্তী){
+		rc = cb_base->cb(MOSQ_EVT_UNSUBSCRIBE, &event_তথ্য, cb_base->userdata);
+		যদি(rc != MOSQ_ERR_SUCCESS){
+			বিরতি;
 		}
 
-		if(sub->topic_filter != event_data.data.topic_filter){
+		যদি(sub->topic_filter != event_তথ্য.তথ্য.topic_filter){
 			mosquitto_free(sub->topic_filter);
-			sub->topic_filter = event_data.data.topic_filter;
+			sub->topic_filter = event_তথ্য.তথ্য.topic_filter;
 		}
 	}
 
-	return rc;
+	ফেরত rc;
 }
 
 
-int plugin__handle_unsubscribe(struct mosquitto *context, struct mosquitto_subscription *sub)
+পূর্ণসংখ্যা plugin__handle_unsubscribe(কাঠামো mosquitto *context, কাঠামো mosquitto_subscription *sub)
 {
-	int rc = MOSQ_ERR_SUCCESS;
+	পূর্ণসংখ্যা rc = MOSQ_ERR_SUCCESS;
 
 	/* Global plugins */
 	rc = plugin__handle_unsubscribe_single(&db.config->security_options,
 			context, sub);
-	if(rc){
-		return rc;
+	যদি(rc){
+		ফেরত rc;
 	}
 
-	if(context->listener){
+	যদি(context->listener){
 		rc = plugin__handle_unsubscribe_single(context->listener->security_options,
 				context, sub);
 	}
 
-	return rc;
+	ফেরত rc;
 }

@@ -17,193 +17,193 @@ Contributors:
    Tatsuzo Osawa - Add epoll.
 */
 
-#include "config.h"
+#অন্তর্ভাব "config.h"
 
 #ifndef WIN32
 #  define _GNU_SOURCE
 #endif
 
 #ifndef WIN32
-#include <unistd.h>
-#else
-#include <process.h>
-#include <winsock2.h>
-#include <ws2tcpip.h>
+#অন্তর্ভাব <unistd.h>
+#অন্যথা
+#অন্তর্ভাব <process.h>
+#অন্তর্ভাব <winsock2.h>
+#অন্তর্ভাব <ws2tcpip.h>
 #endif
 
-#include <errno.h>
-#include <signal.h>
-#include <stdio.h>
-#include <string.h>
+#অন্তর্ভাব <errno.h>
+#অন্তর্ভাব <signal.h>
+#অন্তর্ভাব <stdio.h>
+#অন্তর্ভাব <string.h>
 #ifndef WIN32
 #  include <sys/socket.h>
 #endif
-#include <time.h>
-#include <utlist.h>
+#অন্তর্ভাব <time.h>
+#অন্তর্ভাব <utlist.h>
 
-#if defined(WITH_WEBSOCKETS) && WITH_WEBSOCKETS == WS_IS_LWS
+#যদি defined(WITH_WEBSOCKETS) && WITH_WEBSOCKETS == WS_IS_LWS
 #  include <libwebsockets.h>
 #endif
 
-#include "mosquitto_broker_internal.h"
-#include "mosquitto/mqtt_protocol.h"
-#include "packet_mosq.h"
-#include "property_common.h"
-#include "send_mosq.h"
-#include "sys_tree.h"
-#include "util_mosq.h"
+#অন্তর্ভাব "mosquitto_broker_internal.h"
+#অন্তর্ভাব "mosquitto/mqtt_protocol.h"
+#অন্তর্ভাব "packet_mosq.h"
+#অন্তর্ভাব "property_common.h"
+#অন্তর্ভাব "send_mosq.h"
+#অন্তর্ভাব "sys_tree.h"
+#অন্তর্ভাব "util_mosq.h"
 
-extern int g_run;
+বাহ্যিক পূর্ণসংখ্যা g_run;
 
-#if defined(WITH_WEBSOCKETS) && WITH_WEBSOCKETS == WS_IS_LWS && LWS_LIBRARY_VERSION_NUMBER == 3002000
+#যদি defined(WITH_WEBSOCKETS) && WITH_WEBSOCKETS == WS_IS_LWS && LWS_LIBRARY_VERSION_সংখ্যা == 3002000
 
 
-void lws__sul_callback(struct lws_sorted_usec_list *l)
+শূন্য lws__sul_callback(কাঠামো lws_sorted_usec_list *l)
 {
 }
 
-static struct lws_sorted_usec_list sul;
+স্থির কাঠামো lws_sorted_usec_list sul;
 #endif
 
 
-static int single_publish(struct mosquitto *context, struct mosquitto__message_v5 *pub_msg, uint32_t message_expiry)
+স্থির পূর্ণসংখ্যা single_publish(কাঠামো mosquitto *context, কাঠামো mosquitto__message_v5 *pub_বার্তা, uint32_t message_expiry)
 {
-	struct mosquitto__base_msg *base_msg;
+	কাঠামো mosquitto_base_বার্তা *base_বার্তা;
 	uint16_t mid;
 
-	base_msg = mosquitto_calloc(1, sizeof(struct mosquitto__base_msg));
-	if(base_msg == NULL){
-		return MOSQ_ERR_NOMEM;
+	base_বার্তা = mosquitto_calloc(1, আকার(কাঠামো mosquitto_base_বার্তা));
+	যদি(base_বার্তা == ফাঁকা){
+		ফেরত MOSQ_ERR_NOMEM;
 	}
 
-	base_msg->data.topic = pub_msg->topic;
-	pub_msg->topic = NULL;
-	base_msg->data.retain = 0;
-	base_msg->data.payloadlen = (uint32_t)pub_msg->payloadlen;
-	base_msg->data.payload = mosquitto_malloc(base_msg->data.payloadlen+1);
-	if(base_msg->data.payload == NULL){
-		db__msg_store_free(base_msg);
-		return MOSQ_ERR_NOMEM;
+	base_বার্তা->তথ্য.topic = pub_বার্তা->topic;
+	pub_বার্তা->topic = ফাঁকা;
+	base_বার্তা->তথ্য.retain = 0;
+	base_বার্তা->তথ্য.payloadlen = (uint32_t)pub_বার্তা->payloadlen;
+	base_বার্তা->তথ্য.payload = mosquitto_malloc(base_বার্তা->তথ্য.payloadlen+1);
+	যদি(base_বার্তা->তথ্য.payload == ফাঁকা){
+		db_বার্তা_store_free(base_বার্তা);
+		ফেরত MOSQ_ERR_NOMEM;
 	}
 	/* Ensure payload is always zero terminated, this is the reason for the extra byte above */
-	((uint8_t *)base_msg->data.payload)[base_msg->data.payloadlen] = 0;
-	memcpy(base_msg->data.payload, pub_msg->payload, base_msg->data.payloadlen);
+	((uint8_t *)base_বার্তা->তথ্য.payload)[base_বার্তা->তথ্য.payloadlen] = 0;
+	memcpy(base_বার্তা->তথ্য.payload, pub_বার্তা->payload, base_বার্তা->তথ্য.payloadlen);
 
-	if(pub_msg->properties){
-		base_msg->data.properties = pub_msg->properties;
-		pub_msg->properties = NULL;
+	যদি(pub_বার্তা->properties){
+		base_বার্তা->তথ্য.properties = pub_বার্তা->properties;
+		pub_বার্তা->properties = ফাঁকা;
 	}
 
-	if(db__message_store(context, base_msg, &message_expiry, mosq_mo_broker)){
-		return 1;
+	যদি(db__message_store(context, base_বার্তা, &message_expiry, mosq_mo_broker)){
+		ফেরত 1;
 	}
 
-	if(pub_msg->qos){
+	যদি(pub_বার্তা->qos){
 		mid = mosquitto__mid_generate(context);
-	}else{
+	}অন্যথা{
 		mid = 0;
 	}
-	return db__message_insert_outgoing(context, 0, mid, (uint8_t)pub_msg->qos, 0, base_msg, 0, true, true);
+	ফেরত db_message_ঢোকাও_outgoing(context, 0, mid, (uint8_t)pub_বার্তা->qos, 0, base_বার্তা, 0, true, true);
 }
 
 
-static void read_message_expiry_interval(mosquitto_property **proplist, uint32_t *message_expiry)
+স্থির শূন্য read_message_expiry_interval(mosquitto_property **proplist, uint32_t *message_expiry)
 {
-	mosquitto_property *p, *previous = NULL;
+	mosquitto_property *p, *previous = ফাঁকা;
 
-	*message_expiry = MSG_EXPIRY_INFINITE;
+	*message_expiry = বার্তা_EXPIRY_INFINITE;
 
-	if(!proplist){
-		return;
+	যদি(!proplist){
+		ফেরত;
 	}
 
 	p = *proplist;
-	while(p){
-		if(mosquitto_property_identifier(p) == MQTT_PROP_MESSAGE_EXPIRY_INTERVAL){
-			*message_expiry = mosquitto_property_int32_value(p);
-			if(p == *proplist){
-				*proplist = mosquitto_property_next(p);
-			}else{
-				previous->next = mosquitto_property_next(p);
+	যখন(p){
+		যদি(mosquitto_property_identifier(p) == MQTT_PROP_MESSAGE_EXPIRY_INTERVAL){
+			*message_expiry = mosquitto_property_int32_মান(p);
+			যদি(p == *proplist){
+				*proplist = mosquitto_property_পরবর্তী(p);
+			}অন্যথা{
+				previous->পরবর্তী = mosquitto_property_পরবর্তী(p);
 			}
 			mosquitto_property_free(&p);
-			return;
+			ফেরত;
 
 		}
 		previous = p;
-		p = mosquitto_property_next(p);
+		p = mosquitto_property_পরবর্তী(p);
 	}
 }
 
 
-static void queue_plugin_msgs(void)
+স্থির শূন্য queue_plugin_msgs(শূন্য)
 {
-	struct mosquitto__message_v5 *msg, *tmp;
-	struct mosquitto *context;
+	কাঠামো mosquitto__message_v5 *বার্তা, *tmp;
+	কাঠামো mosquitto *context;
 	uint32_t message_expiry;
 
-	DL_FOREACH_SAFE(db.plugin_msgs, msg, tmp){
-		DL_DELETE(db.plugin_msgs, msg);
+	DL_FOREACH_SAFE(db.plugin_msgs, বার্তা, tmp){
+		DL_DELETE(db.plugin_msgs, বার্তা);
 
-		read_message_expiry_interval(&msg->properties, &message_expiry);
+		read_message_expiry_interval(&বার্তা->properties, &message_expiry);
 
-		if(msg->clientid){
-			HASH_FIND(hh_id, db.contexts_by_id, msg->clientid, strlen(msg->clientid), context);
-			if(context){
-				single_publish(context, msg, message_expiry);
+		যদি(বার্তা->clientid){
+			HASH_FIND(hh_id, db.contexts_by_id, বার্তা->clientid, strlen(বার্তা->clientid), context);
+			যদি(context){
+				single_publish(context, বার্তা, message_expiry);
 			}
-		}else{
-			db__messages_easy_queue(NULL, msg->topic, (uint8_t)msg->qos, (uint32_t)msg->payloadlen, msg->payload, msg->retain, message_expiry, &msg->properties);
+		}অন্যথা{
+			db__messages_easy_queue(ফাঁকা, বার্তা->topic, (uint8_t)বার্তা->qos, (uint32_t)বার্তা->payloadlen, বার্তা->payload, বার্তা->retain, message_expiry, &বার্তা->properties);
 		}
-		mosquitto_FREE(msg->topic);
-		mosquitto_FREE(msg->payload);
-		mosquitto_property_free_all(&msg->properties);
-		mosquitto_FREE(msg->clientid);
-		mosquitto_FREE(msg);
+		mosquitto_FREE(বার্তা->topic);
+		mosquitto_FREE(বার্তা->payload);
+		mosquitto_property_free_all(&বার্তা->properties);
+		mosquitto_FREE(বার্তা->clientid);
+		mosquitto_FREE(বার্তা);
 	}
 }
 
 
-void loop__update_next_event(time_t new_ms)
+শূন্য loop_update_পরবর্তী_event(time_t new_ms)
 {
-	if(new_ms > 0 && new_ms < db.next_event_ms){
-		db.next_event_ms = new_ms;
+	যদি(new_ms > 0 && new_ms < db.পরবর্তী_event_ms){
+		db.পরবর্তী_event_ms = new_ms;
 	}
 }
 
 
-int mosquitto_main_loop(struct mosquitto__listener_sock *listensock, int listensock_count)
+পূর্ণসংখ্যা mosquitto_main_loop(কাঠামো mosquitto__listener_sock *listensock, পূর্ণসংখ্যা listensock_গুনতি)
 {
 #ifdef WITH_PERSISTENCE
 	time_t last_backup = mosquitto_time();
 #endif
-	int rc;
+	পূর্ণসংখ্যা rc;
 
 
 	watchdog__init();
-#if defined(WITH_WEBSOCKETS) && WITH_WEBSOCKETS == WS_IS_LWS && LWS_LIBRARY_VERSION_NUMBER == 3002000
-	memset(&sul, 0, sizeof(struct lws_sorted_usec_list));
+#যদি defined(WITH_WEBSOCKETS) && WITH_WEBSOCKETS == WS_IS_LWS && LWS_LIBRARY_VERSION_সংখ্যা == 3002000
+	memset(&sul, 0, আকার(কাঠামো lws_sorted_usec_list));
 #endif
 
 	db.now_s = mosquitto_time();
-	db.now_real_s = time(NULL);
+	db.now_real_s = time(ফাঁকা);
 
 #ifdef WITH_BRIDGE
 	rc = bridge__register_local_connections();
-	if(rc){
-		return rc;
+	যদি(rc){
+		ফেরত rc;
 	}
 #endif
 
-	while(g_run){
+	যখন(g_run){
 		retain__expiry_check();
 		queue_plugin_msgs();
 		context__free_disused();
 
-		db.next_event_ms = 86400000;
-#ifdef WITH_SYS_TREE
-		if(db.config->sys_interval > 0){
-			sys_tree__update(false);
+		db.পরবর্তী_event_ms = 86400000;
+#ifdef WITH_SYS_বৃক্ষ
+		যদি(db.config->sys_interval > 0){
+			sys_বৃক্ষ_update(false);
 		}
 #endif
 
@@ -217,20 +217,20 @@ int mosquitto_main_loop(struct mosquitto__listener_sock *listensock, int listens
 		session_expiry__check();
 		will_delay__check();
 
-		rc = mux__handle(listensock, listensock_count);
-		if(rc){
-			return rc;
+		rc = mux__handle(listensock, listensock_গুনতি);
+		যদি(rc){
+			ফেরত rc;
 		}
 
 #ifdef WITH_PERSISTENCE
-		if(db.config->persistence && db.config->autosave_interval){
-			if(db.config->autosave_on_changes){
-				if(db.persistence_changes >= db.config->autosave_interval){
+		যদি(db.config->persistence && db.config->autosave_interval){
+			যদি(db.config->autosave_on_changes){
+				যদি(db.persistence_changes >= db.config->autosave_interval){
 					persist__backup(false);
 					db.persistence_changes = 0;
 				}
-			}else{
-				if(last_backup + db.config->autosave_interval < db.now_s){
+			}অন্যথা{
+				যদি(last_backup + db.config->autosave_interval < db.now_s){
 					persist__backup(false);
 					last_backup = db.now_s;
 				}
@@ -239,23 +239,23 @@ int mosquitto_main_loop(struct mosquitto__listener_sock *listensock, int listens
 #endif
 
 		rc = signal__flag_check();
-		if(rc){
-			return rc;
+		যদি(rc){
+			ফেরত rc;
 		}
 
-#if defined(WITH_WEBSOCKETS) && WITH_WEBSOCKETS == WS_IS_LWS
-		for(int i=0; i<db.config->listener_count; i++){
+#যদি defined(WITH_WEBSOCKETS) && WITH_WEBSOCKETS == WS_IS_LWS
+		জন্য(পূর্ণসংখ্যা i=0; i<db.config->listener_গুনতি; i++){
 			/* Extremely hacky, should be using the lws provided external poll
 			 * interface, but their interface has changed recently and ours
 			 * will soon, so for now websockets clients are second class
 			 * citizens. */
-			if(db.config->listeners[i].ws_context){
-#if LWS_LIBRARY_VERSION_NUMBER > 3002000
+			যদি(db.config->listeners[i].ws_context){
+#যদি LWS_LIBRARY_VERSION_সংখ্যা > 3002000
 				lws_service(db.config->listeners[i].ws_context, -1);
-#elif LWS_LIBRARY_VERSION_NUMBER == 3002000
+#নতুবা_যদি LWS_LIBRARY_VERSION_সংখ্যা == 3002000
 				lws_sul_schedule(db.config->listeners[i].ws_context, 0, &sul, lws__sul_callback, 10);
 				lws_service(db.config->listeners[i].ws_context, 0);
-#else
+#অন্যথা
 				lws_service(db.config->listeners[i].ws_context, 0);
 #endif
 
@@ -264,38 +264,38 @@ int mosquitto_main_loop(struct mosquitto__listener_sock *listensock, int listens
 #endif
 	}
 
-	return MOSQ_ERR_SUCCESS;
+	ফেরত MOSQ_ERR_SUCCESS;
 }
 
 
-void do_disconnect(struct mosquitto *context, int reason)
+শূন্য do_disconnect(কাঠামো mosquitto *context, পূর্ণসংখ্যা reason)
 {
-	const char *id;
-#if defined(WITH_WEBSOCKETS) && WITH_WEBSOCKETS == WS_IS_LWS
+	ধ্রুবক অক্ষর *id;
+#যদি defined(WITH_WEBSOCKETS) && WITH_WEBSOCKETS == WS_IS_LWS
 	bool is_duplicate = false;
 #endif
 
-	if(context->state == mosq_cs_disconnected){
-		return;
+	যদি(context->state == mosq_cs_disconnected){
+		ফেরত;
 	}
-#if defined(WITH_WEBSOCKETS) && WITH_WEBSOCKETS == WS_IS_LWS
-	if(context->wsi){
-		if(context->state == mosq_cs_duplicate){
+#যদি defined(WITH_WEBSOCKETS) && WITH_WEBSOCKETS == WS_IS_LWS
+	যদি(context->wsi){
+		যদি(context->state == mosq_cs_duplicate){
 			is_duplicate = true;
 		}
 
-		if(context->state != mosq_cs_disconnecting && context->state != mosq_cs_disconnect_with_will){
+		যদি(context->state != mosq_cs_disconnecting && context->state != mosq_cs_disconnect_with_will){
 			mosquitto__set_state(context, mosq_cs_disconnect_ws);
 		}
-		if(context->wsi){
+		যদি(context->wsi){
 			lws_callback_on_writable(context->wsi);
 		}
-		if(context->sock != INVALID_SOCKET){
+		যদি(context->sock != INVALID_SOCKET){
 			HASH_DELETE(hh_sock, db.contexts_by_sock, context);
 			mux__delete(context);
 			context->sock = INVALID_SOCKET;
 		}
-		if(is_duplicate){
+		যদি(is_duplicate){
 			/* This occurs if another client is taking over the same client id.
 			 * It is important to remove this from the by_id hash here, so it
 			 * doesn't leave us with multiple clients in the hash with the same
@@ -304,103 +304,103 @@ void do_disconnect(struct mosquitto *context, int reason)
 			 * there could be two clients with the same id in the hash. */
 			context__remove_from_by_id(context);
 		}
-	}else
+	}অন্যথা
 #endif
 	{
-		if(db.config->connection_messages == true){
-			if(context->id){
+		যদি(db.config->connection_messages == true){
+			যদি(context->id){
 				id = context->id;
-			}else{
+			}অন্যথা{
 				id = context->address;
 			}
-			if(context->state != mosq_cs_disconnecting && context->state != mosq_cs_disconnect_with_will){
-				switch(reason){
-					case MOSQ_ERR_SUCCESS:
-						break;
-					case MOSQ_ERR_MALFORMED_PACKET:
-						log__printf(NULL, MOSQ_LOG_NOTICE, "Client %s [%s:%d] disconnected: malformed packet.", id, context->address, context->remote_port);
-						break;
-					case MOSQ_ERR_PROTOCOL:
-						log__printf(NULL, MOSQ_LOG_NOTICE, "Client %s [%s:%d] disconnected: protocol error.", id, context->address, context->remote_port);
-						break;
-					case MOSQ_ERR_CONN_LOST:
-						log__printf(NULL, MOSQ_LOG_NOTICE, "Client %s [%s:%d] disconnected: connection closed by client.", id, context->address, context->remote_port);
-						break;
-					case MOSQ_ERR_AUTH:
-						log__printf(NULL, MOSQ_LOG_NOTICE, "Client %s [%s:%d] disconnected: not authorised.", id, context->address, context->remote_port);
-						break;
-					case MOSQ_ERR_KEEPALIVE:
-						log__printf(NULL, MOSQ_LOG_NOTICE, "Client %s [%s:%d] disconnected: exceeded timeout.", id, context->address, context->remote_port);
-						break;
-					case MOSQ_ERR_OVERSIZE_PACKET:
-						log__printf(NULL, MOSQ_LOG_NOTICE, "Client %s [%s:%d] disconnected: oversize packet.", id, context->address, context->remote_port);
-						break;
-					case MOSQ_ERR_PAYLOAD_SIZE:
-						log__printf(NULL, MOSQ_LOG_NOTICE, "Client %s [%s:%d] disconnected: oversize payload.", id, context->address, context->remote_port);
-						break;
-					case MOSQ_ERR_NOMEM:
-						log__printf(NULL, MOSQ_LOG_NOTICE, "Client %s [%s:%d] disconnected: out of memory.", id, context->address, context->remote_port);
-						break;
-					case MOSQ_ERR_NOT_SUPPORTED:
-						log__printf(NULL, MOSQ_LOG_NOTICE, "Client %s [%s:%d] disconnected: used disallowed feature (QoS too high, retain not supported, or bad AUTH method).", id, context->address, context->remote_port);
-						break;
-					case MOSQ_ERR_ADMINISTRATIVE_ACTION:
-						log__printf(NULL, MOSQ_LOG_NOTICE, "Client %s [%s:%d] disconnected: administrative action.", id, context->address, context->remote_port);
-						break;
-					case MOSQ_ERR_ERRNO:
-						log__printf(NULL, MOSQ_LOG_NOTICE, "Client %s [%s:%d] disconnected: %s.", id, context->address, context->remote_port, strerror(errno));
-						break;
-					case MOSQ_ERR_RECEIVE_MAXIMUM_EXCEEDED:
-						log__printf(NULL, MOSQ_LOG_NOTICE, "Client %s [%s:%d] disconnected: receive maximum exceeded.", id, context->address, context->remote_port);
-						break;
-					case MOSQ_ERR_IMPLEMENTATION_SPECIFIC:
-						log__printf(NULL, MOSQ_LOG_NOTICE, "Client %s [%s:%d] disconnected: implementation specific error.", id, context->address, context->remote_port);
-						break;
-					case MOSQ_ERR_CLIENT_IDENTIFIER_NOT_VALID:
-						log__printf(NULL, MOSQ_LOG_NOTICE, "Client %s [%s:%d] disconnected: client identifier not valid.", id, context->address, context->remote_port);
-						break;
-					case MOSQ_ERR_BAD_USERNAME_OR_PASSWORD:
-						log__printf(NULL, MOSQ_LOG_NOTICE, "Client %s [%s:%d] disconnected: bad username or password.", id, context->address, context->remote_port);
-						break;
-					case MOSQ_ERR_SERVER_UNAVAILABLE:
-						log__printf(NULL, MOSQ_LOG_NOTICE, "Client %s [%s:%d] disconnected: server unavailable.", id, context->address, context->remote_port);
-						break;
-					case MOSQ_ERR_SERVER_BUSY:
-						log__printf(NULL, MOSQ_LOG_NOTICE, "Client %s [%s:%d] disconnected: server busy.", id, context->address, context->remote_port);
-						break;
-					case MOSQ_ERR_BANNED:
-						log__printf(NULL, MOSQ_LOG_NOTICE, "Client %s [%s:%d] disconnected: client banned.", id, context->address, context->remote_port);
-						break;
-					case MOSQ_ERR_BAD_AUTHENTICATION_METHOD:
-						log__printf(NULL, MOSQ_LOG_NOTICE, "Client %s [%s:%d] disconnected: bad authentication method.", id, context->address, context->remote_port);
-						break;
-					case MOSQ_ERR_QUOTA_EXCEEDED:
-						log__printf(NULL, MOSQ_LOG_NOTICE, "Client %s [%s:%d] disconnected: quota exceeded.", id, context->address, context->remote_port);
-						break;
-					case MOSQ_ERR_CONNECTION_RATE_EXCEEDED:
-						log__printf(NULL, MOSQ_LOG_NOTICE, "Client %s [%s:%d] disconnected: connection rate exceeded.", id, context->address, context->remote_port);
-						break;
-					case MOSQ_ERR_SESSION_TAKEN_OVER:
-						log__printf(NULL, MOSQ_LOG_NOTICE, "Client %s [%s:%d] disconnected: session taken over.", id, context->address, context->remote_port);
-						break;
-					case MOSQ_ERR_TOPIC_ALIAS_INVALID:
-						log__printf(NULL, MOSQ_LOG_NOTICE, "Client %s [%s:%d] disconnected: topic alias invalid.", id, context->address, context->remote_port);
-						break;
-					case MOSQ_ERR_HTTP_BAD_ORIGIN:
-						log__printf(NULL, MOSQ_LOG_NOTICE, "Client %s [%s:%d] disconnected: non-matching http origin.", id, context->address, context->remote_port);
-						break;
-					case MOSQ_ERR_PROXY:
+			যদি(context->state != mosq_cs_disconnecting && context->state != mosq_cs_disconnect_with_will){
+				নির্বাচন(reason){
+					ক্ষেত্র MOSQ_ERR_SUCCESS:
+						বিরতি;
+					ক্ষেত্র MOSQ_ERR_MALFORMED_PACKET:
+						log__printf(ফাঁকা, MOSQ_LOG_NOTICE, "Client %s [%s:%d] disconnected: malformed packet.", id, context->address, context->remote_port);
+						বিরতি;
+					ক্ষেত্র MOSQ_ERR_PROTOCOL:
+						log__printf(ফাঁকা, MOSQ_LOG_NOTICE, "Client %s [%s:%d] disconnected: protocol error.", id, context->address, context->remote_port);
+						বিরতি;
+					ক্ষেত্র MOSQ_ERR_CONN_LOST:
+						log__printf(ফাঁকা, MOSQ_LOG_NOTICE, "Client %s [%s:%d] disconnected: connection closed by client.", id, context->address, context->remote_port);
+						বিরতি;
+					ক্ষেত্র MOSQ_ERR_AUTH:
+						log__printf(ফাঁকা, MOSQ_LOG_NOTICE, "Client %s [%s:%d] disconnected: not authorised.", id, context->address, context->remote_port);
+						বিরতি;
+					ক্ষেত্র MOSQ_ERR_KEEPALIVE:
+						log__printf(ফাঁকা, MOSQ_LOG_NOTICE, "Client %s [%s:%d] disconnected: exceeded timeout.", id, context->address, context->remote_port);
+						বিরতি;
+					ক্ষেত্র MOSQ_ERR_OVERSIZE_PACKET:
+						log__printf(ফাঁকা, MOSQ_LOG_NOTICE, "Client %s [%s:%d] disconnected: oversize packet.", id, context->address, context->remote_port);
+						বিরতি;
+					ক্ষেত্র MOSQ_ERR_PAYLOAD_আকার:
+						log__printf(ফাঁকা, MOSQ_LOG_NOTICE, "Client %s [%s:%d] disconnected: oversize payload.", id, context->address, context->remote_port);
+						বিরতি;
+					ক্ষেত্র MOSQ_ERR_NOMEM:
+						log__printf(ফাঁকা, MOSQ_LOG_NOTICE, "Client %s [%s:%d] disconnected: out of memory.", id, context->address, context->remote_port);
+						বিরতি;
+					ক্ষেত্র MOSQ_ERR_NOT_SUPPORTED:
+						log__printf(ফাঁকা, MOSQ_LOG_NOTICE, "Client %s [%s:%d] disconnected: used disallowed feature (QoS too high, retain not supported, or bad AUTH method).", id, context->address, context->remote_port);
+						বিরতি;
+					ক্ষেত্র MOSQ_ERR_ADMINISTRATIVE_ACTION:
+						log__printf(ফাঁকা, MOSQ_LOG_NOTICE, "Client %s [%s:%d] disconnected: administrative action.", id, context->address, context->remote_port);
+						বিরতি;
+					ক্ষেত্র MOSQ_ERR_ERRNO:
+						log__printf(ফাঁকা, MOSQ_LOG_NOTICE, "Client %s [%s:%d] disconnected: %s.", id, context->address, context->remote_port, strerror(errno));
+						বিরতি;
+					ক্ষেত্র MOSQ_ERR_RECEIVE_MAXIMUM_EXCEEDED:
+						log__printf(ফাঁকা, MOSQ_LOG_NOTICE, "Client %s [%s:%d] disconnected: receive maximum exceeded.", id, context->address, context->remote_port);
+						বিরতি;
+					ক্ষেত্র MOSQ_ERR_IMPLEMENTATION_SPECIFIC:
+						log__printf(ফাঁকা, MOSQ_LOG_NOTICE, "Client %s [%s:%d] disconnected: implementation specific error.", id, context->address, context->remote_port);
+						বিরতি;
+					ক্ষেত্র MOSQ_ERR_CLIENT_IDENTIFIER_NOT_VALID:
+						log__printf(ফাঁকা, MOSQ_LOG_NOTICE, "Client %s [%s:%d] disconnected: client identifier not valid.", id, context->address, context->remote_port);
+						বিরতি;
+					ক্ষেত্র MOSQ_ERR_BAD_USERNAME_OR_PASSWORD:
+						log__printf(ফাঁকা, MOSQ_LOG_NOTICE, "Client %s [%s:%d] disconnected: bad username or password.", id, context->address, context->remote_port);
+						বিরতি;
+					ক্ষেত্র MOSQ_ERR_SERVER_UNAVAILABLE:
+						log__printf(ফাঁকা, MOSQ_LOG_NOTICE, "Client %s [%s:%d] disconnected: server unavailable.", id, context->address, context->remote_port);
+						বিরতি;
+					ক্ষেত্র MOSQ_ERR_SERVER_BUSY:
+						log__printf(ফাঁকা, MOSQ_LOG_NOTICE, "Client %s [%s:%d] disconnected: server busy.", id, context->address, context->remote_port);
+						বিরতি;
+					ক্ষেত্র MOSQ_ERR_BANNED:
+						log__printf(ফাঁকা, MOSQ_LOG_NOTICE, "Client %s [%s:%d] disconnected: client banned.", id, context->address, context->remote_port);
+						বিরতি;
+					ক্ষেত্র MOSQ_ERR_BAD_AUTHENTICATION_METHOD:
+						log__printf(ফাঁকা, MOSQ_LOG_NOTICE, "Client %s [%s:%d] disconnected: bad authentication method.", id, context->address, context->remote_port);
+						বিরতি;
+					ক্ষেত্র MOSQ_ERR_QUOTA_EXCEEDED:
+						log__printf(ফাঁকা, MOSQ_LOG_NOTICE, "Client %s [%s:%d] disconnected: quota exceeded.", id, context->address, context->remote_port);
+						বিরতি;
+					ক্ষেত্র MOSQ_ERR_CONNECTION_RATE_EXCEEDED:
+						log__printf(ফাঁকা, MOSQ_LOG_NOTICE, "Client %s [%s:%d] disconnected: connection rate exceeded.", id, context->address, context->remote_port);
+						বিরতি;
+					ক্ষেত্র MOSQ_ERR_SESSION_TAKEN_OVER:
+						log__printf(ফাঁকা, MOSQ_LOG_NOTICE, "Client %s [%s:%d] disconnected: session taken over.", id, context->address, context->remote_port);
+						বিরতি;
+					ক্ষেত্র MOSQ_ERR_TOPIC_ALIAS_INVALID:
+						log__printf(ফাঁকা, MOSQ_LOG_NOTICE, "Client %s [%s:%d] disconnected: topic alias invalid.", id, context->address, context->remote_port);
+						বিরতি;
+					ক্ষেত্র MOSQ_ERR_HTTP_BAD_ORIGIN:
+						log__printf(ফাঁকা, MOSQ_LOG_NOTICE, "Client %s [%s:%d] disconnected: non-matching http origin.", id, context->address, context->remote_port);
+						বিরতি;
+					ক্ষেত্র MOSQ_ERR_PROXY:
 						/* This was a proxy v2 health check connection, so don't report */
-						break;
-					default:
-						log__printf(NULL, MOSQ_LOG_NOTICE, "Client %s [%s:%d] disconnected: bad socket read/write: %s", id, context->address, context->remote_port, mosquitto_strerror(reason));
-						break;
+						বিরতি;
+					পূর্বনির্ধারিত:
+						log__printf(ফাঁকা, MOSQ_LOG_NOTICE, "Client %s [%s:%d] disconnected: bad socket read/write: %s", id, context->address, context->remote_port, mosquitto_strerror(reason));
+						বিরতি;
 				}
-			}else{
-				if(reason == MOSQ_ERR_ADMINISTRATIVE_ACTION){
-					log__printf(NULL, MOSQ_LOG_NOTICE, "Client %s [%s:%d] disconnected: administrative action.", id, context->address, context->remote_port);
-				}else{
-					log__printf(NULL, MOSQ_LOG_NOTICE, "Client %s [%s:%d] disconnected.", id, context->address, context->remote_port);
+			}অন্যথা{
+				যদি(reason == MOSQ_ERR_ADMINISTRATIVE_ACTION){
+					log__printf(ফাঁকা, MOSQ_LOG_NOTICE, "Client %s [%s:%d] disconnected: administrative action.", id, context->address, context->remote_port);
+				}অন্যথা{
+					log__printf(ফাঁকা, MOSQ_LOG_NOTICE, "Client %s [%s:%d] disconnected.", id, context->address, context->remote_port);
 				}
 			}
 		}

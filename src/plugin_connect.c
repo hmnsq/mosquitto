@@ -16,33 +16,33 @@ Contributors:
    Roger Light - initial implementation and documentation.
 */
 
-#include "config.h"
+#অন্তর্ভাব "config.h"
 
-#include "mosquitto_broker_internal.h"
-#include "mosquitto_internal.h"
-#include "utlist.h"
+#অন্তর্ভাব "mosquitto_broker_internal.h"
+#অন্তর্ভাব "mosquitto_internal.h"
+#অন্তর্ভাব "utlist.h"
 
 
-static void plugin__handle_connect_single(struct mosquitto__security_options *opts, struct mosquitto *context)
+স্থির শূন্য plugin__handle_connect_single(কাঠামো mosquitto__security_options *opts, কাঠামো mosquitto *context)
 {
-	struct mosquitto_evt_connect event_data;
-	struct mosquitto__callback *cb_base, *cb_next;
+	কাঠামো mosquitto_evt_connect event_তথ্য;
+	কাঠামো mosquitto__callback *cb_base, *cb_পরবর্তী;
 
-	memset(&event_data, 0, sizeof(event_data));
-	event_data.client = context;
-	DL_FOREACH_SAFE(opts->plugin_callbacks.connect, cb_base, cb_next){
-		cb_base->cb(MOSQ_EVT_CONNECT, &event_data, cb_base->userdata);
+	memset(&event_তথ্য, 0, আকার(event_তথ্য));
+	event_তথ্য.client = context;
+	DL_FOREACH_SAFE(opts->plugin_callbacks.connect, cb_base, cb_পরবর্তী){
+		cb_base->cb(MOSQ_EVT_CONNECT, &event_তথ্য, cb_base->userdata);
 	}
 }
 
 
-void plugin__handle_connect(struct mosquitto *context)
+শূন্য plugin__handle_connect(কাঠামো mosquitto *context)
 {
 	/* Global plugins */
 	plugin__handle_connect_single(&db.config->security_options, context);
 
 	/* Per listener plugins */
-	if(context->listener){
+	যদি(context->listener){
 		plugin__handle_connect_single(context->listener->security_options, context);
 	}
 }

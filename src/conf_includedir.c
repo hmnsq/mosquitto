@@ -16,17 +16,17 @@ Contributors:
    Roger Light - initial implementation and documentation.
 */
 
-#include "config.h"
+#অন্তর্ভাব "config.h"
 
-#include <ctype.h>
-#include <limits.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <errno.h>
+#অন্তর্ভাব <ctype.h>
+#অন্তর্ভাব <limits.h>
+#অন্তর্ভাব <stdio.h>
+#অন্তর্ভাব <stdlib.h>
+#অন্তর্ভাব <string.h>
+#অন্তর্ভাব <errno.h>
 
 #ifdef WIN32
-#else
+#অন্যথা
 #  include <dirent.h>
 #endif
 
@@ -34,107 +34,107 @@ Contributors:
 #  include <strings.h>
 #  include <netdb.h>
 #  include <sys/socket.h>
-#else
+#অন্যথা
 #  include <winsock2.h>
 #  include <ws2tcpip.h>
 #endif
 
-#if defined(__HAIKU__)
+#যদি defined(__HAIKU__)
 #  include <syslog.h>
-#elif !defined(WIN32) && !defined(__CYGWIN__) && !defined(__QNX__)
+#নতুবা_যদি !defined(WIN32) && !defined(__CYGWIN__) && !defined(__QNX__)
 #  include <sys/syslog.h>
 #endif
 
-#include "mosquitto_broker_internal.h"
-#include "tls_mosq.h"
-#include "util_mosq.h"
-#include "mosquitto/mqtt_protocol.h"
+#অন্তর্ভাব "mosquitto_broker_internal.h"
+#অন্তর্ভাব "tls_mosq.h"
+#অন্তর্ভাব "util_mosq.h"
+#অন্তর্ভাব "mosquitto/mqtt_protocol.h"
 
 
-static int scmp_p(const void *p1, const void *p2)
+স্থির পূর্ণসংখ্যা scmp_p(ধ্রুবক শূন্য *p1, ধ্রুবক শূন্য *p2)
 {
-	const char *s1 = *(const char **)p1;
-	const char *s2 = *(const char **)p2;
-	int result;
+	ধ্রুবক অক্ষর *s1 = *(ধ্রুবক অক্ষর **)p1;
+	ধ্রুবক অক্ষর *s2 = *(ধ্রুবক অক্ষর **)p2;
+	পূর্ণসংখ্যা ফলাফল;
 
-	while(s1[0] && s2[0]){
+	যখন(s1[0] && s2[0]){
 		/* Sort by case insensitive part first */
-		result = toupper((unsigned char)s1[0]) - toupper((unsigned char)s2[0]);
-		if(result == 0){
+		ফলাফল = toupper((unsigned অক্ষর)s1[0]) - toupper((unsigned অক্ষর)s2[0]);
+		যদি(ফলাফল == 0){
 			/* Case insensitive part matched, now distinguish between case */
-			result = s1[0] - s2[0];
-			if(result != 0){
-				return result;
+			ফলাফল = s1[0] - s2[0];
+			যদি(ফলাফল != 0){
+				ফেরত ফলাফল;
 			}
-		}else{
+		}অন্যথা{
 			/* Return case insensitive match fail */
-			return result;
+			ফেরত ফলাফল;
 		}
 		s1++;
 		s2++;
 	}
 
-	return s1[0] - s2[0];
+	ফেরত s1[0] - s2[0];
 }
 
 #ifdef WIN32
 
 
-int config__get_dir_files(const char *include_dir, char ***files, int *file_count)
+পূর্ণসংখ্যা config__get_dir_files(ধ্রুবক অক্ষর *include_dir, অক্ষর ***files, পূর্ণসংখ্যা *file_গুনতি)
 {
 	size_t len;
-	char **l_files = NULL;
-	int l_file_count = 0;
-	char **files_tmp;
+	অক্ষর **l_files = ফাঁকা;
+	পূর্ণসংখ্যা l_file_গুনতি = 0;
+	অক্ষর **files_tmp;
 
 	HANDLE fh;
-	char dirpath[MAX_PATH];
-	WIN32_FIND_DATA find_data;
+	অক্ষর dirpath[MAX_PATH];
+	WIN32_FIND_তথ্য find_তথ্য;
 
 	snprintf(dirpath, MAX_PATH, "%s\\*.conf", include_dir);
-	fh = FindFirstFile(dirpath, &find_data);
-	if(fh == INVALID_HANDLE_VALUE){
-		log__printf(NULL, MOSQ_LOG_ERR, "Error: Unable to open include_dir '%s'.", include_dir);
-		return 1;
+	fh = FindFirstFile(dirpath, &find_তথ্য);
+	যদি(fh == INVALID_HANDLE_মান){
+		log__printf(ফাঁকা, MOSQ_LOG_ERR, "Error: Unable to open include_dir '%s'.", include_dir);
+		ফেরত 1;
 	}
 
-	do{
-		len = strlen(include_dir)+1+strlen(find_data.cFileName)+1;
+	করো{
+		len = strlen(include_dir)+1+strlen(find_তথ্য.cFileName)+1;
 
-		l_file_count++;
-		files_tmp = mosquitto_realloc(l_files, l_file_count*sizeof(char *));
-		if(!files_tmp){
-			for(int i=0; i<l_file_count-1; i++){
+		l_file_গুনতি++;
+		files_tmp = mosquitto_realloc(l_files, l_file_গুনতি*আকার(অক্ষর *));
+		যদি(!files_tmp){
+			জন্য(পূর্ণসংখ্যা i=0; i<l_file_গুনতি-1; i++){
 				mosquitto_FREE(l_files[i]);
 			}
 			mosquitto_FREE(l_files);
 			FindClose(fh);
-			return MOSQ_ERR_NOMEM;
+			ফেরত MOSQ_ERR_NOMEM;
 		}
 		l_files = files_tmp;
 
-		l_files[l_file_count-1] = mosquitto_malloc(len+1);
-		if(!l_files[l_file_count-1]){
-			for(int i=0; i<l_file_count-1; i++){
+		l_files[l_file_গুনতি-1] = mosquitto_malloc(len+1);
+		যদি(!l_files[l_file_গুনতি-1]){
+			জন্য(পূর্ণসংখ্যা i=0; i<l_file_গুনতি-1; i++){
 				mosquitto_FREE(l_files[i]);
 			}
 			mosquitto_FREE(l_files);
 			FindClose(fh);
-			return MOSQ_ERR_NOMEM;
+			ফেরত MOSQ_ERR_NOMEM;
 		}
-		snprintf(l_files[l_file_count-1], len, "%s/%s", include_dir, find_data.cFileName);
-		l_files[l_file_count-1][len] = '\0';
-	}while(FindNextFile(fh, &find_data));
+		snprintf(l_files[l_file_গুনতি-1], len, "%s/%s", include_dir, find_তথ্য.cFileName);
+		l_files[l_file_গুনতি-1][len] = '\0';
+	}যখন(Find_পরবর্তী_File(fh, &find_তথ্য));
 
 	FindClose(fh);
 
-	if(l_files){
-		qsort(l_files, l_file_count, sizeof(char *), scmp_p);
+	যদি(l_files){
+		qsort(l_files, l_file_গুনতি, আকার(অক্ষর *), scmp_p);
 	}
 	*files = l_files;
-	*file_count = l_file_count;
+	*file_গুনতি = l_file_গুনতি;
 
-	return 0;
+	ফেরত 0;
 }
 #endif
 
@@ -142,58 +142,58 @@ int config__get_dir_files(const char *include_dir, char ***files, int *file_coun
 #ifndef WIN32
 
 
-int config__get_dir_files(const char *include_dir, char ***files, int *file_count)
+পূর্ণসংখ্যা config__get_dir_files(ধ্রুবক অক্ষর *include_dir, অক্ষর ***files, পূর্ণসংখ্যা *file_গুনতি)
 {
-	char **l_files = NULL;
-	int l_file_count = 0;
-	char **files_tmp;
+	অক্ষর **l_files = ফাঁকা;
+	পূর্ণসংখ্যা l_file_গুনতি = 0;
+	অক্ষর **files_tmp;
 	size_t len;
 
 	DIR *dh;
-	struct dirent *de;
+	কাঠামো dirent *de;
 
 	dh = opendir(include_dir);
-	if(!dh){
-		log__printf(NULL, MOSQ_LOG_ERR, "Error: Unable to open include_dir '%s'.", include_dir);
-		return 1;
+	যদি(!dh){
+		log__printf(ফাঁকা, MOSQ_LOG_ERR, "Error: Unable to open include_dir '%s'.", include_dir);
+		ফেরত 1;
 	}
-	while((de = readdir(dh)) != NULL){
-		if(strlen(de->d_name) > 5){
-			if(!strcmp(&de->d_name[strlen(de->d_name)-5], ".conf")){
+	যখন((de = readdir(dh)) != ফাঁকা){
+		যদি(strlen(de->d_name) > 5){
+			যদি(!strcmp(&de->d_name[strlen(de->d_name)-5], ".conf")){
 				len = strlen(include_dir)+1+strlen(de->d_name)+1;
 
-				l_file_count++;
-				files_tmp = mosquitto_realloc(l_files, (size_t)l_file_count*sizeof(char *));
-				if(!files_tmp){
-					goto error;
+				l_file_গুনতি++;
+				files_tmp = mosquitto_realloc(l_files, (size_t)l_file_গুনতি*আকার(অক্ষর *));
+				যদি(!files_tmp){
+					যাও error;
 				}
 				l_files = files_tmp;
 
-				l_files[l_file_count-1] = mosquitto_malloc(len+1);
-				if(!l_files[l_file_count-1]){
-					goto error;
+				l_files[l_file_গুনতি-1] = mosquitto_malloc(len+1);
+				যদি(!l_files[l_file_গুনতি-1]){
+					যাও error;
 				}
-				snprintf(l_files[l_file_count-1], len, "%s/%s", include_dir, de->d_name);
-				l_files[l_file_count-1][len] = '\0';
+				snprintf(l_files[l_file_গুনতি-1], len, "%s/%s", include_dir, de->d_name);
+				l_files[l_file_গুনতি-1][len] = '\0';
 			}
 		}
 	}
 	closedir(dh);
 
-	if(l_files){
-		qsort(l_files, (size_t)l_file_count, sizeof(char *), scmp_p);
+	যদি(l_files){
+		qsort(l_files, (size_t)l_file_গুনতি, আকার(অক্ষর *), scmp_p);
 	}
 	*files = l_files;
-	*file_count = l_file_count;
+	*file_গুনতি = l_file_গুনতি;
 
-	return 0;
+	ফেরত 0;
 error:
-	for(int i=0; i<l_file_count-1; i++){
+	জন্য(পূর্ণসংখ্যা i=0; i<l_file_গুনতি-1; i++){
 		mosquitto_FREE(l_files[i]);
 	}
 	mosquitto_FREE(l_files);
 	closedir(dh);
-	return MOSQ_ERR_NOMEM;
+	ফেরত MOSQ_ERR_NOMEM;
 }
 #endif
 

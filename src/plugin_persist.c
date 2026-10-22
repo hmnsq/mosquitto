@@ -16,68 +16,68 @@ Contributors:
    Roger Light - initial implementation and documentation.
 */
 
-#include "config.h"
+#অন্তর্ভাব "config.h"
 
-#include "mosquitto_broker_internal.h"
-#include "mosquitto_internal.h"
-#include "mosquitto/broker.h"
-#include "mosquitto/mqtt_protocol.h"
-#include "send_mosq.h"
-#include "util_mosq.h"
-#include "utlist.h"
-#include "lib_load.h"
-#include "will_mosq.h"
-#include <stdint.h>
+#অন্তর্ভাব "mosquitto_broker_internal.h"
+#অন্তর্ভাব "mosquitto_internal.h"
+#অন্তর্ভাব "mosquitto/broker.h"
+#অন্তর্ভাব "mosquitto/mqtt_protocol.h"
+#অন্তর্ভাব "send_mosq.h"
+#অন্তর্ভাব "util_mosq.h"
+#অন্তর্ভাব "utlist.h"
+#অন্তর্ভাব "lib_load.h"
+#অন্তর্ভাব "will_mosq.h"
+#অন্তর্ভাব <stdint.h>
 
 
-void plugin_persist__handle_restore(void)
+শূন্য plugin_persist__handle_restore(শূন্য)
 {
-	struct mosquitto_evt_persist_restore event_data;
-	struct mosquitto__callback *cb_base, *cb_next;
-	struct mosquitto__security_options *opts;
+	কাঠামো mosquitto_evt_persist_restore event_তথ্য;
+	কাঠামো mosquitto__callback *cb_base, *cb_পরবর্তী;
+	কাঠামো mosquitto__security_options *opts;
 
 	opts = &db.config->security_options;
-	memset(&event_data, 0, sizeof(event_data));
+	memset(&event_তথ্য, 0, আকার(event_তথ্য));
 
-	DL_FOREACH_SAFE(opts->plugin_callbacks.persist_restore, cb_base, cb_next){
-		cb_base->cb(MOSQ_EVT_PERSIST_RESTORE, &event_data, cb_base->userdata);
+	DL_FOREACH_SAFE(opts->plugin_callbacks.persist_restore, cb_base, cb_পরবর্তী){
+		cb_base->cb(MOSQ_EVT_PERSIST_RESTORE, &event_তথ্য, cb_base->userdata);
 	}
 }
 
 
-void plugin_persist__handle_client_add(struct mosquitto *context)
+শূন্য plugin_persist__handle_client_add(কাঠামো mosquitto *context)
 {
-	struct mosquitto_evt_persist_client event_data;
-	struct mosquitto__callback *cb_base, *cb_next;
-	struct mosquitto__security_options *opts;
+	কাঠামো mosquitto_evt_persist_client event_তথ্য;
+	কাঠামো mosquitto__callback *cb_base, *cb_পরবর্তী;
+	কাঠামো mosquitto__security_options *opts;
 
-	if(db.shutdown || context->is_persisted){
-		return;
+	যদি(db.shutdown || context->is_persisted){
+		ফেরত;
 	}
 
 	opts = &db.config->security_options;
-	memset(&event_data, 0, sizeof(event_data));
-	event_data.data.clientid = context->id;
-	event_data.data.username = context->username;
-	event_data.data.auth_method = context->auth_method;
-	event_data.data.will_delay_time = context->will_delay_time;
-	event_data.data.session_expiry_time = context->session_expiry_time;
-	event_data.data.will_delay_interval = context->will_delay_interval;
-	event_data.data.session_expiry_interval = context->session_expiry_interval;
-	if(context->listener){
-		event_data.data.listener_port = context->listener->port;
-	}else{
-		event_data.data.listener_port = 0;
+	memset(&event_তথ্য, 0, আকার(event_তথ্য));
+	event_তথ্য.তথ্য.clientid = context->id;
+	event_তথ্য.তথ্য.username = context->username;
+	event_তথ্য.তথ্য.auth_method = context->auth_method;
+	event_তথ্য.তথ্য.will_delay_time = context->will_delay_time;
+	event_তথ্য.তথ্য.session_expiry_time = context->session_expiry_time;
+	event_তথ্য.তথ্য.will_delay_interval = context->will_delay_interval;
+	event_তথ্য.তথ্য.session_expiry_interval = context->session_expiry_interval;
+	যদি(context->listener){
+		event_তথ্য.তথ্য.listener_port = context->listener->port;
+	}অন্যথা{
+		event_তথ্য.তথ্য.listener_port = 0;
 	}
-	event_data.data.max_qos = context->max_qos;
-	event_data.data.retain_available = context->retain_available;
-	event_data.data.max_packet_size = context->maximum_packet_size;
+	event_তথ্য.তথ্য.max_qos = context->max_qos;
+	event_তথ্য.তথ্য.retain_available = context->retain_available;
+	event_তথ্য.তথ্য.max_packet_আকার = context->maximum_packet_আকার;
 
-	DL_FOREACH_SAFE(opts->plugin_callbacks.persist_client_add, cb_base, cb_next){
-		cb_base->cb(MOSQ_EVT_PERSIST_CLIENT_ADD, &event_data, cb_base->userdata);
+	DL_FOREACH_SAFE(opts->plugin_callbacks.persist_client_add, cb_base, cb_পরবর্তী){
+		cb_base->cb(MOSQ_EVT_PERSIST_CLIENT_ADD, &event_তথ্য, cb_base->userdata);
 	}
 
-	if(context->will){
+	যদি(context->will){
 		plugin_persist__handle_will_add(context);
 	}
 
@@ -85,359 +85,359 @@ void plugin_persist__handle_client_add(struct mosquitto *context)
 }
 
 
-void plugin_persist__handle_client_update(struct mosquitto *context)
+শূন্য plugin_persist__handle_client_update(কাঠামো mosquitto *context)
 {
-	struct mosquitto_evt_persist_client event_data;
-	struct mosquitto__callback *cb_base, *cb_next;
-	struct mosquitto__security_options *opts;
-	struct mosquitto_message_v5 will;
+	কাঠামো mosquitto_evt_persist_client event_তথ্য;
+	কাঠামো mosquitto__callback *cb_base, *cb_পরবর্তী;
+	কাঠামো mosquitto__security_options *opts;
+	কাঠামো mosquitto_message_v5 will;
 
 	UNUSED(will); /* FIXME */
 
-	if(db.shutdown){
-		return;
+	যদি(db.shutdown){
+		ফেরত;
 	}
 
 	opts = &db.config->security_options;
-	memset(&event_data, 0, sizeof(event_data));
-	event_data.data.clientid = context->id;
-	event_data.data.username = context->username;
-	event_data.data.auth_method = context->auth_method;
-	event_data.data.will_delay_time = context->will_delay_time;
-	event_data.data.session_expiry_time = context->session_expiry_time;
-	event_data.data.will_delay_interval = context->will_delay_interval;
-	event_data.data.session_expiry_interval = context->session_expiry_interval;
-	if(context->listener){
-		event_data.data.listener_port = context->listener->port;
-	}else{
-		event_data.data.listener_port = 0;
+	memset(&event_তথ্য, 0, আকার(event_তথ্য));
+	event_তথ্য.তথ্য.clientid = context->id;
+	event_তথ্য.তথ্য.username = context->username;
+	event_তথ্য.তথ্য.auth_method = context->auth_method;
+	event_তথ্য.তথ্য.will_delay_time = context->will_delay_time;
+	event_তথ্য.তথ্য.session_expiry_time = context->session_expiry_time;
+	event_তথ্য.তথ্য.will_delay_interval = context->will_delay_interval;
+	event_তথ্য.তথ্য.session_expiry_interval = context->session_expiry_interval;
+	যদি(context->listener){
+		event_তথ্য.তথ্য.listener_port = context->listener->port;
+	}অন্যথা{
+		event_তথ্য.তথ্য.listener_port = 0;
 	}
-	event_data.data.max_qos = context->max_qos;
-	event_data.data.retain_available = context->retain_available;
-	event_data.data.max_packet_size = context->maximum_packet_size;
+	event_তথ্য.তথ্য.max_qos = context->max_qos;
+	event_তথ্য.তথ্য.retain_available = context->retain_available;
+	event_তথ্য.তথ্য.max_packet_আকার = context->maximum_packet_আকার;
 
-	DL_FOREACH_SAFE(opts->plugin_callbacks.persist_client_update, cb_base, cb_next){
-		cb_base->cb(MOSQ_EVT_PERSIST_CLIENT_UPDATE, &event_data, cb_base->userdata);
+	DL_FOREACH_SAFE(opts->plugin_callbacks.persist_client_update, cb_base, cb_পরবর্তী){
+		cb_base->cb(MOSQ_EVT_PERSIST_CLIENT_UPDATE, &event_তথ্য, cb_base->userdata);
 	}
 
-	if(context->will){
+	যদি(context->will){
 		plugin_persist__handle_will_add(context);
-	}else{
+	}অন্যথা{
 		plugin_persist__handle_will_delete(context);
 	}
 }
 
 
-void plugin_persist__handle_client_delete(struct mosquitto *context)
+শূন্য plugin_persist__handle_client_delete(কাঠামো mosquitto *context)
 {
-	struct mosquitto_evt_persist_client event_data;
-	struct mosquitto__callback *cb_base, *cb_next;
-	struct mosquitto__security_options *opts;
+	কাঠামো mosquitto_evt_persist_client event_তথ্য;
+	কাঠামো mosquitto__callback *cb_base, *cb_পরবর্তী;
+	কাঠামো mosquitto__security_options *opts;
 
-	if(context->id == NULL
+	যদি(context->id == ফাঁকা
 			|| context->state == mosq_cs_duplicate
 			|| db.shutdown){
-		return;
+		ফেরত;
 	}
 
 	plugin_persist__handle_will_delete(context);
 
-	if(context->is_persisted == false
+	যদি(context->is_persisted == false
 			|| context->session_expiry_interval != MQTT_SESSION_EXPIRY_IMMEDIATE){
-		return;
+		ফেরত;
 	}
 
 	opts = &db.config->security_options;
-	memset(&event_data, 0, sizeof(event_data));
-	event_data.data.clientid = context->id;
+	memset(&event_তথ্য, 0, আকার(event_তথ্য));
+	event_তথ্য.তথ্য.clientid = context->id;
 
-	DL_FOREACH_SAFE(opts->plugin_callbacks.persist_client_delete, cb_base, cb_next){
-		cb_base->cb(MOSQ_EVT_PERSIST_CLIENT_DELETE, &event_data, cb_base->userdata);
+	DL_FOREACH_SAFE(opts->plugin_callbacks.persist_client_delete, cb_base, cb_পরবর্তী){
+		cb_base->cb(MOSQ_EVT_PERSIST_CLIENT_DELETE, &event_তথ্য, cb_base->userdata);
 	}
 	context->is_persisted = false;
 }
 
 
-void plugin_persist__handle_subscription_add(struct mosquitto *context, const struct mosquitto_subscription *sub)
+শূন্য plugin_persist__handle_subscription_add(কাঠামো mosquitto *context, ধ্রুবক কাঠামো mosquitto_subscription *sub)
 {
-	struct mosquitto_evt_persist_subscription event_data;
-	struct mosquitto__callback *cb_base, *cb_next;
-	struct mosquitto__security_options *opts;
+	কাঠামো mosquitto_evt_persist_subscription event_তথ্য;
+	কাঠামো mosquitto__callback *cb_base, *cb_পরবর্তী;
+	কাঠামো mosquitto__security_options *opts;
 
-	if(db.shutdown || context->is_persisted == false){
-		return;
+	যদি(db.shutdown || context->is_persisted == false){
+		ফেরত;
 	}
 
 	opts = &db.config->security_options;
-	memset(&event_data, 0, sizeof(event_data));
-	event_data.data.clientid = context->id;
-	event_data.data.topic_filter = sub->topic_filter;
-	event_data.data.identifier = sub->identifier;
-	event_data.data.options = sub->options;
+	memset(&event_তথ্য, 0, আকার(event_তথ্য));
+	event_তথ্য.তথ্য.clientid = context->id;
+	event_তথ্য.তথ্য.topic_filter = sub->topic_filter;
+	event_তথ্য.তথ্য.identifier = sub->identifier;
+	event_তথ্য.তথ্য.options = sub->options;
 
-	DL_FOREACH_SAFE(opts->plugin_callbacks.persist_subscription_add, cb_base, cb_next){
-		cb_base->cb(MOSQ_EVT_PERSIST_SUBSCRIPTION_ADD, &event_data, cb_base->userdata);
+	DL_FOREACH_SAFE(opts->plugin_callbacks.persist_subscription_add, cb_base, cb_পরবর্তী){
+		cb_base->cb(MOSQ_EVT_PERSIST_SUBSCRIPTION_ADD, &event_তথ্য, cb_base->userdata);
 	}
 }
 
 
-void plugin_persist__handle_subscription_delete(struct mosquitto *context, char *sub)
+শূন্য plugin_persist__handle_subscription_delete(কাঠামো mosquitto *context, অক্ষর *sub)
 {
-	struct mosquitto_evt_persist_subscription event_data;
-	struct mosquitto__callback *cb_base, *cb_next;
-	struct mosquitto__security_options *opts;
+	কাঠামো mosquitto_evt_persist_subscription event_তথ্য;
+	কাঠামো mosquitto__callback *cb_base, *cb_পরবর্তী;
+	কাঠামো mosquitto__security_options *opts;
 
-	if(db.shutdown || context->is_persisted == false){
-		return;
+	যদি(db.shutdown || context->is_persisted == false){
+		ফেরত;
 	}
-	if(!sub){
-		return;
+	যদি(!sub){
+		ফেরত;
 	}
 
 	opts = &db.config->security_options;
-	memset(&event_data, 0, sizeof(event_data));
-	event_data.data.clientid = context->id;
-	event_data.data.topic_filter = sub;
+	memset(&event_তথ্য, 0, আকার(event_তথ্য));
+	event_তথ্য.তথ্য.clientid = context->id;
+	event_তথ্য.তথ্য.topic_filter = sub;
 
-	DL_FOREACH_SAFE(opts->plugin_callbacks.persist_subscription_delete, cb_base, cb_next){
-		cb_base->cb(MOSQ_EVT_PERSIST_SUBSCRIPTION_DELETE, &event_data, cb_base->userdata);
+	DL_FOREACH_SAFE(opts->plugin_callbacks.persist_subscription_delete, cb_base, cb_পরবর্তী){
+		cb_base->cb(MOSQ_EVT_PERSIST_SUBSCRIPTION_DELETE, &event_তথ্য, cb_base->userdata);
 	}
 }
 
 
-static inline void set_client_msg_event_data(struct mosquitto_evt_persist_client_msg *event_data, struct mosquitto *context, const struct mosquitto__client_msg *client_msg)
+স্থির অন্তঃরেখ শূন্য set_client_বার্তা_event_তথ্য(কাঠামো mosquitto_evt_persist_client_বার্তা *event_তথ্য, কাঠামো mosquitto *context, ধ্রুবক কাঠামো mosquitto_client_বার্তা *client_বার্তা)
 {
-	event_data->data.clientid = context->id;
-	event_data->data.cmsg_id = client_msg->data.cmsg_id;
-	event_data->data.direction = (uint8_t)client_msg->data.direction;
-	event_data->data.dup = client_msg->data.dup;
-	event_data->data.mid = client_msg->data.mid;
-	event_data->data.qos = client_msg->data.qos;
-	event_data->data.retain = client_msg->data.retain;
-	event_data->data.state = (uint8_t)client_msg->data.state;
-	event_data->data.store_id = client_msg->base_msg->data.store_id;
-	event_data->data.subscription_identifier = client_msg->data.subscription_identifier;
+	event_তথ্য->তথ্য.clientid = context->id;
+	event_তথ্য->তথ্য.cmsg_id = client_বার্তা->তথ্য.cmsg_id;
+	event_তথ্য->তথ্য.direction = (uint8_t)client_বার্তা->তথ্য.direction;
+	event_তথ্য->তথ্য.dup = client_বার্তা->তথ্য.dup;
+	event_তথ্য->তথ্য.mid = client_বার্তা->তথ্য.mid;
+	event_তথ্য->তথ্য.qos = client_বার্তা->তথ্য.qos;
+	event_তথ্য->তথ্য.retain = client_বার্তা->তথ্য.retain;
+	event_তথ্য->তথ্য.state = (uint8_t)client_বার্তা->তথ্য.state;
+	event_তথ্য->তথ্য.store_id = client_বার্তা->base_বার্তা->তথ্য.store_id;
+	event_তথ্য->তথ্য.subscription_identifier = client_বার্তা->তথ্য.subscription_identifier;
 }
 
 
-void plugin_persist__handle_client_msg_add(struct mosquitto *context, const struct mosquitto__client_msg *client_msg)
+শূন্য plugin_persist_handle_client_বার্তা_add(কাঠামো mosquitto *context, ধ্রুবক কাঠামো mosquitto_client_বার্তা *client_বার্তা)
 {
-	struct mosquitto_evt_persist_client_msg event_data;
-	struct mosquitto__callback *cb_base, *cb_next;
-	struct mosquitto__security_options *opts;
+	কাঠামো mosquitto_evt_persist_client_বার্তা event_তথ্য;
+	কাঠামো mosquitto__callback *cb_base, *cb_পরবর্তী;
+	কাঠামো mosquitto__security_options *opts;
 
-	if(context->is_persisted == false
-			|| (client_msg->data.qos == 0 && db.config->queue_qos0_messages == false)
+	যদি(context->is_persisted == false
+			|| (client_বার্তা->তথ্য.qos == 0 && db.config->queue_qos0_messages == false)
 			|| db.shutdown){
 
-		return;
+		ফেরত;
 	}
 
 	opts = &db.config->security_options;
-	memset(&event_data, 0, sizeof(event_data));
+	memset(&event_তথ্য, 0, আকার(event_তথ্য));
 
-	set_client_msg_event_data(&event_data, context, client_msg);
+	set_client_বার্তা_event_তথ্য(&event_তথ্য, context, client_বার্তা);
 
-	DL_FOREACH_SAFE(opts->plugin_callbacks.persist_client_msg_add, cb_base, cb_next){
-		cb_base->cb(MOSQ_EVT_PERSIST_CLIENT_MSG_ADD, &event_data, cb_base->userdata);
+	DL_FOREACH_SAFE(opts->plugin_callbacks.persist_client_বার্তা_add, cb_base, cb_পরবর্তী){
+		cb_base->cb(MOSQ_EVT_PERSIST_CLIENT_বার্তা_ADD, &event_তথ্য, cb_base->userdata);
 	}
 }
 
 
-void plugin_persist__handle_client_msg_delete(struct mosquitto *context, const struct mosquitto__client_msg *client_msg)
+শূন্য plugin_persist_handle_client_বার্তা_delete(কাঠামো mosquitto *context, ধ্রুবক কাঠামো mosquitto_client_বার্তা *client_বার্তা)
 {
-	struct mosquitto_evt_persist_client_msg event_data;
-	struct mosquitto__callback *cb_base, *cb_next;
-	struct mosquitto__security_options *opts;
+	কাঠামো mosquitto_evt_persist_client_বার্তা event_তথ্য;
+	কাঠামো mosquitto__callback *cb_base, *cb_পরবর্তী;
+	কাঠামো mosquitto__security_options *opts;
 
-	if(context->is_persisted == false
-			|| (client_msg->data.qos == 0 && db.config->queue_qos0_messages == false)
+	যদি(context->is_persisted == false
+			|| (client_বার্তা->তথ্য.qos == 0 && db.config->queue_qos0_messages == false)
 			|| db.shutdown){
 
-		return;
+		ফেরত;
 	}
 
 	opts = &db.config->security_options;
-	memset(&event_data, 0, sizeof(event_data));
+	memset(&event_তথ্য, 0, আকার(event_তথ্য));
 
-	set_client_msg_event_data(&event_data, context, client_msg);
+	set_client_বার্তা_event_তথ্য(&event_তথ্য, context, client_বার্তা);
 
-	DL_FOREACH_SAFE(opts->plugin_callbacks.persist_client_msg_delete, cb_base, cb_next){
-		cb_base->cb(MOSQ_EVT_PERSIST_CLIENT_MSG_DELETE, &event_data, cb_base->userdata);
+	DL_FOREACH_SAFE(opts->plugin_callbacks.persist_client_বার্তা_delete, cb_base, cb_পরবর্তী){
+		cb_base->cb(MOSQ_EVT_PERSIST_CLIENT_বার্তা_DELETE, &event_তথ্য, cb_base->userdata);
 	}
 }
 
 
-void plugin_persist__handle_client_msg_update(struct mosquitto *context, const struct mosquitto__client_msg *client_msg)
+শূন্য plugin_persist_handle_client_বার্তা_update(কাঠামো mosquitto *context, ধ্রুবক কাঠামো mosquitto_client_বার্তা *client_বার্তা)
 {
-	struct mosquitto_evt_persist_client_msg event_data;
-	struct mosquitto__callback *cb_base, *cb_next;
-	struct mosquitto__security_options *opts;
+	কাঠামো mosquitto_evt_persist_client_বার্তা event_তথ্য;
+	কাঠামো mosquitto__callback *cb_base, *cb_পরবর্তী;
+	কাঠামো mosquitto__security_options *opts;
 
-	if(context->is_persisted == false
-			|| (client_msg->data.qos == 0 && db.config->queue_qos0_messages == false)
+	যদি(context->is_persisted == false
+			|| (client_বার্তা->তথ্য.qos == 0 && db.config->queue_qos0_messages == false)
 			|| db.shutdown){
 
-		return;
+		ফেরত;
 	}
 
 	opts = &db.config->security_options;
-	memset(&event_data, 0, sizeof(event_data));
+	memset(&event_তথ্য, 0, আকার(event_তথ্য));
 
-	set_client_msg_event_data(&event_data, context, client_msg);
+	set_client_বার্তা_event_তথ্য(&event_তথ্য, context, client_বার্তা);
 
-	DL_FOREACH_SAFE(opts->plugin_callbacks.persist_client_msg_update, cb_base, cb_next){
-		cb_base->cb(MOSQ_EVT_PERSIST_CLIENT_MSG_UPDATE, &event_data, cb_base->userdata);
+	DL_FOREACH_SAFE(opts->plugin_callbacks.persist_client_বার্তা_update, cb_base, cb_পরবর্তী){
+		cb_base->cb(MOSQ_EVT_PERSIST_CLIENT_বার্তা_UPDATE, &event_তথ্য, cb_base->userdata);
 	}
 }
 
 
-void plugin_persist__handle_base_msg_add(struct mosquitto__base_msg *base_msg)
+শূন্য plugin_persist_handle_base_বার্তা_add(কাঠামো mosquitto_base_বার্তা *base_বার্তা)
 {
-	struct mosquitto_evt_persist_base_msg event_data;
-	struct mosquitto__callback *cb_base, *cb_next;
-	struct mosquitto__security_options *opts;
+	কাঠামো mosquitto_evt_persist_base_বার্তা event_তথ্য;
+	কাঠামো mosquitto__callback *cb_base, *cb_পরবর্তী;
+	কাঠামো mosquitto__security_options *opts;
 
-	if(base_msg->stored || db.shutdown){
-		return;
+	যদি(base_বার্তা->stored || db.shutdown){
+		ফেরত;
 	}
 
 	opts = &db.config->security_options;
-	memset(&event_data, 0, sizeof(event_data));
+	memset(&event_তথ্য, 0, আকার(event_তথ্য));
 
-	event_data.data.store_id = base_msg->data.store_id;
-	event_data.data.expiry_time = base_msg->data.expiry_time;
-	event_data.data.topic = base_msg->data.topic;
-	event_data.data.payload = base_msg->data.payload;
-	event_data.data.source_id = base_msg->data.source_id;
-	event_data.data.source_username = base_msg->data.source_username;
-	event_data.data.properties = base_msg->data.properties;
-	event_data.data.payloadlen = base_msg->data.payloadlen;
-	event_data.data.source_mid = base_msg->data.source_mid;
-	if(base_msg->source_listener){
-		event_data.data.source_port = base_msg->source_listener->port;
-	}else{
-		event_data.data.source_port = 0;
+	event_তথ্য.তথ্য.store_id = base_বার্তা->তথ্য.store_id;
+	event_তথ্য.তথ্য.expiry_time = base_বার্তা->তথ্য.expiry_time;
+	event_তথ্য.তথ্য.topic = base_বার্তা->তথ্য.topic;
+	event_তথ্য.তথ্য.payload = base_বার্তা->তথ্য.payload;
+	event_তথ্য.তথ্য.source_id = base_বার্তা->তথ্য.source_id;
+	event_তথ্য.তথ্য.source_username = base_বার্তা->তথ্য.source_username;
+	event_তথ্য.তথ্য.properties = base_বার্তা->তথ্য.properties;
+	event_তথ্য.তথ্য.payloadlen = base_বার্তা->তথ্য.payloadlen;
+	event_তথ্য.তথ্য.source_mid = base_বার্তা->তথ্য.source_mid;
+	যদি(base_বার্তা->source_listener){
+		event_তথ্য.তথ্য.source_port = base_বার্তা->source_listener->port;
+	}অন্যথা{
+		event_তথ্য.তথ্য.source_port = 0;
 	}
-	event_data.data.qos = base_msg->data.qos;
-	event_data.data.retain = base_msg->data.retain;
+	event_তথ্য.তথ্য.qos = base_বার্তা->তথ্য.qos;
+	event_তথ্য.তথ্য.retain = base_বার্তা->তথ্য.retain;
 
-	DL_FOREACH_SAFE(opts->plugin_callbacks.persist_base_msg_add, cb_base, cb_next){
-		cb_base->cb(MOSQ_EVT_PERSIST_BASE_MSG_ADD, &event_data, cb_base->userdata);
+	DL_FOREACH_SAFE(opts->plugin_callbacks.persist_base_বার্তা_add, cb_base, cb_পরবর্তী){
+		cb_base->cb(MOSQ_EVT_PERSIST_BASE_বার্তা_ADD, &event_তথ্য, cb_base->userdata);
 	}
-	base_msg->stored = true;
+	base_বার্তা->stored = true;
 }
 
 
-void plugin_persist__handle_base_msg_delete(struct mosquitto__base_msg *base_msg)
+শূন্য plugin_persist_handle_base_বার্তা_delete(কাঠামো mosquitto_base_বার্তা *base_বার্তা)
 {
-	struct mosquitto_evt_persist_base_msg event_data;
-	struct mosquitto__callback *cb_base, *cb_next;
-	struct mosquitto__security_options *opts;
+	কাঠামো mosquitto_evt_persist_base_বার্তা event_তথ্য;
+	কাঠামো mosquitto__callback *cb_base, *cb_পরবর্তী;
+	কাঠামো mosquitto__security_options *opts;
 
-	if(base_msg->stored == false || db.shutdown){
-		return;
+	যদি(base_বার্তা->stored == false || db.shutdown){
+		ফেরত;
 	}
 
 	opts = &db.config->security_options;
-	memset(&event_data, 0, sizeof(event_data));
+	memset(&event_তথ্য, 0, আকার(event_তথ্য));
 
-	event_data.data.store_id = base_msg->data.store_id;
+	event_তথ্য.তথ্য.store_id = base_বার্তা->তথ্য.store_id;
 
-	DL_FOREACH_SAFE(opts->plugin_callbacks.persist_base_msg_delete, cb_base, cb_next){
-		cb_base->cb(MOSQ_EVT_PERSIST_BASE_MSG_DELETE, &event_data, cb_base->userdata);
+	DL_FOREACH_SAFE(opts->plugin_callbacks.persist_base_বার্তা_delete, cb_base, cb_পরবর্তী){
+		cb_base->cb(MOSQ_EVT_PERSIST_BASE_বার্তা_DELETE, &event_তথ্য, cb_base->userdata);
 	}
-	base_msg->stored = false;
+	base_বার্তা->stored = false;
 }
 
 
-void plugin_persist__handle_retain_msg_set(struct mosquitto__base_msg *base_msg)
+শূন্য plugin_persist_handle_retain_বার্তা_set(কাঠামো mosquitto_base_বার্তা *base_বার্তা)
 {
-	struct mosquitto_evt_persist_retain_msg event_data;
-	struct mosquitto__callback *cb_base, *cb_next;
-	struct mosquitto__security_options *opts;
+	কাঠামো mosquitto_evt_persist_retain_বার্তা event_তথ্য;
+	কাঠামো mosquitto__callback *cb_base, *cb_পরবর্তী;
+	কাঠামো mosquitto__security_options *opts;
 
-	if(db.shutdown){
-		return;
+	যদি(db.shutdown){
+		ফেরত;
 	}
 
 	opts = &db.config->security_options;
-	memset(&event_data, 0, sizeof(event_data));
+	memset(&event_তথ্য, 0, আকার(event_তথ্য));
 
-	event_data.store_id = base_msg->data.store_id;
-	event_data.topic = base_msg->data.topic;
+	event_তথ্য.store_id = base_বার্তা->তথ্য.store_id;
+	event_তথ্য.topic = base_বার্তা->তথ্য.topic;
 
-	DL_FOREACH_SAFE(opts->plugin_callbacks.persist_retain_msg_set, cb_base, cb_next){
-		cb_base->cb(MOSQ_EVT_PERSIST_RETAIN_MSG_SET, &event_data, cb_base->userdata);
-	}
-}
-
-
-void plugin_persist__handle_retain_msg_delete(struct mosquitto__base_msg *base_msg)
-{
-	struct mosquitto_evt_persist_retain_msg event_data;
-	struct mosquitto__callback *cb_base, *cb_next;
-	struct mosquitto__security_options *opts;
-
-	if(db.shutdown){
-		return;
-	}
-
-	opts = &db.config->security_options;
-	memset(&event_data, 0, sizeof(event_data));
-
-	event_data.topic = base_msg->data.topic;
-
-	DL_FOREACH_SAFE(opts->plugin_callbacks.persist_retain_msg_delete, cb_base, cb_next){
-		cb_base->cb(MOSQ_EVT_PERSIST_RETAIN_MSG_DELETE, &event_data, cb_base->userdata);
+	DL_FOREACH_SAFE(opts->plugin_callbacks.persist_retain_বার্তা_set, cb_base, cb_পরবর্তী){
+		cb_base->cb(MOSQ_EVT_PERSIST_RETAIN_বার্তা_SET, &event_তথ্য, cb_base->userdata);
 	}
 }
 
 
-void plugin_persist__handle_will_add(struct mosquitto *context)
+শূন্য plugin_persist_handle_retain_বার্তা_delete(কাঠামো mosquitto_base_বার্তা *base_বার্তা)
 {
-	struct mosquitto_evt_persist_will_msg event_data;
-	struct mosquitto__callback *cb_base, *cb_next;
-	struct mosquitto__security_options *opts;
-	struct mosquitto_message *will_msg;
+	কাঠামো mosquitto_evt_persist_retain_বার্তা event_তথ্য;
+	কাঠামো mosquitto__callback *cb_base, *cb_পরবর্তী;
+	কাঠামো mosquitto__security_options *opts;
 
-	if(db.shutdown || !context->will){
-		return;
+	যদি(db.shutdown){
+		ফেরত;
 	}
 
 	opts = &db.config->security_options;
-	will_msg = &context->will->msg;
-	memset(&event_data, 0, sizeof(event_data));
-	event_data.data.clientid = context->id;
-	event_data.data.topic = will_msg->topic;
-	event_data.data.payload = will_msg->payload;
-	event_data.data.payloadlen = (uint32_t)will_msg->payloadlen;
-	event_data.data.qos = (uint8_t)will_msg->qos;
-	event_data.data.retain = will_msg->retain;
-	event_data.data.properties = context->will->properties;
+	memset(&event_তথ্য, 0, আকার(event_তথ্য));
 
-	DL_FOREACH_SAFE(opts->plugin_callbacks.persist_will_add, cb_base, cb_next){
-		cb_base->cb(MOSQ_EVT_PERSIST_WILL_ADD, &event_data, cb_base->userdata);
+	event_তথ্য.topic = base_বার্তা->তথ্য.topic;
+
+	DL_FOREACH_SAFE(opts->plugin_callbacks.persist_retain_বার্তা_delete, cb_base, cb_পরবর্তী){
+		cb_base->cb(MOSQ_EVT_PERSIST_RETAIN_বার্তা_DELETE, &event_তথ্য, cb_base->userdata);
 	}
 }
 
 
-void plugin_persist__handle_will_delete(struct mosquitto *context)
+শূন্য plugin_persist__handle_will_add(কাঠামো mosquitto *context)
 {
-	struct mosquitto_evt_persist_will_msg event_data;
-	struct mosquitto__callback *cb_base, *cb_next;
-	struct mosquitto__security_options *opts;
+	কাঠামো mosquitto_evt_persist_will_বার্তা event_তথ্য;
+	কাঠামো mosquitto__callback *cb_base, *cb_পরবর্তী;
+	কাঠামো mosquitto__security_options *opts;
+	কাঠামো mosquitto_message *will_বার্তা;
 
-	memset(&event_data, 0, sizeof(event_data));
-	event_data.data.clientid = context->id;
-
-	if(db.shutdown){
-		return;
+	যদি(db.shutdown || !context->will){
+		ফেরত;
 	}
 
 	opts = &db.config->security_options;
-	DL_FOREACH_SAFE(opts->plugin_callbacks.persist_will_delete, cb_base, cb_next){
-		cb_base->cb(MOSQ_EVT_PERSIST_WILL_ADD, &event_data, cb_base->userdata);
+	will_বার্তা = &context->will->বার্তা;
+	memset(&event_তথ্য, 0, আকার(event_তথ্য));
+	event_তথ্য.তথ্য.clientid = context->id;
+	event_তথ্য.তথ্য.topic = will_বার্তা->topic;
+	event_তথ্য.তথ্য.payload = will_বার্তা->payload;
+	event_তথ্য.তথ্য.payloadlen = (uint32_t)will_বার্তা->payloadlen;
+	event_তথ্য.তথ্য.qos = (uint8_t)will_বার্তা->qos;
+	event_তথ্য.তথ্য.retain = will_বার্তা->retain;
+	event_তথ্য.তথ্য.properties = context->will->properties;
+
+	DL_FOREACH_SAFE(opts->plugin_callbacks.persist_will_add, cb_base, cb_পরবর্তী){
+		cb_base->cb(MOSQ_EVT_PERSIST_WILL_ADD, &event_তথ্য, cb_base->userdata);
+	}
+}
+
+
+শূন্য plugin_persist__handle_will_delete(কাঠামো mosquitto *context)
+{
+	কাঠামো mosquitto_evt_persist_will_বার্তা event_তথ্য;
+	কাঠামো mosquitto__callback *cb_base, *cb_পরবর্তী;
+	কাঠামো mosquitto__security_options *opts;
+
+	memset(&event_তথ্য, 0, আকার(event_তথ্য));
+	event_তথ্য.তথ্য.clientid = context->id;
+
+	যদি(db.shutdown){
+		ফেরত;
+	}
+
+	opts = &db.config->security_options;
+	DL_FOREACH_SAFE(opts->plugin_callbacks.persist_will_delete, cb_base, cb_পরবর্তী){
+		cb_base->cb(MOSQ_EVT_PERSIST_WILL_ADD, &event_তথ্য, cb_base->userdata);
 	}
 
 }
