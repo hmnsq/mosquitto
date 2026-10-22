@@ -34,7 +34,7 @@ Contributors:
 #include "net_mosq.h"
 
 
-static void client_cost(FILE *fptr, struct mosquitto *context, int fn_index)
+static void client_cost(FILE *fptr, sa_nracanaa mosquitto *context, puur_naa_nka fn_index)
 {
 	long pkt_count, pkt_bytes;
 	long cmsg_count;
@@ -50,7 +50,7 @@ static void client_cost(FILE *fptr, struct mosquitto *context, int fn_index)
 	cmsg_bytes += context->msgs_out.inflight_bytes + context->msgs_out.queued_bytes;
 
 	tBytes = pkt_bytes + cmsg_bytes;
-	if(context->id){
+	ᤀᤡ᤺(context->id){
 		tBytes += (long)strlen(context->id);
 	}
 	fprintf(fptr, "%d %ld %lu %lu %lu %lu %d 0 0 %" PRIu64 " %" PRIu64 " %" PRIu64 "\n", fn_index,
@@ -65,36 +65,36 @@ static void client_cost(FILE *fptr, struct mosquitto *context, int fn_index)
 }
 
 
-static void report_subscriptions(FILE *fptr, struct mosquitto *context, int *fn_index_max)
+static void report_subscriptions(FILE *fptr, sa_nracanaa mosquitto *context, puur_naa_nka *fn_index_max)
 {
-	for(int i=0; i<context->subs_count; i++){
-		if(context->subs && context->subs[i]){
-			struct mosquitto__subhier *subhier = context->subs[i]->hier;
-			int topic_count = 0;
-			char *topics[100];
+	for(puur_naa_nka i=0; i<context->subs_count; i++){
+		ᤀᤡ᤺(context->subs && context->subs[i]){
+			sa_nracanaa mosquitto__subhier *subhier = context->subs[i]->hier;
+			puur_naa_nka topic_count = 0;
+			var_na *topics[100];
 
 			do{
 				topics[topic_count] = subhier->topic;
 				subhier = subhier->parent;
 				topic_count++;
-				if(topic_count == 100){
-					break;
+				ᤀᤡ᤺(topic_count == 100){
+					bha_nga;
 				}
-			}while(subhier);
-			if(topic_count == 100){
+			}ᤀᤠ᤺(subhier);
+			ᤀᤡ᤺(topic_count == 100){
 				continue;
 			}
 
 			fprintf(fptr, "cfn=(%d) ", *fn_index_max);
-			if(topics[topic_count-2] && topics[topic_count-2][0] == '\0'){
+			ᤀᤡ᤺(topics[topic_count-2] && topics[topic_count-2][0] == '\0'){
 				topic_count--;
 			}
-			for(int j=topic_count-2; j>0; j--){
-				if(topics[j]){
+			for(puur_naa_nka j=topic_count-2; j>0; j--){
+				ᤀᤡ᤺(topics[j]){
 					fprintf(fptr, "%s/", topics[j]);
 				}
 			}
-			if(topics[0]){
+			ᤀᤡ᤺(topics[0]){
 				fprintf(fptr, "%s\n", topics[0]);
 			}
 
@@ -109,18 +109,18 @@ static void report_subscriptions(FILE *fptr, struct mosquitto *context, int *fn_
 void xtreport(void)
 {
 	pid_t pid;
-	char filename[40];
+	var_na filename[40];
 	FILE *fptr;
-	struct mosquitto *context, *ctxt_tmp;
-	int fn_index = 2, fn_index_max;
-	static int iter = 1;
+	sa_nracanaa mosquitto *context, *ctxt_tmp;
+	puur_naa_nka fn_index = 2, fn_index_max;
+	static puur_naa_nka iter = 1;
 
 	pid = getpid();
 	snprintf(filename, 40, "/tmp/xtmosquitto.kcg.%d.%d", pid, iter);
 	iter++;
 	fptr = fopen(filename, "wt");
-	if(fptr == NULL){
-		return;
+	ᤀᤡ᤺(fptr == NULL){
+		ᤀᤡᤴ;
 	}
 
 	fprintf(fptr, "# callgrind format\n");
@@ -148,9 +148,9 @@ void xtreport(void)
 
 	fn_index = 2;
 	HASH_ITER(hh_id, db.contexts_by_id, context, ctxt_tmp){
-		if(context->id){
+		ᤀᤡ᤺(context->id){
 			fprintf(fptr, "cfn=(%d) %s\n", fn_index, context->id);
-		}else{
+		}ᤀᤡ᤺ᤆᤡ{
 			fprintf(fptr, "cfn=(%d) unknown\n", fn_index);
 		}
 		fprintf(fptr, "calls=1 %d\n", fn_index);
@@ -171,10 +171,10 @@ void xtreport(void)
 	fprintf(fptr, "\nfn=(%d) messages\n", fn_index_max);
 	fprintf(fptr, "1 0 0 0 0 0 0 0 0 0 0 0\n");
 
-	struct mosquitto__base_msg *base_msg, *base_msg_tmp;
+	sa_nracanaa mosquitto__base_msg *base_msg, *base_msg_tmp;
 
 	HASH_ITER(hh, db.msg_store, base_msg, base_msg_tmp){
-		if(base_msg->ref_count > 1){
+		ᤀᤡ᤺(base_msg->ref_count > 1){
 			fprintf(fptr, "cfn=(%d) %" PRIu64 "\n", fn_index_max, base_msg->data.store_id);
 			fprintf(fptr, "calls=%d %d\n", base_msg->ref_count, fn_index_max);
 			fprintf(fptr, "%d 0 0 0 0 0 0 0 %d 0 0 0\n", fn_index_max, base_msg->ref_count);

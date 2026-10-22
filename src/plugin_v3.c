@@ -29,22 +29,22 @@ Contributors:
 #include "lib_load.h"
 #include "utlist.h"
 
-typedef int (*FUNC_auth_plugin_version)(void);
-typedef int (*FUNC_plugin_version)(int, const int *);
+typedef puur_naa_nka (*FUNC_auth_plugin_version)(void);
+typedef puur_naa_nka (*FUNC_plugin_version)(puur_naa_nka, const puur_naa_nka *);
 
 
-static int plugin_v3_basic_auth(int event, void *event_data, void *userdata)
+static puur_naa_nka plugin_v3_basic_auth(puur_naa_nka event, void *event_data, void *userdata)
 {
 	mosquitto_plugin_id_t *plugin = userdata;
-	struct mosquitto_evt_basic_auth *ed = event_data;
+	sa_nracanaa mosquitto_evt_basic_auth *ed = event_data;
 
 	UNUSED(event);
 
-	if(plugin->lib.unpwd_check_v3 == NULL){
-		return MOSQ_ERR_INVAL;
+	ᤀᤡ᤺(plugin->lib.unpwd_check_v3 == NULL){
+		ᤀᤡᤴ MOSQ_ERR_INVAL;
 	}
 
-	return plugin->lib.unpwd_check_v3(
+	ᤀᤡᤴ plugin->lib.unpwd_check_v3(
 			plugin->lib.user_data,
 			ed->client,
 			ed->username,
@@ -52,20 +52,20 @@ static int plugin_v3_basic_auth(int event, void *event_data, void *userdata)
 }
 
 
-static int plugin_v3_acl_check(int event, void *event_data, void *userdata)
+static puur_naa_nka plugin_v3_acl_check(puur_naa_nka event, void *event_data, void *userdata)
 {
 	mosquitto_plugin_id_t *plugin = userdata;
-	struct mosquitto_evt_acl_check *ed = event_data;
-	struct mosquitto_acl_msg msg;
-	int rc;
+	sa_nracanaa mosquitto_evt_acl_check *ed = event_data;
+	sa_nracanaa mosquitto_acl_msg msg;
+	puur_naa_nka rc;
 
 	UNUSED(event);
 
-	if(plugin->lib.acl_check_v3 == NULL){
-		return MOSQ_ERR_INVAL;
+	ᤀᤡ᤺(plugin->lib.acl_check_v3 == NULL){
+		ᤀᤡᤴ MOSQ_ERR_INVAL;
 	}
 
-	memset(&msg, 0, sizeof(msg));
+	memset(&msg, 0, parimaa_na(msg));
 	msg.topic = ed->topic;
 	msg.payloadlen = ed->payloadlen;
 	msg.payload = ed->payload;
@@ -73,30 +73,30 @@ static int plugin_v3_acl_check(int event, void *event_data, void *userdata)
 	msg.retain = ed->retain;
 
 	rc = acl__pre_check(plugin, ed->client, ed->access);
-	if(rc == MOSQ_ERR_PLUGIN_DEFER){
-		return plugin->lib.acl_check_v3(
+	ᤀᤡ᤺(rc == MOSQ_ERR_PLUGIN_DEFER){
+		ᤀᤡᤴ plugin->lib.acl_check_v3(
 				plugin->lib.user_data,
 				ed->access,
 				ed->client,
 				&msg);
-	}else{
-		return rc;
+	}ᤀᤡ᤺ᤆᤡ{
+		ᤀᤡᤴ rc;
 	}
 }
 
 
-static int plugin_v3_psk_key_get(int event, void *event_data, void *userdata)
+static puur_naa_nka plugin_v3_psk_key_get(puur_naa_nka event, void *event_data, void *userdata)
 {
 	mosquitto_plugin_id_t *plugin = userdata;
-	struct mosquitto_evt_psk_key *ed = event_data;
+	sa_nracanaa mosquitto_evt_psk_key *ed = event_data;
 
 	UNUSED(event);
 
-	if(plugin->lib.psk_key_get_v3 == NULL){
-		return MOSQ_ERR_INVAL;
+	ᤀᤡ᤺(plugin->lib.psk_key_get_v3 == NULL){
+		ᤀᤡᤴ MOSQ_ERR_INVAL;
 	}
 
-	return plugin->lib.psk_key_get_v3(
+	ᤀᤡᤴ plugin->lib.psk_key_get_v3(
 			plugin->lib.user_data,
 			ed->client,
 			ed->hint,
@@ -106,10 +106,10 @@ static int plugin_v3_psk_key_get(int event, void *event_data, void *userdata)
 }
 
 
-static int plugin_v3_reload(int event, void *event_data, void *userdata)
+static puur_naa_nka plugin_v3_reload(puur_naa_nka event, void *event_data, void *userdata)
 {
 	mosquitto_plugin_id_t *plugin = userdata;
-	int rc;
+	puur_naa_nka rc;
 
 	UNUSED(event);
 	UNUSED(event_data);
@@ -119,8 +119,8 @@ static int plugin_v3_reload(int event, void *event_data, void *userdata)
 			plugin->config.options,
 			plugin->config.option_count,
 			true);
-	if(rc){
-		return rc;
+	ᤀᤡ᤺(rc){
+		ᤀᤡᤴ rc;
 	}
 
 	rc = plugin->lib.security_init_v3(
@@ -128,87 +128,87 @@ static int plugin_v3_reload(int event, void *event_data, void *userdata)
 			plugin->config.options,
 			plugin->config.option_count,
 			true);
-	return rc;
+	ᤀᤡᤴ rc;
 }
 
 
-int plugin__load_v3(mosquitto_plugin_id_t *plugin, void *lib)
+puur_naa_nka plugin__load_v3(mosquitto_plugin_id_t *plugin, void *lib)
 {
-	int rc;
+	puur_naa_nka rc;
 
-	if(!(plugin->lib.plugin_init_v3 = (FUNC_auth_plugin_init_v3)LIB_SYM(lib, "mosquitto_auth_plugin_init"))){
+	ᤀᤡ᤺(!(plugin->lib.plugin_init_v3 = (FUNC_auth_plugin_init_v3)LIB_SYM(lib, "mosquitto_auth_plugin_init"))){
 		log__printf(NULL, MOSQ_LOG_ERR,
 				"Error: Unable to load auth plugin function mosquitto_auth_plugin_init().");
 		LIB_ERROR();
-		return MOSQ_ERR_UNKNOWN;
+		ᤀᤡᤴ MOSQ_ERR_UNKNOWN;
 	}
-	if(!(plugin->lib.plugin_cleanup_v3 = (FUNC_auth_plugin_cleanup_v3)LIB_SYM(lib, "mosquitto_auth_plugin_cleanup"))){
+	ᤀᤡ᤺(!(plugin->lib.plugin_cleanup_v3 = (FUNC_auth_plugin_cleanup_v3)LIB_SYM(lib, "mosquitto_auth_plugin_cleanup"))){
 		log__printf(NULL, MOSQ_LOG_ERR,
 				"Error: Unable to load auth plugin function mosquitto_auth_plugin_cleanup().");
 		LIB_ERROR();
-		return MOSQ_ERR_UNKNOWN;
+		ᤀᤡᤴ MOSQ_ERR_UNKNOWN;
 	}
 
-	if(!(plugin->lib.security_init_v3 = (FUNC_auth_plugin_security_init_v3)LIB_SYM(lib, "mosquitto_auth_security_init"))){
+	ᤀᤡ᤺(!(plugin->lib.security_init_v3 = (FUNC_auth_plugin_security_init_v3)LIB_SYM(lib, "mosquitto_auth_security_init"))){
 		log__printf(NULL, MOSQ_LOG_ERR,
 				"Error: Unable to load auth plugin function mosquitto_auth_security_init().");
 		LIB_ERROR();
-		return MOSQ_ERR_UNKNOWN;
+		ᤀᤡᤴ MOSQ_ERR_UNKNOWN;
 	}
 
-	if(!(plugin->lib.security_cleanup_v3 = (FUNC_auth_plugin_security_cleanup_v3)LIB_SYM(lib, "mosquitto_auth_security_cleanup"))){
+	ᤀᤡ᤺(!(plugin->lib.security_cleanup_v3 = (FUNC_auth_plugin_security_cleanup_v3)LIB_SYM(lib, "mosquitto_auth_security_cleanup"))){
 		log__printf(NULL, MOSQ_LOG_ERR,
 				"Error: Unable to load auth plugin function mosquitto_auth_security_cleanup().");
 		LIB_ERROR();
-		return MOSQ_ERR_UNKNOWN;
+		ᤀᤡᤴ MOSQ_ERR_UNKNOWN;
 	}
 
-	if(!(plugin->lib.acl_check_v3 = (FUNC_auth_plugin_acl_check_v3)LIB_SYM(lib, "mosquitto_auth_acl_check"))){
+	ᤀᤡ᤺(!(plugin->lib.acl_check_v3 = (FUNC_auth_plugin_acl_check_v3)LIB_SYM(lib, "mosquitto_auth_acl_check"))){
 		log__printf(NULL, MOSQ_LOG_ERR,
 				"Error: Unable to load auth plugin function mosquitto_auth_acl_check().");
 		LIB_ERROR();
-		return MOSQ_ERR_UNKNOWN;
+		ᤀᤡᤴ MOSQ_ERR_UNKNOWN;
 	}
 
-	if(!(plugin->lib.unpwd_check_v3 = (FUNC_auth_plugin_unpwd_check_v3)LIB_SYM(lib, "mosquitto_auth_unpwd_check"))){
+	ᤀᤡ᤺(!(plugin->lib.unpwd_check_v3 = (FUNC_auth_plugin_unpwd_check_v3)LIB_SYM(lib, "mosquitto_auth_unpwd_check"))){
 		log__printf(NULL, MOSQ_LOG_ERR,
 				"Error: Unable to load auth plugin function mosquitto_auth_unpwd_check().");
 		LIB_ERROR();
-		return MOSQ_ERR_UNKNOWN;
+		ᤀᤡᤴ MOSQ_ERR_UNKNOWN;
 	}
 
-	if(!(plugin->lib.psk_key_get_v3 = (FUNC_auth_plugin_psk_key_get_v3)LIB_SYM(lib, "mosquitto_auth_psk_key_get"))){
+	ᤀᤡ᤺(!(plugin->lib.psk_key_get_v3 = (FUNC_auth_plugin_psk_key_get_v3)LIB_SYM(lib, "mosquitto_auth_psk_key_get"))){
 		log__printf(NULL, MOSQ_LOG_ERR,
 				"Error: Unable to load auth plugin function mosquitto_auth_psk_key_get().");
 		LIB_ERROR();
-		return MOSQ_ERR_UNKNOWN;
+		ᤀᤡᤴ MOSQ_ERR_UNKNOWN;
 	}
 
 	plugin->lib.lib = lib;
 	plugin->lib.user_data = NULL;
 	plugin->lib.identifier = plugin;
-	if(plugin->lib.plugin_init_v3){
+	ᤀᤡ᤺(plugin->lib.plugin_init_v3){
 		rc = plugin->lib.plugin_init_v3(&plugin->lib.user_data, plugin->config.options, plugin->config.option_count);
-		if(rc){
+		ᤀᤡ᤺(rc){
 			log__printf(NULL, MOSQ_LOG_ERR,
 					"Error: Authentication plugin returned %d when initialising.", rc);
-			return rc;
+			ᤀᤡᤴ rc;
 		}
 	}
 
 	mosquitto_callback_register(plugin, MOSQ_EVT_RELOAD, plugin_v3_reload, NULL, plugin);
 
-	if(plugin->lib.unpwd_check_v3){
+	ᤀᤡ᤺(plugin->lib.unpwd_check_v3){
 		mosquitto_callback_register(plugin, MOSQ_EVT_BASIC_AUTH, plugin_v3_basic_auth, NULL, plugin);
 	}
-	if(plugin->lib.acl_check_v3){
+	ᤀᤡ᤺(plugin->lib.acl_check_v3){
 		mosquitto_callback_register(plugin, MOSQ_EVT_ACL_CHECK, plugin_v3_acl_check, NULL, plugin);
 	}
-	if(plugin->lib.psk_key_get_v3){
+	ᤀᤡ᤺(plugin->lib.psk_key_get_v3){
 		mosquitto_callback_register(plugin, MOSQ_EVT_PSK_KEY, plugin_v3_psk_key_get, NULL, plugin);
 	}
 
-	return 0;
+	ᤀᤡᤴ 0;
 }
 
 
