@@ -47,72 +47,72 @@ Contributors:
  *	a/b/d
  */
 
-#include "config.h"
+#ضمن "config.h"
 
-#include <assert.h>
-#include <stdio.h>
-#include <string.h>
+#ضمن <assert.h>
+#ضمن <stdio.h>
+#ضمن <string.h>
 
-#include "mosquitto_broker_internal.h"
-#include "mosquitto/mqtt_protocol.h"
-#include "util_mosq.h"
+#ضمن "mosquitto_broker_internal.h"
+#ضمن "mosquitto/mqtt_protocol.h"
+#ضمن "util_mosq.h"
 
-#include "utlist.h"
+#ضمن "utlist.h"
 
-static struct mosquitto__subhier *sub__add_hier_entry(struct mosquitto__subhier *parent, struct mosquitto__subhier **sibling, const char *topic, uint16_t len);
+ساكن بنية mosquitto__subhier *sub__add_hier_entry(بنية mosquitto__subhier *parent, بنية mosquitto__subhier **sibling, ثابت حرف *topic, uint16_t len);
 
-static unsigned int hashv_plus = 0;
-static unsigned int hashv_hash = 0;
+ساكن unsigned صحيح hashv_plus = 0;
+ساكن unsigned صحيح hashv_hash = 0;
 
 
-static int subs__send(struct mosquitto__subleaf *leaf, const char *topic, uint8_t qos, int retain, struct mosquitto__base_msg *stored)
+ساكن صحيح subs__send(بنية mosquitto__subleaf *leaf, ثابت حرف *topic, uint8_t qos, صحيح retain, بنية mosquitto_base_پیغام *stored)
 {
 	bool client_retain;
 	uint16_t mid;
-	uint8_t client_qos, msg_qos;
-	int rc2;
+	uint8_t client_qos, پیغام_qos;
+	صحيح rc2;
 
 	/* Check for ACL topic access. */
 	rc2 = mosquitto_acl_check(leaf->context, topic, stored->data.payloadlen, stored->data.payload, stored->data.qos, stored->data.retain, stored->data.properties, MOSQ_ACL_READ);
-	if(rc2 == MOSQ_ERR_ACL_DENIED){
-		return MOSQ_ERR_SUCCESS;
-	}else if(rc2 == MOSQ_ERR_SUCCESS){
+	إذا(rc2 == MOSQ_ERR_ACL_DENIED){
+		أرجع MOSQ_ERR_SUCCESS;
+	}وإلا إذا(rc2 == MOSQ_ERR_SUCCESS){
 		client_qos = MQTT_SUB_OPT_GET_QOS(leaf->subscription_options);
 
-		if(db.config->upgrade_outgoing_qos){
-			msg_qos = client_qos;
-		}else{
-			if(qos > client_qos){
-				msg_qos = client_qos;
-			}else{
-				msg_qos = qos;
+		إذا(db.config->upgrade_outgoing_qos){
+			پیغام_qos = client_qos;
+		}وإلا{
+			إذا(qos > client_qos){
+				پیغام_qos = client_qos;
+			}وإلا{
+				پیغام_qos = qos;
 			}
 		}
-		if(msg_qos){
+		إذا(پیغام_qos){
 			mid = mosquitto__mid_generate(leaf->context);
-		}else{
+		}وإلا{
 			mid = 0;
 		}
-		if(MQTT_SUB_OPT_GET_RETAIN_AS_PUBLISHED(leaf->subscription_options)){
+		إذا(MQTT_SUB_OPT_GET_RETAIN_AS_PUBLISHED(leaf->subscription_options)){
 			client_retain = retain;
-		}else{
+		}وإلا{
 			client_retain = false;
 		}
-		if(db__message_insert_outgoing(leaf->context, 0, mid, msg_qos, client_retain, stored, leaf->identifier, true, true) == 1){
-			return 1;
+		إذا(db_message_داخل_کرو_outgoing(leaf->context, 0, mid, پیغام_qos, client_retain, stored, leaf->identifier, true, true) == 1){
+			أرجع 1;
 		}
-	}else{
-		return 1; /* Application error */
+	}وإلا{
+		أرجع 1; /* Application error */
 	}
-	return 0;
+	أرجع 0;
 }
 
 
-static int subs__shared_process(struct mosquitto__subhier *hier, const char *topic, uint8_t qos, int retain, struct mosquitto__base_msg *stored)
+ساكن صحيح subs__shared_process(بنية mosquitto__subhier *hier, ثابت حرف *topic, uint8_t qos, صحيح retain, بنية mosquitto_base_پیغام *stored)
 {
-	int rc = 0, rc2;
-	struct mosquitto__subshared *shared, *shared_tmp;
-	struct mosquitto__subleaf *leaf;
+	صحيح rc = 0, rc2;
+	بنية mosquitto__subshared *shared, *shared_tmp;
+	بنية mosquitto__subleaf *leaf;
 
 	HASH_ITER(hh, hier->shared, shared, shared_tmp){
 		leaf = shared->subs;
@@ -121,64 +121,64 @@ static int subs__shared_process(struct mosquitto__subhier *hier, const char *top
 		DL_DELETE(shared->subs, leaf);
 		DL_APPEND(shared->subs, leaf);
 
-		if(rc2){
+		إذا(rc2){
 			rc = 1;
 		}
 	}
 
-	return rc;
+	أرجع rc;
 }
 
 
-static int subs__process(struct mosquitto__subhier *hier, const char *source_id, const char *topic, uint8_t qos, int retain, struct mosquitto__base_msg *stored)
+ساكن صحيح subs__process(بنية mosquitto__subhier *hier, ثابت حرف *source_id, ثابت حرف *topic, uint8_t qos, صحيح retain, بنية mosquitto_base_پیغام *stored)
 {
-	int rc = 0;
-	int rc2;
-	struct mosquitto__subleaf *leaf;
+	صحيح rc = 0;
+	صحيح rc2;
+	بنية mosquitto__subleaf *leaf;
 
 	rc = subs__shared_process(hier, topic, qos, retain, stored);
 
 	leaf = hier->subs;
-	while(source_id && leaf){
-		if(!leaf->context->id || (MQTT_SUB_OPT_GET_NO_LOCAL(leaf->subscription_options) && !strcmp(leaf->context->id, source_id))){
+	طالما(source_id && leaf){
+		إذا(!leaf->context->id || (MQTT_SUB_OPT_GET_NO_LOCAL(leaf->subscription_options) && !strcmp(leaf->context->id, source_id))){
 			leaf = leaf->next;
-			continue;
+			استمر;
 		}
 		rc2 = subs__send(leaf, topic, qos, retain, stored);
-		if(rc2){
+		إذا(rc2){
 			rc = 1;
 		}
 		leaf = leaf->next;
 	}
-	if(hier->subs || hier->shared){
-		return rc;
-	}else{
-		return MOSQ_ERR_NO_SUBSCRIBERS;
+	إذا(hier->subs || hier->shared){
+		أرجع rc;
+	}وإلا{
+		أرجع MOSQ_ERR_NO_SUBSCRIBERS;
 	}
 }
 
 
-static int sub__add_leaf(struct mosquitto *context, const struct mosquitto_subscription *sub, struct mosquitto__subleaf **head, struct mosquitto__subleaf **newleaf)
+ساكن صحيح sub__add_leaf(بنية mosquitto *context, ثابت بنية mosquitto_subscription *sub, بنية mosquitto__subleaf **head, بنية mosquitto__subleaf **newleaf)
 {
-	struct mosquitto__subleaf *leaf;
+	بنية mosquitto__subleaf *leaf;
 
-	*newleaf = NULL;
+	*newleaf = عدم;
 	leaf = *head;
 
-	while(leaf){
-		if(leaf->context && leaf->context->id && !strcmp(leaf->context->id, context->id)){
+	طالما(leaf){
+		إذا(leaf->context && leaf->context->id && !strcmp(leaf->context->id, context->id)){
 			/* Client making a second subscription to same topic. Only
 			 * need to update QoS. Return MOSQ_ERR_SUB_EXISTS to
 			 * indicate this to the calling function. */
 			leaf->identifier = sub->identifier;
 			leaf->subscription_options = sub->options;
-			return MOSQ_ERR_SUB_EXISTS;
+			أرجع MOSQ_ERR_SUB_EXISTS;
 		}
 		leaf = leaf->next;
 	}
-	leaf = mosquitto_calloc(1, sizeof(struct mosquitto__subleaf) + strlen(sub->topic_filter) + 1);
-	if(!leaf){
-		return MOSQ_ERR_NOMEM;
+	leaf = mosquitto_calloc(1, حجم(بنية mosquitto__subleaf) + strlen(sub->topic_filter) + 1);
+	إذا(!leaf){
+		أرجع MOSQ_ERR_NOMEM;
 	}
 	leaf->context = context;
 	leaf->identifier = sub->identifier;
@@ -188,38 +188,38 @@ static int sub__add_leaf(struct mosquitto *context, const struct mosquitto_subsc
 	DL_APPEND(*head, leaf);
 	*newleaf = leaf;
 
-	return MOSQ_ERR_SUCCESS;
+	أرجع MOSQ_ERR_SUCCESS;
 }
 
 
-static void sub__remove_shared_leaf(struct mosquitto__subhier *subhier, struct mosquitto__subshared *shared, struct mosquitto__subleaf *leaf)
+ساكن فراغ sub__remove_shared_leaf(بنية mosquitto__subhier *subhier, بنية mosquitto__subshared *shared, بنية mosquitto__subleaf *leaf)
 {
 	DL_DELETE(shared->subs, leaf);
-	if(shared->subs == NULL){
+	إذا(shared->subs == عدم){
 		HASH_DELETE(hh, subhier->shared, shared);
 		mosquitto_FREE(shared);
 	}
 }
 
 
-static int sub__add_shared(struct mosquitto *context, const struct mosquitto_subscription *sub, struct mosquitto__subhier *subhier, const char *sharename)
+ساكن صحيح sub__add_shared(بنية mosquitto *context, ثابت بنية mosquitto_subscription *sub, بنية mosquitto__subhier *subhier, ثابت حرف *sharename)
 {
-	struct mosquitto__subleaf *newleaf;
-	struct mosquitto__subshared *shared = NULL;
-	struct mosquitto__subleaf **subs;
+	بنية mosquitto__subleaf *newleaf;
+	بنية mosquitto__subshared *shared = عدم;
+	بنية mosquitto__subleaf **subs;
 	size_t slen;
-	int rc;
+	صحيح rc;
 	unsigned hashv;
 
 	slen = strlen(sharename);
 
-	HASH_VALUE(sharename, slen, hashv);
+	HASH_قدر(sharename, slen, hashv);
 
 	HASH_FIND_BYHASHVALUE(hh, subhier->shared, sharename, slen, hashv, shared);
-	if(shared == NULL){
-		shared = mosquitto_calloc(1, sizeof(struct mosquitto__subshared) + slen + 1);
-		if(!shared){
-			return MOSQ_ERR_NOMEM;
+	إذا(shared == عدم){
+		shared = mosquitto_calloc(1, حجم(بنية mosquitto__subshared) + slen + 1);
+		إذا(!shared){
+			أرجع MOSQ_ERR_NOMEM;
 		}
 		strncpy(shared->name, sharename, slen+1);
 
@@ -227,123 +227,123 @@ static int sub__add_shared(struct mosquitto *context, const struct mosquitto_sub
 	}
 
 	rc = sub__add_leaf(context, sub, &shared->subs, &newleaf);
-	if(rc > 0){
-		if(shared->subs == NULL){
+	إذا(rc > 0){
+		إذا(shared->subs == عدم){
 			HASH_DELETE(hh, subhier->shared, shared);
 			mosquitto_FREE(shared);
 		}
-		return rc;
+		أرجع rc;
 	}
 
-	if(rc != MOSQ_ERR_SUB_EXISTS){
+	إذا(rc != MOSQ_ERR_SUB_EXISTS){
 		newleaf->hier = subhier;
 		newleaf->shared = shared;
 
 		bool assigned = false;
-		for(int i=0; i<context->subs_capacity; i++){
-			if(!context->subs[i]){
+		لكل(صحيح i=0; i<context->subs_capacity; i++){
+			إذا(!context->subs[i]){
 				context->subs[i] = newleaf;
-				context->subs_count++;
+				context->subs_گنتی++;
 				assigned = true;
-				break;
+				اكسر;
 			}
 		}
-		if(assigned == false){
-			subs = mosquitto_realloc(context->subs, sizeof(struct mosquitto__subleaf *)*(size_t)(context->subs_capacity + 1));
-			if(!subs){
+		إذا(assigned == false){
+			subs = mosquitto_realloc(context->subs, حجم(بنية mosquitto__subleaf *)*(size_t)(context->subs_capacity + 1));
+			إذا(!subs){
 				sub__remove_shared_leaf(subhier, shared, newleaf);
 				mosquitto_FREE(newleaf);
-				return MOSQ_ERR_NOMEM;
+				أرجع MOSQ_ERR_NOMEM;
 			}
 			context->subs = subs;
 			context->subs_capacity++;
-			context->subs_count++;
+			context->subs_گنتی++;
 			context->subs[context->subs_capacity-1] = newleaf;
 		}
-#ifdef WITH_SYS_TREE
-		db.shared_subscription_count++;
+#ifdef WITH_SYS_درخت
+		db.shared_subscription_گنتی++;
 #endif
 	}
 
-	if(context->protocol == mosq_p_mqtt31 || context->protocol == mosq_p_mqtt5){
-		return rc;
-	}else{
+	إذا(context->protocol == mosq_p_mqtt31 || context->protocol == mosq_p_mqtt5){
+		أرجع rc;
+	}وإلا{
 		/* mqttv311/mqttv5 requires retained messages are resent on
 		 * resubscribe. */
-		return MOSQ_ERR_SUCCESS;
+		أرجع MOSQ_ERR_SUCCESS;
 	}
 }
 
 
-static int sub__add_normal(struct mosquitto *context, const struct mosquitto_subscription *sub, struct mosquitto__subhier *subhier)
+ساكن صحيح sub__add_normal(بنية mosquitto *context, ثابت بنية mosquitto_subscription *sub, بنية mosquitto__subhier *subhier)
 {
-	struct mosquitto__subleaf *newleaf = NULL;
-	struct mosquitto__subleaf **subs;
-	int rc;
+	بنية mosquitto__subleaf *newleaf = عدم;
+	بنية mosquitto__subleaf **subs;
+	صحيح rc;
 
 	rc = sub__add_leaf(context, sub, &subhier->subs, &newleaf);
-	if(rc > 0){
-		return rc;
+	إذا(rc > 0){
+		أرجع rc;
 	}
 
-	if(rc != MOSQ_ERR_SUB_EXISTS){
+	إذا(rc != MOSQ_ERR_SUB_EXISTS){
 		newleaf->hier = subhier;
-		newleaf->shared = NULL;
+		newleaf->shared = عدم;
 
 		bool assigned = false;
-		for(int i=0; i<context->subs_capacity; i++){
-			if(!context->subs[i]){
+		لكل(صحيح i=0; i<context->subs_capacity; i++){
+			إذا(!context->subs[i]){
 				context->subs[i] = newleaf;
-				context->subs_count++;
+				context->subs_گنتی++;
 				assigned = true;
-				break;
+				اكسر;
 			}
 		}
-		if(assigned == false){
-			subs = mosquitto_realloc(context->subs, sizeof(struct mosquitto__subleaf *)*(size_t)(context->subs_capacity + 1));
-			if(!subs){
+		إذا(assigned == false){
+			subs = mosquitto_realloc(context->subs, حجم(بنية mosquitto__subleaf *)*(size_t)(context->subs_capacity + 1));
+			إذا(!subs){
 				DL_DELETE(subhier->subs, newleaf);
 				mosquitto_FREE(newleaf);
-				return MOSQ_ERR_NOMEM;
+				أرجع MOSQ_ERR_NOMEM;
 			}
 			context->subs = subs;
 			context->subs_capacity++;
-			context->subs_count++;
+			context->subs_گنتی++;
 			context->subs[context->subs_capacity-1] = newleaf;
 		}
-#ifdef WITH_SYS_TREE
-		db.subscription_count++;
+#ifdef WITH_SYS_درخت
+		db.subscription_گنتی++;
 #endif
 	}
 
-	if(context->protocol == mosq_p_mqtt31 || context->protocol == mosq_p_mqtt5){
-		return rc;
-	}else{
+	إذا(context->protocol == mosq_p_mqtt31 || context->protocol == mosq_p_mqtt5){
+		أرجع rc;
+	}وإلا{
 		/* mqttv311/mqttv5 requires retained messages are resent on
 		 * resubscribe. */
-		return MOSQ_ERR_SUCCESS;
+		أرجع MOSQ_ERR_SUCCESS;
 	}
 }
 
 
-static int sub__add_context(struct mosquitto *context, const struct mosquitto_subscription *sub, struct mosquitto__subhier *subhier, char *const *const topics, const char *sharename)
+ساكن صحيح sub__add_context(بنية mosquitto *context, ثابت بنية mosquitto_subscription *sub, بنية mosquitto__subhier *subhier, حرف *ثابت *ثابت topics, ثابت حرف *sharename)
 {
-	struct mosquitto__subhier *branch;
-	int topic_index = 0;
+	بنية mosquitto__subhier *branch;
+	صحيح topic_index = 0;
 	size_t topiclen;
 
 	/* Find leaf node */
-	while(topics && topics[topic_index] != NULL){
+	طالما(topics && topics[topic_index] != عدم){
 		topiclen = strlen(topics[topic_index]);
-		if(topiclen > UINT16_MAX){
-			return MOSQ_ERR_INVAL;
+		إذا(topiclen > UINT16_MAX){
+			أرجع MOSQ_ERR_INVAL;
 		}
 		HASH_FIND(hh, subhier->children, topics[topic_index], topiclen, branch);
-		if(!branch){
+		إذا(!branch){
 			/* Not found */
 			branch = sub__add_hier_entry(subhier, &subhier->children, topics[topic_index], (uint16_t)topiclen);
-			if(!branch){
-				return MOSQ_ERR_NOMEM;
+			إذا(!branch){
+				أرجع MOSQ_ERR_NOMEM;
 			}
 		}
 		subhier = branch;
@@ -351,27 +351,27 @@ static int sub__add_context(struct mosquitto *context, const struct mosquitto_su
 	}
 
 	/* Add add our context */
-	if(context && context->id){
-		if(sharename){
-			return sub__add_shared(context, sub, subhier, sharename);
-		}else{
-			return sub__add_normal(context, sub, subhier);
+	إذا(context && context->id){
+		إذا(sharename){
+			أرجع sub__add_shared(context, sub, subhier, sharename);
+		}وإلا{
+			أرجع sub__add_normal(context, sub, subhier);
 		}
-	}else{
-		return MOSQ_ERR_SUCCESS;
+	}وإلا{
+		أرجع MOSQ_ERR_SUCCESS;
 	}
 }
 
 
-static int sub__remove_normal(struct mosquitto *context, struct mosquitto__subhier *subhier, uint8_t *reason)
+ساكن صحيح sub__remove_normal(بنية mosquitto *context, بنية mosquitto__subhier *subhier, uint8_t *reason)
 {
-	struct mosquitto__subleaf *leaf;
+	بنية mosquitto__subleaf *leaf;
 
 	leaf = subhier->subs;
-	while(leaf){
-		if(leaf->context==context){
-#ifdef WITH_SYS_TREE
-			db.subscription_count--;
+	طالما(leaf){
+		إذا(leaf->context==context){
+#ifdef WITH_SYS_درخت
+			db.subscription_گنتی--;
 #endif
 			DL_DELETE(subhier->subs, leaf);
 
@@ -379,34 +379,34 @@ static int sub__remove_normal(struct mosquitto *context, struct mosquitto__subhi
 			 * It would be nice to be able to use the reference directly,
 			 * but that would involve keeping a copy of the topic string in
 			 * each subleaf. Might be worth considering though. */
-			for(int i=0; i<context->subs_capacity; i++){
-				if(context->subs[i] && context->subs[i]->hier == subhier){
-					context->subs_count--;
+			لكل(صحيح i=0; i<context->subs_capacity; i++){
+				إذا(context->subs[i] && context->subs[i]->hier == subhier){
+					context->subs_گنتی--;
 					mosquitto_free(context->subs[i]);
-					context->subs[i] = NULL;
-					break;
+					context->subs[i] = عدم;
+					اكسر;
 				}
 			}
 			*reason = 0;
-			return MOSQ_ERR_SUCCESS;
+			أرجع MOSQ_ERR_SUCCESS;
 		}
 		leaf = leaf->next;
 	}
-	return MOSQ_ERR_NO_SUBSCRIBERS;
+	أرجع MOSQ_ERR_NO_SUBSCRIBERS;
 }
 
 
-static int sub__remove_shared(struct mosquitto *context, struct mosquitto__subhier *subhier, uint8_t *reason, const char *sharename)
+ساكن صحيح sub__remove_shared(بنية mosquitto *context, بنية mosquitto__subhier *subhier, uint8_t *reason, ثابت حرف *sharename)
 {
-	struct mosquitto__subshared *shared;
+	بنية mosquitto__subshared *shared;
 
 	HASH_FIND(hh, subhier->shared, sharename, strlen(sharename), shared);
-	if(shared){
-		struct mosquitto__subleaf *leaf = shared->subs;
-		while(leaf){
-			if(leaf->context==context){
-#ifdef WITH_SYS_TREE
-				db.shared_subscription_count--;
+	إذا(shared){
+		بنية mosquitto__subleaf *leaf = shared->subs;
+		طالما(leaf){
+			إذا(leaf->context==context){
+#ifdef WITH_SYS_درخت
+				db.shared_subscription_گنتی--;
 #endif
 				DL_DELETE(shared->subs, leaf);
 
@@ -414,83 +414,83 @@ static int sub__remove_shared(struct mosquitto *context, struct mosquitto__subhi
 				* It would be nice to be able to use the reference directly,
 				* but that would involve keeping a copy of the topic string in
 				* each subleaf. Might be worth considering though. */
-				for(int i=0; i<context->subs_capacity; i++){
-					if(context->subs[i]
+				لكل(صحيح i=0; i<context->subs_capacity; i++){
+					إذا(context->subs[i]
 							&& context->subs[i]->hier == subhier
 							&& context->subs[i]->shared == shared){
 
 						mosquitto_free(context->subs[i]);
-						context->subs[i] = NULL;
-						context->subs_count--;
-						break;
+						context->subs[i] = عدم;
+						context->subs_گنتی--;
+						اكسر;
 					}
 				}
 
-				if(shared->subs == NULL){
+				إذا(shared->subs == عدم){
 					HASH_DELETE(hh, subhier->shared, shared);
 					mosquitto_FREE(shared);
 				}
 
 				*reason = 0;
-				return MOSQ_ERR_SUCCESS;
+				أرجع MOSQ_ERR_SUCCESS;
 			}
 			leaf = leaf->next;
 		}
-		return MOSQ_ERR_NO_SUBSCRIBERS;
-	}else{
-		return MOSQ_ERR_NO_SUBSCRIBERS;
+		أرجع MOSQ_ERR_NO_SUBSCRIBERS;
+	}وإلا{
+		أرجع MOSQ_ERR_NO_SUBSCRIBERS;
 	}
 }
 
 
-static int sub__remove_recurse(struct mosquitto *context, struct mosquitto__subhier *subhier, char **topics, uint8_t *reason, const char *sharename)
+ساكن صحيح sub__remove_recurse(بنية mosquitto *context, بنية mosquitto__subhier *subhier, حرف **topics, uint8_t *reason, ثابت حرف *sharename)
 {
-	struct mosquitto__subhier *branch;
+	بنية mosquitto__subhier *branch;
 
-	if(topics == NULL || topics[0] == NULL){
-		if(sharename){
-			return sub__remove_shared(context, subhier, reason, sharename);
-		}else{
-			return sub__remove_normal(context, subhier, reason);
+	إذا(topics == عدم || topics[0] == عدم){
+		إذا(sharename){
+			أرجع sub__remove_shared(context, subhier, reason, sharename);
+		}وإلا{
+			أرجع sub__remove_normal(context, subhier, reason);
 		}
 	}
 
 	HASH_FIND(hh, subhier->children, topics[0], strlen(topics[0]), branch);
-	if(branch){
+	إذا(branch){
 		sub__remove_recurse(context, branch, &(topics[1]), reason, sharename);
-		if(!branch->children && !branch->subs && !branch->shared){
+		إذا(!branch->children && !branch->subs && !branch->shared){
 			HASH_DELETE(hh, subhier->children, branch);
 			mosquitto_FREE(branch);
 		}
 	}
-	return MOSQ_ERR_SUCCESS;
+	أرجع MOSQ_ERR_SUCCESS;
 }
 
 
-static int sub__search(struct mosquitto__subhier *subhier, char **split_topics, const char *source_id, const char *topic, uint8_t qos, int retain, struct mosquitto__base_msg *stored)
+ساكن صحيح sub_تلاش(بنية mosquitto__subhier *subhier, حرف **split_topics, ثابت حرف *source_id, ثابت حرف *topic, uint8_t qos, صحيح retain, بنية mosquitto_base_پیغام *stored)
 {
 	/* FIXME - need to take into account source_id if the client is a bridge */
-	struct mosquitto__subhier *branch;
-	int rc;
+	بنية mosquitto__subhier *branch;
+	صحيح rc;
 	bool have_subscribers = false;
 
-	if(split_topics && split_topics[0]){
+	إذا(split_topics && split_topics[0]){
 		/* Check for literal match */
 		HASH_FIND(hh, subhier->children, split_topics[0], strlen(split_topics[0]), branch);
 
-		if(branch){
-			rc = sub__search(branch, &(split_topics[1]), source_id, topic, qos, retain, stored);
-			if(rc == MOSQ_ERR_SUCCESS){
+		إذا(branch){
+			rc = sub_تلاش(branch, &(split_topics[1]), source_id, topic, qos, retain, stored);
+			إذا(rc == MOSQ_ERR_SUCCESS){
 				have_subscribers = true;
-			}else if(rc != MOSQ_ERR_NO_SUBSCRIBERS){
-				return rc;
+			}وإلا إذا(rc != MOSQ_ERR_NO_SUBSCRIBERS){
+				أرجع rc;
 			}
-			if(split_topics[1] == NULL){ /* End of list */
+			إذا(split_topics[1] == عدم){ /* End of list */
 				rc = subs__process(branch, source_id, topic, qos, retain, stored);
-				if(rc == MOSQ_ERR_SUCCESS){
+				إذا(rc == MOSQ_ERR_SUCCESS){
 					have_subscribers = true;
-				}else if(rc != MOSQ_ERR_NO_SUBSCRIBERS){
-					return rc;
+				}وإلا إذا(rc != MOSQ_ERR_NO_SUBSCRIBERS){
+					أرجع rc;
 				}
 			}
 		}
@@ -498,19 +498,19 @@ static int sub__search(struct mosquitto__subhier *subhier, char **split_topics, 
 		/* Check for + match */
 		HASH_FIND_BYHASHVALUE(hh, subhier->children, "+", 1, hashv_plus, branch);
 
-		if(branch){
-			rc = sub__search(branch, &(split_topics[1]), source_id, topic, qos, retain, stored);
-			if(rc == MOSQ_ERR_SUCCESS){
+		إذا(branch){
+			rc = sub_تلاش(branch, &(split_topics[1]), source_id, topic, qos, retain, stored);
+			إذا(rc == MOSQ_ERR_SUCCESS){
 				have_subscribers = true;
-			}else if(rc != MOSQ_ERR_NO_SUBSCRIBERS){
-				return rc;
+			}وإلا إذا(rc != MOSQ_ERR_NO_SUBSCRIBERS){
+				أرجع rc;
 			}
-			if(split_topics[1] == NULL){ /* End of list */
+			إذا(split_topics[1] == عدم){ /* End of list */
 				rc = subs__process(branch, source_id, topic, qos, retain, stored);
-				if(rc == MOSQ_ERR_SUCCESS){
+				إذا(rc == MOSQ_ERR_SUCCESS){
 					have_subscribers = true;
-				}else if(rc != MOSQ_ERR_NO_SUBSCRIBERS){
-					return rc;
+				}وإلا إذا(rc != MOSQ_ERR_NO_SUBSCRIBERS){
+					أرجع rc;
 				}
 			}
 		}
@@ -518,94 +518,94 @@ static int sub__search(struct mosquitto__subhier *subhier, char **split_topics, 
 
 	/* Check for # match */
 	HASH_FIND_BYHASHVALUE(hh, subhier->children, "#", 1, hashv_hash, branch);
-	if(branch && !branch->children){
+	إذا(branch && !branch->children){
 		/* The topic matches due to a # wildcard - process the
 		 * subscriptions but *don't* return. Although this branch has ended
 		 * there may still be other subscriptions to deal with.
 		 */
 		rc = subs__process(branch, source_id, topic, qos, retain, stored);
-		if(rc == MOSQ_ERR_SUCCESS){
+		إذا(rc == MOSQ_ERR_SUCCESS){
 			have_subscribers = true;
-		}else if(rc != MOSQ_ERR_NO_SUBSCRIBERS){
-			return rc;
+		}وإلا إذا(rc != MOSQ_ERR_NO_SUBSCRIBERS){
+			أرجع rc;
 		}
 	}
 
-	if(have_subscribers){
-		return MOSQ_ERR_SUCCESS;
-	}else{
-		return MOSQ_ERR_NO_SUBSCRIBERS;
+	إذا(have_subscribers){
+		أرجع MOSQ_ERR_SUCCESS;
+	}وإلا{
+		أرجع MOSQ_ERR_NO_SUBSCRIBERS;
 	}
 }
 
 
-static struct mosquitto__subhier *sub__add_hier_entry(struct mosquitto__subhier *parent, struct mosquitto__subhier **sibling, const char *topic, uint16_t len)
+ساكن بنية mosquitto__subhier *sub__add_hier_entry(بنية mosquitto__subhier *parent, بنية mosquitto__subhier **sibling, ثابت حرف *topic, uint16_t len)
 {
-	struct mosquitto__subhier *child;
+	بنية mosquitto__subhier *child;
 
-	assert(sibling);
+	أكد(sibling);
 
-	child = mosquitto_calloc(1, sizeof(struct mosquitto__subhier) + len + 1);
-	if(!child){
-		log__printf(NULL, MOSQ_LOG_ERR, "Error: Out of memory.");
-		return NULL;
+	child = mosquitto_calloc(1, حجم(بنية mosquitto__subhier) + len + 1);
+	إذا(!child){
+		log__printf(عدم, MOSQ_LOG_ERR, "Error: Out of memory.");
+		أرجع عدم;
 	}
 	child->parent = parent;
 	child->topic_len = len;
-	if(len > 0){
+	إذا(len > 0){
 		strncpy(child->topic, topic, (size_t)(len+1));
 	}
 
 	HASH_ADD(hh, *sibling, topic, child->topic_len, child);
 
-	return child;
+	أرجع child;
 }
 
 
-int sub__add(struct mosquitto *context, const struct mosquitto_subscription *sub)
+صحيح sub__add(بنية mosquitto *context, ثابت بنية mosquitto_subscription *sub)
 {
-	int rc = 0;
-	struct mosquitto__subhier *subhier;
-	const char *sharename = NULL;
-	char *local_sub;
-	char **topics;
+	صحيح rc = 0;
+	بنية mosquitto__subhier *subhier;
+	ثابت حرف *sharename = عدم;
+	حرف *local_sub;
+	حرف **topics;
 	size_t topiclen;
 
-	assert(sub);
-	assert(sub->topic_filter);
+	أكد(sub);
+	أكد(sub->topic_filter);
 
 	rc = sub__topic_tokenise(sub->topic_filter, &local_sub, &topics, &sharename);
-	if(rc){
-		return rc;
+	إذا(rc){
+		أرجع rc;
 	}
 
 	topiclen = strlen(topics[0]);
-	if(topiclen > UINT16_MAX){
+	إذا(topiclen > UINT16_MAX){
 		mosquitto_FREE(local_sub);
 		mosquitto_FREE(topics);
-		return MOSQ_ERR_INVAL;
+		أرجع MOSQ_ERR_INVAL;
 	}
 
-	if(sharename){
+	إذا(sharename){
 		HASH_FIND(hh, db.shared_subs, topics[0], topiclen, subhier);
-		if(!subhier){
-			subhier = sub__add_hier_entry(NULL, &db.shared_subs, topics[0], (uint16_t)topiclen);
-			if(!subhier){
+		إذا(!subhier){
+			subhier = sub__add_hier_entry(عدم, &db.shared_subs, topics[0], (uint16_t)topiclen);
+			إذا(!subhier){
 				mosquitto_FREE(local_sub);
 				mosquitto_FREE(topics);
-				log__printf(NULL, MOSQ_LOG_ERR, "Error: Out of memory.");
-				return MOSQ_ERR_NOMEM;
+				log__printf(عدم, MOSQ_LOG_ERR, "Error: Out of memory.");
+				أرجع MOSQ_ERR_NOMEM;
 			}
 		}
-	}else{
+	}وإلا{
 		HASH_FIND(hh, db.normal_subs, topics[0], topiclen, subhier);
-		if(!subhier){
-			subhier = sub__add_hier_entry(NULL, &db.normal_subs, topics[0], (uint16_t)topiclen);
-			if(!subhier){
+		إذا(!subhier){
+			subhier = sub__add_hier_entry(عدم, &db.normal_subs, topics[0], (uint16_t)topiclen);
+			إذا(!subhier){
 				mosquitto_FREE(local_sub);
 				mosquitto_FREE(topics);
-				log__printf(NULL, MOSQ_LOG_ERR, "Error: Out of memory.");
-				return MOSQ_ERR_NOMEM;
+				log__printf(عدم, MOSQ_LOG_ERR, "Error: Out of memory.");
+				أرجع MOSQ_ERR_NOMEM;
 			}
 		}
 	}
@@ -614,31 +614,31 @@ int sub__add(struct mosquitto *context, const struct mosquitto_subscription *sub
 	mosquitto_FREE(local_sub);
 	mosquitto_FREE(topics);
 
-	return rc;
+	أرجع rc;
 }
 
 
-int sub__remove(struct mosquitto *context, const char *sub, uint8_t *reason)
+صحيح sub__remove(بنية mosquitto *context, ثابت حرف *sub, uint8_t *reason)
 {
-	int rc = 0;
-	struct mosquitto__subhier *subhier;
-	const char *sharename = NULL;
-	char *local_sub = NULL;
-	char **topics = NULL;
+	صحيح rc = 0;
+	بنية mosquitto__subhier *subhier;
+	ثابت حرف *sharename = عدم;
+	حرف *local_sub = عدم;
+	حرف **topics = عدم;
 
-	assert(sub);
+	أكد(sub);
 
 	rc = sub__topic_tokenise(sub, &local_sub, &topics, &sharename);
-	if(rc){
-		return rc;
+	إذا(rc){
+		أرجع rc;
 	}
 
-	if(sharename){
+	إذا(sharename){
 		HASH_FIND(hh, db.shared_subs, topics[0], strlen(topics[0]), subhier);
-	}else{
+	}وإلا{
 		HASH_FIND(hh, db.normal_subs, topics[0], strlen(topics[0]), subhier);
 	}
-	if(subhier){
+	إذا(subhier){
 		*reason = MQTT_RC_NO_SUBSCRIPTION_EXISTED;
 		rc = sub__remove_recurse(context, subhier, topics, reason, sharename);
 	}
@@ -646,61 +646,61 @@ int sub__remove(struct mosquitto *context, const char *sub, uint8_t *reason)
 	mosquitto_FREE(local_sub);
 	mosquitto_FREE(topics);
 
-	return rc;
+	أرجع rc;
 }
 
 
-int sub__messages_queue(const char *source_id, uint8_t qos, struct mosquitto__base_msg **stored)
+صحيح sub__messages_queue(ثابت حرف *source_id, uint8_t qos, بنية mosquitto_base_پیغام **stored)
 {
-	int rc = MOSQ_ERR_SUCCESS, rc2;
-	int rc_normal = MOSQ_ERR_NO_SUBSCRIBERS, rc_shared = MOSQ_ERR_NO_SUBSCRIBERS;
-	struct mosquitto__subhier *subhier;
-	char **split_topics = NULL;
-	char *local_topic = NULL;
+	صحيح rc = MOSQ_ERR_SUCCESS, rc2;
+	صحيح rc_normal = MOSQ_ERR_NO_SUBSCRIBERS, rc_shared = MOSQ_ERR_NO_SUBSCRIBERS;
+	بنية mosquitto__subhier *subhier;
+	حرف **split_topics = عدم;
+	حرف *local_topic = عدم;
 	unsigned hashv;
 	size_t topiclen;
 	bool retain = (*stored)->data.retain;
-	const char *topic = (*stored)->data.topic;
+	ثابت حرف *topic = (*stored)->data.topic;
 
-	assert(topic);
+	أكد(topic);
 
-	if(sub__topic_tokenise(topic, &local_topic, &split_topics, NULL)){
-		return 1;
+	إذا(sub__topic_tokenise(topic, &local_topic, &split_topics, عدم)){
+		أرجع 1;
 	}
 
 	/* Protect this message until we have sent it to all
 	clients - this is required because websockets client calls
 	db__message_write(), which could remove the message if ref_count==0.
 	*/
-	db__msg_store_ref_inc(*stored);
+	db_پیغام_store_ref_inc(*stored);
 
 	topiclen = strlen(split_topics[0]);
-	HASH_VALUE(split_topics[0], topiclen, hashv);
+	HASH_قدر(split_topics[0], topiclen, hashv);
 	HASH_FIND_BYHASHVALUE(hh, db.normal_subs, split_topics[0], topiclen, hashv, subhier);
-	if(subhier){
-		rc_normal = sub__search(subhier, split_topics, source_id, topic, qos, retain, *stored);
-		if(rc_normal > 0){
+	إذا(subhier){
+		rc_normal = sub_تلاش(subhier, split_topics, source_id, topic, qos, retain, *stored);
+		إذا(rc_normal > 0){
 			rc = rc_normal;
-			goto end;
+			اذهب end;
 		}
 	}
 
 	HASH_FIND_BYHASHVALUE(hh, db.shared_subs, split_topics[0], topiclen, hashv, subhier);
-	if(subhier){
-		rc_shared = sub__search(subhier, split_topics, source_id, topic, qos, retain, *stored);
-		if(rc_shared > 0){
+	إذا(subhier){
+		rc_shared = sub_تلاش(subhier, split_topics, source_id, topic, qos, retain, *stored);
+		إذا(rc_shared > 0){
 			rc = rc_shared;
-			goto end;
+			اذهب end;
 		}
 	}
 
-	if(rc_normal == MOSQ_ERR_NO_SUBSCRIBERS && rc_shared == MOSQ_ERR_NO_SUBSCRIBERS){
+	إذا(rc_normal == MOSQ_ERR_NO_SUBSCRIBERS && rc_shared == MOSQ_ERR_NO_SUBSCRIBERS){
 		rc = MOSQ_ERR_NO_SUBSCRIBERS;
 	}
 
-	if(retain){
+	إذا(retain){
 		rc2 = retain__store(topic, *stored, split_topics, true);
-		if(rc2){
+		إذا(rc2){
 			rc = rc2;
 		}
 	}
@@ -709,116 +709,116 @@ end:
 	mosquitto_FREE(split_topics);
 	mosquitto_FREE(local_topic);
 	/* Remove our reference and free if needed. */
-	db__msg_store_ref_dec(stored);
+	db_پیغام_store_ref_dec(stored);
 
-	return rc;
+	أرجع rc;
 }
 
 
 /* Remove a subhier element, and return its parent if that needs freeing as well. */
-static struct mosquitto__subhier *tmp_remove_subs(struct mosquitto__subhier *sub)
+ساكن بنية mosquitto__subhier *tmp_remove_subs(بنية mosquitto__subhier *sub)
 {
-	struct mosquitto__subhier *parent;
+	بنية mosquitto__subhier *parent;
 
-	if(!sub || !sub->parent){
-		return NULL;
+	إذا(!sub || !sub->parent){
+		أرجع عدم;
 	}
 
-	if(sub->children || sub->subs){
-		return NULL;
+	إذا(sub->children || sub->subs){
+		أرجع عدم;
 	}
 
 	parent = sub->parent;
 	HASH_DELETE(hh, parent->children, sub);
 	mosquitto_FREE(sub);
 
-	if(parent->subs == NULL
-			&& parent->children == NULL
-			&& parent->shared == NULL
+	إذا(parent->subs == عدم
+			&& parent->children == عدم
+			&& parent->shared == عدم
 			&& parent->parent){
 
-		return parent;
-	}else{
-		return NULL;
+		أرجع parent;
+	}وإلا{
+		أرجع عدم;
 	}
 }
 
 
 /* Remove all subscriptions for a client.
  */
-int sub__clean_session(struct mosquitto *context)
+صحيح sub__clean_session(بنية mosquitto *context)
 {
-	for(int i=0; i<context->subs_capacity; i++){
-		if(context->subs[i] == NULL || context->subs[i]->hier == NULL){
-			continue;
+	لكل(صحيح i=0; i<context->subs_capacity; i++){
+		إذا(context->subs[i] == عدم || context->subs[i]->hier == عدم){
+			استمر;
 		}
 
-		struct mosquitto__subhier *hier = context->subs[i]->hier;
-		struct mosquitto__subleaf *leaf;
+		بنية mosquitto__subhier *hier = context->subs[i]->hier;
+		بنية mosquitto__subleaf *leaf;
 
 		plugin_persist__handle_subscription_delete(context, context->subs[i]->topic_filter);
-		if(context->subs[i]->shared){
+		إذا(context->subs[i]->shared){
 			leaf = context->subs[i]->shared->subs;
-			while(leaf){
-				if(leaf->context==context){
-#ifdef WITH_SYS_TREE
-					db.shared_subscription_count--;
+			طالما(leaf){
+				إذا(leaf->context==context){
+#ifdef WITH_SYS_درخت
+					db.shared_subscription_گنتی--;
 #endif
 					sub__remove_shared_leaf(context->subs[i]->hier, context->subs[i]->shared, leaf);
-					break;
+					اكسر;
 				}
 				leaf = leaf->next;
 			}
-		}else{
+		}وإلا{
 			leaf = hier->subs;
-			while(leaf){
-				if(leaf->context==context){
-#ifdef WITH_SYS_TREE
-					db.subscription_count--;
+			طالما(leaf){
+				إذا(leaf->context==context){
+#ifdef WITH_SYS_درخت
+					db.subscription_گنتی--;
 #endif
 					DL_DELETE(hier->subs, leaf);
-					break;
+					اكسر;
 				}
 				leaf = leaf->next;
 			}
 		}
 		mosquitto_FREE(context->subs[i]);
 
-		if(hier->subs == NULL
-				&& hier->children == NULL
-				&& hier->shared == NULL
+		إذا(hier->subs == عدم
+				&& hier->children == عدم
+				&& hier->shared == عدم
 				&& hier->parent){
 
-			do{
+			افعل{
 				hier = tmp_remove_subs(hier);
-			}while(hier);
+			}طالما(hier);
 		}
 	}
 	mosquitto_FREE(context->subs);
 	context->subs_capacity = 0;
-	context->subs_count = 0;
+	context->subs_گنتی = 0;
 
-	return MOSQ_ERR_SUCCESS;
+	أرجع MOSQ_ERR_SUCCESS;
 }
 
 
-void sub__tree_print(struct mosquitto__subhier *root, int level)
+فراغ sub_درخت_print(بنية mosquitto__subhier *جڑ, صحيح level)
 {
-	int i;
-	struct mosquitto__subhier *branch, *branch_tmp;
-	struct mosquitto__subleaf *leaf;
+	صحيح i;
+	بنية mosquitto__subhier *branch, *branch_tmp;
+	بنية mosquitto__subleaf *leaf;
 
-	HASH_ITER(hh, root, branch, branch_tmp){
-		if(level > -1){
-			for(i=0; i<(level+2)*2; i++){
+	HASH_ITER(hh, جڑ, branch, branch_tmp){
+		إذا(level > -1){
+			لكل(i=0; i<(level+2)*2; i++){
 				printf(" ");
 			}
 			printf("%s", branch->topic);
 			leaf = branch->subs;
-			while(leaf){
-				if(leaf->context){
+			طالما(leaf){
+				إذا(leaf->context){
 					printf(" (%s, %d)", leaf->context->id, MQTT_SUB_OPT_GET_QOS(leaf->subscription_options));
-				}else{
+				}وإلا{
 					printf(" (%s, %d)", "", MQTT_SUB_OPT_GET_QOS(leaf->subscription_options));
 				}
 				leaf = leaf->next;
@@ -826,23 +826,23 @@ void sub__tree_print(struct mosquitto__subhier *root, int level)
 			printf("\n");
 		}
 
-		sub__tree_print(branch->children, level+1);
+		sub_درخت_print(branch->children, level+1);
 	}
 }
 
 
-int sub__init(void)
+صحيح sub__init(فراغ)
 {
-	HASH_VALUE("+", 1, hashv_plus);
-	HASH_VALUE("#", 1, hashv_hash);
+	HASH_قدر("+", 1, hashv_plus);
+	HASH_قدر("#", 1, hashv_hash);
 
-	if(sub__add_hier_entry(NULL, &db.shared_subs, "", 0) == NULL
-			|| sub__add_hier_entry(NULL, &db.normal_subs, "", 0) == NULL
-			|| sub__add_hier_entry(NULL, &db.normal_subs, "$SYS", (uint16_t)strlen("$SYS")) == NULL
+	إذا(sub__add_hier_entry(عدم, &db.shared_subs, "", 0) == عدم
+			|| sub__add_hier_entry(عدم, &db.normal_subs, "", 0) == عدم
+			|| sub__add_hier_entry(عدم, &db.normal_subs, "$SYS", (uint16_t)strlen("$SYS")) == عدم
 			){
 
-		return MOSQ_ERR_NOMEM;
-	}else{
-		return MOSQ_ERR_SUCCESS;
+		أرجع MOSQ_ERR_NOMEM;
+	}وإلا{
+		أرجع MOSQ_ERR_SUCCESS;
 	}
 }
