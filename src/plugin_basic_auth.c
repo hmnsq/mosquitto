@@ -16,99 +16,99 @@ Contributors:
    Roger Light - initial implementation and documentation.
 */
 
-#include "config.h"
+#অন্তর্ভাৱ "config.h"
 
-#include <stdio.h>
-#include <string.h>
+#অন্তর্ভাৱ <stdio.h>
+#অন্তর্ভাৱ <string.h>
 
-#include "mosquitto/broker.h"
-#include "mosquitto_broker_internal.h"
-#include "mosquitto/broker_plugin.h"
-#include "lib_load.h"
-#include "utlist.h"
+#অন্তর্ভাৱ "mosquitto/broker.h"
+#অন্তর্ভাৱ "mosquitto_broker_internal.h"
+#অন্তর্ভাৱ "mosquitto/broker_plugin.h"
+#অন্তর্ভাৱ "lib_load.h"
+#অন্তর্ভাৱ "utlist.h"
 
 
-static int plugin__basic_auth(struct mosquitto__security_options *opts, struct mosquitto *context)
+স্থির পূর্ণাঙ্ক plugin__basic_auth(সংরচনা mosquitto__security_options *opts, সংরচনা mosquitto *context)
 {
-	struct mosquitto_evt_basic_auth event_data;
-	struct mosquitto__callback *cb_base, *cb_next;
-	int rc;
-	int rc_final = MOSQ_ERR_PLUGIN_IGNORE;
+	সংরচনা mosquitto_evt_basic_auth event_data;
+	সংরচনা mosquitto__callback *cb_base, *cb_next;
+	পূর্ণাঙ্ক rc;
+	পূর্ণাঙ্ক rc_final = MOSQ_ERR_PLUGIN_IGNORE;
 
 	DL_FOREACH_SAFE(opts->plugin_callbacks.basic_auth, cb_base, cb_next){
-		memset(&event_data, 0, sizeof(event_data));
+		memset(&event_data, 0, পরিমাণ(event_data));
 		event_data.client = context;
 		event_data.username = context->username;
 		event_data.password = context->password;
 		event_data.password_len = context->password_len;
 		rc = cb_base->cb(MOSQ_EVT_BASIC_AUTH, &event_data, cb_base->userdata);
-		if(rc == MOSQ_ERR_PLUGIN_IGNORE){
+		যদি(rc == MOSQ_ERR_PLUGIN_IGNORE){
 			/* Do nothing, this is as if the plugin doesn't exist */
-		}else if(rc == MOSQ_ERR_PLUGIN_DEFER){
+		}অন্যথা যদি(rc == MOSQ_ERR_PLUGIN_DEFER){
 			rc_final = MOSQ_ERR_PLUGIN_DEFER;
-		}else{
-			return rc;
+		}অন্যথা{
+			ঘূৰাই rc;
 		}
 	}
-	return rc_final;
+	ঘূৰাই rc_final;
 }
 
 
-int mosquitto_basic_auth(struct mosquitto *context)
+পূর্ণাঙ্ক mosquitto_basic_auth(সংরচনা mosquitto *context)
 {
-	int rc;
+	পূর্ণাঙ্ক rc;
 	bool plugin_used = false;
 
 	/* Global plugins */
-	if(db.config->security_options.plugin_callbacks.basic_auth){
+	যদি(db.config->security_options.plugin_callbacks.basic_auth){
 		rc = plugin__basic_auth(&db.config->security_options, context);
 
-		if(rc == MOSQ_ERR_PLUGIN_IGNORE){
+		যদি(rc == MOSQ_ERR_PLUGIN_IGNORE){
 			/* Do nothing */
-		}else if(rc == MOSQ_ERR_PLUGIN_DEFER){
+		}অন্যথা যদি(rc == MOSQ_ERR_PLUGIN_DEFER){
 			plugin_used = true;
-		}else{
-			return rc;
+		}অন্যথা{
+			ঘূৰাই rc;
 		}
 	}
 
-	if(context->listener && context->listener->security_options->plugin_callbacks.basic_auth){
+	যদি(context->listener && context->listener->security_options->plugin_callbacks.basic_auth){
 		rc = plugin__basic_auth(context->listener->security_options, context);
 
-		if(rc == MOSQ_ERR_PLUGIN_IGNORE){
+		যদি(rc == MOSQ_ERR_PLUGIN_IGNORE){
 			/* Do nothing */
-		}else if(rc == MOSQ_ERR_PLUGIN_DEFER){
+		}অন্যথা যদি(rc == MOSQ_ERR_PLUGIN_DEFER){
 			plugin_used = true;
-		}else{
-			return rc;
+		}অন্যথা{
+			ঘূৰাই rc;
 		}
 	}
 
 	/* If all plugins deferred, this is a denial. plugin_used == false
 	 * here, then no plugins were configured.
 	 * anonymous logins are allowed. */
-	if(plugin_used == false){
-		if((context->listener && context->listener->security_options->allow_anonymous == true)
+	যদি(plugin_used == false){
+		যদি((context->listener && context->listener->security_options->allow_anonymous == true)
 				|| (!db.config->per_listener_settings && db.config->security_options.allow_anonymous == true
 				&& context->listener && context->listener->security_options->allow_anonymous != false)){
 
-			return MOSQ_ERR_SUCCESS;
-		}else{
-			return MOSQ_ERR_AUTH;
+			ঘূৰাই MOSQ_ERR_SUCCESS;
+		}অন্যথা{
+			ঘূৰাই MOSQ_ERR_AUTH;
 		}
-	}else{
+	}অন্যথা{
 		/* Can't have got here without at least one plugin returning MOSQ_ERR_PLUGIN_DEFER.
 		 * This will now be a denial, unless it is anon and allow anon is true. */
-		if(context->username == NULL &&
+		যদি(context->username == রিক্ত &&
 				((context->listener && context->listener->security_options->allow_anonymous == true)
 				|| (!db.config->per_listener_settings && db.config->security_options.allow_anonymous == true
 				&& context->listener && context->listener->security_options->allow_anonymous != false))){
 
-			return MOSQ_ERR_SUCCESS;
-		}else{
-			return MOSQ_ERR_AUTH;
+			ঘূৰাই MOSQ_ERR_SUCCESS;
+		}অন্যথা{
+			ঘূৰাই MOSQ_ERR_AUTH;
 		}
 	}
 
-	return rc;
+	ঘূৰাই rc;
 }

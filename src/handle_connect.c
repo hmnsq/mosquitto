@@ -16,95 +16,95 @@ Contributors:
    Roger Light - initial implementation and documentation.
 */
 
-#include "config.h"
+#অন্তর্ভাৱ "config.h"
 
-#include <stdio.h>
-#include <string.h>
-#include <utlist.h>
+#অন্তর্ভাৱ <stdio.h>
+#অন্তর্ভাৱ <string.h>
+#অন্তর্ভাৱ <utlist.h>
 
-#include "mosquitto_broker_internal.h"
-#include "mosquitto/mqtt_protocol.h"
-#include "packet_mosq.h"
-#include "property_mosq.h"
-#include "send_mosq.h"
-#include "sys_tree.h"
-#include "tls_mosq.h"
-#include "util_mosq.h"
-#include "will_mosq.h"
+#অন্তর্ভাৱ "mosquitto_broker_internal.h"
+#অন্তর্ভাৱ "mosquitto/mqtt_protocol.h"
+#অন্তর্ভাৱ "packet_mosq.h"
+#অন্তর্ভাৱ "property_mosq.h"
+#অন্তর্ভাৱ "send_mosq.h"
+#অন্তর্ভাৱ "sys_tree.h"
+#অন্তর্ভাৱ "tls_mosq.h"
+#অন্তর্ভাৱ "util_mosq.h"
+#অন্তর্ভাৱ "will_mosq.h"
 
-#if defined(WITH_WEBSOCKETS) && WITH_WEBSOCKETS == WS_IS_LWS
+#যদি defined(WITH_WEBSOCKETS) && WITH_WEBSOCKETS == WS_IS_LWS
 #  include <libwebsockets.h>
 #endif
 
 
-static char nibble_to_hex(uint8_t value)
+স্থির ৱর্ণ nibble_to_hex(uint8_t মান)
 {
-	if(value < 0x0A){
-		return (char)('0'+value);
-	}else{
-		return (char)(65 /*'A'*/ +value-10);
+	যদি(মান < 0x0A){
+		ঘূৰাই (ৱর্ণ)('0'+মান);
+	}অন্যথা{
+		ঘূৰাই (ৱর্ণ)(65 /*'A'*/ +মান-10);
 	}
 }
 
 
-static char *clientid_gen(uint16_t *idlen, const char *auto_id_prefix, uint16_t auto_id_prefix_len)
+স্থির ৱর্ণ *clientid_gen(uint16_t *idlen, ধ্রুৱ ৱর্ণ *auto_id_prefix, uint16_t auto_id_prefix_len)
 {
-	char *clientid;
+	ৱর্ণ *clientid;
 	uint8_t rnd[16];
-	int pos;
+	পূর্ণাঙ্ক pos;
 
-	if(mosquitto_getrandom(rnd, 16)){
-		return NULL;
+	যদি(mosquitto_getrandom(rnd, 16)){
+		ঘূৰাই রিক্ত;
 	}
 
 	*idlen = (uint16_t)(auto_id_prefix_len + 36);
 
-	clientid = (char *)mosquitto_calloc((size_t)(*idlen) + 1, sizeof(char));
-	if(!clientid){
-		return NULL;
+	clientid = (ৱর্ণ *)mosquitto_calloc((size_t)(*idlen) + 1, পরিমাণ(ৱর্ণ));
+	যদি(!clientid){
+		ঘূৰাই রিক্ত;
 	}
-	if(auto_id_prefix){
+	যদি(auto_id_prefix){
 		memcpy(clientid, auto_id_prefix, auto_id_prefix_len);
 	}
 
 	pos = 0;
-	for(int i=0; i<16; i++){
+	বাবে(পূর্ণাঙ্ক i=0; i<16; i++){
 		clientid[auto_id_prefix_len + pos + 0] = nibble_to_hex(rnd[i] & 0x0F);
 		clientid[auto_id_prefix_len + pos + 1] = nibble_to_hex((rnd[i] >> 4) & 0x0F);
 		pos += 2;
-		if(pos == 8 || pos == 13 || pos == 18 || pos == 23){
+		যদি(pos == 8 || pos == 13 || pos == 18 || pos == 23){
 			clientid[auto_id_prefix_len + pos] = '-';
 			pos++;
 		}
 	}
 
-	return clientid;
+	ঘূৰাই clientid;
 }
 
 
-int connect__on_authorised(struct mosquitto *context, void *auth_data_out, uint16_t auth_data_out_len)
+পূর্ণাঙ্ক connect__on_authorised(সংরচনা mosquitto *context, শূন্য *auth_data_out, uint16_t auth_data_out_len)
 {
-	struct mosquitto *found_context;
-	struct mosquitto__subleaf *leaf;
-	mosquitto_property *connack_props = NULL;
+	সংরচনা mosquitto *found_context;
+	সংরচনা mosquitto__subleaf *leaf;
+	mosquitto_property *connack_props = রিক্ত;
 	uint8_t connect_ack = 0;
-	int rc;
-	int in_quota, out_quota;
+	পূর্ণাঙ্ক rc;
+	পূর্ণাঙ্ক in_quota, out_quota;
 	uint16_t in_maximum, out_maximum;
 
 	/* Find if this client already has an entry. This must be done *after* any security checks. */
 	HASH_FIND(hh_id, db.contexts_by_id, context->id, strlen(context->id), found_context);
-	if(found_context){
+	যদি(found_context){
 		/* Found a matching client */
-		if(!net__is_connected(found_context)){
+		যদি(!net__is_connected(found_context)){
 			/* Client is reconnecting after a disconnect */
 			/* FIXME - does anything need to be done here? */
-		}else{
+		}অন্যথা{
 			/* Client is already connected, disconnect old version. This is
 			 * done in context__cleanup() below. */
 		}
 
-		if(context->clean_start == true){
+		যদি(context->clean_start == true){
 			sub__clean_session(found_context);
 			found_context->session_expiry_interval = MQTT_SESSION_EXPIRY_IMMEDIATE;
 			plugin_persist__handle_client_delete(found_context);
@@ -112,12 +112,12 @@ int connect__on_authorised(struct mosquitto *context, void *auth_data_out, uint1
 		context->is_persisted = found_context->is_persisted;
 		found_context->is_persisted = false; /* stops persistence for context being removed */
 
-		if(context->clean_start == false && found_context->session_expiry_interval != MQTT_SESSION_EXPIRY_IMMEDIATE){
-			if(context->protocol == mosq_p_mqtt311 || context->protocol == mosq_p_mqtt5){
+		যদি(context->clean_start == false && found_context->session_expiry_interval != MQTT_SESSION_EXPIRY_IMMEDIATE){
+			যদি(context->protocol == mosq_p_mqtt311 || context->protocol == mosq_p_mqtt5){
 				connect_ack |= 0x01;
 			}
 
-			if(found_context->msgs_in.inflight || found_context->msgs_in.queued
+			যদি(found_context->msgs_in.inflight || found_context->msgs_in.queued
 					|| found_context->msgs_out.inflight || found_context->msgs_out.queued){
 
 				in_quota = context->msgs_in.inflight_quota;
@@ -125,12 +125,12 @@ int connect__on_authorised(struct mosquitto *context, void *auth_data_out, uint1
 				in_maximum = context->msgs_in.inflight_maximum;
 				out_maximum = context->msgs_out.inflight_maximum;
 
-				memcpy(&context->msgs_in, &found_context->msgs_in, sizeof(struct mosquitto_msg_data));
-				memcpy(&context->msgs_out, &found_context->msgs_out, sizeof(struct mosquitto_msg_data));
+				memcpy(&context->msgs_in, &found_context->msgs_in, পরিমাণ(সংরচনা mosquitto_বাৰ্তা_data));
+				memcpy(&context->msgs_out, &found_context->msgs_out, পরিমাণ(সংরচনা mosquitto_বাৰ্তা_data));
 				context->last_cmsg_id = found_context->last_cmsg_id;
 
-				memset(&found_context->msgs_in, 0, sizeof(struct mosquitto_msg_data));
-				memset(&found_context->msgs_out, 0, sizeof(struct mosquitto_msg_data));
+				memset(&found_context->msgs_in, 0, পরিমাণ(সংরচনা mosquitto_বাৰ্তা_data));
+				memset(&found_context->msgs_out, 0, পরিমাণ(সংরচনা mosquitto_বাৰ্তা_data));
 
 				context->msgs_in.inflight_quota = in_quota;
 				context->msgs_out.inflight_quota = out_quota;
@@ -140,27 +140,27 @@ int connect__on_authorised(struct mosquitto *context, void *auth_data_out, uint1
 				db__message_reconnect_reset(context);
 			}
 			context->subs = found_context->subs;
-			found_context->subs = NULL;
+			found_context->subs = রিক্ত;
 			context->subs_capacity = found_context->subs_capacity;
-			context->subs_count = found_context->subs_count;
+			context->subs_গুনতি = found_context->subs_গুনতি;
 			found_context->subs_capacity = 0;
-			found_context->subs_count = 0;
+			found_context->subs_গুনতি = 0;
 			context->last_mid = found_context->last_mid;
 
-			for(int i=0; i<context->subs_capacity; i++){
-				if(context->subs[i]){
+			বাবে(পূর্ণাঙ্ক i=0; i<context->subs_capacity; i++){
+				যদি(context->subs[i]){
 					leaf = context->subs[i]->hier->subs;
-					while(leaf){
-						if(leaf->context == found_context){
+					যেতিয়ালৈ(leaf){
+						যদি(leaf->context == found_context){
 							leaf->context = context;
 						}
 						leaf = leaf->next;
 					}
 
-					if(context->subs[i]->shared){
+					যদি(context->subs[i]->shared){
 						leaf = context->subs[i]->shared->subs;
-						while(leaf){
-							if(leaf->context == found_context){
+						যেতিয়ালৈ(leaf){
+							যদি(leaf->context == found_context){
 								leaf->context = context;
 							}
 							leaf = leaf->next;
@@ -170,7 +170,7 @@ int connect__on_authorised(struct mosquitto *context, void *auth_data_out, uint1
 			}
 		}
 
-		if((found_context->protocol == mosq_p_mqtt5 && found_context->session_expiry_interval == MQTT_SESSION_EXPIRY_IMMEDIATE)
+		যদি((found_context->protocol == mosq_p_mqtt5 && found_context->session_expiry_interval == MQTT_SESSION_EXPIRY_IMMEDIATE)
 				|| (found_context->protocol != mosq_p_mqtt5 && found_context->clean_start == true)
 				|| (context->clean_start == true)
 				){
@@ -185,53 +185,53 @@ int connect__on_authorised(struct mosquitto *context, void *auth_data_out, uint1
 		found_context->clean_start = true;
 		found_context->session_expiry_interval = MQTT_SESSION_EXPIRY_IMMEDIATE;
 		mosquitto__set_state(found_context, mosq_cs_duplicate);
-		if(found_context->protocol == mosq_p_mqtt5){
-			send__disconnect(found_context, MQTT_RC_SESSION_TAKEN_OVER, NULL);
+		যদি(found_context->protocol == mosq_p_mqtt5){
+			send__disconnect(found_context, MQTT_RC_SESSION_TAKEN_OVER, রিক্ত);
 		}
 		do_disconnect(found_context, MOSQ_ERR_SESSION_TAKEN_OVER);
 	}
 
-	if(db.config->global_max_clients > 0 && HASH_CNT(hh_id, db.contexts_by_id) >= (unsigned int)db.config->global_max_clients){
-		if(context->protocol == mosq_p_mqtt5){
-			send__connack(context, 0, MQTT_RC_SERVER_BUSY, NULL);
+	যদি(db.config->global_max_clients > 0 && HASH_CNT(hh_id, db.contexts_by_id) >= (unsigned পূর্ণাঙ্ক)db.config->global_max_clients){
+		যদি(context->protocol == mosq_p_mqtt5){
+			send__connack(context, 0, MQTT_RC_SERVER_BUSY, রিক্ত);
 		}
 		rc = MOSQ_ERR_INVAL;
-		goto error;
+		গচ্ছ error;
 	}
 
-	if(db.config->connection_messages == true){
-		if(context->is_bridge){
-			if(context->username){
-				log__printf(NULL, MOSQ_LOG_NOTICE, "New bridge connected from %s:%d as %s (p%d, c%d, k%d, u'%s').",
+	যদি(db.config->connection_messages == true){
+		যদি(context->is_bridge){
+			যদি(context->username){
+				log__printf(রিক্ত, MOSQ_LOG_NOTICE, "New bridge connected from %s:%d as %s (p%d, c%d, k%d, u'%s').",
 						context->address, context->remote_port, context->id, context->protocol, context->clean_start, context->keepalive, context->username);
-			}else{
-				log__printf(NULL, MOSQ_LOG_NOTICE, "New bridge connected from %s:%d as %s (p%d, c%d, k%d).",
+			}অন্যথা{
+				log__printf(রিক্ত, MOSQ_LOG_NOTICE, "New bridge connected from %s:%d as %s (p%d, c%d, k%d).",
 						context->address, context->remote_port, context->id, context->protocol, context->clean_start, context->keepalive);
 			}
-		}else{
-			if(context->username){
-				log__printf(NULL, MOSQ_LOG_NOTICE, "New client connected from %s:%d as %s (p%d, c%d, k%d, u'%s').",
+		}অন্যথা{
+			যদি(context->username){
+				log__printf(রিক্ত, MOSQ_LOG_NOTICE, "New client connected from %s:%d as %s (p%d, c%d, k%d, u'%s').",
 						context->address, context->remote_port, context->id, context->protocol, context->clean_start, context->keepalive, context->username);
-			}else{
-				log__printf(NULL, MOSQ_LOG_NOTICE, "New client connected from %s:%d as %s (p%d, c%d, k%d).",
+			}অন্যথা{
+				log__printf(রিক্ত, MOSQ_LOG_NOTICE, "New client connected from %s:%d as %s (p%d, c%d, k%d).",
 						context->address, context->remote_port, context->id, context->protocol, context->clean_start, context->keepalive);
 			}
 		}
 
-		if(context->will){
-			log__printf(NULL, MOSQ_LOG_DEBUG, "Will message specified (%ld bytes) (r%d, q%d).",
-					(long)context->will->msg.payloadlen,
-					context->will->msg.retain,
-					context->will->msg.qos);
+		যদি(context->will){
+			log__printf(রিক্ত, MOSQ_LOG_DEBUG, "Will message specified (%ld bytes) (r%d, q%d).",
+					(long)context->will->বাৰ্তা.payloadlen,
+					context->will->বাৰ্তা.retain,
+					context->will->বাৰ্তা.qos);
 
-			log__printf(NULL, MOSQ_LOG_DEBUG, "\t%s", context->will->msg.topic);
-		}else{
-			log__printf(NULL, MOSQ_LOG_DEBUG, "No will message specified.");
+			log__printf(রিক্ত, MOSQ_LOG_DEBUG, "\t%s", context->will->বাৰ্তা.topic);
+		}অন্যথা{
+			log__printf(রিক্ত, MOSQ_LOG_DEBUG, "No will message specified.");
 		}
 	}
 #ifdef WITH_TLS
-	if(context->ssl){
-		log__printf(NULL, MOSQ_LOG_NOTICE, "Client %s negotiated %s cipher %s",
+	যদি(context->ssl){
+		log__printf(রিক্ত, MOSQ_LOG_NOTICE, "Client %s negotiated %s cipher %s",
 				context->id,
 				SSL_get_cipher_version(context->ssl),
 				SSL_get_cipher_name(context->ssl));
@@ -247,54 +247,54 @@ int connect__on_authorised(struct mosquitto *context, void *auth_data_out, uint1
 	context__add_to_by_id(context);
 
 #ifdef WITH_PERSISTENCE
-	if(!context->clean_start){
+	যদি(!context->clean_start){
 		db.persistence_changes++;
 	}
 #endif
 	context->max_qos = context->listener->max_qos;
 
-	if(db.config->max_keepalive &&
+	যদি(db.config->max_keepalive &&
 			(context->keepalive > db.config->max_keepalive || context->keepalive == 0)){
 
 		keepalive__remove(context);
 		context->keepalive = db.config->max_keepalive;
 		keepalive__add(context);
-		if(context->protocol == mosq_p_mqtt5){
-			if(mosquitto_property_add_int16(&connack_props, MQTT_PROP_SERVER_KEEP_ALIVE, context->keepalive)){
+		যদি(context->protocol == mosq_p_mqtt5){
+			যদি(mosquitto_property_add_int16(&connack_props, MQTT_PROP_SERVER_KEEP_ALIVE, context->keepalive)){
 				rc = MOSQ_ERR_NOMEM;
-				goto error;
+				গচ্ছ error;
 			}
-		}else{
-			send__connack(context, connect_ack, CONNACK_REFUSED_IDENTIFIER_REJECTED, NULL);
+		}অন্যথা{
+			send__connack(context, connect_ack, CONNACK_REFUSED_IDENTIFIER_REJECTED, রিক্ত);
 			rc = MOSQ_ERR_INVAL;
-			goto error;
+			গচ্ছ error;
 		}
 	}
 
 
-	if(context->protocol == mosq_p_mqtt5){
-		if(context->listener->max_topic_alias > 0){
-			if(mosquitto_property_add_int16(&connack_props, MQTT_PROP_TOPIC_ALIAS_MAXIMUM, context->listener->max_topic_alias)){
+	যদি(context->protocol == mosq_p_mqtt5){
+		যদি(context->listener->max_topic_alias > 0){
+			যদি(mosquitto_property_add_int16(&connack_props, MQTT_PROP_TOPIC_ALIAS_MAXIMUM, context->listener->max_topic_alias)){
 				rc = MOSQ_ERR_NOMEM;
-				goto error;
+				গচ্ছ error;
 			}
 		}
-		if(context->assigned_id){
-			if(mosquitto_property_add_string(&connack_props, MQTT_PROP_ASSIGNED_CLIENT_IDENTIFIER, context->id)){
+		যদি(context->assigned_id){
+			যদি(mosquitto_property_add_string(&connack_props, MQTT_PROP_ASSIGNED_CLIENT_IDENTIFIER, context->id)){
 				rc = MOSQ_ERR_NOMEM;
-				goto error;
+				গচ্ছ error;
 			}
 		}
-		if(context->auth_method){
-			if(mosquitto_property_add_string(&connack_props, MQTT_PROP_AUTHENTICATION_METHOD, context->auth_method)){
+		যদি(context->auth_method){
+			যদি(mosquitto_property_add_string(&connack_props, MQTT_PROP_AUTHENTICATION_METHOD, context->auth_method)){
 				rc = MOSQ_ERR_NOMEM;
-				goto error;
+				গচ্ছ error;
 			}
 
-			if(auth_data_out && auth_data_out_len > 0){
-				if(mosquitto_property_add_binary(&connack_props, MQTT_PROP_AUTHENTICATION_DATA, auth_data_out, auth_data_out_len)){
+			যদি(auth_data_out && auth_data_out_len > 0){
+				যদি(mosquitto_property_add_দ্বিমিক(&connack_props, MQTT_PROP_AUTHENTICATION_DATA, auth_data_out, auth_data_out_len)){
 					rc = MOSQ_ERR_NOMEM;
-					goto error;
+					গচ্ছ error;
 				}
 			}
 		}
@@ -304,175 +304,175 @@ int connect__on_authorised(struct mosquitto *context, void *auth_data_out, uint1
 	mosquitto__set_state(context, mosq_cs_active);
 	rc = send__connack(context, connect_ack, CONNACK_ACCEPTED, connack_props);
 	mosquitto_property_free_all(&connack_props);
-	if(rc){
-		return rc;
+	যদি(rc){
+		ঘূৰাই rc;
 	}
 	db__expire_all_messages(context);
 	rc = db__message_write_queued_out(context);
-	if(rc){
-		return rc;
+	যদি(rc){
+		ঘূৰাই rc;
 	}
 	rc = db__message_write_inflight_out_all(context);
 
-	if(rc == MOSQ_ERR_SUCCESS){
+	যদি(rc == MOSQ_ERR_SUCCESS){
 		plugin__handle_connect(context);
 
-		if(context->session_expiry_interval != MQTT_SESSION_EXPIRY_IMMEDIATE){
+		যদি(context->session_expiry_interval != MQTT_SESSION_EXPIRY_IMMEDIATE){
 			plugin_persist__handle_client_add(context);
-		}else if(context->will){
+		}অন্যথা যদি(context->will){
 			plugin_persist__handle_will_add(context);
 		}
 	}
-	return rc;
+	ঘূৰাই rc;
 error:
 	SAFE_FREE(auth_data_out);
 	mosquitto_property_free_all(&connack_props);
-	return rc;
+	ঘূৰাই rc;
 }
 
 
-static int will__read(struct mosquitto *context, const char *clientid, struct mosquitto_message_all **will, uint8_t will_qos, int will_retain)
+স্থির পূর্ণাঙ্ক will__read(সংরচনা mosquitto *context, ধ্রুৱ ৱর্ণ *clientid, সংরচনা mosquitto_message_all **will, uint8_t will_qos, পূর্ণাঙ্ক will_retain)
 {
-	int rc = MOSQ_ERR_SUCCESS;
+	পূর্ণাঙ্ক rc = MOSQ_ERR_SUCCESS;
 	size_t slen;
 	uint16_t tlen;
-	struct mosquitto_message_all *will_struct = NULL;
-	char *will_topic_mount = NULL;
+	সংরচনা mosquitto_message_all *will_struct = রিক্ত;
+	ৱর্ণ *will_topic_mount = রিক্ত;
 	uint16_t payloadlen;
-	mosquitto_property *properties = NULL;
+	mosquitto_property *properties = রিক্ত;
 
-	will_struct = mosquitto_calloc(1, sizeof(struct mosquitto_message_all));
-	if(!will_struct){
+	will_struct = mosquitto_calloc(1, পরিমাণ(সংরচনা mosquitto_message_all));
+	যদি(!will_struct){
 		rc = MOSQ_ERR_NOMEM;
-		goto error_cleanup;
+		গচ্ছ error_cleanup;
 	}
-	if(context->protocol == PROTOCOL_VERSION_v5){
+	যদি(context->protocol == PROTOCOL_VERSION_v5){
 		rc = property__read_all(CMD_WILL, &context->in_packet, &properties);
-		if(rc){
-			goto error_cleanup;
+		যদি(rc){
+			গচ্ছ error_cleanup;
 		}
 
 		rc = property__process_will(context, will_struct, &properties);
 		mosquitto_property_free_all(&properties);
-		if(rc){
-			goto error_cleanup;
+		যদি(rc){
+			গচ্ছ error_cleanup;
 		}
 	}
-	rc = packet__read_string(&context->in_packet, &will_struct->msg.topic, &tlen);
-	if(rc){
-		goto error_cleanup;
+	rc = packet__read_string(&context->in_packet, &will_struct->বাৰ্তা.topic, &tlen);
+	যদি(rc){
+		গচ্ছ error_cleanup;
 	}
-	if(!tlen){
-		log__printf(NULL, MOSQ_LOG_INFO, "Protocol error from %s: Will with empty topic.",
+	যদি(!tlen){
+		log__printf(রিক্ত, MOSQ_LOG_INFO, "Protocol error from %s: Will with empty topic.",
 				context->id);
 		rc = MOSQ_ERR_PROTOCOL;
-		goto error_cleanup;
+		গচ্ছ error_cleanup;
 	}
 
-	if(context->listener->mount_point){
-		slen = strlen(context->listener->mount_point) + strlen(will_struct->msg.topic) + 1;
+	যদি(context->listener->mount_point){
+		slen = strlen(context->listener->mount_point) + strlen(will_struct->বাৰ্তা.topic) + 1;
 		will_topic_mount = mosquitto_malloc(slen+1);
-		if(!will_topic_mount){
+		যদি(!will_topic_mount){
 			rc = MOSQ_ERR_NOMEM;
-			goto error_cleanup;
+			গচ্ছ error_cleanup;
 		}
 
-		snprintf(will_topic_mount, slen, "%s%s", context->listener->mount_point, will_struct->msg.topic);
+		snprintf(will_topic_mount, slen, "%s%s", context->listener->mount_point, will_struct->বাৰ্তা.topic);
 		will_topic_mount[slen] = '\0';
 
-		mosquitto_FREE(will_struct->msg.topic);
-		will_struct->msg.topic = will_topic_mount;
+		mosquitto_FREE(will_struct->বাৰ্তা.topic);
+		will_struct->বাৰ্তা.topic = will_topic_mount;
 	}
 
-	if(!strncmp(will_struct->msg.topic, "$CONTROL/", strlen("$CONTROL/"))){
+	যদি(!strncmp(will_struct->বাৰ্তা.topic, "$CONTROL/", strlen("$CONTROL/"))){
 		rc = MOSQ_ERR_ACL_DENIED;
-		goto error_cleanup;
+		গচ্ছ error_cleanup;
 	}
-	rc = mosquitto_pub_topic_check(will_struct->msg.topic);
-	if(rc){
-		goto error_cleanup;
+	rc = mosquitto_pub_topic_check(will_struct->বাৰ্তা.topic);
+	যদি(rc){
+		গচ্ছ error_cleanup;
 	}
 
 	rc = packet__read_uint16(&context->in_packet, &payloadlen);
-	if(rc){
-		goto error_cleanup;
+	যদি(rc){
+		গচ্ছ error_cleanup;
 	}
 
-	will_struct->msg.payloadlen = payloadlen;
-	if(will_struct->msg.payloadlen > 0){
-		if(db.config->message_size_limit && will_struct->msg.payloadlen > (int)db.config->message_size_limit){
-			log__printf(NULL, MOSQ_LOG_DEBUG, "Client %s connected with too large Will payload", clientid);
-			if(context->protocol == mosq_p_mqtt5){
-				send__connack(context, 0, MQTT_RC_PACKET_TOO_LARGE, NULL);
-			}else{
-				send__connack(context, 0, CONNACK_REFUSED_NOT_AUTHORIZED, NULL);
+	will_struct->বাৰ্তা.payloadlen = payloadlen;
+	যদি(will_struct->বাৰ্তা.payloadlen > 0){
+		যদি(db.config->message_size_limit && will_struct->বাৰ্তা.payloadlen > (পূর্ণাঙ্ক)db.config->message_size_limit){
+			log__printf(রিক্ত, MOSQ_LOG_DEBUG, "Client %s connected with too large Will payload", clientid);
+			যদি(context->protocol == mosq_p_mqtt5){
+				send__connack(context, 0, MQTT_RC_PACKET_TOO_LARGE, রিক্ত);
+			}অন্যথা{
+				send__connack(context, 0, CONNACK_REFUSED_NOT_AUTHORIZED, রিক্ত);
 			}
 			rc = MOSQ_ERR_PAYLOAD_SIZE;
-			goto error_cleanup;
+			গচ্ছ error_cleanup;
 		}
-		will_struct->msg.payload = mosquitto_malloc((size_t)will_struct->msg.payloadlen);
-		if(!will_struct->msg.payload){
+		will_struct->বাৰ্তা.payload = mosquitto_malloc((size_t)will_struct->বাৰ্তা.payloadlen);
+		যদি(!will_struct->বাৰ্তা.payload){
 			rc = MOSQ_ERR_NOMEM;
-			goto error_cleanup;
+			গচ্ছ error_cleanup;
 		}
 
-		rc = packet__read_bytes(&context->in_packet, will_struct->msg.payload, (uint32_t)will_struct->msg.payloadlen);
-		if(rc){
-			goto error_cleanup;
+		rc = packet__read_bytes(&context->in_packet, will_struct->বাৰ্তা.payload, (uint32_t)will_struct->বাৰ্তা.payloadlen);
+		যদি(rc){
+			গচ্ছ error_cleanup;
 		}
 	}
 
-	will_struct->msg.qos = will_qos;
-	will_struct->msg.retain = will_retain;
+	will_struct->বাৰ্তা.qos = will_qos;
+	will_struct->বাৰ্তা.retain = will_retain;
 
 	*will = will_struct;
-	return MOSQ_ERR_SUCCESS;
+	ঘূৰাই MOSQ_ERR_SUCCESS;
 
 error_cleanup:
-	if(will_struct){
-		mosquitto_FREE(will_struct->msg.topic);
-		mosquitto_FREE(will_struct->msg.payload);
+	যদি(will_struct){
+		mosquitto_FREE(will_struct->বাৰ্তা.topic);
+		mosquitto_FREE(will_struct->বাৰ্তা.payload);
 		mosquitto_property_free_all(&will_struct->properties);
 		mosquitto_FREE(will_struct);
 	}
-	return rc;
+	ঘূৰাই rc;
 }
 
 
-static int check_protocol_version(struct mosquitto__listener *listener, int protocol_version)
+স্থির পূর্ণাঙ্ক check_protocol_version(সংরচনা mosquitto__listener *listener, পূর্ণাঙ্ক protocol_version)
 {
 	/* Allow bridge protocol as well. */
 	protocol_version &= 0x7F;
 
-	if((protocol_version == 3 && listener->disable_protocol_v3 == false)
+	যদি((protocol_version == 3 && listener->disable_protocol_v3 == false)
 			|| (protocol_version == 4 && listener->disable_protocol_v4 == false)
 			|| (protocol_version == 5 && listener->disable_protocol_v5 == false)
 			){
 
-		return MOSQ_ERR_SUCCESS;
-	}else{
-		return MOSQ_ERR_NOT_SUPPORTED;
+		ঘূৰাই MOSQ_ERR_SUCCESS;
+	}অন্যথা{
+		ঘূৰাই MOSQ_ERR_NOT_SUPPORTED;
 	}
 }
 
 
-inline static int send__connack_error_and_return(struct mosquitto *context, uint8_t err_code, int rc)
+অন্তঃস্থ স্থির পূর্ণাঙ্ক send__connack_error_and_return(সংরচনা mosquitto *context, uint8_t err_code, পূর্ণাঙ্ক rc)
 {
-	send__connack(context, 0, err_code, NULL);
-	return rc;
+	send__connack(context, 0, err_code, রিক্ত);
+	ঘূৰাই rc;
 }
 
 
-inline static int send__connack_bad_username_or_password_error(struct mosquitto *context, int rc)
+অন্তঃস্থ স্থির পূর্ণাঙ্ক send__connack_bad_username_or_password_error(সংরচনা mosquitto *context, পূর্ণাঙ্ক rc)
 {
 	uint8_t err_code  = context->protocol == mosq_p_mqtt5
 									? (uint8_t)MQTT_RC_BAD_USERNAME_OR_PASSWORD
 									: (uint8_t)CONNACK_REFUSED_BAD_USERNAME_PASSWORD;
-	return send__connack_error_and_return(context, err_code, rc);
+	ঘূৰাই send__connack_error_and_return(context, err_code, rc);
 }
 
 
-static int read_protocol_name(struct mosquitto *context, char protocol_name[7])
+স্থির পূর্ণাঙ্ক read_protocol_name(সংরচনা mosquitto *context, ৱর্ণ protocol_name[7])
 {
 	/* Read protocol name as length then bytes rather than with read_string
 	 * because the length is fixed and we can check that. Removes the need
@@ -480,540 +480,540 @@ static int read_protocol_name(struct mosquitto *context, char protocol_name[7])
 
 	uint16_t slen = 0;
 
-	if(packet__read_uint16(&context->in_packet, &slen)){
-		log__printf(NULL, MOSQ_LOG_INFO, "Protocol error from %s:%d: CONNECT with missing protocol string length.",
+	যদি(packet__read_uint16(&context->in_packet, &slen)){
+		log__printf(রিক্ত, MOSQ_LOG_INFO, "Protocol error from %s:%d: CONNECT with missing protocol string length.",
 				context->address, context->remote_port);
-		return MOSQ_ERR_PROTOCOL;
+		ঘূৰাই MOSQ_ERR_PROTOCOL;
 	}
-	if(slen != 4 /* MQTT */ && slen != 6 /* MQIsdp */){
-		log__printf(NULL, MOSQ_LOG_INFO, "Protocol error from %s:%d: CONNECT with incorrect protocol string length (%d).",
+	যদি(slen != 4 /* MQTT */ && slen != 6 /* MQIsdp */){
+		log__printf(রিক্ত, MOSQ_LOG_INFO, "Protocol error from %s:%d: CONNECT with incorrect protocol string length (%d).",
 				context->address, context->remote_port, slen);
-		return MOSQ_ERR_PROTOCOL;
+		ঘূৰাই MOSQ_ERR_PROTOCOL;
 	}
-	if(packet__read_bytes(&context->in_packet, protocol_name, slen)){
-		log__printf(NULL, MOSQ_LOG_INFO, "Protocol error from %s:%d: CONNECT with missing protocol string.",
+	যদি(packet__read_bytes(&context->in_packet, protocol_name, slen)){
+		log__printf(রিক্ত, MOSQ_LOG_INFO, "Protocol error from %s:%d: CONNECT with missing protocol string.",
 				context->address, context->remote_port);
-		return MOSQ_ERR_PROTOCOL;
+		ঘূৰাই MOSQ_ERR_PROTOCOL;
 	}
 	protocol_name[slen] = '\0';
 
-	return MOSQ_ERR_SUCCESS;
+	ঘূৰাই MOSQ_ERR_SUCCESS;
 }
 
 
-static int read_and_verify_protocol_version(struct mosquitto *context, const char *protocol_name,
+স্থির পূর্ণাঙ্ক read_and_verify_protocol_version(সংরচনা mosquitto *context, ধ্রুৱ ৱর্ণ *protocol_name,
 		uint8_t *protocol_version)
 {
 	uint8_t tmp_protocol_version = 0;
-	if(packet__read_byte(&context->in_packet, &tmp_protocol_version)){
-		log__printf(NULL, MOSQ_LOG_INFO, "Protocol error from %s:%d: CONNECT with missing protocol version.",
+	যদি(packet__read_byte(&context->in_packet, &tmp_protocol_version)){
+		log__printf(রিক্ত, MOSQ_LOG_INFO, "Protocol error from %s:%d: CONNECT with missing protocol version.",
 				context->address, context->remote_port);
-		return MOSQ_ERR_PROTOCOL;
+		ঘূৰাই MOSQ_ERR_PROTOCOL;
 	}
 
-	if(check_protocol_version(context->listener, tmp_protocol_version)){
-		if(tmp_protocol_version == 3 || tmp_protocol_version == 4){
+	যদি(check_protocol_version(context->listener, tmp_protocol_version)){
+		যদি(tmp_protocol_version == 3 || tmp_protocol_version == 4){
 			context->protocol = mosq_p_mqtt311;
-			send__connack(context, 0, CONNACK_REFUSED_PROTOCOL_VERSION, NULL);
-		}else{
+			send__connack(context, 0, CONNACK_REFUSED_PROTOCOL_VERSION, রিক্ত);
+		}অন্যথা{
 			context->protocol = mosq_p_mqtt5;
-			send__connack(context, 0, MQTT_RC_UNSUPPORTED_PROTOCOL_VERSION, NULL);
+			send__connack(context, 0, MQTT_RC_UNSUPPORTED_PROTOCOL_VERSION, রিক্ত);
 		}
-		return MOSQ_ERR_NOT_SUPPORTED;
+		ঘূৰাই MOSQ_ERR_NOT_SUPPORTED;
 	}
 
-	if(!strcmp(protocol_name, PROTOCOL_NAME_v31)){
-		if((tmp_protocol_version&0x7F) != PROTOCOL_VERSION_v31){
-			if(db.config->connection_messages == true){
-				log__printf(NULL, MOSQ_LOG_INFO, "Protocol error from %s:%d: CONNECT with invalid protocol version (%d).",
+	যদি(!strcmp(protocol_name, PROTOCOL_NAME_v31)){
+		যদি((tmp_protocol_version&0x7F) != PROTOCOL_VERSION_v31){
+			যদি(db.config->connection_messages == true){
+				log__printf(রিক্ত, MOSQ_LOG_INFO, "Protocol error from %s:%d: CONNECT with invalid protocol version (%d).",
 						context->address, context->remote_port, tmp_protocol_version);
 			}
-			send__connack(context, 0, CONNACK_REFUSED_PROTOCOL_VERSION, NULL);
-			return MOSQ_ERR_PROTOCOL;
+			send__connack(context, 0, CONNACK_REFUSED_PROTOCOL_VERSION, রিক্ত);
+			ঘূৰাই MOSQ_ERR_PROTOCOL;
 		}
 		context->protocol = mosq_p_mqtt31;
-		if((tmp_protocol_version&0x80) == 0x80){
+		যদি((tmp_protocol_version&0x80) == 0x80){
 			context->is_bridge = true;
 		}
-	}else if(!strcmp(protocol_name, PROTOCOL_NAME)){
-		if((tmp_protocol_version&0x7F) == PROTOCOL_VERSION_v311){
+	}অন্যথা যদি(!strcmp(protocol_name, PROTOCOL_NAME)){
+		যদি((tmp_protocol_version&0x7F) == PROTOCOL_VERSION_v311){
 			context->protocol = mosq_p_mqtt311;
 
-			if((tmp_protocol_version&0x80) == 0x80){
+			যদি((tmp_protocol_version&0x80) == 0x80){
 				context->is_bridge = true;
 			}
-		}else if((tmp_protocol_version&0x7F) == PROTOCOL_VERSION_v5){
+		}অন্যথা যদি((tmp_protocol_version&0x7F) == PROTOCOL_VERSION_v5){
 			context->protocol = mosq_p_mqtt5;
-		}else{
-			if(db.config->connection_messages == true){
-				log__printf(NULL, MOSQ_LOG_INFO, "Protocol error from %s:%d: CONNECT with invalid protocol version (%d).",
+		}অন্যথা{
+			যদি(db.config->connection_messages == true){
+				log__printf(রিক্ত, MOSQ_LOG_INFO, "Protocol error from %s:%d: CONNECT with invalid protocol version (%d).",
 						context->address, context->remote_port, tmp_protocol_version);
 			}
-			send__connack(context, 0, CONNACK_REFUSED_PROTOCOL_VERSION, NULL);
-			return MOSQ_ERR_PROTOCOL;
+			send__connack(context, 0, CONNACK_REFUSED_PROTOCOL_VERSION, রিক্ত);
+			ঘূৰাই MOSQ_ERR_PROTOCOL;
 		}
-		if((context->in_packet.command&0x0F) != 0x00){
+		যদি((context->in_packet.command&0x0F) != 0x00){
 			/* Reserved flags not set to 0, must disconnect. */
-			log__printf(NULL, MOSQ_LOG_INFO, "Protocol error from %s:%d: CONNECT with non-zero reserved flags (%02X).",
+			log__printf(রিক্ত, MOSQ_LOG_INFO, "Protocol error from %s:%d: CONNECT with non-zero reserved flags (%02X).",
 					context->address, context->remote_port, context->in_packet.command);
-			return MOSQ_ERR_PROTOCOL;
+			ঘূৰাই MOSQ_ERR_PROTOCOL;
 		}
-	}else{
-		if(db.config->connection_messages == true){
-			log__printf(NULL, MOSQ_LOG_INFO, "Protocol error from %s:%d: CONNECT with invalid protocol \"%s\".",
+	}অন্যথা{
+		যদি(db.config->connection_messages == true){
+			log__printf(রিক্ত, MOSQ_LOG_INFO, "Protocol error from %s:%d: CONNECT with invalid protocol \"%s\".",
 					context->address, context->remote_port, protocol_name);
 		}
-		return MOSQ_ERR_PROTOCOL;
+		ঘূৰাই MOSQ_ERR_PROTOCOL;
 	}
-	if((tmp_protocol_version&0x7F) != PROTOCOL_VERSION_v31 && context->in_packet.command != CMD_CONNECT){
-		return MOSQ_ERR_MALFORMED_PACKET;
+	যদি((tmp_protocol_version&0x7F) != PROTOCOL_VERSION_v31 && context->in_packet.command != CMD_CONNECT){
+		ঘূৰাই MOSQ_ERR_MALFORMED_PACKET;
 	}
 
 	*protocol_version = tmp_protocol_version;
-	return MOSQ_ERR_SUCCESS;
+	ঘূৰাই MOSQ_ERR_SUCCESS;
 }
 
 
-static int read_and_verify_connect_flags(struct mosquitto *context, uint8_t *connect_flags)
+স্থির পূর্ণাঙ্ক read_and_verify_connect_flags(সংরচনা mosquitto *context, uint8_t *connect_flags)
 {
-	if(packet__read_byte(&context->in_packet, connect_flags)){
-		log__printf(NULL, MOSQ_LOG_INFO, "Protocol error from %s:%d: CONNECT with missing connect flags.",
+	যদি(packet__read_byte(&context->in_packet, connect_flags)){
+		log__printf(রিক্ত, MOSQ_LOG_INFO, "Protocol error from %s:%d: CONNECT with missing connect flags.",
 				context->address, context->remote_port);
-		return MOSQ_ERR_PROTOCOL;
+		ঘূৰাই MOSQ_ERR_PROTOCOL;
 	}
-	if(context->protocol == mosq_p_mqtt311 || context->protocol == mosq_p_mqtt5){
-		if((*connect_flags & 0x01) != 0x00){
-			log__printf(NULL, MOSQ_LOG_INFO, "Protocol error from %s:%d: CONNECT with non-zero connect reserved flag (%02X).",
+	যদি(context->protocol == mosq_p_mqtt311 || context->protocol == mosq_p_mqtt5){
+		যদি((*connect_flags & 0x01) != 0x00){
+			log__printf(রিক্ত, MOSQ_LOG_INFO, "Protocol error from %s:%d: CONNECT with non-zero connect reserved flag (%02X).",
 					context->address, context->remote_port, *connect_flags);
-			return MOSQ_ERR_PROTOCOL;
+			ঘূৰাই MOSQ_ERR_PROTOCOL;
 		}
 	}
 
-	return MOSQ_ERR_SUCCESS;
+	ঘূৰাই MOSQ_ERR_SUCCESS;
 }
 
 
-static void set_session_expiry_interval(struct mosquitto *context, uint8_t clean_start, uint8_t protocol_version)
+স্থির শূন্য set_session_expiry_interval(সংরচনা mosquitto *context, uint8_t clean_start, uint8_t protocol_version)
 {
 	/* session_expiry_interval will be overridden if the properties are read later */
-	if(clean_start == false && protocol_version != PROTOCOL_VERSION_v5){
+	যদি(clean_start == false && protocol_version != PROTOCOL_VERSION_v5){
 		/* v3* has clean_start == false mean the session never expires */
 		context->session_expiry_interval = MQTT_SESSION_EXPIRY_NEVER;
-	}else{
+	}অন্যথা{
 		context->session_expiry_interval = MQTT_SESSION_EXPIRY_IMMEDIATE;
 	}
 }
 
 
-static int read_and_reset_keepalive(struct mosquitto *context)
+স্থির পূর্ণাঙ্ক read_and_reset_keepalive(সংরচনা mosquitto *context)
 {
 	/* _remove here because net__socket_accept() uses _add and we must have the
 	 * correct keepalive value */
 	keepalive__remove(context);
 
-	if(packet__read_uint16(&context->in_packet, &(context->keepalive))){
-		log__printf(NULL, MOSQ_LOG_INFO, "%s sent CONNECT with missing keepalive.",
+	যদি(packet__read_uint16(&context->in_packet, &(context->keepalive))){
+		log__printf(রিক্ত, MOSQ_LOG_INFO, "%s sent CONNECT with missing keepalive.",
 				context->id);
-		return MOSQ_ERR_PROTOCOL;
+		ঘূৰাই MOSQ_ERR_PROTOCOL;
 	}
 	keepalive__add(context);
 
-	return MOSQ_ERR_SUCCESS;
+	ঘূৰাই MOSQ_ERR_SUCCESS;
 }
 
 
-static int read_and_verify_v5_connect_properties(struct mosquitto *context, mosquitto_property **properties, uint8_t protocol_version)
+স্থির পূর্ণাঙ্ক read_and_verify_v5_connect_properties(সংরচনা mosquitto *context, mosquitto_property **properties, uint8_t protocol_version)
 {
-	int rc;
+	পূর্ণাঙ্ক rc;
 
-	if(protocol_version == PROTOCOL_VERSION_v5){
+	যদি(protocol_version == PROTOCOL_VERSION_v5){
 		rc = property__read_all(CMD_CONNECT, &context->in_packet, properties);
-		if(rc == MOSQ_ERR_DUPLICATE_PROPERTY || rc == MOSQ_ERR_PROTOCOL){
-			send__connack(context, 0, MQTT_RC_PROTOCOL_ERROR, NULL);
-		}else if(rc == MOSQ_ERR_MALFORMED_PACKET){
-			send__connack(context, 0, MQTT_RC_MALFORMED_PACKET, NULL);
+		যদি(rc == MOSQ_ERR_DUPLICATE_PROPERTY || rc == MOSQ_ERR_PROTOCOL){
+			send__connack(context, 0, MQTT_RC_PROTOCOL_ERROR, রিক্ত);
+		}অন্যথা যদি(rc == MOSQ_ERR_MALFORMED_PACKET){
+			send__connack(context, 0, MQTT_RC_MALFORMED_PACKET, রিক্ত);
 		}
-		if(rc){
-			return rc;
+		যদি(rc){
+			ঘূৰাই rc;
 		}
 	}
 	rc = property__process_connect(context, properties);
-	if(rc != MOSQ_ERR_SUCCESS){
-		return send__connack_error_and_return(context, MQTT_RC_PROTOCOL_ERROR, rc);
+	যদি(rc != MOSQ_ERR_SUCCESS){
+		ঘূৰাই send__connack_error_and_return(context, MQTT_RC_PROTOCOL_ERROR, rc);
 	}
 
-	return MOSQ_ERR_SUCCESS;
+	ঘূৰাই MOSQ_ERR_SUCCESS;
 }
 
 
-static int verify_will_options(struct mosquitto *context, uint8_t will, uint8_t will_qos, uint8_t will_retain, uint8_t protocol_version)
+স্থির পূর্ণাঙ্ক verify_will_options(সংরচনা mosquitto *context, uint8_t will, uint8_t will_qos, uint8_t will_retain, uint8_t protocol_version)
 {
-	if(will_qos == 3){
-		log__printf(NULL, MOSQ_LOG_INFO, "Protocol error from %s:%d: CONNECT with invalid Will QoS (%d).",
+	যদি(will_qos == 3){
+		log__printf(রিক্ত, MOSQ_LOG_INFO, "Protocol error from %s:%d: CONNECT with invalid Will QoS (%d).",
 				context->address, context->remote_port, will_qos);
-		return MOSQ_ERR_PROTOCOL;
+		ঘূৰাই MOSQ_ERR_PROTOCOL;
 	}
 
-	if(will && will_retain && db.config->retain_available == false){
-		if(protocol_version == mosq_p_mqtt5){
-			send__connack(context, 0, MQTT_RC_RETAIN_NOT_SUPPORTED, NULL);
+	যদি(will && will_retain && db.config->retain_available == false){
+		যদি(protocol_version == mosq_p_mqtt5){
+			send__connack(context, 0, MQTT_RC_RETAIN_NOT_SUPPORTED, রিক্ত);
 		}
-		return MOSQ_ERR_NOT_SUPPORTED;
+		ঘূৰাই MOSQ_ERR_NOT_SUPPORTED;
 	}
 
-	if(will && will_qos > context->listener->max_qos){
-		if(protocol_version == mosq_p_mqtt5){
-			send__connack(context, 0, MQTT_RC_QOS_NOT_SUPPORTED, NULL);
+	যদি(will && will_qos > context->listener->max_qos){
+		যদি(protocol_version == mosq_p_mqtt5){
+			send__connack(context, 0, MQTT_RC_QOS_NOT_SUPPORTED, রিক্ত);
 		}
-		return MOSQ_ERR_NOT_SUPPORTED;
+		ঘূৰাই MOSQ_ERR_NOT_SUPPORTED;
 	}
 
-	return MOSQ_ERR_SUCCESS;
+	ঘূৰাই MOSQ_ERR_SUCCESS;
 }
 
 
-static int handle_zero_length_clientid(struct mosquitto *context, char **clientid, bool *allow_zero_length_clientid,
+স্থির পূর্ণাঙ্ক handle_zero_length_clientid(সংরচনা mosquitto *context, ৱর্ণ **clientid, bool *allow_zero_length_clientid,
 		uint8_t clean_start)
 {
-	if(context->protocol == mosq_p_mqtt31){
-		log__printf(NULL, MOSQ_LOG_INFO, "Protocol error from %s:%d: v3.1 CONNECT with zero length clientid.",
+	যদি(context->protocol == mosq_p_mqtt31){
+		log__printf(রিক্ত, MOSQ_LOG_INFO, "Protocol error from %s:%d: v3.1 CONNECT with zero length clientid.",
 				context->address, context->remote_port);
-		send__connack(context, 0, CONNACK_REFUSED_IDENTIFIER_REJECTED, NULL);
-		return MOSQ_ERR_PROTOCOL;
+		send__connack(context, 0, CONNACK_REFUSED_IDENTIFIER_REJECTED, রিক্ত);
+		ঘূৰাই MOSQ_ERR_PROTOCOL;
 	}
 
 	/* mqtt311/mqtt5 */
 	mosquitto_FREE(*clientid);
 
-	if(db.config->per_listener_settings){
+	যদি(db.config->per_listener_settings){
 		*allow_zero_length_clientid = context->listener->security_options->allow_zero_length_clientid;
-	}else{
+	}অন্যথা{
 		*allow_zero_length_clientid = db.config->security_options.allow_zero_length_clientid;
 	}
 
-	if((context->protocol == mosq_p_mqtt311 && clean_start == 0) || *allow_zero_length_clientid == false){
-		log__printf(NULL, MOSQ_LOG_INFO, "Protocol error from %s:%d: CONNECT with zero length clientid when forbidden.",
+	যদি((context->protocol == mosq_p_mqtt311 && clean_start == 0) || *allow_zero_length_clientid == false){
+		log__printf(রিক্ত, MOSQ_LOG_INFO, "Protocol error from %s:%d: CONNECT with zero length clientid when forbidden.",
 				context->address, context->remote_port);
 		uint8_t err_code = context->protocol == mosq_p_mqtt311 ? (uint8_t)CONNACK_REFUSED_IDENTIFIER_REJECTED : (uint8_t)MQTT_RC_UNSPECIFIED;
-		return send__connack_error_and_return(context, err_code, MOSQ_ERR_PROTOCOL);
+		ঘূৰাই send__connack_error_and_return(context, err_code, MOSQ_ERR_PROTOCOL);
 	}
 
 	*clientid = clientid_gen(&(uint16_t){0}, context->listener->security_options->auto_id_prefix,
 			context->listener->security_options->auto_id_prefix_len);
-	if(*clientid == NULL){
-		return MOSQ_ERR_NOMEM;
+	যদি(*clientid == রিক্ত){
+		ঘূৰাই MOSQ_ERR_NOMEM;
 	}
 	context->assigned_id = true;
 
-	return MOSQ_ERR_SUCCESS;
+	ঘূৰাই MOSQ_ERR_SUCCESS;
 }
 
 
-static int check_clientid_prefixes(struct mosquitto *context, const char *clientid)
+স্থির পূর্ণাঙ্ক check_clientid_prefixes(সংরচনা mosquitto *context, ধ্রুৱ ৱর্ণ *clientid)
 {
-	if(db.config->clientid_prefixes){
-		if(strncmp(db.config->clientid_prefixes, clientid, strlen(db.config->clientid_prefixes))){
+	যদি(db.config->clientid_prefixes){
+		যদি(strncmp(db.config->clientid_prefixes, clientid, strlen(db.config->clientid_prefixes))){
 			uint8_t err_code = context->protocol == mosq_p_mqtt5 ? (uint8_t)MQTT_RC_NOT_AUTHORIZED : (uint8_t)CONNACK_REFUSED_NOT_AUTHORIZED;
-			return send__connack_error_and_return(context, err_code, MOSQ_ERR_AUTH);
+			ঘূৰাই send__connack_error_and_return(context, err_code, MOSQ_ERR_AUTH);
 		}
 	}
-	return MOSQ_ERR_SUCCESS;
+	ঘূৰাই MOSQ_ERR_SUCCESS;
 }
 
 
-static int read_and_verify_clientid_from_packet(struct mosquitto *context, char **clientid,
+স্থির পূর্ণাঙ্ক read_and_verify_clientid_from_packet(সংরচনা mosquitto *context, ৱর্ণ **clientid,
 		bool *allow_zero_length_clientid, uint8_t clean_start)
 {
-	int rc;
+	পূর্ণাঙ্ক rc;
 	uint16_t slen;
 
 	rc = packet__read_string(&context->in_packet, clientid, &slen);
-	if(rc == MOSQ_ERR_MALFORMED_UTF8){
-		if(context->protocol == mosq_p_mqtt5){
-			send__connack(context, 0, MQTT_RC_CLIENTID_NOT_VALID, NULL);
+	যদি(rc == MOSQ_ERR_MALFORMED_UTF8){
+		যদি(context->protocol == mosq_p_mqtt5){
+			send__connack(context, 0, MQTT_RC_CLIENTID_NOT_VALID, রিক্ত);
 		}
-		return MOSQ_ERR_CLIENT_IDENTIFIER_NOT_VALID;
-	}else if(rc > 0){
-		return MOSQ_ERR_PROTOCOL;
+		ঘূৰাই MOSQ_ERR_CLIENT_IDENTIFIER_NOT_VALID;
+	}অন্যথা যদি(rc > 0){
+		ঘূৰাই MOSQ_ERR_PROTOCOL;
 	}
 
-	if(slen == 0){
+	যদি(slen == 0){
 		rc = handle_zero_length_clientid(context, clientid, allow_zero_length_clientid, clean_start);
-		if(rc != MOSQ_ERR_SUCCESS){
-			return rc;
+		যদি(rc != MOSQ_ERR_SUCCESS){
+			ঘূৰাই rc;
 		}
 	}
 
 	rc = check_clientid_prefixes(context, *clientid);
-	if(rc != MOSQ_ERR_SUCCESS){
-		return rc;
+	যদি(rc != MOSQ_ERR_SUCCESS){
+		ঘূৰাই rc;
 	}
 
-	return MOSQ_ERR_SUCCESS;
+	ঘূৰাই MOSQ_ERR_SUCCESS;
 }
 
 
-static int set_username_from_packet(struct mosquitto *context, char **username, const char *clientid)
+স্থির পূর্ণাঙ্ক set_username_from_packet(সংরচনা mosquitto *context, ৱর্ণ **username, ধ্রুৱ ৱর্ণ *clientid)
 {
-	int rc;
+	পূর্ণাঙ্ক rc;
 
 	rc = packet__read_string(&context->in_packet, username, &(uint16_t){0});
-	if(rc == MOSQ_ERR_NOMEM){
-		return MOSQ_ERR_NOMEM;
+	যদি(rc == MOSQ_ERR_NOMEM){
+		ঘূৰাই MOSQ_ERR_NOMEM;
 	}
-	if(rc != MOSQ_ERR_SUCCESS){
-		if(context->protocol == mosq_p_mqtt31){
+	যদি(rc != MOSQ_ERR_SUCCESS){
+		যদি(context->protocol == mosq_p_mqtt31){
 			/* Username flag given, but no username. Ignore. */
 			/* NOTE: Removed setting of username_flag to zero as it is unused afterwards */
-		}else{
-			log__printf(NULL, MOSQ_LOG_INFO, "Protocol error from %s: CONNECT with username flag but no username.",
+		}অন্যথা{
+			log__printf(রিক্ত, MOSQ_LOG_INFO, "Protocol error from %s: CONNECT with username flag but no username.",
 					clientid);
-			return MOSQ_ERR_PROTOCOL;
+			ঘূৰাই MOSQ_ERR_PROTOCOL;
 		}
 	}
 
-	return MOSQ_ERR_SUCCESS;
+	ঘূৰাই MOSQ_ERR_SUCCESS;
 }
 
 
-static int set_password_from_packet(struct mosquitto *context, char **password, uint16_t *password_len, const char *clientid)
+স্থির পূর্ণাঙ্ক set_password_from_packet(সংরচনা mosquitto *context, ৱর্ণ **password, uint16_t *password_len, ধ্রুৱ ৱর্ণ *clientid)
 {
-	int rc;
+	পূর্ণাঙ্ক rc;
 
-	rc = packet__read_binary(&context->in_packet, (uint8_t **)password, password_len);
-	if(rc == MOSQ_ERR_NOMEM){
-		return MOSQ_ERR_NOMEM;
+	rc = packet_read_দ্বিমিক(&context->in_packet, (uint8_t **)password, password_len);
+	যদি(rc == MOSQ_ERR_NOMEM){
+		ঘূৰাই MOSQ_ERR_NOMEM;
 	}
 
-	if(rc == MOSQ_ERR_MALFORMED_PACKET){
-		if(context->protocol == mosq_p_mqtt31){
+	যদি(rc == MOSQ_ERR_MALFORMED_PACKET){
+		যদি(context->protocol == mosq_p_mqtt31){
 			/* Password flag given, but no password. Ignore. */
-		}else{
-			log__printf(NULL, MOSQ_LOG_INFO, "Protocol error from %s: CONNECT with password flag but no password.",
+		}অন্যথা{
+			log__printf(রিক্ত, MOSQ_LOG_INFO, "Protocol error from %s: CONNECT with password flag but no password.",
 					clientid);
-			return MOSQ_ERR_PROTOCOL;
+			ঘূৰাই MOSQ_ERR_PROTOCOL;
 		}
 	}
 
-	return MOSQ_ERR_SUCCESS;
+	ঘূৰাই MOSQ_ERR_SUCCESS;
 }
 
 
-static int read_and_verify_client_credentials_from_packet(struct mosquitto *context,
-		char **username, uint8_t username_flag,
-		char **password, uint16_t *password_len, uint8_t password_flag,
-		const char *clientid)
+স্থির পূর্ণাঙ্ক read_and_verify_client_credentials_from_packet(সংরচনা mosquitto *context,
+		ৱর্ণ **username, uint8_t username_flag,
+		ৱর্ণ **password, uint16_t *password_len, uint8_t password_flag,
+		ধ্রুৱ ৱর্ণ *clientid)
 {
-	int rc;
+	পূর্ণাঙ্ক rc;
 
-	if(username_flag){
+	যদি(username_flag){
 		rc = set_username_from_packet(context, username, clientid);
-		if(rc != MOSQ_ERR_SUCCESS){
-			return rc;
+		যদি(rc != MOSQ_ERR_SUCCESS){
+			ঘূৰাই rc;
 		}
-	}else{
-		if(context->protocol == mosq_p_mqtt311 || context->protocol == mosq_p_mqtt31){
-			if(password_flag){
+	}অন্যথা{
+		যদি(context->protocol == mosq_p_mqtt311 || context->protocol == mosq_p_mqtt31){
+			যদি(password_flag){
 				/* username_flag == 0 && password_flag == 1 is forbidden */
-				log__printf(NULL, MOSQ_LOG_ERR, "Protocol error from %s: password without username, closing connection.", clientid);
-				return MOSQ_ERR_PROTOCOL;
+				log__printf(রিক্ত, MOSQ_LOG_ERR, "Protocol error from %s: password without username, closing connection.", clientid);
+				ঘূৰাই MOSQ_ERR_PROTOCOL;
 			}
 		}
 	}
-	if(password_flag){
+	যদি(password_flag){
 		rc = set_password_from_packet(context, password, password_len, clientid);
-		if(rc != MOSQ_ERR_SUCCESS){
-			return rc;
+		যদি(rc != MOSQ_ERR_SUCCESS){
+			ঘূৰাই rc;
 		}
 	}
 
-	return MOSQ_ERR_SUCCESS;
+	ঘূৰাই MOSQ_ERR_SUCCESS;
 }
 
 
-static int check_additional_trailing_data(struct mosquitto *context, uint8_t protocol_version)
+স্থির পূর্ণাঙ্ক check_additional_trailing_data(সংরচনা mosquitto *context, uint8_t protocol_version)
 {
-	if(context->in_packet.pos != context->in_packet.remaining_length){
+	যদি(context->in_packet.pos != context->in_packet.remaining_length){
 		/* Surplus data at end of packet, this must be an error. */
-		log__printf(NULL, MOSQ_LOG_INFO, "Protocol error from %s: CONNECT packet with overlong remaining length (%d:%d).",
+		log__printf(রিক্ত, MOSQ_LOG_INFO, "Protocol error from %s: CONNECT packet with overlong remaining length (%d:%d).",
 				context->id, context->in_packet.pos, context->in_packet.remaining_length);
-		if(protocol_version == PROTOCOL_VERSION_v5){
-			send__connack(context, 0, MQTT_RC_MALFORMED_PACKET, NULL);
+		যদি(protocol_version == PROTOCOL_VERSION_v5){
+			send__connack(context, 0, MQTT_RC_MALFORMED_PACKET, রিক্ত);
 		}
-		return MOSQ_ERR_PROTOCOL;
+		ঘূৰাই MOSQ_ERR_PROTOCOL;
 	}
 
-	return MOSQ_ERR_SUCCESS;
+	ঘূৰাই MOSQ_ERR_SUCCESS;
 }
 
 #ifdef WITH_TLS
 
 
-inline static int get_client_cert_and_subject_name(struct mosquitto *context, X509 **client_cert, X509_NAME **name)
+অন্তঃস্থ স্থির পূর্ণাঙ্ক get_client_cert_and_subject_name(সংরচনা mosquitto *context, X509 **client_cert, X509_NAME **name)
 {
 	*client_cert = SSL_get_peer_certificate(context->ssl);
-	if(*client_cert == NULL){
-		return send__connack_bad_username_or_password_error(context, MOSQ_ERR_AUTH);
+	যদি(*client_cert == রিক্ত){
+		ঘূৰাই send__connack_bad_username_or_password_error(context, MOSQ_ERR_AUTH);
 	}
 
 	*name = X509_get_subject_name(*client_cert);
-	if(*name == NULL){
+	যদি(*name == রিক্ত){
 		X509_free(*client_cert);
-		return send__connack_bad_username_or_password_error(context, MOSQ_ERR_AUTH);
+		ঘূৰাই send__connack_bad_username_or_password_error(context, MOSQ_ERR_AUTH);
 	}
 
-	return MOSQ_ERR_SUCCESS;
+	ঘূৰাই MOSQ_ERR_SUCCESS;
 }
 
 
-inline static int free_x509_and_send_connack_error(struct mosquitto *context, X509 *client_cert, int rc)
+অন্তঃস্থ স্থির পূর্ণাঙ্ক free_x509_and_send_connack_error(সংরচনা mosquitto *context, X509 *client_cert, পূর্ণাঙ্ক rc)
 {
 	X509_free(client_cert);
-	return send__connack_bad_username_or_password_error(context, rc);
+	ঘূৰাই send__connack_bad_username_or_password_error(context, rc);
 }
 
 
-inline static int free_x509_and_BIO_and_send_connack_error(struct mosquitto *context, X509 *client_cert,
-		BIO *subject_name, int rc)
+অন্তঃস্থ স্থির পূর্ণাঙ্ক free_x509_and_BIO_and_send_connack_error(সংরচনা mosquitto *context, X509 *client_cert,
+		BIO *subject_name, পূর্ণাঙ্ক rc)
 {
 	BIO_free(subject_name);
-	return free_x509_and_send_connack_error(context, client_cert, rc);
+	ঘূৰাই free_x509_and_send_connack_error(context, client_cert, rc);
 }
 
 
-static int set_username_from_cert_identity(struct mosquitto *context)
+স্থির পূর্ণাঙ্ক set_username_from_cert_identity(সংরচনা mosquitto *context)
 {
-	X509 *client_cert = NULL;
-	X509_NAME *name = NULL;
+	X509 *client_cert = রিক্ত;
+	X509_NAME *name = রিক্ত;
 
-	if(get_client_cert_and_subject_name(context, &client_cert, &name)){
-		return MOSQ_ERR_AUTH;
+	যদি(get_client_cert_and_subject_name(context, &client_cert, &name)){
+		ঘূৰাই MOSQ_ERR_AUTH;
 	}
 
-	int i = -1;
-	X509_NAME_ENTRY *name_entry = NULL;
+	পূর্ণাঙ্ক i = -1;
+	X509_NAME_ENTRY *name_entry = রিক্ত;
 
 	i = X509_NAME_get_index_by_NID(name, NID_commonName, -1);
-	if(i == -1){
-		return free_x509_and_send_connack_error(context, client_cert, MOSQ_ERR_AUTH);
+	যদি(i == -1){
+		ঘূৰাই free_x509_and_send_connack_error(context, client_cert, MOSQ_ERR_AUTH);
 	}
 	name_entry = X509_NAME_get_entry(name, i);
-	if(!name_entry){
-		goto success;
+	যদি(!name_entry){
+		গচ্ছ success;
 	}
 
-	ASN1_STRING *name_asn1 = NULL;
+	ASN1_STRING *name_asn1 = রিক্ত;
 	name_asn1 = X509_NAME_ENTRY_get_data(name_entry);
-	if(name_asn1 == NULL){
-		return free_x509_and_send_connack_error(context, client_cert, MOSQ_ERR_AUTH);
+	যদি(name_asn1 == রিক্ত){
+		ঘূৰাই free_x509_and_send_connack_error(context, client_cert, MOSQ_ERR_AUTH);
 	}
-	const char *cert_identity = (const char *)ASN1_STRING_get0_data(name_asn1);
-	if(!cert_identity || mosquitto_validate_utf8(cert_identity, (int)strlen(cert_identity))){
-		return free_x509_and_send_connack_error(context, client_cert, MOSQ_ERR_AUTH);
+	ধ্রুৱ ৱর্ণ *cert_identity = (ধ্রুৱ ৱর্ণ *)ASN1_STRING_get0_data(name_asn1);
+	যদি(!cert_identity || mosquitto_validate_utf8(cert_identity, (পূর্ণাঙ্ক)strlen(cert_identity))){
+		ঘূৰাই free_x509_and_send_connack_error(context, client_cert, MOSQ_ERR_AUTH);
 	}
 	mosquitto_free(context->username);
 	context->username = mosquitto_strdup(cert_identity);
-	if(context->username == NULL){
-		return free_x509_and_send_connack_error(context, client_cert, MOSQ_ERR_NOMEM);
+	যদি(context->username == রিক্ত){
+		ঘূৰাই free_x509_and_send_connack_error(context, client_cert, MOSQ_ERR_NOMEM);
 	}
 	/* Make sure there isn't an embedded NUL character in the CN */
-	if((size_t)ASN1_STRING_length(name_asn1) != strlen(context->username)){
-		return free_x509_and_send_connack_error(context, client_cert, MOSQ_ERR_AUTH);
+	যদি((size_t)ASN1_STRING_length(name_asn1) != strlen(context->username)){
+		ঘূৰাই free_x509_and_send_connack_error(context, client_cert, MOSQ_ERR_AUTH);
 	}
 
 success:
 	X509_free(client_cert);
-	client_cert = NULL;
-	return MOSQ_ERR_SUCCESS;
+	client_cert = রিক্ত;
+	ঘূৰাই MOSQ_ERR_SUCCESS;
 }
 
 
-static int set_username_from_cert_subject_name(struct mosquitto *context)
+স্থির পূর্ণাঙ্ক set_username_from_cert_subject_name(সংরচনা mosquitto *context)
 {
-	X509 *client_cert = NULL;
-	X509_NAME *name = NULL;
+	X509 *client_cert = রিক্ত;
+	X509_NAME *name = রিক্ত;
 
-	if(get_client_cert_and_subject_name(context, &client_cert, &name)){
-		return MOSQ_ERR_AUTH;
+	যদি(get_client_cert_and_subject_name(context, &client_cert, &name)){
+		ঘূৰাই MOSQ_ERR_AUTH;
 	}
 
-	char *subject = NULL;
-	char *data_start = NULL;
-	BIO *subject_bio = NULL;
+	ৱর্ণ *subject = রিক্ত;
+	ৱর্ণ *data_start = রিক্ত;
+	BIO *subject_bio = রিক্ত;
 	long name_length = 0;
 
 	subject_bio = BIO_new(BIO_s_mem());
 	X509_NAME_print_ex(subject_bio, X509_get_subject_name(client_cert), 0, XN_FLAG_RFC2253);
-	data_start = NULL;
+	data_start = রিক্ত;
 	name_length = BIO_get_mem_data(subject_bio, &data_start);
-	subject = mosquitto_malloc(sizeof(char)*(size_t)(name_length+1));
-	if(!subject){
-		return free_x509_and_BIO_and_send_connack_error(context, client_cert, subject_bio, MOSQ_ERR_NOMEM);
+	subject = mosquitto_malloc(পরিমাণ(ৱর্ণ)*(size_t)(name_length+1));
+	যদি(!subject){
+		ঘূৰাই free_x509_and_BIO_and_send_connack_error(context, client_cert, subject_bio, MOSQ_ERR_NOMEM);
 	}
 	memcpy(subject, data_start, (size_t)name_length);
 	subject[name_length] = '\0';
 	BIO_free(subject_bio);
 
-	if(mosquitto_validate_utf8(subject, (int)strlen(subject))){
+	যদি(mosquitto_validate_utf8(subject, (পূর্ণাঙ্ক)strlen(subject))){
 		mosquitto_free(subject);
-		return free_x509_and_send_connack_error(context, client_cert, MOSQ_ERR_AUTH);
+		ঘূৰাই free_x509_and_send_connack_error(context, client_cert, MOSQ_ERR_AUTH);
 	}
 	context->username = subject;
-	if(!context->username){
+	যদি(!context->username){
 		X509_free(client_cert);
-		return MOSQ_ERR_AUTH;
+		ঘূৰাই MOSQ_ERR_AUTH;
 	}
 
 	X509_free(client_cert);
-	client_cert = NULL;
-	return MOSQ_ERR_SUCCESS;
+	client_cert = রিক্ত;
+	ঘূৰাই MOSQ_ERR_SUCCESS;
 }
 #endif
 
 
-static int handle_username_from_cert_options(struct mosquitto *context, char **username, char **password, uint16_t password_len)
+স্থির পূর্ণাঙ্ক handle_username_from_cert_options(সংরচনা mosquitto *context, ৱর্ণ **username, ৱর্ণ **password, uint16_t password_len)
 {
-	int rc;
+	পূর্ণাঙ্ক rc;
 
 #ifdef WITH_TLS
-	if(context->listener->ssl_ctx && (context->listener->use_identity_as_username || context->listener->use_subject_as_username)){
+	যদি(context->listener->ssl_ctx && (context->listener->use_identity_as_username || context->listener->use_subject_as_username)){
 		/* Don't need the username or password if provided */
 		mosquitto_FREE(*username);
 		mosquitto_FREE(*password);
 
-		if(!context->ssl){
-			return send__connack_bad_username_or_password_error(context, MOSQ_ERR_AUTH);
+		যদি(!context->ssl){
+			ঘূৰাই send__connack_bad_username_or_password_error(context, MOSQ_ERR_AUTH);
 		}
 #ifdef FINAL_WITH_TLS_PSK
-		if(context->listener->psk_hint){
+		যদি(context->listener->psk_hint){
 			/* Client should have provided an identity to get this far. */
-			if(!context->username){
-				return send__connack_bad_username_or_password_error(context, MOSQ_ERR_AUTH);
+			যদি(!context->username){
+				ঘূৰাই send__connack_bad_username_or_password_error(context, MOSQ_ERR_AUTH);
 			}
-		}else
+		}অন্যথা
 #endif /* FINAL_WITH_TLS_PSK */
 		{
-			if(context->listener->use_identity_as_username){
+			যদি(context->listener->use_identity_as_username){
 				rc = set_username_from_cert_identity(context);
-			}else{   /* use_subject_as_username */
+			}অন্যথা{   /* use_subject_as_username */
 				rc = set_username_from_cert_subject_name(context);
 			}
-			if(rc){
-				return rc;
+			যদি(rc){
+				ঘূৰাই rc;
 			}
 		}
-	}else
+	}অন্যথা
 #endif /* WITH_TLS */
 	{
 #ifdef WITH_TLS
-		if(context->listener->use_identity_as_username && context->listener->require_certificate){
+		যদি(context->listener->use_identity_as_username && context->listener->require_certificate){
 			mosquitto_FREE(*username);
 			mosquitto_FREE(*password);
 
-			if(!context->username){
-				return send__connack_bad_username_or_password_error(context, MOSQ_ERR_AUTH);
+			যদি(!context->username){
+				ঘূৰাই send__connack_bad_username_or_password_error(context, MOSQ_ERR_AUTH);
 			}
-		}else
+		}অন্যথা
 #endif
 		{
 			/* FIXME - these ensure the mosquitto_clientid() and
@@ -1021,150 +1021,150 @@ static int handle_username_from_cert_options(struct mosquitto *context, char **u
 			context->username = *username;
 			context->password = *password;
 			context->password_len = password_len;
-			*username = NULL; /* Avoid free() in error: below. */
-			*password = NULL;
+			*username = রিক্ত; /* Avoid free() in error: below. */
+			*password = রিক্ত;
 		}
 	}
 
-	return MOSQ_ERR_SUCCESS;
+	ঘূৰাই MOSQ_ERR_SUCCESS;
 }
 
 
-static int handle_username_as_clientid_option(struct mosquitto *context)
+স্থির পূর্ণাঙ্ক handle_username_as_clientid_option(সংরচনা mosquitto *context)
 {
-	if(context->username){
+	যদি(context->username){
 		mosquitto_FREE(context->id);
 		context->id = mosquitto_strdup(context->username);
-		if(!context->id){
-			return MOSQ_ERR_NOMEM;
+		যদি(!context->id){
+			ঘূৰাই MOSQ_ERR_NOMEM;
 		}
-	}else{
+	}অন্যথা{
 		uint8_t err_code = context->protocol == mosq_p_mqtt5
 												? (uint8_t)MQTT_RC_NOT_AUTHORIZED
 												: (uint8_t)CONNACK_REFUSED_NOT_AUTHORIZED;
-		return send__connack_error_and_return(context, err_code, MOSQ_ERR_AUTH);
+		ঘূৰাই send__connack_error_and_return(context, err_code, MOSQ_ERR_AUTH);
 	}
 
-	return MOSQ_ERR_SUCCESS;
+	ঘূৰাই MOSQ_ERR_SUCCESS;
 }
 
 
-int handle__connect(struct mosquitto *context)
+পূর্ণাঙ্ক handle__connect(সংরচনা mosquitto *context)
 {
-	char protocol_name[7];
+	ৱর্ণ protocol_name[7];
 	uint8_t protocol_version;
 	uint8_t connect_flags;
-	char *clientid = NULL;
-	struct mosquitto *found_context;
-	struct mosquitto_message_all *will_struct = NULL;
+	ৱর্ণ *clientid = রিক্ত;
+	সংরচনা mosquitto *found_context;
+	সংরচনা mosquitto_message_all *will_struct = রিক্ত;
 	uint8_t will, will_retain, will_qos, clean_start;
 	uint8_t username_flag, password_flag;
-	char *username = NULL, *password = NULL;
+	ৱর্ণ *username = রিক্ত, *password = রিক্ত;
 	uint16_t password_len = 0;
-	int rc;
-	mosquitto_property *properties = NULL;
-	void *auth_data = NULL;
+	পূর্ণাঙ্ক rc;
+	mosquitto_property *properties = রিক্ত;
+	শূন্য *auth_data = রিক্ত;
 	uint16_t auth_data_len = 0;
-	void *auth_data_out = NULL;
+	শূন্য *auth_data_out = রিক্ত;
 	uint16_t auth_data_out_len = 0;
 	bool allow_zero_length_clientid;
 
-	if(!context->listener){
-		return MOSQ_ERR_INVAL;
+	যদি(!context->listener){
+		ঘূৰাই MOSQ_ERR_INVAL;
 	}
 
 	/* Don't accept multiple CONNECT commands. */
-	if(context->state != mosq_cs_new){
-		log__printf(NULL, MOSQ_LOG_NOTICE, "Bad client %s:%d sending multiple CONNECT messages.",
+	যদি(context->state != mosq_cs_new){
+		log__printf(রিক্ত, MOSQ_LOG_NOTICE, "Bad client %s:%d sending multiple CONNECT messages.",
 				context->address, context->remote_port);
 		rc = MOSQ_ERR_PROTOCOL;
-		goto handle_connect_error;
+		গচ্ছ handle_connect_error;
 	}
 
 #ifdef WITH_TLS
-	if(context->in_packet.command == 0x16 && context->listener->ssl_ctx == NULL){ /* 0x16 is TLS handshake client hello */
-		log__printf(NULL, MOSQ_LOG_NOTICE, "Client from %s:%d appears to be using TLS to connect to a non-TLS listener.",
+	যদি(context->in_packet.command == 0x16 && context->listener->ssl_ctx == রিক্ত){ /* 0x16 is TLS handshake client hello */
+		log__printf(রিক্ত, MOSQ_LOG_NOTICE, "Client from %s:%d appears to be using TLS to connect to a non-TLS listener.",
 				context->address, context->remote_port);
 		rc = MOSQ_ERR_PROTOCOL;
-		goto handle_connect_error;
+		গচ্ছ handle_connect_error;
 	}
 #endif
 
 	rc = read_protocol_name(context, protocol_name);
-	if(rc != MOSQ_ERR_SUCCESS){
-		goto handle_connect_error;
+	যদি(rc != MOSQ_ERR_SUCCESS){
+		গচ্ছ handle_connect_error;
 	}
 
 	rc = read_and_verify_protocol_version(context, protocol_name, &protocol_version);
-	if(rc != MOSQ_ERR_SUCCESS){
-		if(rc == MOSQ_ERR_MALFORMED_PACKET){
-			return rc;
+	যদি(rc != MOSQ_ERR_SUCCESS){
+		যদি(rc == MOSQ_ERR_MALFORMED_PACKET){
+			ঘূৰাই rc;
 		}
-		goto handle_connect_error;
+		গচ্ছ handle_connect_error;
 	}
 
 	rc = read_and_verify_connect_flags(context, &connect_flags);
-	if(rc != MOSQ_ERR_SUCCESS){
-		goto handle_connect_error;
+	যদি(rc != MOSQ_ERR_SUCCESS){
+		গচ্ছ handle_connect_error;
 	}
 
 	clean_start = (connect_flags & 0x02) >> 1;
 	set_session_expiry_interval(context, clean_start, protocol_version);
 
 	rc = read_and_reset_keepalive(context);
-	if(rc != MOSQ_ERR_SUCCESS){
-		goto handle_connect_error;
+	যদি(rc != MOSQ_ERR_SUCCESS){
+		গচ্ছ handle_connect_error;
 	}
 
 	rc = read_and_verify_v5_connect_properties(context, &properties, protocol_version);
-	if(rc != MOSQ_ERR_SUCCESS){
-		goto handle_connect_error;
+	যদি(rc != MOSQ_ERR_SUCCESS){
+		গচ্ছ handle_connect_error;
 	}
 
 	will = connect_flags & 0x04;
 	will_qos = (connect_flags & 0x18) >> 3;
 	will_retain = ((connect_flags & 0x20) == 0x20);
 	rc = verify_will_options(context, will, will_qos, will_retain, protocol_version);
-	if(rc != MOSQ_ERR_SUCCESS){
-		goto handle_connect_error;
+	যদি(rc != MOSQ_ERR_SUCCESS){
+		গচ্ছ handle_connect_error;
 	}
 
 	mosquitto_property_read_string(properties, MQTT_PROP_AUTHENTICATION_METHOD, &context->auth_method, false);
-	mosquitto_property_read_binary(properties, MQTT_PROP_AUTHENTICATION_DATA, &auth_data, &auth_data_len, false);
+	mosquitto_property_read_দ্বিমিক(properties, MQTT_PROP_AUTHENTICATION_DATA, &auth_data, &auth_data_len, false);
 	mosquitto_property_free_all(&properties);
 
-	if(auth_data && !context->auth_method){
-		send__connack(context, 0, MQTT_RC_PROTOCOL_ERROR, NULL);
-		log__printf(NULL, MOSQ_LOG_INFO, "Protocol error from %s:%d CONNECT with missing clientid string.",
+	যদি(auth_data && !context->auth_method){
+		send__connack(context, 0, MQTT_RC_PROTOCOL_ERROR, রিক্ত);
+		log__printf(রিক্ত, MOSQ_LOG_INFO, "Protocol error from %s:%d CONNECT with missing clientid string.",
 				context->address, context->remote_port);
 		rc = MOSQ_ERR_PROTOCOL;
-		goto handle_connect_error;
+		গচ্ছ handle_connect_error;
 	}
 
 	rc = read_and_verify_clientid_from_packet(context, &clientid, &allow_zero_length_clientid, clean_start);
-	if(rc != MOSQ_ERR_SUCCESS){
-		goto handle_connect_error;
+	যদি(rc != MOSQ_ERR_SUCCESS){
+		গচ্ছ handle_connect_error;
 	}
 
-	if(will){
+	যদি(will){
 		rc = will__read(context, clientid, &will_struct, will_qos, will_retain);
-		if(rc){
-			if(context->protocol == mosq_p_mqtt5){
-				if(rc == MOSQ_ERR_DUPLICATE_PROPERTY || rc == MOSQ_ERR_PROTOCOL){
-					send__connack(context, 0, MQTT_RC_PROTOCOL_ERROR, NULL);
-				}else if(rc == MOSQ_ERR_MALFORMED_PACKET){
-					send__connack(context, 0, MQTT_RC_MALFORMED_PACKET, NULL);
+		যদি(rc){
+			যদি(context->protocol == mosq_p_mqtt5){
+				যদি(rc == MOSQ_ERR_DUPLICATE_PROPERTY || rc == MOSQ_ERR_PROTOCOL){
+					send__connack(context, 0, MQTT_RC_PROTOCOL_ERROR, রিক্ত);
+				}অন্যথা যদি(rc == MOSQ_ERR_MALFORMED_PACKET){
+					send__connack(context, 0, MQTT_RC_MALFORMED_PACKET, রিক্ত);
 				}
 			}
-			goto handle_connect_error;
+			গচ্ছ handle_connect_error;
 		}
-	}else{
-		if(context->protocol == mosq_p_mqtt311 || context->protocol == mosq_p_mqtt5){
-			if(will_qos != 0 || will_retain != 0){
-				log__printf(NULL, MOSQ_LOG_INFO, "Protocol error from %s: CONNECT without Will with non-zero QoS (%d) or retain (%d).",
+	}অন্যথা{
+		যদি(context->protocol == mosq_p_mqtt311 || context->protocol == mosq_p_mqtt5){
+			যদি(will_qos != 0 || will_retain != 0){
+				log__printf(রিক্ত, MOSQ_LOG_INFO, "Protocol error from %s: CONNECT without Will with non-zero QoS (%d) or retain (%d).",
 						clientid, will_qos, will_retain);
 				rc = MOSQ_ERR_PROTOCOL;
-				goto handle_connect_error;
+				গচ্ছ handle_connect_error;
 			}
 		}
 	}
@@ -1173,120 +1173,120 @@ int handle__connect(struct mosquitto *context)
 	password_flag = connect_flags & 0x40;
 	username_flag = connect_flags & 0x80;
 	rc = read_and_verify_client_credentials_from_packet(context, &username, username_flag, &password, &password_len, password_flag, clientid);
-	if(rc != MOSQ_ERR_SUCCESS){
-		goto handle_connect_error;
+	যদি(rc != MOSQ_ERR_SUCCESS){
+		গচ্ছ handle_connect_error;
 	}
 
 	rc = check_additional_trailing_data(context, protocol_version);
-	if(rc != MOSQ_ERR_SUCCESS){
-		goto handle_connect_error;
+	যদি(rc != MOSQ_ERR_SUCCESS){
+		গচ্ছ handle_connect_error;
 	}
 
 	/* Once context->id is set, if we return from this function with an error
 	 * we must make sure that context->id is freed and set to NULL, so that the
 	 * client isn't erroneously removed from the by_id hash table. */
 	context->id = clientid;
-	clientid = NULL;
+	clientid = রিক্ত;
 
 	/* use_identity_as_username or use_subject_as_username */
 	rc = handle_username_from_cert_options(context, &username, &password, password_len);
-	if(rc != MOSQ_ERR_SUCCESS){
-		goto handle_connect_error;
+	যদি(rc != MOSQ_ERR_SUCCESS){
+		গচ্ছ handle_connect_error;
 	}
 
 	/* use_username_as_clientid */
-	if(context->listener->use_username_as_clientid){
+	যদি(context->listener->use_username_as_clientid){
 		rc = handle_username_as_clientid_option(context);
-		if(rc != MOSQ_ERR_SUCCESS){
-			goto handle_connect_error;
+		যদি(rc != MOSQ_ERR_SUCCESS){
+			গচ্ছ handle_connect_error;
 		}
 	}
 
 	/* Check for an existing delayed auth check, reject if present */
 	HASH_FIND(hh_id, db.contexts_by_id_delayed_auth, context->id, strlen(context->id), found_context);
-	if(found_context){
+	যদি(found_context){
 		rc = MOSQ_ERR_UNKNOWN;
-		goto handle_connect_error;
+		গচ্ছ handle_connect_error;
 	}
 
 	context->clean_start = clean_start;
 	context->will = will_struct;
-	will_struct = NULL;
+	will_struct = রিক্ত;
 
-	if(context->auth_method){
+	যদি(context->auth_method){
 		rc = mosquitto_security_auth_start(context, false, auth_data, auth_data_len, &auth_data_out, &auth_data_out_len);
 		mosquitto_FREE(auth_data);
-		if(rc == MOSQ_ERR_SUCCESS){
-			return connect__on_authorised(context, auth_data_out, auth_data_out_len);
-		}else if(rc == MOSQ_ERR_AUTH_CONTINUE){
+		যদি(rc == MOSQ_ERR_SUCCESS){
+			ঘূৰাই connect__on_authorised(context, auth_data_out, auth_data_out_len);
+		}অন্যথা যদি(rc == MOSQ_ERR_AUTH_CONTINUE){
 			mosquitto__set_state(context, mosq_cs_authenticating);
 			rc = send__auth(context, MQTT_RC_CONTINUE_AUTHENTICATION, auth_data_out, auth_data_out_len);
 			SAFE_FREE(auth_data_out);
-			return rc;
-		}else{
+			ঘূৰাই rc;
+		}অন্যথা{
 			SAFE_FREE(auth_data_out);
 			will__clear(context);
-			if(rc == MOSQ_ERR_AUTH){
-				send__connack(context, 0, MQTT_RC_NOT_AUTHORIZED, NULL);
+			যদি(rc == MOSQ_ERR_AUTH){
+				send__connack(context, 0, MQTT_RC_NOT_AUTHORIZED, রিক্ত);
 				mosquitto_FREE(context->id);
-				goto handle_connect_error;
-			}else if(rc == MOSQ_ERR_NOT_SUPPORTED){
+				গচ্ছ handle_connect_error;
+			}অন্যথা যদি(rc == MOSQ_ERR_NOT_SUPPORTED){
 				/* Client has requested extended authentication, but we don't support it. */
-				send__connack(context, 0, MQTT_RC_BAD_AUTHENTICATION_METHOD, NULL);
+				send__connack(context, 0, MQTT_RC_BAD_AUTHENTICATION_METHOD, রিক্ত);
 				mosquitto_FREE(context->id);
-				goto handle_connect_error;
-			}else{
+				গচ্ছ handle_connect_error;
+			}অন্যথা{
 				mosquitto_FREE(context->id);
-				goto handle_connect_error;
+				গচ্ছ handle_connect_error;
 			}
 		}
-	}else{
+	}অন্যথা{
 #ifdef WITH_TLS
-		if(context->listener->ssl_ctx && (context->listener->use_identity_as_username || context->listener->use_subject_as_username)){
+		যদি(context->listener->ssl_ctx && (context->listener->use_identity_as_username || context->listener->use_subject_as_username)){
 			/* Authentication assumed to be cleared */
-		}else
+		}অন্যথা
 #endif
 		{
 			rc = mosquitto_basic_auth(context);
-			switch(rc){
-				case MOSQ_ERR_SUCCESS:
-					break;
-				case MOSQ_ERR_AUTH_DELAYED:
+			ৱিকল্প(rc){
+				পক্ষ MOSQ_ERR_SUCCESS:
+					ভঙ্গ;
+				পক্ষ MOSQ_ERR_AUTH_DELAYED:
 					mosquitto__set_state(context, mosq_cs_delayed_auth);
 					HASH_ADD_KEYPTR(hh_id, db.contexts_by_id_delayed_auth, context->id, strlen(context->id), context);
-					return MOSQ_ERR_SUCCESS;
-					break;
-				case MOSQ_ERR_AUTH:
-					if(context->protocol == mosq_p_mqtt5){
-						send__connack(context, 0, MQTT_RC_NOT_AUTHORIZED, NULL);
-					}else{
-						send__connack(context, 0, CONNACK_REFUSED_NOT_AUTHORIZED, NULL);
+					ঘূৰাই MOSQ_ERR_SUCCESS;
+					ভঙ্গ;
+				পক্ষ MOSQ_ERR_AUTH:
+					যদি(context->protocol == mosq_p_mqtt5){
+						send__connack(context, 0, MQTT_RC_NOT_AUTHORIZED, রিক্ত);
+					}অন্যথা{
+						send__connack(context, 0, CONNACK_REFUSED_NOT_AUTHORIZED, রিক্ত);
 					}
-					goto handle_connect_error;
-					break;
-				case MOSQ_ERR_UNSPECIFIED:
-				case MOSQ_ERR_IMPLEMENTATION_SPECIFIC:
-				case MOSQ_ERR_CLIENT_IDENTIFIER_NOT_VALID:
-				case MOSQ_ERR_BAD_USERNAME_OR_PASSWORD:
-				case MOSQ_ERR_SERVER_UNAVAILABLE:
-				case MOSQ_ERR_SERVER_BUSY:
-				case MOSQ_ERR_BANNED:
-				case MOSQ_ERR_BAD_AUTHENTICATION_METHOD:
-				case MOSQ_ERR_CONNECTION_RATE_EXCEEDED:
-					if(context->protocol == mosq_p_mqtt5){
-						send__connack(context, 0, (uint8_t)rc, NULL);
-					}else{
-						send__connack(context, 0, CONNACK_REFUSED_NOT_AUTHORIZED, NULL);
+					গচ্ছ handle_connect_error;
+					ভঙ্গ;
+				পক্ষ MOSQ_ERR_UNSPECIFIED:
+				পক্ষ MOSQ_ERR_IMPLEMENTATION_SPECIFIC:
+				পক্ষ MOSQ_ERR_CLIENT_IDENTIFIER_NOT_VALID:
+				পক্ষ MOSQ_ERR_BAD_USERNAME_OR_PASSWORD:
+				পক্ষ MOSQ_ERR_SERVER_UNAVAILABLE:
+				পক্ষ MOSQ_ERR_SERVER_BUSY:
+				পক্ষ MOSQ_ERR_BANNED:
+				পক্ষ MOSQ_ERR_BAD_AUTHENTICATION_METHOD:
+				পক্ষ MOSQ_ERR_CONNECTION_RATE_EXCEEDED:
+					যদি(context->protocol == mosq_p_mqtt5){
+						send__connack(context, 0, (uint8_t)rc, রিক্ত);
+					}অন্যথা{
+						send__connack(context, 0, CONNACK_REFUSED_NOT_AUTHORIZED, রিক্ত);
 					}
-					goto handle_connect_error;
-					break;
-				default:
+					গচ্ছ handle_connect_error;
+					ভঙ্গ;
+				স্ৱভাৱ:
 					rc = MOSQ_ERR_UNKNOWN;
-					goto handle_connect_error;
-					break;
+					গচ্ছ handle_connect_error;
+					ভঙ্গ;
 			}
 		}
-		return connect__on_authorised(context, NULL, 0);
+		ঘূৰাই connect__on_authorised(context, রিক্ত, 0);
 	}
 
 
@@ -1296,10 +1296,10 @@ handle_connect_error:
 	mosquitto_FREE(clientid);
 	mosquitto_FREE(username);
 	mosquitto_FREE(password);
-	if(will_struct){
+	যদি(will_struct){
 		mosquitto_property_free_all(&will_struct->properties);
-		mosquitto_FREE(will_struct->msg.payload);
-		mosquitto_FREE(will_struct->msg.topic);
+		mosquitto_FREE(will_struct->বাৰ্তা.payload);
+		mosquitto_FREE(will_struct->বাৰ্তা.topic);
 		mosquitto_FREE(will_struct);
 	}
 	will__clear(context);
@@ -1307,5 +1307,5 @@ handle_connect_error:
 	context->clean_start = true;
 	context->session_expiry_interval = MQTT_SESSION_EXPIRY_IMMEDIATE;
 	context->will_delay_interval = 0;
-	return rc;
+	ঘূৰাই rc;
 }

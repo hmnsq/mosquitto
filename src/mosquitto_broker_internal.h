@@ -20,12 +20,12 @@ Contributors:
 #ifndef MOSQUITTO_BROKER_INTERNAL_H
 #define MOSQUITTO_BROKER_INTERNAL_H
 
-#include "config.h"
-#include <stdio.h>
+#অন্তর্ভাৱ "config.h"
+#অন্তর্ভাৱ <stdio.h>
 
-#if defined(WITH_WEBSOCKETS) && WITH_WEBSOCKETS == WS_IS_LWS
+#যদি defined(WITH_WEBSOCKETS) && WITH_WEBSOCKETS == WS_IS_LWS
 #  include <libwebsockets.h>
-#  if LWS_LIBRARY_VERSION_NUMBER >= 3002000 && !defined(LWS_WITH_EXTERNAL_POLL)
+#  যদি LWS_LIBRARY_VERSION_সংখ্যা >= 3002000 && !defined(LWS_WITH_EXTERNAL_POLL)
 #    warning "libwebsockets is not compiled with LWS_WITH_EXTERNAL_POLL support. Websocket performance will be unusable."
 #  endif
 #endif
@@ -38,15 +38,15 @@ Contributors:
 #define WITH_TCP_USER_TIMEOUT
 #endif
 
-#include "mosquitto_internal.h"
-#include "mosquitto/broker.h"
-#include "mosquitto/broker_plugin.h"
-#include "mosquitto.h"
-#include "logging_mosq.h"
-#include "tls_mosq.h"
-#include "uthash.h"
-#include "acl_file.h"
-#include "password_file.h"
+#অন্তর্ভাৱ "mosquitto_internal.h"
+#অন্তর্ভাৱ "mosquitto/broker.h"
+#অন্তর্ভাৱ "mosquitto/broker_plugin.h"
+#অন্তর্ভাৱ "mosquitto.h"
+#অন্তর্ভাৱ "logging_mosq.h"
+#অন্তর্ভাৱ "tls_mosq.h"
+#অন্তর্ভাৱ "uthash.h"
+#অন্তর্ভাৱ "acl_file.h"
+#অন্তর্ভাৱ "password_file.h"
 
 #ifndef __GNUC__
 #define __attribute__(attrib)
@@ -67,48 +67,48 @@ Contributors:
 
 #define CMD_PORT_LIMIT 10
 
-typedef uint64_t dbid_t;
+প্রকারনির্দেশ uint64_t dbid_t;
 
-typedef int (*FUNC_plugin_init_v5)(mosquitto_plugin_id_t *, void **, struct mosquitto_opt *, int);
-typedef int (*FUNC_plugin_cleanup_v5)(void *, struct mosquitto_opt *, int);
+প্রকারনির্দেশ পূর্ণাঙ্ক (*FUNC_plugin_init_v5)(mosquitto_plugin_id_t *, শূন্য **, সংরচনা mosquitto_opt *, পূর্ণাঙ্ক);
+প্রকারনির্দেশ পূর্ণাঙ্ক (*FUNC_plugin_cleanup_v5)(শূন্য *, সংরচনা mosquitto_opt *, পূর্ণাঙ্ক);
 
-typedef int (*FUNC_auth_plugin_init_v4)(void **, struct mosquitto_opt *, int);
-typedef int (*FUNC_auth_plugin_cleanup_v4)(void *, struct mosquitto_opt *, int);
-typedef int (*FUNC_auth_plugin_security_init_v4)(void *, struct mosquitto_opt *, int, bool);
-typedef int (*FUNC_auth_plugin_security_cleanup_v4)(void *, struct mosquitto_opt *, int, bool);
-typedef int (*FUNC_auth_plugin_acl_check_v4)(void *, int, struct mosquitto *, struct mosquitto_acl_msg *);
-typedef int (*FUNC_auth_plugin_unpwd_check_v4)(void *, struct mosquitto *, const char *, const char *);
-typedef int (*FUNC_auth_plugin_psk_key_get_v4)(void *, struct mosquitto *, const char *, const char *, char *, int);
-typedef int (*FUNC_auth_plugin_auth_start_v4)(void *, struct mosquitto *, const char *, bool, const void *, uint16_t, void **, uint16_t *);
-typedef int (*FUNC_auth_plugin_auth_continue_v4)(void *, struct mosquitto *, const char *, const void *, uint16_t, void **, uint16_t *);
+প্রকারনির্দেশ পূর্ণাঙ্ক (*FUNC_auth_plugin_init_v4)(শূন্য **, সংরচনা mosquitto_opt *, পূর্ণাঙ্ক);
+প্রকারনির্দেশ পূর্ণাঙ্ক (*FUNC_auth_plugin_cleanup_v4)(শূন্য *, সংরচনা mosquitto_opt *, পূর্ণাঙ্ক);
+প্রকারনির্দেশ পূর্ণাঙ্ক (*FUNC_auth_plugin_security_init_v4)(শূন্য *, সংরচনা mosquitto_opt *, পূর্ণাঙ্ক, bool);
+প্রকারনির্দেশ পূর্ণাঙ্ক (*FUNC_auth_plugin_security_cleanup_v4)(শূন্য *, সংরচনা mosquitto_opt *, পূর্ণাঙ্ক, bool);
+প্রকারনির্দেশ পূর্ণাঙ্ক (*FUNC_auth_plugin_acl_check_v4)(শূন্য *, পূর্ণাঙ্ক, সংরচনা mosquitto *, সংরচনা mosquitto_acl_বাৰ্তা *);
+প্রকারনির্দেশ পূর্ণাঙ্ক (*FUNC_auth_plugin_unpwd_check_v4)(শূন্য *, সংরচনা mosquitto *, ধ্রুৱ ৱর্ণ *, ধ্রুৱ ৱর্ণ *);
+প্রকারনির্দেশ পূর্ণাঙ্ক (*FUNC_auth_plugin_psk_চাবি_get_v4)(শূন্য *, সংরচনা mosquitto *, ধ্রুৱ ৱর্ণ *, ধ্রুৱ ৱর্ণ *, ৱর্ণ *, পূর্ণাঙ্ক);
+প্রকারনির্দেশ পূর্ণাঙ্ক (*FUNC_auth_plugin_auth_start_v4)(শূন্য *, সংরচনা mosquitto *, ধ্রুৱ ৱর্ণ *, bool, ধ্রুৱ শূন্য *, uint16_t, শূন্য **, uint16_t *);
+প্রকারনির্দেশ পূর্ণাঙ্ক (*FUNC_auth_plugin_auth_continue_v4)(শূন্য *, সংরচনা mosquitto *, ধ্রুৱ ৱর্ণ *, ধ্রুৱ শূন্য *, uint16_t, শূন্য **, uint16_t *);
 
-typedef int (*FUNC_auth_plugin_init_v3)(void **, struct mosquitto_opt *, int);
-typedef int (*FUNC_auth_plugin_cleanup_v3)(void *, struct mosquitto_opt *, int);
-typedef int (*FUNC_auth_plugin_security_init_v3)(void *, struct mosquitto_opt *, int, bool);
-typedef int (*FUNC_auth_plugin_security_cleanup_v3)(void *, struct mosquitto_opt *, int, bool);
-typedef int (*FUNC_auth_plugin_acl_check_v3)(void *, int, const struct mosquitto *, struct mosquitto_acl_msg *);
-typedef int (*FUNC_auth_plugin_unpwd_check_v3)(void *, const struct mosquitto *, const char *, const char *);
-typedef int (*FUNC_auth_plugin_psk_key_get_v3)(void *, const struct mosquitto *, const char *, const char *, char *, int);
+প্রকারনির্দেশ পূর্ণাঙ্ক (*FUNC_auth_plugin_init_v3)(শূন্য **, সংরচনা mosquitto_opt *, পূর্ণাঙ্ক);
+প্রকারনির্দেশ পূর্ণাঙ্ক (*FUNC_auth_plugin_cleanup_v3)(শূন্য *, সংরচনা mosquitto_opt *, পূর্ণাঙ্ক);
+প্রকারনির্দেশ পূর্ণাঙ্ক (*FUNC_auth_plugin_security_init_v3)(শূন্য *, সংরচনা mosquitto_opt *, পূর্ণাঙ্ক, bool);
+প্রকারনির্দেশ পূর্ণাঙ্ক (*FUNC_auth_plugin_security_cleanup_v3)(শূন্য *, সংরচনা mosquitto_opt *, পূর্ণাঙ্ক, bool);
+প্রকারনির্দেশ পূর্ণাঙ্ক (*FUNC_auth_plugin_acl_check_v3)(শূন্য *, পূর্ণাঙ্ক, ধ্রুৱ সংরচনা mosquitto *, সংরচনা mosquitto_acl_বাৰ্তা *);
+প্রকারনির্দেশ পূর্ণাঙ্ক (*FUNC_auth_plugin_unpwd_check_v3)(শূন্য *, ধ্রুৱ সংরচনা mosquitto *, ধ্রুৱ ৱর্ণ *, ধ্রুৱ ৱর্ণ *);
+প্রকারনির্দেশ পূর্ণাঙ্ক (*FUNC_auth_plugin_psk_চাবি_get_v3)(শূন্য *, ধ্রুৱ সংরচনা mosquitto *, ধ্রুৱ ৱর্ণ *, ধ্রুৱ ৱর্ণ *, ৱর্ণ *, পূর্ণাঙ্ক);
 
-typedef int (*FUNC_auth_plugin_init_v2)(void **, struct mosquitto_auth_opt *, int);
-typedef int (*FUNC_auth_plugin_cleanup_v2)(void *, struct mosquitto_auth_opt *, int);
-typedef int (*FUNC_auth_plugin_security_init_v2)(void *, struct mosquitto_auth_opt *, int, bool);
-typedef int (*FUNC_auth_plugin_security_cleanup_v2)(void *, struct mosquitto_auth_opt *, int, bool);
-typedef int (*FUNC_auth_plugin_acl_check_v2)(void *, const char *, const char *, const char *, int);
-typedef int (*FUNC_auth_plugin_unpwd_check_v2)(void *, const char *, const char *);
-typedef int (*FUNC_auth_plugin_psk_key_get_v2)(void *, const char *, const char *, char *, int);
+প্রকারনির্দেশ পূর্ণাঙ্ক (*FUNC_auth_plugin_init_v2)(শূন্য **, সংরচনা mosquitto_auth_opt *, পূর্ণাঙ্ক);
+প্রকারনির্দেশ পূর্ণাঙ্ক (*FUNC_auth_plugin_cleanup_v2)(শূন্য *, সংরচনা mosquitto_auth_opt *, পূর্ণাঙ্ক);
+প্রকারনির্দেশ পূর্ণাঙ্ক (*FUNC_auth_plugin_security_init_v2)(শূন্য *, সংরচনা mosquitto_auth_opt *, পূর্ণাঙ্ক, bool);
+প্রকারনির্দেশ পূর্ণাঙ্ক (*FUNC_auth_plugin_security_cleanup_v2)(শূন্য *, সংরচনা mosquitto_auth_opt *, পূর্ণাঙ্ক, bool);
+প্রকারনির্দেশ পূর্ণাঙ্ক (*FUNC_auth_plugin_acl_check_v2)(শূন্য *, ধ্রুৱ ৱর্ণ *, ধ্রুৱ ৱর্ণ *, ধ্রুৱ ৱর্ণ *, পূর্ণাঙ্ক);
+প্রকারনির্দেশ পূর্ণাঙ্ক (*FUNC_auth_plugin_unpwd_check_v2)(শূন্য *, ধ্রুৱ ৱর্ণ *, ধ্রুৱ ৱর্ণ *);
+প্রকারনির্দেশ পূর্ণাঙ্ক (*FUNC_auth_plugin_psk_চাবি_get_v2)(শূন্য *, ধ্রুৱ ৱর্ণ *, ধ্রুৱ ৱর্ণ *, ৱর্ণ *, পূর্ণাঙ্ক);
 
 
-enum mosquitto_msg_origin {
+গণনা mosquitto_বাৰ্তা_origin {
 	mosq_mo_client = 0,
 	mosq_mo_broker = 1,
 };
 
-struct mosquitto__plugin_lib {
-	void *lib;
-	void *user_data;
-	int (*plugin_version)(void);
-	struct mosquitto_plugin_id_t *identifier;
+সংরচনা mosquitto__plugin_lib {
+	শূন্য *lib;
+	শূন্য *user_data;
+	পূর্ণাঙ্ক (*plugin_version)(শূন্য);
+	সংরচনা mosquitto_plugin_id_t *identifier;
 
 	FUNC_plugin_init_v5 plugin_init_v5;
 	FUNC_plugin_cleanup_v5 plugin_cleanup_v5;
@@ -119,7 +119,7 @@ struct mosquitto__plugin_lib {
 	FUNC_auth_plugin_security_cleanup_v4 security_cleanup_v4;
 	FUNC_auth_plugin_acl_check_v4 acl_check_v4;
 	FUNC_auth_plugin_unpwd_check_v4 unpwd_check_v4;
-	FUNC_auth_plugin_psk_key_get_v4 psk_key_get_v4;
+	FUNC_auth_plugin_psk_চাবি_get_v4 psk_চাবি_get_v4;
 	FUNC_auth_plugin_auth_start_v4 auth_start_v4;
 	FUNC_auth_plugin_auth_continue_v4 auth_continue_v4;
 
@@ -129,7 +129,7 @@ struct mosquitto__plugin_lib {
 	FUNC_auth_plugin_security_cleanup_v3 security_cleanup_v3;
 	FUNC_auth_plugin_acl_check_v3 acl_check_v3;
 	FUNC_auth_plugin_unpwd_check_v3 unpwd_check_v3;
-	FUNC_auth_plugin_psk_key_get_v3 psk_key_get_v3;
+	FUNC_auth_plugin_psk_চাবি_get_v3 psk_চাবি_get_v3;
 
 	FUNC_auth_plugin_init_v2 plugin_init_v2;
 	FUNC_auth_plugin_cleanup_v2 plugin_cleanup_v2;
@@ -137,89 +137,89 @@ struct mosquitto__plugin_lib {
 	FUNC_auth_plugin_security_cleanup_v2 security_cleanup_v2;
 	FUNC_auth_plugin_acl_check_v2 acl_check_v2;
 	FUNC_auth_plugin_unpwd_check_v2 unpwd_check_v2;
-	FUNC_auth_plugin_psk_key_get_v2 psk_key_get_v2;
-	int version;
+	FUNC_auth_plugin_psk_চাবি_get_v2 psk_চাবি_get_v2;
+	পূর্ণাঙ্ক version;
 };
 
-struct mosquitto__plugin_config {
-	char *path;
-	char *name;
-	struct mosquitto_opt *options;
-	struct mosquitto__security_options **security_options;
-	int option_count;
-	int security_option_count;
+সংরচনা mosquitto__plugin_config {
+	ৱর্ণ *path;
+	ৱর্ণ *name;
+	সংরচনা mosquitto_opt *options;
+	সংরচনা mosquitto__security_options **security_options;
+	পূর্ণাঙ্ক option_গুনতি;
+	পূর্ণাঙ্ক security_option_গুনতি;
 	bool deny_special_chars;
 };
 
-struct mosquitto__callback {
+সংরচনা mosquitto__callback {
 	UT_hash_handle hh; /* For callbacks that register for e.g. a specific topic */
-	struct mosquitto__callback *next, *prev; /* For typical callbacks */
+	সংরচনা mosquitto__callback *next, *prev; /* For typical callbacks */
 	MOSQ_FUNC_generic_callback cb;
-	void *userdata;
-	union {
-		char *topic;
-		struct timespec next_tick;
+	শূন্য *userdata;
+	সঙ্ঘ {
+		ৱর্ণ *topic;
+		সংরচনা timespec next_tick;
 	} data;
 	mosquitto_plugin_id_t *identifier;
 };
 
-struct plugin__callbacks {
-	struct mosquitto__callback *tick;
-	struct mosquitto__callback *acl_check;
-	struct mosquitto__callback *basic_auth;
-	struct mosquitto__callback *connect;
-	struct mosquitto__callback *control;
-	struct mosquitto__callback *disconnect;
-	struct mosquitto__callback *client_offline;
-	struct mosquitto__callback *ext_auth_continue;
-	struct mosquitto__callback *ext_auth_start;
-	struct mosquitto__callback *message_in;
-	struct mosquitto__callback *message_out;
-	struct mosquitto__callback *psk_key;
-	struct mosquitto__callback *reload;
-	struct mosquitto__callback *subscribe;
-	struct mosquitto__callback *unsubscribe;
-	struct mosquitto__callback *persist_restore;
-	struct mosquitto__callback *persist_client_add;
-	struct mosquitto__callback *persist_client_delete;
-	struct mosquitto__callback *persist_client_update;
-	struct mosquitto__callback *persist_subscription_add;
-	struct mosquitto__callback *persist_subscription_delete;
-	struct mosquitto__callback *persist_client_msg_add;
-	struct mosquitto__callback *persist_client_msg_delete;
-	struct mosquitto__callback *persist_client_msg_update;
-	struct mosquitto__callback *persist_base_msg_add;
-	struct mosquitto__callback *persist_base_msg_delete;
-	struct mosquitto__callback *persist_retain_msg_set;
-	struct mosquitto__callback *persist_retain_msg_delete;
-	struct mosquitto__callback *persist_will_add;
-	struct mosquitto__callback *persist_will_delete;
+সংরচনা plugin__callbacks {
+	সংরচনা mosquitto__callback *tick;
+	সংরচনা mosquitto__callback *acl_check;
+	সংরচনা mosquitto__callback *basic_auth;
+	সংরচনা mosquitto__callback *connect;
+	সংরচনা mosquitto__callback *control;
+	সংরচনা mosquitto__callback *disconnect;
+	সংরচনা mosquitto__callback *client_offline;
+	সংরচনা mosquitto__callback *ext_auth_continue;
+	সংরচনা mosquitto__callback *ext_auth_start;
+	সংরচনা mosquitto__callback *message_in;
+	সংরচনা mosquitto__callback *message_out;
+	সংরচনা mosquitto__callback *psk_চাবি;
+	সংরচনা mosquitto__callback *reload;
+	সংরচনা mosquitto__callback *subscribe;
+	সংরচনা mosquitto__callback *unsubscribe;
+	সংরচনা mosquitto__callback *persist_restore;
+	সংরচনা mosquitto__callback *persist_client_add;
+	সংরচনা mosquitto__callback *persist_client_delete;
+	সংরচনা mosquitto__callback *persist_client_update;
+	সংরচনা mosquitto__callback *persist_subscription_add;
+	সংরচনা mosquitto__callback *persist_subscription_delete;
+	সংরচনা mosquitto__callback *persist_client_বাৰ্তা_add;
+	সংরচনা mosquitto__callback *persist_client_বাৰ্তা_delete;
+	সংরচনা mosquitto__callback *persist_client_বাৰ্তা_update;
+	সংরচনা mosquitto__callback *persist_base_বাৰ্তা_add;
+	সংরচনা mosquitto__callback *persist_base_বাৰ্তা_delete;
+	সংরচনা mosquitto__callback *persist_retain_বাৰ্তা_set;
+	সংরচনা mosquitto__callback *persist_retain_বাৰ্তা_delete;
+	সংরচনা mosquitto__callback *persist_will_add;
+	সংরচনা mosquitto__callback *persist_will_delete;
 };
 
 /* This is owned by mosquitto__config or mosquitto__listener, and only referred
  * to by other structs */
-struct mosquitto__security_options {
+সংরচনা mosquitto__security_options {
 	/* Any options that get added here also need considering
 	 * in config__read() with regards whether allow_anonymous
 	 * should be disabled when these options are set.
 	 */
-	struct mosquitto__unpwd *unpwd;
-	struct mosquitto__psk *psk_id;
-	struct acl_file_data acl_data;
-	struct password_file_data password_data;
-	char *psk_file;
+	সংরচনা mosquitto__unpwd *unpwd;
+	সংরচনা mosquitto__psk *psk_id;
+	সংরচনা acl_file_data acl_data;
+	সংরচনা password_file_data password_data;
+	ৱর্ণ *psk_file;
 	mosquitto_plugin_id_t **plugins;
-	int plugin_count;
+	পূর্ণাঙ্ক plugin_গুনতি;
 	int8_t allow_anonymous;
 	bool allow_zero_length_clientid;
-	char *auto_id_prefix;
+	ৱর্ণ *auto_id_prefix;
 	uint16_t auto_id_prefix_len;
-	struct plugin__callbacks plugin_callbacks;
+	সংরচনা plugin__callbacks plugin_callbacks;
 	mosquitto_plugin_id_t *pid; /* For registering as a "plugin" */
 };
 
-#if defined(WITH_EPOLL) || defined(WITH_KQUEUE)
-enum struct_ident {
+#যদি defined(WITH_EPOLL) || defined(WITH_KQUEUE)
+গণনা struct_ident {
 	id_invalid = 0,
 	id_listener = 1,
 	id_client = 2,
@@ -227,125 +227,125 @@ enum struct_ident {
 };
 #endif
 
-struct mosquitto__listener {
+সংরচনা mosquitto__listener {
 	uint16_t port;
-	char *host;
-	char *bind_interface;
-	int max_connections;
-	char *mount_point;
+	ৱর্ণ *host;
+	ৱর্ণ *bind_interface;
+	পূর্ণাঙ্ক max_connections;
+	ৱর্ণ *mount_point;
 	mosq_sock_t *socks;
-	int sock_count;
-	int client_count;
-	enum mosquitto_protocol protocol;
-	int socket_domain;
+	পূর্ণাঙ্ক sock_গুনতি;
+	পূর্ণাঙ্ক client_গুনতি;
+	গণনা mosquitto_protocol protocol;
+	পূর্ণাঙ্ক socket_domain;
 	bool use_username_as_clientid;
 	uint8_t max_qos;
 	uint16_t max_topic_alias;
 	uint16_t max_topic_alias_broker;
 #ifdef WITH_TLS
-	char *cafile;
-	char *capath;
-	char *certfile;
-	char *keyfile;
-	char *tls_engine;
-	char *tls_engine_kpass_sha1;
-	char *ciphers;
-	char *ciphers_tls13;
-	char *psk_hint;
+	ৱর্ণ *cafile;
+	ৱর্ণ *capath;
+	ৱর্ণ *certfile;
+	ৱর্ণ *keyfile;
+	ৱর্ণ *tls_engine;
+	ৱর্ণ *tls_engine_kpass_sha1;
+	ৱর্ণ *ciphers;
+	ৱর্ণ *ciphers_tls13;
+	ৱর্ণ *psk_hint;
 	SSL_CTX *ssl_ctx;
-	char *crlfile;
-	char *tls_version;
+	ৱর্ণ *crlfile;
+	ৱর্ণ *tls_version;
 	bool use_identity_as_username;
 	bool use_subject_as_username;
 	bool require_certificate;
 	bool disable_client_cert_date_checks;
-	enum mosquitto__keyform tls_keyform;
+	গণনা mosquitto__keyform tls_keyform;
 #endif
 #ifdef WITH_WEBSOCKETS
-#  if WITH_WEBSOCKETS == WS_IS_LWS
-	struct lws_context *ws_context;
+#  যদি WITH_WEBSOCKETS == WS_IS_LWS
+	সংরচনা lws_context *ws_context;
 	bool ws_in_init;
-	struct lws_protocols *ws_protocol;
+	সংরচনা lws_protocols *ws_protocol;
 #  endif
-	char **ws_origins;
-	int ws_origin_count;
+	ৱর্ণ **ws_origins;
+	পূর্ণাঙ্ক ws_origin_গুনতি;
 #endif
-#if defined(WITH_WEBSOCKETS) || defined(WITH_HTTP_API)
-	char *http_dir;
+#যদি defined(WITH_WEBSOCKETS) || defined(WITH_HTTP_API)
+	ৱর্ণ *http_dir;
 #endif
-	struct mosquitto__security_options *security_options;
+	সংরচনা mosquitto__security_options *security_options;
 #ifdef WITH_UNIX_SOCKETS
-	char *unix_socket_path;
+	ৱর্ণ *unix_socket_path;
 #endif
 	bool disable_protocol_v3;
 	bool disable_protocol_v4;
 	bool disable_protocol_v5;
-	int enable_proxy_protocol;
+	পূর্ণাঙ্ক enable_proxy_protocol;
 	bool proxy_protocol_v2_require_tls;
 #ifdef WITH_HTTP_API
-	struct MHD_Daemon *mhd;
+	সংরচনা MHD_Daemon *mhd;
 #endif
 };
 
 
-struct mosquitto__listener_sock {
-#if defined(WITH_EPOLL) || defined(WITH_KQUEUE)
+সংরচনা mosquitto__listener_sock {
+#যদি defined(WITH_EPOLL) || defined(WITH_KQUEUE)
 	/* This *must* be the first element in the struct. */
-	int ident;
+	পূর্ণাঙ্ক ident;
 #endif
 	mosq_sock_t sock;
-	struct mosquitto__listener *listener;
+	সংরচনা mosquitto__listener *listener;
 };
 
 
 /* Callbacks belonging to a specific plugin
  * Doesn't include MOSQ_EVT_CONTROL events.
  */
-struct plugin_own_callback {
-	struct plugin_own_callback *next, *prev;
+সংরচনা plugin_own_callback {
+	সংরচনা plugin_own_callback *next, *prev;
 	MOSQ_FUNC_generic_callback cb_func;
-	enum mosquitto_plugin_event event;
+	গণনা mosquitto_plugin_event event;
 };
 
-struct mosquitto_plugin_id_t {
-	struct mosquitto__plugin_config config;
-	struct mosquitto__plugin_lib lib;
-	struct mosquitto__listener *listener;
-	char *plugin_name;
-	char *plugin_version;
-	struct control_endpoint *control_endpoints;
-	struct plugin_own_callback *own_callbacks;
-	struct timespec next_tick;
+সংরচনা mosquitto_plugin_id_t {
+	সংরচনা mosquitto__plugin_config config;
+	সংরচনা mosquitto__plugin_lib lib;
+	সংরচনা mosquitto__listener *listener;
+	ৱর্ণ *plugin_name;
+	ৱর্ণ *plugin_version;
+	সংরচনা control_endpoint *control_endpoints;
+	সংরচনা plugin_own_callback *own_callbacks;
+	সংরচনা timespec next_tick;
 };
 
-struct mosquitto__config {
+সংরচনা mosquitto__config {
 	bool allow_duplicate_messages;
-	int autosave_interval;
+	পূর্ণাঙ্ক autosave_interval;
 	bool autosave_on_changes;
 	bool check_retain_source;
-	char *clientid_prefixes;
+	ৱর্ণ *clientid_prefixes;
 	bool connection_messages;
 	uint16_t cmd_port[CMD_PORT_LIMIT];
-	int cmd_port_count;
+	পূর্ণাঙ্ক cmd_port_গুনতি;
 	bool daemon;
 	bool test_configuration;
 	bool enable_control_api;
-	int global_max_clients;
-	int global_max_connections;
-	struct mosquitto__listener *default_listener; /* Points to one of `listeners` */
-	struct mosquitto__listener *listeners;
-	int listener_count;
+	পূর্ণাঙ্ক global_max_clients;
+	পূর্ণাঙ্ক global_max_connections;
+	সংরচনা mosquitto__listener *default_listener; /* Points to one of `listeners` */
+	সংরচনা mosquitto__listener *listeners;
+	পূর্ণাঙ্ক listener_গুনতি;
 	bool local_only;
-	unsigned int log_dest;
-	int log_facility;
-	unsigned int log_type;
+	unsigned পূর্ণাঙ্ক log_dest;
+	পূর্ণাঙ্ক log_facility;
+	unsigned পূর্ণাঙ্ক log_type;
 	bool log_timestamp;
-	char *log_timestamp_format;
-	char *log_file;
+	ৱর্ণ *log_timestamp_format;
+	ৱর্ণ *log_file;
 	FILE *log_fptr;
 	size_t max_inflight_bytes;
 	size_t max_queued_bytes;
-	int max_queued_messages;
+	পূর্ণাঙ্ক max_queued_messages;
 	uint32_t max_packet_size;
 	uint32_t message_size_limit;
 	uint16_t max_inflight_messages;
@@ -356,201 +356,201 @@ struct mosquitto__config {
 	uint32_t packet_max_sub;
 	uint32_t packet_max_auth;
 	bool persistence;
-	char *persistence_location;
-	char *persistence_file;
-	char *persistence_filepath;
+	ৱর্ণ *persistence_location;
+	ৱর্ণ *persistence_file;
+	ৱর্ণ *persistence_filepath;
 	time_t persistent_client_expiration;
-	char *pid_file;
+	ৱর্ণ *pid_file;
 	bool queue_qos0_messages;
 	bool per_listener_settings;
 	bool retain_available;
-	int retain_expiry_interval;
+	পূর্ণাঙ্ক retain_expiry_interval;
 	bool set_tcp_nodelay;
-	int sys_interval;
+	পূর্ণাঙ্ক sys_interval;
 	bool upgrade_outgoing_qos;
-	char *user;
-#if defined(WITH_WEBSOCKETS) && WITH_WEBSOCKETS == WS_IS_LWS
-	int websockets_log_level;
+	ৱর্ণ *user;
+#যদি defined(WITH_WEBSOCKETS) && WITH_WEBSOCKETS == WS_IS_LWS
+	পূর্ণাঙ্ক websockets_log_level;
 #endif
 	uint16_t packet_buffer_size;
 #ifdef WITH_BRIDGE
-	struct mosquitto__bridge **bridges;
-	int bridge_count;
+	সংরচনা mosquitto__bridge **bridges;
+	পূর্ণাঙ্ক bridge_গুনতি;
 #endif
-	struct mosquitto__security_options security_options;
+	সংরচনা mosquitto__security_options security_options;
 };
 
 
-struct mosquitto__subshared {
+সংরচনা mosquitto__subshared {
 	UT_hash_handle hh;
-	struct mosquitto__subleaf *subs;
-	char name[];
+	সংরচনা mosquitto__subleaf *subs;
+	ৱর্ণ name[];
 };
 
-struct mosquitto__subhier {
+সংরচনা mosquitto__subhier {
 	UT_hash_handle hh;
-	struct mosquitto__subhier *parent;
-	struct mosquitto__subhier *children;
-	struct mosquitto__subleaf *subs;
-	struct mosquitto__subshared *shared;
+	সংরচনা mosquitto__subhier *parent;
+	সংরচনা mosquitto__subhier *children;
+	সংরচনা mosquitto__subleaf *subs;
+	সংরচনা mosquitto__subshared *shared;
 	uint16_t topic_len;
-	char topic[];
+	ৱর্ণ topic[];
 };
 
-struct mosquitto__subleaf {
-	struct mosquitto__subleaf *prev;
-	struct mosquitto__subleaf *next;
-	struct mosquitto *context;
-	struct mosquitto__subhier *hier;
-	struct mosquitto__subshared *shared;
+সংরচনা mosquitto__subleaf {
+	সংরচনা mosquitto__subleaf *prev;
+	সংরচনা mosquitto__subleaf *next;
+	সংরচনা mosquitto *context;
+	সংরচনা mosquitto__subhier *hier;
+	সংরচনা mosquitto__subshared *shared;
 	uint32_t identifier;
 	uint8_t subscription_options;
-	char topic_filter[];
+	ৱর্ণ topic_filter[];
 };
 
-struct sub__token {
-	struct sub__token *next;
+সংরচনা sub__token {
+	সংরচনা sub__token *next;
 	uint16_t topic_len;
-	char topic[];
+	ৱর্ণ topic[];
 };
 
-struct mosquitto__retainhier {
+সংরচনা mosquitto__retainhier {
 	UT_hash_handle hh;
-	struct mosquitto__retainhier *parent;
-	struct mosquitto__retainhier *children;
-	struct mosquitto__base_msg *retained;
+	সংরচনা mosquitto__retainhier *parent;
+	সংরচনা mosquitto__retainhier *children;
+	সংরচনা mosquitto_base_বাৰ্তা *retained;
 	uint16_t topic_len;
-	char topic[];
+	ৱর্ণ topic[];
 };
 
-struct mosquitto__base_msg {
+সংরচনা mosquitto_base_বাৰ্তা {
 	UT_hash_handle hh;
-	struct mosquitto_base_msg data;
-	struct mosquitto__listener *source_listener;
-	char **dest_ids;
-	int dest_id_count;
-	int ref_count;
-	enum mosquitto_msg_origin origin;
+	সংরচনা mosquitto_base_বাৰ্তা_2 data;
+	সংরচনা mosquitto__listener *source_listener;
+	ৱর্ণ **dest_ids;
+	পূর্ণাঙ্ক dest_id_গুনতি;
+	পূর্ণাঙ্ক ref_গুনতি;
+	গণনা mosquitto_বাৰ্তা_origin origin;
 	bool stored;
 };
 
-struct mosquitto__client_msg {
-	struct mosquitto_client_msg data;
-	struct mosquitto__client_msg *prev;
-	struct mosquitto__client_msg *next;
-	struct mosquitto__base_msg *base_msg;
+সংরচনা mosquitto_client_বাৰ্তা {
+	সংরচনা mosquitto_client_বাৰ্তা_2 data;
+	সংরচনা mosquitto_client_বাৰ্তা *prev;
+	সংরচনা mosquitto_client_বাৰ্তা *next;
+	সংরচনা mosquitto_base_বাৰ্তা *base_বাৰ্তা;
 };
 
 
-struct mosquitto__psk {
+সংরচনা mosquitto__psk {
 	UT_hash_handle hh;
-	char *username;
-	char *password;
+	ৱর্ণ *username;
+	ৱর্ণ *password;
 };
 
-struct mosquitto__message_v5 {
-	struct mosquitto__message_v5 *next, *prev;
-	char *topic;
-	void *payload;
+সংরচনা mosquitto__message_v5 {
+	সংরচনা mosquitto__message_v5 *next, *prev;
+	ৱর্ণ *topic;
+	শূন্য *payload;
 	mosquitto_property *properties;
 	/* clientid is used only by mosquitto_broker_publish*() to indicate
 	   this message is for a specific client. */
-	char *clientid;
-	int payloadlen;
-	int qos;
+	ৱর্ণ *clientid;
+	পূর্ণাঙ্ক payloadlen;
+	পূর্ণাঙ্ক qos;
 	bool retain;
 };
 
-struct mosquitto_db {
+সংরচনা mosquitto_db {
 	dbid_t last_db_id;
-	uint64_t node_id_shifted;
-	struct mosquitto__subhier *normal_subs;
-	struct mosquitto__subhier *shared_subs;
-	struct mosquitto__retainhier *retains;
-	struct mosquitto *contexts_by_id;
-	struct mosquitto *contexts_by_sock;
-	struct mosquitto *contexts_by_id_delayed_auth;
-	struct mosquitto *contexts_for_free;
+	uint64_t গ্ৰন্থি_id_shifted;
+	সংরচনা mosquitto__subhier *normal_subs;
+	সংরচনা mosquitto__subhier *shared_subs;
+	সংরচনা mosquitto__retainhier *retains;
+	সংরচনা mosquitto *contexts_by_id;
+	সংরচনা mosquitto *contexts_by_sock;
+	সংরচনা mosquitto *contexts_by_id_delayed_auth;
+	সংরচনা mosquitto *contexts_for_free;
 	mosquitto_plugin_id_t **plugins;
-	int plugin_count;
+	পূর্ণাঙ্ক plugin_গুনতি;
 #ifdef WITH_BRIDGE
-	struct mosquitto **bridges;
-	int bridge_count;
+	সংরচনা mosquitto **bridges;
+	পূর্ণাঙ্ক bridge_গুনতি;
 #endif
-	struct clientid__index_hash *clientid_index_hash;
-	struct mosquitto__base_msg *msg_store;
+	সংরচনা clientid__index_hash *clientid_index_hash;
+	সংরচনা mosquitto_base_বাৰ্তা *বাৰ্তা_store;
 	time_t now_s; /* Monotonic clock, where possible */
 	time_t now_real_s; /* Read clock, for measuring session/message expiry */
-	uint64_t node_id; /* for unique db ids */
+	uint64_t গ্ৰন্থি_id; /* for unique db ids */
 	time_t next_event_ms; /* for mux timeout */
-	int msg_store_count;
-	unsigned long msg_store_bytes;
-	char *config_file;
-	struct mosquitto__config *config;
+	পূর্ণাঙ্ক বাৰ্তা_store_গুনতি;
+	unsigned long বাৰ্তা_store_bytes;
+	ৱর্ণ *config_file;
+	সংরচনা mosquitto__config *config;
 	bool quiet;
 	bool verbose;
-#ifdef WITH_SYS_TREE
-	int subscription_count;
-	int shared_subscription_count;
-	int retained_count;
+#ifdef WITH_SYS_বৃক্ষ
+	পূর্ণাঙ্ক subscription_গুনতি;
+	পূর্ণাঙ্ক shared_subscription_গুনতি;
+	পূর্ণাঙ্ক retained_গুনতি;
 #endif
-	int persistence_changes;
-	struct mosquitto *ll_for_free;
+	পূর্ণাঙ্ক persistence_changes;
+	সংরচনা mosquitto *ll_for_free;
 #ifdef WITH_EPOLL
-	int epollfd;
+	পূর্ণাঙ্ক epollfd;
 #endif
 #ifdef WITH_KQUEUE
-	int kqueuefd;
+	পূর্ণাঙ্ক kqueuefd;
 #endif
-	struct mosquitto__message_v5 *plugin_msgs;
+	সংরচনা mosquitto__message_v5 *plugin_msgs;
 #ifdef WITH_TLS
 	/* tls_keylog can't be in the config struct because it is used
 	   before the config is allocated. Config probably
 	   shouldn't be separately allocated. */
-	char *tls_keylog;
+	ৱর্ণ *tls_keylog;
 #endif
 	bool shutdown;
 };
 
-enum mosquitto__bridge_direction {
+গণনা mosquitto__bridge_direction {
 	bd_out = 0,
 	bd_in = 1,
 	bd_both = 2,
 };
 
-enum mosquitto_bridge_start_type {
+গণনা mosquitto_bridge_start_type {
 	bst_automatic = 0,
 	bst_lazy = 1,
 	bst_manual = 2,
 	bst_once = 3,
 };
 
-enum mosquitto_bridge_reload_type {
+গণনা mosquitto_bridge_reload_type {
 	brt_lazy = 0,
 	brt_immediate = 1,
 };
 
-struct mosquitto__bridge_topic {
-	struct mosquitto__bridge_topic *next;
-	char *topic;
-	char *local_prefix;
-	char *remote_prefix;
-	char *local_topic; /* topic prefixed with local_prefix */
-	char *remote_topic; /* topic prefixed with remote_prefix */
-	enum mosquitto__bridge_direction direction;
+সংরচনা mosquitto__bridge_topic {
+	সংরচনা mosquitto__bridge_topic *next;
+	ৱর্ণ *topic;
+	ৱর্ণ *local_prefix;
+	ৱর্ণ *remote_prefix;
+	ৱর্ণ *local_topic; /* topic prefixed with local_prefix */
+	ৱর্ণ *remote_topic; /* topic prefixed with remote_prefix */
+	গণনা mosquitto__bridge_direction direction;
 	uint8_t qos;
 };
 
-struct bridge_address {
-	char *address;
+সংরচনা bridge_address {
+	ৱর্ণ *address;
 	uint16_t port;
 };
 
-struct mosquitto__bridge {
-	char *name;
-	struct bridge_address *addresses;
-	int cur_address;
-	int address_count;
+সংরচনা mosquitto__bridge {
+	ৱর্ণ *name;
+	সংরচনা bridge_address *addresses;
+	পূর্ণাঙ্ক cur_address;
+	পূর্ণাঙ্ক address_গুনতি;
 	time_t primary_retry;
 	mosq_sock_t primary_retry_sock;
 	bool round_robin;
@@ -559,35 +559,35 @@ struct mosquitto__bridge {
 	bool clean_start;
 	int8_t clean_start_local;
 	uint16_t keepalive;
-	unsigned int tcp_keepalive_idle;
-	unsigned int tcp_keepalive_interval;
-	unsigned int tcp_keepalive_counter;
+	unsigned পূর্ণাঙ্ক tcp_keepalive_idle;
+	unsigned পূর্ণাঙ্ক tcp_keepalive_interval;
+	unsigned পূর্ণাঙ্ক tcp_keepalive_counter;
 #ifdef WITH_TCP_USER_TIMEOUT
-	int tcp_user_timeout;
+	পূর্ণাঙ্ক tcp_user_timeout;
 #endif
-	struct mosquitto__bridge_topic *topics;
-	int topic_count;
+	সংরচনা mosquitto__bridge_topic *topics;
+	পূর্ণাঙ্ক topic_গুনতি;
 	bool topic_remapping;
-	enum mosquitto__protocol protocol_version;
+	গণনা mosquitto__protocol protocol_version;
 	time_t restart_t;
 	time_t connected_at;
-	char *remote_clientid;
-	char *remote_username;
-	char *remote_password;
-	char *local_clientid;
-	char *local_username;
-	char *local_password;
-	char *notification_topic;
-	char *bind_address;
+	ৱর্ণ *remote_clientid;
+	ৱর্ণ *remote_username;
+	ৱর্ণ *remote_password;
+	ৱর্ণ *local_clientid;
+	ৱর্ণ *local_username;
+	ৱর্ণ *local_password;
+	ৱর্ণ *notification_topic;
+	ৱর্ণ *bind_address;
 	bool notifications;
 	bool notifications_local_only;
-	enum mosquitto_bridge_start_type start_type;
-	int idle_timeout;
-	int restart_timeout;
-	int backoff_base;
-	int backoff_cap;
-	int stable_connection_period;
-	int threshold;
+	গণনা mosquitto_bridge_start_type start_type;
+	পূর্ণাঙ্ক idle_timeout;
+	পূর্ণাঙ্ক restart_timeout;
+	পূর্ণাঙ্ক backoff_base;
+	পূর্ণাঙ্ক backoff_cap;
+	পূর্ণাঙ্ক stable_connection_period;
+	পূর্ণাঙ্ক threshold;
 	uint32_t maximum_packet_size;
 	uint32_t session_expiry_interval;
 	uint16_t receive_maximum;
@@ -595,421 +595,421 @@ struct mosquitto__bridge {
 	bool attempt_unsubscribe;
 	bool initial_notification_done;
 	bool outgoing_retain;
-	enum mosquitto_bridge_reload_type reload_type;
+	গণনা mosquitto_bridge_reload_type reload_type;
 	uint16_t max_topic_alias;
 #ifdef WITH_TLS
 	bool tls_insecure;
 	bool tls_ocsp_required;
 	bool tls_use_os_certs;
-	char *tls_cafile;
-	char *tls_capath;
-	char *tls_certfile;
-	char *tls_keyfile;
-	char *tls_version;
-	char *tls_alpn;
-	char *tls_ciphers;
-	char *tls_13_ciphers;
+	ৱর্ণ *tls_cafile;
+	ৱর্ণ *tls_capath;
+	ৱর্ণ *tls_certfile;
+	ৱর্ণ *tls_keyfile;
+	ৱর্ণ *tls_version;
+	ৱর্ণ *tls_alpn;
+	ৱর্ণ *tls_ciphers;
+	ৱর্ণ *tls_13_ciphers;
 #  ifdef FINAL_WITH_TLS_PSK
-	char *tls_psk_identity;
-	char *tls_psk;
+	ৱর্ণ *tls_psk_identity;
+	ৱর্ণ *tls_psk;
 #  endif
 #endif
 };
 
-#if defined(WITH_WEBSOCKETS) && WITH_WEBSOCKETS == WS_IS_LWS
-struct libws_mqtt_hack {
-	char *http_dir;
-	struct mosquitto__listener *listener;
+#যদি defined(WITH_WEBSOCKETS) && WITH_WEBSOCKETS == WS_IS_LWS
+সংরচনা libws_mqtt_hack {
+	ৱর্ণ *http_dir;
+	সংরচনা mosquitto__listener *listener;
 };
 
-struct libws_mqtt_data {
-	struct mosquitto *mosq;
+সংরচনা libws_mqtt_data {
+	সংরচনা mosquitto *mosq;
 };
 #endif
 
-#include <net_mosq.h>
+#অন্তর্ভাৱ <net_mosq.h>
 
 
-struct control_endpoint {
-	struct control_endpoint *next, *prev;
-	char topic[];
+সংরচনা control_endpoint {
+	সংরচনা control_endpoint *next, *prev;
+	ৱর্ণ topic[];
 };
 
-extern struct mosquitto_db db;
+বাহ্য সংরচনা mosquitto_db db;
 
 /* ============================================================
  * Main functions
  * ============================================================ */
-int mosquitto_main_loop(struct mosquitto__listener_sock *listensock, int listensock_count);
-void loop__update_next_event(time_t new_ms);
+পূর্ণাঙ্ক mosquitto_main_loop(সংরচনা mosquitto__listener_sock *listensock, পূর্ণাঙ্ক listensock_গুনতি);
+শূন্য loop__update_next_event(time_t new_ms);
 
 /* ============================================================
  * Config functions
  * ============================================================ */
 /* Initialise config struct to default values. */
-void config__init(struct mosquitto__config *config);
+শূন্য config__init(সংরচনা mosquitto__config *config);
 #ifdef WITH_BRIDGE
-void config__bridge_cleanup(struct mosquitto__bridge *bridge);
+শূন্য config__bridge_cleanup(সংরচনা mosquitto__bridge *bridge);
 #endif
 /* Parse command line options into config. */
-int config__parse_args(struct mosquitto__config *config, int argc, char *argv[]);
+পূর্ণাঙ্ক config__parse_args(সংরচনা mosquitto__config *config, পূর্ণাঙ্ক argc, ৱর্ণ *argv[]);
 /* Read configuration data from config->config_file into config.
  * If reload is true, don't process config options that shouldn't be reloaded (listeners etc)
  * Returns 0 on success, 1 if there is a configuration error or if a file cannot be opened.
  */
-int config__read(struct mosquitto__config *config, bool reload);
+পূর্ণাঙ্ক config__read(সংরচনা mosquitto__config *config, bool reload);
 /* Free all config data. */
-void config__cleanup(struct mosquitto__config *config);
-int config__get_dir_files(const char *include_dir, char ***files, int *file_count);
+শূন্য config__cleanup(সংরচনা mosquitto__config *config);
+পূর্ণাঙ্ক config__get_dir_files(ধ্রুৱ ৱর্ণ *include_dir, ৱর্ণ ***files, পূর্ণাঙ্ক *file_গুনতি);
 
 /* ============================================================
  * Server send functions
  * ============================================================ */
-int send__connack(struct mosquitto *context, uint8_t ack, uint8_t reason_code, const mosquitto_property *properties);
-int send__suback(struct mosquitto *context, uint16_t mid, uint32_t payloadlen, const void *payload);
-int send__unsuback(struct mosquitto *context, uint16_t mid, int reason_code_count, uint8_t *reason_codes, const mosquitto_property *properties);
-int send__auth(struct mosquitto *context, uint8_t reason_code, const void *auth_data, uint16_t auth_data_len);
+পূর্ণাঙ্ক send__connack(সংরচনা mosquitto *context, uint8_t ack, uint8_t reason_code, ধ্রুৱ mosquitto_property *properties);
+পূর্ণাঙ্ক send__suback(সংরচনা mosquitto *context, uint16_t mid, uint32_t payloadlen, ধ্রুৱ শূন্য *payload);
+পূর্ণাঙ্ক send__unsuback(সংরচনা mosquitto *context, uint16_t mid, পূর্ণাঙ্ক reason_code_গুনতি, uint8_t *reason_codes, ধ্রুৱ mosquitto_property *properties);
+পূর্ণাঙ্ক send__auth(সংরচনা mosquitto *context, uint8_t reason_code, ধ্রুৱ শূন্য *auth_data, uint16_t auth_data_len);
 
 /* ============================================================
  * Network functions
  * ============================================================ */
-void net__broker_init(void);
-void net__broker_cleanup(void);
-struct mosquitto *net__socket_accept(struct mosquitto__listener_sock *listensock);
-int net__socket_listen(struct mosquitto__listener *listener);
-int net__socket_get_address(mosq_sock_t sock, char *buf, size_t len, uint16_t *remote_address);
-int net__tls_load_verify(struct mosquitto__listener *listener);
-int net__tls_server_ctx(struct mosquitto__listener *listener);
-int net__load_certificates(struct mosquitto__listener *listener);
+শূন্য net__broker_init(শূন্য);
+শূন্য net__broker_cleanup(শূন্য);
+সংরচনা mosquitto *net__socket_accept(সংরচনা mosquitto__listener_sock *listensock);
+পূর্ণাঙ্ক net__socket_listen(সংরচনা mosquitto__listener *listener);
+পূর্ণাঙ্ক net__socket_get_address(mosq_sock_t sock, ৱর্ণ *buf, size_t len, uint16_t *remote_address);
+পূর্ণাঙ্ক net__tls_load_verify(সংরচনা mosquitto__listener *listener);
+পূর্ণাঙ্ক net__tls_server_ctx(সংরচনা mosquitto__listener *listener);
+পূর্ণাঙ্ক net__load_certificates(সংরচনা mosquitto__listener *listener);
 
 /* ============================================================
  * Read handling functions
  * ============================================================ */
-int handle__packet(struct mosquitto *context);
-int handle__connack(struct mosquitto *context);
-int handle__connect(struct mosquitto *context);
-int handle__disconnect(struct mosquitto *context);
-int handle__publish(struct mosquitto *context);
-int handle__subscribe(struct mosquitto *context);
-int handle__unsubscribe(struct mosquitto *context);
-int handle__auth(struct mosquitto *context);
+পূর্ণাঙ্ক handle__packet(সংরচনা mosquitto *context);
+পূর্ণাঙ্ক handle__connack(সংরচনা mosquitto *context);
+পূর্ণাঙ্ক handle__connect(সংরচনা mosquitto *context);
+পূর্ণাঙ্ক handle__disconnect(সংরচনা mosquitto *context);
+পূর্ণাঙ্ক handle__publish(সংরচনা mosquitto *context);
+পূর্ণাঙ্ক handle__subscribe(সংরচনা mosquitto *context);
+পূর্ণাঙ্ক handle__unsubscribe(সংরচনা mosquitto *context);
+পূর্ণাঙ্ক handle__auth(সংরচনা mosquitto *context);
 
 /* ============================================================
  * Database handling
  * ============================================================ */
-int db__open(struct mosquitto__config *config);
-int db__close(void);
+পূর্ণাঙ্ক db__open(সংরচনা mosquitto__config *config);
+পূর্ণাঙ্ক db__close(শূন্য);
 #ifdef WITH_PERSISTENCE
-int persist__backup(bool shutdown);
-int persist__restore(void);
+পূর্ণাঙ্ক persist__backup(bool shutdown);
+পূর্ণাঙ্ক persist__restore(শূন্য);
 #endif
 /* Return the number of in-flight messages in count. */
-int db__message_count(int *count);
-int db__message_delete_outgoing(struct mosquitto *context, uint16_t mid, enum mosquitto_msg_state expect_state, int qos);
-int db__message_insert_outgoing(struct mosquitto *context, uint64_t cmsg_id, uint16_t mid, uint8_t qos, bool retain, struct mosquitto__base_msg *base_msg, uint32_t subscription_identifier, bool update, bool persist);
-int db__message_insert_incoming(struct mosquitto *context, uint64_t cmsg_id, struct mosquitto__base_msg *base_msg, bool persist);
-int db__message_remove_incoming(struct mosquitto *context, uint16_t mid);
-int db__message_release_incoming(struct mosquitto *context, uint16_t mid);
-int db__message_update_outgoing(struct mosquitto *context, uint16_t mid, enum mosquitto_msg_state state, int qos, bool persist);
-void db__message_dequeue_first(struct mosquitto *context, struct mosquitto_msg_data *msg_data);
-int db__messages_delete(struct mosquitto *context, bool force_free);
-int db__messages_delete_incoming(struct mosquitto *context);
-int db__messages_delete_outgoing(struct mosquitto *context);
-int db__messages_easy_queue(struct mosquitto *context, const char *topic, uint8_t qos, uint32_t payloadlen, const void *payload, int retain, uint32_t message_expiry_interval, mosquitto_property **properties);
-int db__message_store(const struct mosquitto *source, struct mosquitto__base_msg *base_msg, uint32_t *message_expiry_interval, enum mosquitto_msg_origin origin);
-int db__message_store_find(struct mosquitto *context, uint16_t mid, struct mosquitto__client_msg **client_msg);
-int db__msg_store_add(struct mosquitto__base_msg *base_msg);
-void db__msg_store_remove(struct mosquitto__base_msg *base_msg, bool notify);
-void db__msg_store_ref_inc(struct mosquitto__base_msg *base_msg);
-void db__msg_store_ref_dec(struct mosquitto__base_msg **base_msg);
-void db__msg_store_clean(void);
-void db__msg_store_compact(void);
-void db__msg_store_free(struct mosquitto__base_msg *base_msg);
-int db__message_reconnect_reset(struct mosquitto *context);
-bool db__ready_for_flight(struct mosquitto *context, enum mosquitto_msg_direction dir, int qos);
-bool db__ready_for_queue(struct mosquitto *context, int qos, struct mosquitto_msg_data *msg_data);
-void sys_tree__init(void);
-void sys_tree__update(bool force);
-int db__message_write_inflight_out_all(struct mosquitto *context);
-int db__message_write_inflight_out_latest(struct mosquitto *context);
-int db__message_write_queued_out(struct mosquitto *context);
-int db__message_write_queued_in(struct mosquitto *context);
-void db__msg_add_to_inflight_stats(struct mosquitto_msg_data *msg_data, struct mosquitto__client_msg *msg);
-void db__msg_add_to_queued_stats(struct mosquitto_msg_data *msg_data, struct mosquitto__client_msg *msg);
-uint64_t db__new_msg_id(void);
-void db__expire_all_messages(struct mosquitto *context);
-void db__check_acl_of_all_messages(struct mosquitto *context);
+পূর্ণাঙ্ক db_message_গুনতি(পূর্ণাঙ্ক *গুনতি);
+পূর্ণাঙ্ক db__message_delete_outgoing(সংরচনা mosquitto *context, uint16_t mid, গণনা mosquitto_বাৰ্তা_state expect_state, পূর্ণাঙ্ক qos);
+পূর্ণাঙ্ক db_message_ঢোকাও_outgoing(সংরচনা mosquitto *context, uint64_t cmsg_id, uint16_t mid, uint8_t qos, bool retain, সংরচনা mosquitto_base_বাৰ্তা *base_বাৰ্তা, uint32_t subscription_identifier, bool update, bool persist);
+পূর্ণাঙ্ক db_message_ঢোকাও_incoming(সংরচনা mosquitto *context, uint64_t cmsg_id, সংরচনা mosquitto_base_বাৰ্তা *base_বাৰ্তা, bool persist);
+পূর্ণাঙ্ক db__message_remove_incoming(সংরচনা mosquitto *context, uint16_t mid);
+পূর্ণাঙ্ক db__message_release_incoming(সংরচনা mosquitto *context, uint16_t mid);
+পূর্ণাঙ্ক db__message_update_outgoing(সংরচনা mosquitto *context, uint16_t mid, গণনা mosquitto_বাৰ্তা_state state, পূর্ণাঙ্ক qos, bool persist);
+শূন্য db__message_dequeue_first(সংরচনা mosquitto *context, সংরচনা mosquitto_বাৰ্তা_data *বাৰ্তা_data);
+পূর্ণাঙ্ক db__messages_delete(সংরচনা mosquitto *context, bool force_free);
+পূর্ণাঙ্ক db__messages_delete_incoming(সংরচনা mosquitto *context);
+পূর্ণাঙ্ক db__messages_delete_outgoing(সংরচনা mosquitto *context);
+পূর্ণাঙ্ক db__messages_easy_queue(সংরচনা mosquitto *context, ধ্রুৱ ৱর্ণ *topic, uint8_t qos, uint32_t payloadlen, ধ্রুৱ শূন্য *payload, পূর্ণাঙ্ক retain, uint32_t message_expiry_interval, mosquitto_property **properties);
+পূর্ণাঙ্ক db__message_store(ধ্রুৱ সংরচনা mosquitto *source, সংরচনা mosquitto_base_বাৰ্তা *base_বাৰ্তা, uint32_t *message_expiry_interval, গণনা mosquitto_বাৰ্তা_origin origin);
+পূর্ণাঙ্ক db__message_store_find(সংরচনা mosquitto *context, uint16_t mid, সংরচনা mosquitto_client_বাৰ্তা **client_বাৰ্তা);
+পূর্ণাঙ্ক db_বাৰ্তা_store_add(সংরচনা mosquitto_base_বাৰ্তা *base_বাৰ্তা);
+শূন্য db_বাৰ্তা_store_remove(সংরচনা mosquitto_base_বাৰ্তা *base_বাৰ্তা, bool notify);
+শূন্য db_বাৰ্তা_store_ref_inc(সংরচনা mosquitto_base_বাৰ্তা *base_বাৰ্তা);
+শূন্য db_বাৰ্তা_store_ref_dec(সংরচনা mosquitto_base_বাৰ্তা **base_বাৰ্তা);
+শূন্য db_বাৰ্তা_store_clean(শূন্য);
+শূন্য db_বাৰ্তা_store_compact(শূন্য);
+শূন্য db_বাৰ্তা_store_free(সংরচনা mosquitto_base_বাৰ্তা *base_বাৰ্তা);
+পূর্ণাঙ্ক db__message_reconnect_reset(সংরচনা mosquitto *context);
+bool db__ready_for_flight(সংরচনা mosquitto *context, গণনা mosquitto_বাৰ্তা_direction dir, পূর্ণাঙ্ক qos);
+bool db__ready_for_queue(সংরচনা mosquitto *context, পূর্ণাঙ্ক qos, সংরচনা mosquitto_বাৰ্তা_data *বাৰ্তা_data);
+শূন্য sys_বৃক্ষ_init(শূন্য);
+শূন্য sys_বৃক্ষ_update(bool force);
+পূর্ণাঙ্ক db__message_write_inflight_out_all(সংরচনা mosquitto *context);
+পূর্ণাঙ্ক db__message_write_inflight_out_latest(সংরচনা mosquitto *context);
+পূর্ণাঙ্ক db__message_write_queued_out(সংরচনা mosquitto *context);
+পূর্ণাঙ্ক db__message_write_queued_in(সংরচনা mosquitto *context);
+শূন্য db_বাৰ্তা_add_to_inflight_stats(সংরচনা mosquitto_বাৰ্তা_data *বাৰ্তা_data, সংরচনা mosquitto_client_বাৰ্তা *বাৰ্তা);
+শূন্য db_বাৰ্তা_add_to_queued_stats(সংরচনা mosquitto_বাৰ্তা_data *বাৰ্তা_data, সংরচনা mosquitto_client_বাৰ্তা *বাৰ্তা);
+uint64_t db_new_বাৰ্তা_id(শূন্য);
+শূন্য db__expire_all_messages(সংরচনা mosquitto *context);
+শূন্য db__check_acl_of_all_messages(সংরচনা mosquitto *context);
 
 /* ============================================================
  * Subscription functions
  * ============================================================ */
-int sub__init(void);
-int sub__add(struct mosquitto *context, const struct mosquitto_subscription *sub);
-int sub__remove(struct mosquitto *context, const char *sub, uint8_t *reason);
-void sub__tree_print(struct mosquitto__subhier *root, int level);
-int sub__clean_session(struct mosquitto *context);
-int sub__messages_queue(const char *source_id, uint8_t qos, struct mosquitto__base_msg **base_msg);
-int sub__topic_tokenise(const char *subtopic, char **local_sub, char ***topics, const char **sharename);
-void sub__topic_tokens_free(struct sub__token *tokens);
+পূর্ণাঙ্ক sub__init(শূন্য);
+পূর্ণাঙ্ক sub__add(সংরচনা mosquitto *context, ধ্রুৱ সংরচনা mosquitto_subscription *sub);
+পূর্ণাঙ্ক sub__remove(সংরচনা mosquitto *context, ধ্রুৱ ৱর্ণ *sub, uint8_t *reason);
+শূন্য sub_বৃক্ষ_print(সংরচনা mosquitto__subhier *মূল, পূর্ণাঙ্ক level);
+পূর্ণাঙ্ক sub__clean_session(সংরচনা mosquitto *context);
+পূর্ণাঙ্ক sub__messages_queue(ধ্রুৱ ৱর্ণ *source_id, uint8_t qos, সংরচনা mosquitto_base_বাৰ্তা **base_বাৰ্তা);
+পূর্ণাঙ্ক sub__topic_tokenise(ধ্রুৱ ৱর্ণ *subtopic, ৱর্ণ **local_sub, ৱর্ণ ***topics, ধ্রুৱ ৱর্ণ **sharename);
+শূন্য sub__topic_tokens_free(সংরচনা sub__token *tokens);
 
 /* ============================================================
  * Context functions
  * ============================================================ */
-struct mosquitto *context__init(void);
-int context__init_sock(struct mosquitto *context, mosq_sock_t sock, bool get_address);
-void context__cleanup(struct mosquitto *context, bool force_free);
-void context__disconnect(struct mosquitto *context, int reason);
-void context__add_to_disused(struct mosquitto *context);
-void context__free_disused(void);
-void context__send_will(struct mosquitto *context);
-void context__add_to_by_id(struct mosquitto *context);
-void context__remove_from_by_id(struct mosquitto *context);
+সংরচনা mosquitto *context__init(শূন্য);
+পূর্ণাঙ্ক context__init_sock(সংরচনা mosquitto *context, mosq_sock_t sock, bool get_address);
+শূন্য context__cleanup(সংরচনা mosquitto *context, bool force_free);
+শূন্য context__disconnect(সংরচনা mosquitto *context, পূর্ণাঙ্ক reason);
+শূন্য context__add_to_disused(সংরচনা mosquitto *context);
+শূন্য context__free_disused(শূন্য);
+শূন্য context__send_will(সংরচনা mosquitto *context);
+শূন্য context__add_to_by_id(সংরচনা mosquitto *context);
+শূন্য context__remove_from_by_id(সংরচনা mosquitto *context);
 
-int connect__on_authorised(struct mosquitto *context, void *auth_data_out, uint16_t auth_data_out_len);
+পূর্ণাঙ্ক connect__on_authorised(সংরচনা mosquitto *context, শূন্য *auth_data_out, uint16_t auth_data_out_len);
 
 
 /* ============================================================
  * Control functions
  * ============================================================ */
 #ifdef WITH_CONTROL
-int control__process(struct mosquitto *context, struct mosquitto__base_msg *base_msg);
-void control__cleanup(void);
+পূর্ণাঙ্ক control__process(সংরচনা mosquitto *context, সংরচনা mosquitto_base_বাৰ্তা *base_বাৰ্তা);
+শূন্য control__cleanup(শূন্য);
 #endif
-int control__register_callback(mosquitto_plugin_id_t *pid, MOSQ_FUNC_generic_callback cb_func, const char *topic, void *userdata);
-int control__unregister_callback(mosquitto_plugin_id_t *pid, MOSQ_FUNC_generic_callback cb_func, const char *topic);
-void control__unregister_all_callbacks(mosquitto_plugin_id_t *identifier);
+পূর্ণাঙ্ক control__register_callback(mosquitto_plugin_id_t *pid, MOSQ_FUNC_generic_callback cb_func, ধ্রুৱ ৱর্ণ *topic, শূন্য *userdata);
+পূর্ণাঙ্ক control__unregister_callback(mosquitto_plugin_id_t *pid, MOSQ_FUNC_generic_callback cb_func, ধ্রুৱ ৱর্ণ *topic);
+শূন্য control__unregister_all_callbacks(mosquitto_plugin_id_t *identifier);
 
 
 /* ============================================================
  * Logging functions
  * ============================================================ */
-int log__init(struct mosquitto__config *config);
-int log__close(struct mosquitto__config *config);
-void log__internal(const char *fmt, ...) __attribute__((format(printf, 1, 2)));
+পূর্ণাঙ্ক log__init(সংরচনা mosquitto__config *config);
+পূর্ণাঙ্ক log__close(সংরচনা mosquitto__config *config);
+শূন্য log__internal(ধ্রুৱ ৱর্ণ *fmt, ...) __attribute__((format(printf, 1, 2)));
 
 /* ============================================================
  * Bridge functions
  * ============================================================ */
 #ifdef WITH_BRIDGE
-void bridge__start_all(void);
-void bridge__reload(void);
-void bridge__db_cleanup(void);
-void bridge__cleanup(struct mosquitto *context);
-int bridge__connect(struct mosquitto *context);
-#if defined(__GLIBC__) && defined(WITH_ADNS)
-int bridge__connect_step3(struct mosquitto *context);
+শূন্য bridge__start_all(শূন্য);
+শূন্য bridge__reload(শূন্য);
+শূন্য bridge__db_cleanup(শূন্য);
+শূন্য bridge__cleanup(সংরচনা mosquitto *context);
+পূর্ণাঙ্ক bridge__connect(সংরচনা mosquitto *context);
+#যদি defined(__GLIBC__) && defined(WITH_ADNS)
+পূর্ণাঙ্ক bridge__connect_step3(সংরচনা mosquitto *context);
 #endif
-int bridge__on_connect(struct mosquitto *context);
-void bridge_check(void);
-int bridge__register_local_connections(void);
-int bridge__add_topic(struct mosquitto__bridge *bridge, const char *topic, enum mosquitto__bridge_direction direction, uint8_t qos, const char *local_prefix, const char *remote_prefix);
-void bridge__cleanup_topics(struct mosquitto__bridge *bridge);
-int bridge__remap_topic_in(struct mosquitto *context, char **topic);
+পূর্ণাঙ্ক bridge__on_connect(সংরচনা mosquitto *context);
+শূন্য bridge_check(শূন্য);
+পূর্ণাঙ্ক bridge__register_local_connections(শূন্য);
+পূর্ণাঙ্ক bridge__add_topic(সংরচনা mosquitto__bridge *bridge, ধ্রুৱ ৱর্ণ *topic, গণনা mosquitto__bridge_direction direction, uint8_t qos, ধ্রুৱ ৱর্ণ *local_prefix, ধ্রুৱ ৱর্ণ *remote_prefix);
+শূন্য bridge__cleanup_topics(সংরচনা mosquitto__bridge *bridge);
+পূর্ণাঙ্ক bridge__remap_topic_in(সংরচনা mosquitto *context, ৱর্ণ **topic);
 #endif
 
 /* ============================================================
  * IO multiplex related functions
  * ============================================================ */
-int mux__init(void);
-int mux__add_listeners(struct mosquitto__listener_sock *listensock, int listensock_count);
-int mux__delete_listeners(struct mosquitto__listener_sock *listensock, int listensock_count);
-int mux__loop_prepare(void);
-int mux__new(struct mosquitto *context);
-int mux__add_out(struct mosquitto *context);
-int mux__remove_out(struct mosquitto *context);
-int mux__delete(struct mosquitto *context);
-int mux__wait(void);
-int mux__handle(struct mosquitto__listener_sock *listensock, int listensock_count);
-int mux__cleanup(void);
+পূর্ণাঙ্ক mux__init(শূন্য);
+পূর্ণাঙ্ক mux__add_listeners(সংরচনা mosquitto__listener_sock *listensock, পূর্ণাঙ্ক listensock_গুনতি);
+পূর্ণাঙ্ক mux__delete_listeners(সংরচনা mosquitto__listener_sock *listensock, পূর্ণাঙ্ক listensock_গুনতি);
+পূর্ণাঙ্ক mux__loop_prepare(শূন্য);
+পূর্ণাঙ্ক mux__new(সংরচনা mosquitto *context);
+পূর্ণাঙ্ক mux__add_out(সংরচনা mosquitto *context);
+পূর্ণাঙ্ক mux__remove_out(সংরচনা mosquitto *context);
+পূর্ণাঙ্ক mux__delete(সংরচনা mosquitto *context);
+পূর্ণাঙ্ক mux__wait(শূন্য);
+পূর্ণাঙ্ক mux__handle(সংরচনা mosquitto__listener_sock *listensock, পূর্ণাঙ্ক listensock_গুনতি);
+পূর্ণাঙ্ক mux__cleanup(শূন্য);
 
 /* ============================================================
  * Listener related functions
  * ============================================================ */
-extern struct mosquitto__listener_sock *g_listensock;
-extern int g_listensock_count;
+বাহ্য সংরচনা mosquitto__listener_sock *g_listensock;
+বাহ্য পূর্ণাঙ্ক g_listensock_গুনতি;
 
-void listener__set_defaults(struct mosquitto__listener *listener);
-void listeners__reload_all_certificates(void);
-#if defined(WITH_WEBSOCKETS) && WITH_WEBSOCKETS == WS_IS_LWS
-void listeners__add_websockets(struct lws_context *ws_context, mosq_sock_t fd);
+শূন্য listener__set_defaults(সংরচনা mosquitto__listener *listener);
+শূন্য listeners__reload_all_certificates(শূন্য);
+#যদি defined(WITH_WEBSOCKETS) && WITH_WEBSOCKETS == WS_IS_LWS
+শূন্য listeners__add_websockets(সংরচনা lws_context *ws_context, mosq_sock_t fd);
 #endif
-int listeners__start(void);
-void listeners__stop(void);
+পূর্ণাঙ্ক listeners__start(শূন্য);
+শূন্য listeners__stop(শূন্য);
 
 /* ============================================================
  * Plugin related functions
  * ============================================================ */
-int plugin__load_v5(mosquitto_plugin_id_t *plugin, void *lib);
-int plugin__load_v4(mosquitto_plugin_id_t *plugin, void *lib);
-int plugin__load_v3(mosquitto_plugin_id_t *plugin, void *lib);
-int plugin__load_v2(mosquitto_plugin_id_t *plugin, void *lib);
-int acl__pre_check(mosquitto_plugin_id_t *plugin, struct mosquitto *context, int access);
+পূর্ণাঙ্ক plugin__load_v5(mosquitto_plugin_id_t *plugin, শূন্য *lib);
+পূর্ণাঙ্ক plugin__load_v4(mosquitto_plugin_id_t *plugin, শূন্য *lib);
+পূর্ণাঙ্ক plugin__load_v3(mosquitto_plugin_id_t *plugin, শূন্য *lib);
+পূর্ণাঙ্ক plugin__load_v2(mosquitto_plugin_id_t *plugin, শূন্য *lib);
+পূর্ণাঙ্ক acl__pre_check(mosquitto_plugin_id_t *plugin, সংরচনা mosquitto *context, পূর্ণাঙ্ক access);
 
-void LIB_ERROR(void);
-void plugin__handle_connect(struct mosquitto *context);
-void plugin__handle_disconnect(struct mosquitto *context, int reason);
-void plugin__handle_client_offline(struct mosquitto *context, int reason);
-int plugin__handle_message_in(struct mosquitto *context, struct mosquitto_base_msg *base_msg);
-int plugin__handle_message_out(struct mosquitto *context, struct mosquitto_base_msg *base_msg);
-int plugin__handle_subscribe(struct mosquitto *context, struct mosquitto_subscription *sub);
-int plugin__handle_unsubscribe(struct mosquitto *context, struct mosquitto_subscription *sub);
-int plugin__handle_reload(void);
-void plugin__handle_tick(void);
-int plugin__callback_unregister_all(mosquitto_plugin_id_t *identifier);
-void plugin_persist__handle_restore(void);
-void plugin_persist__handle_client_add(struct mosquitto *context);
-void plugin_persist__handle_client_delete(struct mosquitto *context);
-void plugin_persist__handle_client_update(struct mosquitto *context);
-void plugin_persist__handle_subscription_add(struct mosquitto *context, const struct mosquitto_subscription *sub);
-void plugin_persist__handle_subscription_delete(struct mosquitto *context, char *sub);
-void plugin_persist__handle_client_msg_add(struct mosquitto *context, const struct mosquitto__client_msg *cmsg);
-void plugin_persist__handle_client_msg_delete(struct mosquitto *context, const struct mosquitto__client_msg *cmsg);
-void plugin_persist__handle_client_msg_update(struct mosquitto *context, const struct mosquitto__client_msg *cmsg);
-void plugin_persist__handle_base_msg_add(struct mosquitto__base_msg *base_msg);
-void plugin_persist__handle_base_msg_delete(struct mosquitto__base_msg *base_msg);
-void plugin_persist__handle_retain_msg_set(struct mosquitto__base_msg *base_msg);
-void plugin_persist__handle_retain_msg_delete(struct mosquitto__base_msg *base_msg);
-void plugin_persist__handle_will_add(struct mosquitto *context);
-void plugin_persist__handle_will_delete(struct mosquitto *context);
-
-/* ============================================================
- * Property related functions
- * ============================================================ */
-int keepalive__init(void);
-void keepalive__cleanup(void);
-int keepalive__add(struct mosquitto *context);
-void keepalive__check(void);
-int keepalive__remove(struct mosquitto *context);
-int keepalive__update(struct mosquitto *context);
+শূন্য LIB_ERROR(শূন্য);
+শূন্য plugin__handle_connect(সংরচনা mosquitto *context);
+শূন্য plugin__handle_disconnect(সংরচনা mosquitto *context, পূর্ণাঙ্ক reason);
+শূন্য plugin__handle_client_offline(সংরচনা mosquitto *context, পূর্ণাঙ্ক reason);
+পূর্ণাঙ্ক plugin__handle_message_in(সংরচনা mosquitto *context, সংরচনা mosquitto_base_বাৰ্তা_2 *base_বাৰ্তা);
+পূর্ণাঙ্ক plugin__handle_message_out(সংরচনা mosquitto *context, সংরচনা mosquitto_base_বাৰ্তা_2 *base_বাৰ্তা);
+পূর্ণাঙ্ক plugin__handle_subscribe(সংরচনা mosquitto *context, সংরচনা mosquitto_subscription *sub);
+পূর্ণাঙ্ক plugin__handle_unsubscribe(সংরচনা mosquitto *context, সংরচনা mosquitto_subscription *sub);
+পূর্ণাঙ্ক plugin__handle_reload(শূন্য);
+শূন্য plugin__handle_tick(শূন্য);
+পূর্ণাঙ্ক plugin__callback_unregister_all(mosquitto_plugin_id_t *identifier);
+শূন্য plugin_persist__handle_restore(শূন্য);
+শূন্য plugin_persist__handle_client_add(সংরচনা mosquitto *context);
+শূন্য plugin_persist__handle_client_delete(সংরচনা mosquitto *context);
+শূন্য plugin_persist__handle_client_update(সংরচনা mosquitto *context);
+শূন্য plugin_persist__handle_subscription_add(সংরচনা mosquitto *context, ধ্রুৱ সংরচনা mosquitto_subscription *sub);
+শূন্য plugin_persist__handle_subscription_delete(সংরচনা mosquitto *context, ৱর্ণ *sub);
+শূন্য plugin_persist_handle_client_বাৰ্তা_add(সংরচনা mosquitto *context, ধ্রুৱ সংরচনা mosquitto_client_বাৰ্তা *cmsg);
+শূন্য plugin_persist_handle_client_বাৰ্তা_delete(সংরচনা mosquitto *context, ধ্রুৱ সংরচনা mosquitto_client_বাৰ্তা *cmsg);
+শূন্য plugin_persist_handle_client_বাৰ্তা_update(সংরচনা mosquitto *context, ধ্রুৱ সংরচনা mosquitto_client_বাৰ্তা *cmsg);
+শূন্য plugin_persist_handle_base_বাৰ্তা_add(সংরচনা mosquitto_base_বাৰ্তা *base_বাৰ্তা);
+শূন্য plugin_persist_handle_base_বাৰ্তা_delete(সংরচনা mosquitto_base_বাৰ্তা *base_বাৰ্তা);
+শূন্য plugin_persist_handle_retain_বাৰ্তা_set(সংরচনা mosquitto_base_বাৰ্তা *base_বাৰ্তা);
+শূন্য plugin_persist_handle_retain_বাৰ্তা_delete(সংরচনা mosquitto_base_বাৰ্তা *base_বাৰ্তা);
+শূন্য plugin_persist__handle_will_add(সংরচনা mosquitto *context);
+শূন্য plugin_persist__handle_will_delete(সংরচনা mosquitto *context);
 
 /* ============================================================
  * Property related functions
  * ============================================================ */
-int property__process_connect(struct mosquitto *context, mosquitto_property **props);
-int property__process_will(struct mosquitto *context, struct mosquitto_message_all *msg, mosquitto_property **props);
-int property__process_publish(struct mosquitto__base_msg *base_msg, mosquitto_property **props, int *topic_alias, uint32_t *message_expiry_interval, bool is_bridge);
-int property__process_disconnect(struct mosquitto *context, mosquitto_property **props);
+পূর্ণাঙ্ক keepalive__init(শূন্য);
+শূন্য keepalive__cleanup(শূন্য);
+পূর্ণাঙ্ক keepalive__add(সংরচনা mosquitto *context);
+শূন্য keepalive__check(শূন্য);
+পূর্ণাঙ্ক keepalive__remove(সংরচনা mosquitto *context);
+পূর্ণাঙ্ক keepalive__update(সংরচনা mosquitto *context);
+
+/* ============================================================
+ * Property related functions
+ * ============================================================ */
+পূর্ণাঙ্ক property__process_connect(সংরচনা mosquitto *context, mosquitto_property **props);
+পূর্ণাঙ্ক property__process_will(সংরচনা mosquitto *context, সংরচনা mosquitto_message_all *বাৰ্তা, mosquitto_property **props);
+পূর্ণাঙ্ক property__process_publish(সংরচনা mosquitto_base_বাৰ্তা *base_বাৰ্তা, mosquitto_property **props, পূর্ণাঙ্ক *topic_alias, uint32_t *message_expiry_interval, bool is_bridge);
+পূর্ণাঙ্ক property__process_disconnect(সংরচনা mosquitto *context, mosquitto_property **props);
 
 /* ============================================================
  * Retain tree related functions
  * ============================================================ */
-int retain__init(void);
-void retain__clean(struct mosquitto__retainhier **retainhier);
-int retain__queue(struct mosquitto *context, const struct mosquitto_subscription *sub);
-int retain__store(const char *topic, struct mosquitto__base_msg *base_msg, char **split_topics, bool persist);
-void retain__expiry_check(void);
-void retain__expire(struct mosquitto__retainhier **retainhier);
+পূর্ণাঙ্ক retain__init(শূন্য);
+শূন্য retain__clean(সংরচনা mosquitto__retainhier **retainhier);
+পূর্ণাঙ্ক retain__queue(সংরচনা mosquitto *context, ধ্রুৱ সংরচনা mosquitto_subscription *sub);
+পূর্ণাঙ্ক retain__store(ধ্রুৱ ৱর্ণ *topic, সংরচনা mosquitto_base_বাৰ্তা *base_বাৰ্তা, ৱর্ণ **split_topics, bool persist);
+শূন্য retain__expiry_check(শূন্য);
+শূন্য retain__expire(সংরচনা mosquitto__retainhier **retainhier);
 
 /* ============================================================
  * Security related functions
  * ============================================================ */
-int acl__find_acls(struct mosquitto *context);
-int plugin__load_all(void);
-int plugin__unload_all(void);
-int config__plugin_add_secopt(mosquitto_plugin_id_t *plugin, struct mosquitto__security_options *security_options);
+পূর্ণাঙ্ক acl__find_acls(সংরচনা mosquitto *context);
+পূর্ণাঙ্ক plugin__load_all(শূন্য);
+পূর্ণাঙ্ক plugin__unload_all(শূন্য);
+পূর্ণাঙ্ক config__plugin_add_secopt(mosquitto_plugin_id_t *plugin, সংরচনা mosquitto__security_options *security_options);
 
-int mosquitto_security_init(bool reload);
-int mosquitto_security_cleanup(bool reload);
-int mosquitto_acl_check(struct mosquitto *context, const char *topic, uint32_t payloadlen, void *payload, uint8_t qos, bool retain, mosquitto_property *properties, int access);
-int mosquitto_basic_auth(struct mosquitto *context);
-int mosquitto_psk_key_get(struct mosquitto *context, const char *hint, const char *identity, char *key, int max_key_len);
+পূর্ণাঙ্ক mosquitto_security_init(bool reload);
+পূর্ণাঙ্ক mosquitto_security_cleanup(bool reload);
+পূর্ণাঙ্ক mosquitto_acl_check(সংরচনা mosquitto *context, ধ্রুৱ ৱর্ণ *topic, uint32_t payloadlen, শূন্য *payload, uint8_t qos, bool retain, mosquitto_property *properties, পূর্ণাঙ্ক access);
+পূর্ণাঙ্ক mosquitto_basic_auth(সংরচনা mosquitto *context);
+পূর্ণাঙ্ক mosquitto_psk_চাবি_get(সংরচনা mosquitto *context, ধ্রুৱ ৱর্ণ *hint, ধ্রুৱ ৱর্ণ *identity, ৱর্ণ *চাবি, পূর্ণাঙ্ক max_চাবি_len);
 
-int mosquitto_security_init_default(void);
-int mosquitto_security_apply_default(void);
-int mosquitto_security_cleanup_default(void);
-int mosquitto_psk_key_get_default(struct mosquitto *context, const char *hint, const char *identity, char *key, int max_key_len);
-int broker_acl_file__init(void);
-void broker_acl_file__cleanup(void);
-int broker_password_file__init(void);
-void broker_password_file__cleanup(void);
-int psk_file__init(void);
-int psk_file__cleanup(void);
+পূর্ণাঙ্ক mosquitto_security_init_default(শূন্য);
+পূর্ণাঙ্ক mosquitto_security_apply_default(শূন্য);
+পূর্ণাঙ্ক mosquitto_security_cleanup_default(শূন্য);
+পূর্ণাঙ্ক mosquitto_psk_চাবি_get_default(সংরচনা mosquitto *context, ধ্রুৱ ৱর্ণ *hint, ধ্রুৱ ৱর্ণ *identity, ৱর্ণ *চাবি, পূর্ণাঙ্ক max_চাবি_len);
+পূর্ণাঙ্ক broker_acl_file__init(শূন্য);
+শূন্য broker_acl_file__cleanup(শূন্য);
+পূর্ণাঙ্ক broker_password_file__init(শূন্য);
+শূন্য broker_password_file__cleanup(শূন্য);
+পূর্ণাঙ্ক psk_file__init(শূন্য);
+পূর্ণাঙ্ক psk_file__cleanup(শূন্য);
 
-int mosquitto_security_auth_start(struct mosquitto *context, bool reauth, const void *data_in, uint16_t data_in_len, void **data_out, uint16_t *data_out_len);
-int mosquitto_security_auth_continue(struct mosquitto *context, const void *data_in, uint16_t data_len, void **data_out, uint16_t *data_out_len);
+পূর্ণাঙ্ক mosquitto_security_auth_start(সংরচনা mosquitto *context, bool reauth, ধ্রুৱ শূন্য *data_in, uint16_t data_in_len, শূন্য **data_out, uint16_t *data_out_len);
+পূর্ণাঙ্ক mosquitto_security_auth_continue(সংরচনা mosquitto *context, ধ্রুৱ শূন্য *data_in, uint16_t data_len, শূন্য **data_out, uint16_t *data_out_len);
 
-void unpwd__free_item(struct mosquitto__unpwd **unpwd, struct mosquitto__unpwd *item);
+শূন্য unpwd__free_item(সংরচনা mosquitto__unpwd **unpwd, সংরচনা mosquitto__unpwd *item);
 
 /* ============================================================
  * Session expiry
  * ============================================================ */
-int session_expiry__add(struct mosquitto *context);
-int session_expiry__add_from_persistence(struct mosquitto *context, time_t expiry_time);
-void session_expiry__add_on_shutdown(void);
-void session_expiry__remove(struct mosquitto *context);
-void session_expiry__remove_all(void);
-void session_expiry__check(void);
-void session_expiry__send_all(void);
+পূর্ণাঙ্ক session_expiry__add(সংরচনা mosquitto *context);
+পূর্ণাঙ্ক session_expiry__add_from_persistence(সংরচনা mosquitto *context, time_t expiry_time);
+শূন্য session_expiry__add_on_shutdown(শূন্য);
+শূন্য session_expiry__remove(সংরচনা mosquitto *context);
+শূন্য session_expiry__remove_all(শূন্য);
+শূন্য session_expiry__check(শূন্য);
+শূন্য session_expiry__send_all(শূন্য);
 
 /* ============================================================
  * Signals
  * ============================================================ */
-void signal__setup(void);
-int signal__flag_check(void);
+শূন্য signal__setup(শূন্য);
+পূর্ণাঙ্ক signal__flag_check(শূন্য);
 
 /* ============================================================
  * Window service and signal related functions
  * ============================================================ */
-#if defined(WIN32) || defined(__CYGWIN__)
-void service_install(char *name);
-void service_uninstall(char *name);
-void service_run(char *name);
+#যদি defined(WIN32) || defined(__CYGWIN__)
+শূন্য service_install(ৱর্ণ *name);
+শূন্য service_uninstall(ৱর্ণ *name);
+শূন্য service_run(ৱর্ণ *name);
 
 #ifdef WIN32
-DWORD WINAPI SigThreadProc(void *data);
+DWORD WINAPI SigThreadProc(শূন্য *data);
 #endif
 #endif
 
 /* ============================================================
  * Watchdog
  * ============================================================ */
-void watchdog__init(void);
-void watchdog__check(void);
+শূন্য watchdog__init(শূন্য);
+শূন্য watchdog__check(শূন্য);
 
 /* ============================================================
  * Websockets related functions
  * ============================================================ */
 #ifdef WITH_WEBSOCKETS
-#  if WITH_WEBSOCKETS == WS_IS_LWS
-void mosq_websockets_init(struct mosquitto__listener *listener, const struct mosquitto__config *conf);
+#  যদি WITH_WEBSOCKETS == WS_IS_LWS
+শূন্য mosq_websockets_init(সংরচনা mosquitto__listener *listener, ধ্রুৱ সংরচনা mosquitto__config *conf);
 #  endif
-int http__context_init(struct mosquitto *context);
-int http__context_cleanup(struct mosquitto *context);
-int http__read(struct mosquitto *context);
+পূর্ণাঙ্ক http__context_init(সংরচনা mosquitto *context);
+পূর্ণাঙ্ক http__context_cleanup(সংরচনা mosquitto *context);
+পূর্ণাঙ্ক http__read(সংরচনা mosquitto *context);
 #endif
-void do_disconnect(struct mosquitto *context, int reason);
+শূন্য do_disconnect(সংরচনা mosquitto *context, পূর্ণাঙ্ক reason);
 
 /* ============================================================
  * PROXY related functions
  * ============================================================ */
-int proxy_v2__read(struct mosquitto *context);
-int proxy_v1__read(struct mosquitto *context);
+পূর্ণাঙ্ক proxy_v2__read(সংরচনা mosquitto *context);
+পূর্ণাঙ্ক proxy_v1__read(সংরচনা mosquitto *context);
 
 /* ============================================================
  * Will delay
  * ============================================================ */
-int will_delay__add(struct mosquitto *context);
-void will_delay__check(void);
-void will_delay__send_all(void);
-void will_delay__remove(struct mosquitto *mosq);
+পূর্ণাঙ্ক will_delay__add(সংরচনা mosquitto *context);
+শূন্য will_delay__check(শূন্য);
+শূন্য will_delay__send_all(শূন্য);
+শূন্য will_delay__remove(সংরচনা mosquitto *mosq);
 
 /* ============================================================
  * HTTP Info
  * ============================================================ */
-int http_api__start_local(struct mosquitto__listener *listener);
-int http_api__start(struct mosquitto__listener *listener);
-void http_api__stop(struct mosquitto__listener *listener);
+পূর্ণাঙ্ক http_api__start_local(সংরচনা mosquitto__listener *listener);
+পূর্ণাঙ্ক http_api__start(সংরচনা mosquitto__listener *listener);
+শূন্য http_api__stop(সংরচনা mosquitto__listener *listener);
 
 
 /* ============================================================
  * Other
  * ============================================================ */
 #ifdef WITH_XTREPORT
-void xtreport(void);
+শূন্য xtreport(শূন্য);
 #endif
 
-void broker_control__init(void);
-void broker_control__cleanup(void);
-void broker_control__reload(void);
+শূন্য broker_control__init(শূন্য);
+শূন্য broker_control__cleanup(শূন্য);
+শূন্য broker_control__reload(শূন্য);
 
 #endif

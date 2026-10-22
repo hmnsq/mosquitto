@@ -16,153 +16,153 @@ Contributors:
    Roger Light - initial implementation and documentation.
 */
 
-#include "config.h"
+#অন্তর্ভাৱ "config.h"
 
-#include <stdio.h>
-#include <string.h>
+#অন্তর্ভাৱ <stdio.h>
+#অন্তর্ভাৱ <string.h>
 
-#include "mosquitto_broker_internal.h"
-#include "mosquitto/mqtt_protocol.h"
-#include "packet_mosq.h"
-#include "send_mosq.h"
+#অন্তর্ভাৱ "mosquitto_broker_internal.h"
+#অন্তর্ভাৱ "mosquitto/mqtt_protocol.h"
+#অন্তর্ভাৱ "packet_mosq.h"
+#অন্তর্ভাৱ "send_mosq.h"
 
 
-int handle__unsubscribe(struct mosquitto *context)
+পূর্ণাঙ্ক handle__unsubscribe(সংরচনা mosquitto *context)
 {
 	uint16_t mid;
 	uint16_t slen;
-	int rc;
+	পূর্ণাঙ্ক rc;
 	uint8_t reason = 0;
-	int reason_code_count = 0;
-	int reason_code_max;
-	uint8_t *reason_codes = NULL, *reason_tmp;
-	mosquitto_property *properties = NULL;
+	পূর্ণাঙ্ক reason_code_গুনতি = 0;
+	পূর্ণাঙ্ক reason_code_max;
+	uint8_t *reason_codes = রিক্ত, *reason_tmp;
+	mosquitto_property *properties = রিক্ত;
 	bool allowed;
-	struct mosquitto_subscription sub;
+	সংরচনা mosquitto_subscription sub;
 
-	if(!context){
-		return MOSQ_ERR_INVAL;
+	যদি(!context){
+		ঘূৰাই MOSQ_ERR_INVAL;
 	}
 
-	if(context->state != mosq_cs_active){
-		log__printf(NULL, MOSQ_LOG_INFO, "Protocol error from %s: UNSUBSCRIBE before session is active.", context->id);
-		return MOSQ_ERR_PROTOCOL;
+	যদি(context->state != mosq_cs_active){
+		log__printf(রিক্ত, MOSQ_LOG_INFO, "Protocol error from %s: UNSUBSCRIBE before session is active.", context->id);
+		ঘূৰাই MOSQ_ERR_PROTOCOL;
 	}
-	if(context->in_packet.command != (CMD_UNSUBSCRIBE|2)){
-		return MOSQ_ERR_MALFORMED_PACKET;
+	যদি(context->in_packet.command != (CMD_UNSUBSCRIBE|2)){
+		ঘূৰাই MOSQ_ERR_MALFORMED_PACKET;
 	}
-	log__printf(NULL, MOSQ_LOG_DEBUG, "Received UNSUBSCRIBE from %s", context->id);
+	log__printf(রিক্ত, MOSQ_LOG_DEBUG, "Received UNSUBSCRIBE from %s", context->id);
 
-	if(context->protocol != mosq_p_mqtt31){
-		if((context->in_packet.command&0x0F) != 0x02){
-			return MOSQ_ERR_MALFORMED_PACKET;
+	যদি(context->protocol != mosq_p_mqtt31){
+		যদি((context->in_packet.command&0x0F) != 0x02){
+			ঘূৰাই MOSQ_ERR_MALFORMED_PACKET;
 		}
 	}
-	if(packet__read_uint16(&context->in_packet, &mid)){
-		return MOSQ_ERR_MALFORMED_PACKET;
+	যদি(packet__read_uint16(&context->in_packet, &mid)){
+		ঘূৰাই MOSQ_ERR_MALFORMED_PACKET;
 	}
-	if(mid == 0){
-		return MOSQ_ERR_MALFORMED_PACKET;
+	যদি(mid == 0){
+		ঘূৰাই MOSQ_ERR_MALFORMED_PACKET;
 	}
 
-	if(context->protocol == mosq_p_mqtt5){
+	যদি(context->protocol == mosq_p_mqtt5){
 		rc = property__read_all(CMD_UNSUBSCRIBE, &context->in_packet, &properties);
-		if(rc){
+		যদি(rc){
 			/* FIXME - it would be better if property__read_all() returned
 			 * MOSQ_ERR_MALFORMED_PACKET, but this is would change the library
 			 * return codes so needs doc changes as well. */
-			if(rc == MOSQ_ERR_PROTOCOL){
-				log__printf(NULL, MOSQ_LOG_INFO, "Protocol error from %s: UNSUBSCRIBE packet with invalid properties.", context->id);
-				return MOSQ_ERR_MALFORMED_PACKET;
-			}else{
-				return rc;
+			যদি(rc == MOSQ_ERR_PROTOCOL){
+				log__printf(রিক্ত, MOSQ_LOG_INFO, "Protocol error from %s: UNSUBSCRIBE packet with invalid properties.", context->id);
+				ঘূৰাই MOSQ_ERR_MALFORMED_PACKET;
+			}অন্যথা{
+				ঘূৰাই rc;
 			}
 		}
 		/* Immediately free, we don't do anything with User Property at the moment */
 		mosquitto_property_free_all(&properties);
 	}
 
-	if(context->protocol == mosq_p_mqtt311 || context->protocol == mosq_p_mqtt5){
-		if(context->in_packet.pos == context->in_packet.remaining_length){
+	যদি(context->protocol == mosq_p_mqtt311 || context->protocol == mosq_p_mqtt5){
+		যদি(context->in_packet.pos == context->in_packet.remaining_length){
 			/* No topic specified, protocol error. */
-			return MOSQ_ERR_MALFORMED_PACKET;
+			ঘূৰাই MOSQ_ERR_MALFORMED_PACKET;
 		}
 	}
 
 	reason_code_max = 10;
 	reason_codes = mosquitto_malloc((size_t)reason_code_max);
-	if(!reason_codes){
-		return MOSQ_ERR_NOMEM;
+	যদি(!reason_codes){
+		ঘূৰাই MOSQ_ERR_NOMEM;
 	}
 
-	while(context->in_packet.pos < context->in_packet.remaining_length){
-		memset(&sub, 0, sizeof(sub));
+	যেতিয়ালৈ(context->in_packet.pos < context->in_packet.remaining_length){
+		memset(&sub, 0, পরিমাণ(sub));
 		sub.properties = properties;
-		if(packet__read_string(&context->in_packet, &sub.topic_filter, &slen)){
+		যদি(packet__read_string(&context->in_packet, &sub.topic_filter, &slen)){
 			mosquitto_FREE(reason_codes);
-			return MOSQ_ERR_MALFORMED_PACKET;
+			ঘূৰাই MOSQ_ERR_MALFORMED_PACKET;
 		}
 
-		if(!slen){
-			log__printf(NULL, MOSQ_LOG_INFO,
+		যদি(!slen){
+			log__printf(রিক্ত, MOSQ_LOG_INFO,
 					"Empty unsubscription string from %s, disconnecting.",
 					context->id);
 			mosquitto_FREE(sub.topic_filter);
 			mosquitto_FREE(reason_codes);
-			return MOSQ_ERR_MALFORMED_PACKET;
+			ঘূৰাই MOSQ_ERR_MALFORMED_PACKET;
 		}
-		if(mosquitto_sub_topic_check(sub.topic_filter)){
-			log__printf(NULL, MOSQ_LOG_INFO,
+		যদি(mosquitto_sub_topic_check(sub.topic_filter)){
+			log__printf(রিক্ত, MOSQ_LOG_INFO,
 					"Invalid unsubscription string from %s, disconnecting.",
 					context->id);
 			mosquitto_FREE(sub.topic_filter);
 			mosquitto_FREE(reason_codes);
-			return MOSQ_ERR_MALFORMED_PACKET;
+			ঘূৰাই MOSQ_ERR_MALFORMED_PACKET;
 		}
 
 		/* ACL check */
 		allowed = true;
-		rc = mosquitto_acl_check(context, sub.topic_filter, 0, NULL, 0, false, properties, MOSQ_ACL_UNSUBSCRIBE);
-		switch(rc){
-			case MOSQ_ERR_SUCCESS:
-				break;
-			case MOSQ_ERR_ACL_DENIED:
+		rc = mosquitto_acl_check(context, sub.topic_filter, 0, রিক্ত, 0, false, properties, MOSQ_ACL_UNSUBSCRIBE);
+		ৱিকল্প(rc){
+			পক্ষ MOSQ_ERR_SUCCESS:
+				ভঙ্গ;
+			পক্ষ MOSQ_ERR_ACL_DENIED:
 				allowed = false;
 				reason = MQTT_RC_NOT_AUTHORIZED;
-				break;
-			default:
+				ভঙ্গ;
+			স্ৱভাৱ:
 				mosquitto_FREE(sub.topic_filter);
 				mosquitto_FREE(reason_codes);
-				return rc;
+				ঘূৰাই rc;
 		}
 
-		log__printf(NULL, MOSQ_LOG_DEBUG, "\t%s", sub.topic_filter);
-		if(allowed){
+		log__printf(রিক্ত, MOSQ_LOG_DEBUG, "\t%s", sub.topic_filter);
+		যদি(allowed){
 			rc = plugin__handle_unsubscribe(context, &sub);
-			if(rc){
+			যদি(rc){
 				mosquitto_FREE(sub.topic_filter);
 				mosquitto_FREE(reason_codes);
-				return rc;
+				ঘূৰাই rc;
 			}
 			rc = sub__remove(context, sub.topic_filter, &reason);
 			plugin_persist__handle_subscription_delete(context, sub.topic_filter);
-		}else{
+		}অন্যথা{
 			rc = MOSQ_ERR_SUCCESS;
 		}
-		log__printf(NULL, MOSQ_LOG_UNSUBSCRIBE, "%s %s", context->id, sub.topic_filter);
+		log__printf(রিক্ত, MOSQ_LOG_UNSUBSCRIBE, "%s %s", context->id, sub.topic_filter);
 		mosquitto_FREE(sub.topic_filter);
-		if(rc){
+		যদি(rc){
 			mosquitto_FREE(reason_codes);
-			return rc;
+			ঘূৰাই rc;
 		}
 
-		reason_codes[reason_code_count] = reason;
-		reason_code_count++;
-		if(reason_code_count == reason_code_max){
+		reason_codes[reason_code_গুনতি] = reason;
+		reason_code_গুনতি++;
+		যদি(reason_code_গুনতি == reason_code_max){
 			reason_tmp = mosquitto_realloc(reason_codes, (size_t)(reason_code_max*2));
-			if(!reason_tmp){
+			যদি(!reason_tmp){
 				mosquitto_FREE(reason_codes);
-				return MOSQ_ERR_NOMEM;
+				ঘূৰাই MOSQ_ERR_NOMEM;
 			}
 			reason_codes = reason_tmp;
 			reason_code_max *= 2;
@@ -172,10 +172,10 @@ int handle__unsubscribe(struct mosquitto *context)
 	db.persistence_changes++;
 #endif
 
-	log__printf(NULL, MOSQ_LOG_DEBUG, "Sending UNSUBACK to %s", context->id);
+	log__printf(রিক্ত, MOSQ_LOG_DEBUG, "Sending UNSUBACK to %s", context->id);
 
 	/* We don't use Reason String or User Property yet. */
-	rc = send__unsuback(context, mid, reason_code_count, reason_codes, NULL);
+	rc = send__unsuback(context, mid, reason_code_গুনতি, reason_codes, রিক্ত);
 	mosquitto_FREE(reason_codes);
-	return rc;
+	ঘূৰাই rc;
 }

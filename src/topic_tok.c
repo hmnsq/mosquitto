@@ -16,111 +16,111 @@ Contributors:
    Roger Light - initial implementation and documentation.
 */
 
-#include "config.h"
+#অন্তর্ভাৱ "config.h"
 
-#include <stdio.h>
-#include <string.h>
+#অন্তর্ভাৱ <stdio.h>
+#অন্তর্ভাৱ <string.h>
 
-#include "mosquitto_broker_internal.h"
-#include "mosquitto/mqtt_protocol.h"
-#include "util_mosq.h"
+#অন্তর্ভাৱ "mosquitto_broker_internal.h"
+#অন্তর্ভাৱ "mosquitto/mqtt_protocol.h"
+#অন্তর্ভাৱ "util_mosq.h"
 
-#include "utlist.h"
+#অন্তর্ভাৱ "utlist.h"
 
 
-static char *strtok_hier(char *str, char **saveptr)
+স্থির ৱর্ণ *strtok_hier(ৱর্ণ *str, ৱর্ণ **saveptr)
 {
-	char *c;
+	ৱর্ণ *c;
 
-	if(str != NULL){
+	যদি(str != রিক্ত){
 		*saveptr = str;
 	}
 
-	if(*saveptr == NULL){
-		return NULL;
+	যদি(*saveptr == রিক্ত){
+		ঘূৰাই রিক্ত;
 	}
 
 	c = strchr(*saveptr, '/');
-	if(c){
+	যদি(c){
 		str = *saveptr;
 		*saveptr = c+1;
 		c[0] = '\0';
-	}else if(*saveptr){
+	}অন্যথা যদি(*saveptr){
 		/* No match, but surplus string */
 		str = *saveptr;
-		*saveptr = NULL;
+		*saveptr = রিক্ত;
 	}
-	return str;
+	ঘূৰাই str;
 }
 
 
-int sub__topic_tokenise(const char *subtopic, char **local_sub, char ***topics, const char **sharename)
+পূর্ণাঙ্ক sub__topic_tokenise(ধ্রুৱ ৱর্ণ *subtopic, ৱর্ণ **local_sub, ৱর্ণ ***topics, ধ্রুৱ ৱর্ণ **sharename)
 {
-	char *saveptr = NULL;
-	char *token;
-	int count;
-	int topic_index = 0;
+	ৱর্ণ *saveptr = রিক্ত;
+	ৱর্ণ *token;
+	পূর্ণাঙ্ক গুনতি;
+	পূর্ণাঙ্ক topic_index = 0;
 	size_t len;
 
-	if(!subtopic){
-		return MOSQ_ERR_INVAL;
+	যদি(!subtopic){
+		ঘূৰাই MOSQ_ERR_INVAL;
 	}
 
 	len = strlen(subtopic);
-	if(len == 0){
-		return MOSQ_ERR_INVAL;
+	যদি(len == 0){
+		ঘূৰাই MOSQ_ERR_INVAL;
 	}
 
 	*local_sub = mosquitto_strdup(subtopic);
-	if((*local_sub) == NULL){
-		return MOSQ_ERR_NOMEM;
+	যদি((*local_sub) == রিক্ত){
+		ঘূৰাই MOSQ_ERR_NOMEM;
 	}
 
-	count = 0;
+	গুনতি = 0;
 	saveptr = *local_sub;
-	while(saveptr){
+	যেতিয়ালৈ(saveptr){
 		saveptr = strchr(&saveptr[1], '/');
-		count++;
+		গুনতি++;
 	}
-	*topics = mosquitto_calloc((size_t)(count+3) /* 3=$shared,sharename,NULL */, sizeof(char *));
-	if((*topics) == NULL){
+	*topics = mosquitto_calloc((size_t)(গুনতি+3) /* 3=$shared,sharename,NULL */, পরিমাণ(ৱর্ণ *));
+	যদি((*topics) == রিক্ত){
 		mosquitto_FREE(*local_sub);
-		return MOSQ_ERR_NOMEM;
+		ঘূৰাই MOSQ_ERR_NOMEM;
 	}
 
-	if((*local_sub)[0] != '$'){
+	যদি((*local_sub)[0] != '$'){
 		(*topics)[topic_index] = "";
 		topic_index++;
 	}
 
 	token = strtok_hier((*local_sub), &saveptr);
-	while(token){
+	যেতিয়ালৈ(token){
 		(*topics)[topic_index] = token;
 		topic_index++;
-		token = strtok_hier(NULL, &saveptr);
+		token = strtok_hier(রিক্ত, &saveptr);
 	}
 
-	if(!strcmp((*topics)[0], "$share")){
-		if(count < 3 || (count == 3 && strlen((*topics)[2]) == 0)){
+	যদি(!strcmp((*topics)[0], "$share")){
+		যদি(গুনতি < 3 || (গুনতি == 3 && strlen((*topics)[2]) == 0)){
 			mosquitto_FREE(*local_sub);
 			mosquitto_FREE(*topics);
-			return MOSQ_ERR_PROTOCOL;
+			ঘূৰাই MOSQ_ERR_PROTOCOL;
 		}
 
-		if(sharename){
-			if(strpbrk((*topics)[1], "+#")){
+		যদি(sharename){
+			যদি(strpbrk((*topics)[1], "+#")){
 				mosquitto_FREE(*local_sub);
 				mosquitto_FREE(*topics);
-				return MOSQ_ERR_PROTOCOL;
+				ঘূৰাই MOSQ_ERR_PROTOCOL;
 			}
 			(*sharename) = (*topics)[1];
 		}
 
-		for(int i=1; i<count-1; i++){
+		বাবে(পূর্ণাঙ্ক i=1; i<গুনতি-1; i++){
 			(*topics)[i] = (*topics)[i+1];
 		}
 		(*topics)[0] = "";
-		(*topics)[count-1] = NULL;
+		(*topics)[গুনতি-1] = রিক্ত;
 	}
-	return MOSQ_ERR_SUCCESS;
+	ঘূৰাই MOSQ_ERR_SUCCESS;
 }
