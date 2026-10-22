@@ -17,37 +17,37 @@ Contributors:
    Roger Light - initial implementation and documentation.
 */
 
-#include "config.h"
+#ಅನ್ತರ್ಭಾವ "config.h"
 
-#include "mosquitto_broker_internal.h"
-#include "utlist.h"
+#ಅನ್ತರ್ಭಾವ "mosquitto_broker_internal.h"
+#ಅನ್ತರ್ಭಾವ "utlist.h"
 
 
-static void plugin__handle_client_offline_single(struct mosquitto__security_options *opts, struct mosquitto *context, int reason)
+ಸ್ಥಿರ ಶೂನ್ಯ plugin__handle_client_offline_single(ರಚನೆ mosquitto__security_options *opts, ರಚನೆ mosquitto *context, ಪೂರ್ಣಾಂಕ reason)
 {
-	struct mosquitto_evt_client_offline event_data;
-	struct mosquitto__callback *cb_base, *cb_next;
+	ರಚನೆ mosquitto_evt_client_offline event_ದತ್ತಾಂಶ;
+	ರಚನೆ mosquitto__callback *cb_ತಳ, *cb_ಮುಂದಿನ;
 
-	if(context->id == NULL){
-		return;
+	ಆದರೆ(context->id == ಖಾಲಿ){
+		ಹಿಂತಿರುಗಿ;
 	}
 
-	memset(&event_data, 0, sizeof(event_data));
-	event_data.client = context;
-	event_data.reason = reason;
-	DL_FOREACH_SAFE(opts->plugin_callbacks.client_offline, cb_base, cb_next){
-		cb_base->cb(MOSQ_EVT_CLIENT_OFFLINE, &event_data, cb_base->userdata);
+	memset(&event_ದತ್ತಾಂಶ, 0, ಗಾತ್ರ(event_ದತ್ತಾಂಶ));
+	event_ದತ್ತಾಂಶ.client = context;
+	event_ದತ್ತಾಂಶ.reason = reason;
+	DL_FOREACH_ಸುರಕ್ಷಿತ(opts->plugin_callbacks.client_offline, cb_ತಳ, cb_ಮುಂದಿನ){
+		cb_ತಳ->cb(MOSQ_EVT_CLIENT_OFFLINE, &event_ದತ್ತಾಂಶ, cb_ತಳ->userdata);
 	}
 }
 
 
-void plugin__handle_client_offline(struct mosquitto *context, int reason)
+ಶೂನ್ಯ plugin__handle_client_offline(ರಚನೆ mosquitto *context, ಪೂರ್ಣಾಂಕ reason)
 {
 	/* Global plugins */
 	plugin__handle_client_offline_single(&db.config->security_options, context, reason);
 
 	/* Per listener plugins */
-	if(context->listener){
+	ಆದರೆ(context->listener){
 		plugin__handle_client_offline_single(context->listener->security_options, context, reason);
 	}
 }

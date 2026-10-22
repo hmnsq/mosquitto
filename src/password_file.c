@@ -16,72 +16,72 @@ Contributors:
    Roger Light - initial implementation and documentation.
 */
 
-#include "config.h"
+#ಅನ್ತರ್ಭಾವ "config.h"
 
-#include <ctype.h>
-#include <stdio.h>
-#include <string.h>
+#ಅನ್ತರ್ಭಾವ <ctype.h>
+#ಅನ್ತರ್ಭಾವ <stdio.h>
+#ಅನ್ತರ್ಭಾವ <string.h>
 
-#include "mosquitto_broker_internal.h"
-#include "password_file.h"
+#ಅನ್ತರ್ಭಾವ "mosquitto_broker_internal.h"
+#ಅನ್ತರ್ಭಾವ "password_file.h"
 
 
-int broker_password_file__init(void)
+ಪೂರ್ಣಾಂಕ broker_password_file__init(ಶೂನ್ಯ)
 {
-	int rc;
+	ಪೂರ್ಣಾಂಕ rc;
 
 	/* Load username/password data if required. */
-	if(db.config->per_listener_settings){
-		for(int i=0; i<db.config->listener_count; i++){
-			if(db.config->listeners[i].security_options->password_data.password_file){
-				rc = password_file__parse(&db.config->listeners[i].security_options->password_data);
-				if(rc){
-					return rc;
+	ಆದರೆ(db.config->ಪ್ರತಿ_listener_settings){
+		ಗಾಗಿ(ಪೂರ್ಣಾಂಕ i=0; i<db.config->listener_ಎಣಿಕೆ; i++){
+			ಆದರೆ(db.config->listeners[i].security_options->password_ದತ್ತಾಂಶ.password_file){
+				rc = password_file__parse(&db.config->listeners[i].security_options->password_ದತ್ತಾಂಶ);
+				ಆದರೆ(rc){
+					ಹಿಂತಿರುಗಿ rc;
 				}
-				if(db.config->listeners[i].security_options->plugin_count == 0){
-					config__plugin_add_secopt(db.config->listeners[i].security_options->pid, db.config->listeners[i].security_options);
+				ಆದರೆ(db.config->listeners[i].security_options->plugin_ಎಣಿಕೆ == 0){
+					config_plugin_ಕೂಡಿಸು_secopt(db.config->listeners[i].security_options->pid, db.config->listeners[i].security_options);
 				}
 
-				mosquitto_callback_register(db.config->listeners[i].security_options->pid,
-						MOSQ_EVT_BASIC_AUTH, password_file__check, NULL, &db.config->listeners[i].security_options->password_data);
+				mosquitto_callback_ರಿಜಿಸ್ಟರ್(db.config->listeners[i].security_options->pid,
+						MOSQ_EVT_BASIC_AUTH, password_file__check, ಖಾಲಿ, &db.config->listeners[i].security_options->password_ದತ್ತಾಂಶ);
 			}
 		}
-	}else{
-		if(db.config->security_options.password_data.password_file){
-			rc = password_file__parse(&db.config->security_options.password_data);
-			if(rc){
-				return rc;
+	}ಇಲ್ಲದಿದ್ದರೆ{
+		ಆದರೆ(db.config->security_options.password_ದತ್ತಾಂಶ.password_file){
+			rc = password_file__parse(&db.config->security_options.password_ದತ್ತಾಂಶ);
+			ಆದರೆ(rc){
+				ಹಿಂತಿರುಗಿ rc;
 			}
-			if(db.config->security_options.plugin_count == 0){
-				config__plugin_add_secopt(db.config->security_options.pid, &db.config->security_options);
+			ಆದರೆ(db.config->security_options.plugin_ಎಣಿಕೆ == 0){
+				config_plugin_ಕೂಡಿಸು_secopt(db.config->security_options.pid, &db.config->security_options);
 			}
 
-			mosquitto_callback_register(db.config->security_options.pid,
-					MOSQ_EVT_BASIC_AUTH, password_file__check, NULL, &db.config->security_options.password_data);
+			mosquitto_callback_ರಿಜಿಸ್ಟರ್(db.config->security_options.pid,
+					MOSQ_EVT_BASIC_AUTH, password_file__check, ಖಾಲಿ, &db.config->security_options.password_ದತ್ತಾಂಶ);
 		}
 	}
 
-	return MOSQ_ERR_SUCCESS;
+	ಹಿಂತಿರುಗಿ MOSQ_ERR_SUCCESS;
 }
 
 
-void broker_password_file__cleanup(void)
+ಶೂನ್ಯ broker_password_file__cleanup(ಶೂನ್ಯ)
 {
-	if(db.config->per_listener_settings){
-		for(int i=0; i<db.config->listener_count; i++){
-			if(db.config->listeners[i].security_options->pid){
+	ಆದರೆ(db.config->ಪ್ರತಿ_listener_settings){
+		ಗಾಗಿ(ಪೂರ್ಣಾಂಕ i=0; i<db.config->listener_ಎಣಿಕೆ; i++){
+			ಆದರೆ(db.config->listeners[i].security_options->pid){
 				mosquitto_callback_unregister(db.config->listeners[i].security_options->pid,
-						MOSQ_EVT_BASIC_AUTH, password_file__check, NULL);
+						MOSQ_EVT_BASIC_AUTH, password_file__check, ಖಾಲಿ);
 
-				password_file__cleanup(&db.config->listeners[i].security_options->password_data);
+				password_file__cleanup(&db.config->listeners[i].security_options->password_ದತ್ತಾಂಶ);
 			}
 		}
-	}else{
-		if(db.config->security_options.pid){
+	}ಇಲ್ಲದಿದ್ದರೆ{
+		ಆದರೆ(db.config->security_options.pid){
 			mosquitto_callback_unregister(db.config->security_options.pid,
-					MOSQ_EVT_BASIC_AUTH, password_file__check, NULL);
+					MOSQ_EVT_BASIC_AUTH, password_file__check, ಖಾಲಿ);
 
-			password_file__cleanup(&db.config->security_options.password_data);
+			password_file__cleanup(&db.config->security_options.password_ದತ್ತಾಂಶ);
 		}
 	}
 }

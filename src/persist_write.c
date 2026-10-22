@@ -16,390 +16,390 @@ Contributors:
    Roger Light - initial implementation and documentation.
 */
 
-#include "config.h"
+#ಅನ್ತರ್ಭಾವ "config.h"
 
-#ifdef WITH_PERSISTENCE
+#ವ್ಯಾಖ್ಯಾನಿತವಾದರೆ WITH_PERSISTENCE
 
-#ifndef WIN32
-#include <arpa/inet.h>
-#endif
-#include <assert.h>
-#include <errno.h>
-#include <fcntl.h>
-#include <stdio.h>
-#include <string.h>
-#include <sys/stat.h>
-#include <time.h>
+#ವ್ಯಾಖ್ಯಾನಿತವಾಗದಿದ್ದರೆ WIN32
+#ಅನ್ತರ್ಭಾವ <arpa/inet.h>
+#ಆದರೆ_ಅಂತ್ಯ
+#ಅನ್ತರ್ಭಾವ <assert.h>
+#ಅನ್ತರ್ಭಾವ <errno.h>
+#ಅನ್ತರ್ಭಾವ <fcntl.h>
+#ಅನ್ತರ್ಭಾವ <stdio.h>
+#ಅನ್ತರ್ಭಾವ <string.h>
+#ಅನ್ತರ್ಭಾವ <sys/stat.h>
+#ಅನ್ತರ್ಭಾವ <time.h>
 
-#include "mosquitto_broker_internal.h"
-#include "persist.h"
-#include "util_mosq.h"
+#ಅನ್ತರ್ಭಾವ "mosquitto_broker_internal.h"
+#ಅನ್ತರ್ಭಾವ "persist.h"
+#ಅನ್ತರ್ಭಾವ "util_mosq.h"
 
 
-static int persist__client_messages_save(FILE *db_fptr, struct mosquitto *context, struct mosquitto__client_msg *queue)
+ಸ್ಥಿರ ಪೂರ್ಣಾಂಕ persist__client_messages_save(FILE *db_fptr, ರಚನೆ mosquitto *context, ರಚನೆ mosquitto_client_ಸಂದೇಶ *ಸರತಿ)
 {
-	struct P_client_msg chunk;
-	struct mosquitto__client_msg *cmsg;
-	int rc;
+	ರಚನೆ P_client_ಸಂದೇಶ chunk;
+	ರಚನೆ mosquitto_client_ಸಂದೇಶ *cmsg;
+	ಪೂರ್ಣಾಂಕ rc;
 
-	assert(db_fptr);
-	assert(context);
+	ಪ್ರತಿಜ್ಞಾ(db_fptr);
+	ಪ್ರತಿಜ್ಞಾ(context);
 
-	cmsg = queue;
-	while(cmsg){
-		if(!strncmp(cmsg->base_msg->data.topic, "$SYS", 4)
-				&& cmsg->base_msg->ref_count <= 1
-				&& cmsg->base_msg->dest_id_count == 0){
+	cmsg = ಸರತಿ;
+	ಆಗ(cmsg){
+		ಆದರೆ(!ಅಕ್ಷರಸರಣಿ_ಹೋಲಿಕೆ(cmsg->ತಳ_ಸಂದೇಶ->ದತ್ತಾಂಶ.topic, "$SYS", 4)
+				&& cmsg->ತಳ_ಸಂದೇಶ->ref_ಎಣಿಕೆ <= 1
+				&& cmsg->ತಳ_ಸಂದೇಶ->dest_id_ಎಣಿಕೆ == 0){
 
 			/* This $SYS message won't have been persisted, so we can't persist
 			 * this client message. */
-			cmsg = cmsg->next;
-			continue;
+			cmsg = cmsg->ಮುಂದಿನ;
+			ಮುಂದುವರಿ;
 		}
 
-		memset(&chunk, 0, sizeof(struct P_client_msg));
+		memset(&chunk, 0, ಗಾತ್ರ(ರಚನೆ P_client_ಸಂದೇಶ));
 
-		chunk.F.store_id = cmsg->base_msg->data.store_id;
-		chunk.F.mid = cmsg->data.mid;
-		chunk.F.id_len = (uint16_t)strlen(context->id);
-		chunk.F.qos = cmsg->data.qos;
-		chunk.F.retain_dup = (uint8_t)((cmsg->data.retain&0x0F)<<4 | (cmsg->data.dup&0x0F));
-		chunk.F.direction = (uint8_t)cmsg->data.direction;
-		chunk.F.state = (uint8_t)cmsg->data.state;
+		chunk.F.store_id = cmsg->ತಳ_ಸಂದೇಶ->ದತ್ತಾಂಶ.store_id;
+		chunk.F.mid = cmsg->ದತ್ತಾಂಶ.mid;
+		chunk.F.id_len = (uint16_t)ಅಕ್ಷರಸರಣಿ_ಉದ್ದ(context->id);
+		chunk.F.qos = cmsg->ದತ್ತಾಂಶ.qos;
+		chunk.F.retain_dup = (uint8_t)((cmsg->ದತ್ತಾಂಶ.retain&0x0F)<<4 | (cmsg->ದತ್ತಾಂಶ.dup&0x0F));
+		chunk.F.direction = (uint8_t)cmsg->ದತ್ತಾಂಶ.direction;
+		chunk.F.state = (uint8_t)cmsg->ದತ್ತಾಂಶ.state;
 		chunk.clientid = context->id;
-		chunk.subscription_identifier = cmsg->data.subscription_identifier;
+		chunk.subscription_identifier = cmsg->ದತ್ತಾಂಶ.subscription_identifier;
 
-		rc = persist__chunk_client_msg_write_v6(db_fptr, &chunk);
-		if(rc){
-			return rc;
+		rc = persist_chunk_client_ಸಂದೇಶ_write_v6(db_fptr, &chunk);
+		ಆದರೆ(rc){
+			ಹಿಂತಿರುಗಿ rc;
 		}
 
-		cmsg = cmsg->next;
+		cmsg = cmsg->ಮುಂದಿನ;
 	}
 
-	return MOSQ_ERR_SUCCESS;
+	ಹಿಂತಿರುಗಿ MOSQ_ERR_SUCCESS;
 }
 
 
-static int persist__message_store_save(FILE *db_fptr)
+ಸ್ಥಿರ ಪೂರ್ಣಾಂಕ persist_ಸಂದೇಶ_store_save(FILE *db_fptr)
 {
-	struct P_base_msg chunk;
-	struct mosquitto__base_msg *base_msg, *base_msg_tmp;
-	int rc;
+	ರಚನೆ P_ತಳ_ಸಂದೇಶ chunk;
+	ರಚನೆ mosquitto_ತಳ_ಸಂದೇಶ *ತಳ_ಸಂದೇಶ, *ತಳ_ಸಂದೇಶ_tmp;
+	ಪೂರ್ಣಾಂಕ rc;
 
-	assert(db_fptr);
+	ಪ್ರತಿಜ್ಞಾ(db_fptr);
 
-	base_msg = db.msg_store;
-	HASH_ITER(hh, db.msg_store, base_msg, base_msg_tmp){
-		if(base_msg->ref_count < 1 || base_msg->data.topic == NULL){
-			continue;
+	ತಳ_ಸಂದೇಶ = db.ಸಂದೇಶ_store;
+	HASH_ITER(hh, db.ಸಂದೇಶ_store, ತಳ_ಸಂದೇಶ, ತಳ_ಸಂದೇಶ_tmp){
+		ಆದರೆ(ತಳ_ಸಂದೇಶ->ref_ಎಣಿಕೆ < 1 || ತಳ_ಸಂದೇಶ->ದತ್ತಾಂಶ.topic == ಖಾಲಿ){
+			ಮುಂದುವರಿ;
 		}
 
-		memset(&chunk, 0, sizeof(struct P_base_msg));
+		memset(&chunk, 0, ಗಾತ್ರ(ರಚನೆ P_ತಳ_ಸಂದೇಶ));
 
-		if(!strncmp(base_msg->data.topic, "$SYS", 4)){
-			if(base_msg->ref_count <= 1 && base_msg->dest_id_count == 0){
+		ಆದರೆ(!ಅಕ್ಷರಸರಣಿ_ಹೋಲಿಕೆ(ತಳ_ಸಂದೇಶ->ದತ್ತಾಂಶ.topic, "$SYS", 4)){
+			ಆದರೆ(ತಳ_ಸಂದೇಶ->ref_ಎಣಿಕೆ <= 1 && ತಳ_ಸಂದೇಶ->dest_id_ಎಣಿಕೆ == 0){
 				/* $SYS messages that are only retained shouldn't be persisted. */
-				continue;
+				ಮುಂದುವರಿ;
 			}
 			/* Don't save $SYS messages as retained otherwise they can give
 			 * misleading information when reloaded. They should still be saved
 			 * because a disconnected durable client may have them in their
 			 * queue. */
 			chunk.F.retain = 0;
-		}else{
-			chunk.F.retain = (uint8_t)base_msg->data.retain;
+		}ಇಲ್ಲದಿದ್ದರೆ{
+			chunk.F.retain = (uint8_t)ತಳ_ಸಂದೇಶ->ದತ್ತಾಂಶ.retain;
 		}
 
-		chunk.F.store_id = base_msg->data.store_id;
-		chunk.F.expiry_time = base_msg->data.expiry_time;
-		chunk.F.payloadlen = base_msg->data.payloadlen;
-		chunk.F.source_mid = base_msg->data.source_mid;
-		if(base_msg->data.source_id){
-			chunk.F.source_id_len = (uint16_t)strlen(base_msg->data.source_id);
-			chunk.source.id = base_msg->data.source_id;
-		}else{
-			chunk.F.source_id_len = 0;
-			chunk.source.id = NULL;
+		chunk.F.store_id = ತಳ_ಸಂದೇಶ->ದತ್ತಾಂಶ.store_id;
+		chunk.F.expiry_ಸಮಯ = ತಳ_ಸಂದೇಶ->ದತ್ತಾಂಶ.expiry_ಸಮಯ;
+		chunk.F.payloadlen = ತಳ_ಸಂದೇಶ->ದತ್ತಾಂಶ.payloadlen;
+		chunk.F.ಮೂಲ_mid = ತಳ_ಸಂದೇಶ->ದತ್ತಾಂಶ.ಮೂಲ_mid;
+		ಆದರೆ(ತಳ_ಸಂದೇಶ->ದತ್ತಾಂಶ.ಮೂಲ_id){
+			chunk.F.ಮೂಲ_id_len = (uint16_t)ಅಕ್ಷರಸರಣಿ_ಉದ್ದ(ತಳ_ಸಂದೇಶ->ದತ್ತಾಂಶ.ಮೂಲ_id);
+			chunk.ಮೂಲ.id = ತಳ_ಸಂದೇಶ->ದತ್ತಾಂಶ.ಮೂಲ_id;
+		}ಇಲ್ಲದಿದ್ದರೆ{
+			chunk.F.ಮೂಲ_id_len = 0;
+			chunk.ಮೂಲ.id = ಖಾಲಿ;
 		}
-		if(base_msg->data.source_username){
-			chunk.F.source_username_len = (uint16_t)strlen(base_msg->data.source_username);
-			chunk.source.username = base_msg->data.source_username;
-		}else{
-			chunk.F.source_username_len = 0;
-			chunk.source.username = NULL;
+		ಆದರೆ(ತಳ_ಸಂದೇಶ->ದತ್ತಾಂಶ.ಮೂಲ_username){
+			chunk.F.ಮೂಲ_username_len = (uint16_t)ಅಕ್ಷರಸರಣಿ_ಉದ್ದ(ತಳ_ಸಂದೇಶ->ದತ್ತಾಂಶ.ಮೂಲ_username);
+			chunk.ಮೂಲ.username = ತಳ_ಸಂದೇಶ->ದತ್ತಾಂಶ.ಮೂಲ_username;
+		}ಇಲ್ಲದಿದ್ದರೆ{
+			chunk.F.ಮೂಲ_username_len = 0;
+			chunk.ಮೂಲ.username = ಖಾಲಿ;
 		}
 
-		chunk.F.topic_len = (uint16_t)strlen(base_msg->data.topic);
-		chunk.topic = base_msg->data.topic;
+		chunk.F.topic_len = (uint16_t)ಅಕ್ಷರಸರಣಿ_ಉದ್ದ(ತಳ_ಸಂದೇಶ->ದತ್ತಾಂಶ.topic);
+		chunk.topic = ತಳ_ಸಂದೇಶ->ದತ್ತಾಂಶ.topic;
 
-		if(base_msg->source_listener){
-			chunk.F.source_port = base_msg->source_listener->port;
-		}else{
-			chunk.F.source_port = 0;
+		ಆದರೆ(ತಳ_ಸಂದೇಶ->ಮೂಲ_listener){
+			chunk.F.ಮೂಲ_ಪೋರ್ಟ್ = ತಳ_ಸಂದೇಶ->ಮೂಲ_listener->ಪೋರ್ಟ್;
+		}ಇಲ್ಲದಿದ್ದರೆ{
+			chunk.F.ಮೂಲ_ಪೋರ್ಟ್ = 0;
 		}
-		chunk.F.qos = base_msg->data.qos;
-		chunk.payload = base_msg->data.payload;
-		chunk.properties = base_msg->data.properties;
+		chunk.F.qos = ತಳ_ಸಂದೇಶ->ದತ್ತಾಂಶ.qos;
+		chunk.payload = ತಳ_ಸಂದೇಶ->ದತ್ತಾಂಶ.payload;
+		chunk.properties = ತಳ_ಸಂದೇಶ->ದತ್ತಾಂಶ.properties;
 
-		rc = persist__chunk_message_store_write_v6(db_fptr, &chunk);
-		if(rc){
-			return rc;
+		rc = persist_chunk_ಸಂದೇಶ_store_write_v6(db_fptr, &chunk);
+		ಆದರೆ(rc){
+			ಹಿಂತಿರುಗಿ rc;
 		}
 	}
 
-	return MOSQ_ERR_SUCCESS;
+	ಹಿಂತಿರುಗಿ MOSQ_ERR_SUCCESS;
 }
 
 
-static int persist__client_save(FILE *db_fptr)
+ಸ್ಥಿರ ಪೂರ್ಣಾಂಕ persist__client_save(FILE *db_fptr)
 {
-	struct mosquitto *context, *ctxt_tmp;
-	struct P_client chunk;
-	int rc;
+	ರಚನೆ mosquitto *context, *ctxt_tmp;
+	ರಚನೆ P_client chunk;
+	ಪೂರ್ಣಾಂಕ rc;
 
-	assert(db_fptr);
+	ಪ್ರತಿಜ್ಞಾ(db_fptr);
 
 	HASH_ITER(hh_id, db.contexts_by_id, context, ctxt_tmp){
-		memset(&chunk, 0, sizeof(struct P_client));
+		memset(&chunk, 0, ಗಾತ್ರ(ರಚನೆ P_client));
 
-		if(context &&
-				context->session_expiry_interval != MQTT_SESSION_EXPIRY_IMMEDIATE &&
-#ifdef WITH_BRIDGE
-				((!context->bridge && context->clean_start == false)
-				|| (context->bridge && context->bridge->clean_start_local == false))
-#else
-				context->clean_start == false
-#endif
+		ಆದರೆ(context &&
+				context->session_expiry_interval != MQTT_SESSION_EXPIRY_ತಕ್ಷಣ &&
+#ವ್ಯಾಖ್ಯಾನಿತವಾದರೆ WITH_BRIDGE
+				((!context->bridge && context->clean_ಆರಂಭ == false)
+				|| (context->bridge && context->bridge->clean_ಆರಂಭ_local == false))
+#ಇಲ್ಲದಿದ್ದರೆ
+				context->clean_ಆರಂಭ == false
+#ಆದರೆ_ಅಂತ್ಯ
 				){
-			chunk.F.session_expiry_time = context->session_expiry_time;
-			if(context->session_expiry_interval != MQTT_SESSION_EXPIRY_NEVER
-					&& context->session_expiry_time == 0){
+			chunk.F.session_expiry_ಸಮಯ = context->session_expiry_ಸಮಯ;
+			ಆದರೆ(context->session_expiry_interval != MQTT_SESSION_EXPIRY_NEVER
+					&& context->session_expiry_ಸಮಯ == 0){
 
-				chunk.F.session_expiry_time = context->session_expiry_interval + db.now_real_s;
-			}else{
-				chunk.F.session_expiry_time = context->session_expiry_time;
+				chunk.F.session_expiry_ಸಮಯ = context->session_expiry_interval + db.now_real_s;
+			}ಇಲ್ಲದಿದ್ದರೆ{
+				chunk.F.session_expiry_ಸಮಯ = context->session_expiry_ಸಮಯ;
 			}
 			chunk.F.session_expiry_interval = context->session_expiry_interval;
-			chunk.F.last_mid = context->last_mid;
-			chunk.F.id_len = (uint16_t)strlen(context->id);
+			chunk.F.ಕೊನೆಯ_mid = context->ಕೊನೆಯ_mid;
+			chunk.F.id_len = (uint16_t)ಅಕ್ಷರಸರಣಿ_ಉದ್ದ(context->id);
 			chunk.clientid = context->id;
-			if(context->username){
-				chunk.F.username_len = (uint16_t)strlen(context->username);
+			ಆದರೆ(context->username){
+				chunk.F.username_len = (uint16_t)ಅಕ್ಷರಸರಣಿ_ಉದ್ದ(context->username);
 				chunk.username = context->username;
 			}
-			if(context->listener){
-				chunk.F.listener_port = context->listener->port;
+			ಆದರೆ(context->listener){
+				chunk.F.listener_ಪೋರ್ಟ್ = context->listener->ಪೋರ್ಟ್;
 			}
 
-			if(chunk.F.id_len == 0){
+			ಆದರೆ(chunk.F.id_len == 0){
 				/* This should never happen, but in case we have a client with
 				 * zero length ID, don't persist them. */
-				continue;
+				ಮುಂದುವರಿ;
 			}
 
 			rc = persist__chunk_client_write_v6(db_fptr, &chunk);
-			if(rc){
-				return rc;
+			ಆದರೆ(rc){
+				ಹಿಂತಿರುಗಿ rc;
 			}
 
-			if(persist__client_messages_save(db_fptr, context, context->msgs_in.inflight)){
-				return 1;
+			ಆದರೆ(persist__client_messages_save(db_fptr, context, context->msgs_ಒಳ.inflight)){
+				ಹಿಂತಿರುಗಿ 1;
 			}
-			if(persist__client_messages_save(db_fptr, context, context->msgs_in.queued)){
-				return 1;
+			ಆದರೆ(persist__client_messages_save(db_fptr, context, context->msgs_ಒಳ.queued)){
+				ಹಿಂತಿರುಗಿ 1;
 			}
-			if(persist__client_messages_save(db_fptr, context, context->msgs_out.inflight)){
-				return 1;
+			ಆದರೆ(persist__client_messages_save(db_fptr, context, context->msgs_ಹೊರಹೋಗು.inflight)){
+				ಹಿಂತಿರುಗಿ 1;
 			}
-			if(persist__client_messages_save(db_fptr, context, context->msgs_out.queued)){
-				return 1;
+			ಆದರೆ(persist__client_messages_save(db_fptr, context, context->msgs_ಹೊರಹೋಗು.queued)){
+				ಹಿಂತಿರುಗಿ 1;
 			}
 		}
 	}
 
-	return MOSQ_ERR_SUCCESS;
+	ಹಿಂತಿರುಗಿ MOSQ_ERR_SUCCESS;
 }
 
 
-static int persist__subs_save(FILE *db_fptr, struct mosquitto__subhier *node, const char *topic, int level)
+ಸ್ಥಿರ ಪೂರ್ಣಾಂಕ persist__subs_save(FILE *db_fptr, ರಚನೆ mosquitto__subhier *ಗಂಟು, ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *topic, ಪೂರ್ಣಾಂಕ level)
 {
-	struct mosquitto__subhier *subhier, *subhier_tmp;
-	struct mosquitto__subleaf *sub;
-	struct P_sub sub_chunk;
-	char *thistopic;
+	ರಚನೆ mosquitto__subhier *subhier, *subhier_tmp;
+	ರಚನೆ mosquitto__subleaf *sub;
+	ರಚನೆ P_sub sub_chunk;
+	ಅಕ್ಷರ *thistopic;
 	size_t slen;
-	int rc;
+	ಪೂರ್ಣಾಂಕ rc;
 
-	slen = strlen(topic) + node->topic_len + 2;
-	thistopic = mosquitto_malloc(sizeof(char)*slen);
-	if(!thistopic){
-		return MOSQ_ERR_NOMEM;
+	slen = ಅಕ್ಷರಸರಣಿ_ಉದ್ದ(topic) + ಗಂಟು->topic_len + 2;
+	thistopic = mosquitto_malloc(ಗಾತ್ರ(ಅಕ್ಷರ)*slen);
+	ಆದರೆ(!thistopic){
+		ಹಿಂತಿರುಗಿ MOSQ_ERR_NOMEM;
 	}
-	if(level > 1 || strlen(topic)){
-		snprintf(thistopic, slen, "%s/%s", topic, node->topic);
-	}else{
-		snprintf(thistopic, slen, "%s", node->topic);
+	ಆದರೆ(level > 1 || ಅಕ್ಷರಸರಣಿ_ಉದ್ದ(topic)){
+		snprintf(thistopic, slen, "%s/%s", topic, ಗಂಟು->topic);
+	}ಇಲ್ಲದಿದ್ದರೆ{
+		snprintf(thistopic, slen, "%s", ಗಂಟು->topic);
 	}
 
-	sub = node->subs;
-	while(sub){
-		if(sub->context->session_expiry_interval != MQTT_SESSION_EXPIRY_IMMEDIATE
-				&& sub->context->clean_start == false
+	sub = ಗಂಟು->subs;
+	ಆಗ(sub){
+		ಆದರೆ(sub->context->session_expiry_interval != MQTT_SESSION_EXPIRY_ತಕ್ಷಣ
+				&& sub->context->clean_ಆರಂಭ == false
 				&& sub->context->id){
 
-			memset(&sub_chunk, 0, sizeof(struct P_sub));
+			memset(&sub_chunk, 0, ಗಾತ್ರ(ರಚನೆ P_sub));
 
 			sub_chunk.F.identifier = sub->identifier;
-			sub_chunk.F.id_len = (uint16_t)strlen(sub->context->id);
-			sub_chunk.F.topic_len = (uint16_t)strlen(thistopic);
+			sub_chunk.F.id_len = (uint16_t)ಅಕ್ಷರಸರಣಿ_ಉದ್ದ(sub->context->id);
+			sub_chunk.F.topic_len = (uint16_t)ಅಕ್ಷರಸರಣಿ_ಉದ್ದ(thistopic);
 			sub_chunk.F.qos = MQTT_SUB_OPT_GET_QOS(sub->subscription_options);
 			sub_chunk.F.options = sub->subscription_options & 0xFC;
 			sub_chunk.clientid = sub->context->id;
 			sub_chunk.topic = thistopic;
 
 			rc = persist__chunk_sub_write_v6(db_fptr, &sub_chunk);
-			if(rc){
+			ಆದರೆ(rc){
 				mosquitto_FREE(thistopic);
-				return rc;
+				ಹಿಂತಿರುಗಿ rc;
 			}
 		}
-		sub = sub->next;
+		sub = sub->ಮುಂದಿನ;
 	}
 
-	HASH_ITER(hh, node->children, subhier, subhier_tmp){
+	HASH_ITER(hh, ಗಂಟು->children, subhier, subhier_tmp){
 		persist__subs_save(db_fptr, subhier, thistopic, level+1);
 	}
 	mosquitto_FREE(thistopic);
-	return MOSQ_ERR_SUCCESS;
+	ಹಿಂತಿರುಗಿ MOSQ_ERR_SUCCESS;
 }
 
 
-static int persist__subs_save_all(FILE *db_fptr)
+ಸ್ಥಿರ ಪೂರ್ಣಾಂಕ persist__subs_save_all(FILE *db_fptr)
 {
-	struct mosquitto__subhier *subhier, *subhier_tmp;
+	ರಚನೆ mosquitto__subhier *subhier, *subhier_tmp;
 
-	HASH_ITER(hh, db.normal_subs, subhier, subhier_tmp){
-		if(subhier->children){
+	HASH_ITER(hh, db.ಸಾಮಾನ್ಯ_subs, subhier, subhier_tmp){
+		ಆದರೆ(subhier->children){
 			persist__subs_save(db_fptr, subhier->children, "", 0);
 		}
 	}
 
 	HASH_ITER(hh, db.shared_subs, subhier, subhier_tmp){
-		if(subhier->children){
+		ಆದರೆ(subhier->children){
 			persist__subs_save(db_fptr, subhier->children, "", 0);
 		}
 	}
 
-	return MOSQ_ERR_SUCCESS;
+	ಹಿಂತಿರುಗಿ MOSQ_ERR_SUCCESS;
 }
 
 
-static int persist__retain_save(FILE *db_fptr, struct mosquitto__retainhier *node, int level)
+ಸ್ಥಿರ ಪೂರ್ಣಾಂಕ persist__retain_save(FILE *db_fptr, ರಚನೆ mosquitto__retainhier *ಗಂಟು, ಪೂರ್ಣಾಂಕ level)
 {
-	struct mosquitto__retainhier *retainhier, *retainhier_tmp;
-	struct P_retain retain_chunk;
-	int rc;
+	ರಚನೆ mosquitto__retainhier *retainhier, *retainhier_tmp;
+	ರಚನೆ P_retain retain_chunk;
+	ಪೂರ್ಣಾಂಕ rc;
 
-	if(node->retained && strncmp(node->retained->data.topic, "$SYS", 4)){
-		memset(&retain_chunk, 0, sizeof(struct P_retain));
+	ಆದರೆ(ಗಂಟು->retained && ಅಕ್ಷರಸರಣಿ_ಹೋಲಿಕೆ(ಗಂಟು->retained->ದತ್ತಾಂಶ.topic, "$SYS", 4)){
+		memset(&retain_chunk, 0, ಗಾತ್ರ(ರಚನೆ P_retain));
 
 		/* Don't save $SYS messages. */
-		retain_chunk.F.store_id = node->retained->data.store_id;
+		retain_chunk.F.store_id = ಗಂಟು->retained->ದತ್ತಾಂಶ.store_id;
 		rc = persist__chunk_retain_write_v6(db_fptr, &retain_chunk);
-		if(rc){
-			return rc;
+		ಆದರೆ(rc){
+			ಹಿಂತಿರುಗಿ rc;
 		}
 	}
 
-	HASH_ITER(hh, node->children, retainhier, retainhier_tmp){
+	HASH_ITER(hh, ಗಂಟು->children, retainhier, retainhier_tmp){
 		persist__retain_save(db_fptr, retainhier, level+1);
 	}
-	return MOSQ_ERR_SUCCESS;
+	ಹಿಂತಿರುಗಿ MOSQ_ERR_SUCCESS;
 }
 
 
-static int persist__retain_save_all(FILE *db_fptr)
+ಸ್ಥಿರ ಪೂರ್ಣಾಂಕ persist__retain_save_all(FILE *db_fptr)
 {
-	struct mosquitto__retainhier *retainhier, *retainhier_tmp;
+	ರಚನೆ mosquitto__retainhier *retainhier, *retainhier_tmp;
 
 	HASH_ITER(hh, db.retains, retainhier, retainhier_tmp){
-		if(retainhier->children){
+		ಆದರೆ(retainhier->children){
 			persist__retain_save(db_fptr, retainhier->children, 0);
 		}
 	}
 
-	return MOSQ_ERR_SUCCESS;
+	ಹಿಂತಿರುಗಿ MOSQ_ERR_SUCCESS;
 }
 
-static int persist__write_data(FILE *db_fptr, void *user_data);
+ಸ್ಥಿರ ಪೂರ್ಣಾಂಕ persist_write_ದತ್ತಾಂಶ(FILE *db_fptr, ಶೂನ್ಯ *user_ದತ್ತಾಂಶ);
 
 
-static void persist__log_write_error(const char *msg)
+ಸ್ಥಿರ ಶೂನ್ಯ persist__log_write_error(ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *ಸಂದೇಶ)
 {
-	log__printf(NULL, MOSQ_LOG_ERR, "Error saving in-memory database, %s", msg);
-}
-
-
-int persist__backup(bool shutdown)
-{
-	if(db.config == NULL){
-		return MOSQ_ERR_INVAL;
-	}
-	if(db.config->persistence == false){
-		return MOSQ_ERR_SUCCESS;
-	}
-	if(db.config->persistence_filepath == NULL){
-		return MOSQ_ERR_INVAL;
-	}
-
-	log__printf(NULL, MOSQ_LOG_INFO, "Saving in-memory database to %s.", db.config->persistence_filepath);
-
-	return mosquitto_write_file(db.config->persistence_filepath, true, &persist__write_data, &shutdown, &persist__log_write_error);
+	log__printf(ಖಾಲಿ, MOSQ_LOG_ERR, "Error saving in-memory database, %s", ಸಂದೇಶ);
 }
 
 
-static int persist__write_data(FILE *db_fptr, void *user_data)
+ಪೂರ್ಣಾಂಕ persist__backup(bool shutdown)
 {
-	bool shutdown = *(bool *)(user_data);
-	uint32_t db_version_w = htonl(MOSQ_DB_VERSION);
-	uint32_t crc = 0;
-	const char *err;
-	struct PF_cfg cfg_chunk;
-	int rc = MOSQ_ERR_UNKNOWN;
+	ಆದರೆ(db.config == ಖಾಲಿ){
+		ಹಿಂತಿರುಗಿ MOSQ_ERR_INVAL;
+	}
+	ಆದರೆ(db.config->persistence == false){
+		ಹಿಂತಿರುಗಿ MOSQ_ERR_SUCCESS;
+	}
+	ಆದರೆ(db.config->persistence_filepath == ಖಾಲಿ){
+		ಹಿಂತಿರುಗಿ MOSQ_ERR_INVAL;
+	}
 
-	/* Header */
+	log__printf(ಖಾಲಿ, MOSQ_LOG_INFO, "Saving in-memory database to %s.", db.config->persistence_filepath);
+
+	ಹಿಂತಿರುಗಿ mosquitto_write_file(db.config->persistence_filepath, true, &persist_write_ದತ್ತಾಂಶ, &shutdown, &persist__log_write_error);
+}
+
+
+ಸ್ಥಿರ ಪೂರ್ಣಾಂಕ persist_write_ದತ್ತಾಂಶ(FILE *db_fptr, ಶೂನ್ಯ *user_ದತ್ತಾಂಶ)
+{
+	bool shutdown = *(bool *)(user_ದತ್ತಾಂಶ);
+	uint32_t db_ಆವೃತ್ತಿ_w = htonl(MOSQ_DB_ಆವೃತ್ತಿ);
+	uint32_t ಚಕ್ರೀಯ_ಪರೀಕ್ಷೆ = 0;
+	ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *err;
+	ರಚನೆ PF_cfg cfg_chunk;
+	ಪೂರ್ಣಾಂಕ rc = MOSQ_ERR_UNKNOWN;
+
+	/*ಶೀರ್ಷಿಕೆ*/
 	write_e(db_fptr, magic, 15);
-	write_e(db_fptr, &crc, sizeof(uint32_t));
-	write_e(db_fptr, &db_version_w, sizeof(uint32_t));
+	write_e(db_fptr, &ಚಕ್ರೀಯ_ಪರೀಕ್ಷೆ, ಗಾತ್ರ(uint32_t));
+	write_e(db_fptr, &db_ಆವೃತ್ತಿ_w, ಗಾತ್ರ(uint32_t));
 
-	memset(&cfg_chunk, 0, sizeof(struct PF_cfg));
-	cfg_chunk.last_db_id = db.last_db_id;
+	memset(&cfg_chunk, 0, ಗಾತ್ರ(ರಚನೆ PF_cfg));
+	cfg_chunk.ಕೊನೆಯ_db_id = db.ಕೊನೆಯ_db_id;
 	cfg_chunk.shutdown = shutdown;
-	cfg_chunk.dbid_size = sizeof(dbid_t);
-	if(persist__chunk_cfg_write_v6(db_fptr, &cfg_chunk)){
-		goto error;
+	cfg_chunk.dbid_ಗಾತ್ರ = ಗಾತ್ರ(dbid_t);
+	ಆದರೆ(persist__chunk_cfg_write_v6(db_fptr, &cfg_chunk)){
+		ಹೋಗು error;
 	}
 
-	if(persist__message_store_save(db_fptr)){
-		goto error;
+	ಆದರೆ(persist_ಸಂದೇಶ_store_save(db_fptr)){
+		ಹೋಗು error;
 	}
 
-	if(persist__client_save(db_fptr)
+	ಆದರೆ(persist__client_save(db_fptr)
 			|| persist__subs_save_all(db_fptr)
 			|| persist__retain_save_all(db_fptr)){
-		goto error;
+		ಹೋಗು error;
 	}
-	return MOSQ_ERR_SUCCESS;
+	ಹಿಂತಿರುಗಿ MOSQ_ERR_SUCCESS;
 
 error:
 	err = strerror(errno);
-	log__printf(NULL, MOSQ_LOG_ERR, "Error during saving in-memory database %s: %s.", db.config->persistence_filepath, err);
-	if(db_fptr){
+	log__printf(ಖಾಲಿ, MOSQ_LOG_ERR, "Error during saving in-memory database %s: %s.", db.config->persistence_filepath, err);
+	ಆದರೆ(db_fptr){
 		fclose(db_fptr);
 	}
-	return rc;
+	ಹಿಂತಿರುಗಿ rc;
 }
 
 
-#endif
+#ಆದರೆ_ಅಂತ್ಯ

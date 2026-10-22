@@ -1,163 +1,163 @@
-#ifdef WIN32
+#ವ್ಯಾಖ್ಯಾನಿತವಾದರೆ WIN32
 #  include <winsock2.h>
 #  include <ws2tcpip.h>
-#else
+#ಇಲ್ಲದಿದ್ದರೆ
 #  include <arpa/inet.h>
 #  include <netinet/in.h>
-#endif
-#include <stdint.h>
-#include "mosquitto_broker_internal.h"
-#include "mosquitto_internal.h"
-#include "net_mosq.h"
+#ಆದರೆ_ಅಂತ್ಯ
+#ಅನ್ತರ್ಭಾವ <stdint.h>
+#ಅನ್ತರ್ಭಾವ "mosquitto_broker_internal.h"
+#ಅನ್ತರ್ಭಾವ "mosquitto_internal.h"
+#ಅನ್ತರ್ಭಾವ "net_mosq.h"
 
-#if !defined(WITH_WEBSOCKETS) || WITH_WEBSOCKETS == WS_IS_BUILTIN
+#ಆದರೆ !defined(WITH_WEBSOCKETS) || WITH_WEBSOCKETS == WS_IS_BUILTIN
 
-#define PROXY_V1_PACKET_LIMIT 108
+#ವ್ಯಾಖ್ಯಾನಿಸು PROXY_V1_PACKET_ಎಲ್ಲೆ 108
 
-const uint8_t signature4[11] = {'P', 'R', 'O', 'X', 'Y', ' ', 'T', 'C', 'P', '4', ' '};
-const uint8_t signature6[11] = {'P', 'R', 'O', 'X', 'Y', ' ', 'T', 'C', 'P', '6', ' '};
-const uint8_t signatureU[14] = {'P', 'R', 'O', 'X', 'Y', ' ', 'U', 'N', 'K', 'N', 'O', 'W', 'N', ' '};
+ಸ್ಥಿರಾಂಕ uint8_t signature4[11] = {'P', 'R', 'O', 'X', 'Y', ' ', 'T', 'C', 'P', '4', ' '};
+ಸ್ಥಿರಾಂಕ uint8_t signature6[11] = {'P', 'R', 'O', 'X', 'Y', ' ', 'T', 'C', 'P', '6', ' '};
+ಸ್ಥಿರಾಂಕ uint8_t signatureU[14] = {'P', 'R', 'O', 'X', 'Y', ' ', 'U', 'N', 'K', 'N', 'O', 'W', 'N', ' '};
 
 
-static void proxy_cleanup(struct mosquitto *context)
+ಸ್ಥಿರ ಶೂನ್ಯ proxy_cleanup(ರಚನೆ mosquitto *context)
 {
 	mosquitto_FREE(context->proxy.buf);
 }
 
 
-static int update_transport(struct mosquitto *context)
+ಸ್ಥಿರ ಪೂರ್ಣಾಂಕ update_transport(ರಚನೆ mosquitto *context)
 {
-#if defined(WITH_WEBSOCKETS) && WITH_WEBSOCKETS == WS_IS_BUILTIN
-	if(context->listener->protocol == mp_websockets){
-		return http__context_init(context);
-	}else
-#endif
+#ಆದರೆ defined(WITH_WEBSOCKETS) && WITH_WEBSOCKETS == WS_IS_BUILTIN
+	ಆದರೆ(context->listener->protocol == mp_websockets){
+		ಹಿಂತಿರುಗಿ http__context_init(context);
+	}ಇಲ್ಲದಿದ್ದರೆ
+#ಆದರೆ_ಅಂತ್ಯ
 	{
 		context->transport = mosq_t_tcp;
 	}
-	return MOSQ_ERR_SUCCESS;
+	ಹಿಂತಿರುಗಿ MOSQ_ERR_SUCCESS;
 }
 
 
-static int get_address_for_unknown(struct mosquitto *context)
+ಸ್ಥಿರ ಪೂರ್ಣಾಂಕ get_ವಿಳಾಸ_for_unknown(ರಚನೆ mosquitto *context)
 {
-	char address[1024];
+	ಅಕ್ಷರ ವಿಳಾಸ[1024];
 
 	proxy_cleanup(context);
 
-	if(!net__socket_get_address(context->sock, address, sizeof(address), &context->remote_port)){
-		context->address = mosquitto_strdup(address);
+	ಆದರೆ(!net_socket_get_ವಿಳಾಸ(context->sock, ವಿಳಾಸ, ಗಾತ್ರ(ವಿಳಾಸ), &context->remote_ಪೋರ್ಟ್)){
+		context->ವಿಳಾಸ = mosquitto_strdup(ವಿಳಾಸ);
 	}
-	if(!context->address){
-		return MOSQ_ERR_NOMEM;
+	ಆದರೆ(!context->ವಿಳಾಸ){
+		ಹಿಂತಿರುಗಿ MOSQ_ERR_NOMEM;
 	}
-	return update_transport(context);
+	ಹಿಂತಿರುಗಿ update_transport(context);
 }
 
 
-static int proxy_v1__decode(struct mosquitto *context)
+ಸ್ಥಿರ ಪೂರ್ಣಾಂಕ proxy_v1__decode(ರಚನೆ mosquitto *context)
 {
-	char *saddr_s, *daddr_s, *sport_s, *dport_s;
-	char *saveptr = NULL;
-	int sport, dport;
-	struct in6_addr addr;
+	ಅಕ್ಷರ *saddr_s, *daddr_s, *sport_s, *dport_s;
+	ಅಕ್ಷರ *saveptr = ಖಾಲಿ;
+	ಪೂರ್ಣಾಂಕ sport, dport;
+	ರಚನೆ in6_addr addr;
 
-	if(context->proxy.pos >= sizeof(signatureU) && !memcmp(context->proxy.buf, signatureU, sizeof(signatureU))){
-		return get_address_for_unknown(context);
-	}else if(context->proxy.pos >= sizeof(signature4) && !memcmp(context->proxy.buf, signature4, sizeof(signature4))){
+	ಆದರೆ(context->proxy.pos >= ಗಾತ್ರ(signatureU) && !memcmp(context->proxy.buf, signatureU, ಗಾತ್ರ(signatureU))){
+		ಹಿಂತಿರುಗಿ get_ವಿಳಾಸ_for_unknown(context);
+	}ಇಲ್ಲದಿದ್ದರೆ ಆದರೆ(context->proxy.pos >= ಗಾತ್ರ(signature4) && !memcmp(context->proxy.buf, signature4, ಗಾತ್ರ(signature4))){
 		context->proxy.fam = AF_INET;
-	}else if(context->proxy.pos >= sizeof(signature6) && !memcmp(context->proxy.buf, signature6, sizeof(signature6))){
+	}ಇಲ್ಲದಿದ್ದರೆ ಆದರೆ(context->proxy.pos >= ಗಾತ್ರ(signature6) && !memcmp(context->proxy.buf, signature6, ಗಾತ್ರ(signature6))){
 		context->proxy.fam = AF_INET6;
-	}else{
-		log__printf(NULL, MOSQ_LOG_NOTICE, "Connection rejected, corrupt PROXY header.");
+	}ಇಲ್ಲದಿದ್ದರೆ{
+		log__printf(ಖಾಲಿ, MOSQ_LOG_NOTICE, "Connection rejected, corrupt PROXY header.");
 		proxy_cleanup(context);
-		return MOSQ_ERR_INVAL;
+		ಹಿಂತಿರುಗಿ MOSQ_ERR_INVAL;
 	}
 
 	context->proxy.buf[context->proxy.pos-1] = '\0';
 	context->proxy.buf[context->proxy.pos-2] = '\0';
-	saddr_s = strtok_r((char *)&context->proxy.buf[sizeof(signature4)], " ", &saveptr);
-	daddr_s = strtok_r(NULL, " ", &saveptr);
-	sport_s = strtok_r(NULL, " ", &saveptr);
-	dport_s = strtok_r(NULL, " ", &saveptr);
+	saddr_s = strtok_r((ಅಕ್ಷರ *)&context->proxy.buf[ಗಾತ್ರ(signature4)], " ", &saveptr);
+	daddr_s = strtok_r(ಖಾಲಿ, " ", &saveptr);
+	sport_s = strtok_r(ಖಾಲಿ, " ", &saveptr);
+	dport_s = strtok_r(ಖಾಲಿ, " ", &saveptr);
 
 
-	if(!saddr_s || !daddr_s || !sport_s || !dport_s || (saveptr && strlen(saveptr) > 0)){
-		log__printf(NULL, MOSQ_LOG_NOTICE, "Connection rejected, corrupt PROXY header.");
+	ಆದರೆ(!saddr_s || !daddr_s || !sport_s || !dport_s || (saveptr && ಅಕ್ಷರಸರಣಿ_ಉದ್ದ(saveptr) > 0)){
+		log__printf(ಖಾಲಿ, MOSQ_LOG_NOTICE, "Connection rejected, corrupt PROXY header.");
 		proxy_cleanup(context);
-		return MOSQ_ERR_INVAL;
+		ಹಿಂತಿರುಗಿ MOSQ_ERR_INVAL;
 	}
 
 	/* Verify ports */
 	sport = atoi(sport_s);
 	dport = atoi(dport_s);
-	if(sport < 1 || sport > 65535 || dport < 1 || dport > 65535){
-		log__printf(NULL, MOSQ_LOG_NOTICE, "Connection rejected, corrupt PROXY header.");
+	ಆದರೆ(sport < 1 || sport > 65535 || dport < 1 || dport > 65535){
+		log__printf(ಖಾಲಿ, MOSQ_LOG_NOTICE, "Connection rejected, corrupt PROXY header.");
 		proxy_cleanup(context);
-		return MOSQ_ERR_INVAL;
+		ಹಿಂತಿರುಗಿ MOSQ_ERR_INVAL;
 	}
 
 	/* Verify addresses */
-	if(context->proxy.fam == AF_INET){
-		if(inet_pton(AF_INET, saddr_s, &addr) != 1
+	ಆದರೆ(context->proxy.fam == AF_INET){
+		ಆದರೆ(inet_pton(AF_INET, saddr_s, &addr) != 1
 				|| inet_pton(AF_INET, daddr_s, &addr) != 1){
 
-			log__printf(NULL, MOSQ_LOG_NOTICE, "Connection rejected, corrupt PROXY header.");
+			log__printf(ಖಾಲಿ, MOSQ_LOG_NOTICE, "Connection rejected, corrupt PROXY header.");
 			proxy_cleanup(context);
-			return MOSQ_ERR_INVAL;
+			ಹಿಂತಿರುಗಿ MOSQ_ERR_INVAL;
 		}
-	}else if(context->proxy.fam == AF_INET6){
-		if(inet_pton(AF_INET6, saddr_s, &addr) != 1
+	}ಇಲ್ಲದಿದ್ದರೆ ಆದರೆ(context->proxy.fam == AF_INET6){
+		ಆದರೆ(inet_pton(AF_INET6, saddr_s, &addr) != 1
 				|| inet_pton(AF_INET6, daddr_s, &addr) != 1){
 
-			log__printf(NULL, MOSQ_LOG_NOTICE, "Connection rejected, corrupt PROXY header.");
+			log__printf(ಖಾಲಿ, MOSQ_LOG_NOTICE, "Connection rejected, corrupt PROXY header.");
 			proxy_cleanup(context);
-			return MOSQ_ERR_INVAL;
+			ಹಿಂತಿರುಗಿ MOSQ_ERR_INVAL;
 		}
 	}
 
-	context->address = mosquitto_strdup(saddr_s);
-	if(!context->address){
+	context->ವಿಳಾಸ = mosquitto_strdup(saddr_s);
+	ಆದರೆ(!context->ವಿಳಾಸ){
 		proxy_cleanup(context);
-		return MOSQ_ERR_NOMEM;
+		ಹಿಂತಿರುಗಿ MOSQ_ERR_NOMEM;
 	}
-	context->remote_port = (uint16_t )sport;
+	context->remote_ಪೋರ್ಟ್ = (uint16_t )sport;
 	proxy_cleanup(context);
-	return update_transport(context);
+	ಹಿಂತಿರುಗಿ update_transport(context);
 }
 
 
-int proxy_v1__read(struct mosquitto *context)
+ಪೂರ್ಣಾಂಕ proxy_v1__read(ರಚನೆ mosquitto *context)
 {
-	if(context->proxy.buf == NULL){
-		context->proxy.buf = mosquitto_calloc(1, PROXY_V1_PACKET_LIMIT);
-		if(!context->proxy.buf){
-			return MOSQ_ERR_NOMEM;
+	ಆದರೆ(context->proxy.buf == ಖಾಲಿ){
+		context->proxy.buf = mosquitto_calloc(1, PROXY_V1_PACKET_ಎಲ್ಲೆ);
+		ಆದರೆ(!context->proxy.buf){
+			ಹಿಂತಿರುಗಿ MOSQ_ERR_NOMEM;
 		}
 		context->proxy.pos = 0;
 	}
 
-	while(context->proxy.pos < PROXY_V1_PACKET_LIMIT){
-		if(net__read(context, &(context->proxy.buf[context->proxy.pos]), 1) != 1){
+	ಆಗ(context->proxy.pos < PROXY_V1_PACKET_ಎಲ್ಲೆ){
+		ಆದರೆ(net__read(context, &(context->proxy.buf[context->proxy.pos]), 1) != 1){
 			proxy_cleanup(context);
-			return MOSQ_ERR_CONN_LOST;
+			ಹಿಂತಿರುಗಿ MOSQ_ERR_CONN_ಕಳೆದುಹೋದ;
 		}
 		context->proxy.pos++;
-		if(context->proxy.pos > 2){ /* FIXME: Figure out better limit */
-			if(context->proxy.buf[context->proxy.pos-1] == '\n'
+		ಆದರೆ(context->proxy.pos > 2){ /* FIXME: Figure out better limit */
+			ಆದರೆ(context->proxy.buf[context->proxy.pos-1] == '\n'
 					&& context->proxy.buf[context->proxy.pos-2] == '\r'){
 
 				/* Line received, now decode */
-				return proxy_v1__decode(context);
+				ಹಿಂತಿರುಗಿ proxy_v1__decode(context);
 			}
 		}
 	}
-	if(context->proxy.pos == PROXY_V1_PACKET_LIMIT){
-		log__printf(NULL, MOSQ_LOG_NOTICE, "Connection rejected, corrupt PROXY header.");
+	ಆದರೆ(context->proxy.pos == PROXY_V1_PACKET_ಎಲ್ಲೆ){
+		log__printf(ಖಾಲಿ, MOSQ_LOG_NOTICE, "Connection rejected, corrupt PROXY header.");
 		proxy_cleanup(context);
-		return MOSQ_ERR_INVAL;
+		ಹಿಂತಿರುಗಿ MOSQ_ERR_INVAL;
 	}
 
-	return MOSQ_ERR_SUCCESS;
+	ಹಿಂತಿರುಗಿ MOSQ_ERR_SUCCESS;
 }
-#endif
+#ಆದರೆ_ಅಂತ್ಯ

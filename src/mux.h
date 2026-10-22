@@ -16,39 +16,39 @@ Contributors:
    Roger Light - initial implementation and documentation.
 */
 
-#ifndef MUX_H
-#define MUX_H
+#ವ್ಯಾಖ್ಯಾನಿತವಾಗದಿದ್ದರೆ MUX_H
+#ವ್ಯಾಖ್ಯಾನಿಸು MUX_H
 
-#include "mosquitto_broker_internal.h"
+#ಅನ್ತರ್ಭಾವ "mosquitto_broker_internal.h"
 
-int mux_epoll__init(void);
-int mux_epoll__add_listeners(struct mosquitto__listener_sock *listensock, int listensock_count);
-int mux_epoll__delete_listeners(struct mosquitto__listener_sock *listensock, int listensock_count);
-int mux_epoll__new(struct mosquitto *context);
-int mux_epoll__add_out(struct mosquitto *context);
-int mux_epoll__remove_out(struct mosquitto *context);
-int mux_epoll__delete(struct mosquitto *context);
-int mux_epoll__handle(void);
-int mux_epoll__cleanup(void);
+ಪೂರ್ಣಾಂಕ mux_epoll__init(ಶೂನ್ಯ);
+ಪೂರ್ಣಾಂಕ mux_epoll_ಕೂಡಿಸು_listeners(ರಚನೆ mosquitto__listener_sock *listensock, ಪೂರ್ಣಾಂಕ listensock_ಎಣಿಕೆ);
+ಪೂರ್ಣಾಂಕ mux_epoll__delete_listeners(ರಚನೆ mosquitto__listener_sock *listensock, ಪೂರ್ಣಾಂಕ listensock_ಎಣಿಕೆ);
+ಪೂರ್ಣಾಂಕ mux_epoll__new(ರಚನೆ mosquitto *context);
+ಪೂರ್ಣಾಂಕ mux_epoll_ಕೂಡಿಸು_ಹೊರಹೋಗು(ರಚನೆ mosquitto *context);
+ಪೂರ್ಣಾಂಕ mux_epoll_remove_ಹೊರಹೋಗು(ರಚನೆ mosquitto *context);
+ಪೂರ್ಣಾಂಕ mux_epoll__delete(ರಚನೆ mosquitto *context);
+ಪೂರ್ಣಾಂಕ mux_epoll__handle(ಶೂನ್ಯ);
+ಪೂರ್ಣಾಂಕ mux_epoll__cleanup(ಶೂನ್ಯ);
 
-int mux_kqueue__init(void);
-int mux_kqueue__add_listeners(struct mosquitto__listener_sock *listensock, int listensock_count);
-int mux_kqueue__delete_listeners(struct mosquitto__listener_sock *listensock, int listensock_count);
-int mux_kqueue__new(struct mosquitto *context);
-int mux_kqueue__add_out(struct mosquitto *context);
-int mux_kqueue__remove_out(struct mosquitto *context);
-int mux_kqueue__delete(struct mosquitto *context);
-int mux_kqueue__handle(void);
-int mux_kqueue__cleanup(void);
+ಪೂರ್ಣಾಂಕ mux_kqueue__init(ಶೂನ್ಯ);
+ಪೂರ್ಣಾಂಕ mux_kqueue_ಕೂಡಿಸು_listeners(ರಚನೆ mosquitto__listener_sock *listensock, ಪೂರ್ಣಾಂಕ listensock_ಎಣಿಕೆ);
+ಪೂರ್ಣಾಂಕ mux_kqueue__delete_listeners(ರಚನೆ mosquitto__listener_sock *listensock, ಪೂರ್ಣಾಂಕ listensock_ಎಣಿಕೆ);
+ಪೂರ್ಣಾಂಕ mux_kqueue__new(ರಚನೆ mosquitto *context);
+ಪೂರ್ಣಾಂಕ mux_kqueue_ಕೂಡಿಸು_ಹೊರಹೋಗು(ರಚನೆ mosquitto *context);
+ಪೂರ್ಣಾಂಕ mux_kqueue_remove_ಹೊರಹೋಗು(ರಚನೆ mosquitto *context);
+ಪೂರ್ಣಾಂಕ mux_kqueue__delete(ರಚನೆ mosquitto *context);
+ಪೂರ್ಣಾಂಕ mux_kqueue__handle(ಶೂನ್ಯ);
+ಪೂರ್ಣಾಂಕ mux_kqueue__cleanup(ಶೂನ್ಯ);
 
-int mux_poll__init(void);
-int mux_poll__add_listeners(struct mosquitto__listener_sock *listensock, int listensock_count);
-int mux_poll__delete_listeners(struct mosquitto__listener_sock *listensock, int listensock_count);
-int mux_poll__new(struct mosquitto *context);
-int mux_poll__add_out(struct mosquitto *context);
-int mux_poll__remove_out(struct mosquitto *context);
-int mux_poll__delete(struct mosquitto *context);
-int mux_poll__handle(struct mosquitto__listener_sock *listensock, int listensock_count);
-int mux_poll__cleanup(void);
+ಪೂರ್ಣಾಂಕ mux_poll__init(ಶೂನ್ಯ);
+ಪೂರ್ಣಾಂಕ mux_poll_ಕೂಡಿಸು_listeners(ರಚನೆ mosquitto__listener_sock *listensock, ಪೂರ್ಣಾಂಕ listensock_ಎಣಿಕೆ);
+ಪೂರ್ಣಾಂಕ mux_poll__delete_listeners(ರಚನೆ mosquitto__listener_sock *listensock, ಪೂರ್ಣಾಂಕ listensock_ಎಣಿಕೆ);
+ಪೂರ್ಣಾಂಕ mux_poll__new(ರಚನೆ mosquitto *context);
+ಪೂರ್ಣಾಂಕ mux_poll_ಕೂಡಿಸು_ಹೊರಹೋಗು(ರಚನೆ mosquitto *context);
+ಪೂರ್ಣಾಂಕ mux_poll_remove_ಹೊರಹೋಗು(ರಚನೆ mosquitto *context);
+ಪೂರ್ಣಾಂಕ mux_poll__delete(ರಚನೆ mosquitto *context);
+ಪೂರ್ಣಾಂಕ mux_poll__handle(ರಚನೆ mosquitto__listener_sock *listensock, ಪೂರ್ಣಾಂಕ listensock_ಎಣಿಕೆ);
+ಪೂರ್ಣಾಂಕ mux_poll__cleanup(ಶೂನ್ಯ);
 
-#endif
+#ಆದರೆ_ಅಂತ್ಯ

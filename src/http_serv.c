@@ -16,170 +16,170 @@ Contributors:
    Roger Light - initial implementation and documentation.
 */
 
-#include "config.h"
+#ಅನ್ತರ್ಭಾವ "config.h"
 
-#if defined(WITH_WEBSOCKETS) && WITH_WEBSOCKETS == WS_IS_BUILTIN
+#ಆದರೆ defined(WITH_WEBSOCKETS) && WITH_WEBSOCKETS == WS_IS_BUILTIN
 
-#include <assert.h>
-#include <errno.h>
-#include <string.h>
+#ಅನ್ತರ್ಭಾವ <assert.h>
+#ಅನ್ತರ್ಭಾವ <errno.h>
+#ಅನ್ತರ್ಭಾವ <string.h>
 
-#include "mosquitto_broker_internal.h"
-#include "mosquitto/mqtt_protocol.h"
-#include "net_mosq.h"
-#include "packet_mosq.h"
-#include "read_handle.h"
-#include "sys_tree.h"
-#include "util_mosq.h"
-#include "picohttpparser.h"
+#ಅನ್ತರ್ಭಾವ "mosquitto_broker_internal.h"
+#ಅನ್ತರ್ಭಾವ "mosquitto/mqtt_protocol.h"
+#ಅನ್ತರ್ಭಾವ "net_mosq.h"
+#ಅನ್ತರ್ಭಾವ "packet_mosq.h"
+#ಅನ್ತರ್ಭಾವ "read_handle.h"
+#ಅನ್ತರ್ಭಾವ "sys_tree.h"
+#ಅನ್ತರ್ಭಾವ "util_mosq.h"
+#ಅನ್ತರ್ಭಾವ "picohttpparser.h"
 
 
-int http__context_init(struct mosquitto *context)
+ಪೂರ್ಣಾಂಕ http__context_init(ರಚನೆ mosquitto *context)
 {
 	context->transport = mosq_t_http;
 
-	return MOSQ_ERR_SUCCESS;
+	ಹಿಂತಿರುಗಿ MOSQ_ERR_SUCCESS;
 }
 
 
-int http__context_cleanup(struct mosquitto *context)
+ಪೂರ್ಣಾಂಕ http__context_cleanup(ರಚನೆ mosquitto *context)
 {
-	UNUSED(context);
-	return MOSQ_ERR_SUCCESS;
+	ಬಳಸದ(context);
+	ಹಿಂತಿರುಗಿ MOSQ_ERR_SUCCESS;
 }
 
 
-int http__read(struct mosquitto *mosq)
+ಪೂರ್ಣಾಂಕ http__read(ರಚನೆ mosquitto *mosq)
 {
-	ssize_t read_length;
-	ssize_t header_length;
-	enum mosquitto_client_state state;
+	ssize_t read_ಉದ್ದಳತೆ;
+	ssize_t ಶೀರ್ಷಿಕೆ_ಉದ್ದಳತೆ;
+	ಎಣಿಕೆ mosquitto_client_state state;
 	size_t hlen;
-	const char *http_method, *http_path;
-	size_t http_method_len, http_path_len;
-	int http_minor_version;
-	size_t http_header_count = 100;
-	struct phr_header http_headers[100];
-	const char *client_key = NULL;
-	size_t client_key_len = 0;
-	char *accept_key;
-	bool header_have_upgrade;
-	bool header_have_connection;
-	struct mosquitto__packet *packet;
-	int rc;
-	const char *subprotocol = NULL;
-	int subprotocol_len = 0;
+	ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *http_ವಿಧಾನ, *http_ಮಾರ್ಗ;
+	size_t http_ವಿಧಾನ_len, http_ಮಾರ್ಗ_len;
+	ಪೂರ್ಣಾಂಕ http_minor_ಆವೃತ್ತಿ;
+	size_t http_ಶೀರ್ಷಿಕೆ_ಎಣಿಕೆ = 100;
+	ರಚನೆ phr_ಶೀರ್ಷಿಕೆ http_ಶೀರ್ಷಿಕೆಗಳು[100];
+	ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *client_ಕೀಲಿ = ಖಾಲಿ;
+	size_t client_ಕೀಲಿ_len = 0;
+	ಅಕ್ಷರ *accept_ಕೀಲಿ;
+	bool ಶೀರ್ಷಿಕೆ_have_upgrade;
+	bool ಶೀರ್ಷಿಕೆ_have_connection;
+	ರಚನೆ mosquitto__packet *packet;
+	ಪೂರ್ಣಾಂಕ rc;
+	ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *subprotocol = ಖಾಲಿ;
+	ಪೂರ್ಣಾಂಕ subprotocol_len = 0;
 
-	if(!mosq){
-		return MOSQ_ERR_INVAL;
+	ಆದರೆ(!mosq){
+		ಹಿಂತಿರುಗಿ MOSQ_ERR_INVAL;
 	}
-	if(mosq->sock == INVALID_SOCKET){
-		return MOSQ_ERR_NO_CONN;
+	ಆದರೆ(mosq->sock == INVALID_SOCKET){
+		ಹಿಂತಿರುಗಿ MOSQ_ERR_NO_CONN;
 	}
 
 	state = mosquitto__get_state(mosq);
-	if(state == mosq_cs_connect_pending){
-		return MOSQ_ERR_SUCCESS;
+	ಆದರೆ(state == mosq_cs_connect_pending){
+		ಹಿಂತಿರುಗಿ MOSQ_ERR_SUCCESS;
 	}
 
-	hlen = strlen((char *)mosq->in_packet.packet_buffer);
-	read_length = net__read(mosq, &mosq->in_packet.packet_buffer[hlen], mosq->in_packet.packet_buffer_size-hlen);
-	if(read_length <= 0){
-		if(read_length == 0){
-			return MOSQ_ERR_CONN_LOST; /* EOF */
+	hlen = ಅಕ್ಷರಸರಣಿ_ಉದ್ದ((ಅಕ್ಷರ *)mosq->ಒಳ_packet.packet_ಬಫರ್);
+	read_ಉದ್ದಳತೆ = net__read(mosq, &mosq->ಒಳ_packet.packet_ಬಫರ್[hlen], mosq->ಒಳ_packet.packet_ಬಫರ್_ಗಾತ್ರ-hlen);
+	ಆದರೆ(read_ಉದ್ದಳತೆ <= 0){
+		ಆದರೆ(read_ಉದ್ದಳತೆ == 0){
+			ಹಿಂತಿರುಗಿ MOSQ_ERR_CONN_ಕಳೆದುಹೋದ; /* EOF */
 		}
-#ifdef WIN32
-		errno = WSAGetLastError();
-#endif
-		if(errno == EAGAIN || errno == COMPAT_EWOULDBLOCK){
-			return MOSQ_ERR_SUCCESS;
-		}else{
-			switch(errno){
-				case COMPAT_ECONNRESET:
-					return MOSQ_ERR_CONN_LOST;
-				case COMPAT_EINTR:
-					return MOSQ_ERR_SUCCESS;
-				default:
-					return MOSQ_ERR_ERRNO;
+#ವ್ಯಾಖ್ಯಾನಿತವಾದರೆ WIN32
+		errno = WSAGet_ಕೊನೆಯ_Error();
+#ಆದರೆ_ಅಂತ್ಯ
+		ಆದರೆ(errno == EAGAIN || errno == COMPAT_EWOULDBLOCK){
+			ಹಿಂತಿರುಗಿ MOSQ_ERR_SUCCESS;
+		}ಇಲ್ಲದಿದ್ದರೆ{
+			ಆಯ್ಕೆ(errno){
+				ಸ್ಥಿತಿ COMPAT_ECONNRESET:
+					ಹಿಂತಿರುಗಿ MOSQ_ERR_CONN_ಕಳೆದುಹೋದ;
+				ಸ್ಥಿತಿ COMPAT_EINTR:
+					ಹಿಂತಿರುಗಿ MOSQ_ERR_SUCCESS;
+				ಪೂರ್ವನಿಯೋಜಿತ:
+					ಹಿಂತಿರುಗಿ MOSQ_ERR_ERRNO;
 			}
 		}
 	}
 
-	mosq->in_packet.packet_buffer[mosq->in_packet.packet_buffer_size-1] = '\0'; /* Always 0 terminate */
-	header_length = phr_parse_request((char *)mosq->in_packet.packet_buffer, strlen((char *)mosq->in_packet.packet_buffer),
-			&http_method, &http_method_len,
-			&http_path, &http_path_len,
-			&http_minor_version,
-			http_headers, &http_header_count,
+	mosq->ಒಳ_packet.packet_ಬಫರ್[mosq->ಒಳ_packet.packet_ಬಫರ್_ಗಾತ್ರ-1] = '\0'; /* Always 0 terminate */
+	ಶೀರ್ಷಿಕೆ_ಉದ್ದಳತೆ = phr_parse_request((ಅಕ್ಷರ *)mosq->ಒಳ_packet.packet_ಬಫರ್, ಅಕ್ಷರಸರಣಿ_ಉದ್ದ((ಅಕ್ಷರ *)mosq->ಒಳ_packet.packet_ಬಫರ್),
+			&http_ವಿಧಾನ, &http_ವಿಧಾನ_len,
+			&http_ಮಾರ್ಗ, &http_ಮಾರ್ಗ_len,
+			&http_minor_ಆವೃತ್ತಿ,
+			http_ಶೀರ್ಷಿಕೆಗಳು, &http_ಶೀರ್ಷಿಕೆ_ಎಣಿಕೆ,
 			0);
 	// FIXME - deal with partial read !
-	if(header_length == -2){
+	ಆದರೆ(ಶೀರ್ಷಿಕೆ_ಉದ್ದಳತೆ == -2){
 		// Partial read
-		return MOSQ_ERR_SUCCESS;
-	}else if(header_length == -1){
+		ಹಿಂತಿರುಗಿ MOSQ_ERR_SUCCESS;
+	}ಇಲ್ಲದಿದ್ದರೆ ಆದರೆ(ಶೀರ್ಷಿಕೆ_ಉದ್ದಳತೆ == -1){
 		// Error
-		return MOSQ_ERR_UNKNOWN;
-	}else if(header_length < read_length){
+		ಹಿಂತಿರುಗಿ MOSQ_ERR_UNKNOWN;
+	}ಇಲ್ಲದಿದ್ದರೆ ಆದರೆ(ಶೀರ್ಷಿಕೆ_ಉದ್ದಳತೆ < read_ಉದ್ದಳತೆ){
 		/* Excess data which can't be handled because the client doesn't have a key yet */
-		return MOSQ_ERR_MALFORMED_PACKET;
+		ಹಿಂತಿರುಗಿ MOSQ_ERR_MALFORMED_PACKET;
 	}
 
-	if(strncmp(http_method, "GET", http_method_len) && strncmp(http_method, "HEAD", http_method_len)){
+	ಆದರೆ(ಅಕ್ಷರಸರಣಿ_ಹೋಲಿಕೆ(http_ವಿಧಾನ, "GET", http_ವಿಧಾನ_len) && ಅಕ್ಷರಸರಣಿ_ಹೋಲಿಕೆ(http_ವಿಧಾನ, "HEAD", http_ವಿಧಾನ_len)){
 		/* FIXME Not supported - send 501 response */
-		return MOSQ_ERR_UNKNOWN;
+		ಹಿಂತಿರುಗಿ MOSQ_ERR_UNKNOWN;
 	}
 
-	header_have_upgrade = false;
-	header_have_connection = false;
-	subprotocol = NULL;
+	ಶೀರ್ಷಿಕೆ_have_upgrade = false;
+	ಶೀರ್ಷಿಕೆ_have_connection = false;
+	subprotocol = ಖಾಲಿ;
 
-	for(size_t i=0; i<http_header_count; i++){
-		if(!strncasecmp(http_headers[i].name, "Upgrade", http_headers[i].name_len)){
-			if(!strncasecmp(http_headers[i].value, "websocket", http_headers[i].value_len)){
-				header_have_upgrade = true;
+	ಗಾಗಿ(size_t i=0; i<http_ಶೀರ್ಷಿಕೆ_ಎಣಿಕೆ; i++){
+		ಆದರೆ(!strncasecmp(http_ಶೀರ್ಷಿಕೆಗಳು[i].name, "Upgrade", http_ಶೀರ್ಷಿಕೆಗಳು[i].name_len)){
+			ಆದರೆ(!strncasecmp(http_ಶೀರ್ಷಿಕೆಗಳು[i].ಮೌಲ್ಯ, "websocket", http_ಶೀರ್ಷಿಕೆಗಳು[i].ಮೌಲ್ಯ_len)){
+				ಶೀರ್ಷಿಕೆ_have_upgrade = true;
 			}
-		}else if(!strncasecmp(http_headers[i].name, "Connection", http_headers[i].name_len)){
+		}ಇಲ್ಲದಿದ್ದರೆ ಆದರೆ(!strncasecmp(http_ಶೀರ್ಷಿಕೆಗಳು[i].name, "Connection", http_ಶೀರ್ಷಿಕೆಗಳು[i].name_len)){
 			/* Check for "upgrade" */
-			const char *str = http_headers[i].value;
-			size_t start = 0;
+			ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *str = http_ಶೀರ್ಷಿಕೆಗಳು[i].ಮೌಲ್ಯ;
+			size_t ಆರಂಭ = 0;
 			size_t j;
-			for(j=0; j<http_headers[i].value_len; j++){
-				if(str[j] == ','){
-					if(!strncasecmp(&str[start], "upgrade", http_headers[i].value_len-j)){
-						header_have_connection = true;
-						break;
-					}else{
-						start = j+1;
+			ಗಾಗಿ(j=0; j<http_ಶೀರ್ಷಿಕೆಗಳು[i].ಮೌಲ್ಯ_len; j++){
+				ಆದರೆ(str[j] == ','){
+					ಆದರೆ(!strncasecmp(&str[ಆರಂಭ], "upgrade", http_ಶೀರ್ಷಿಕೆಗಳು[i].ಮೌಲ್ಯ_len-j)){
+						ಶೀರ್ಷಿಕೆ_have_connection = true;
+						ನಿಲ್ಲಿಸು;
+					}ಇಲ್ಲದಿದ್ದರೆ{
+						ಆರಂಭ = j+1;
 					}
-				}else if(str[j] == ' '){
-					start = j+1;
+				}ಇಲ್ಲದಿದ್ದರೆ ಆದರೆ(str[j] == ' '){
+					ಆರಂಭ = j+1;
 				}
 			}
-			if(!strncasecmp(&str[start], "upgrade", http_headers[i].value_len-j)){
-				header_have_connection = true;
+			ಆದರೆ(!strncasecmp(&str[ಆರಂಭ], "upgrade", http_ಶೀರ್ಷಿಕೆಗಳು[i].ಮೌಲ್ಯ_len-j)){
+				ಶೀರ್ಷಿಕೆ_have_connection = true;
 			}
-		}else if(!strncasecmp(http_headers[i].name, "Sec-WebSocket-Key", http_headers[i].name_len)){
-			client_key = http_headers[i].value;
-			client_key_len = http_headers[i].value_len;
-		}else if(!strncasecmp(http_headers[i].name, "Sec-WebSocket-Version", http_headers[i].name_len)){
+		}ಇಲ್ಲದಿದ್ದರೆ ಆದರೆ(!strncasecmp(http_ಶೀರ್ಷಿಕೆಗಳು[i].name, "Sec-WebSocket-Key", http_ಶೀರ್ಷಿಕೆಗಳು[i].name_len)){
+			client_ಕೀಲಿ = http_ಶೀರ್ಷಿಕೆಗಳು[i].ಮೌಲ್ಯ;
+			client_ಕೀಲಿ_len = http_ಶೀರ್ಷಿಕೆಗಳು[i].ಮೌಲ್ಯ_len;
+		}ಇಲ್ಲದಿದ್ದರೆ ಆದರೆ(!strncasecmp(http_ಶೀರ್ಷಿಕೆಗಳು[i].name, "Sec-WebSocket-Version", http_ಶೀರ್ಷಿಕೆಗಳು[i].name_len)){
 			/* Check for "13" */
-			if(http_headers[i].value_len != 2
-					|| http_headers[i].value[0] != '1'
-					|| http_headers[i].value[1] != '3'
+			ಆದರೆ(http_ಶೀರ್ಷಿಕೆಗಳು[i].ಮೌಲ್ಯ_len != 2
+					|| http_ಶೀರ್ಷಿಕೆಗಳು[i].ಮೌಲ್ಯ[0] != '1'
+					|| http_ಶೀರ್ಷಿಕೆಗಳು[i].ಮೌಲ್ಯ[1] != '3'
 					){
 
 				/* FIXME - not supported */
-				return MOSQ_ERR_NOT_SUPPORTED;
+				ಹಿಂತಿರುಗಿ MOSQ_ERR_NOT_SUPPORTED;
 			}
-		}else if(!strncasecmp(http_headers[i].name, "Sec-WebSocket-Protocol", http_headers[i].name_len)){
+		}ಇಲ್ಲದಿದ್ದರೆ ಆದರೆ(!strncasecmp(http_ಶೀರ್ಷಿಕೆಗಳು[i].name, "Sec-WebSocket-Protocol", http_ಶೀರ್ಷಿಕೆಗಳು[i].name_len)){
 			/* Check for "mqtt" */
-			if(!strncmp(http_headers[i].value, "mqtt", http_headers[i].value_len)
-					|| !strncmp(http_headers[i].value, "mqttv3.1", http_headers[i].value_len)){
+			ಆದರೆ(!ಅಕ್ಷರಸರಣಿ_ಹೋಲಿಕೆ(http_ಶೀರ್ಷಿಕೆಗಳು[i].ಮೌಲ್ಯ, "mqtt", http_ಶೀರ್ಷಿಕೆಗಳು[i].ಮೌಲ್ಯ_len)
+					|| !ಅಕ್ಷರಸರಣಿ_ಹೋಲಿಕೆ(http_ಶೀರ್ಷಿಕೆಗಳು[i].ಮೌಲ್ಯ, "mqttv3.1", http_ಶೀರ್ಷಿಕೆಗಳು[i].ಮೌಲ್ಯ_len)){
 
-				subprotocol = http_headers[i].value;
-				subprotocol_len = (int)http_headers[i].value_len;
+				subprotocol = http_ಶೀರ್ಷಿಕೆಗಳು[i].ಮೌಲ್ಯ;
+				subprotocol_len = (ಪೂರ್ಣಾಂಕ)http_ಶೀರ್ಷಿಕೆಗಳು[i].ಮೌಲ್ಯ_len;
 			}
-		}else if(!strncasecmp(http_headers[i].name, "X-Forwarded-For", http_headers[i].name_len)){
+		}ಇಲ್ಲದಿದ್ದರೆ ಆದರೆ(!strncasecmp(http_ಶೀರ್ಷಿಕೆಗಳು[i].name, "X-Forwarded-For", http_ಶೀರ್ಷಿಕೆಗಳು[i].name_len)){
 			/* Before implementing this, refer to:
 			 * https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/X-Forwarded-For
 			 *
@@ -191,59 +191,59 @@ int http__read(struct mosquitto *mosq)
 			 * control that, so we have to make it very clear to the end user
 			 * that this is the case.
 			 */
-		}else if(!strncasecmp(http_headers[i].name, "Origin", http_headers[i].name_len)){
-			if(mosq->listener){
-				bool have_match = false;
-				for(int j=0; j<mosq->listener->ws_origin_count; j++){
-					if(!strncmp(mosq->listener->ws_origins[j], http_headers[i].value, http_headers[i].value_len)){
-						have_match = true;
-						break;
+		}ಇಲ್ಲದಿದ್ದರೆ ಆದರೆ(!strncasecmp(http_ಶೀರ್ಷಿಕೆಗಳು[i].name, "Origin", http_ಶೀರ್ಷಿಕೆಗಳು[i].name_len)){
+			ಆದರೆ(mosq->listener){
+				bool have_ಹೊಂದಿಕೆ = false;
+				ಗಾಗಿ(ಪೂರ್ಣಾಂಕ j=0; j<mosq->listener->ws_origin_ಎಣಿಕೆ; j++){
+					ಆದರೆ(!ಅಕ್ಷರಸರಣಿ_ಹೋಲಿಕೆ(mosq->listener->ws_origins[j], http_ಶೀರ್ಷಿಕೆಗಳು[i].ಮೌಲ್ಯ, http_ಶೀರ್ಷಿಕೆಗಳು[i].ಮೌಲ್ಯ_len)){
+						have_ಹೊಂದಿಕೆ = true;
+						ನಿಲ್ಲಿಸು;
 					}
 				}
-				if(!have_match && mosq->listener->ws_origin_count > 0){
-					return MOSQ_ERR_HTTP_BAD_ORIGIN;
+				ಆದರೆ(!have_ಹೊಂದಿಕೆ && mosq->listener->ws_origin_ಎಣಿಕೆ > 0){
+					ಹಿಂತಿರುಗಿ MOSQ_ERR_HTTP_BAD_ORIGIN;
 				}
 			}
-		}else{
+		}ಇಲ್ಲದಿದ್ದರೆ{
 			/* Unknown header */
 		}
 	}
 
-	if(subprotocol == NULL){
+	ಆದರೆ(subprotocol == ಖಾಲಿ){
 		// FIXME ?
-		return MOSQ_ERR_UNKNOWN;
+		ಹಿಂತಿರುಗಿ MOSQ_ERR_UNKNOWN;
 	}
 
-	if(header_have_upgrade == false || header_have_connection == false
-			|| client_key == NULL || client_key_len == 0){
+	ಆದರೆ(ಶೀರ್ಷಿಕೆ_have_upgrade == false || ಶೀರ್ಷಿಕೆ_have_connection == false
+			|| client_ಕೀಲಿ == ಖಾಲಿ || client_ಕೀಲಿ_len == 0){
 
 		// FIXME - 404
-		return MOSQ_ERR_UNKNOWN;
+		ಹಿಂತಿರುಗಿ MOSQ_ERR_UNKNOWN;
 	}
 
-	if(ws__create_accept_key(client_key, client_key_len, &accept_key)){
-		return MOSQ_ERR_UNKNOWN;
+	ಆದರೆ(ws_create_accept_ಕೀಲಿ(client_ಕೀಲಿ, client_ಕೀಲಿ_len, &accept_ಕೀಲಿ)){
+		ಹಿಂತಿರುಗಿ MOSQ_ERR_UNKNOWN;
 	}
 
-	packet = mosquitto_calloc(1, sizeof(struct mosquitto__packet) + 1024 + WS_PACKET_OFFSET);
-	if(!packet){
-		SAFE_FREE(accept_key);
-		return MOSQ_ERR_NOMEM;
+	packet = mosquitto_calloc(1, ಗಾತ್ರ(ರಚನೆ mosquitto__packet) + 1024 + WS_PACKET_ಸ್ಥಾನಾಂತರ);
+	ಆದರೆ(!packet){
+		ಸುರಕ್ಷಿತ_FREE(accept_ಕೀಲಿ);
+		ಹಿಂತಿರುಗಿ MOSQ_ERR_NOMEM;
 	}
-	packet->packet_length = (uint32_t )snprintf((char *)&packet->payload[WS_PACKET_OFFSET], 1024,
+	packet->packet_ಉದ್ದಳತೆ = (uint32_t )snprintf((ಅಕ್ಷರ *)&packet->payload[WS_PACKET_ಸ್ಥಾನಾಂತರ], 1024,
 			"HTTP/1.1 101 Switching Protocols\r\n"
 			"Upgrade: WebSocket\r\n"
 			"Connection: Upgrade\r\n"
 			"Sec-WebSocket-Accept: %s\r\n"
 			"Sec-WebSocket-Protocol: %.*s\r\n"
-			"\r\n", accept_key, subprotocol_len, subprotocol) + WS_PACKET_OFFSET;
-	SAFE_FREE(accept_key);
-	packet->to_process = packet->packet_length;
+			"\r\n", accept_ಕೀಲಿ, subprotocol_len, subprotocol) + WS_PACKET_ಸ್ಥಾನಾಂತರ;
+	ಸುರಕ್ಷಿತ_FREE(accept_ಕೀಲಿ);
+	packet->ಗಮ್ಯ_process = packet->packet_ಉದ್ದಳತೆ;
 
-	memset(mosq->in_packet.packet_buffer, 0, db.config->packet_buffer_size);
-	rc = packet__queue(mosq, packet);
+	memset(mosq->ಒಳ_packet.packet_ಬಫರ್, 0, db.config->packet_ಬಫರ್_ಗಾತ್ರ);
+	rc = packet_ಸರತಿ(mosq, packet);
 	http__context_cleanup(mosq);
 	ws__context_init(mosq);
-	return rc;
+	ಹಿಂತಿರುಗಿ rc;
 }
-#endif
+#ಆದರೆ_ಅಂತ್ಯ

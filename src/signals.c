@@ -16,139 +16,139 @@ Contributors:
    Roger Light - initial implementation and documentation.
    Dmitry Kaukov - windows named events implementation.
 */
-#ifdef WIN32
-#  ifndef WIN32_LEAN_AND_MEAN
-#    define WIN32_LEAN_AND_MEAN
+#ವ್ಯಾಖ್ಯಾನಿತವಾದರೆ WIN32
+#  ifndef WIN32_LEAN_AND_ಸರಾಸರಿ
+#    define WIN32_LEAN_AND_ಸರಾಸರಿ
 #  endif
 #  include <windows.h>
-#endif
+#ಆದರೆ_ಅಂತ್ಯ
 
-#include "config.h"
+#ಅನ್ತರ್ಭಾವ "config.h"
 
-#include <stdio.h>
-#include <stdbool.h>
-#include <signal.h>
+#ಅನ್ತರ್ಭಾವ <stdio.h>
+#ಅನ್ತರ್ಭಾವ <stdbool.h>
+#ಅನ್ತರ್ಭಾವ <signal.h>
 
-#include "mosquitto_broker_internal.h"
+#ಅನ್ತರ್ಭಾವ "mosquitto_broker_internal.h"
 
-extern int g_run;
+ಬಾಹ್ಯ ಪೂರ್ಣಾಂಕ g_ಸತತ;
 
-static bool flag_reload = false;
-static bool flag_log_rotate = false;
-#ifdef WITH_PERSISTENCE
-static bool flag_db_backup = false;
-#endif
-static bool flag_tree_print = false;
-static bool flag_xtreport = false;
+ಸ್ಥಿರ bool flag_reload = false;
+ಸ್ಥಿರ bool flag_log_rotate = false;
+#ವ್ಯಾಖ್ಯಾನಿತವಾದರೆ WITH_PERSISTENCE
+ಸ್ಥಿರ bool flag_db_backup = false;
+#ಆದರೆ_ಅಂತ್ಯ
+ಸ್ಥಿರ bool flag_ವೃಕ್ಷ_print = false;
+ಸ್ಥಿರ bool flag_xtreport = false;
 
 
-static void handle_signal(int signal)
+ಸ್ಥಿರ ಶೂನ್ಯ handle_signal(ಪೂರ್ಣಾಂಕ ಸಂಕೇತ)
 {
-	UNUSED(signal);
+	ಬಳಸದ(ಸಂಕೇತ);
 
-	if(signal == SIGINT || signal == SIGTERM){
-		g_run = 0;
-#ifdef SIGHUP
-	}else if(signal == SIGHUP){
+	ಆದರೆ(ಸಂಕೇತ == SIGINT || ಸಂಕೇತ == SIGTERM){
+		g_ಸತತ = 0;
+#ವ್ಯಾಖ್ಯಾನಿತವಾದರೆ SIGHUP
+	}ಇಲ್ಲದಿದ್ದರೆ ಆದರೆ(ಸಂಕೇತ == SIGHUP){
 		flag_reload = true;
-#endif
-#ifdef SIGUSR1
-	}else if(signal == SIGUSR1){
-#ifdef WITH_PERSISTENCE
+#ಆದರೆ_ಅಂತ್ಯ
+#ವ್ಯಾಖ್ಯಾನಿತವಾದರೆ SIGUSR1
+	}ಇಲ್ಲದಿದ್ದರೆ ಆದರೆ(ಸಂಕೇತ == SIGUSR1){
+#ವ್ಯಾಖ್ಯಾನಿತವಾದರೆ WITH_PERSISTENCE
 		flag_db_backup = true;
-#endif
-#endif
-#ifdef SIGUSR2
-	}else if(signal == SIGUSR2){
-		flag_tree_print = true;
+#ಆದರೆ_ಅಂತ್ಯ
+#ಆದರೆ_ಅಂತ್ಯ
+#ವ್ಯಾಖ್ಯಾನಿತವಾದರೆ SIGUSR2
+	}ಇಲ್ಲದಿದ್ದರೆ ಆದರೆ(ಸಂಕೇತ == SIGUSR2){
+		flag_ವೃಕ್ಷ_print = true;
 		flag_xtreport = true;
-#endif
-#ifdef SIGRTMIN
-	}else if(signal == SIGRTMIN){
+#ಆದರೆ_ಅಂತ್ಯ
+#ವ್ಯಾಖ್ಯಾನಿತವಾದರೆ SIGRTMIN
+	}ಇಲ್ಲದಿದ್ದರೆ ಆದರೆ(ಸಂಕೇತ == SIGRTMIN){
 		flag_log_rotate = true;
-#endif
+#ಆದರೆ_ಅಂತ್ಯ
 	}
 }
 
 
-void signal__setup(void)
+ಶೂನ್ಯ signal_ಸಿದ್ಧತೆ(ಶೂನ್ಯ)
 {
-	signal(SIGINT, handle_signal);
-	signal(SIGTERM, handle_signal);
-#ifdef SIGHUP
-	signal(SIGHUP, handle_signal);
-#endif
-#ifndef WIN32
-	signal(SIGUSR1, handle_signal);
-	signal(SIGUSR2, handle_signal);
-	signal(SIGPIPE, SIG_IGN);
-#endif
-#ifdef SIGRTMIN
-	signal(SIGRTMIN, handle_signal);
-#endif
-#ifdef WIN32
-	CreateThread(NULL, 0, SigThreadProc, NULL, 0, NULL);
-#endif
+	ಸಂಕೇತ(SIGINT, handle_signal);
+	ಸಂಕೇತ(SIGTERM, handle_signal);
+#ವ್ಯಾಖ್ಯಾನಿತವಾದರೆ SIGHUP
+	ಸಂಕೇತ(SIGHUP, handle_signal);
+#ಆದರೆ_ಅಂತ್ಯ
+#ವ್ಯಾಖ್ಯಾನಿತವಾಗದಿದ್ದರೆ WIN32
+	ಸಂಕೇತ(SIGUSR1, handle_signal);
+	ಸಂಕೇತ(SIGUSR2, handle_signal);
+	ಸಂಕೇತ(SIGPIPE, SIG_IGN);
+#ಆದರೆ_ಅಂತ್ಯ
+#ವ್ಯಾಖ್ಯಾನಿತವಾದರೆ SIGRTMIN
+	ಸಂಕೇತ(SIGRTMIN, handle_signal);
+#ಆದರೆ_ಅಂತ್ಯ
+#ವ್ಯಾಖ್ಯಾನಿತವಾದರೆ WIN32
+	CreateThread(ಖಾಲಿ, 0, SigThreadProc, ಖಾಲಿ, 0, ಖಾಲಿ);
+#ಆದರೆ_ಅಂತ್ಯ
 }
 
 
-int signal__flag_check(void)
+ಪೂರ್ಣಾಂಕ signal__flag_check(ಶೂನ್ಯ)
 {
-#ifdef WITH_PERSISTENCE
-	if(flag_db_backup){
+#ವ್ಯಾಖ್ಯಾನಿತವಾದರೆ WITH_PERSISTENCE
+	ಆದರೆ(flag_db_backup){
 		persist__backup(false);
 		flag_db_backup = false;
 	}
-#endif
-	if(flag_log_rotate){
+#ಆದರೆ_ಅಂತ್ಯ
+	ಆದರೆ(flag_log_rotate){
 		log__close(db.config);
 		log__init(db.config);
 		flag_log_rotate = false;
 	}
-	if(flag_reload){
-		int rc;
-		log__printf(NULL, MOSQ_LOG_INFO, "Reloading config.");
+	ಆದರೆ(flag_reload){
+		ಪೂರ್ಣಾಂಕ rc;
+		log__printf(ಖಾಲಿ, MOSQ_LOG_INFO, "Reloading config.");
 		config__read(db.config, true);
 		listeners__reload_all_certificates();
 		rc = plugin__handle_reload();
-		if(rc){
-			return rc;
+		ಆದರೆ(rc){
+			ಹಿಂತಿರುಗಿ rc;
 		}
 		mosquitto_security_cleanup(true);
 		rc = mosquitto_security_init(true);
-		if(rc){
-			return rc;
+		ಆದರೆ(rc){
+			ಹಿಂತಿರುಗಿ rc;
 		}
 		rc = mosquitto_security_apply_default();
-		if(rc){
-			return rc;
+		ಆದರೆ(rc){
+			ಹಿಂತಿರುಗಿ rc;
 		}
 		log__close(db.config);
 		log__init(db.config);
 		keepalive__cleanup();
 		rc = keepalive__init();
-		if(rc){
-			return rc;
+		ಆದರೆ(rc){
+			ಹಿಂತಿರುಗಿ rc;
 		}
 		broker_control__reload();
-#ifdef WITH_BRIDGE
+#ವ್ಯಾಖ್ಯಾನಿತವಾದರೆ WITH_BRIDGE
 		bridge__reload();
-#endif
+#ಆದರೆ_ಅಂತ್ಯ
 		flag_reload = false;
 	}
-	if(flag_tree_print){
-		sub__tree_print(db.normal_subs, 0);
-		sub__tree_print(db.shared_subs, 0);
-		flag_tree_print = false;
+	ಆದರೆ(flag_ವೃಕ್ಷ_print){
+		sub_ವೃಕ್ಷ_print(db.ಸಾಮಾನ್ಯ_subs, 0);
+		sub_ವೃಕ್ಷ_print(db.shared_subs, 0);
+		flag_ವೃಕ್ಷ_print = false;
 	}
-#ifdef WITH_XTREPORT
-	if(flag_xtreport){
+#ವ್ಯಾಖ್ಯಾನಿತವಾದರೆ WITH_XTREPORT
+	ಆದರೆ(flag_xtreport){
 		xtreport();
 		flag_xtreport = false;
 	}
-#endif
+#ಆದರೆ_ಅಂತ್ಯ
 
-	return MOSQ_ERR_SUCCESS;
+	ಹಿಂತಿರುಗಿ MOSQ_ERR_SUCCESS;
 }
 
 /*
@@ -167,17 +167,17 @@ int signal__flag_check(void)
  *
  * (where PID is the PID of the mosquitto process).
  */
-#ifdef WIN32
+#ವ್ಯಾಖ್ಯಾನಿತವಾದರೆ WIN32
 
-#define MOSQ_MAX_EVTS 6
+#ವ್ಯಾಖ್ಯಾನಿಸು MOSQ_MAX_EVTS 6
 
 
-DWORD WINAPI SigThreadProc(void *data)
+DWORD WINAPI SigThreadProc(ಶೂನ್ಯ *ದತ್ತಾಂಶ)
 {
-	TCHAR evt_name[MAX_PATH];
-	static HANDLE evt[MOSQ_MAX_EVTS];
-	int pid = GetCurrentProcessId();
-	const char *evt_names[MOSQ_MAX_EVTS] = {
+	TCHAR evt_name[MAX_ಮಾರ್ಗ];
+	ಸ್ಥಿರ HANDLE evt[MOSQ_MAX_EVTS];
+	ಪೂರ್ಣಾಂಕ pid = GetCurrentProcessId();
+	ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *evt_ಹೆಸರುಗಳು[MOSQ_MAX_EVTS] = {
 		"shutdown",
 		"reload",
 		"backup",
@@ -186,45 +186,45 @@ DWORD WINAPI SigThreadProc(void *data)
 		"xtreport"
 	};
 
-	UNUSED(data);
+	ಬಳಸದ(ದತ್ತಾಂಶ);
 
-	for(int i=0; i<MOSQ_MAX_EVTS; i++){
-		sprintf_s(evt_name, MAX_PATH, "mosq%d_%s", pid, evt_names[i]);
-		evt[i] = CreateEvent(NULL, FALSE, FALSE, evt_name);
+	ಗಾಗಿ(ಪೂರ್ಣಾಂಕ i=0; i<MOSQ_MAX_EVTS; i++){
+		sprintf_s(evt_name, MAX_ಮಾರ್ಗ, "mosq%d_%s", pid, evt_ಹೆಸರುಗಳು[i]);
+		evt[i] = CreateEvent(ಖಾಲಿ, FALSE, FALSE, evt_name);
 	}
 
-	while(g_run){
-		int wr = WaitForMultipleObjects(MOSQ_MAX_EVTS, evt, FALSE, INFINITE);
-		switch(wr){
-			case WAIT_OBJECT_0 + 0:
+	ಆಗ(g_ಸತತ){
+		ಪೂರ್ಣಾಂಕ wr = Wait_For_ಅಪವರ್ತ್ಯ_Objects(MOSQ_MAX_EVTS, evt, FALSE, INFINITE);
+		ಆಯ್ಕೆ(wr){
+			ಸ್ಥಿತಿ WAIT_OBJECT_0 + 0:
 				handle_signal(SIGINT);
-				break;
-			case WAIT_OBJECT_0 + 1:
+				ನಿಲ್ಲಿಸು;
+			ಸ್ಥಿತಿ WAIT_OBJECT_0 + 1:
 				flag_reload = true;
-				continue;
-			case WAIT_OBJECT_0 + 2:
-#ifdef WITH_PERSISTENCE
+				ಮುಂದುವರಿ;
+			ಸ್ಥಿತಿ WAIT_OBJECT_0 + 2:
+#ವ್ಯಾಖ್ಯಾನಿತವಾದರೆ WITH_PERSISTENCE
 				flag_db_backup = true;
-#endif
-				continue;
-				break;
-			case WAIT_OBJECT_0 + 3:
+#ಆದರೆ_ಅಂತ್ಯ
+				ಮುಂದುವರಿ;
+				ನಿಲ್ಲಿಸು;
+			ಸ್ಥಿತಿ WAIT_OBJECT_0 + 3:
 				flag_log_rotate = true;
-				continue;
-			case WAIT_OBJECT_0 + 4:
-				flag_tree_print = true;
-				continue;
-			case WAIT_OBJECT_0 + 5:
+				ಮುಂದುವರಿ;
+			ಸ್ಥಿತಿ WAIT_OBJECT_0 + 4:
+				flag_ವೃಕ್ಷ_print = true;
+				ಮುಂದುವರಿ;
+			ಸ್ಥಿತಿ WAIT_OBJECT_0 + 5:
 				flag_xtreport = true;
-				continue;
+				ಮುಂದುವರಿ;
 		}
 	}
-	for(int i=0; i<MOSQ_MAX_EVTS; i++){
-		if(evt[i]){
+	ಗಾಗಿ(ಪೂರ್ಣಾಂಕ i=0; i<MOSQ_MAX_EVTS; i++){
+		ಆದರೆ(evt[i]){
 			CloseHandle(evt[i]);
 		}
 	}
-	return 0;
+	ಹಿಂತಿರುಗಿ 0;
 }
-#undef MOSQ_MAX_EVTS
-#endif
+#ವ್ಯಾಖ್ಯಾನ_ರದ್ದು MOSQ_MAX_EVTS
+#ಆದರೆ_ಅಂತ್ಯ

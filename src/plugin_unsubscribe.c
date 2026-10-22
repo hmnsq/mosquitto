@@ -17,54 +17,54 @@ Contributors:
    Roger Light - initial implementation and documentation.
 */
 
-#include "config.h"
+#ಅನ್ತರ್ಭಾವ "config.h"
 
-#include "mosquitto_broker_internal.h"
-#include "utlist.h"
+#ಅನ್ತರ್ಭಾವ "mosquitto_broker_internal.h"
+#ಅನ್ತರ್ಭಾವ "utlist.h"
 
 
-static int plugin__handle_unsubscribe_single(struct mosquitto__security_options *opts, struct mosquitto *context, struct mosquitto_subscription *sub)
+ಸ್ಥಿರ ಪೂರ್ಣಾಂಕ plugin__handle_unsubscribe_single(ರಚನೆ mosquitto__security_options *opts, ರಚನೆ mosquitto *context, ರಚನೆ mosquitto_subscription *sub)
 {
-	struct mosquitto_evt_unsubscribe event_data;
-	struct mosquitto__callback *cb_base, *cb_next;
-	int rc = MOSQ_ERR_SUCCESS;
+	ರಚನೆ mosquitto_evt_unsubscribe event_ದತ್ತಾಂಶ;
+	ರಚನೆ mosquitto__callback *cb_ತಳ, *cb_ಮುಂದಿನ;
+	ಪೂರ್ಣಾಂಕ rc = MOSQ_ERR_SUCCESS;
 
-	memset(&event_data, 0, sizeof(event_data));
-	event_data.client = context;
-	event_data.data.topic_filter = sub->topic_filter;
-	event_data.data.properties = sub->properties;
+	memset(&event_ದತ್ತಾಂಶ, 0, ಗಾತ್ರ(event_ದತ್ತಾಂಶ));
+	event_ದತ್ತಾಂಶ.client = context;
+	event_ದತ್ತಾಂಶ.ದತ್ತಾಂಶ.topic_filter = sub->topic_filter;
+	event_ದತ್ತಾಂಶ.ದತ್ತಾಂಶ.properties = sub->properties;
 
-	DL_FOREACH_SAFE(opts->plugin_callbacks.unsubscribe, cb_base, cb_next){
-		rc = cb_base->cb(MOSQ_EVT_UNSUBSCRIBE, &event_data, cb_base->userdata);
-		if(rc != MOSQ_ERR_SUCCESS){
-			break;
+	DL_FOREACH_ಸುರಕ್ಷಿತ(opts->plugin_callbacks.unsubscribe, cb_ತಳ, cb_ಮುಂದಿನ){
+		rc = cb_ತಳ->cb(MOSQ_EVT_UNSUBSCRIBE, &event_ದತ್ತಾಂಶ, cb_ತಳ->userdata);
+		ಆದರೆ(rc != MOSQ_ERR_SUCCESS){
+			ನಿಲ್ಲಿಸು;
 		}
 
-		if(sub->topic_filter != event_data.data.topic_filter){
+		ಆದರೆ(sub->topic_filter != event_ದತ್ತಾಂಶ.ದತ್ತಾಂಶ.topic_filter){
 			mosquitto_free(sub->topic_filter);
-			sub->topic_filter = event_data.data.topic_filter;
+			sub->topic_filter = event_ದತ್ತಾಂಶ.ದತ್ತಾಂಶ.topic_filter;
 		}
 	}
 
-	return rc;
+	ಹಿಂತಿರುಗಿ rc;
 }
 
 
-int plugin__handle_unsubscribe(struct mosquitto *context, struct mosquitto_subscription *sub)
+ಪೂರ್ಣಾಂಕ plugin__handle_unsubscribe(ರಚನೆ mosquitto *context, ರಚನೆ mosquitto_subscription *sub)
 {
-	int rc = MOSQ_ERR_SUCCESS;
+	ಪೂರ್ಣಾಂಕ rc = MOSQ_ERR_SUCCESS;
 
 	/* Global plugins */
 	rc = plugin__handle_unsubscribe_single(&db.config->security_options,
 			context, sub);
-	if(rc){
-		return rc;
+	ಆದರೆ(rc){
+		ಹಿಂತಿರುಗಿ rc;
 	}
 
-	if(context->listener){
+	ಆದರೆ(context->listener){
 		rc = plugin__handle_unsubscribe_single(context->listener->security_options,
 				context, sub);
 	}
 
-	return rc;
+	ಹಿಂತಿರುಗಿ rc;
 }

@@ -16,389 +16,389 @@ Contributors:
    Roger Light - initial implementation and documentation.
 */
 
-#include "config.h"
+#ಅನ್ತರ್ಭಾವ "config.h"
 
-#include <assert.h>
-#include <stdio.h>
-#include <string.h>
+#ಅನ್ತರ್ಭಾವ <assert.h>
+#ಅನ್ತರ್ಭಾವ <stdio.h>
+#ಅನ್ತರ್ಭಾವ <string.h>
 
-#include "mosquitto_broker_internal.h"
-#include "mosquitto/mqtt_protocol.h"
-#include "util_mosq.h"
+#ಅನ್ತರ್ಭಾವ "mosquitto_broker_internal.h"
+#ಅನ್ತರ್ಭಾವ "mosquitto/mqtt_protocol.h"
+#ಅನ್ತರ್ಭಾವ "util_mosq.h"
 
-#include "utlist.h"
+#ಅನ್ತರ್ಭಾವ "utlist.h"
 
-static time_t next_expire_check = 0;
+ಸ್ಥಿರ time_t ಮುಂದಿನ_expire_check = 0;
 
-static struct mosquitto__retainhier *retain__add_hier_entry(struct mosquitto__retainhier *parent, struct mosquitto__retainhier **sibling, const char *topic, uint16_t len)
+ಸ್ಥಿರ ರಚನೆ mosquitto__retainhier *retain_ಕೂಡಿಸು_hier_ನಮೂದು(ರಚನೆ mosquitto__retainhier *ಪೋಷಕ, ರಚನೆ mosquitto__retainhier **sibling, ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *topic, uint16_t len)
 {
-	struct mosquitto__retainhier *child;
+	ರಚನೆ mosquitto__retainhier *ಮಗು;
 
-	assert(sibling);
+	ಪ್ರತಿಜ್ಞಾ(sibling);
 
-	child = mosquitto_calloc(1, sizeof(struct mosquitto__retainhier) + len + 1);
-	if(!child){
-		log__printf(NULL, MOSQ_LOG_ERR, "Error: Out of memory.");
-		return NULL;
+	ಮಗು = mosquitto_calloc(1, ಗಾತ್ರ(ರಚನೆ mosquitto__retainhier) + len + 1);
+	ಆದರೆ(!ಮಗು){
+		log__printf(ಖಾಲಿ, MOSQ_LOG_ERR, "Error: Out of memory.");
+		ಹಿಂತಿರುಗಿ ಖಾಲಿ;
 	}
-	child->parent = parent;
-	child->topic_len = len;
-	if(len > 0){
-		strncpy(child->topic, topic, (size_t)(len+1));
+	ಮಗು->ಪೋಷಕ = ಪೋಷಕ;
+	ಮಗು->topic_len = len;
+	ಆದರೆ(len > 0){
+		strncpy(ಮಗು->topic, topic, (size_t)(len+1));
 	}
 
-	HASH_ADD(hh, *sibling, topic, child->topic_len, child);
+	HASH_ಕೂಡಿಸು(hh, *sibling, topic, ಮಗು->topic_len, ಮಗು);
 
-	return child;
+	ಹಿಂತಿರುಗಿ ಮಗು;
 }
 
 
-int retain__init(void)
+ಪೂರ್ಣಾಂಕ retain__init(ಶೂನ್ಯ)
 {
-	struct mosquitto__retainhier *retainhier;
+	ರಚನೆ mosquitto__retainhier *retainhier;
 
-	retainhier = retain__add_hier_entry(NULL, &db.retains, "", 0);
-	if(!retainhier){
-		return MOSQ_ERR_NOMEM;
+	retainhier = retain_ಕೂಡಿಸು_hier_ನಮೂದು(ಖಾಲಿ, &db.retains, "", 0);
+	ಆದರೆ(!retainhier){
+		ಹಿಂತಿರುಗಿ MOSQ_ERR_NOMEM;
 	}
 
-	retainhier = retain__add_hier_entry(NULL, &db.retains, "$SYS", (uint16_t)strlen("$SYS"));
-	if(!retainhier){
-		return MOSQ_ERR_NOMEM;
+	retainhier = retain_ಕೂಡಿಸು_hier_ನಮೂದು(ಖಾಲಿ, &db.retains, "$SYS", (uint16_t)ಅಕ್ಷರಸರಣಿ_ಉದ್ದ("$SYS"));
+	ಆದರೆ(!retainhier){
+		ಹಿಂತಿರುಗಿ MOSQ_ERR_NOMEM;
 	}
 
-	return MOSQ_ERR_SUCCESS;
+	ಹಿಂತಿರುಗಿ MOSQ_ERR_SUCCESS;
 }
 
 
-BROKER_EXPORT int mosquitto_persist_retain_msg_set(const char *topic, uint64_t base_msg_id)
+BROKER_EXPORT ಪೂರ್ಣಾಂಕ mosquitto_persist_retain_ಸಂದೇಶ_ಗಣ(ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *topic, uint64_t ತಳ_ಸಂದೇಶ_id)
 {
-	struct mosquitto__base_msg *base_msg;
-	int rc = MOSQ_ERR_UNKNOWN;
-	char **split_topics = NULL;
-	char *local_topic = NULL;
+	ರಚನೆ mosquitto_ತಳ_ಸಂದೇಶ *ತಳ_ಸಂದೇಶ;
+	ಪೂರ್ಣಾಂಕ rc = MOSQ_ERR_UNKNOWN;
+	ಅಕ್ಷರ **ವಿಭಜಿಸು_topics = ಖಾಲಿ;
+	ಅಕ್ಷರ *local_topic = ಖಾಲಿ;
 
-	if(topic == NULL){
-		return MOSQ_ERR_INVAL;
+	ಆದರೆ(topic == ಖಾಲಿ){
+		ಹಿಂತಿರುಗಿ MOSQ_ERR_INVAL;
 	}
 
-	HASH_FIND(hh, db.msg_store, &base_msg_id, sizeof(base_msg_id), base_msg);
-	if(base_msg){
-		if(sub__topic_tokenise(topic, &local_topic, &split_topics, NULL)){
-			return MOSQ_ERR_NOMEM;
+	HASH_ಕಂಡುಹಿಡಿ(hh, db.ಸಂದೇಶ_store, &ತಳ_ಸಂದೇಶ_id, ಗಾತ್ರ(ತಳ_ಸಂದೇಶ_id), ತಳ_ಸಂದೇಶ);
+	ಆದರೆ(ತಳ_ಸಂದೇಶ){
+		ಆದರೆ(sub__topic_tokenise(topic, &local_topic, &ವಿಭಜಿಸು_topics, ಖಾಲಿ)){
+			ಹಿಂತಿರುಗಿ MOSQ_ERR_NOMEM;
 		}
 
-		rc = retain__store(topic, base_msg, split_topics, false);
-		mosquitto_free(split_topics);
+		rc = retain__store(topic, ತಳ_ಸಂದೇಶ, ವಿಭಜಿಸು_topics, false);
+		mosquitto_free(ವಿಭಜಿಸು_topics);
 		mosquitto_free(local_topic);
 	}
 
-	return rc;
+	ಹಿಂತಿರುಗಿ rc;
 }
 
 
-BROKER_EXPORT int mosquitto_persist_retain_msg_delete(const char *topic)
+BROKER_EXPORT ಪೂರ್ಣಾಂಕ mosquitto_persist_retain_ಸಂದೇಶ_delete(ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *topic)
 {
-	struct mosquitto__base_msg base_msg;
-	int rc = MOSQ_ERR_UNKNOWN;
-	char **split_topics = NULL;
-	char *local_topic = NULL;
+	ರಚನೆ mosquitto_ತಳ_ಸಂದೇಶ ತಳ_ಸಂದೇಶ;
+	ಪೂರ್ಣಾಂಕ rc = MOSQ_ERR_UNKNOWN;
+	ಅಕ್ಷರ **ವಿಭಜಿಸು_topics = ಖಾಲಿ;
+	ಅಕ್ಷರ *local_topic = ಖಾಲಿ;
 
-	if(topic == NULL){
-		return MOSQ_ERR_INVAL;
+	ಆದರೆ(topic == ಖಾಲಿ){
+		ಹಿಂತಿರುಗಿ MOSQ_ERR_INVAL;
 	}
 
-	memset(&base_msg, 0, sizeof(base_msg));
-	base_msg.ref_count = 10; /* Ensure this isn't freed */
+	memset(&ತಳ_ಸಂದೇಶ, 0, ಗಾತ್ರ(ತಳ_ಸಂದೇಶ));
+	ತಳ_ಸಂದೇಶ.ref_ಎಣಿಕೆ = 10; /* Ensure this isn't freed */
 
-	if(sub__topic_tokenise(topic, &local_topic, &split_topics, NULL)){
-		return MOSQ_ERR_NOMEM;
+	ಆದರೆ(sub__topic_tokenise(topic, &local_topic, &ವಿಭಜಿಸು_topics, ಖಾಲಿ)){
+		ಹಿಂತಿರುಗಿ MOSQ_ERR_NOMEM;
 	}
 
 	/* With stored->payloadlen == 0, this means the message will be removed */
-	rc = retain__store(topic, &base_msg, split_topics, false);
-	mosquitto_FREE(split_topics);
+	rc = retain__store(topic, &ತಳ_ಸಂದೇಶ, ವಿಭಜಿಸು_topics, false);
+	mosquitto_FREE(ವಿಭಜಿಸು_topics);
 	mosquitto_FREE(local_topic);
 
-	return rc;
+	ಹಿಂತಿರುಗಿ rc;
 }
 
 
-void retain__clean_empty_hierarchy(struct mosquitto__retainhier *retainhier)
+ಶೂನ್ಯ retain_clean_ಖಾಲಿಗಳು_hierarchy(ರಚನೆ mosquitto__retainhier *retainhier)
 {
-	while(retainhier){
-		if(retainhier->children || retainhier->retained || retainhier->parent == NULL){
+	ಆಗ(retainhier){
+		ಆದರೆ(retainhier->children || retainhier->retained || retainhier->ಪೋಷಕ == ಖಾಲಿ){
 			/* Entry is being used */
-			return;
-		}else{
-			HASH_DELETE(hh, retainhier->parent->children, retainhier);
+			ಹಿಂತಿರುಗಿ;
+		}ಇಲ್ಲದಿದ್ದರೆ{
+			HASH_DELETE(hh, retainhier->ಪೋಷಕ->children, retainhier);
 
-			struct mosquitto__retainhier *parent = retainhier->parent;
+			ರಚನೆ mosquitto__retainhier *ಪೋಷಕ = retainhier->ಪೋಷಕ;
 			mosquitto_FREE(retainhier);
-			retainhier = parent;
+			retainhier = ಪೋಷಕ;
 		}
 	}
 }
 
 
-int retain__store(const char *topic, struct mosquitto__base_msg *base_msg, char **split_topics, bool persist)
+ಪೂರ್ಣಾಂಕ retain__store(ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *topic, ರಚನೆ mosquitto_ತಳ_ಸಂದೇಶ *ತಳ_ಸಂದೇಶ, ಅಕ್ಷರ **ವಿಭಜಿಸು_topics, bool persist)
 {
-	struct mosquitto__retainhier *retainhier;
-	struct mosquitto__retainhier *branch;
+	ರಚನೆ mosquitto__retainhier *retainhier;
+	ರಚನೆ mosquitto__retainhier *branch;
 	size_t slen;
 
-	assert(base_msg);
-	assert(split_topics);
+	ಪ್ರತಿಜ್ಞಾ(ತಳ_ಸಂದೇಶ);
+	ಪ್ರತಿಜ್ಞಾ(ವಿಭಜಿಸು_topics);
 
-	HASH_FIND(hh, db.retains, split_topics[0], strlen(split_topics[0]), retainhier);
-	if(retainhier == NULL){
-		retainhier = retain__add_hier_entry(NULL, &db.retains, split_topics[0], (uint16_t)strlen(split_topics[0]));
-		if(!retainhier){
-			return MOSQ_ERR_NOMEM;
+	HASH_ಕಂಡುಹಿಡಿ(hh, db.retains, ವಿಭಜಿಸು_topics[0], ಅಕ್ಷರಸರಣಿ_ಉದ್ದ(ವಿಭಜಿಸು_topics[0]), retainhier);
+	ಆದರೆ(retainhier == ಖಾಲಿ){
+		retainhier = retain_ಕೂಡಿಸು_hier_ನಮೂದು(ಖಾಲಿ, &db.retains, ವಿಭಜಿಸು_topics[0], (uint16_t)ಅಕ್ಷರಸರಣಿ_ಉದ್ದ(ವಿಭಜಿಸು_topics[0]));
+		ಆದರೆ(!retainhier){
+			ಹಿಂತಿರುಗಿ MOSQ_ERR_NOMEM;
 		}
 	}
 
-	for(int i=0; split_topics[i] != NULL; i++){
-		slen = strlen(split_topics[i]);
-		HASH_FIND(hh, retainhier->children, split_topics[i], slen, branch);
-		if(branch == NULL){
-			branch = retain__add_hier_entry(retainhier, &retainhier->children, split_topics[i], (uint16_t)slen);
-			if(branch == NULL){
-				return MOSQ_ERR_NOMEM;
+	ಗಾಗಿ(ಪೂರ್ಣಾಂಕ i=0; ವಿಭಜಿಸು_topics[i] != ಖಾಲಿ; i++){
+		slen = ಅಕ್ಷರಸರಣಿ_ಉದ್ದ(ವಿಭಜಿಸು_topics[i]);
+		HASH_ಕಂಡುಹಿಡಿ(hh, retainhier->children, ವಿಭಜಿಸು_topics[i], slen, branch);
+		ಆದರೆ(branch == ಖಾಲಿ){
+			branch = retain_ಕೂಡಿಸು_hier_ನಮೂದು(retainhier, &retainhier->children, ವಿಭಜಿಸು_topics[i], (uint16_t)slen);
+			ಆದರೆ(branch == ಖಾಲಿ){
+				ಹಿಂತಿರುಗಿ MOSQ_ERR_NOMEM;
 			}
 		}
 		retainhier = branch;
 	}
 
-#ifdef WITH_PERSISTENCE
-	if(strncmp(topic, "$SYS", 4)){
+#ವ್ಯಾಖ್ಯಾನಿತವಾದರೆ WITH_PERSISTENCE
+	ಆದರೆ(ಅಕ್ಷರಸರಣಿ_ಹೋಲಿಕೆ(topic, "$SYS", 4)){
 		/* Retained messages count as a persistence change, but only if
 		 * they aren't for $SYS. */
 		db.persistence_changes++;
 	}
-#else
-	UNUSED(topic);
-#endif
+#ಇಲ್ಲದಿದ್ದರೆ
+	ಬಳಸದ(topic);
+#ಆದರೆ_ಅಂತ್ಯ
 
-	if(retainhier->retained){
-		if(retainhier->retained == base_msg){
+	ಆದರೆ(retainhier->retained){
+		ಆದರೆ(retainhier->retained == ತಳ_ಸಂದೇಶ){
 			/* This may occur if multiple persistence providers are used */
-			return MOSQ_ERR_SUCCESS;
+			ಹಿಂತಿರುಗಿ MOSQ_ERR_SUCCESS;
 		}
 
-		if(persist && retainhier->retained->data.topic[0] != '$' && base_msg->data.payloadlen == 0){
+		ಆದರೆ(persist && retainhier->retained->ದತ್ತಾಂಶ.topic[0] != '$' && ತಳ_ಸಂದೇಶ->ದತ್ತಾಂಶ.payloadlen == 0){
 			/* Only delete if another retained message isn't replacing this one */
-			plugin_persist__handle_retain_msg_delete(retainhier->retained);
+			plugin_persist_handle_retain_ಸಂದೇಶ_delete(retainhier->retained);
 		}
-		db__msg_store_ref_dec(&retainhier->retained);
-#ifdef WITH_SYS_TREE
-		db.retained_count--;
-#endif
-		if(base_msg->data.payloadlen == 0){
-			retainhier->retained = NULL;
-			retain__clean_empty_hierarchy(retainhier);
+		db_ಸಂದೇಶ_store_ref_dec(&retainhier->retained);
+#ವ್ಯಾಖ್ಯಾನಿತವಾದರೆ WITH_SYS_ವೃಕ್ಷ
+		db.retained_ಎಣಿಕೆ--;
+#ಆದರೆ_ಅಂತ್ಯ
+		ಆದರೆ(ತಳ_ಸಂದೇಶ->ದತ್ತಾಂಶ.payloadlen == 0){
+			retainhier->retained = ಖಾಲಿ;
+			retain_clean_ಖಾಲಿಗಳು_hierarchy(retainhier);
 		}
 	}
-	if(base_msg->data.payloadlen){
-		retainhier->retained = base_msg;
-		db__msg_store_ref_inc(retainhier->retained);
-		if(persist && retainhier->retained->data.topic[0] != '$'){
-			plugin_persist__handle_base_msg_add(retainhier->retained);
-			plugin_persist__handle_retain_msg_set(retainhier->retained);
+	ಆದರೆ(ತಳ_ಸಂದೇಶ->ದತ್ತಾಂಶ.payloadlen){
+		retainhier->retained = ತಳ_ಸಂದೇಶ;
+		db_ಸಂದೇಶ_store_ref_inc(retainhier->retained);
+		ಆದರೆ(persist && retainhier->retained->ದತ್ತಾಂಶ.topic[0] != '$'){
+			plugin_persist_handle_ತಳ_ಸಂದೇಶ_ಕೂಡಿಸು(retainhier->retained);
+			plugin_persist_handle_retain_ಸಂದೇಶ_ಗಣ(retainhier->retained);
 		}
-#ifdef WITH_SYS_TREE
-		db.retained_count++;
-#endif
+#ವ್ಯಾಖ್ಯಾನಿತವಾದರೆ WITH_SYS_ವೃಕ್ಷ
+		db.retained_ಎಣಿಕೆ++;
+#ಆದರೆ_ಅಂತ್ಯ
 	}
 
-	return MOSQ_ERR_SUCCESS;
+	ಹಿಂತಿರುಗಿ MOSQ_ERR_SUCCESS;
 }
 
 
-static bool retain__delete_expired_msg(struct mosquitto__retainhier *branch)
+ಸ್ಥಿರ bool retain_delete_expired_ಸಂದೇಶ(ರಚನೆ mosquitto__retainhier *branch)
 {
-	if(branch->retained && branch->retained->data.expiry_time > 0 && db.now_real_s >= branch->retained->data.expiry_time){
-		plugin_persist__handle_retain_msg_delete(branch->retained);
-		db__msg_store_ref_dec(&branch->retained);
-		branch->retained = NULL;
-#ifdef WITH_SYS_TREE
-		db.retained_count--;
-#endif
-		return true;
+	ಆದರೆ(branch->retained && branch->retained->ದತ್ತಾಂಶ.expiry_ಸಮಯ > 0 && db.now_real_s >= branch->retained->ದತ್ತಾಂಶ.expiry_ಸಮಯ){
+		plugin_persist_handle_retain_ಸಂದೇಶ_delete(branch->retained);
+		db_ಸಂದೇಶ_store_ref_dec(&branch->retained);
+		branch->retained = ಖಾಲಿ;
+#ವ್ಯಾಖ್ಯಾನಿತವಾದರೆ WITH_SYS_ವೃಕ್ಷ
+		db.retained_ಎಣಿಕೆ--;
+#ಆದರೆ_ಅಂತ್ಯ
+		ಹಿಂತಿರುಗಿ true;
 	}
-	return false;
+	ಹಿಂತಿರುಗಿ false;
 }
 
 
-static int retain__process(struct mosquitto__retainhier *branch, struct mosquitto *context, const struct mosquitto_subscription *sub)
+ಸ್ಥಿರ ಪೂರ್ಣಾಂಕ retain__process(ರಚನೆ mosquitto__retainhier *branch, ರಚನೆ mosquitto *context, ಸ್ಥಿರಾಂಕ ರಚನೆ mosquitto_subscription *sub)
 {
-	int rc = 0;
+	ಪೂರ್ಣಾಂಕ rc = 0;
 	uint8_t qos, sub_qos;
 	uint16_t mid;
-	struct mosquitto__base_msg *retained;
+	ರಚನೆ mosquitto_ತಳ_ಸಂದೇಶ *retained;
 
-	if(retain__delete_expired_msg(branch)){
-		return MOSQ_ERR_SUCCESS;
+	ಆದರೆ(retain_delete_expired_ಸಂದೇಶ(branch)){
+		ಹಿಂತಿರುಗಿ MOSQ_ERR_SUCCESS;
 	}
 
 	retained = branch->retained;
 
-	rc = mosquitto_acl_check(context, retained->data.topic, retained->data.payloadlen, retained->data.payload,
-			retained->data.qos, retained->data.retain, retained->data.properties, MOSQ_ACL_READ);
-	if(rc == MOSQ_ERR_ACL_DENIED){
-		return MOSQ_ERR_SUCCESS;
-	}else if(rc != MOSQ_ERR_SUCCESS){
-		return rc;
+	rc = mosquitto_acl_check(context, retained->ದತ್ತಾಂಶ.topic, retained->ದತ್ತಾಂಶ.payloadlen, retained->ದತ್ತಾಂಶ.payload,
+			retained->ದತ್ತಾಂಶ.qos, retained->ದತ್ತಾಂಶ.retain, retained->ದತ್ತಾಂಶ.properties, MOSQ_ACL_READ);
+	ಆದರೆ(rc == MOSQ_ERR_ACL_DENIED){
+		ಹಿಂತಿರುಗಿ MOSQ_ERR_SUCCESS;
+	}ಇಲ್ಲದಿದ್ದರೆ ಆದರೆ(rc != MOSQ_ERR_SUCCESS){
+		ಹಿಂತಿರುಗಿ rc;
 	}
 
 	/* Check for original source access */
-	if(db.config->check_retain_source && retained->origin != mosq_mo_broker && retained->data.source_id){
-		struct mosquitto retain_ctxt;
-		memset(&retain_ctxt, 0, sizeof(struct mosquitto));
+	ಆದರೆ(db.config->check_retain_ಮೂಲ && retained->origin != mosq_mo_broker && retained->ದತ್ತಾಂಶ.ಮೂಲ_id){
+		ರಚನೆ mosquitto retain_ctxt;
+		memset(&retain_ctxt, 0, ಗಾತ್ರ(ರಚನೆ mosquitto));
 
-		retain_ctxt.id = retained->data.source_id;
-		retain_ctxt.username = retained->data.source_username;
-		retain_ctxt.listener = retained->source_listener;
+		retain_ctxt.id = retained->ದತ್ತಾಂಶ.ಮೂಲ_id;
+		retain_ctxt.username = retained->ದತ್ತಾಂಶ.ಮೂಲ_username;
+		retain_ctxt.listener = retained->ಮೂಲ_listener;
 
-		rc = mosquitto_acl_check(&retain_ctxt, retained->data.topic, retained->data.payloadlen, retained->data.payload,
-				retained->data.qos, retained->data.retain, retained->data.properties, MOSQ_ACL_WRITE);
-		if(rc == MOSQ_ERR_ACL_DENIED){
-			return MOSQ_ERR_SUCCESS;
-		}else if(rc != MOSQ_ERR_SUCCESS){
-			return rc;
+		rc = mosquitto_acl_check(&retain_ctxt, retained->ದತ್ತಾಂಶ.topic, retained->ದತ್ತಾಂಶ.payloadlen, retained->ದತ್ತಾಂಶ.payload,
+				retained->ದತ್ತಾಂಶ.qos, retained->ದತ್ತಾಂಶ.retain, retained->ದತ್ತಾಂಶ.properties, MOSQ_ACL_WRITE);
+		ಆದರೆ(rc == MOSQ_ERR_ACL_DENIED){
+			ಹಿಂತಿರುಗಿ MOSQ_ERR_SUCCESS;
+		}ಇಲ್ಲದಿದ್ದರೆ ಆದರೆ(rc != MOSQ_ERR_SUCCESS){
+			ಹಿಂತಿರುಗಿ rc;
 		}
 	}
 
 	sub_qos = sub->options & 0x03;
-	if(db.config->upgrade_outgoing_qos){
+	ಆದರೆ(db.config->upgrade_outgoing_qos){
 		qos = sub_qos;
-	}else{
-		qos = retained->data.qos;
-		if(qos > sub_qos){
+	}ಇಲ್ಲದಿದ್ದರೆ{
+		qos = retained->ದತ್ತಾಂಶ.qos;
+		ಆದರೆ(qos > sub_qos){
 			qos = sub_qos;
 		}
 	}
-	if(qos > 0){
+	ಆದರೆ(qos > 0){
 		mid = mosquitto__mid_generate(context);
-	}else{
+	}ಇಲ್ಲದಿದ್ದರೆ{
 		mid = 0;
 	}
-	return db__message_insert_outgoing(context, 0, mid, qos, true, retained, sub->identifier, false, true);
+	ಹಿಂತಿರುಗಿ db_ಸಂದೇಶ_ಸೇರಿಸು_outgoing(context, 0, mid, qos, true, retained, sub->identifier, false, true);
 }
 
 
-static int retain__search(struct mosquitto__retainhier *retainhier, char **split_topics, struct mosquitto *context, const struct mosquitto_subscription *sub, int level)
+ಸ್ಥಿರ ಪೂರ್ಣಾಂಕ retain_ಹುಡುಕು(ರಚನೆ mosquitto__retainhier *retainhier, ಅಕ್ಷರ **ವಿಭಜಿಸು_topics, ರಚನೆ mosquitto *context, ಸ್ಥಿರಾಂಕ ರಚನೆ mosquitto_subscription *sub, ಪೂರ್ಣಾಂಕ level)
 {
-	struct mosquitto__retainhier *branch, *branch_tmp;
-	int flag = 0;
+	ರಚನೆ mosquitto__retainhier *branch, *branch_tmp;
+	ಪೂರ್ಣಾಂಕ flag = 0;
 
-	if(!strcmp(split_topics[0], "#") && split_topics[1] == NULL){
+	ಆದರೆ(!strcmp(ವಿಭಜಿಸು_topics[0], "#") && ವಿಭಜಿಸು_topics[1] == ಖಾಲಿ){
 		HASH_ITER(hh, retainhier->children, branch, branch_tmp){
 			/* Set flag to indicate that we should check for retained messages
 			 * on "foo" when we are subscribing to e.g. "foo/#" and then exit
 			 * this function and return to an earlier retain__search().
 			 */
 			flag = -1;
-			if(branch->retained){
+			ಆದರೆ(branch->retained){
 				retain__process(branch, context, sub);
 			}
-			if(branch->children){
-				retain__search(branch, split_topics, context, sub, level+1);
+			ಆದರೆ(branch->children){
+				retain_ಹುಡುಕು(branch, ವಿಭಜಿಸು_topics, context, sub, level+1);
 			}
 		}
-	}else{
-		if(!strcmp(split_topics[0], "+")){
+	}ಇಲ್ಲದಿದ್ದರೆ{
+		ಆದರೆ(!strcmp(ವಿಭಜಿಸು_topics[0], "+")){
 			HASH_ITER(hh, retainhier->children, branch, branch_tmp){
-				if(split_topics[1] != NULL){
-					if(retain__search(branch, &(split_topics[1]), context, sub, level+1) == -1
-							|| (split_topics[1] != NULL && !strcmp(split_topics[1], "#") && level>0)){
+				ಆದರೆ(ವಿಭಜಿಸು_topics[1] != ಖಾಲಿ){
+					ಆದರೆ(retain_ಹುಡುಕು(branch, &(ವಿಭಜಿಸು_topics[1]), context, sub, level+1) == -1
+							|| (ವಿಭಜಿಸು_topics[1] != ಖಾಲಿ && !strcmp(ವಿಭಜಿಸು_topics[1], "#") && level>0)){
 
-						if(branch->retained){
+						ಆದರೆ(branch->retained){
 							retain__process(branch, context, sub);
 						}
 					}
-				}else{
-					if(branch->retained){
+				}ಇಲ್ಲದಿದ್ದರೆ{
+					ಆದರೆ(branch->retained){
 						retain__process(branch, context, sub);
 					}
 				}
 			}
-		}else{
-			HASH_FIND(hh, retainhier->children, split_topics[0], strlen(split_topics[0]), branch);
-			if(branch){
-				if(split_topics[1] != NULL){
-					if(retain__search(branch, &(split_topics[1]), context, sub, level+1) == -1
-							|| (split_topics[1] != NULL && !strcmp(split_topics[1], "#") && level>0)){
+		}ಇಲ್ಲದಿದ್ದರೆ{
+			HASH_ಕಂಡುಹಿಡಿ(hh, retainhier->children, ವಿಭಜಿಸು_topics[0], ಅಕ್ಷರಸರಣಿ_ಉದ್ದ(ವಿಭಜಿಸು_topics[0]), branch);
+			ಆದರೆ(branch){
+				ಆದರೆ(ವಿಭಜಿಸು_topics[1] != ಖಾಲಿ){
+					ಆದರೆ(retain_ಹುಡುಕು(branch, &(ವಿಭಜಿಸು_topics[1]), context, sub, level+1) == -1
+							|| (ವಿಭಜಿಸು_topics[1] != ಖಾಲಿ && !strcmp(ವಿಭಜಿಸು_topics[1], "#") && level>0)){
 
-						if(branch->retained){
+						ಆದರೆ(branch->retained){
 							retain__process(branch, context, sub);
 						}
 					}
-				}else{
-					if(branch->retained){
+				}ಇಲ್ಲದಿದ್ದರೆ{
+					ಆದರೆ(branch->retained){
 						retain__process(branch, context, sub);
 					}
 				}
 			}
 		}
 	}
-	return flag;
+	ಹಿಂತಿರುಗಿ flag;
 }
 
 
-int retain__queue(struct mosquitto *context, const struct mosquitto_subscription *sub)
+ಪೂರ್ಣಾಂಕ retain_ಸರತಿ(ರಚನೆ mosquitto *context, ಸ್ಥಿರಾಂಕ ರಚನೆ mosquitto_subscription *sub)
 {
-	struct mosquitto__retainhier *retainhier;
-	char *local_sub;
-	char **split_topics;
-	int rc;
+	ರಚನೆ mosquitto__retainhier *retainhier;
+	ಅಕ್ಷರ *local_sub;
+	ಅಕ್ಷರ **ವಿಭಜಿಸು_topics;
+	ಪೂರ್ಣಾಂಕ rc;
 
-	assert(context);
-	assert(sub);
+	ಪ್ರತಿಜ್ಞಾ(context);
+	ಪ್ರತಿಜ್ಞಾ(sub);
 
-	if(!strncmp(sub->topic_filter, "$share/", strlen("$share/"))){
-		return MOSQ_ERR_SUCCESS;
+	ಆದರೆ(!ಅಕ್ಷರಸರಣಿ_ಹೋಲಿಕೆ(sub->topic_filter, "$share/", ಅಕ್ಷರಸರಣಿ_ಉದ್ದ("$share/"))){
+		ಹಿಂತಿರುಗಿ MOSQ_ERR_SUCCESS;
 	}
 
-	rc = sub__topic_tokenise(sub->topic_filter, &local_sub, &split_topics, NULL);
-	if(rc){
-		return rc;
+	rc = sub__topic_tokenise(sub->topic_filter, &local_sub, &ವಿಭಜಿಸು_topics, ಖಾಲಿ);
+	ಆದರೆ(rc){
+		ಹಿಂತಿರುಗಿ rc;
 	}
 
-	HASH_FIND(hh, db.retains, split_topics[0], strlen(split_topics[0]), retainhier);
+	HASH_ಕಂಡುಹಿಡಿ(hh, db.retains, ವಿಭಜಿಸು_topics[0], ಅಕ್ಷರಸರಣಿ_ಉದ್ದ(ವಿಭಜಿಸು_topics[0]), retainhier);
 
-	if(retainhier){
-		retain__search(retainhier, split_topics, context, sub, 0);
+	ಆದರೆ(retainhier){
+		retain_ಹುಡುಕು(retainhier, ವಿಭಜಿಸು_topics, context, sub, 0);
 	}
 	mosquitto_FREE(local_sub);
-	mosquitto_FREE(split_topics);
+	mosquitto_FREE(ವಿಭಜಿಸು_topics);
 
-	return MOSQ_ERR_SUCCESS;
+	ಹಿಂತಿರುಗಿ MOSQ_ERR_SUCCESS;
 }
 
 
-void retain__expire(struct mosquitto__retainhier **retainhier)
+ಶೂನ್ಯ retain__expire(ರಚನೆ mosquitto__retainhier **retainhier)
 {
-	struct mosquitto__retainhier *peer, *retainhier_tmp;
+	ರಚನೆ mosquitto__retainhier *peer, *retainhier_tmp;
 
 	HASH_ITER(hh, *retainhier, peer, retainhier_tmp){
 		retain__expire(&peer->children);
 
-		struct mosquitto__retainhier *parent = peer->parent;
-		if(retain__delete_expired_msg(peer)){
-			retain__clean_empty_hierarchy(parent);
+		ರಚನೆ mosquitto__retainhier *ಪೋಷಕ = peer->ಪೋಷಕ;
+		ಆದರೆ(retain_delete_expired_ಸಂದೇಶ(peer)){
+			retain_clean_ಖಾಲಿಗಳು_hierarchy(ಪೋಷಕ);
 		}
 	}
 }
 
 
-void retain__clean(struct mosquitto__retainhier **retainhier)
+ಶೂನ್ಯ retain__clean(ರಚನೆ mosquitto__retainhier **retainhier)
 {
-	struct mosquitto__retainhier *peer, *retainhier_tmp;
+	ರಚನೆ mosquitto__retainhier *peer, *retainhier_tmp;
 
 	HASH_ITER(hh, *retainhier, peer, retainhier_tmp){
-		if(peer->retained){
-			db__msg_store_ref_dec(&peer->retained);
+		ಆದರೆ(peer->retained){
+			db_ಸಂದೇಶ_store_ref_dec(&peer->retained);
 		}
 		retain__clean(&peer->children);
 
@@ -408,10 +408,10 @@ void retain__clean(struct mosquitto__retainhier **retainhier)
 }
 
 
-void retain__expiry_check(void)
+ಶೂನ್ಯ retain__expiry_check(ಶೂನ್ಯ)
 {
-	if(db.config->retain_expiry_interval > 0 && db.now_s > next_expire_check){
+	ಆದರೆ(db.config->retain_expiry_interval > 0 && db.now_s > ಮುಂದಿನ_expire_check){
 		retain__expire(&db.retains);
-		next_expire_check = db.now_s + db.config->retain_expiry_interval;
+		ಮುಂದಿನ_expire_check = db.now_s + db.config->retain_expiry_interval;
 	}
 }

@@ -16,81 +16,81 @@ Contributors:
    Roger Light - initial implementation and documentation.
 */
 
-#include "config.h"
+#ಅನ್ತರ್ಭಾವ "config.h"
 
-#include <stdio.h>
-#include <string.h>
+#ಅನ್ತರ್ಭಾವ <stdio.h>
+#ಅನ್ತರ್ಭಾವ <string.h>
 
-#include "mosquitto_broker_internal.h"
-#include "mosquitto/mqtt_protocol.h"
-#include "packet_mosq.h"
-#include "property_mosq.h"
+#ಅನ್ತರ್ಭಾವ "mosquitto_broker_internal.h"
+#ಅನ್ತರ್ಭಾವ "mosquitto/mqtt_protocol.h"
+#ಅನ್ತರ್ಭಾವ "packet_mosq.h"
+#ಅನ್ತರ್ಭಾವ "property_mosq.h"
 
 
-int handle__subscribe(struct mosquitto *context)
+ಪೂರ್ಣಾಂಕ handle__subscribe(ರಚನೆ mosquitto *context)
 {
-	int rc = 0;
-	int rc2;
+	ಪೂರ್ಣಾಂಕ rc = 0;
+	ಪೂರ್ಣಾಂಕ rc2;
 	uint16_t mid;
 	uint8_t qos;
 	uint8_t retain_handling = 0;
-	uint8_t *payload = NULL, *tmp_payload;
+	uint8_t *payload = ಖಾಲಿ, *tmp_payload;
 	uint32_t payloadlen = 0;
 	size_t len;
 	uint16_t slen;
-	char *sub_mount;
-	mosquitto_property *properties = NULL;
+	ಅಕ್ಷರ *sub_mount;
+	mosquitto_property *properties = ಖಾಲಿ;
 	bool allowed;
-	struct mosquitto_subscription sub;
+	ರಚನೆ mosquitto_subscription sub;
 	uint32_t subscription_identifier = 0;
 
-	if(!context){
-		return MOSQ_ERR_INVAL;
+	ಆದರೆ(!context){
+		ಹಿಂತಿರುಗಿ MOSQ_ERR_INVAL;
 	}
 
-	if(context->state != mosq_cs_active){
-		log__printf(NULL, MOSQ_LOG_INFO, "Protocol error from %s: SUBSCRIBE before session is active.", context->id);
-		return MOSQ_ERR_PROTOCOL;
+	ಆದರೆ(context->state != mosq_cs_ಸಕ್ರಿಯ){
+		log__printf(ಖಾಲಿ, MOSQ_LOG_INFO, "Protocol error from %s: SUBSCRIBE before session is active.", context->id);
+		ಹಿಂತಿರುಗಿ MOSQ_ERR_PROTOCOL;
 	}
-	if(context->in_packet.command != (CMD_SUBSCRIBE|2)){
-		return MOSQ_ERR_MALFORMED_PACKET;
+	ಆದರೆ(context->ಒಳ_packet.command != (CMD_SUBSCRIBE|2)){
+		ಹಿಂತಿರುಗಿ MOSQ_ERR_MALFORMED_PACKET;
 	}
 
-	log__printf(NULL, MOSQ_LOG_DEBUG, "Received SUBSCRIBE from %s", context->id);
+	log__printf(ಖಾಲಿ, MOSQ_LOG_DEBUG, "Received SUBSCRIBE from %s", context->id);
 
-	if(context->protocol != mosq_p_mqtt31){
-		if((context->in_packet.command&0x0F) != 0x02){
-			return MOSQ_ERR_MALFORMED_PACKET;
+	ಆದರೆ(context->protocol != mosq_p_mqtt31){
+		ಆದರೆ((context->ಒಳ_packet.command&0x0F) != 0x02){
+			ಹಿಂತಿರುಗಿ MOSQ_ERR_MALFORMED_PACKET;
 		}
 	}
-	if(packet__read_uint16(&context->in_packet, &mid)){
-		return MOSQ_ERR_MALFORMED_PACKET;
+	ಆದರೆ(packet__read_uint16(&context->ಒಳ_packet, &mid)){
+		ಹಿಂತಿರುಗಿ MOSQ_ERR_MALFORMED_PACKET;
 	}
-	if(mid == 0){
-		return MOSQ_ERR_MALFORMED_PACKET;
+	ಆದರೆ(mid == 0){
+		ಹಿಂತಿರುಗಿ MOSQ_ERR_MALFORMED_PACKET;
 	}
 
-	if(context->protocol == mosq_p_mqtt5){
-		rc = property__read_all(CMD_SUBSCRIBE, &context->in_packet, &properties);
-		if(rc){
+	ಆದರೆ(context->protocol == mosq_p_mqtt5){
+		rc = property__read_all(CMD_SUBSCRIBE, &context->ಒಳ_packet, &properties);
+		ಆದರೆ(rc){
 			/* FIXME - it would be better if property__read_all() returned
 			 * MOSQ_ERR_MALFORMED_PACKET, but this is would change the library
 			 * return codes so needs doc changes as well. */
-			if(rc == MOSQ_ERR_PROTOCOL){
-				log__printf(NULL, MOSQ_LOG_INFO, "Protocol error from %s: SUBSCRIBE packet with invalid properties.", context->id);
-				return MOSQ_ERR_MALFORMED_PACKET;
-			}else{
-				return rc;
+			ಆದರೆ(rc == MOSQ_ERR_PROTOCOL){
+				log__printf(ಖಾಲಿ, MOSQ_LOG_INFO, "Protocol error from %s: SUBSCRIBE packet with invalid properties.", context->id);
+				ಹಿಂತಿರುಗಿ MOSQ_ERR_MALFORMED_PACKET;
+			}ಇಲ್ಲದಿದ್ದರೆ{
+				ಹಿಂತಿರುಗಿ rc;
 			}
 		}
 
-		if(mosquitto_property_read_varint(properties, MQTT_PROP_SUBSCRIPTION_IDENTIFIER,
+		ಆದರೆ(mosquitto_property_read_varint(properties, MQTT_PROP_SUBSCRIPTION_IDENTIFIER,
 				&subscription_identifier, false)){
 
 			/* If the identifier was force set to 0, this is an error */
-			if(subscription_identifier == 0){
+			ಆದರೆ(subscription_identifier == 0){
 				mosquitto_property_free_all(&properties);
-				return MOSQ_ERR_PROTOCOL;
+				ಹಿಂತಿರುಗಿ MOSQ_ERR_PROTOCOL;
 			}
 		}
 
@@ -98,90 +98,90 @@ int handle__subscribe(struct mosquitto *context)
 		/* Note - User Property not handled */
 	}
 
-	while(context->in_packet.pos < context->in_packet.remaining_length){
-		memset(&sub, 0, sizeof(sub));
+	ಆಗ(context->ಒಳ_packet.pos < context->ಒಳ_packet.ಉಳಿದ_ಉದ್ದಳತೆ){
+		memset(&sub, 0, ಗಾತ್ರ(sub));
 		sub.identifier = subscription_identifier;
 		sub.properties = properties;
-		if(packet__read_string(&context->in_packet, &sub.topic_filter, &slen)){
+		ಆದರೆ(packet__read_string(&context->ಒಳ_packet, &sub.topic_filter, &slen)){
 			mosquitto_FREE(payload);
-			return MOSQ_ERR_MALFORMED_PACKET;
+			ಹಿಂತಿರುಗಿ MOSQ_ERR_MALFORMED_PACKET;
 		}
 
-		if(sub.topic_filter){
-			if(!slen){
-				log__printf(NULL, MOSQ_LOG_INFO,
+		ಆದರೆ(sub.topic_filter){
+			ಆದರೆ(!slen){
+				log__printf(ಖಾಲಿ, MOSQ_LOG_INFO,
 						"Empty subscription string from %s, disconnecting.",
-						context->address);
+						context->ವಿಳಾಸ);
 				mosquitto_FREE(sub.topic_filter);
 				mosquitto_FREE(payload);
-				return MOSQ_ERR_MALFORMED_PACKET;
+				ಹಿಂತಿರುಗಿ MOSQ_ERR_MALFORMED_PACKET;
 			}
-			if(mosquitto_sub_topic_check(sub.topic_filter)){
-				log__printf(NULL, MOSQ_LOG_INFO,
+			ಆದರೆ(mosquitto_sub_topic_check(sub.topic_filter)){
+				log__printf(ಖಾಲಿ, MOSQ_LOG_INFO,
 						"Invalid subscription string from %s, disconnecting.",
-						context->address);
+						context->ವಿಳಾಸ);
 				mosquitto_FREE(sub.topic_filter);
 				mosquitto_FREE(payload);
-				return MOSQ_ERR_MALFORMED_PACKET;
+				ಹಿಂತಿರುಗಿ MOSQ_ERR_MALFORMED_PACKET;
 			}
 
-			if(packet__read_byte(&context->in_packet, &sub.options)){
+			ಆದರೆ(packet__read_byte(&context->ಒಳ_packet, &sub.options)){
 				mosquitto_FREE(sub.topic_filter);
 				mosquitto_FREE(payload);
-				return MOSQ_ERR_MALFORMED_PACKET;
+				ಹಿಂತಿರುಗಿ MOSQ_ERR_MALFORMED_PACKET;
 			}
-			if(sub.options & MQTT_SUB_OPT_NO_LOCAL && !strncmp(sub.topic_filter, "$share/", strlen("$share/"))){
+			ಆದರೆ(sub.options & MQTT_SUB_OPT_NO_LOCAL && !ಅಕ್ಷರಸರಣಿ_ಹೋಲಿಕೆ(sub.topic_filter, "$share/", ಅಕ್ಷರಸರಣಿ_ಉದ್ದ("$share/"))){
 				mosquitto_FREE(sub.topic_filter);
 				mosquitto_FREE(payload);
-				log__printf(NULL, MOSQ_LOG_INFO, "Protocol error from %s: $share subscription with no-local set.", context->id);
-				return MOSQ_ERR_PROTOCOL;
+				log__printf(ಖಾಲಿ, MOSQ_LOG_INFO, "Protocol error from %s: $share subscription with no-local set.", context->id);
+				ಹಿಂತಿರುಗಿ MOSQ_ERR_PROTOCOL;
 			}
 
-			if(context->protocol == mosq_p_mqtt31 || context->protocol == mosq_p_mqtt311){
+			ಆದರೆ(context->protocol == mosq_p_mqtt31 || context->protocol == mosq_p_mqtt311){
 				qos = sub.options;
 				sub.options = 0;
-				if(context->is_bridge){
+				ಆದರೆ(context->is_bridge){
 					sub.options |= MQTT_SUB_OPT_RETAIN_AS_PUBLISHED | MQTT_SUB_OPT_NO_LOCAL;
 				}
-			}else{
+			}ಇಲ್ಲದಿದ್ದರೆ{
 				qos = sub.options & 0x03;
 				sub.options &= 0xFC;
 
-				if(MQTT_SUB_OPT_GET_NO_LOCAL(sub.options) && !strncmp(sub.topic_filter, "$share/", 7)){
+				ಆದರೆ(MQTT_SUB_OPT_GET_NO_LOCAL(sub.options) && !ಅಕ್ಷರಸರಣಿ_ಹೋಲಿಕೆ(sub.topic_filter, "$share/", 7)){
 					mosquitto_FREE(sub.topic_filter);
 					mosquitto_FREE(payload);
-					return MOSQ_ERR_PROTOCOL;
+					ಹಿಂತಿರುಗಿ MOSQ_ERR_PROTOCOL;
 				}
 				retain_handling = MQTT_SUB_OPT_GET_RETAIN_HANDLING(sub.options);
-				if(retain_handling == 0x30 || (sub.options & 0xC0) != 0){
+				ಆದರೆ(retain_handling == 0x30 || (sub.options & 0xC0) != 0){
 					mosquitto_FREE(sub.topic_filter);
 					mosquitto_FREE(payload);
-					return MOSQ_ERR_MALFORMED_PACKET;
+					ಹಿಂತಿರುಗಿ MOSQ_ERR_MALFORMED_PACKET;
 				}
 			}
-			if(qos > 2){
-				log__printf(NULL, MOSQ_LOG_INFO,
+			ಆದರೆ(qos > 2){
+				log__printf(ಖಾಲಿ, MOSQ_LOG_INFO,
 						"Invalid QoS in subscription command from %s, disconnecting.",
-						context->address);
+						context->ವಿಳಾಸ);
 				mosquitto_FREE(sub.topic_filter);
 				mosquitto_FREE(payload);
-				return MOSQ_ERR_MALFORMED_PACKET;
+				ಹಿಂತಿರುಗಿ MOSQ_ERR_MALFORMED_PACKET;
 			}
-			if(qos > context->max_qos){
+			ಆದರೆ(qos > context->max_qos){
 				qos = context->max_qos;
 			}
 			sub.options |= qos;
 
 
-			if(context->listener && context->listener->mount_point){
-				len = strlen(context->listener->mount_point) + slen + 1;
+			ಆದರೆ(context->listener && context->listener->mount_ಬಿಂದು){
+				len = ಅಕ್ಷರಸರಣಿ_ಉದ್ದ(context->listener->mount_ಬಿಂದು) + slen + 1;
 				sub_mount = mosquitto_malloc(len+1);
-				if(!sub_mount){
+				ಆದರೆ(!sub_mount){
 					mosquitto_FREE(sub.topic_filter);
 					mosquitto_FREE(payload);
-					return MOSQ_ERR_NOMEM;
+					ಹಿಂತಿರುಗಿ MOSQ_ERR_NOMEM;
 				}
-				snprintf(sub_mount, len, "%s%s", context->listener->mount_point, sub.topic_filter);
+				snprintf(sub_mount, len, "%s%s", context->listener->mount_ಬಿಂದು, sub.topic_filter);
 				sub_mount[len] = '\0';
 
 				mosquitto_FREE(sub.topic_filter);
@@ -190,104 +190,104 @@ int handle__subscribe(struct mosquitto *context)
 			}
 
 			allowed = true;
-			rc2 = mosquitto_acl_check(context, sub.topic_filter, 0, NULL, qos, false, properties, MOSQ_ACL_SUBSCRIBE);
-			switch(rc2){
-				case MOSQ_ERR_SUCCESS:
-					break;
-				case MOSQ_ERR_ACL_DENIED:
+			rc2 = mosquitto_acl_check(context, sub.topic_filter, 0, ಖಾಲಿ, qos, false, properties, MOSQ_ACL_SUBSCRIBE);
+			ಆಯ್ಕೆ(rc2){
+				ಸ್ಥಿತಿ MOSQ_ERR_SUCCESS:
+					ನಿಲ್ಲಿಸು;
+				ಸ್ಥಿತಿ MOSQ_ERR_ACL_DENIED:
 					allowed = false;
-					if(context->protocol == mosq_p_mqtt5){
+					ಆದರೆ(context->protocol == mosq_p_mqtt5){
 						qos = MQTT_RC_NOT_AUTHORIZED;
-					}else if(context->protocol == mosq_p_mqtt311){
+					}ಇಲ್ಲದಿದ್ದರೆ ಆದರೆ(context->protocol == mosq_p_mqtt311){
 						qos = 0x80;
 					}
-					break;
-				default:
+					ನಿಲ್ಲಿಸು;
+				ಪೂರ್ವನಿಯೋಜಿತ:
 					mosquitto_FREE(sub.topic_filter);
 					mosquitto_FREE(payload);
-					return rc2;
+					ಹಿಂತಿರುಗಿ rc2;
 			}
-			if(qos > 127){
-				log__printf(NULL, MOSQ_LOG_DEBUG, "\t%s (denied)", sub.topic_filter);
-			}else{
-				log__printf(NULL, MOSQ_LOG_DEBUG, "\t%s (QoS %d)", sub.topic_filter, qos);
+			ಆದರೆ(qos > 127){
+				log__printf(ಖಾಲಿ, MOSQ_LOG_DEBUG, "\t%s (denied)", sub.topic_filter);
+			}ಇಲ್ಲದಿದ್ದರೆ{
+				log__printf(ಖಾಲಿ, MOSQ_LOG_DEBUG, "\t%s (QoS %d)", sub.topic_filter, qos);
 			}
 
-			if(allowed){
+			ಆದರೆ(allowed){
 				rc2 = plugin__handle_subscribe(context, &sub);
-				if(rc2){
+				ಆದರೆ(rc2){
 					mosquitto_FREE(sub.topic_filter);
 					mosquitto_FREE(payload);
-					return rc2;
+					ಹಿಂತಿರುಗಿ rc2;
 				}
 
-				rc2 = sub__add(context, &sub);
-				if(rc2 > 0){
+				rc2 = sub_ಕೂಡಿಸು(context, &sub);
+				ಆದರೆ(rc2 > 0){
 					mosquitto_FREE(sub.topic_filter);
 					mosquitto_FREE(payload);
-					return rc2;
+					ಹಿಂತಿರುಗಿ rc2;
 				}
-				if(context->protocol == mosq_p_mqtt311 || context->protocol == mosq_p_mqtt31){
-					if(rc2 == MOSQ_ERR_SUCCESS || rc2 == MOSQ_ERR_SUB_EXISTS){
-						if(retain__queue(context, &sub)){
+				ಆದರೆ(context->protocol == mosq_p_mqtt311 || context->protocol == mosq_p_mqtt31){
+					ಆದರೆ(rc2 == MOSQ_ERR_SUCCESS || rc2 == MOSQ_ERR_SUB_EXISTS){
+						ಆದರೆ(retain_ಸರತಿ(context, &sub)){
 							mosquitto_FREE(sub.topic_filter);
 							mosquitto_FREE(payload);
-							return rc;
+							ಹಿಂತಿರುಗಿ rc;
 						}
 					}
-				}else{
-					if((retain_handling == MQTT_SUB_OPT_SEND_RETAIN_ALWAYS)
+				}ಇಲ್ಲದಿದ್ದರೆ{
+					ಆದರೆ((retain_handling == MQTT_SUB_OPT_SEND_RETAIN_ALWAYS)
 							|| (rc2 == MOSQ_ERR_SUCCESS && retain_handling == MQTT_SUB_OPT_SEND_RETAIN_NEW)){
 
-						if(retain__queue(context, &sub)){
+						ಆದರೆ(retain_ಸರತಿ(context, &sub)){
 							mosquitto_FREE(sub.topic_filter);
 							mosquitto_FREE(payload);
-							return rc;
+							ಹಿಂತಿರುಗಿ rc;
 						}
 					}
 				}
-				log__printf(NULL, MOSQ_LOG_SUBSCRIBE, "%s %d %s", context->id, qos, sub.topic_filter);
+				log__printf(ಖಾಲಿ, MOSQ_LOG_SUBSCRIBE, "%s %d %s", context->id, qos, sub.topic_filter);
 
-				plugin_persist__handle_subscription_add(context, &sub);
+				plugin_persist_handle_subscription_ಕೂಡಿಸು(context, &sub);
 			}
 			mosquitto_FREE(sub.topic_filter);
 
 			tmp_payload = mosquitto_realloc(payload, payloadlen + 1);
-			if(tmp_payload){
+			ಆದರೆ(tmp_payload){
 				payload = tmp_payload;
 				payload[payloadlen] = qos;
 				payloadlen++;
-			}else{
+			}ಇಲ್ಲದಿದ್ದರೆ{
 				mosquitto_FREE(payload);
 
-				return MOSQ_ERR_NOMEM;
+				ಹಿಂತಿರುಗಿ MOSQ_ERR_NOMEM;
 			}
 		}
 	}
 
-	if(context->protocol != mosq_p_mqtt31){
-		if(payloadlen == 0){
+	ಆದರೆ(context->protocol != mosq_p_mqtt31){
+		ಆದರೆ(payloadlen == 0){
 			/* No subscriptions specified, protocol error. */
-			return MOSQ_ERR_MALFORMED_PACKET;
+			ಹಿಂತಿರುಗಿ MOSQ_ERR_MALFORMED_PACKET;
 		}
 	}
 	rc = send__suback(context, mid, payloadlen, payload);
 	mosquitto_FREE(payload);
 
-#ifdef WITH_PERSISTENCE
+#ವ್ಯಾಖ್ಯಾನಿತವಾದರೆ WITH_PERSISTENCE
 	db.persistence_changes++;
-#endif
+#ಆದರೆ_ಅಂತ್ಯ
 
-	if(context->out_packet == NULL){
-		rc = db__message_write_queued_out(context);
-		if(rc){
-			return rc;
+	ಆದರೆ(context->ಹೊರಹೋಗು_packet == ಖಾಲಿ){
+		rc = db_ಸಂದೇಶ_write_queued_ಹೊರಹೋಗು(context);
+		ಆದರೆ(rc){
+			ಹಿಂತಿರುಗಿ rc;
 		}
-		rc = db__message_write_inflight_out_latest(context);
-		if(rc){
-			return rc;
+		rc = db_ಸಂದೇಶ_write_inflight_ಹೊರಹೋಗು_latest(context);
+		ಆದರೆ(rc){
+			ಹಿಂತಿರುಗಿ rc;
 		}
 	}
 
-	return rc;
+	ಹಿಂತಿರುಗಿ rc;
 }

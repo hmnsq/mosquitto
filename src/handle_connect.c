@@ -16,463 +16,463 @@ Contributors:
    Roger Light - initial implementation and documentation.
 */
 
-#include "config.h"
+#ಅನ್ತರ್ಭಾವ "config.h"
 
-#include <stdio.h>
-#include <string.h>
-#include <utlist.h>
+#ಅನ್ತರ್ಭಾವ <stdio.h>
+#ಅನ್ತರ್ಭಾವ <string.h>
+#ಅನ್ತರ್ಭಾವ <utlist.h>
 
-#include "mosquitto_broker_internal.h"
-#include "mosquitto/mqtt_protocol.h"
-#include "packet_mosq.h"
-#include "property_mosq.h"
-#include "send_mosq.h"
-#include "sys_tree.h"
-#include "tls_mosq.h"
-#include "util_mosq.h"
-#include "will_mosq.h"
+#ಅನ್ತರ್ಭಾವ "mosquitto_broker_internal.h"
+#ಅನ್ತರ್ಭಾವ "mosquitto/mqtt_protocol.h"
+#ಅನ್ತರ್ಭಾವ "packet_mosq.h"
+#ಅನ್ತರ್ಭಾವ "property_mosq.h"
+#ಅನ್ತರ್ಭಾವ "send_mosq.h"
+#ಅನ್ತರ್ಭಾವ "sys_tree.h"
+#ಅನ್ತರ್ಭಾವ "tls_mosq.h"
+#ಅನ್ತರ್ಭಾವ "util_mosq.h"
+#ಅನ್ತರ್ಭಾವ "will_mosq.h"
 
-#if defined(WITH_WEBSOCKETS) && WITH_WEBSOCKETS == WS_IS_LWS
+#ಆದರೆ defined(WITH_WEBSOCKETS) && WITH_WEBSOCKETS == WS_IS_LWS
 #  include <libwebsockets.h>
-#endif
+#ಆದರೆ_ಅಂತ್ಯ
 
 
-static char nibble_to_hex(uint8_t value)
+ಸ್ಥಿರ ಅಕ್ಷರ nibble_ಗಮ್ಯ_hex(uint8_t ಮೌಲ್ಯ)
 {
-	if(value < 0x0A){
-		return (char)('0'+value);
-	}else{
-		return (char)(65 /*'A'*/ +value-10);
+	ಆದರೆ(ಮೌಲ್ಯ < 0x0A){
+		ಹಿಂತಿರುಗಿ (ಅಕ್ಷರ)('0'+ಮೌಲ್ಯ);
+	}ಇಲ್ಲದಿದ್ದರೆ{
+		ಹಿಂತಿರುಗಿ (ಅಕ್ಷರ)(65 /*'A'*/ +ಮೌಲ್ಯ-10);
 	}
 }
 
 
-static char *clientid_gen(uint16_t *idlen, const char *auto_id_prefix, uint16_t auto_id_prefix_len)
+ಸ್ಥಿರ ಅಕ್ಷರ *clientid_gen(uint16_t *idlen, ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *auto_id_ಪೂರ್ವಪ್ರತ್ಯಯ, uint16_t auto_id_ಪೂರ್ವಪ್ರತ್ಯಯ_len)
 {
-	char *clientid;
+	ಅಕ್ಷರ *clientid;
 	uint8_t rnd[16];
-	int pos;
+	ಪೂರ್ಣಾಂಕ pos;
 
-	if(mosquitto_getrandom(rnd, 16)){
-		return NULL;
+	ಆದರೆ(mosquitto_getrandom(rnd, 16)){
+		ಹಿಂತಿರುಗಿ ಖಾಲಿ;
 	}
 
-	*idlen = (uint16_t)(auto_id_prefix_len + 36);
+	*idlen = (uint16_t)(auto_id_ಪೂರ್ವಪ್ರತ್ಯಯ_len + 36);
 
-	clientid = (char *)mosquitto_calloc((size_t)(*idlen) + 1, sizeof(char));
-	if(!clientid){
-		return NULL;
+	clientid = (ಅಕ್ಷರ *)mosquitto_calloc((size_t)(*idlen) + 1, ಗಾತ್ರ(ಅಕ್ಷರ));
+	ಆದರೆ(!clientid){
+		ಹಿಂತಿರುಗಿ ಖಾಲಿ;
 	}
-	if(auto_id_prefix){
-		memcpy(clientid, auto_id_prefix, auto_id_prefix_len);
+	ಆದರೆ(auto_id_ಪೂರ್ವಪ್ರತ್ಯಯ){
+		ಸ್ಮರಣೆ_ನಕಲು(clientid, auto_id_ಪೂರ್ವಪ್ರತ್ಯಯ, auto_id_ಪೂರ್ವಪ್ರತ್ಯಯ_len);
 	}
 
 	pos = 0;
-	for(int i=0; i<16; i++){
-		clientid[auto_id_prefix_len + pos + 0] = nibble_to_hex(rnd[i] & 0x0F);
-		clientid[auto_id_prefix_len + pos + 1] = nibble_to_hex((rnd[i] >> 4) & 0x0F);
+	ಗಾಗಿ(ಪೂರ್ಣಾಂಕ i=0; i<16; i++){
+		clientid[auto_id_ಪೂರ್ವಪ್ರತ್ಯಯ_len + pos + 0] = nibble_ಗಮ್ಯ_hex(rnd[i] & 0x0F);
+		clientid[auto_id_ಪೂರ್ವಪ್ರತ್ಯಯ_len + pos + 1] = nibble_ಗಮ್ಯ_hex((rnd[i] >> 4) & 0x0F);
 		pos += 2;
-		if(pos == 8 || pos == 13 || pos == 18 || pos == 23){
-			clientid[auto_id_prefix_len + pos] = '-';
+		ಆದರೆ(pos == 8 || pos == 13 || pos == 18 || pos == 23){
+			clientid[auto_id_ಪೂರ್ವಪ್ರತ್ಯಯ_len + pos] = '-';
 			pos++;
 		}
 	}
 
-	return clientid;
+	ಹಿಂತಿರುಗಿ clientid;
 }
 
 
-int connect__on_authorised(struct mosquitto *context, void *auth_data_out, uint16_t auth_data_out_len)
+ಪೂರ್ಣಾಂಕ connect__on_authorised(ರಚನೆ mosquitto *context, ಶೂನ್ಯ *auth_ದತ್ತಾಂಶ_ಹೊರಹೋಗು, uint16_t auth_ದತ್ತಾಂಶ_ಹೊರಹೋಗು_len)
 {
-	struct mosquitto *found_context;
-	struct mosquitto__subleaf *leaf;
-	mosquitto_property *connack_props = NULL;
+	ರಚನೆ mosquitto *ಸಿಕ್ಕಿತು_context;
+	ರಚನೆ mosquitto__subleaf *ಎಲೆ;
+	mosquitto_property *connack_props = ಖಾಲಿ;
 	uint8_t connect_ack = 0;
-	int rc;
-	int in_quota, out_quota;
-	uint16_t in_maximum, out_maximum;
+	ಪೂರ್ಣಾಂಕ rc;
+	ಪೂರ್ಣಾಂಕ ಒಳ_quota, ಹೊರಹೋಗು_quota;
+	uint16_t ಒಳ_ಗರಿಷ್ಠ, ಹೊರಹೋಗು_ಗರಿಷ್ಠ;
 
 	/* Find if this client already has an entry. This must be done *after* any security checks. */
-	HASH_FIND(hh_id, db.contexts_by_id, context->id, strlen(context->id), found_context);
-	if(found_context){
+	HASH_ಕಂಡುಹಿಡಿ(hh_id, db.contexts_by_id, context->id, ಅಕ್ಷರಸರಣಿ_ಉದ್ದ(context->id), ಸಿಕ್ಕಿತು_context);
+	ಆದರೆ(ಸಿಕ್ಕಿತು_context){
 		/* Found a matching client */
-		if(!net__is_connected(found_context)){
+		ಆದರೆ(!net__is_connected(ಸಿಕ್ಕಿತು_context)){
 			/* Client is reconnecting after a disconnect */
 			/* FIXME - does anything need to be done here? */
-		}else{
+		}ಇಲ್ಲದಿದ್ದರೆ{
 			/* Client is already connected, disconnect old version. This is
 			 * done in context__cleanup() below. */
 		}
 
-		if(context->clean_start == true){
-			sub__clean_session(found_context);
-			found_context->session_expiry_interval = MQTT_SESSION_EXPIRY_IMMEDIATE;
-			plugin_persist__handle_client_delete(found_context);
+		ಆದರೆ(context->clean_ಆರಂಭ == true){
+			sub__clean_session(ಸಿಕ್ಕಿತು_context);
+			ಸಿಕ್ಕಿತು_context->session_expiry_interval = MQTT_SESSION_EXPIRY_ತಕ್ಷಣ;
+			plugin_persist__handle_client_delete(ಸಿಕ್ಕಿತು_context);
 		}
-		context->is_persisted = found_context->is_persisted;
-		found_context->is_persisted = false; /* stops persistence for context being removed */
+		context->is_persisted = ಸಿಕ್ಕಿತು_context->is_persisted;
+		ಸಿಕ್ಕಿತು_context->is_persisted = false; /* stops persistence for context being removed */
 
-		if(context->clean_start == false && found_context->session_expiry_interval != MQTT_SESSION_EXPIRY_IMMEDIATE){
-			if(context->protocol == mosq_p_mqtt311 || context->protocol == mosq_p_mqtt5){
+		ಆದರೆ(context->clean_ಆರಂಭ == false && ಸಿಕ್ಕಿತು_context->session_expiry_interval != MQTT_SESSION_EXPIRY_ತಕ್ಷಣ){
+			ಆದರೆ(context->protocol == mosq_p_mqtt311 || context->protocol == mosq_p_mqtt5){
 				connect_ack |= 0x01;
 			}
 
-			if(found_context->msgs_in.inflight || found_context->msgs_in.queued
-					|| found_context->msgs_out.inflight || found_context->msgs_out.queued){
+			ಆದರೆ(ಸಿಕ್ಕಿತು_context->msgs_ಒಳ.inflight || ಸಿಕ್ಕಿತು_context->msgs_ಒಳ.queued
+					|| ಸಿಕ್ಕಿತು_context->msgs_ಹೊರಹೋಗು.inflight || ಸಿಕ್ಕಿತು_context->msgs_ಹೊರಹೋಗು.queued){
 
-				in_quota = context->msgs_in.inflight_quota;
-				out_quota = context->msgs_out.inflight_quota;
-				in_maximum = context->msgs_in.inflight_maximum;
-				out_maximum = context->msgs_out.inflight_maximum;
+				ಒಳ_quota = context->msgs_ಒಳ.inflight_quota;
+				ಹೊರಹೋಗು_quota = context->msgs_ಹೊರಹೋಗು.inflight_quota;
+				ಒಳ_ಗರಿಷ್ಠ = context->msgs_ಒಳ.inflight_ಗರಿಷ್ಠ;
+				ಹೊರಹೋಗು_ಗರಿಷ್ಠ = context->msgs_ಹೊರಹೋಗು.inflight_ಗರಿಷ್ಠ;
 
-				memcpy(&context->msgs_in, &found_context->msgs_in, sizeof(struct mosquitto_msg_data));
-				memcpy(&context->msgs_out, &found_context->msgs_out, sizeof(struct mosquitto_msg_data));
-				context->last_cmsg_id = found_context->last_cmsg_id;
+				ಸ್ಮರಣೆ_ನಕಲು(&context->msgs_ಒಳ, &ಸಿಕ್ಕಿತು_context->msgs_ಒಳ, ಗಾತ್ರ(ರಚನೆ mosquitto_ಸಂದೇಶ_ದತ್ತಾಂಶ));
+				ಸ್ಮರಣೆ_ನಕಲು(&context->msgs_ಹೊರಹೋಗು, &ಸಿಕ್ಕಿತು_context->msgs_ಹೊರಹೋಗು, ಗಾತ್ರ(ರಚನೆ mosquitto_ಸಂದೇಶ_ದತ್ತಾಂಶ));
+				context->ಕೊನೆಯ_cmsg_id = ಸಿಕ್ಕಿತು_context->ಕೊನೆಯ_cmsg_id;
 
-				memset(&found_context->msgs_in, 0, sizeof(struct mosquitto_msg_data));
-				memset(&found_context->msgs_out, 0, sizeof(struct mosquitto_msg_data));
+				memset(&ಸಿಕ್ಕಿತು_context->msgs_ಒಳ, 0, ಗಾತ್ರ(ರಚನೆ mosquitto_ಸಂದೇಶ_ದತ್ತಾಂಶ));
+				memset(&ಸಿಕ್ಕಿತು_context->msgs_ಹೊರಹೋಗು, 0, ಗಾತ್ರ(ರಚನೆ mosquitto_ಸಂದೇಶ_ದತ್ತಾಂಶ));
 
-				context->msgs_in.inflight_quota = in_quota;
-				context->msgs_out.inflight_quota = out_quota;
-				context->msgs_in.inflight_maximum = in_maximum;
-				context->msgs_out.inflight_maximum = out_maximum;
+				context->msgs_ಒಳ.inflight_quota = ಒಳ_quota;
+				context->msgs_ಹೊರಹೋಗು.inflight_quota = ಹೊರಹೋಗು_quota;
+				context->msgs_ಒಳ.inflight_ಗರಿಷ್ಠ = ಒಳ_ಗರಿಷ್ಠ;
+				context->msgs_ಹೊರಹೋಗು.inflight_ಗರಿಷ್ಠ = ಹೊರಹೋಗು_ಗರಿಷ್ಠ;
 
-				db__message_reconnect_reset(context);
+				db_ಸಂದೇಶ_reconnect_reset(context);
 			}
-			context->subs = found_context->subs;
-			found_context->subs = NULL;
-			context->subs_capacity = found_context->subs_capacity;
-			context->subs_count = found_context->subs_count;
-			found_context->subs_capacity = 0;
-			found_context->subs_count = 0;
-			context->last_mid = found_context->last_mid;
+			context->subs = ಸಿಕ್ಕಿತು_context->subs;
+			ಸಿಕ್ಕಿತು_context->subs = ಖಾಲಿ;
+			context->subs_ಸಾಮರ್ಥ್ಯ = ಸಿಕ್ಕಿತು_context->subs_ಸಾಮರ್ಥ್ಯ;
+			context->subs_ಎಣಿಕೆ = ಸಿಕ್ಕಿತು_context->subs_ಎಣಿಕೆ;
+			ಸಿಕ್ಕಿತು_context->subs_ಸಾಮರ್ಥ್ಯ = 0;
+			ಸಿಕ್ಕಿತು_context->subs_ಎಣಿಕೆ = 0;
+			context->ಕೊನೆಯ_mid = ಸಿಕ್ಕಿತು_context->ಕೊನೆಯ_mid;
 
-			for(int i=0; i<context->subs_capacity; i++){
-				if(context->subs[i]){
-					leaf = context->subs[i]->hier->subs;
-					while(leaf){
-						if(leaf->context == found_context){
-							leaf->context = context;
+			ಗಾಗಿ(ಪೂರ್ಣಾಂಕ i=0; i<context->subs_ಸಾಮರ್ಥ್ಯ; i++){
+				ಆದರೆ(context->subs[i]){
+					ಎಲೆ = context->subs[i]->hier->subs;
+					ಆಗ(ಎಲೆ){
+						ಆದರೆ(ಎಲೆ->context == ಸಿಕ್ಕಿತು_context){
+							ಎಲೆ->context = context;
 						}
-						leaf = leaf->next;
+						ಎಲೆ = ಎಲೆ->ಮುಂದಿನ;
 					}
 
-					if(context->subs[i]->shared){
-						leaf = context->subs[i]->shared->subs;
-						while(leaf){
-							if(leaf->context == found_context){
-								leaf->context = context;
+					ಆದರೆ(context->subs[i]->shared){
+						ಎಲೆ = context->subs[i]->shared->subs;
+						ಆಗ(ಎಲೆ){
+							ಆದರೆ(ಎಲೆ->context == ಸಿಕ್ಕಿತು_context){
+								ಎಲೆ->context = context;
 							}
-							leaf = leaf->next;
+							ಎಲೆ = ಎಲೆ->ಮುಂದಿನ;
 						}
 					}
 				}
 			}
 		}
 
-		if((found_context->protocol == mosq_p_mqtt5 && found_context->session_expiry_interval == MQTT_SESSION_EXPIRY_IMMEDIATE)
-				|| (found_context->protocol != mosq_p_mqtt5 && found_context->clean_start == true)
-				|| (context->clean_start == true)
+		ಆದರೆ((ಸಿಕ್ಕಿತು_context->protocol == mosq_p_mqtt5 && ಸಿಕ್ಕಿತು_context->session_expiry_interval == MQTT_SESSION_EXPIRY_ತಕ್ಷಣ)
+				|| (ಸಿಕ್ಕಿತು_context->protocol != mosq_p_mqtt5 && ಸಿಕ್ಕಿತು_context->clean_ಆರಂಭ == true)
+				|| (context->clean_ಆರಂಭ == true)
 				){
 
-			context__send_will(found_context);
+			context__send_will(ಸಿಕ್ಕಿತು_context);
 		}
 
-		session_expiry__remove(found_context);
-		will_delay__remove(found_context);
-		will__clear(found_context);
+		session_expiry__remove(ಸಿಕ್ಕಿತು_context);
+		will_delay__remove(ಸಿಕ್ಕಿತು_context);
+		will__clear(ಸಿಕ್ಕಿತು_context);
 
-		found_context->clean_start = true;
-		found_context->session_expiry_interval = MQTT_SESSION_EXPIRY_IMMEDIATE;
-		mosquitto__set_state(found_context, mosq_cs_duplicate);
-		if(found_context->protocol == mosq_p_mqtt5){
-			send__disconnect(found_context, MQTT_RC_SESSION_TAKEN_OVER, NULL);
+		ಸಿಕ್ಕಿತು_context->clean_ಆರಂಭ = true;
+		ಸಿಕ್ಕಿತು_context->session_expiry_interval = MQTT_SESSION_EXPIRY_ತಕ್ಷಣ;
+		mosquitto_ಗಣ_state(ಸಿಕ್ಕಿತು_context, mosq_cs_duplicate);
+		ಆದರೆ(ಸಿಕ್ಕಿತು_context->protocol == mosq_p_mqtt5){
+			send__disconnect(ಸಿಕ್ಕಿತು_context, MQTT_RC_SESSION_ತೆಗೆದುಕೊಂಡ_OVER, ಖಾಲಿ);
 		}
-		do_disconnect(found_context, MOSQ_ERR_SESSION_TAKEN_OVER);
+		do_disconnect(ಸಿಕ್ಕಿತು_context, MOSQ_ERR_SESSION_ತೆಗೆದುಕೊಂಡ_OVER);
 	}
 
-	if(db.config->global_max_clients > 0 && HASH_CNT(hh_id, db.contexts_by_id) >= (unsigned int)db.config->global_max_clients){
-		if(context->protocol == mosq_p_mqtt5){
-			send__connack(context, 0, MQTT_RC_SERVER_BUSY, NULL);
+	ಆದರೆ(db.config->global_max_clients > 0 && HASH_CNT(hh_id, db.contexts_by_id) >= (ಚಿಹ್ನೆರಹಿತ ಪೂರ್ಣಾಂಕ)db.config->global_max_clients){
+		ಆದರೆ(context->protocol == mosq_p_mqtt5){
+			send__connack(context, 0, MQTT_RC_SERVER_BUSY, ಖಾಲಿ);
 		}
 		rc = MOSQ_ERR_INVAL;
-		goto error;
+		ಹೋಗು error;
 	}
 
-	if(db.config->connection_messages == true){
-		if(context->is_bridge){
-			if(context->username){
-				log__printf(NULL, MOSQ_LOG_NOTICE, "New bridge connected from %s:%d as %s (p%d, c%d, k%d, u'%s').",
-						context->address, context->remote_port, context->id, context->protocol, context->clean_start, context->keepalive, context->username);
-			}else{
-				log__printf(NULL, MOSQ_LOG_NOTICE, "New bridge connected from %s:%d as %s (p%d, c%d, k%d).",
-						context->address, context->remote_port, context->id, context->protocol, context->clean_start, context->keepalive);
+	ಆದರೆ(db.config->connection_messages == true){
+		ಆದರೆ(context->is_bridge){
+			ಆದರೆ(context->username){
+				log__printf(ಖಾಲಿ, MOSQ_LOG_NOTICE, "New bridge connected from %s:%d as %s (p%d, c%d, k%d, u'%s').",
+						context->ವಿಳಾಸ, context->remote_ಪೋರ್ಟ್, context->id, context->protocol, context->clean_ಆರಂಭ, context->keepalive, context->username);
+			}ಇಲ್ಲದಿದ್ದರೆ{
+				log__printf(ಖಾಲಿ, MOSQ_LOG_NOTICE, "New bridge connected from %s:%d as %s (p%d, c%d, k%d).",
+						context->ವಿಳಾಸ, context->remote_ಪೋರ್ಟ್, context->id, context->protocol, context->clean_ಆರಂಭ, context->keepalive);
 			}
-		}else{
-			if(context->username){
-				log__printf(NULL, MOSQ_LOG_NOTICE, "New client connected from %s:%d as %s (p%d, c%d, k%d, u'%s').",
-						context->address, context->remote_port, context->id, context->protocol, context->clean_start, context->keepalive, context->username);
-			}else{
-				log__printf(NULL, MOSQ_LOG_NOTICE, "New client connected from %s:%d as %s (p%d, c%d, k%d).",
-						context->address, context->remote_port, context->id, context->protocol, context->clean_start, context->keepalive);
+		}ಇಲ್ಲದಿದ್ದರೆ{
+			ಆದರೆ(context->username){
+				log__printf(ಖಾಲಿ, MOSQ_LOG_NOTICE, "New client connected from %s:%d as %s (p%d, c%d, k%d, u'%s').",
+						context->ವಿಳಾಸ, context->remote_ಪೋರ್ಟ್, context->id, context->protocol, context->clean_ಆರಂಭ, context->keepalive, context->username);
+			}ಇಲ್ಲದಿದ್ದರೆ{
+				log__printf(ಖಾಲಿ, MOSQ_LOG_NOTICE, "New client connected from %s:%d as %s (p%d, c%d, k%d).",
+						context->ವಿಳಾಸ, context->remote_ಪೋರ್ಟ್, context->id, context->protocol, context->clean_ಆರಂಭ, context->keepalive);
 			}
 		}
 
-		if(context->will){
-			log__printf(NULL, MOSQ_LOG_DEBUG, "Will message specified (%ld bytes) (r%d, q%d).",
-					(long)context->will->msg.payloadlen,
-					context->will->msg.retain,
-					context->will->msg.qos);
+		ಆದರೆ(context->will){
+			log__printf(ಖಾಲಿ, MOSQ_LOG_DEBUG, "Will message specified (%ld bytes) (r%d, q%d).",
+					(ದೀರ್ಘ)context->will->ಸಂದೇಶ.payloadlen,
+					context->will->ಸಂದೇಶ.retain,
+					context->will->ಸಂದೇಶ.qos);
 
-			log__printf(NULL, MOSQ_LOG_DEBUG, "\t%s", context->will->msg.topic);
-		}else{
-			log__printf(NULL, MOSQ_LOG_DEBUG, "No will message specified.");
+			log__printf(ಖಾಲಿ, MOSQ_LOG_DEBUG, "\t%s", context->will->ಸಂದೇಶ.topic);
+		}ಇಲ್ಲದಿದ್ದರೆ{
+			log__printf(ಖಾಲಿ, MOSQ_LOG_DEBUG, "No will message specified.");
 		}
 	}
-#ifdef WITH_TLS
-	if(context->ssl){
-		log__printf(NULL, MOSQ_LOG_NOTICE, "Client %s negotiated %s cipher %s",
+#ವ್ಯಾಖ್ಯಾನಿತವಾದರೆ WITH_TLS
+	ಆದರೆ(context->ssl){
+		log__printf(ಖಾಲಿ, MOSQ_LOG_NOTICE, "Client %s negotiated %s cipher %s",
 				context->id,
-				SSL_get_cipher_version(context->ssl),
+				SSL_get_cipher_ಆವೃತ್ತಿ(context->ssl),
 				SSL_get_cipher_name(context->ssl));
 	}
-#endif
+#ಆದರೆ_ಅಂತ್ಯ
 
 	context->ping_t = 0;
 	context->is_dropping = false;
 
 	/* Remove any queued messages that are no longer allowed through ACL,
 	 * assuming a possible change of username. */
-	db__check_acl_of_all_messages(context);
-	context__add_to_by_id(context);
+	db_check_acl_ದ_all_messages(context);
+	context_ಕೂಡಿಸು_ಗಮ್ಯ_by_id(context);
 
-#ifdef WITH_PERSISTENCE
-	if(!context->clean_start){
+#ವ್ಯಾಖ್ಯಾನಿತವಾದರೆ WITH_PERSISTENCE
+	ಆದರೆ(!context->clean_ಆರಂಭ){
 		db.persistence_changes++;
 	}
-#endif
+#ಆದರೆ_ಅಂತ್ಯ
 	context->max_qos = context->listener->max_qos;
 
-	if(db.config->max_keepalive &&
+	ಆದರೆ(db.config->max_keepalive &&
 			(context->keepalive > db.config->max_keepalive || context->keepalive == 0)){
 
 		keepalive__remove(context);
 		context->keepalive = db.config->max_keepalive;
-		keepalive__add(context);
-		if(context->protocol == mosq_p_mqtt5){
-			if(mosquitto_property_add_int16(&connack_props, MQTT_PROP_SERVER_KEEP_ALIVE, context->keepalive)){
+		keepalive_ಕೂಡಿಸು(context);
+		ಆದರೆ(context->protocol == mosq_p_mqtt5){
+			ಆದರೆ(mosquitto_property_ಕೂಡಿಸು_int16(&connack_props, MQTT_PROP_SERVER_KEEP_ALIVE, context->keepalive)){
 				rc = MOSQ_ERR_NOMEM;
-				goto error;
+				ಹೋಗು error;
 			}
-		}else{
-			send__connack(context, connect_ack, CONNACK_REFUSED_IDENTIFIER_REJECTED, NULL);
+		}ಇಲ್ಲದಿದ್ದರೆ{
+			send__connack(context, connect_ack, CONNACK_REFUSED_IDENTIFIER_REJECTED, ಖಾಲಿ);
 			rc = MOSQ_ERR_INVAL;
-			goto error;
+			ಹೋಗು error;
 		}
 	}
 
 
-	if(context->protocol == mosq_p_mqtt5){
-		if(context->listener->max_topic_alias > 0){
-			if(mosquitto_property_add_int16(&connack_props, MQTT_PROP_TOPIC_ALIAS_MAXIMUM, context->listener->max_topic_alias)){
+	ಆದರೆ(context->protocol == mosq_p_mqtt5){
+		ಆದರೆ(context->listener->max_topic_alias > 0){
+			ಆದರೆ(mosquitto_property_ಕೂಡಿಸು_int16(&connack_props, MQTT_PROP_TOPIC_ALIAS_ಗರಿಷ್ಠ, context->listener->max_topic_alias)){
 				rc = MOSQ_ERR_NOMEM;
-				goto error;
+				ಹೋಗು error;
 			}
 		}
-		if(context->assigned_id){
-			if(mosquitto_property_add_string(&connack_props, MQTT_PROP_ASSIGNED_CLIENT_IDENTIFIER, context->id)){
+		ಆದರೆ(context->assigned_id){
+			ಆದರೆ(mosquitto_property_ಕೂಡಿಸು_string(&connack_props, MQTT_PROP_ASSIGNED_CLIENT_IDENTIFIER, context->id)){
 				rc = MOSQ_ERR_NOMEM;
-				goto error;
+				ಹೋಗು error;
 			}
 		}
-		if(context->auth_method){
-			if(mosquitto_property_add_string(&connack_props, MQTT_PROP_AUTHENTICATION_METHOD, context->auth_method)){
+		ಆದರೆ(context->auth_ವಿಧಾನ){
+			ಆದರೆ(mosquitto_property_ಕೂಡಿಸು_string(&connack_props, MQTT_PROP_AUTHENTICATION_ವಿಧಾನ, context->auth_ವಿಧಾನ)){
 				rc = MOSQ_ERR_NOMEM;
-				goto error;
+				ಹೋಗು error;
 			}
 
-			if(auth_data_out && auth_data_out_len > 0){
-				if(mosquitto_property_add_binary(&connack_props, MQTT_PROP_AUTHENTICATION_DATA, auth_data_out, auth_data_out_len)){
+			ಆದರೆ(auth_ದತ್ತಾಂಶ_ಹೊರಹೋಗು && auth_ದತ್ತಾಂಶ_ಹೊರಹೋಗು_len > 0){
+				ಆದರೆ(mosquitto_property_ಕೂಡಿಸು_ದ್ವಿಮಾನ(&connack_props, MQTT_PROP_AUTHENTICATION_ದತ್ತಾಂಶ, auth_ದತ್ತಾಂಶ_ಹೊರಹೋಗು, auth_ದತ್ತಾಂಶ_ಹೊರಹೋಗು_len)){
 					rc = MOSQ_ERR_NOMEM;
-					goto error;
+					ಹೋಗು error;
 				}
 			}
 		}
 	}
-	SAFE_FREE(auth_data_out);
+	ಸುರಕ್ಷಿತ_FREE(auth_ದತ್ತಾಂಶ_ಹೊರಹೋಗು);
 
-	mosquitto__set_state(context, mosq_cs_active);
+	mosquitto_ಗಣ_state(context, mosq_cs_ಸಕ್ರಿಯ);
 	rc = send__connack(context, connect_ack, CONNACK_ACCEPTED, connack_props);
 	mosquitto_property_free_all(&connack_props);
-	if(rc){
-		return rc;
+	ಆದರೆ(rc){
+		ಹಿಂತಿರುಗಿ rc;
 	}
 	db__expire_all_messages(context);
-	rc = db__message_write_queued_out(context);
-	if(rc){
-		return rc;
+	rc = db_ಸಂದೇಶ_write_queued_ಹೊರಹೋಗು(context);
+	ಆದರೆ(rc){
+		ಹಿಂತಿರುಗಿ rc;
 	}
-	rc = db__message_write_inflight_out_all(context);
+	rc = db_ಸಂದೇಶ_write_inflight_ಹೊರಹೋಗು_all(context);
 
-	if(rc == MOSQ_ERR_SUCCESS){
+	ಆದರೆ(rc == MOSQ_ERR_SUCCESS){
 		plugin__handle_connect(context);
 
-		if(context->session_expiry_interval != MQTT_SESSION_EXPIRY_IMMEDIATE){
-			plugin_persist__handle_client_add(context);
-		}else if(context->will){
-			plugin_persist__handle_will_add(context);
+		ಆದರೆ(context->session_expiry_interval != MQTT_SESSION_EXPIRY_ತಕ್ಷಣ){
+			plugin_persist_handle_client_ಕೂಡಿಸು(context);
+		}ಇಲ್ಲದಿದ್ದರೆ ಆದರೆ(context->will){
+			plugin_persist_handle_will_ಕೂಡಿಸು(context);
 		}
 	}
-	return rc;
+	ಹಿಂತಿರುಗಿ rc;
 error:
-	SAFE_FREE(auth_data_out);
+	ಸುರಕ್ಷಿತ_FREE(auth_ದತ್ತಾಂಶ_ಹೊರಹೋಗು);
 	mosquitto_property_free_all(&connack_props);
-	return rc;
+	ಹಿಂತಿರುಗಿ rc;
 }
 
 
-static int will__read(struct mosquitto *context, const char *clientid, struct mosquitto_message_all **will, uint8_t will_qos, int will_retain)
+ಸ್ಥಿರ ಪೂರ್ಣಾಂಕ will__read(ರಚನೆ mosquitto *context, ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *clientid, ರಚನೆ mosquitto_ಸಂದೇಶ_all **will, uint8_t will_qos, ಪೂರ್ಣಾಂಕ will_retain)
 {
-	int rc = MOSQ_ERR_SUCCESS;
+	ಪೂರ್ಣಾಂಕ rc = MOSQ_ERR_SUCCESS;
 	size_t slen;
 	uint16_t tlen;
-	struct mosquitto_message_all *will_struct = NULL;
-	char *will_topic_mount = NULL;
+	ರಚನೆ mosquitto_ಸಂದೇಶ_all *will_struct = ಖಾಲಿ;
+	ಅಕ್ಷರ *will_topic_mount = ಖಾಲಿ;
 	uint16_t payloadlen;
-	mosquitto_property *properties = NULL;
+	mosquitto_property *properties = ಖಾಲಿ;
 
-	will_struct = mosquitto_calloc(1, sizeof(struct mosquitto_message_all));
-	if(!will_struct){
+	will_struct = mosquitto_calloc(1, ಗಾತ್ರ(ರಚನೆ mosquitto_ಸಂದೇಶ_all));
+	ಆದರೆ(!will_struct){
 		rc = MOSQ_ERR_NOMEM;
-		goto error_cleanup;
+		ಹೋಗು error_cleanup;
 	}
-	if(context->protocol == PROTOCOL_VERSION_v5){
-		rc = property__read_all(CMD_WILL, &context->in_packet, &properties);
-		if(rc){
-			goto error_cleanup;
+	ಆದರೆ(context->protocol == PROTOCOL_ಆವೃತ್ತಿ_v5){
+		rc = property__read_all(CMD_WILL, &context->ಒಳ_packet, &properties);
+		ಆದರೆ(rc){
+			ಹೋಗು error_cleanup;
 		}
 
 		rc = property__process_will(context, will_struct, &properties);
 		mosquitto_property_free_all(&properties);
-		if(rc){
-			goto error_cleanup;
+		ಆದರೆ(rc){
+			ಹೋಗು error_cleanup;
 		}
 	}
-	rc = packet__read_string(&context->in_packet, &will_struct->msg.topic, &tlen);
-	if(rc){
-		goto error_cleanup;
+	rc = packet__read_string(&context->ಒಳ_packet, &will_struct->ಸಂದೇಶ.topic, &tlen);
+	ಆದರೆ(rc){
+		ಹೋಗು error_cleanup;
 	}
-	if(!tlen){
-		log__printf(NULL, MOSQ_LOG_INFO, "Protocol error from %s: Will with empty topic.",
+	ಆದರೆ(!tlen){
+		log__printf(ಖಾಲಿ, MOSQ_LOG_INFO, "Protocol error from %s: Will with empty topic.",
 				context->id);
 		rc = MOSQ_ERR_PROTOCOL;
-		goto error_cleanup;
+		ಹೋಗು error_cleanup;
 	}
 
-	if(context->listener->mount_point){
-		slen = strlen(context->listener->mount_point) + strlen(will_struct->msg.topic) + 1;
+	ಆದರೆ(context->listener->mount_ಬಿಂದು){
+		slen = ಅಕ್ಷರಸರಣಿ_ಉದ್ದ(context->listener->mount_ಬಿಂದು) + ಅಕ್ಷರಸರಣಿ_ಉದ್ದ(will_struct->ಸಂದೇಶ.topic) + 1;
 		will_topic_mount = mosquitto_malloc(slen+1);
-		if(!will_topic_mount){
+		ಆದರೆ(!will_topic_mount){
 			rc = MOSQ_ERR_NOMEM;
-			goto error_cleanup;
+			ಹೋಗು error_cleanup;
 		}
 
-		snprintf(will_topic_mount, slen, "%s%s", context->listener->mount_point, will_struct->msg.topic);
+		snprintf(will_topic_mount, slen, "%s%s", context->listener->mount_ಬಿಂದು, will_struct->ಸಂದೇಶ.topic);
 		will_topic_mount[slen] = '\0';
 
-		mosquitto_FREE(will_struct->msg.topic);
-		will_struct->msg.topic = will_topic_mount;
+		mosquitto_FREE(will_struct->ಸಂದೇಶ.topic);
+		will_struct->ಸಂದೇಶ.topic = will_topic_mount;
 	}
 
-	if(!strncmp(will_struct->msg.topic, "$CONTROL/", strlen("$CONTROL/"))){
+	ಆದರೆ(!ಅಕ್ಷರಸರಣಿ_ಹೋಲಿಕೆ(will_struct->ಸಂದೇಶ.topic, "$CONTROL/", ಅಕ್ಷರಸರಣಿ_ಉದ್ದ("$CONTROL/"))){
 		rc = MOSQ_ERR_ACL_DENIED;
-		goto error_cleanup;
+		ಹೋಗು error_cleanup;
 	}
-	rc = mosquitto_pub_topic_check(will_struct->msg.topic);
-	if(rc){
-		goto error_cleanup;
-	}
-
-	rc = packet__read_uint16(&context->in_packet, &payloadlen);
-	if(rc){
-		goto error_cleanup;
+	rc = mosquitto_pub_topic_check(will_struct->ಸಂದೇಶ.topic);
+	ಆದರೆ(rc){
+		ಹೋಗು error_cleanup;
 	}
 
-	will_struct->msg.payloadlen = payloadlen;
-	if(will_struct->msg.payloadlen > 0){
-		if(db.config->message_size_limit && will_struct->msg.payloadlen > (int)db.config->message_size_limit){
-			log__printf(NULL, MOSQ_LOG_DEBUG, "Client %s connected with too large Will payload", clientid);
-			if(context->protocol == mosq_p_mqtt5){
-				send__connack(context, 0, MQTT_RC_PACKET_TOO_LARGE, NULL);
-			}else{
-				send__connack(context, 0, CONNACK_REFUSED_NOT_AUTHORIZED, NULL);
+	rc = packet__read_uint16(&context->ಒಳ_packet, &payloadlen);
+	ಆದರೆ(rc){
+		ಹೋಗು error_cleanup;
+	}
+
+	will_struct->ಸಂದೇಶ.payloadlen = payloadlen;
+	ಆದರೆ(will_struct->ಸಂದೇಶ.payloadlen > 0){
+		ಆದರೆ(db.config->ಸಂದೇಶ_ಗಾತ್ರ_ಎಲ್ಲೆ && will_struct->ಸಂದೇಶ.payloadlen > (ಪೂರ್ಣಾಂಕ)db.config->ಸಂದೇಶ_ಗಾತ್ರ_ಎಲ್ಲೆ){
+			log__printf(ಖಾಲಿ, MOSQ_LOG_DEBUG, "Client %s connected with too large Will payload", clientid);
+			ಆದರೆ(context->protocol == mosq_p_mqtt5){
+				send__connack(context, 0, MQTT_RC_PACKET_TOO_LARGE, ಖಾಲಿ);
+			}ಇಲ್ಲದಿದ್ದರೆ{
+				send__connack(context, 0, CONNACK_REFUSED_NOT_AUTHORIZED, ಖಾಲಿ);
 			}
-			rc = MOSQ_ERR_PAYLOAD_SIZE;
-			goto error_cleanup;
+			rc = MOSQ_ERR_PAYLOAD_ಗಾತ್ರ;
+			ಹೋಗು error_cleanup;
 		}
-		will_struct->msg.payload = mosquitto_malloc((size_t)will_struct->msg.payloadlen);
-		if(!will_struct->msg.payload){
+		will_struct->ಸಂದೇಶ.payload = mosquitto_malloc((size_t)will_struct->ಸಂದೇಶ.payloadlen);
+		ಆದರೆ(!will_struct->ಸಂದೇಶ.payload){
 			rc = MOSQ_ERR_NOMEM;
-			goto error_cleanup;
+			ಹೋಗು error_cleanup;
 		}
 
-		rc = packet__read_bytes(&context->in_packet, will_struct->msg.payload, (uint32_t)will_struct->msg.payloadlen);
-		if(rc){
-			goto error_cleanup;
+		rc = packet_read_ಬೈಟುಗಳು(&context->ಒಳ_packet, will_struct->ಸಂದೇಶ.payload, (uint32_t)will_struct->ಸಂದೇಶ.payloadlen);
+		ಆದರೆ(rc){
+			ಹೋಗು error_cleanup;
 		}
 	}
 
-	will_struct->msg.qos = will_qos;
-	will_struct->msg.retain = will_retain;
+	will_struct->ಸಂದೇಶ.qos = will_qos;
+	will_struct->ಸಂದೇಶ.retain = will_retain;
 
 	*will = will_struct;
-	return MOSQ_ERR_SUCCESS;
+	ಹಿಂತಿರುಗಿ MOSQ_ERR_SUCCESS;
 
 error_cleanup:
-	if(will_struct){
-		mosquitto_FREE(will_struct->msg.topic);
-		mosquitto_FREE(will_struct->msg.payload);
+	ಆದರೆ(will_struct){
+		mosquitto_FREE(will_struct->ಸಂದೇಶ.topic);
+		mosquitto_FREE(will_struct->ಸಂದೇಶ.payload);
 		mosquitto_property_free_all(&will_struct->properties);
 		mosquitto_FREE(will_struct);
 	}
-	return rc;
+	ಹಿಂತಿರುಗಿ rc;
 }
 
 
-static int check_protocol_version(struct mosquitto__listener *listener, int protocol_version)
+ಸ್ಥಿರ ಪೂರ್ಣಾಂಕ check_protocol_ಆವೃತ್ತಿ(ರಚನೆ mosquitto__listener *listener, ಪೂರ್ಣಾಂಕ protocol_ಆವೃತ್ತಿ)
 {
 	/* Allow bridge protocol as well. */
-	protocol_version &= 0x7F;
+	protocol_ಆವೃತ್ತಿ &= 0x7F;
 
-	if((protocol_version == 3 && listener->disable_protocol_v3 == false)
-			|| (protocol_version == 4 && listener->disable_protocol_v4 == false)
-			|| (protocol_version == 5 && listener->disable_protocol_v5 == false)
+	ಆದರೆ((protocol_ಆವೃತ್ತಿ == 3 && listener->disable_protocol_v3 == false)
+			|| (protocol_ಆವೃತ್ತಿ == 4 && listener->disable_protocol_v4 == false)
+			|| (protocol_ಆವೃತ್ತಿ == 5 && listener->disable_protocol_v5 == false)
 			){
 
-		return MOSQ_ERR_SUCCESS;
-	}else{
-		return MOSQ_ERR_NOT_SUPPORTED;
+		ಹಿಂತಿರುಗಿ MOSQ_ERR_SUCCESS;
+	}ಇಲ್ಲದಿದ್ದರೆ{
+		ಹಿಂತಿರುಗಿ MOSQ_ERR_NOT_SUPPORTED;
 	}
 }
 
 
-inline static int send__connack_error_and_return(struct mosquitto *context, uint8_t err_code, int rc)
+ಸಾಲೊಳಗೆ ಸ್ಥಿರ ಪೂರ್ಣಾಂಕ send__connack_error_and_return(ರಚನೆ mosquitto *context, uint8_t err_ಸಂಕೇತ, ಪೂರ್ಣಾಂಕ rc)
 {
-	send__connack(context, 0, err_code, NULL);
-	return rc;
+	send__connack(context, 0, err_ಸಂಕೇತ, ಖಾಲಿ);
+	ಹಿಂತಿರುಗಿ rc;
 }
 
 
-inline static int send__connack_bad_username_or_password_error(struct mosquitto *context, int rc)
+ಸಾಲೊಳಗೆ ಸ್ಥಿರ ಪೂರ್ಣಾಂಕ send__connack_bad_username_or_password_error(ರಚನೆ mosquitto *context, ಪೂರ್ಣಾಂಕ rc)
 {
-	uint8_t err_code  = context->protocol == mosq_p_mqtt5
+	uint8_t err_ಸಂಕೇತ  = context->protocol == mosq_p_mqtt5
 									? (uint8_t)MQTT_RC_BAD_USERNAME_OR_PASSWORD
 									: (uint8_t)CONNACK_REFUSED_BAD_USERNAME_PASSWORD;
-	return send__connack_error_and_return(context, err_code, rc);
+	ಹಿಂತಿರುಗಿ send__connack_error_and_return(context, err_ಸಂಕೇತ, rc);
 }
 
 
-static int read_protocol_name(struct mosquitto *context, char protocol_name[7])
+ಸ್ಥಿರ ಪೂರ್ಣಾಂಕ read_protocol_name(ರಚನೆ mosquitto *context, ಅಕ್ಷರ protocol_name[7])
 {
 	/* Read protocol name as length then bytes rather than with read_string
 	 * because the length is fixed and we can check that. Removes the need
@@ -480,691 +480,691 @@ static int read_protocol_name(struct mosquitto *context, char protocol_name[7])
 
 	uint16_t slen = 0;
 
-	if(packet__read_uint16(&context->in_packet, &slen)){
-		log__printf(NULL, MOSQ_LOG_INFO, "Protocol error from %s:%d: CONNECT with missing protocol string length.",
-				context->address, context->remote_port);
-		return MOSQ_ERR_PROTOCOL;
+	ಆದರೆ(packet__read_uint16(&context->ಒಳ_packet, &slen)){
+		log__printf(ಖಾಲಿ, MOSQ_LOG_INFO, "Protocol error from %s:%d: CONNECT with missing protocol string length.",
+				context->ವಿಳಾಸ, context->remote_ಪೋರ್ಟ್);
+		ಹಿಂತಿರುಗಿ MOSQ_ERR_PROTOCOL;
 	}
-	if(slen != 4 /* MQTT */ && slen != 6 /* MQIsdp */){
-		log__printf(NULL, MOSQ_LOG_INFO, "Protocol error from %s:%d: CONNECT with incorrect protocol string length (%d).",
-				context->address, context->remote_port, slen);
-		return MOSQ_ERR_PROTOCOL;
+	ಆದರೆ(slen != 4 /* MQTT */ && slen != 6 /* MQIsdp */){
+		log__printf(ಖಾಲಿ, MOSQ_LOG_INFO, "Protocol error from %s:%d: CONNECT with incorrect protocol string length (%d).",
+				context->ವಿಳಾಸ, context->remote_ಪೋರ್ಟ್, slen);
+		ಹಿಂತಿರುಗಿ MOSQ_ERR_PROTOCOL;
 	}
-	if(packet__read_bytes(&context->in_packet, protocol_name, slen)){
-		log__printf(NULL, MOSQ_LOG_INFO, "Protocol error from %s:%d: CONNECT with missing protocol string.",
-				context->address, context->remote_port);
-		return MOSQ_ERR_PROTOCOL;
+	ಆದರೆ(packet_read_ಬೈಟುಗಳು(&context->ಒಳ_packet, protocol_name, slen)){
+		log__printf(ಖಾಲಿ, MOSQ_LOG_INFO, "Protocol error from %s:%d: CONNECT with missing protocol string.",
+				context->ವಿಳಾಸ, context->remote_ಪೋರ್ಟ್);
+		ಹಿಂತಿರುಗಿ MOSQ_ERR_PROTOCOL;
 	}
 	protocol_name[slen] = '\0';
 
-	return MOSQ_ERR_SUCCESS;
+	ಹಿಂತಿರುಗಿ MOSQ_ERR_SUCCESS;
 }
 
 
-static int read_and_verify_protocol_version(struct mosquitto *context, const char *protocol_name,
-		uint8_t *protocol_version)
+ಸ್ಥಿರ ಪೂರ್ಣಾಂಕ read_and_verify_protocol_ಆವೃತ್ತಿ(ರಚನೆ mosquitto *context, ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *protocol_name,
+		uint8_t *protocol_ಆವೃತ್ತಿ)
 {
-	uint8_t tmp_protocol_version = 0;
-	if(packet__read_byte(&context->in_packet, &tmp_protocol_version)){
-		log__printf(NULL, MOSQ_LOG_INFO, "Protocol error from %s:%d: CONNECT with missing protocol version.",
-				context->address, context->remote_port);
-		return MOSQ_ERR_PROTOCOL;
+	uint8_t tmp_protocol_ಆವೃತ್ತಿ = 0;
+	ಆದರೆ(packet__read_byte(&context->ಒಳ_packet, &tmp_protocol_ಆವೃತ್ತಿ)){
+		log__printf(ಖಾಲಿ, MOSQ_LOG_INFO, "Protocol error from %s:%d: CONNECT with missing protocol version.",
+				context->ವಿಳಾಸ, context->remote_ಪೋರ್ಟ್);
+		ಹಿಂತಿರುಗಿ MOSQ_ERR_PROTOCOL;
 	}
 
-	if(check_protocol_version(context->listener, tmp_protocol_version)){
-		if(tmp_protocol_version == 3 || tmp_protocol_version == 4){
+	ಆದರೆ(check_protocol_ಆವೃತ್ತಿ(context->listener, tmp_protocol_ಆವೃತ್ತಿ)){
+		ಆದರೆ(tmp_protocol_ಆವೃತ್ತಿ == 3 || tmp_protocol_ಆವೃತ್ತಿ == 4){
 			context->protocol = mosq_p_mqtt311;
-			send__connack(context, 0, CONNACK_REFUSED_PROTOCOL_VERSION, NULL);
-		}else{
+			send__connack(context, 0, CONNACK_REFUSED_PROTOCOL_ಆವೃತ್ತಿ, ಖಾಲಿ);
+		}ಇಲ್ಲದಿದ್ದರೆ{
 			context->protocol = mosq_p_mqtt5;
-			send__connack(context, 0, MQTT_RC_UNSUPPORTED_PROTOCOL_VERSION, NULL);
+			send__connack(context, 0, MQTT_RC_UNSUPPORTED_PROTOCOL_ಆವೃತ್ತಿ, ಖಾಲಿ);
 		}
-		return MOSQ_ERR_NOT_SUPPORTED;
+		ಹಿಂತಿರುಗಿ MOSQ_ERR_NOT_SUPPORTED;
 	}
 
-	if(!strcmp(protocol_name, PROTOCOL_NAME_v31)){
-		if((tmp_protocol_version&0x7F) != PROTOCOL_VERSION_v31){
-			if(db.config->connection_messages == true){
-				log__printf(NULL, MOSQ_LOG_INFO, "Protocol error from %s:%d: CONNECT with invalid protocol version (%d).",
-						context->address, context->remote_port, tmp_protocol_version);
+	ಆದರೆ(!strcmp(protocol_name, PROTOCOL_NAME_v31)){
+		ಆದರೆ((tmp_protocol_ಆವೃತ್ತಿ&0x7F) != PROTOCOL_ಆವೃತ್ತಿ_v31){
+			ಆದರೆ(db.config->connection_messages == true){
+				log__printf(ಖಾಲಿ, MOSQ_LOG_INFO, "Protocol error from %s:%d: CONNECT with invalid protocol version (%d).",
+						context->ವಿಳಾಸ, context->remote_ಪೋರ್ಟ್, tmp_protocol_ಆವೃತ್ತಿ);
 			}
-			send__connack(context, 0, CONNACK_REFUSED_PROTOCOL_VERSION, NULL);
-			return MOSQ_ERR_PROTOCOL;
+			send__connack(context, 0, CONNACK_REFUSED_PROTOCOL_ಆವೃತ್ತಿ, ಖಾಲಿ);
+			ಹಿಂತಿರುಗಿ MOSQ_ERR_PROTOCOL;
 		}
 		context->protocol = mosq_p_mqtt31;
-		if((tmp_protocol_version&0x80) == 0x80){
+		ಆದರೆ((tmp_protocol_ಆವೃತ್ತಿ&0x80) == 0x80){
 			context->is_bridge = true;
 		}
-	}else if(!strcmp(protocol_name, PROTOCOL_NAME)){
-		if((tmp_protocol_version&0x7F) == PROTOCOL_VERSION_v311){
+	}ಇಲ್ಲದಿದ್ದರೆ ಆದರೆ(!strcmp(protocol_name, PROTOCOL_NAME)){
+		ಆದರೆ((tmp_protocol_ಆವೃತ್ತಿ&0x7F) == PROTOCOL_ಆವೃತ್ತಿ_v311){
 			context->protocol = mosq_p_mqtt311;
 
-			if((tmp_protocol_version&0x80) == 0x80){
+			ಆದರೆ((tmp_protocol_ಆವೃತ್ತಿ&0x80) == 0x80){
 				context->is_bridge = true;
 			}
-		}else if((tmp_protocol_version&0x7F) == PROTOCOL_VERSION_v5){
+		}ಇಲ್ಲದಿದ್ದರೆ ಆದರೆ((tmp_protocol_ಆವೃತ್ತಿ&0x7F) == PROTOCOL_ಆವೃತ್ತಿ_v5){
 			context->protocol = mosq_p_mqtt5;
-		}else{
-			if(db.config->connection_messages == true){
-				log__printf(NULL, MOSQ_LOG_INFO, "Protocol error from %s:%d: CONNECT with invalid protocol version (%d).",
-						context->address, context->remote_port, tmp_protocol_version);
+		}ಇಲ್ಲದಿದ್ದರೆ{
+			ಆದರೆ(db.config->connection_messages == true){
+				log__printf(ಖಾಲಿ, MOSQ_LOG_INFO, "Protocol error from %s:%d: CONNECT with invalid protocol version (%d).",
+						context->ವಿಳಾಸ, context->remote_ಪೋರ್ಟ್, tmp_protocol_ಆವೃತ್ತಿ);
 			}
-			send__connack(context, 0, CONNACK_REFUSED_PROTOCOL_VERSION, NULL);
-			return MOSQ_ERR_PROTOCOL;
+			send__connack(context, 0, CONNACK_REFUSED_PROTOCOL_ಆವೃತ್ತಿ, ಖಾಲಿ);
+			ಹಿಂತಿರುಗಿ MOSQ_ERR_PROTOCOL;
 		}
-		if((context->in_packet.command&0x0F) != 0x00){
+		ಆದರೆ((context->ಒಳ_packet.command&0x0F) != 0x00){
 			/* Reserved flags not set to 0, must disconnect. */
-			log__printf(NULL, MOSQ_LOG_INFO, "Protocol error from %s:%d: CONNECT with non-zero reserved flags (%02X).",
-					context->address, context->remote_port, context->in_packet.command);
-			return MOSQ_ERR_PROTOCOL;
+			log__printf(ಖಾಲಿ, MOSQ_LOG_INFO, "Protocol error from %s:%d: CONNECT with non-zero reserved flags (%02X).",
+					context->ವಿಳಾಸ, context->remote_ಪೋರ್ಟ್, context->ಒಳ_packet.command);
+			ಹಿಂತಿರುಗಿ MOSQ_ERR_PROTOCOL;
 		}
-	}else{
-		if(db.config->connection_messages == true){
-			log__printf(NULL, MOSQ_LOG_INFO, "Protocol error from %s:%d: CONNECT with invalid protocol \"%s\".",
-					context->address, context->remote_port, protocol_name);
+	}ಇಲ್ಲದಿದ್ದರೆ{
+		ಆದರೆ(db.config->connection_messages == true){
+			log__printf(ಖಾಲಿ, MOSQ_LOG_INFO, "Protocol error from %s:%d: CONNECT with invalid protocol \"%s\".",
+					context->ವಿಳಾಸ, context->remote_ಪೋರ್ಟ್, protocol_name);
 		}
-		return MOSQ_ERR_PROTOCOL;
+		ಹಿಂತಿರುಗಿ MOSQ_ERR_PROTOCOL;
 	}
-	if((tmp_protocol_version&0x7F) != PROTOCOL_VERSION_v31 && context->in_packet.command != CMD_CONNECT){
-		return MOSQ_ERR_MALFORMED_PACKET;
+	ಆದರೆ((tmp_protocol_ಆವೃತ್ತಿ&0x7F) != PROTOCOL_ಆವೃತ್ತಿ_v31 && context->ಒಳ_packet.command != CMD_CONNECT){
+		ಹಿಂತಿರುಗಿ MOSQ_ERR_MALFORMED_PACKET;
 	}
 
-	*protocol_version = tmp_protocol_version;
-	return MOSQ_ERR_SUCCESS;
+	*protocol_ಆವೃತ್ತಿ = tmp_protocol_ಆವೃತ್ತಿ;
+	ಹಿಂತಿರುಗಿ MOSQ_ERR_SUCCESS;
 }
 
 
-static int read_and_verify_connect_flags(struct mosquitto *context, uint8_t *connect_flags)
+ಸ್ಥಿರ ಪೂರ್ಣಾಂಕ read_and_verify_connect_flags(ರಚನೆ mosquitto *context, uint8_t *connect_flags)
 {
-	if(packet__read_byte(&context->in_packet, connect_flags)){
-		log__printf(NULL, MOSQ_LOG_INFO, "Protocol error from %s:%d: CONNECT with missing connect flags.",
-				context->address, context->remote_port);
-		return MOSQ_ERR_PROTOCOL;
+	ಆದರೆ(packet__read_byte(&context->ಒಳ_packet, connect_flags)){
+		log__printf(ಖಾಲಿ, MOSQ_LOG_INFO, "Protocol error from %s:%d: CONNECT with missing connect flags.",
+				context->ವಿಳಾಸ, context->remote_ಪೋರ್ಟ್);
+		ಹಿಂತಿರುಗಿ MOSQ_ERR_PROTOCOL;
 	}
-	if(context->protocol == mosq_p_mqtt311 || context->protocol == mosq_p_mqtt5){
-		if((*connect_flags & 0x01) != 0x00){
-			log__printf(NULL, MOSQ_LOG_INFO, "Protocol error from %s:%d: CONNECT with non-zero connect reserved flag (%02X).",
-					context->address, context->remote_port, *connect_flags);
-			return MOSQ_ERR_PROTOCOL;
+	ಆದರೆ(context->protocol == mosq_p_mqtt311 || context->protocol == mosq_p_mqtt5){
+		ಆದರೆ((*connect_flags & 0x01) != 0x00){
+			log__printf(ಖಾಲಿ, MOSQ_LOG_INFO, "Protocol error from %s:%d: CONNECT with non-zero connect reserved flag (%02X).",
+					context->ವಿಳಾಸ, context->remote_ಪೋರ್ಟ್, *connect_flags);
+			ಹಿಂತಿರುಗಿ MOSQ_ERR_PROTOCOL;
 		}
 	}
 
-	return MOSQ_ERR_SUCCESS;
+	ಹಿಂತಿರುಗಿ MOSQ_ERR_SUCCESS;
 }
 
 
-static void set_session_expiry_interval(struct mosquitto *context, uint8_t clean_start, uint8_t protocol_version)
+ಸ್ಥಿರ ಶೂನ್ಯ ಗಣ_session_expiry_interval(ರಚನೆ mosquitto *context, uint8_t clean_ಆರಂಭ, uint8_t protocol_ಆವೃತ್ತಿ)
 {
 	/* session_expiry_interval will be overridden if the properties are read later */
-	if(clean_start == false && protocol_version != PROTOCOL_VERSION_v5){
+	ಆದರೆ(clean_ಆರಂಭ == false && protocol_ಆವೃತ್ತಿ != PROTOCOL_ಆವೃತ್ತಿ_v5){
 		/* v3* has clean_start == false mean the session never expires */
 		context->session_expiry_interval = MQTT_SESSION_EXPIRY_NEVER;
-	}else{
-		context->session_expiry_interval = MQTT_SESSION_EXPIRY_IMMEDIATE;
+	}ಇಲ್ಲದಿದ್ದರೆ{
+		context->session_expiry_interval = MQTT_SESSION_EXPIRY_ತಕ್ಷಣ;
 	}
 }
 
 
-static int read_and_reset_keepalive(struct mosquitto *context)
+ಸ್ಥಿರ ಪೂರ್ಣಾಂಕ read_and_reset_keepalive(ರಚನೆ mosquitto *context)
 {
 	/* _remove here because net__socket_accept() uses _add and we must have the
 	 * correct keepalive value */
 	keepalive__remove(context);
 
-	if(packet__read_uint16(&context->in_packet, &(context->keepalive))){
-		log__printf(NULL, MOSQ_LOG_INFO, "%s sent CONNECT with missing keepalive.",
+	ಆದರೆ(packet__read_uint16(&context->ಒಳ_packet, &(context->keepalive))){
+		log__printf(ಖಾಲಿ, MOSQ_LOG_INFO, "%s sent CONNECT with missing keepalive.",
 				context->id);
-		return MOSQ_ERR_PROTOCOL;
+		ಹಿಂತಿರುಗಿ MOSQ_ERR_PROTOCOL;
 	}
-	keepalive__add(context);
+	keepalive_ಕೂಡಿಸು(context);
 
-	return MOSQ_ERR_SUCCESS;
+	ಹಿಂತಿರುಗಿ MOSQ_ERR_SUCCESS;
 }
 
 
-static int read_and_verify_v5_connect_properties(struct mosquitto *context, mosquitto_property **properties, uint8_t protocol_version)
+ಸ್ಥಿರ ಪೂರ್ಣಾಂಕ read_and_verify_v5_connect_properties(ರಚನೆ mosquitto *context, mosquitto_property **properties, uint8_t protocol_ಆವೃತ್ತಿ)
 {
-	int rc;
+	ಪೂರ್ಣಾಂಕ rc;
 
-	if(protocol_version == PROTOCOL_VERSION_v5){
-		rc = property__read_all(CMD_CONNECT, &context->in_packet, properties);
-		if(rc == MOSQ_ERR_DUPLICATE_PROPERTY || rc == MOSQ_ERR_PROTOCOL){
-			send__connack(context, 0, MQTT_RC_PROTOCOL_ERROR, NULL);
-		}else if(rc == MOSQ_ERR_MALFORMED_PACKET){
-			send__connack(context, 0, MQTT_RC_MALFORMED_PACKET, NULL);
+	ಆದರೆ(protocol_ಆವೃತ್ತಿ == PROTOCOL_ಆವೃತ್ತಿ_v5){
+		rc = property__read_all(CMD_CONNECT, &context->ಒಳ_packet, properties);
+		ಆದರೆ(rc == MOSQ_ERR_DUPLICATE_PROPERTY || rc == MOSQ_ERR_PROTOCOL){
+			send__connack(context, 0, MQTT_RC_PROTOCOL_ERROR, ಖಾಲಿ);
+		}ಇಲ್ಲದಿದ್ದರೆ ಆದರೆ(rc == MOSQ_ERR_MALFORMED_PACKET){
+			send__connack(context, 0, MQTT_RC_MALFORMED_PACKET, ಖಾಲಿ);
 		}
-		if(rc){
-			return rc;
+		ಆದರೆ(rc){
+			ಹಿಂತಿರುಗಿ rc;
 		}
 	}
 	rc = property__process_connect(context, properties);
-	if(rc != MOSQ_ERR_SUCCESS){
-		return send__connack_error_and_return(context, MQTT_RC_PROTOCOL_ERROR, rc);
+	ಆದರೆ(rc != MOSQ_ERR_SUCCESS){
+		ಹಿಂತಿರುಗಿ send__connack_error_and_return(context, MQTT_RC_PROTOCOL_ERROR, rc);
 	}
 
-	return MOSQ_ERR_SUCCESS;
+	ಹಿಂತಿರುಗಿ MOSQ_ERR_SUCCESS;
 }
 
 
-static int verify_will_options(struct mosquitto *context, uint8_t will, uint8_t will_qos, uint8_t will_retain, uint8_t protocol_version)
+ಸ್ಥಿರ ಪೂರ್ಣಾಂಕ verify_will_options(ರಚನೆ mosquitto *context, uint8_t will, uint8_t will_qos, uint8_t will_retain, uint8_t protocol_ಆವೃತ್ತಿ)
 {
-	if(will_qos == 3){
-		log__printf(NULL, MOSQ_LOG_INFO, "Protocol error from %s:%d: CONNECT with invalid Will QoS (%d).",
-				context->address, context->remote_port, will_qos);
-		return MOSQ_ERR_PROTOCOL;
+	ಆದರೆ(will_qos == 3){
+		log__printf(ಖಾಲಿ, MOSQ_LOG_INFO, "Protocol error from %s:%d: CONNECT with invalid Will QoS (%d).",
+				context->ವಿಳಾಸ, context->remote_ಪೋರ್ಟ್, will_qos);
+		ಹಿಂತಿರುಗಿ MOSQ_ERR_PROTOCOL;
 	}
 
-	if(will && will_retain && db.config->retain_available == false){
-		if(protocol_version == mosq_p_mqtt5){
-			send__connack(context, 0, MQTT_RC_RETAIN_NOT_SUPPORTED, NULL);
+	ಆದರೆ(will && will_retain && db.config->retain_ಲಭ್ಯ == false){
+		ಆದರೆ(protocol_ಆವೃತ್ತಿ == mosq_p_mqtt5){
+			send__connack(context, 0, MQTT_RC_RETAIN_NOT_SUPPORTED, ಖಾಲಿ);
 		}
-		return MOSQ_ERR_NOT_SUPPORTED;
+		ಹಿಂತಿರುಗಿ MOSQ_ERR_NOT_SUPPORTED;
 	}
 
-	if(will && will_qos > context->listener->max_qos){
-		if(protocol_version == mosq_p_mqtt5){
-			send__connack(context, 0, MQTT_RC_QOS_NOT_SUPPORTED, NULL);
+	ಆದರೆ(will && will_qos > context->listener->max_qos){
+		ಆದರೆ(protocol_ಆವೃತ್ತಿ == mosq_p_mqtt5){
+			send__connack(context, 0, MQTT_RC_QOS_NOT_SUPPORTED, ಖಾಲಿ);
 		}
-		return MOSQ_ERR_NOT_SUPPORTED;
+		ಹಿಂತಿರುಗಿ MOSQ_ERR_NOT_SUPPORTED;
 	}
 
-	return MOSQ_ERR_SUCCESS;
+	ಹಿಂತಿರುಗಿ MOSQ_ERR_SUCCESS;
 }
 
 
-static int handle_zero_length_clientid(struct mosquitto *context, char **clientid, bool *allow_zero_length_clientid,
-		uint8_t clean_start)
+ಸ್ಥಿರ ಪೂರ್ಣಾಂಕ handle_zero_ಉದ್ದಳತೆ_clientid(ರಚನೆ mosquitto *context, ಅಕ್ಷರ **clientid, bool *allow_zero_ಉದ್ದಳತೆ_clientid,
+		uint8_t clean_ಆರಂಭ)
 {
-	if(context->protocol == mosq_p_mqtt31){
-		log__printf(NULL, MOSQ_LOG_INFO, "Protocol error from %s:%d: v3.1 CONNECT with zero length clientid.",
-				context->address, context->remote_port);
-		send__connack(context, 0, CONNACK_REFUSED_IDENTIFIER_REJECTED, NULL);
-		return MOSQ_ERR_PROTOCOL;
+	ಆದರೆ(context->protocol == mosq_p_mqtt31){
+		log__printf(ಖಾಲಿ, MOSQ_LOG_INFO, "Protocol error from %s:%d: v3.1 CONNECT with zero length clientid.",
+				context->ವಿಳಾಸ, context->remote_ಪೋರ್ಟ್);
+		send__connack(context, 0, CONNACK_REFUSED_IDENTIFIER_REJECTED, ಖಾಲಿ);
+		ಹಿಂತಿರುಗಿ MOSQ_ERR_PROTOCOL;
 	}
 
 	/* mqtt311/mqtt5 */
 	mosquitto_FREE(*clientid);
 
-	if(db.config->per_listener_settings){
-		*allow_zero_length_clientid = context->listener->security_options->allow_zero_length_clientid;
-	}else{
-		*allow_zero_length_clientid = db.config->security_options.allow_zero_length_clientid;
+	ಆದರೆ(db.config->ಪ್ರತಿ_listener_settings){
+		*allow_zero_ಉದ್ದಳತೆ_clientid = context->listener->security_options->allow_zero_ಉದ್ದಳತೆ_clientid;
+	}ಇಲ್ಲದಿದ್ದರೆ{
+		*allow_zero_ಉದ್ದಳತೆ_clientid = db.config->security_options.allow_zero_ಉದ್ದಳತೆ_clientid;
 	}
 
-	if((context->protocol == mosq_p_mqtt311 && clean_start == 0) || *allow_zero_length_clientid == false){
-		log__printf(NULL, MOSQ_LOG_INFO, "Protocol error from %s:%d: CONNECT with zero length clientid when forbidden.",
-				context->address, context->remote_port);
-		uint8_t err_code = context->protocol == mosq_p_mqtt311 ? (uint8_t)CONNACK_REFUSED_IDENTIFIER_REJECTED : (uint8_t)MQTT_RC_UNSPECIFIED;
-		return send__connack_error_and_return(context, err_code, MOSQ_ERR_PROTOCOL);
+	ಆದರೆ((context->protocol == mosq_p_mqtt311 && clean_ಆರಂಭ == 0) || *allow_zero_ಉದ್ದಳತೆ_clientid == false){
+		log__printf(ಖಾಲಿ, MOSQ_LOG_INFO, "Protocol error from %s:%d: CONNECT with zero length clientid when forbidden.",
+				context->ವಿಳಾಸ, context->remote_ಪೋರ್ಟ್);
+		uint8_t err_ಸಂಕೇತ = context->protocol == mosq_p_mqtt311 ? (uint8_t)CONNACK_REFUSED_IDENTIFIER_REJECTED : (uint8_t)MQTT_RC_UNSPECIFIED;
+		ಹಿಂತಿರುಗಿ send__connack_error_and_return(context, err_ಸಂಕೇತ, MOSQ_ERR_PROTOCOL);
 	}
 
-	*clientid = clientid_gen(&(uint16_t){0}, context->listener->security_options->auto_id_prefix,
-			context->listener->security_options->auto_id_prefix_len);
-	if(*clientid == NULL){
-		return MOSQ_ERR_NOMEM;
+	*clientid = clientid_gen(&(uint16_t){0}, context->listener->security_options->auto_id_ಪೂರ್ವಪ್ರತ್ಯಯ,
+			context->listener->security_options->auto_id_ಪೂರ್ವಪ್ರತ್ಯಯ_len);
+	ಆದರೆ(*clientid == ಖಾಲಿ){
+		ಹಿಂತಿರುಗಿ MOSQ_ERR_NOMEM;
 	}
 	context->assigned_id = true;
 
-	return MOSQ_ERR_SUCCESS;
+	ಹಿಂತಿರುಗಿ MOSQ_ERR_SUCCESS;
 }
 
 
-static int check_clientid_prefixes(struct mosquitto *context, const char *clientid)
+ಸ್ಥಿರ ಪೂರ್ಣಾಂಕ check_clientid_prefixes(ರಚನೆ mosquitto *context, ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *clientid)
 {
-	if(db.config->clientid_prefixes){
-		if(strncmp(db.config->clientid_prefixes, clientid, strlen(db.config->clientid_prefixes))){
-			uint8_t err_code = context->protocol == mosq_p_mqtt5 ? (uint8_t)MQTT_RC_NOT_AUTHORIZED : (uint8_t)CONNACK_REFUSED_NOT_AUTHORIZED;
-			return send__connack_error_and_return(context, err_code, MOSQ_ERR_AUTH);
+	ಆದರೆ(db.config->clientid_prefixes){
+		ಆದರೆ(ಅಕ್ಷರಸರಣಿ_ಹೋಲಿಕೆ(db.config->clientid_prefixes, clientid, ಅಕ್ಷರಸರಣಿ_ಉದ್ದ(db.config->clientid_prefixes))){
+			uint8_t err_ಸಂಕೇತ = context->protocol == mosq_p_mqtt5 ? (uint8_t)MQTT_RC_NOT_AUTHORIZED : (uint8_t)CONNACK_REFUSED_NOT_AUTHORIZED;
+			ಹಿಂತಿರುಗಿ send__connack_error_and_return(context, err_ಸಂಕೇತ, MOSQ_ERR_AUTH);
 		}
 	}
-	return MOSQ_ERR_SUCCESS;
+	ಹಿಂತಿರುಗಿ MOSQ_ERR_SUCCESS;
 }
 
 
-static int read_and_verify_clientid_from_packet(struct mosquitto *context, char **clientid,
-		bool *allow_zero_length_clientid, uint8_t clean_start)
+ಸ್ಥಿರ ಪೂರ್ಣಾಂಕ read_and_verify_clientid_from_packet(ರಚನೆ mosquitto *context, ಅಕ್ಷರ **clientid,
+		bool *allow_zero_ಉದ್ದಳತೆ_clientid, uint8_t clean_ಆರಂಭ)
 {
-	int rc;
+	ಪೂರ್ಣಾಂಕ rc;
 	uint16_t slen;
 
-	rc = packet__read_string(&context->in_packet, clientid, &slen);
-	if(rc == MOSQ_ERR_MALFORMED_UTF8){
-		if(context->protocol == mosq_p_mqtt5){
-			send__connack(context, 0, MQTT_RC_CLIENTID_NOT_VALID, NULL);
+	rc = packet__read_string(&context->ಒಳ_packet, clientid, &slen);
+	ಆದರೆ(rc == MOSQ_ERR_MALFORMED_UTF8){
+		ಆದರೆ(context->protocol == mosq_p_mqtt5){
+			send__connack(context, 0, MQTT_RC_CLIENTID_NOT_VALID, ಖಾಲಿ);
 		}
-		return MOSQ_ERR_CLIENT_IDENTIFIER_NOT_VALID;
-	}else if(rc > 0){
-		return MOSQ_ERR_PROTOCOL;
+		ಹಿಂತಿರುಗಿ MOSQ_ERR_CLIENT_IDENTIFIER_NOT_VALID;
+	}ಇಲ್ಲದಿದ್ದರೆ ಆದರೆ(rc > 0){
+		ಹಿಂತಿರುಗಿ MOSQ_ERR_PROTOCOL;
 	}
 
-	if(slen == 0){
-		rc = handle_zero_length_clientid(context, clientid, allow_zero_length_clientid, clean_start);
-		if(rc != MOSQ_ERR_SUCCESS){
-			return rc;
+	ಆದರೆ(slen == 0){
+		rc = handle_zero_ಉದ್ದಳತೆ_clientid(context, clientid, allow_zero_ಉದ್ದಳತೆ_clientid, clean_ಆರಂಭ);
+		ಆದರೆ(rc != MOSQ_ERR_SUCCESS){
+			ಹಿಂತಿರುಗಿ rc;
 		}
 	}
 
 	rc = check_clientid_prefixes(context, *clientid);
-	if(rc != MOSQ_ERR_SUCCESS){
-		return rc;
+	ಆದರೆ(rc != MOSQ_ERR_SUCCESS){
+		ಹಿಂತಿರುಗಿ rc;
 	}
 
-	return MOSQ_ERR_SUCCESS;
+	ಹಿಂತಿರುಗಿ MOSQ_ERR_SUCCESS;
 }
 
 
-static int set_username_from_packet(struct mosquitto *context, char **username, const char *clientid)
+ಸ್ಥಿರ ಪೂರ್ಣಾಂಕ ಗಣ_username_from_packet(ರಚನೆ mosquitto *context, ಅಕ್ಷರ **username, ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *clientid)
 {
-	int rc;
+	ಪೂರ್ಣಾಂಕ rc;
 
-	rc = packet__read_string(&context->in_packet, username, &(uint16_t){0});
-	if(rc == MOSQ_ERR_NOMEM){
-		return MOSQ_ERR_NOMEM;
+	rc = packet__read_string(&context->ಒಳ_packet, username, &(uint16_t){0});
+	ಆದರೆ(rc == MOSQ_ERR_NOMEM){
+		ಹಿಂತಿರುಗಿ MOSQ_ERR_NOMEM;
 	}
-	if(rc != MOSQ_ERR_SUCCESS){
-		if(context->protocol == mosq_p_mqtt31){
+	ಆದರೆ(rc != MOSQ_ERR_SUCCESS){
+		ಆದರೆ(context->protocol == mosq_p_mqtt31){
 			/* Username flag given, but no username. Ignore. */
 			/* NOTE: Removed setting of username_flag to zero as it is unused afterwards */
-		}else{
-			log__printf(NULL, MOSQ_LOG_INFO, "Protocol error from %s: CONNECT with username flag but no username.",
+		}ಇಲ್ಲದಿದ್ದರೆ{
+			log__printf(ಖಾಲಿ, MOSQ_LOG_INFO, "Protocol error from %s: CONNECT with username flag but no username.",
 					clientid);
-			return MOSQ_ERR_PROTOCOL;
+			ಹಿಂತಿರುಗಿ MOSQ_ERR_PROTOCOL;
 		}
 	}
 
-	return MOSQ_ERR_SUCCESS;
+	ಹಿಂತಿರುಗಿ MOSQ_ERR_SUCCESS;
 }
 
 
-static int set_password_from_packet(struct mosquitto *context, char **password, uint16_t *password_len, const char *clientid)
+ಸ್ಥಿರ ಪೂರ್ಣಾಂಕ ಗಣ_password_from_packet(ರಚನೆ mosquitto *context, ಅಕ್ಷರ **password, uint16_t *password_len, ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *clientid)
 {
-	int rc;
+	ಪೂರ್ಣಾಂಕ rc;
 
-	rc = packet__read_binary(&context->in_packet, (uint8_t **)password, password_len);
-	if(rc == MOSQ_ERR_NOMEM){
-		return MOSQ_ERR_NOMEM;
+	rc = packet_read_ದ್ವಿಮಾನ(&context->ಒಳ_packet, (uint8_t **)password, password_len);
+	ಆದರೆ(rc == MOSQ_ERR_NOMEM){
+		ಹಿಂತಿರುಗಿ MOSQ_ERR_NOMEM;
 	}
 
-	if(rc == MOSQ_ERR_MALFORMED_PACKET){
-		if(context->protocol == mosq_p_mqtt31){
+	ಆದರೆ(rc == MOSQ_ERR_MALFORMED_PACKET){
+		ಆದರೆ(context->protocol == mosq_p_mqtt31){
 			/* Password flag given, but no password. Ignore. */
-		}else{
-			log__printf(NULL, MOSQ_LOG_INFO, "Protocol error from %s: CONNECT with password flag but no password.",
+		}ಇಲ್ಲದಿದ್ದರೆ{
+			log__printf(ಖಾಲಿ, MOSQ_LOG_INFO, "Protocol error from %s: CONNECT with password flag but no password.",
 					clientid);
-			return MOSQ_ERR_PROTOCOL;
+			ಹಿಂತಿರುಗಿ MOSQ_ERR_PROTOCOL;
 		}
 	}
 
-	return MOSQ_ERR_SUCCESS;
+	ಹಿಂತಿರುಗಿ MOSQ_ERR_SUCCESS;
 }
 
 
-static int read_and_verify_client_credentials_from_packet(struct mosquitto *context,
-		char **username, uint8_t username_flag,
-		char **password, uint16_t *password_len, uint8_t password_flag,
-		const char *clientid)
+ಸ್ಥಿರ ಪೂರ್ಣಾಂಕ read_and_verify_client_credentials_from_packet(ರಚನೆ mosquitto *context,
+		ಅಕ್ಷರ **username, uint8_t username_flag,
+		ಅಕ್ಷರ **password, uint16_t *password_len, uint8_t password_flag,
+		ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *clientid)
 {
-	int rc;
+	ಪೂರ್ಣಾಂಕ rc;
 
-	if(username_flag){
-		rc = set_username_from_packet(context, username, clientid);
-		if(rc != MOSQ_ERR_SUCCESS){
-			return rc;
+	ಆದರೆ(username_flag){
+		rc = ಗಣ_username_from_packet(context, username, clientid);
+		ಆದರೆ(rc != MOSQ_ERR_SUCCESS){
+			ಹಿಂತಿರುಗಿ rc;
 		}
-	}else{
-		if(context->protocol == mosq_p_mqtt311 || context->protocol == mosq_p_mqtt31){
-			if(password_flag){
+	}ಇಲ್ಲದಿದ್ದರೆ{
+		ಆದರೆ(context->protocol == mosq_p_mqtt311 || context->protocol == mosq_p_mqtt31){
+			ಆದರೆ(password_flag){
 				/* username_flag == 0 && password_flag == 1 is forbidden */
-				log__printf(NULL, MOSQ_LOG_ERR, "Protocol error from %s: password without username, closing connection.", clientid);
-				return MOSQ_ERR_PROTOCOL;
+				log__printf(ಖಾಲಿ, MOSQ_LOG_ERR, "Protocol error from %s: password without username, closing connection.", clientid);
+				ಹಿಂತಿರುಗಿ MOSQ_ERR_PROTOCOL;
 			}
 		}
 	}
-	if(password_flag){
-		rc = set_password_from_packet(context, password, password_len, clientid);
-		if(rc != MOSQ_ERR_SUCCESS){
-			return rc;
+	ಆದರೆ(password_flag){
+		rc = ಗಣ_password_from_packet(context, password, password_len, clientid);
+		ಆದರೆ(rc != MOSQ_ERR_SUCCESS){
+			ಹಿಂತಿರುಗಿ rc;
 		}
 	}
 
-	return MOSQ_ERR_SUCCESS;
+	ಹಿಂತಿರುಗಿ MOSQ_ERR_SUCCESS;
 }
 
 
-static int check_additional_trailing_data(struct mosquitto *context, uint8_t protocol_version)
+ಸ್ಥಿರ ಪೂರ್ಣಾಂಕ check_additional_trailing_ದತ್ತಾಂಶ(ರಚನೆ mosquitto *context, uint8_t protocol_ಆವೃತ್ತಿ)
 {
-	if(context->in_packet.pos != context->in_packet.remaining_length){
+	ಆದರೆ(context->ಒಳ_packet.pos != context->ಒಳ_packet.ಉಳಿದ_ಉದ್ದಳತೆ){
 		/* Surplus data at end of packet, this must be an error. */
-		log__printf(NULL, MOSQ_LOG_INFO, "Protocol error from %s: CONNECT packet with overlong remaining length (%d:%d).",
-				context->id, context->in_packet.pos, context->in_packet.remaining_length);
-		if(protocol_version == PROTOCOL_VERSION_v5){
-			send__connack(context, 0, MQTT_RC_MALFORMED_PACKET, NULL);
+		log__printf(ಖಾಲಿ, MOSQ_LOG_INFO, "Protocol error from %s: CONNECT packet with overlong remaining length (%d:%d).",
+				context->id, context->ಒಳ_packet.pos, context->ಒಳ_packet.ಉಳಿದ_ಉದ್ದಳತೆ);
+		ಆದರೆ(protocol_ಆವೃತ್ತಿ == PROTOCOL_ಆವೃತ್ತಿ_v5){
+			send__connack(context, 0, MQTT_RC_MALFORMED_PACKET, ಖಾಲಿ);
 		}
-		return MOSQ_ERR_PROTOCOL;
+		ಹಿಂತಿರುಗಿ MOSQ_ERR_PROTOCOL;
 	}
 
-	return MOSQ_ERR_SUCCESS;
+	ಹಿಂತಿರುಗಿ MOSQ_ERR_SUCCESS;
 }
 
-#ifdef WITH_TLS
+#ವ್ಯಾಖ್ಯಾನಿತವಾದರೆ WITH_TLS
 
 
-inline static int get_client_cert_and_subject_name(struct mosquitto *context, X509 **client_cert, X509_NAME **name)
+ಸಾಲೊಳಗೆ ಸ್ಥಿರ ಪೂರ್ಣಾಂಕ get_client_cert_and_subject_name(ರಚನೆ mosquitto *context, X509 **client_cert, X509_NAME **name)
 {
 	*client_cert = SSL_get_peer_certificate(context->ssl);
-	if(*client_cert == NULL){
-		return send__connack_bad_username_or_password_error(context, MOSQ_ERR_AUTH);
+	ಆದರೆ(*client_cert == ಖಾಲಿ){
+		ಹಿಂತಿರುಗಿ send__connack_bad_username_or_password_error(context, MOSQ_ERR_AUTH);
 	}
 
 	*name = X509_get_subject_name(*client_cert);
-	if(*name == NULL){
+	ಆದರೆ(*name == ಖಾಲಿ){
 		X509_free(*client_cert);
-		return send__connack_bad_username_or_password_error(context, MOSQ_ERR_AUTH);
+		ಹಿಂತಿರುಗಿ send__connack_bad_username_or_password_error(context, MOSQ_ERR_AUTH);
 	}
 
-	return MOSQ_ERR_SUCCESS;
+	ಹಿಂತಿರುಗಿ MOSQ_ERR_SUCCESS;
 }
 
 
-inline static int free_x509_and_send_connack_error(struct mosquitto *context, X509 *client_cert, int rc)
+ಸಾಲೊಳಗೆ ಸ್ಥಿರ ಪೂರ್ಣಾಂಕ free_x509_and_send_connack_error(ರಚನೆ mosquitto *context, X509 *client_cert, ಪೂರ್ಣಾಂಕ rc)
 {
 	X509_free(client_cert);
-	return send__connack_bad_username_or_password_error(context, rc);
+	ಹಿಂತಿರುಗಿ send__connack_bad_username_or_password_error(context, rc);
 }
 
 
-inline static int free_x509_and_BIO_and_send_connack_error(struct mosquitto *context, X509 *client_cert,
-		BIO *subject_name, int rc)
+ಸಾಲೊಳಗೆ ಸ್ಥಿರ ಪೂರ್ಣಾಂಕ free_x509_and_BIO_and_send_connack_error(ರಚನೆ mosquitto *context, X509 *client_cert,
+		BIO *subject_name, ಪೂರ್ಣಾಂಕ rc)
 {
 	BIO_free(subject_name);
-	return free_x509_and_send_connack_error(context, client_cert, rc);
+	ಹಿಂತಿರುಗಿ free_x509_and_send_connack_error(context, client_cert, rc);
 }
 
 
-static int set_username_from_cert_identity(struct mosquitto *context)
+ಸ್ಥಿರ ಪೂರ್ಣಾಂಕ ಗಣ_username_from_cert_ತಟಸ್ಥ(ರಚನೆ mosquitto *context)
 {
-	X509 *client_cert = NULL;
-	X509_NAME *name = NULL;
+	X509 *client_cert = ಖಾಲಿ;
+	X509_NAME *name = ಖಾಲಿ;
 
-	if(get_client_cert_and_subject_name(context, &client_cert, &name)){
-		return MOSQ_ERR_AUTH;
+	ಆದರೆ(get_client_cert_and_subject_name(context, &client_cert, &name)){
+		ಹಿಂತಿರುಗಿ MOSQ_ERR_AUTH;
 	}
 
-	int i = -1;
-	X509_NAME_ENTRY *name_entry = NULL;
+	ಪೂರ್ಣಾಂಕ i = -1;
+	X509_NAME_ನಮೂದು *name_ನಮೂದು = ಖಾಲಿ;
 
-	i = X509_NAME_get_index_by_NID(name, NID_commonName, -1);
-	if(i == -1){
-		return free_x509_and_send_connack_error(context, client_cert, MOSQ_ERR_AUTH);
+	i = X509_NAME_get_ಸೂಚ್ಯಂಕ_by_NID(name, NID_commonName, -1);
+	ಆದರೆ(i == -1){
+		ಹಿಂತಿರುಗಿ free_x509_and_send_connack_error(context, client_cert, MOSQ_ERR_AUTH);
 	}
-	name_entry = X509_NAME_get_entry(name, i);
-	if(!name_entry){
-		goto success;
+	name_ನಮೂದು = X509_NAME_get_ನಮೂದು(name, i);
+	ಆದರೆ(!name_ನಮೂದು){
+		ಹೋಗು success;
 	}
 
-	ASN1_STRING *name_asn1 = NULL;
-	name_asn1 = X509_NAME_ENTRY_get_data(name_entry);
-	if(name_asn1 == NULL){
-		return free_x509_and_send_connack_error(context, client_cert, MOSQ_ERR_AUTH);
+	ASN1_STRING *name_asn1 = ಖಾಲಿ;
+	name_asn1 = X509_NAME_ನಮೂದು_get_ದತ್ತಾಂಶ(name_ನಮೂದು);
+	ಆದರೆ(name_asn1 == ಖಾಲಿ){
+		ಹಿಂತಿರುಗಿ free_x509_and_send_connack_error(context, client_cert, MOSQ_ERR_AUTH);
 	}
-	const char *cert_identity = (const char *)ASN1_STRING_get0_data(name_asn1);
-	if(!cert_identity || mosquitto_validate_utf8(cert_identity, (int)strlen(cert_identity))){
-		return free_x509_and_send_connack_error(context, client_cert, MOSQ_ERR_AUTH);
+	ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *cert_ತಟಸ್ಥ = (ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *)ASN1_STRING_get0_ದತ್ತಾಂಶ(name_asn1);
+	ಆದರೆ(!cert_ತಟಸ್ಥ || mosquitto_validate_utf8(cert_ತಟಸ್ಥ, (ಪೂರ್ಣಾಂಕ)ಅಕ್ಷರಸರಣಿ_ಉದ್ದ(cert_ತಟಸ್ಥ))){
+		ಹಿಂತಿರುಗಿ free_x509_and_send_connack_error(context, client_cert, MOSQ_ERR_AUTH);
 	}
 	mosquitto_free(context->username);
-	context->username = mosquitto_strdup(cert_identity);
-	if(context->username == NULL){
-		return free_x509_and_send_connack_error(context, client_cert, MOSQ_ERR_NOMEM);
+	context->username = mosquitto_strdup(cert_ತಟಸ್ಥ);
+	ಆದರೆ(context->username == ಖಾಲಿ){
+		ಹಿಂತಿರುಗಿ free_x509_and_send_connack_error(context, client_cert, MOSQ_ERR_NOMEM);
 	}
 	/* Make sure there isn't an embedded NUL character in the CN */
-	if((size_t)ASN1_STRING_length(name_asn1) != strlen(context->username)){
-		return free_x509_and_send_connack_error(context, client_cert, MOSQ_ERR_AUTH);
+	ಆದರೆ((size_t)ASN1_STRING_ಉದ್ದಳತೆ(name_asn1) != ಅಕ್ಷರಸರಣಿ_ಉದ್ದ(context->username)){
+		ಹಿಂತಿರುಗಿ free_x509_and_send_connack_error(context, client_cert, MOSQ_ERR_AUTH);
 	}
 
 success:
 	X509_free(client_cert);
-	client_cert = NULL;
-	return MOSQ_ERR_SUCCESS;
+	client_cert = ಖಾಲಿ;
+	ಹಿಂತಿರುಗಿ MOSQ_ERR_SUCCESS;
 }
 
 
-static int set_username_from_cert_subject_name(struct mosquitto *context)
+ಸ್ಥಿರ ಪೂರ್ಣಾಂಕ ಗಣ_username_from_cert_subject_name(ರಚನೆ mosquitto *context)
 {
-	X509 *client_cert = NULL;
-	X509_NAME *name = NULL;
+	X509 *client_cert = ಖಾಲಿ;
+	X509_NAME *name = ಖಾಲಿ;
 
-	if(get_client_cert_and_subject_name(context, &client_cert, &name)){
-		return MOSQ_ERR_AUTH;
+	ಆದರೆ(get_client_cert_and_subject_name(context, &client_cert, &name)){
+		ಹಿಂತಿರುಗಿ MOSQ_ERR_AUTH;
 	}
 
-	char *subject = NULL;
-	char *data_start = NULL;
-	BIO *subject_bio = NULL;
-	long name_length = 0;
+	ಅಕ್ಷರ *subject = ಖಾಲಿ;
+	ಅಕ್ಷರ *ದತ್ತಾಂಶ_ಆರಂಭ = ಖಾಲಿ;
+	BIO *subject_bio = ಖಾಲಿ;
+	ದೀರ್ಘ name_ಉದ್ದಳತೆ = 0;
 
 	subject_bio = BIO_new(BIO_s_mem());
 	X509_NAME_print_ex(subject_bio, X509_get_subject_name(client_cert), 0, XN_FLAG_RFC2253);
-	data_start = NULL;
-	name_length = BIO_get_mem_data(subject_bio, &data_start);
-	subject = mosquitto_malloc(sizeof(char)*(size_t)(name_length+1));
-	if(!subject){
-		return free_x509_and_BIO_and_send_connack_error(context, client_cert, subject_bio, MOSQ_ERR_NOMEM);
+	ದತ್ತಾಂಶ_ಆರಂಭ = ಖಾಲಿ;
+	name_ಉದ್ದಳತೆ = BIO_get_mem_ದತ್ತಾಂಶ(subject_bio, &ದತ್ತಾಂಶ_ಆರಂಭ);
+	subject = mosquitto_malloc(ಗಾತ್ರ(ಅಕ್ಷರ)*(size_t)(name_ಉದ್ದಳತೆ+1));
+	ಆದರೆ(!subject){
+		ಹಿಂತಿರುಗಿ free_x509_and_BIO_and_send_connack_error(context, client_cert, subject_bio, MOSQ_ERR_NOMEM);
 	}
-	memcpy(subject, data_start, (size_t)name_length);
-	subject[name_length] = '\0';
+	ಸ್ಮರಣೆ_ನಕಲು(subject, ದತ್ತಾಂಶ_ಆರಂಭ, (size_t)name_ಉದ್ದಳತೆ);
+	subject[name_ಉದ್ದಳತೆ] = '\0';
 	BIO_free(subject_bio);
 
-	if(mosquitto_validate_utf8(subject, (int)strlen(subject))){
+	ಆದರೆ(mosquitto_validate_utf8(subject, (ಪೂರ್ಣಾಂಕ)ಅಕ್ಷರಸರಣಿ_ಉದ್ದ(subject))){
 		mosquitto_free(subject);
-		return free_x509_and_send_connack_error(context, client_cert, MOSQ_ERR_AUTH);
+		ಹಿಂತಿರುಗಿ free_x509_and_send_connack_error(context, client_cert, MOSQ_ERR_AUTH);
 	}
 	context->username = subject;
-	if(!context->username){
+	ಆದರೆ(!context->username){
 		X509_free(client_cert);
-		return MOSQ_ERR_AUTH;
+		ಹಿಂತಿರುಗಿ MOSQ_ERR_AUTH;
 	}
 
 	X509_free(client_cert);
-	client_cert = NULL;
-	return MOSQ_ERR_SUCCESS;
+	client_cert = ಖಾಲಿ;
+	ಹಿಂತಿರುಗಿ MOSQ_ERR_SUCCESS;
 }
-#endif
+#ಆದರೆ_ಅಂತ್ಯ
 
 
-static int handle_username_from_cert_options(struct mosquitto *context, char **username, char **password, uint16_t password_len)
+ಸ್ಥಿರ ಪೂರ್ಣಾಂಕ handle_username_from_cert_options(ರಚನೆ mosquitto *context, ಅಕ್ಷರ **username, ಅಕ್ಷರ **password, uint16_t password_len)
 {
-	int rc;
+	ಪೂರ್ಣಾಂಕ rc;
 
-#ifdef WITH_TLS
-	if(context->listener->ssl_ctx && (context->listener->use_identity_as_username || context->listener->use_subject_as_username)){
+#ವ್ಯಾಖ್ಯಾನಿತವಾದರೆ WITH_TLS
+	ಆದರೆ(context->listener->ssl_ctx && (context->listener->use_ತಟಸ್ಥ_as_username || context->listener->use_subject_as_username)){
 		/* Don't need the username or password if provided */
 		mosquitto_FREE(*username);
 		mosquitto_FREE(*password);
 
-		if(!context->ssl){
-			return send__connack_bad_username_or_password_error(context, MOSQ_ERR_AUTH);
+		ಆದರೆ(!context->ssl){
+			ಹಿಂತಿರುಗಿ send__connack_bad_username_or_password_error(context, MOSQ_ERR_AUTH);
 		}
-#ifdef FINAL_WITH_TLS_PSK
-		if(context->listener->psk_hint){
+#ವ್ಯಾಖ್ಯಾನಿತವಾದರೆ FINAL_WITH_TLS_PSK
+		ಆದರೆ(context->listener->psk_hint){
 			/* Client should have provided an identity to get this far. */
-			if(!context->username){
-				return send__connack_bad_username_or_password_error(context, MOSQ_ERR_AUTH);
+			ಆದರೆ(!context->username){
+				ಹಿಂತಿರುಗಿ send__connack_bad_username_or_password_error(context, MOSQ_ERR_AUTH);
 			}
-		}else
-#endif /* FINAL_WITH_TLS_PSK */
+		}ಇಲ್ಲದಿದ್ದರೆ
+#ಆದರೆ_ಅಂತ್ಯ /* FINAL_WITH_TLS_PSK */
 		{
-			if(context->listener->use_identity_as_username){
-				rc = set_username_from_cert_identity(context);
-			}else{   /* use_subject_as_username */
-				rc = set_username_from_cert_subject_name(context);
+			ಆದರೆ(context->listener->use_ತಟಸ್ಥ_as_username){
+				rc = ಗಣ_username_from_cert_ತಟಸ್ಥ(context);
+			}ಇಲ್ಲದಿದ್ದರೆ{   /* use_subject_as_username */
+				rc = ಗಣ_username_from_cert_subject_name(context);
 			}
-			if(rc){
-				return rc;
+			ಆದರೆ(rc){
+				ಹಿಂತಿರುಗಿ rc;
 			}
 		}
-	}else
-#endif /* WITH_TLS */
+	}ಇಲ್ಲದಿದ್ದರೆ
+#ಆದರೆ_ಅಂತ್ಯ /* WITH_TLS */
 	{
-#ifdef WITH_TLS
-		if(context->listener->use_identity_as_username && context->listener->require_certificate){
+#ವ್ಯಾಖ್ಯಾನಿತವಾದರೆ WITH_TLS
+		ಆದರೆ(context->listener->use_ತಟಸ್ಥ_as_username && context->listener->require_certificate){
 			mosquitto_FREE(*username);
 			mosquitto_FREE(*password);
 
-			if(!context->username){
-				return send__connack_bad_username_or_password_error(context, MOSQ_ERR_AUTH);
+			ಆದರೆ(!context->username){
+				ಹಿಂತಿರುಗಿ send__connack_bad_username_or_password_error(context, MOSQ_ERR_AUTH);
 			}
-		}else
-#endif
+		}ಇಲ್ಲದಿದ್ದರೆ
+#ಆದರೆ_ಅಂತ್ಯ
 		{
 			/* FIXME - these ensure the mosquitto_clientid() and
 			* mosquitto_client_username() functions work, but is hacky */
 			context->username = *username;
 			context->password = *password;
 			context->password_len = password_len;
-			*username = NULL; /* Avoid free() in error: below. */
-			*password = NULL;
+			*username = ಖಾಲಿ; /* Avoid free() in error: below. */
+			*password = ಖಾಲಿ;
 		}
 	}
 
-	return MOSQ_ERR_SUCCESS;
+	ಹಿಂತಿರುಗಿ MOSQ_ERR_SUCCESS;
 }
 
 
-static int handle_username_as_clientid_option(struct mosquitto *context)
+ಸ್ಥಿರ ಪೂರ್ಣಾಂಕ handle_username_as_clientid_option(ರಚನೆ mosquitto *context)
 {
-	if(context->username){
+	ಆದರೆ(context->username){
 		mosquitto_FREE(context->id);
 		context->id = mosquitto_strdup(context->username);
-		if(!context->id){
-			return MOSQ_ERR_NOMEM;
+		ಆದರೆ(!context->id){
+			ಹಿಂತಿರುಗಿ MOSQ_ERR_NOMEM;
 		}
-	}else{
-		uint8_t err_code = context->protocol == mosq_p_mqtt5
+	}ಇಲ್ಲದಿದ್ದರೆ{
+		uint8_t err_ಸಂಕೇತ = context->protocol == mosq_p_mqtt5
 												? (uint8_t)MQTT_RC_NOT_AUTHORIZED
 												: (uint8_t)CONNACK_REFUSED_NOT_AUTHORIZED;
-		return send__connack_error_and_return(context, err_code, MOSQ_ERR_AUTH);
+		ಹಿಂತಿರುಗಿ send__connack_error_and_return(context, err_ಸಂಕೇತ, MOSQ_ERR_AUTH);
 	}
 
-	return MOSQ_ERR_SUCCESS;
+	ಹಿಂತಿರುಗಿ MOSQ_ERR_SUCCESS;
 }
 
 
-int handle__connect(struct mosquitto *context)
+ಪೂರ್ಣಾಂಕ handle__connect(ರಚನೆ mosquitto *context)
 {
-	char protocol_name[7];
-	uint8_t protocol_version;
+	ಅಕ್ಷರ protocol_name[7];
+	uint8_t protocol_ಆವೃತ್ತಿ;
 	uint8_t connect_flags;
-	char *clientid = NULL;
-	struct mosquitto *found_context;
-	struct mosquitto_message_all *will_struct = NULL;
-	uint8_t will, will_retain, will_qos, clean_start;
+	ಅಕ್ಷರ *clientid = ಖಾಲಿ;
+	ರಚನೆ mosquitto *ಸಿಕ್ಕಿತು_context;
+	ರಚನೆ mosquitto_ಸಂದೇಶ_all *will_struct = ಖಾಲಿ;
+	uint8_t will, will_retain, will_qos, clean_ಆರಂಭ;
 	uint8_t username_flag, password_flag;
-	char *username = NULL, *password = NULL;
+	ಅಕ್ಷರ *username = ಖಾಲಿ, *password = ಖಾಲಿ;
 	uint16_t password_len = 0;
-	int rc;
-	mosquitto_property *properties = NULL;
-	void *auth_data = NULL;
-	uint16_t auth_data_len = 0;
-	void *auth_data_out = NULL;
-	uint16_t auth_data_out_len = 0;
-	bool allow_zero_length_clientid;
+	ಪೂರ್ಣಾಂಕ rc;
+	mosquitto_property *properties = ಖಾಲಿ;
+	ಶೂನ್ಯ *auth_ದತ್ತಾಂಶ = ಖಾಲಿ;
+	uint16_t auth_ದತ್ತಾಂಶ_len = 0;
+	ಶೂನ್ಯ *auth_ದತ್ತಾಂಶ_ಹೊರಹೋಗು = ಖಾಲಿ;
+	uint16_t auth_ದತ್ತಾಂಶ_ಹೊರಹೋಗು_len = 0;
+	bool allow_zero_ಉದ್ದಳತೆ_clientid;
 
-	if(!context->listener){
-		return MOSQ_ERR_INVAL;
+	ಆದರೆ(!context->listener){
+		ಹಿಂತಿರುಗಿ MOSQ_ERR_INVAL;
 	}
 
 	/* Don't accept multiple CONNECT commands. */
-	if(context->state != mosq_cs_new){
-		log__printf(NULL, MOSQ_LOG_NOTICE, "Bad client %s:%d sending multiple CONNECT messages.",
-				context->address, context->remote_port);
+	ಆದರೆ(context->state != mosq_cs_new){
+		log__printf(ಖಾಲಿ, MOSQ_LOG_NOTICE, "Bad client %s:%d sending multiple CONNECT messages.",
+				context->ವಿಳಾಸ, context->remote_ಪೋರ್ಟ್);
 		rc = MOSQ_ERR_PROTOCOL;
-		goto handle_connect_error;
+		ಹೋಗು handle_connect_error;
 	}
 
-#ifdef WITH_TLS
-	if(context->in_packet.command == 0x16 && context->listener->ssl_ctx == NULL){ /* 0x16 is TLS handshake client hello */
-		log__printf(NULL, MOSQ_LOG_NOTICE, "Client from %s:%d appears to be using TLS to connect to a non-TLS listener.",
-				context->address, context->remote_port);
+#ವ್ಯಾಖ್ಯಾನಿತವಾದರೆ WITH_TLS
+	ಆದರೆ(context->ಒಳ_packet.command == 0x16 && context->listener->ssl_ctx == ಖಾಲಿ){ /* 0x16 is TLS handshake client hello */
+		log__printf(ಖಾಲಿ, MOSQ_LOG_NOTICE, "Client from %s:%d appears to be using TLS to connect to a non-TLS listener.",
+				context->ವಿಳಾಸ, context->remote_ಪೋರ್ಟ್);
 		rc = MOSQ_ERR_PROTOCOL;
-		goto handle_connect_error;
+		ಹೋಗು handle_connect_error;
 	}
-#endif
+#ಆದರೆ_ಅಂತ್ಯ
 
 	rc = read_protocol_name(context, protocol_name);
-	if(rc != MOSQ_ERR_SUCCESS){
-		goto handle_connect_error;
+	ಆದರೆ(rc != MOSQ_ERR_SUCCESS){
+		ಹೋಗು handle_connect_error;
 	}
 
-	rc = read_and_verify_protocol_version(context, protocol_name, &protocol_version);
-	if(rc != MOSQ_ERR_SUCCESS){
-		if(rc == MOSQ_ERR_MALFORMED_PACKET){
-			return rc;
+	rc = read_and_verify_protocol_ಆವೃತ್ತಿ(context, protocol_name, &protocol_ಆವೃತ್ತಿ);
+	ಆದರೆ(rc != MOSQ_ERR_SUCCESS){
+		ಆದರೆ(rc == MOSQ_ERR_MALFORMED_PACKET){
+			ಹಿಂತಿರುಗಿ rc;
 		}
-		goto handle_connect_error;
+		ಹೋಗು handle_connect_error;
 	}
 
 	rc = read_and_verify_connect_flags(context, &connect_flags);
-	if(rc != MOSQ_ERR_SUCCESS){
-		goto handle_connect_error;
+	ಆದರೆ(rc != MOSQ_ERR_SUCCESS){
+		ಹೋಗು handle_connect_error;
 	}
 
-	clean_start = (connect_flags & 0x02) >> 1;
-	set_session_expiry_interval(context, clean_start, protocol_version);
+	clean_ಆರಂಭ = (connect_flags & 0x02) >> 1;
+	ಗಣ_session_expiry_interval(context, clean_ಆರಂಭ, protocol_ಆವೃತ್ತಿ);
 
 	rc = read_and_reset_keepalive(context);
-	if(rc != MOSQ_ERR_SUCCESS){
-		goto handle_connect_error;
+	ಆದರೆ(rc != MOSQ_ERR_SUCCESS){
+		ಹೋಗು handle_connect_error;
 	}
 
-	rc = read_and_verify_v5_connect_properties(context, &properties, protocol_version);
-	if(rc != MOSQ_ERR_SUCCESS){
-		goto handle_connect_error;
+	rc = read_and_verify_v5_connect_properties(context, &properties, protocol_ಆವೃತ್ತಿ);
+	ಆದರೆ(rc != MOSQ_ERR_SUCCESS){
+		ಹೋಗು handle_connect_error;
 	}
 
 	will = connect_flags & 0x04;
 	will_qos = (connect_flags & 0x18) >> 3;
 	will_retain = ((connect_flags & 0x20) == 0x20);
-	rc = verify_will_options(context, will, will_qos, will_retain, protocol_version);
-	if(rc != MOSQ_ERR_SUCCESS){
-		goto handle_connect_error;
+	rc = verify_will_options(context, will, will_qos, will_retain, protocol_ಆವೃತ್ತಿ);
+	ಆದರೆ(rc != MOSQ_ERR_SUCCESS){
+		ಹೋಗು handle_connect_error;
 	}
 
-	mosquitto_property_read_string(properties, MQTT_PROP_AUTHENTICATION_METHOD, &context->auth_method, false);
-	mosquitto_property_read_binary(properties, MQTT_PROP_AUTHENTICATION_DATA, &auth_data, &auth_data_len, false);
+	mosquitto_property_read_string(properties, MQTT_PROP_AUTHENTICATION_ವಿಧಾನ, &context->auth_ವಿಧಾನ, false);
+	mosquitto_property_read_ದ್ವಿಮಾನ(properties, MQTT_PROP_AUTHENTICATION_ದತ್ತಾಂಶ, &auth_ದತ್ತಾಂಶ, &auth_ದತ್ತಾಂಶ_len, false);
 	mosquitto_property_free_all(&properties);
 
-	if(auth_data && !context->auth_method){
-		send__connack(context, 0, MQTT_RC_PROTOCOL_ERROR, NULL);
-		log__printf(NULL, MOSQ_LOG_INFO, "Protocol error from %s:%d CONNECT with missing clientid string.",
-				context->address, context->remote_port);
+	ಆದರೆ(auth_ದತ್ತಾಂಶ && !context->auth_ವಿಧಾನ){
+		send__connack(context, 0, MQTT_RC_PROTOCOL_ERROR, ಖಾಲಿ);
+		log__printf(ಖಾಲಿ, MOSQ_LOG_INFO, "Protocol error from %s:%d CONNECT with missing clientid string.",
+				context->ವಿಳಾಸ, context->remote_ಪೋರ್ಟ್);
 		rc = MOSQ_ERR_PROTOCOL;
-		goto handle_connect_error;
+		ಹೋಗು handle_connect_error;
 	}
 
-	rc = read_and_verify_clientid_from_packet(context, &clientid, &allow_zero_length_clientid, clean_start);
-	if(rc != MOSQ_ERR_SUCCESS){
-		goto handle_connect_error;
+	rc = read_and_verify_clientid_from_packet(context, &clientid, &allow_zero_ಉದ್ದಳತೆ_clientid, clean_ಆರಂಭ);
+	ಆದರೆ(rc != MOSQ_ERR_SUCCESS){
+		ಹೋಗು handle_connect_error;
 	}
 
-	if(will){
+	ಆದರೆ(will){
 		rc = will__read(context, clientid, &will_struct, will_qos, will_retain);
-		if(rc){
-			if(context->protocol == mosq_p_mqtt5){
-				if(rc == MOSQ_ERR_DUPLICATE_PROPERTY || rc == MOSQ_ERR_PROTOCOL){
-					send__connack(context, 0, MQTT_RC_PROTOCOL_ERROR, NULL);
-				}else if(rc == MOSQ_ERR_MALFORMED_PACKET){
-					send__connack(context, 0, MQTT_RC_MALFORMED_PACKET, NULL);
+		ಆದರೆ(rc){
+			ಆದರೆ(context->protocol == mosq_p_mqtt5){
+				ಆದರೆ(rc == MOSQ_ERR_DUPLICATE_PROPERTY || rc == MOSQ_ERR_PROTOCOL){
+					send__connack(context, 0, MQTT_RC_PROTOCOL_ERROR, ಖಾಲಿ);
+				}ಇಲ್ಲದಿದ್ದರೆ ಆದರೆ(rc == MOSQ_ERR_MALFORMED_PACKET){
+					send__connack(context, 0, MQTT_RC_MALFORMED_PACKET, ಖಾಲಿ);
 				}
 			}
-			goto handle_connect_error;
+			ಹೋಗು handle_connect_error;
 		}
-	}else{
-		if(context->protocol == mosq_p_mqtt311 || context->protocol == mosq_p_mqtt5){
-			if(will_qos != 0 || will_retain != 0){
-				log__printf(NULL, MOSQ_LOG_INFO, "Protocol error from %s: CONNECT without Will with non-zero QoS (%d) or retain (%d).",
+	}ಇಲ್ಲದಿದ್ದರೆ{
+		ಆದರೆ(context->protocol == mosq_p_mqtt311 || context->protocol == mosq_p_mqtt5){
+			ಆದರೆ(will_qos != 0 || will_retain != 0){
+				log__printf(ಖಾಲಿ, MOSQ_LOG_INFO, "Protocol error from %s: CONNECT without Will with non-zero QoS (%d) or retain (%d).",
 						clientid, will_qos, will_retain);
 				rc = MOSQ_ERR_PROTOCOL;
-				goto handle_connect_error;
+				ಹೋಗು handle_connect_error;
 			}
 		}
 	}
@@ -1173,139 +1173,139 @@ int handle__connect(struct mosquitto *context)
 	password_flag = connect_flags & 0x40;
 	username_flag = connect_flags & 0x80;
 	rc = read_and_verify_client_credentials_from_packet(context, &username, username_flag, &password, &password_len, password_flag, clientid);
-	if(rc != MOSQ_ERR_SUCCESS){
-		goto handle_connect_error;
+	ಆದರೆ(rc != MOSQ_ERR_SUCCESS){
+		ಹೋಗು handle_connect_error;
 	}
 
-	rc = check_additional_trailing_data(context, protocol_version);
-	if(rc != MOSQ_ERR_SUCCESS){
-		goto handle_connect_error;
+	rc = check_additional_trailing_ದತ್ತಾಂಶ(context, protocol_ಆವೃತ್ತಿ);
+	ಆದರೆ(rc != MOSQ_ERR_SUCCESS){
+		ಹೋಗು handle_connect_error;
 	}
 
 	/* Once context->id is set, if we return from this function with an error
 	 * we must make sure that context->id is freed and set to NULL, so that the
 	 * client isn't erroneously removed from the by_id hash table. */
 	context->id = clientid;
-	clientid = NULL;
+	clientid = ಖಾಲಿ;
 
 	/* use_identity_as_username or use_subject_as_username */
 	rc = handle_username_from_cert_options(context, &username, &password, password_len);
-	if(rc != MOSQ_ERR_SUCCESS){
-		goto handle_connect_error;
+	ಆದರೆ(rc != MOSQ_ERR_SUCCESS){
+		ಹೋಗು handle_connect_error;
 	}
 
 	/* use_username_as_clientid */
-	if(context->listener->use_username_as_clientid){
+	ಆದರೆ(context->listener->use_username_as_clientid){
 		rc = handle_username_as_clientid_option(context);
-		if(rc != MOSQ_ERR_SUCCESS){
-			goto handle_connect_error;
+		ಆದರೆ(rc != MOSQ_ERR_SUCCESS){
+			ಹೋಗು handle_connect_error;
 		}
 	}
 
 	/* Check for an existing delayed auth check, reject if present */
-	HASH_FIND(hh_id, db.contexts_by_id_delayed_auth, context->id, strlen(context->id), found_context);
-	if(found_context){
+	HASH_ಕಂಡುಹಿಡಿ(hh_id, db.contexts_by_id_delayed_auth, context->id, ಅಕ್ಷರಸರಣಿ_ಉದ್ದ(context->id), ಸಿಕ್ಕಿತು_context);
+	ಆದರೆ(ಸಿಕ್ಕಿತು_context){
 		rc = MOSQ_ERR_UNKNOWN;
-		goto handle_connect_error;
+		ಹೋಗು handle_connect_error;
 	}
 
-	context->clean_start = clean_start;
+	context->clean_ಆರಂಭ = clean_ಆರಂಭ;
 	context->will = will_struct;
-	will_struct = NULL;
+	will_struct = ಖಾಲಿ;
 
-	if(context->auth_method){
-		rc = mosquitto_security_auth_start(context, false, auth_data, auth_data_len, &auth_data_out, &auth_data_out_len);
-		mosquitto_FREE(auth_data);
-		if(rc == MOSQ_ERR_SUCCESS){
-			return connect__on_authorised(context, auth_data_out, auth_data_out_len);
-		}else if(rc == MOSQ_ERR_AUTH_CONTINUE){
-			mosquitto__set_state(context, mosq_cs_authenticating);
-			rc = send__auth(context, MQTT_RC_CONTINUE_AUTHENTICATION, auth_data_out, auth_data_out_len);
-			SAFE_FREE(auth_data_out);
-			return rc;
-		}else{
-			SAFE_FREE(auth_data_out);
+	ಆದರೆ(context->auth_ವಿಧಾನ){
+		rc = mosquitto_security_auth_ಆರಂಭ(context, false, auth_ದತ್ತಾಂಶ, auth_ದತ್ತಾಂಶ_len, &auth_ದತ್ತಾಂಶ_ಹೊರಹೋಗು, &auth_ದತ್ತಾಂಶ_ಹೊರಹೋಗು_len);
+		mosquitto_FREE(auth_ದತ್ತಾಂಶ);
+		ಆದರೆ(rc == MOSQ_ERR_SUCCESS){
+			ಹಿಂತಿರುಗಿ connect__on_authorised(context, auth_ದತ್ತಾಂಶ_ಹೊರಹೋಗು, auth_ದತ್ತಾಂಶ_ಹೊರಹೋಗು_len);
+		}ಇಲ್ಲದಿದ್ದರೆ ಆದರೆ(rc == MOSQ_ERR_AUTH_CONTINUE){
+			mosquitto_ಗಣ_state(context, mosq_cs_authenticating);
+			rc = send__auth(context, MQTT_RC_CONTINUE_AUTHENTICATION, auth_ದತ್ತಾಂಶ_ಹೊರಹೋಗು, auth_ದತ್ತಾಂಶ_ಹೊರಹೋಗು_len);
+			ಸುರಕ್ಷಿತ_FREE(auth_ದತ್ತಾಂಶ_ಹೊರಹೋಗು);
+			ಹಿಂತಿರುಗಿ rc;
+		}ಇಲ್ಲದಿದ್ದರೆ{
+			ಸುರಕ್ಷಿತ_FREE(auth_ದತ್ತಾಂಶ_ಹೊರಹೋಗು);
 			will__clear(context);
-			if(rc == MOSQ_ERR_AUTH){
-				send__connack(context, 0, MQTT_RC_NOT_AUTHORIZED, NULL);
+			ಆದರೆ(rc == MOSQ_ERR_AUTH){
+				send__connack(context, 0, MQTT_RC_NOT_AUTHORIZED, ಖಾಲಿ);
 				mosquitto_FREE(context->id);
-				goto handle_connect_error;
-			}else if(rc == MOSQ_ERR_NOT_SUPPORTED){
+				ಹೋಗು handle_connect_error;
+			}ಇಲ್ಲದಿದ್ದರೆ ಆದರೆ(rc == MOSQ_ERR_NOT_SUPPORTED){
 				/* Client has requested extended authentication, but we don't support it. */
-				send__connack(context, 0, MQTT_RC_BAD_AUTHENTICATION_METHOD, NULL);
+				send__connack(context, 0, MQTT_RC_BAD_AUTHENTICATION_ವಿಧಾನ, ಖಾಲಿ);
 				mosquitto_FREE(context->id);
-				goto handle_connect_error;
-			}else{
+				ಹೋಗು handle_connect_error;
+			}ಇಲ್ಲದಿದ್ದರೆ{
 				mosquitto_FREE(context->id);
-				goto handle_connect_error;
+				ಹೋಗು handle_connect_error;
 			}
 		}
-	}else{
-#ifdef WITH_TLS
-		if(context->listener->ssl_ctx && (context->listener->use_identity_as_username || context->listener->use_subject_as_username)){
+	}ಇಲ್ಲದಿದ್ದರೆ{
+#ವ್ಯಾಖ್ಯಾನಿತವಾದರೆ WITH_TLS
+		ಆದರೆ(context->listener->ssl_ctx && (context->listener->use_ತಟಸ್ಥ_as_username || context->listener->use_subject_as_username)){
 			/* Authentication assumed to be cleared */
-		}else
-#endif
+		}ಇಲ್ಲದಿದ್ದರೆ
+#ಆದರೆ_ಅಂತ್ಯ
 		{
 			rc = mosquitto_basic_auth(context);
-			switch(rc){
-				case MOSQ_ERR_SUCCESS:
-					break;
-				case MOSQ_ERR_AUTH_DELAYED:
-					mosquitto__set_state(context, mosq_cs_delayed_auth);
-					HASH_ADD_KEYPTR(hh_id, db.contexts_by_id_delayed_auth, context->id, strlen(context->id), context);
-					return MOSQ_ERR_SUCCESS;
-					break;
-				case MOSQ_ERR_AUTH:
-					if(context->protocol == mosq_p_mqtt5){
-						send__connack(context, 0, MQTT_RC_NOT_AUTHORIZED, NULL);
-					}else{
-						send__connack(context, 0, CONNACK_REFUSED_NOT_AUTHORIZED, NULL);
+			ಆಯ್ಕೆ(rc){
+				ಸ್ಥಿತಿ MOSQ_ERR_SUCCESS:
+					ನಿಲ್ಲಿಸು;
+				ಸ್ಥಿತಿ MOSQ_ERR_AUTH_DELAYED:
+					mosquitto_ಗಣ_state(context, mosq_cs_delayed_auth);
+					HASH_ಕೂಡಿಸು_KEYPTR(hh_id, db.contexts_by_id_delayed_auth, context->id, ಅಕ್ಷರಸರಣಿ_ಉದ್ದ(context->id), context);
+					ಹಿಂತಿರುಗಿ MOSQ_ERR_SUCCESS;
+					ನಿಲ್ಲಿಸು;
+				ಸ್ಥಿತಿ MOSQ_ERR_AUTH:
+					ಆದರೆ(context->protocol == mosq_p_mqtt5){
+						send__connack(context, 0, MQTT_RC_NOT_AUTHORIZED, ಖಾಲಿ);
+					}ಇಲ್ಲದಿದ್ದರೆ{
+						send__connack(context, 0, CONNACK_REFUSED_NOT_AUTHORIZED, ಖಾಲಿ);
 					}
-					goto handle_connect_error;
-					break;
-				case MOSQ_ERR_UNSPECIFIED:
-				case MOSQ_ERR_IMPLEMENTATION_SPECIFIC:
-				case MOSQ_ERR_CLIENT_IDENTIFIER_NOT_VALID:
-				case MOSQ_ERR_BAD_USERNAME_OR_PASSWORD:
-				case MOSQ_ERR_SERVER_UNAVAILABLE:
-				case MOSQ_ERR_SERVER_BUSY:
-				case MOSQ_ERR_BANNED:
-				case MOSQ_ERR_BAD_AUTHENTICATION_METHOD:
-				case MOSQ_ERR_CONNECTION_RATE_EXCEEDED:
-					if(context->protocol == mosq_p_mqtt5){
-						send__connack(context, 0, (uint8_t)rc, NULL);
-					}else{
-						send__connack(context, 0, CONNACK_REFUSED_NOT_AUTHORIZED, NULL);
+					ಹೋಗು handle_connect_error;
+					ನಿಲ್ಲಿಸು;
+				ಸ್ಥಿತಿ MOSQ_ERR_UNSPECIFIED:
+				ಸ್ಥಿತಿ MOSQ_ERR_IMPLEMENTATION_SPECIFIC:
+				ಸ್ಥಿತಿ MOSQ_ERR_CLIENT_IDENTIFIER_NOT_VALID:
+				ಸ್ಥಿತಿ MOSQ_ERR_BAD_USERNAME_OR_PASSWORD:
+				ಸ್ಥಿತಿ MOSQ_ERR_SERVER_UNAVAILABLE:
+				ಸ್ಥಿತಿ MOSQ_ERR_SERVER_BUSY:
+				ಸ್ಥಿತಿ MOSQ_ERR_BANNED:
+				ಸ್ಥಿತಿ MOSQ_ERR_BAD_AUTHENTICATION_ವಿಧಾನ:
+				ಸ್ಥಿತಿ MOSQ_ERR_CONNECTION_ದರ_EXCEEDED:
+					ಆದರೆ(context->protocol == mosq_p_mqtt5){
+						send__connack(context, 0, (uint8_t)rc, ಖಾಲಿ);
+					}ಇಲ್ಲದಿದ್ದರೆ{
+						send__connack(context, 0, CONNACK_REFUSED_NOT_AUTHORIZED, ಖಾಲಿ);
 					}
-					goto handle_connect_error;
-					break;
-				default:
+					ಹೋಗು handle_connect_error;
+					ನಿಲ್ಲಿಸು;
+				ಪೂರ್ವನಿಯೋಜಿತ:
 					rc = MOSQ_ERR_UNKNOWN;
-					goto handle_connect_error;
-					break;
+					ಹೋಗು handle_connect_error;
+					ನಿಲ್ಲಿಸು;
 			}
 		}
-		return connect__on_authorised(context, NULL, 0);
+		ಹಿಂತಿರುಗಿ connect__on_authorised(context, ಖಾಲಿ, 0);
 	}
 
 
 handle_connect_error:
 	mosquitto_property_free_all(&properties);
-	mosquitto_FREE(auth_data);
+	mosquitto_FREE(auth_ದತ್ತಾಂಶ);
 	mosquitto_FREE(clientid);
 	mosquitto_FREE(username);
 	mosquitto_FREE(password);
-	if(will_struct){
+	ಆದರೆ(will_struct){
 		mosquitto_property_free_all(&will_struct->properties);
-		mosquitto_FREE(will_struct->msg.payload);
-		mosquitto_FREE(will_struct->msg.topic);
+		mosquitto_FREE(will_struct->ಸಂದೇಶ.payload);
+		mosquitto_FREE(will_struct->ಸಂದೇಶ.topic);
 		mosquitto_FREE(will_struct);
 	}
 	will__clear(context);
 	/* We return an error here which means the client is freed later on. */
-	context->clean_start = true;
-	context->session_expiry_interval = MQTT_SESSION_EXPIRY_IMMEDIATE;
+	context->clean_ಆರಂಭ = true;
+	context->session_expiry_interval = MQTT_SESSION_EXPIRY_ತಕ್ಷಣ;
 	context->will_delay_interval = 0;
-	return rc;
+	ಹಿಂತಿರುಗಿ rc;
 }

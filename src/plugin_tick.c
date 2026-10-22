@@ -16,55 +16,55 @@ Contributors:
    Roger Light - initial implementation and documentation.
 */
 
-#include "config.h"
+#ಅನ್ತರ್ಭಾವ "config.h"
 
-#include <string.h>
+#ಅನ್ತರ್ಭಾವ <string.h>
 
-#include "mosquitto_broker_internal.h"
-#include "mosquitto/broker.h"
-#include "utlist.h"
+#ಅನ್ತರ್ಭಾವ "mosquitto_broker_internal.h"
+#ಅನ್ತರ್ಭಾವ "mosquitto/broker.h"
+#ಅನ್ತರ್ಭಾವ "utlist.h"
 
 
-static void plugin__handle_tick_single(struct mosquitto__security_options *opts)
+ಸ್ಥಿರ ಶೂನ್ಯ plugin__handle_tick_single(ರಚನೆ mosquitto__security_options *opts)
 {
-	struct mosquitto_evt_tick event_data;
-	struct mosquitto__callback *cb_base, *cb_next;
+	ರಚನೆ mosquitto_evt_tick event_ದತ್ತಾಂಶ;
+	ರಚನೆ mosquitto__callback *cb_ತಳ, *cb_ಮುಂದಿನ;
 
-	memset(&event_data, 0, sizeof(event_data));
+	memset(&event_ದತ್ತಾಂಶ, 0, ಗಾತ್ರ(event_ದತ್ತಾಂಶ));
 
 	// Using DL_FOREACH_SAFE here, as tick callbacks might unregister themself
-	DL_FOREACH_SAFE(opts->plugin_callbacks.tick, cb_base, cb_next){
-		mosquitto_time_ns(&event_data.now_s, &event_data.now_ns);
+	DL_FOREACH_ಸುರಕ್ಷಿತ(opts->plugin_callbacks.tick, cb_ತಳ, cb_ಮುಂದಿನ){
+		mosquitto_ಸಮಯ_ns(&event_ದತ್ತಾಂಶ.now_s, &event_ದತ್ತಾಂಶ.now_ns);
 
-		if(mosquitto_time_cmp(event_data.now_s, event_data.now_ns,
-				cb_base->data.next_tick.tv_sec, cb_base->data.next_tick.tv_nsec) > 0){
+		ಆದರೆ(mosquitto_ಸಮಯ_cmp(event_ದತ್ತಾಂಶ.now_s, event_ದತ್ತಾಂಶ.now_ns,
+				cb_ತಳ->ದತ್ತಾಂಶ.ಮುಂದಿನ_tick.tv_sec, cb_ತಳ->ದತ್ತಾಂಶ.ಮುಂದಿನ_tick.tv_nsec) > 0){
 
-			event_data.next_s = 0;
-			event_data.next_ms = 0;
-			cb_base->cb(MOSQ_EVT_TICK, &event_data, cb_base->userdata);
-			loop__update_next_event(event_data.next_s * 1000 + event_data.next_ms);
+			event_ದತ್ತಾಂಶ.ಮುಂದಿನ_s = 0;
+			event_ದತ್ತಾಂಶ.ಮುಂದಿನ_ms = 0;
+			cb_ತಳ->cb(MOSQ_EVT_TICK, &event_ದತ್ತಾಂಶ, cb_ತಳ->userdata);
+			loop_update_ಮುಂದಿನ_event(event_ದತ್ತಾಂಶ.ಮುಂದಿನ_s * 1000 + event_ದತ್ತಾಂಶ.ಮುಂದಿನ_ms);
 
-			cb_base->data.next_tick.tv_sec = event_data.now_s + event_data.next_s;
-			cb_base->data.next_tick.tv_nsec = event_data.now_ns + 1000000*event_data.next_ms;
-			if(cb_base->data.next_tick.tv_nsec > 1000000000){
-				cb_base->data.next_tick.tv_nsec -= 1000000000;
-				cb_base->data.next_tick.tv_sec += 1;
+			cb_ತಳ->ದತ್ತಾಂಶ.ಮುಂದಿನ_tick.tv_sec = event_ದತ್ತಾಂಶ.now_s + event_ದತ್ತಾಂಶ.ಮುಂದಿನ_s;
+			cb_ತಳ->ದತ್ತಾಂಶ.ಮುಂದಿನ_tick.tv_nsec = event_ದತ್ತಾಂಶ.now_ns + 1000000*event_ದತ್ತಾಂಶ.ಮುಂದಿನ_ms;
+			ಆದರೆ(cb_ತಳ->ದತ್ತಾಂಶ.ಮುಂದಿನ_tick.tv_nsec > 1000000000){
+				cb_ತಳ->ದತ್ತಾಂಶ.ಮುಂದಿನ_tick.tv_nsec -= 1000000000;
+				cb_ತಳ->ದತ್ತಾಂಶ.ಮುಂದಿನ_tick.tv_sec += 1;
 			}
 		}
 	}
 }
 
 
-void plugin__handle_tick(void)
+ಶೂನ್ಯ plugin__handle_tick(ಶೂನ್ಯ)
 {
-	struct mosquitto__security_options *opts;
+	ರಚನೆ mosquitto__security_options *opts;
 
 	/* Global plugins */
 	plugin__handle_tick_single(&db.config->security_options);
 
-	for(int i=0; i<db.config->listener_count; i++){
+	ಗಾಗಿ(ಪೂರ್ಣಾಂಕ i=0; i<db.config->listener_ಎಣಿಕೆ; i++){
 		opts = db.config->listeners[i].security_options;
-		if(opts && opts->plugin_callbacks.tick){
+		ಆದರೆ(opts && opts->plugin_callbacks.tick){
 			plugin__handle_tick_single(opts);
 		}
 	}

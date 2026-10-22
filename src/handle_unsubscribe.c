@@ -16,166 +16,166 @@ Contributors:
    Roger Light - initial implementation and documentation.
 */
 
-#include "config.h"
+#ಅನ್ತರ್ಭಾವ "config.h"
 
-#include <stdio.h>
-#include <string.h>
+#ಅನ್ತರ್ಭಾವ <stdio.h>
+#ಅನ್ತರ್ಭಾವ <string.h>
 
-#include "mosquitto_broker_internal.h"
-#include "mosquitto/mqtt_protocol.h"
-#include "packet_mosq.h"
-#include "send_mosq.h"
+#ಅನ್ತರ್ಭಾವ "mosquitto_broker_internal.h"
+#ಅನ್ತರ್ಭಾವ "mosquitto/mqtt_protocol.h"
+#ಅನ್ತರ್ಭಾವ "packet_mosq.h"
+#ಅನ್ತರ್ಭಾವ "send_mosq.h"
 
 
-int handle__unsubscribe(struct mosquitto *context)
+ಪೂರ್ಣಾಂಕ handle__unsubscribe(ರಚನೆ mosquitto *context)
 {
 	uint16_t mid;
 	uint16_t slen;
-	int rc;
+	ಪೂರ್ಣಾಂಕ rc;
 	uint8_t reason = 0;
-	int reason_code_count = 0;
-	int reason_code_max;
-	uint8_t *reason_codes = NULL, *reason_tmp;
-	mosquitto_property *properties = NULL;
+	ಪೂರ್ಣಾಂಕ reason_ಸಂಕೇತ_ಎಣಿಕೆ = 0;
+	ಪೂರ್ಣಾಂಕ reason_ಸಂಕೇತ_max;
+	uint8_t *reason_codes = ಖಾಲಿ, *reason_tmp;
+	mosquitto_property *properties = ಖಾಲಿ;
 	bool allowed;
-	struct mosquitto_subscription sub;
+	ರಚನೆ mosquitto_subscription sub;
 
-	if(!context){
-		return MOSQ_ERR_INVAL;
+	ಆದರೆ(!context){
+		ಹಿಂತಿರುಗಿ MOSQ_ERR_INVAL;
 	}
 
-	if(context->state != mosq_cs_active){
-		log__printf(NULL, MOSQ_LOG_INFO, "Protocol error from %s: UNSUBSCRIBE before session is active.", context->id);
-		return MOSQ_ERR_PROTOCOL;
+	ಆದರೆ(context->state != mosq_cs_ಸಕ್ರಿಯ){
+		log__printf(ಖಾಲಿ, MOSQ_LOG_INFO, "Protocol error from %s: UNSUBSCRIBE before session is active.", context->id);
+		ಹಿಂತಿರುಗಿ MOSQ_ERR_PROTOCOL;
 	}
-	if(context->in_packet.command != (CMD_UNSUBSCRIBE|2)){
-		return MOSQ_ERR_MALFORMED_PACKET;
+	ಆದರೆ(context->ಒಳ_packet.command != (CMD_UNSUBSCRIBE|2)){
+		ಹಿಂತಿರುಗಿ MOSQ_ERR_MALFORMED_PACKET;
 	}
-	log__printf(NULL, MOSQ_LOG_DEBUG, "Received UNSUBSCRIBE from %s", context->id);
+	log__printf(ಖಾಲಿ, MOSQ_LOG_DEBUG, "Received UNSUBSCRIBE from %s", context->id);
 
-	if(context->protocol != mosq_p_mqtt31){
-		if((context->in_packet.command&0x0F) != 0x02){
-			return MOSQ_ERR_MALFORMED_PACKET;
+	ಆದರೆ(context->protocol != mosq_p_mqtt31){
+		ಆದರೆ((context->ಒಳ_packet.command&0x0F) != 0x02){
+			ಹಿಂತಿರುಗಿ MOSQ_ERR_MALFORMED_PACKET;
 		}
 	}
-	if(packet__read_uint16(&context->in_packet, &mid)){
-		return MOSQ_ERR_MALFORMED_PACKET;
+	ಆದರೆ(packet__read_uint16(&context->ಒಳ_packet, &mid)){
+		ಹಿಂತಿರುಗಿ MOSQ_ERR_MALFORMED_PACKET;
 	}
-	if(mid == 0){
-		return MOSQ_ERR_MALFORMED_PACKET;
+	ಆದರೆ(mid == 0){
+		ಹಿಂತಿರುಗಿ MOSQ_ERR_MALFORMED_PACKET;
 	}
 
-	if(context->protocol == mosq_p_mqtt5){
-		rc = property__read_all(CMD_UNSUBSCRIBE, &context->in_packet, &properties);
-		if(rc){
+	ಆದರೆ(context->protocol == mosq_p_mqtt5){
+		rc = property__read_all(CMD_UNSUBSCRIBE, &context->ಒಳ_packet, &properties);
+		ಆದರೆ(rc){
 			/* FIXME - it would be better if property__read_all() returned
 			 * MOSQ_ERR_MALFORMED_PACKET, but this is would change the library
 			 * return codes so needs doc changes as well. */
-			if(rc == MOSQ_ERR_PROTOCOL){
-				log__printf(NULL, MOSQ_LOG_INFO, "Protocol error from %s: UNSUBSCRIBE packet with invalid properties.", context->id);
-				return MOSQ_ERR_MALFORMED_PACKET;
-			}else{
-				return rc;
+			ಆದರೆ(rc == MOSQ_ERR_PROTOCOL){
+				log__printf(ಖಾಲಿ, MOSQ_LOG_INFO, "Protocol error from %s: UNSUBSCRIBE packet with invalid properties.", context->id);
+				ಹಿಂತಿರುಗಿ MOSQ_ERR_MALFORMED_PACKET;
+			}ಇಲ್ಲದಿದ್ದರೆ{
+				ಹಿಂತಿರುಗಿ rc;
 			}
 		}
 		/* Immediately free, we don't do anything with User Property at the moment */
 		mosquitto_property_free_all(&properties);
 	}
 
-	if(context->protocol == mosq_p_mqtt311 || context->protocol == mosq_p_mqtt5){
-		if(context->in_packet.pos == context->in_packet.remaining_length){
+	ಆದರೆ(context->protocol == mosq_p_mqtt311 || context->protocol == mosq_p_mqtt5){
+		ಆದರೆ(context->ಒಳ_packet.pos == context->ಒಳ_packet.ಉಳಿದ_ಉದ್ದಳತೆ){
 			/* No topic specified, protocol error. */
-			return MOSQ_ERR_MALFORMED_PACKET;
+			ಹಿಂತಿರುಗಿ MOSQ_ERR_MALFORMED_PACKET;
 		}
 	}
 
-	reason_code_max = 10;
-	reason_codes = mosquitto_malloc((size_t)reason_code_max);
-	if(!reason_codes){
-		return MOSQ_ERR_NOMEM;
+	reason_ಸಂಕೇತ_max = 10;
+	reason_codes = mosquitto_malloc((size_t)reason_ಸಂಕೇತ_max);
+	ಆದರೆ(!reason_codes){
+		ಹಿಂತಿರುಗಿ MOSQ_ERR_NOMEM;
 	}
 
-	while(context->in_packet.pos < context->in_packet.remaining_length){
-		memset(&sub, 0, sizeof(sub));
+	ಆಗ(context->ಒಳ_packet.pos < context->ಒಳ_packet.ಉಳಿದ_ಉದ್ದಳತೆ){
+		memset(&sub, 0, ಗಾತ್ರ(sub));
 		sub.properties = properties;
-		if(packet__read_string(&context->in_packet, &sub.topic_filter, &slen)){
+		ಆದರೆ(packet__read_string(&context->ಒಳ_packet, &sub.topic_filter, &slen)){
 			mosquitto_FREE(reason_codes);
-			return MOSQ_ERR_MALFORMED_PACKET;
+			ಹಿಂತಿರುಗಿ MOSQ_ERR_MALFORMED_PACKET;
 		}
 
-		if(!slen){
-			log__printf(NULL, MOSQ_LOG_INFO,
+		ಆದರೆ(!slen){
+			log__printf(ಖಾಲಿ, MOSQ_LOG_INFO,
 					"Empty unsubscription string from %s, disconnecting.",
 					context->id);
 			mosquitto_FREE(sub.topic_filter);
 			mosquitto_FREE(reason_codes);
-			return MOSQ_ERR_MALFORMED_PACKET;
+			ಹಿಂತಿರುಗಿ MOSQ_ERR_MALFORMED_PACKET;
 		}
-		if(mosquitto_sub_topic_check(sub.topic_filter)){
-			log__printf(NULL, MOSQ_LOG_INFO,
+		ಆದರೆ(mosquitto_sub_topic_check(sub.topic_filter)){
+			log__printf(ಖಾಲಿ, MOSQ_LOG_INFO,
 					"Invalid unsubscription string from %s, disconnecting.",
 					context->id);
 			mosquitto_FREE(sub.topic_filter);
 			mosquitto_FREE(reason_codes);
-			return MOSQ_ERR_MALFORMED_PACKET;
+			ಹಿಂತಿರುಗಿ MOSQ_ERR_MALFORMED_PACKET;
 		}
 
 		/* ACL check */
 		allowed = true;
-		rc = mosquitto_acl_check(context, sub.topic_filter, 0, NULL, 0, false, properties, MOSQ_ACL_UNSUBSCRIBE);
-		switch(rc){
-			case MOSQ_ERR_SUCCESS:
-				break;
-			case MOSQ_ERR_ACL_DENIED:
+		rc = mosquitto_acl_check(context, sub.topic_filter, 0, ಖಾಲಿ, 0, false, properties, MOSQ_ACL_UNSUBSCRIBE);
+		ಆಯ್ಕೆ(rc){
+			ಸ್ಥಿತಿ MOSQ_ERR_SUCCESS:
+				ನಿಲ್ಲಿಸು;
+			ಸ್ಥಿತಿ MOSQ_ERR_ACL_DENIED:
 				allowed = false;
 				reason = MQTT_RC_NOT_AUTHORIZED;
-				break;
-			default:
+				ನಿಲ್ಲಿಸು;
+			ಪೂರ್ವನಿಯೋಜಿತ:
 				mosquitto_FREE(sub.topic_filter);
 				mosquitto_FREE(reason_codes);
-				return rc;
+				ಹಿಂತಿರುಗಿ rc;
 		}
 
-		log__printf(NULL, MOSQ_LOG_DEBUG, "\t%s", sub.topic_filter);
-		if(allowed){
+		log__printf(ಖಾಲಿ, MOSQ_LOG_DEBUG, "\t%s", sub.topic_filter);
+		ಆದರೆ(allowed){
 			rc = plugin__handle_unsubscribe(context, &sub);
-			if(rc){
+			ಆದರೆ(rc){
 				mosquitto_FREE(sub.topic_filter);
 				mosquitto_FREE(reason_codes);
-				return rc;
+				ಹಿಂತಿರುಗಿ rc;
 			}
 			rc = sub__remove(context, sub.topic_filter, &reason);
 			plugin_persist__handle_subscription_delete(context, sub.topic_filter);
-		}else{
+		}ಇಲ್ಲದಿದ್ದರೆ{
 			rc = MOSQ_ERR_SUCCESS;
 		}
-		log__printf(NULL, MOSQ_LOG_UNSUBSCRIBE, "%s %s", context->id, sub.topic_filter);
+		log__printf(ಖಾಲಿ, MOSQ_LOG_UNSUBSCRIBE, "%s %s", context->id, sub.topic_filter);
 		mosquitto_FREE(sub.topic_filter);
-		if(rc){
+		ಆದರೆ(rc){
 			mosquitto_FREE(reason_codes);
-			return rc;
+			ಹಿಂತಿರುಗಿ rc;
 		}
 
-		reason_codes[reason_code_count] = reason;
-		reason_code_count++;
-		if(reason_code_count == reason_code_max){
-			reason_tmp = mosquitto_realloc(reason_codes, (size_t)(reason_code_max*2));
-			if(!reason_tmp){
+		reason_codes[reason_ಸಂಕೇತ_ಎಣಿಕೆ] = reason;
+		reason_ಸಂಕೇತ_ಎಣಿಕೆ++;
+		ಆದರೆ(reason_ಸಂಕೇತ_ಎಣಿಕೆ == reason_ಸಂಕೇತ_max){
+			reason_tmp = mosquitto_realloc(reason_codes, (size_t)(reason_ಸಂಕೇತ_max*2));
+			ಆದರೆ(!reason_tmp){
 				mosquitto_FREE(reason_codes);
-				return MOSQ_ERR_NOMEM;
+				ಹಿಂತಿರುಗಿ MOSQ_ERR_NOMEM;
 			}
 			reason_codes = reason_tmp;
-			reason_code_max *= 2;
+			reason_ಸಂಕೇತ_max *= 2;
 		}
 	}
-#ifdef WITH_PERSISTENCE
+#ವ್ಯಾಖ್ಯಾನಿತವಾದರೆ WITH_PERSISTENCE
 	db.persistence_changes++;
-#endif
+#ಆದರೆ_ಅಂತ್ಯ
 
-	log__printf(NULL, MOSQ_LOG_DEBUG, "Sending UNSUBACK to %s", context->id);
+	log__printf(ಖಾಲಿ, MOSQ_LOG_DEBUG, "Sending UNSUBACK to %s", context->id);
 
 	/* We don't use Reason String or User Property yet. */
-	rc = send__unsuback(context, mid, reason_code_count, reason_codes, NULL);
+	rc = send__unsuback(context, mid, reason_ಸಂಕೇತ_ಎಣಿಕೆ, reason_codes, ಖಾಲಿ);
 	mosquitto_FREE(reason_codes);
-	return rc;
+	ಹಿಂತಿರುಗಿ rc;
 }

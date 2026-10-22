@@ -16,9 +16,9 @@ Contributors:
    Roger Light - initial implementation and documentation.
 */
 
-#include "config.h"
+#ಅನ್ತರ್ಭಾವ "config.h"
 
-#ifndef WIN32
+#ವ್ಯಾಖ್ಯಾನಿತವಾಗದಿದ್ದರೆ WIN32
 #  include <arpa/inet.h>
 #  ifndef _AIX
 #    include <ifaddrs.h>
@@ -28,114 +28,114 @@ Contributors:
 #  include <strings.h>
 #  include <sys/socket.h>
 #  include <unistd.h>
-#else
+#ಇಲ್ಲದಿದ್ದರೆ
 #  include <winsock2.h>
 #  include <ws2tcpip.h>
-#endif
+#ಆದರೆ_ಅಂತ್ಯ
 
-#include <errno.h>
-#include <fcntl.h>
-#include <stdio.h>
-#include <string.h>
-#ifdef WITH_WRAP
+#ಅನ್ತರ್ಭಾವ <errno.h>
+#ಅನ್ತರ್ಭಾವ <fcntl.h>
+#ಅನ್ತರ್ಭಾವ <stdio.h>
+#ಅನ್ತರ್ಭಾವ <string.h>
+#ವ್ಯಾಖ್ಯಾನಿತವಾದರೆ WITH_WRAP
 #  include <tcpd.h>
-#endif
+#ಆದರೆ_ಅಂತ್ಯ
 
-#ifdef HAVE_NETINET_IN_H
+#ವ್ಯಾಖ್ಯಾನಿತವಾದರೆ HAVE_NETINET_ಒಳ_H
 #  include <netinet/in.h>
-#endif
+#ಆದರೆ_ಅಂತ್ಯ
 
-#if defined(WITH_UNIX_SOCKETS) || defined(WITH_TLS)
+#ಆದರೆ defined(WITH_UNIX_SOCKETS) || defined(WITH_TLS)
 #  include "sys/stat.h"
-#endif
+#ಆದರೆ_ಅಂತ್ಯ
 
-#ifdef WITH_UNIX_SOCKETS
+#ವ್ಯಾಖ್ಯಾನಿತವಾದರೆ WITH_UNIX_SOCKETS
 #  ifdef WIN32
 #    include <afunix.h>
-#  else
+#  ಇಲ್ಲದಿದ್ದರೆ
 #    include <sys/un.h>
 #  endif
-#endif
+#ಆದರೆ_ಅಂತ್ಯ
 
-#ifdef __QNX__
+#ವ್ಯಾಖ್ಯಾನಿತವಾದರೆ __QNX__
 #  include <net/netbyte.h>
-#endif
+#ಆದರೆ_ಅಂತ್ಯ
 
-#include "mosquitto_broker_internal.h"
-#include "mosquitto/mqtt_protocol.h"
-#include "net_mosq.h"
-#include "util_mosq.h"
+#ಅನ್ತರ್ಭಾವ "mosquitto_broker_internal.h"
+#ಅನ್ತರ್ಭಾವ "mosquitto/mqtt_protocol.h"
+#ಅನ್ತರ್ಭಾವ "net_mosq.h"
+#ಅನ್ತರ್ಭಾವ "util_mosq.h"
 
-#ifdef WITH_TLS
+#ವ್ಯಾಖ್ಯಾನಿತವಾದರೆ WITH_TLS
 #  include "tls_mosq.h"
 #  include <openssl/err.h>
-static int tls_ex_index_context = -1;
-static int tls_ex_index_listener = -1;
-#endif
+ಸ್ಥಿರ ಪೂರ್ಣಾಂಕ tls_ex_ಸೂಚ್ಯಂಕ_context = -1;
+ಸ್ಥಿರ ಪೂರ್ಣಾಂಕ tls_ex_ಸೂಚ್ಯಂಕ_listener = -1;
+#ಆದರೆ_ಅಂತ್ಯ
 
-#include "sys_tree.h"
+#ಅನ್ತರ್ಭಾವ "sys_tree.h"
 
 /* For EMFILE handling */
-static mosq_sock_t spare_sock = INVALID_SOCKET;
+ಸ್ಥಿರ mosq_sock_t ಹೆಚ್ಚುವರಿ_sock = INVALID_SOCKET;
 
 
-void net__broker_init(void)
+ಶೂನ್ಯ net__broker_init(ಶೂನ್ಯ)
 {
-	spare_sock = socket(AF_INET, SOCK_STREAM, 0);
+	ಹೆಚ್ಚುವರಿ_sock = socket(AF_INET, SOCK_STREAM, 0);
 	net__init();
-#ifdef WITH_TLS
+#ವ್ಯಾಖ್ಯಾನಿತವಾದರೆ WITH_TLS
 	net__init_tls();
-#endif
+#ಆದರೆ_ಅಂತ್ಯ
 }
 
 
-void net__broker_cleanup(void)
+ಶೂನ್ಯ net__broker_cleanup(ಶೂನ್ಯ)
 {
-	if(spare_sock != INVALID_SOCKET){
-		COMPAT_CLOSE(spare_sock);
-		spare_sock = INVALID_SOCKET;
+	ಆದರೆ(ಹೆಚ್ಚುವರಿ_sock != INVALID_SOCKET){
+		COMPAT_CLOSE(ಹೆಚ್ಚುವರಿ_sock);
+		ಹೆಚ್ಚುವರಿ_sock = INVALID_SOCKET;
 	}
 	net__cleanup();
 }
 
 
-static void net__print_error(unsigned int log, const char *format_str)
+ಸ್ಥಿರ ಶೂನ್ಯ net__print_error(ಚಿಹ್ನೆರಹಿತ ಪೂರ್ಣಾಂಕ ಲಘುಗಣಕ, ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *format_str)
 {
-	char *buf;
+	ಅಕ್ಷರ *buf;
 
-#ifdef WIN32
-	FormatMessage(FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM,
-			NULL, WSAGetLastError(), LANG_NEUTRAL, (LPTSTR)&buf, 0, NULL);
+#ವ್ಯಾಖ್ಯಾನಿತವಾದರೆ WIN32
+	Format_ಸಂದೇಶ(FORMAT_ಸಂದೇಶ_ALLOCATE_ಬಫರ್ | FORMAT_ಸಂದೇಶ_FROM_SYSTEM,
+			ಖಾಲಿ, WSAGet_ಕೊನೆಯ_Error(), LANG_NEUTRAL, (LPTSTR)&buf, 0, ಖಾಲಿ);
 
-	log__printf(NULL, log, format_str, buf);
+	log__printf(ಖಾಲಿ, ಲಘುಗಣಕ, format_str, buf);
 	LocalFree(buf);
-#else
+#ಇಲ್ಲದಿದ್ದರೆ
 	buf = strerror(errno);
-	log__printf(NULL, log, format_str, buf);
-#endif
+	log__printf(ಖಾಲಿ, ಲಘುಗಣಕ, format_str, buf);
+#ಆದರೆ_ಅಂತ್ಯ
 }
 
 
-struct mosquitto *net__socket_accept(struct mosquitto__listener_sock *listensock)
+ರಚನೆ mosquitto *net__socket_accept(ರಚನೆ mosquitto__listener_sock *listensock)
 {
 	mosq_sock_t new_sock = INVALID_SOCKET;
-	struct mosquitto *new_context;
-#ifdef WITH_TLS
+	ರಚನೆ mosquitto *new_context;
+#ವ್ಯಾಖ್ಯಾನಿತವಾದರೆ WITH_TLS
 	BIO *bio;
-#endif
-#ifdef WITH_WRAP
-	struct request_info wrap_req;
-	char address[1024];
-#endif
+#ಆದರೆ_ಅಂತ್ಯ
+#ವ್ಯಾಖ್ಯಾನಿತವಾದರೆ WITH_WRAP
+	ರಚನೆ request_info wrap_req;
+	ಅಕ್ಷರ ವಿಳಾಸ[1024];
+#ಆದರೆ_ಅಂತ್ಯ
 
-	new_sock = accept(listensock->sock, NULL, 0);
-	if(new_sock == INVALID_SOCKET){
-#ifdef WIN32
-		WINDOWS_SET_ERRNO();
-		if(errno == WSAEMFILE){
-#else
-		if(errno == EMFILE || errno == ENFILE){
-#endif
+	new_sock = accept(listensock->sock, ಖಾಲಿ, 0);
+	ಆದರೆ(new_sock == INVALID_SOCKET){
+#ವ್ಯಾಖ್ಯಾನಿತವಾದರೆ WIN32
+		WINDOWS_ಗಣ_ERRNO();
+		ಆದರೆ(errno == WSAEMFILE){
+#ಇಲ್ಲದಿದ್ದರೆ
+		ಆದರೆ(errno == EMFILE || errno == ENFILE){
+#ಆದರೆ_ಅಂತ್ಯ
 			/* Close the spare socket, which means we should be able to accept
 			 * this connection. Accept it, then close it immediately and create
 			 * a new spare_sock. This prevents the situation of ever properly
@@ -143,585 +143,585 @@ struct mosquitto *net__socket_accept(struct mosquitto__listener_sock *listensock
 			 * It would be nice to send a "server not available" connack here,
 			 * but there are lots of reasons why this would be tricky (TLS
 			 * being the big one). */
-			COMPAT_CLOSE(spare_sock);
-			new_sock = accept(listensock->sock, NULL, 0);
-			if(new_sock != INVALID_SOCKET){
+			COMPAT_CLOSE(ಹೆಚ್ಚುವರಿ_sock);
+			new_sock = accept(listensock->sock, ಖಾಲಿ, 0);
+			ಆದರೆ(new_sock != INVALID_SOCKET){
 				COMPAT_CLOSE(new_sock);
 			}
-			spare_sock = socket(AF_INET, SOCK_STREAM, 0);
-			log__printf(NULL, MOSQ_LOG_WARNING,
+			ಹೆಚ್ಚುವರಿ_sock = socket(AF_INET, SOCK_STREAM, 0);
+			log__printf(ಖಾಲಿ, MOSQ_LOG_WARNING,
 					"Unable to accept new connection, system socket count has been exceeded. Try increasing \"ulimit -n\" or equivalent.");
 		}
-		return NULL;
+		ಹಿಂತಿರುಗಿ ಖಾಲಿ;
 	}
 
 	metrics__int_inc(mosq_counter_socket_connections, 1);
 
-	if(net__socket_nonblock(&new_sock)){
-		return NULL;
+	ಆದರೆ(net__socket_nonblock(&new_sock)){
+		ಹಿಂತಿರುಗಿ ಖಾಲಿ;
 	}
 
-#ifdef WITH_WRAP
+#ವ್ಯಾಖ್ಯಾನಿತವಾದರೆ WITH_WRAP
 	/* Use tcpd / libwrap to determine whether a connection is allowed. */
 	request_init(&wrap_req, RQ_FILE, new_sock, RQ_DAEMON, "mosquitto", 0);
 	fromhost(&wrap_req);
-	if(!hosts_access(&wrap_req)){
+	ಆದರೆ(!hosts_access(&wrap_req)){
 		/* Access is denied */
-		if(db.config->connection_messages == true){
-			if(!net__socket_get_address(new_sock, address, 1024, NULL)){
-				log__printf(NULL, MOSQ_LOG_NOTICE, "Client connection from %s denied access by tcpd.", address);
+		ಆದರೆ(db.config->connection_messages == true){
+			ಆದರೆ(!net_socket_get_ವಿಳಾಸ(new_sock, ವಿಳಾಸ, 1024, ಖಾಲಿ)){
+				log__printf(ಖಾಲಿ, MOSQ_LOG_NOTICE, "Client connection from %s denied access by tcpd.", ವಿಳಾಸ);
 			}
 		}
 		COMPAT_CLOSE(new_sock);
-		return NULL;
+		ಹಿಂತಿರುಗಿ ಖಾಲಿ;
 	}
-#endif
+#ಆದರೆ_ಅಂತ್ಯ
 
-	if(db.config->set_tcp_nodelay && listensock->listener->port){
-		int flag = 1;
-		if(setsockopt(new_sock, IPPROTO_TCP, TCP_NODELAY, (const void *)&flag, sizeof(int)) != 0){
-			log__printf(NULL, MOSQ_LOG_WARNING, "Warning: Unable to set TCP_NODELAY.");
+	ಆದರೆ(db.config->ಗಣ_tcp_nodelay && listensock->listener->ಪೋರ್ಟ್){
+		ಪೂರ್ಣಾಂಕ flag = 1;
+		ಆದರೆ(setsockopt(new_sock, IPPROTO_TCP, TCP_NODELAY, (ಸ್ಥಿರಾಂಕ ಶೂನ್ಯ *)&flag, ಗಾತ್ರ(ಪೂರ್ಣಾಂಕ)) != 0){
+			log__printf(ಖಾಲಿ, MOSQ_LOG_WARNING, "Warning: Unable to set TCP_NODELAY.");
 		}
 	}
 
 	new_context = context__init();
-	if(!new_context){
+	ಆದರೆ(!new_context){
 		COMPAT_CLOSE(new_sock);
-		return NULL;
+		ಹಿಂತಿರುಗಿ ಖಾಲಿ;
 	}
 	new_context->listener = listensock->listener;
-	if(!new_context->listener){
+	ಆದರೆ(!new_context->listener){
 		context__cleanup(new_context, true);
-		return NULL;
+		ಹಿಂತಿರುಗಿ ಖಾಲಿ;
 	}
-	new_context->listener->client_count++;
+	new_context->listener->client_ಎಣಿಕೆ++;
 
-	if(new_context->listener->enable_proxy_protocol){
-		if(context__init_sock(new_context, new_sock, false) != MOSQ_ERR_SUCCESS){
+	ಆದರೆ(new_context->listener->enable_proxy_protocol){
+		ಆದರೆ(context__init_sock(new_context, new_sock, false) != MOSQ_ERR_SUCCESS){
 			context__cleanup(new_context, true);
 			COMPAT_CLOSE(new_sock);
-			return NULL;
+			ಹಿಂತಿರುಗಿ ಖಾಲಿ;
 		}
-		if(new_context->listener->enable_proxy_protocol == 2){
+		ಆದರೆ(new_context->listener->enable_proxy_protocol == 2){
 			new_context->transport = mosq_t_proxy_v2;
-		}else{
+		}ಇಲ್ಲದಿದ್ದರೆ{
 			new_context->transport = mosq_t_proxy_v1;
 		}
 		new_context->proxy.cmd = -1;
-	}else{
-		if(context__init_sock(new_context, new_sock, true) != MOSQ_ERR_SUCCESS){
+	}ಇಲ್ಲದಿದ್ದರೆ{
+		ಆದರೆ(context__init_sock(new_context, new_sock, true) != MOSQ_ERR_SUCCESS){
 			context__cleanup(new_context, true);
 			COMPAT_CLOSE(new_sock);
-			return NULL;
+			ಹಿಂತಿರುಗಿ ಖಾಲಿ;
 		}
-		switch(new_context->listener->protocol){
-			case mp_mqtt:
+		ಆಯ್ಕೆ(new_context->listener->protocol){
+			ಸ್ಥಿತಿ mp_mqtt:
 				new_context->transport = mosq_t_tcp;
-				break;
-#if defined(WITH_WEBSOCKETS) && WITH_WEBSOCKETS == WS_IS_BUILTIN
-			case mp_websockets:
-				if(http__context_init(new_context)){
+				ನಿಲ್ಲಿಸು;
+#ಆದರೆ defined(WITH_WEBSOCKETS) && WITH_WEBSOCKETS == WS_IS_BUILTIN
+			ಸ್ಥಿತಿ mp_websockets:
+				ಆದರೆ(http__context_init(new_context)){
 					context__cleanup(new_context, true);
-					return NULL;
+					ಹಿಂತಿರುಗಿ ಖಾಲಿ;
 				}
-				break;
-#endif
-			default:
+				ನಿಲ್ಲಿಸು;
+#ಆದರೆ_ಅಂತ್ಯ
+			ಪೂರ್ವನಿಯೋಜಿತ:
 				context__cleanup(new_context, true);
-				return NULL;
+				ಹಿಂತಿರುಗಿ ಖಾಲಿ;
 		}
 	}
 
-	if((new_context->listener->max_connections > 0 && new_context->listener->client_count > new_context->listener->max_connections)
-			|| (db.config->global_max_connections > 0 && HASH_CNT(hh_sock, db.contexts_by_sock) > (unsigned int)db.config->global_max_connections)){
+	ಆದರೆ((new_context->listener->max_connections > 0 && new_context->listener->client_ಎಣಿಕೆ > new_context->listener->max_connections)
+			|| (db.config->global_max_connections > 0 && HASH_CNT(hh_sock, db.contexts_by_sock) > (ಚಿಹ್ನೆರಹಿತ ಪೂರ್ಣಾಂಕ)db.config->global_max_connections)){
 
-		if(db.config->connection_messages == true){
-			log__printf(NULL, MOSQ_LOG_NOTICE, "Client connection from %s denied: max_connections exceeded.", new_context->address);
+		ಆದರೆ(db.config->connection_messages == true){
+			log__printf(ಖಾಲಿ, MOSQ_LOG_NOTICE, "Client connection from %s denied: max_connections exceeded.", new_context->ವಿಳಾಸ);
 		}
 		context__cleanup(new_context, true);
-		return NULL;
+		ಹಿಂತಿರುಗಿ ಖಾಲಿ;
 	}
 
-#ifdef WITH_TLS
+#ವ್ಯಾಖ್ಯಾನಿತವಾದರೆ WITH_TLS
 	/* TLS init */
-	if(new_context->listener->ssl_ctx){
+	ಆದರೆ(new_context->listener->ssl_ctx){
 		new_context->ssl = SSL_new(new_context->listener->ssl_ctx);
-		if(!new_context->ssl){
+		ಆದರೆ(!new_context->ssl){
 			context__cleanup(new_context, true);
-			return NULL;
+			ಹಿಂತಿರುಗಿ ಖಾಲಿ;
 		}
-		if(!SSL_set_ex_data(new_context->ssl, tls_ex_index_context, new_context)
-				|| !SSL_set_ex_data(new_context->ssl, tls_ex_index_listener, new_context->listener)){
+		ಆದರೆ(!SSL_ಗಣ_ex_ದತ್ತಾಂಶ(new_context->ssl, tls_ex_ಸೂಚ್ಯಂಕ_context, new_context)
+				|| !SSL_ಗಣ_ex_ದತ್ತಾಂಶ(new_context->ssl, tls_ex_ಸೂಚ್ಯಂಕ_listener, new_context->listener)){
 			context__cleanup(new_context, true);
-			return NULL;
+			ಹಿಂತಿರುಗಿ ಖಾಲಿ;
 		}
 		new_context->want_write = true;
 		bio = BIO_new_socket(new_sock, BIO_NOCLOSE);
-		SSL_set_bio(new_context->ssl, bio, bio);
+		SSL_ಗಣ_bio(new_context->ssl, bio, bio);
 		ERR_clear_error();
-		SSL_set_accept_state(new_context->ssl);
+		SSL_ಗಣ_accept_state(new_context->ssl);
 	}
-#endif
+#ಆದರೆ_ಅಂತ್ಯ
 
-	if(db.config->connection_messages == true
+	ಆದರೆ(db.config->connection_messages == true
 			&& !new_context->listener->enable_proxy_protocol){
 
-		log__printf(NULL, MOSQ_LOG_NOTICE, "New connection from %s:%d on port %d.",
-				new_context->address, new_context->remote_port, new_context->listener->port);
+		log__printf(ಖಾಲಿ, MOSQ_LOG_NOTICE, "New connection from %s:%d on port %d.",
+				new_context->ವಿಳಾಸ, new_context->remote_ಪೋರ್ಟ್, new_context->listener->ಪೋರ್ಟ್);
 	}
 
 	mux__new(new_context);
-	keepalive__add(new_context);
+	keepalive_ಕೂಡಿಸು(new_context);
 
-	return new_context;
+	ಹಿಂತಿರುಗಿ new_context;
 }
 
-#ifdef WITH_TLS
+#ವ್ಯಾಖ್ಯಾನಿತವಾದರೆ WITH_TLS
 
 
-static int client_certificate_verify(int preverify_ok, X509_STORE_CTX *ctx)
+ಸ್ಥಿರ ಪೂರ್ಣಾಂಕ client_certificate_verify(ಪೂರ್ಣಾಂಕ preverify_ok, X509_STORE_CTX *ctx)
 {
 	/* Preverify should check expiry, revocation. */
-	if(preverify_ok == 0){
+	ಆದರೆ(preverify_ok == 0){
 		SSL *ssl;
-		ssl = X509_STORE_CTX_get_ex_data(ctx, SSL_get_ex_data_X509_STORE_CTX_idx());
-		if(ssl){
-			struct mosquitto__listener *listener;
-			listener = SSL_get_ex_data(ssl, tls_ex_index_listener);
+		ssl = X509_STORE_CTX_get_ex_ದತ್ತಾಂಶ(ctx, SSL_get_ex_ದತ್ತಾಂಶ_X509_STORE_CTX_idx());
+		ಆದರೆ(ssl){
+			ರಚನೆ mosquitto__listener *listener;
+			listener = SSL_get_ex_ದತ್ತಾಂಶ(ssl, tls_ex_ಸೂಚ್ಯಂಕ_listener);
 
-			if(listener && listener->disable_client_cert_date_checks){
-				int err = X509_STORE_CTX_get_error(ctx);
-				if(err == X509_V_ERR_CERT_NOT_YET_VALID || err == X509_V_ERR_CERT_HAS_EXPIRED){
+			ಆದರೆ(listener && listener->disable_client_cert_date_checks){
+				ಪೂರ್ಣಾಂಕ err = X509_STORE_CTX_get_error(ctx);
+				ಆದರೆ(err == X509_V_ERR_CERT_NOT_YET_VALID || err == X509_V_ERR_CERT_HAS_EXPIRED){
 					preverify_ok = 1;
 				}
 			}
 		}
 	}
-	return preverify_ok;
+	ಹಿಂತಿರುಗಿ preverify_ok;
 }
-#endif
+#ಆದರೆ_ಅಂತ್ಯ
 
-#ifdef FINAL_WITH_TLS_PSK
+#ವ್ಯಾಖ್ಯಾನಿತವಾದರೆ FINAL_WITH_TLS_PSK
 
 
-static unsigned int psk_server_callback(SSL *ssl, const char *identity, unsigned char *psk, unsigned int max_psk_len)
+ಸ್ಥಿರ ಚಿಹ್ನೆರಹಿತ ಪೂರ್ಣಾಂಕ psk_server_callback(SSL *ssl, ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *ತಟಸ್ಥ, ಚಿಹ್ನೆರಹಿತ ಅಕ್ಷರ *psk, ಚಿಹ್ನೆರಹಿತ ಪೂರ್ಣಾಂಕ max_psk_len)
 {
-	struct mosquitto *context;
-	struct mosquitto__listener *listener;
-	char *psk_key = NULL;
-	int len;
-	const char *psk_hint;
+	ರಚನೆ mosquitto *context;
+	ರಚನೆ mosquitto__listener *listener;
+	ಅಕ್ಷರ *psk_ಕೀಲಿ = ಖಾಲಿ;
+	ಪೂರ್ಣಾಂಕ len;
+	ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *psk_hint;
 
-	if(!identity){
-		return 0;
+	ಆದರೆ(!ತಟಸ್ಥ){
+		ಹಿಂತಿರುಗಿ 0;
 	}
 
-	context = SSL_get_ex_data(ssl, tls_ex_index_context);
-	if(!context){
-		return 0;
+	context = SSL_get_ex_ದತ್ತಾಂಶ(ssl, tls_ex_ಸೂಚ್ಯಂಕ_context);
+	ಆದರೆ(!context){
+		ಹಿಂತಿರುಗಿ 0;
 	}
 
-	listener = SSL_get_ex_data(ssl, tls_ex_index_listener);
-	if(!listener){
-		return 0;
+	listener = SSL_get_ex_ದತ್ತಾಂಶ(ssl, tls_ex_ಸೂಚ್ಯಂಕ_listener);
+	ಆದರೆ(!listener){
+		ಹಿಂತಿರುಗಿ 0;
 	}
 
 	psk_hint = listener->psk_hint;
 
 	/* The hex to BN conversion results in the length halving, so we can pass
 	 * max_psk_len*2 as the max hex key here. */
-	psk_key = mosquitto_calloc(1, (size_t)max_psk_len*2 + 1);
-	if(!psk_key){
-		return 0;
+	psk_ಕೀಲಿ = mosquitto_calloc(1, (size_t)max_psk_len*2 + 1);
+	ಆದರೆ(!psk_ಕೀಲಿ){
+		ಹಿಂತಿರುಗಿ 0;
 	}
 
-	if(mosquitto_psk_key_get(context, psk_hint, identity, psk_key, (int)max_psk_len*2) != MOSQ_ERR_SUCCESS){
-		mosquitto_FREE(psk_key);
-		return 0;
+	ಆದರೆ(mosquitto_psk_ಕೀಲಿ_get(context, psk_hint, ತಟಸ್ಥ, psk_ಕೀಲಿ, (ಪೂರ್ಣಾಂಕ)max_psk_len*2) != MOSQ_ERR_SUCCESS){
+		mosquitto_FREE(psk_ಕೀಲಿ);
+		ಹಿಂತಿರುಗಿ 0;
 	}
 
-	len = mosquitto__hex2bin(psk_key, psk, (int)max_psk_len);
-	if(len < 0){
-		mosquitto_FREE(psk_key);
-		return 0;
+	len = mosquitto__hex2bin(psk_ಕೀಲಿ, psk, (ಪೂರ್ಣಾಂಕ)max_psk_len);
+	ಆದರೆ(len < 0){
+		mosquitto_FREE(psk_ಕೀಲಿ);
+		ಹಿಂತಿರುಗಿ 0;
 	}
 
-	if(listener->use_identity_as_username){
-		if(mosquitto_validate_utf8(identity, (int)strlen(identity))){
-			mosquitto_free(psk_key);
-			return 0;
+	ಆದರೆ(listener->use_ತಟಸ್ಥ_as_username){
+		ಆದರೆ(mosquitto_validate_utf8(ತಟಸ್ಥ, (ಪೂರ್ಣಾಂಕ)ಅಕ್ಷರಸರಣಿ_ಉದ್ದ(ತಟಸ್ಥ))){
+			mosquitto_free(psk_ಕೀಲಿ);
+			ಹಿಂತಿರುಗಿ 0;
 		}
-		context->username = mosquitto_strdup(identity);
-		if(!context->username){
-			mosquitto_FREE(psk_key);
-			return 0;
+		context->username = mosquitto_strdup(ತಟಸ್ಥ);
+		ಆದರೆ(!context->username){
+			mosquitto_FREE(psk_ಕೀಲಿ);
+			ಹಿಂತಿರುಗಿ 0;
 		}
 	}
 
-	mosquitto_FREE(psk_key);
-	return (unsigned int)len;
+	mosquitto_FREE(psk_ಕೀಲಿ);
+	ಹಿಂತಿರುಗಿ (ಚಿಹ್ನೆರಹಿತ ಪೂರ್ಣಾಂಕ)len;
 }
-#endif
+#ಆದರೆ_ಅಂತ್ಯ
 
-#ifdef WITH_TLS
+#ವ್ಯಾಖ್ಯಾನಿತವಾದರೆ WITH_TLS
 
 
-static void tls_keylog_callback(const SSL *ssl, const char *line)
+ಸ್ಥಿರ ಶೂನ್ಯ tls_keylog_callback(ಸ್ಥಿರಾಂಕ SSL *ssl, ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *ಸಾಲು)
 {
-	UNUSED(ssl);
+	ಬಳಸದ(ssl);
 
-	if(db.tls_keylog){
+	ಆದರೆ(db.tls_keylog){
 		FILE *fptr;
 		fptr = mosquitto_fopen(db.tls_keylog, "at", true);
-		if(fptr){
-#ifndef WIN32
+		ಆದರೆ(fptr){
+#ವ್ಯಾಖ್ಯಾನಿತವಾಗದಿದ್ದರೆ WIN32
 			/* Until mosquitto_fopen enforces file permissions on all files,
 			 * enforce it here. We can enforce it here, because it isn't a
 			 * change of behaviour. */
-			struct stat statbuf;
-			if(fstat(fileno(fptr), &statbuf) < 0
-					|| statbuf.st_mode & (S_IRWXG | S_IRWXO)){
+			ರಚನೆ stat statbuf;
+			ಆದರೆ(fstat(fileno(fptr), &statbuf) < 0
+					|| statbuf.st_ಬಹುಲಕ & (S_IRWXG | S_IRWXO)){
 
 				fclose(fptr);
-				return;
+				ಹಿಂತಿರುಗಿ;
 			}
-#endif
-			fprintf(fptr, "%s\n", line);
+#ಆದರೆ_ಅಂತ್ಯ
+			fprintf(fptr, "%s\n", ಸಾಲು);
 			fclose(fptr);
-		}else{
-#ifndef WIN32
-			if(errno == ELOOP){
-				log__printf(NULL, MOSQ_LOG_INFO, "Error: keylog file must not be a symbolic link");
-			}else
-#endif
+		}ಇಲ್ಲದಿದ್ದರೆ{
+#ವ್ಯಾಖ್ಯಾನಿತವಾಗದಿದ್ದರೆ WIN32
+			ಆದರೆ(errno == ELOOP){
+				log__printf(ಖಾಲಿ, MOSQ_LOG_INFO, "Error: keylog file must not be a symbolic link");
+			}ಇಲ್ಲದಿದ್ದರೆ
+#ಆದರೆ_ಅಂತ್ಯ
 			{
-				log__printf(NULL, MOSQ_LOG_INFO, "Error: Unable to open keylog file: %s", strerror(errno));
+				log__printf(ಖಾಲಿ, MOSQ_LOG_INFO, "Error: Unable to open keylog file: %s", strerror(errno));
 			}
 		}
 	}
 }
 
 
-int net__tls_server_ctx(struct mosquitto__listener *listener)
+ಪೂರ್ಣಾಂಕ net__tls_server_ctx(ರಚನೆ mosquitto__listener *listener)
 {
-	char buf[256];
-	int rc;
+	ಅಕ್ಷರ buf[256];
+	ಪೂರ್ಣಾಂಕ rc;
 
-	if(tls_ex_index_context == -1){
-		tls_ex_index_context = SSL_get_ex_new_index(0, "client context", NULL, NULL, NULL);
+	ಆದರೆ(tls_ex_ಸೂಚ್ಯಂಕ_context == -1){
+		tls_ex_ಸೂಚ್ಯಂಕ_context = SSL_get_ex_new_ಸೂಚ್ಯಂಕ(0, "client context", ಖಾಲಿ, ಖಾಲಿ, ಖಾಲಿ);
 	}
-	if(tls_ex_index_listener == -1){
-		tls_ex_index_listener = SSL_get_ex_new_index(0, "listener", NULL, NULL, NULL);
+	ಆದರೆ(tls_ex_ಸೂಚ್ಯಂಕ_listener == -1){
+		tls_ex_ಸೂಚ್ಯಂಕ_listener = SSL_get_ex_new_ಸೂಚ್ಯಂಕ(0, "listener", ಖಾಲಿ, ಖಾಲಿ, ಖಾಲಿ);
 	}
 
-	if(listener->ssl_ctx){
+	ಆದರೆ(listener->ssl_ctx){
 		SSL_CTX_free(listener->ssl_ctx);
-		listener->ssl_ctx = NULL;
+		listener->ssl_ctx = ಖಾಲಿ;
 	}
 
-	listener->ssl_ctx = SSL_CTX_new(TLS_server_method());
+	listener->ssl_ctx = SSL_CTX_new(TLS_server_ವಿಧಾನ());
 
-	if(!listener->ssl_ctx){
-		log__printf(NULL, MOSQ_LOG_ERR, "Error: Unable to create TLS context.");
-		return MOSQ_ERR_TLS;
+	ಆದರೆ(!listener->ssl_ctx){
+		log__printf(ಖಾಲಿ, MOSQ_LOG_ERR, "Error: Unable to create TLS context.");
+		ಹಿಂತಿರುಗಿ MOSQ_ERR_TLS;
 	}
 
-#ifdef SSL_OP_NO_TLSv1_3
-	if(db.config->per_listener_settings){
-		if(listener->security_options->psk_file){
-			SSL_CTX_set_options(listener->ssl_ctx, SSL_OP_NO_TLSv1_3);
+#ವ್ಯಾಖ್ಯಾನಿತವಾದರೆ SSL_OP_NO_TLSv1_3
+	ಆದರೆ(db.config->ಪ್ರತಿ_listener_settings){
+		ಆದರೆ(listener->security_options->psk_file){
+			SSL_CTX_ಗಣ_options(listener->ssl_ctx, SSL_OP_NO_TLSv1_3);
 		}
-	}else{
-		if(db.config->security_options.psk_file){
-			SSL_CTX_set_options(listener->ssl_ctx, SSL_OP_NO_TLSv1_3);
+	}ಇಲ್ಲದಿದ್ದರೆ{
+		ಆದರೆ(db.config->security_options.psk_file){
+			SSL_CTX_ಗಣ_options(listener->ssl_ctx, SSL_OP_NO_TLSv1_3);
 		}
 	}
-#endif
+#ಆದರೆ_ಅಂತ್ಯ
 
-	if(listener->tls_version == NULL){
-		SSL_CTX_set_options(listener->ssl_ctx, SSL_OP_NO_SSLv3 | SSL_OP_NO_TLSv1 | SSL_OP_NO_TLSv1_1);
-#ifdef SSL_OP_NO_TLSv1_3
-	}else if(!strcmp(listener->tls_version, "tlsv1.3")){
-		SSL_CTX_set_options(listener->ssl_ctx, SSL_OP_NO_SSLv3 | SSL_OP_NO_TLSv1 | SSL_OP_NO_TLSv1_1 | SSL_OP_NO_TLSv1_2);
-#endif
-	}else if(!strcmp(listener->tls_version, "tlsv1.2")){
-		SSL_CTX_set_options(listener->ssl_ctx, SSL_OP_NO_SSLv3 | SSL_OP_NO_TLSv1 | SSL_OP_NO_TLSv1_1);
-	}else if(!strcmp(listener->tls_version, "tlsv1.1")){
-		SSL_CTX_set_options(listener->ssl_ctx, SSL_OP_NO_SSLv3 | SSL_OP_NO_TLSv1);
-		log__printf(NULL, MOSQ_LOG_WARNING, "Warning: TLS v1.1 is insecure. It must only be used in the case "
+	ಆದರೆ(listener->tls_ಆವೃತ್ತಿ == ಖಾಲಿ){
+		SSL_CTX_ಗಣ_options(listener->ssl_ctx, SSL_OP_NO_SSLv3 | SSL_OP_NO_TLSv1 | SSL_OP_NO_TLSv1_1);
+#ವ್ಯಾಖ್ಯಾನಿತವಾದರೆ SSL_OP_NO_TLSv1_3
+	}ಇಲ್ಲದಿದ್ದರೆ ಆದರೆ(!strcmp(listener->tls_ಆವೃತ್ತಿ, "tlsv1.3")){
+		SSL_CTX_ಗಣ_options(listener->ssl_ctx, SSL_OP_NO_SSLv3 | SSL_OP_NO_TLSv1 | SSL_OP_NO_TLSv1_1 | SSL_OP_NO_TLSv1_2);
+#ಆದರೆ_ಅಂತ್ಯ
+	}ಇಲ್ಲದಿದ್ದರೆ ಆದರೆ(!strcmp(listener->tls_ಆವೃತ್ತಿ, "tlsv1.2")){
+		SSL_CTX_ಗಣ_options(listener->ssl_ctx, SSL_OP_NO_SSLv3 | SSL_OP_NO_TLSv1 | SSL_OP_NO_TLSv1_1);
+	}ಇಲ್ಲದಿದ್ದರೆ ಆದರೆ(!strcmp(listener->tls_ಆವೃತ್ತಿ, "tlsv1.1")){
+		SSL_CTX_ಗಣ_options(listener->ssl_ctx, SSL_OP_NO_SSLv3 | SSL_OP_NO_TLSv1);
+		log__printf(ಖಾಲಿ, MOSQ_LOG_WARNING, "Warning: TLS v1.1 is insecure. It must only be used in the case "
 				"where you have devices that cannot be upgraded to use a secure version of TLS. It is "
 				"recommended to use as secure a set of ciphers as possible and that will restrict it to "
 				"TLS v1.1 only, and to use a separate listener using TLS v1.2 and secure ciphers for your "
 				"other devices.");
-		log__printf(NULL, MOSQ_LOG_WARNING, "Please be aware that support for TLS v1.1 will go away eventually "
+		log__printf(ಖಾಲಿ, MOSQ_LOG_WARNING, "Please be aware that support for TLS v1.1 will go away eventually "
 				"and that you should plan now to migrate away from it.");
-	}else{
-		log__printf(NULL, MOSQ_LOG_ERR, "Error: Unsupported tls_version \"%s\".", listener->tls_version);
-		return MOSQ_ERR_TLS;
+	}ಇಲ್ಲದಿದ್ದರೆ{
+		log__printf(ಖಾಲಿ, MOSQ_LOG_ERR, "Error: Unsupported tls_version \"%s\".", listener->tls_ಆವೃತ್ತಿ);
+		ಹಿಂತಿರುಗಿ MOSQ_ERR_TLS;
 	}
 
-#ifdef SSL_OP_NO_COMPRESSION
+#ವ್ಯಾಖ್ಯಾನಿತವಾದರೆ SSL_OP_NO_COMPRESSION
 	/* Disable compression */
-	SSL_CTX_set_options(listener->ssl_ctx, SSL_OP_NO_COMPRESSION);
-#endif
-#ifdef SSL_OP_CIPHER_SERVER_PREFERENCE
+	SSL_CTX_ಗಣ_options(listener->ssl_ctx, SSL_OP_NO_COMPRESSION);
+#ಆದರೆ_ಅಂತ್ಯ
+#ವ್ಯಾಖ್ಯಾನಿತವಾದರೆ SSL_OP_CIPHER_SERVER_PREFERENCE
 	/* Server chooses cipher */
-	SSL_CTX_set_options(listener->ssl_ctx, SSL_OP_CIPHER_SERVER_PREFERENCE);
-#endif
+	SSL_CTX_ಗಣ_options(listener->ssl_ctx, SSL_OP_CIPHER_SERVER_PREFERENCE);
+#ಆದರೆ_ಅಂತ್ಯ
 
-#ifdef SSL_MODE_RELEASE_BUFFERS
+#ವ್ಯಾಖ್ಯಾನಿತವಾದರೆ SSL_ಬಹುಲಕ_RELEASE_BUFFERS
 	/* Use even less memory per SSL connection. */
-	SSL_CTX_set_mode(listener->ssl_ctx, SSL_MODE_RELEASE_BUFFERS);
-#endif
+	SSL_CTX_ಗಣ_ಬಹುಲಕ(listener->ssl_ctx, SSL_ಬಹುಲಕ_RELEASE_BUFFERS);
+#ಆದರೆ_ಅಂತ್ಯ
 
-	SSL_CTX_set_dh_auto(listener->ssl_ctx, 1);
+	SSL_CTX_ಗಣ_dh_auto(listener->ssl_ctx, 1);
 
-#ifdef SSL_OP_NO_RENEGOTIATION
-	SSL_CTX_set_options(listener->ssl_ctx, SSL_OP_NO_RENEGOTIATION);
-#endif
+#ವ್ಯಾಖ್ಯಾನಿತವಾದರೆ SSL_OP_NO_RENEGOTIATION
+	SSL_CTX_ಗಣ_options(listener->ssl_ctx, SSL_OP_NO_RENEGOTIATION);
+#ಆದರೆ_ಅಂತ್ಯ
 
-	if(db.tls_keylog){
-		log__printf(NULL, MOSQ_LOG_NOTICE, "TLS key logging to '%s' enabled for all listeners.",
+	ಆದರೆ(db.tls_keylog){
+		log__printf(ಖಾಲಿ, MOSQ_LOG_NOTICE, "TLS key logging to '%s' enabled for all listeners.",
 				db.tls_keylog);
-		log__printf(NULL, MOSQ_LOG_NOTICE, "TLS key logging is for DEBUGGING only.");
+		log__printf(ಖಾಲಿ, MOSQ_LOG_NOTICE, "TLS key logging is for DEBUGGING only.");
 
-		SSL_CTX_set_keylog_callback(listener->ssl_ctx, tls_keylog_callback);
+		SSL_CTX_ಗಣ_keylog_callback(listener->ssl_ctx, tls_keylog_callback);
 	}
 
-	snprintf(buf, 256, "mosquitto-%d", listener->port);
-	SSL_CTX_set_session_id_context(listener->ssl_ctx, (unsigned char *)buf, (unsigned int)strlen(buf));
+	snprintf(buf, 256, "mosquitto-%d", listener->ಪೋರ್ಟ್);
+	SSL_CTX_ಗಣ_session_id_context(listener->ssl_ctx, (ಚಿಹ್ನೆರಹಿತ ಅಕ್ಷರ *)buf, (ಚಿಹ್ನೆರಹಿತ ಪೂರ್ಣಾಂಕ)ಅಕ್ಷರಸರಣಿ_ಉದ್ದ(buf));
 
-	if(listener->ciphers){
-		rc = SSL_CTX_set_cipher_list(listener->ssl_ctx, listener->ciphers);
-		if(rc == 0){
-			log__printf(NULL, MOSQ_LOG_ERR, "Error: Unable to set TLS ciphers. Check cipher list \"%s\".", listener->ciphers);
-			return MOSQ_ERR_TLS;
+	ಆದರೆ(listener->ciphers){
+		rc = SSL_CTX_ಗಣ_cipher_list(listener->ssl_ctx, listener->ciphers);
+		ಆದರೆ(rc == 0){
+			log__printf(ಖಾಲಿ, MOSQ_LOG_ERR, "Error: Unable to set TLS ciphers. Check cipher list \"%s\".", listener->ciphers);
+			ಹಿಂತಿರುಗಿ MOSQ_ERR_TLS;
 		}
-	}else{
-		rc = SSL_CTX_set_cipher_list(listener->ssl_ctx, "DEFAULT:!aNULL:!eNULL:!LOW:!EXPORT:!SSLv2:@STRENGTH");
-		if(rc == 0){
-			log__printf(NULL, MOSQ_LOG_ERR, "Error: Unable to set TLS ciphers. Check cipher list \"%s\".", listener->ciphers);
-			return MOSQ_ERR_TLS;
+	}ಇಲ್ಲದಿದ್ದರೆ{
+		rc = SSL_CTX_ಗಣ_cipher_list(listener->ssl_ctx, "DEFAULT:!aNULL:!eNULL:!LOW:!EXPORT:!SSLv2:@STRENGTH");
+		ಆದರೆ(rc == 0){
+			log__printf(ಖಾಲಿ, MOSQ_LOG_ERR, "Error: Unable to set TLS ciphers. Check cipher list \"%s\".", listener->ciphers);
+			ಹಿಂತಿರುಗಿ MOSQ_ERR_TLS;
 		}
 	}
-	if(listener->ciphers_tls13){
-		rc = SSL_CTX_set_ciphersuites(listener->ssl_ctx, listener->ciphers_tls13);
-		if(rc == 0){
-			log__printf(NULL, MOSQ_LOG_ERR, "Error: Unable to set TLS 1.3 ciphersuites. Check cipher_tls13 list \"%s\".", listener->ciphers_tls13);
-			return MOSQ_ERR_TLS;
+	ಆದರೆ(listener->ciphers_tls13){
+		rc = SSL_CTX_ಗಣ_ciphersuites(listener->ssl_ctx, listener->ciphers_tls13);
+		ಆದರೆ(rc == 0){
+			log__printf(ಖಾಲಿ, MOSQ_LOG_ERR, "Error: Unable to set TLS 1.3 ciphersuites. Check cipher_tls13 list \"%s\".", listener->ciphers_tls13);
+			ಹಿಂತಿರುಗಿ MOSQ_ERR_TLS;
 		}
 	}
 
-	return MOSQ_ERR_SUCCESS;
+	ಹಿಂತಿರುಗಿ MOSQ_ERR_SUCCESS;
 }
-#endif
+#ಆದರೆ_ಅಂತ್ಯ
 
 
-#ifdef WITH_TLS
+#ವ್ಯಾಖ್ಯಾನಿತವಾದರೆ WITH_TLS
 
 
-static int net__load_crl_file(struct mosquitto__listener *listener)
+ಸ್ಥಿರ ಪೂರ್ಣಾಂಕ net_ತುಂಬು_crl_file(ರಚನೆ mosquitto__listener *listener)
 {
 	X509_STORE *store;
 	X509_LOOKUP *lookup;
-	int rc;
+	ಪೂರ್ಣಾಂಕ rc;
 
 	store = SSL_CTX_get_cert_store(listener->ssl_ctx);
-	if(!store){
-		log__printf(NULL, MOSQ_LOG_ERR, "Error: Unable to obtain TLS store.");
+	ಆದರೆ(!store){
+		log__printf(ಖಾಲಿ, MOSQ_LOG_ERR, "Error: Unable to obtain TLS store.");
 		net__print_error(MOSQ_LOG_ERR, "Error: %s");
-		return MOSQ_ERR_TLS;
+		ಹಿಂತಿರುಗಿ MOSQ_ERR_TLS;
 	}
-	lookup = X509_STORE_add_lookup(store, X509_LOOKUP_file());
-	rc = X509_load_crl_file(lookup, listener->crlfile, X509_FILETYPE_PEM);
-	if(rc < 1){
-		log__printf(NULL, MOSQ_LOG_ERR, "Error: Unable to load certificate revocation file \"%s\". Check crlfile.", listener->crlfile);
+	lookup = X509_STORE_ಕೂಡಿಸು_lookup(store, X509_LOOKUP_file());
+	rc = X509_ತುಂಬು_crl_file(lookup, listener->crlfile, X509_FILETYPE_PEM);
+	ಆದರೆ(rc < 1){
+		log__printf(ಖಾಲಿ, MOSQ_LOG_ERR, "Error: Unable to load certificate revocation file \"%s\". Check crlfile.", listener->crlfile);
 		net__print_error(MOSQ_LOG_ERR, "Error: %s");
-		net__print_ssl_error(NULL, NULL);
-		return MOSQ_ERR_TLS;
+		net__print_ssl_error(ಖಾಲಿ, ಖಾಲಿ);
+		ಹಿಂತಿರುಗಿ MOSQ_ERR_TLS;
 	}
-	X509_STORE_set_flags(store, X509_V_FLAG_CRL_CHECK);
+	X509_STORE_ಗಣ_flags(store, X509_V_FLAG_CRL_CHECK);
 
-	return MOSQ_ERR_SUCCESS;
+	ಹಿಂತಿರುಗಿ MOSQ_ERR_SUCCESS;
 }
-#endif
+#ಆದರೆ_ಅಂತ್ಯ
 
 
-int net__load_certificates(struct mosquitto__listener *listener)
+ಪೂರ್ಣಾಂಕ net_ತುಂಬು_certificates(ರಚನೆ mosquitto__listener *listener)
 {
-#ifdef WITH_TLS
-	int rc;
+#ವ್ಯಾಖ್ಯಾನಿತವಾದರೆ WITH_TLS
+	ಪೂರ್ಣಾಂಕ rc;
 
-	if(listener->require_certificate){
-		SSL_CTX_set_verify(listener->ssl_ctx, SSL_VERIFY_PEER | SSL_VERIFY_FAIL_IF_NO_PEER_CERT, client_certificate_verify);
-	}else{
-		SSL_CTX_set_verify(listener->ssl_ctx, SSL_VERIFY_NONE, client_certificate_verify);
+	ಆದರೆ(listener->require_certificate){
+		SSL_CTX_ಗಣ_verify(listener->ssl_ctx, SSL_VERIFY_PEER | SSL_VERIFY_FAIL_IF_NO_PEER_CERT, client_certificate_verify);
+	}ಇಲ್ಲದಿದ್ದರೆ{
+		SSL_CTX_ಗಣ_verify(listener->ssl_ctx, SSL_VERIFY_NONE, client_certificate_verify);
 	}
 	rc = SSL_CTX_use_certificate_chain_file(listener->ssl_ctx, listener->certfile);
-	if(rc != 1){
-		log__printf(NULL, MOSQ_LOG_ERR, "Error: Unable to load server certificate \"%s\". Check certfile.", listener->certfile);
-		net__print_ssl_error(NULL, NULL);
-		return MOSQ_ERR_TLS;
+	ಆದರೆ(rc != 1){
+		log__printf(ಖಾಲಿ, MOSQ_LOG_ERR, "Error: Unable to load server certificate \"%s\". Check certfile.", listener->certfile);
+		net__print_ssl_error(ಖಾಲಿ, ಖಾಲಿ);
+		ಹಿಂತಿರುಗಿ MOSQ_ERR_TLS;
 	}
-	if(listener->tls_engine == NULL || listener->tls_keyform == mosq_k_pem){
-		rc = SSL_CTX_use_PrivateKey_file(listener->ssl_ctx, listener->keyfile, SSL_FILETYPE_PEM);
-		if(rc != 1){
-			log__printf(NULL, MOSQ_LOG_ERR, "Error: Unable to load server key file \"%s\". Check keyfile.", listener->keyfile);
-			net__print_ssl_error(NULL, NULL);
-			return MOSQ_ERR_TLS;
+	ಆದರೆ(listener->tls_engine == ಖಾಲಿ || listener->tls_keyform == mosq_k_pem){
+		rc = SSL_CTX_use_ಖಾಸಗಿ_ಕೀಲಿ_file(listener->ssl_ctx, listener->keyfile, SSL_FILETYPE_PEM);
+		ಆದರೆ(rc != 1){
+			log__printf(ಖಾಲಿ, MOSQ_LOG_ERR, "Error: Unable to load server key file \"%s\". Check keyfile.", listener->keyfile);
+			net__print_ssl_error(ಖಾಲಿ, ಖಾಲಿ);
+			ಹಿಂತಿರುಗಿ MOSQ_ERR_TLS;
 		}
 	}
-	rc = SSL_CTX_check_private_key(listener->ssl_ctx);
-	if(rc != 1){
-		log__printf(NULL, MOSQ_LOG_ERR, "Error: Server certificate/key are inconsistent.");
-		net__print_ssl_error(NULL, NULL);
-		return MOSQ_ERR_TLS;
+	rc = SSL_CTX_check_ಖಾಸಗಿ_ಕೀಲಿ(listener->ssl_ctx);
+	ಆದರೆ(rc != 1){
+		log__printf(ಖಾಲಿ, MOSQ_LOG_ERR, "Error: Server certificate/key are inconsistent.");
+		net__print_ssl_error(ಖಾಲಿ, ಖಾಲಿ);
+		ಹಿಂತಿರುಗಿ MOSQ_ERR_TLS;
 	}
 	/* Load CRLs if they exist. */
-	if(listener->crlfile){
-		rc = net__load_crl_file(listener);
-		if(rc){
-			return rc;
+	ಆದರೆ(listener->crlfile){
+		rc = net_ತುಂಬು_crl_file(listener);
+		ಆದರೆ(rc){
+			ಹಿಂತಿರುಗಿ rc;
 		}
 	}
-#else
-	UNUSED(listener);
-#endif
-	return MOSQ_ERR_SUCCESS;
+#ಇಲ್ಲದಿದ್ದರೆ
+	ಬಳಸದ(listener);
+#ಆದರೆ_ಅಂತ್ಯ
+	ಹಿಂತಿರುಗಿ MOSQ_ERR_SUCCESS;
 }
 
 
-#if defined(WITH_TLS) && !defined(OPENSSL_NO_ENGINE) && OPENSSL_API_LEVEL < 30000
+#ಆದರೆ defined(WITH_TLS) && !defined(OPENSSL_NO_ENGINE) && OPENSSL_API_LEVEL < 30000
 
 
-static int net__load_engine(struct mosquitto__listener *listener)
+ಸ್ಥಿರ ಪೂರ್ಣಾಂಕ net_ತುಂಬು_engine(ರಚನೆ mosquitto__listener *listener)
 {
-	ENGINE *engine = NULL;
-	UI_METHOD *ui_method;
+	ENGINE *engine = ಖಾಲಿ;
+	UI_ವಿಧಾನ *ui_ವಿಧಾನ;
 	EVP_PKEY *pkey;
 
-	if(!listener->tls_engine){
-		return MOSQ_ERR_SUCCESS;
+	ಆದರೆ(!listener->tls_engine){
+		ಹಿಂತಿರುಗಿ MOSQ_ERR_SUCCESS;
 	}
 
 	engine = ENGINE_by_id(listener->tls_engine);
-	if(!engine){
-		log__printf(NULL, MOSQ_LOG_ERR, "Error loading %s engine\n", listener->tls_engine);
-		net__print_ssl_error(NULL, NULL);
-		return MOSQ_ERR_TLS;
+	ಆದರೆ(!engine){
+		log__printf(ಖಾಲಿ, MOSQ_LOG_ERR, "Error loading %s engine\n", listener->tls_engine);
+		net__print_ssl_error(ಖಾಲಿ, ಖಾಲಿ);
+		ಹಿಂತಿರುಗಿ MOSQ_ERR_TLS;
 	}
-	if(!ENGINE_init(engine)){
-		log__printf(NULL, MOSQ_LOG_ERR, "Failed engine initialisation\n");
-		net__print_ssl_error(NULL, NULL);
-		return MOSQ_ERR_TLS;
+	ಆದರೆ(!ENGINE_init(engine)){
+		log__printf(ಖಾಲಿ, MOSQ_LOG_ERR, "Failed engine initialisation\n");
+		net__print_ssl_error(ಖಾಲಿ, ಖಾಲಿ);
+		ಹಿಂತಿರುಗಿ MOSQ_ERR_TLS;
 	}
-	ENGINE_set_default(engine, ENGINE_METHOD_ALL);
+	ENGINE_ಗಣ_default(engine, ENGINE_ವಿಧಾನ_ALL);
 
-	if(listener->tls_keyform == mosq_k_engine){
-		ui_method = net__get_ui_method();
-		if(listener->tls_engine_kpass_sha1){
-			if(!ENGINE_ctrl_cmd(engine, ENGINE_SECRET_MODE, ENGINE_SECRET_MODE_SHA, NULL, NULL, 0)){
-				log__printf(NULL, MOSQ_LOG_ERR, "Error: Unable to set engine secret mode sha");
-				net__print_ssl_error(NULL, NULL);
-				return MOSQ_ERR_TLS;
+	ಆದರೆ(listener->tls_keyform == mosq_k_engine){
+		ui_ವಿಧಾನ = net_get_ui_ವಿಧಾನ();
+		ಆದರೆ(listener->tls_engine_kpass_sha1){
+			ಆದರೆ(!ENGINE_ctrl_cmd(engine, ENGINE_SECRET_ಬಹುಲಕ, ENGINE_SECRET_ಬಹುಲಕ_SHA, ಖಾಲಿ, ಖಾಲಿ, 0)){
+				log__printf(ಖಾಲಿ, MOSQ_LOG_ERR, "Error: Unable to set engine secret mode sha");
+				net__print_ssl_error(ಖಾಲಿ, ಖಾಲಿ);
+				ಹಿಂತಿರುಗಿ MOSQ_ERR_TLS;
 			}
-			if(!ENGINE_ctrl_cmd(engine, ENGINE_PIN, 0, listener->tls_engine_kpass_sha1, NULL, 0)){
-				log__printf(NULL, MOSQ_LOG_ERR, "Error: Unable to set engine pin");
-				net__print_ssl_error(NULL, NULL);
-				return MOSQ_ERR_TLS;
+			ಆದರೆ(!ENGINE_ctrl_cmd(engine, ENGINE_PIN, 0, listener->tls_engine_kpass_sha1, ಖಾಲಿ, 0)){
+				log__printf(ಖಾಲಿ, MOSQ_LOG_ERR, "Error: Unable to set engine pin");
+				net__print_ssl_error(ಖಾಲಿ, ಖಾಲಿ);
+				ಹಿಂತಿರುಗಿ MOSQ_ERR_TLS;
 			}
-			ui_method = NULL;
+			ui_ವಿಧಾನ = ಖಾಲಿ;
 		}
-		pkey = ENGINE_load_private_key(engine, listener->keyfile, ui_method, NULL);
-		if(!pkey){
-			log__printf(NULL, MOSQ_LOG_ERR, "Error: Unable to load engine private key file \"%s\".", listener->keyfile);
-			net__print_ssl_error(NULL, NULL);
-			return MOSQ_ERR_TLS;
+		pkey = ENGINE_ತುಂಬು_ಖಾಸಗಿ_ಕೀಲಿ(engine, listener->keyfile, ui_ವಿಧಾನ, ಖಾಲಿ);
+		ಆದರೆ(!pkey){
+			log__printf(ಖಾಲಿ, MOSQ_LOG_ERR, "Error: Unable to load engine private key file \"%s\".", listener->keyfile);
+			net__print_ssl_error(ಖಾಲಿ, ಖಾಲಿ);
+			ಹಿಂತಿರುಗಿ MOSQ_ERR_TLS;
 		}
-		if(SSL_CTX_use_PrivateKey(listener->ssl_ctx, pkey) <= 0){
-			log__printf(NULL, MOSQ_LOG_ERR, "Error: Unable to use engine private key file \"%s\".", listener->keyfile);
-			net__print_ssl_error(NULL, NULL);
-			return MOSQ_ERR_TLS;
+		ಆದರೆ(SSL_CTX_use_ಖಾಸಗಿ_ಕೀಲಿ(listener->ssl_ctx, pkey) <= 0){
+			log__printf(ಖಾಲಿ, MOSQ_LOG_ERR, "Error: Unable to use engine private key file \"%s\".", listener->keyfile);
+			net__print_ssl_error(ಖಾಲಿ, ಖಾಲಿ);
+			ಹಿಂತಿರುಗಿ MOSQ_ERR_TLS;
 		}
 	}
 	ENGINE_free(engine); /* release the structural reference from ENGINE_by_id() */
 
-	return MOSQ_ERR_SUCCESS;
+	ಹಿಂತಿರುಗಿ MOSQ_ERR_SUCCESS;
 }
-#endif
+#ಆದರೆ_ಅಂತ್ಯ
 
 
-int net__tls_load_verify(struct mosquitto__listener *listener)
+ಪೂರ್ಣಾಂಕ net_tls_ತುಂಬು_verify(ರಚನೆ mosquitto__listener *listener)
 {
-#ifdef WITH_TLS
-	int rc;
+#ವ್ಯಾಖ್ಯಾನಿತವಾದರೆ WITH_TLS
+	ಪೂರ್ಣಾಂಕ rc;
 
-#  if OPENSSL_VERSION_NUMBER < 0x30000000L
-	if(listener->cafile || listener->capath){
-		rc = SSL_CTX_load_verify_locations(listener->ssl_ctx, listener->cafile, listener->capath);
-		if(rc == 0){
-			if(listener->cafile && listener->capath){
-				log__printf(NULL, MOSQ_LOG_ERR, "Error: Unable to load CA certificates. Check cafile \"%s\" and capath \"%s\".", listener->cafile, listener->capath);
-			}else if(listener->cafile){
-				log__printf(NULL, MOSQ_LOG_ERR, "Error: Unable to load CA certificates. Check cafile \"%s\".", listener->cafile);
-			}else{
-				log__printf(NULL, MOSQ_LOG_ERR, "Error: Unable to load CA certificates. Check capath \"%s\".", listener->capath);
+#  ಆದರೆ OPENSSL_ಆವೃತ್ತಿ_ಸಂಖ್ಯೆ < 0x30000000L
+	ಆದರೆ(listener->cafile || listener->capath){
+		rc = SSL_CTX_ತುಂಬು_verify_locations(listener->ssl_ctx, listener->cafile, listener->capath);
+		ಆದರೆ(rc == 0){
+			ಆದರೆ(listener->cafile && listener->capath){
+				log__printf(ಖಾಲಿ, MOSQ_LOG_ERR, "Error: Unable to load CA certificates. Check cafile \"%s\" and capath \"%s\".", listener->cafile, listener->capath);
+			}ಇಲ್ಲದಿದ್ದರೆ ಆದರೆ(listener->cafile){
+				log__printf(ಖಾಲಿ, MOSQ_LOG_ERR, "Error: Unable to load CA certificates. Check cafile \"%s\".", listener->cafile);
+			}ಇಲ್ಲದಿದ್ದರೆ{
+				log__printf(ಖಾಲಿ, MOSQ_LOG_ERR, "Error: Unable to load CA certificates. Check capath \"%s\".", listener->capath);
 			}
 		}
 	}
-#  else
-	STACK_OF(X509_NAME) *ca_names = NULL;
-	if(listener->cafile || listener->capath){
-		ca_names = sk_X509_NAME_new_null();
+#  ಇಲ್ಲದಿದ್ದರೆ
+	ರಾಶಿ_ದ(X509_NAME) *ca_ಹೆಸರುಗಳು = ಖಾಲಿ;
+	ಆದರೆ(listener->cafile || listener->capath){
+		ca_ಹೆಸರುಗಳು = sk_X509_NAME_new_null();
 	}
 
-	if(listener->cafile){
-		rc = SSL_CTX_load_verify_file(listener->ssl_ctx, listener->cafile);
-		if(rc == 0){
-			log__printf(NULL, MOSQ_LOG_ERR, "Error: Unable to load CA certificates. Check cafile \"%s\".", listener->cafile);
-			net__print_ssl_error(NULL, NULL);
-			return MOSQ_ERR_TLS;
+	ಆದರೆ(listener->cafile){
+		rc = SSL_CTX_ತುಂಬು_verify_file(listener->ssl_ctx, listener->cafile);
+		ಆದರೆ(rc == 0){
+			log__printf(ಖಾಲಿ, MOSQ_LOG_ERR, "Error: Unable to load CA certificates. Check cafile \"%s\".", listener->cafile);
+			net__print_ssl_error(ಖಾಲಿ, ಖಾಲಿ);
+			ಹಿಂತಿರುಗಿ MOSQ_ERR_TLS;
 		}
 
-		STACK_OF(X509_NAME) *cert_names = SSL_load_client_CA_file(listener->cafile);
-		if(cert_names){
-			for(int i=0; i<sk_X509_NAME_num(cert_names); i++){
-				sk_X509_NAME_push(ca_names, X509_NAME_dup(sk_X509_NAME_value(cert_names, i)));
+		ರಾಶಿ_ದ(X509_NAME) *cert_ಹೆಸರುಗಳು = SSL_ತುಂಬು_client_CA_file(listener->cafile);
+		ಆದರೆ(cert_ಹೆಸರುಗಳು){
+			ಗಾಗಿ(ಪೂರ್ಣಾಂಕ i=0; i<sk_X509_NAME_ಅಂಕೆ(cert_ಹೆಸರುಗಳು); i++){
+				sk_X509_NAME_ತಳ್ಳು(ca_ಹೆಸರುಗಳು, X509_NAME_dup(sk_X509_NAME_ಮೌಲ್ಯ(cert_ಹೆಸರುಗಳು, i)));
 			}
-			sk_X509_NAME_pop_free(cert_names, X509_NAME_free);
+			sk_X509_NAME_ತೆಗೆ_free(cert_ಹೆಸರುಗಳು, X509_NAME_free);
 		}
 
 	}
-	if(listener->capath){
-		rc = SSL_CTX_load_verify_dir(listener->ssl_ctx, listener->capath);
-		if(rc == 0){
-			log__printf(NULL, MOSQ_LOG_ERR, "Error: Unable to load CA certificates. Check capath \"%s\".", listener->capath);
-			net__print_ssl_error(NULL, NULL);
-			sk_X509_NAME_pop_free(ca_names, X509_NAME_free);
-			return MOSQ_ERR_TLS;
+	ಆದರೆ(listener->capath){
+		rc = SSL_CTX_ತುಂಬು_verify_dir(listener->ssl_ctx, listener->capath);
+		ಆದರೆ(rc == 0){
+			log__printf(ಖಾಲಿ, MOSQ_LOG_ERR, "Error: Unable to load CA certificates. Check capath \"%s\".", listener->capath);
+			net__print_ssl_error(ಖಾಲಿ, ಖಾಲಿ);
+			sk_X509_NAME_ತೆಗೆ_free(ca_ಹೆಸರುಗಳು, X509_NAME_free);
+			ಹಿಂತಿರುಗಿ MOSQ_ERR_TLS;
 		}
 
-		SSL_add_dir_cert_subjects_to_stack(ca_names, listener->capath);
+		SSL_ಕೂಡಿಸು_dir_cert_subjects_ಗಮ್ಯ_ರಾಶಿ(ca_ಹೆಸರುಗಳು, listener->capath);
 	}
-	if(ca_names){
-		SSL_CTX_set_client_CA_list(listener->ssl_ctx, ca_names);
+	ಆದರೆ(ca_ಹೆಸರುಗಳು){
+		SSL_CTX_ಗಣ_client_CA_list(listener->ssl_ctx, ca_ಹೆಸರುಗಳು);
 	}
 #  endif
 
-#  if !defined(OPENSSL_NO_ENGINE) && OPENSSL_API_LEVEL < 30000
-	if(net__load_engine(listener)){
-		return MOSQ_ERR_TLS;
+#  ಆದರೆ !defined(OPENSSL_NO_ENGINE) && OPENSSL_API_LEVEL < 30000
+	ಆದರೆ(net_ತುಂಬು_engine(listener)){
+		ಹಿಂತಿರುಗಿ MOSQ_ERR_TLS;
 	}
 #  endif
-#endif
-	return net__load_certificates(listener);
+#ಆದರೆ_ಅಂತ್ಯ
+	ಹಿಂತಿರುಗಿ net_ತುಂಬು_certificates(listener);
 }
 
 
-#if !defined(WIN32) && !defined(_AIX)
+#ಆದರೆ !defined(WIN32) && !defined(_AIX)
 
 
-static int net__bind_interface(struct mosquitto__listener *listener, struct addrinfo *rp)
+ಸ್ಥಿರ ಪೂರ್ಣಾಂಕ net__bind_interface(ರಚನೆ mosquitto__listener *listener, ರಚನೆ addrinfo *rp)
 {
 	/*
 	 * This binds the listener sock to a network interface.
@@ -729,379 +729,379 @@ static int net__bind_interface(struct mosquitto__listener *listener, struct addr
 	 * use getifaddrs to find the interface addresses, and use IP of the
 	 * matching interface in the later bind().
 	 */
-	struct ifaddrs *ifaddr;
+	ರಚನೆ ifaddrs *ifaddr;
 	bool have_interface = false;
 
-	if(getifaddrs(&ifaddr) < 0){
+	ಆದರೆ(getifaddrs(&ifaddr) < 0){
 		net__print_error(MOSQ_LOG_ERR, "Error: %s");
-		return MOSQ_ERR_ERRNO;
+		ಹಿಂತಿರುಗಿ MOSQ_ERR_ERRNO;
 	}
 
-	for(struct ifaddrs *ifa=ifaddr; ifa!=NULL; ifa=ifa->ifa_next){
-		if(ifa->ifa_addr == NULL){
-			continue;
+	ಗಾಗಿ(ರಚನೆ ifaddrs *ifa=ifaddr; ifa!=ಖಾಲಿ; ifa=ifa->ifa_ಮುಂದಿನ){
+		ಆದರೆ(ifa->ifa_addr == ಖಾಲಿ){
+			ಮುಂದುವರಿ;
 		}
 
-		if(!strcasecmp(listener->bind_interface, ifa->ifa_name)){
+		ಆದರೆ(!strcasecmp(listener->bind_interface, ifa->ifa_name)){
 			have_interface = true;
 
-			if(ifa->ifa_addr->sa_family == rp->ai_addr->sa_family){
-				if(rp->ai_addr->sa_family == AF_INET){
-					if(listener->host &&
-							memcmp(&((struct sockaddr_in *)rp->ai_addr)->sin_addr,
-							&((struct sockaddr_in *)ifa->ifa_addr)->sin_addr,
-							sizeof(struct in_addr))){
+			ಆದರೆ(ifa->ifa_addr->sa_family == rp->ai_addr->sa_family){
+				ಆದರೆ(rp->ai_addr->sa_family == AF_INET){
+					ಆದರೆ(listener->host &&
+							memcmp(&((ರಚನೆ sockaddr_in *)rp->ai_addr)->sin_addr,
+							&((ರಚನೆ sockaddr_in *)ifa->ifa_addr)->sin_addr,
+							ಗಾತ್ರ(ರಚನೆ in_addr))){
 
-						log__printf(NULL, MOSQ_LOG_ERR, "Error: Interface address for %s does not match specified listener address (%s).",
+						log__printf(ಖಾಲಿ, MOSQ_LOG_ERR, "Error: Interface address for %s does not match specified listener address (%s).",
 								listener->bind_interface, listener->host);
-						return MOSQ_ERR_INVAL;
-					}else{
-						memcpy(&((struct sockaddr_in *)rp->ai_addr)->sin_addr,
-								&((struct sockaddr_in *)ifa->ifa_addr)->sin_addr,
-								sizeof(struct in_addr));
+						ಹಿಂತಿರುಗಿ MOSQ_ERR_INVAL;
+					}ಇಲ್ಲದಿದ್ದರೆ{
+						ಸ್ಮರಣೆ_ನಕಲು(&((ರಚನೆ sockaddr_in *)rp->ai_addr)->sin_addr,
+								&((ರಚನೆ sockaddr_in *)ifa->ifa_addr)->sin_addr,
+								ಗಾತ್ರ(ರಚನೆ in_addr));
 
 						freeifaddrs(ifaddr);
-						return MOSQ_ERR_SUCCESS;
+						ಹಿಂತಿರುಗಿ MOSQ_ERR_SUCCESS;
 					}
-				}else if(rp->ai_addr->sa_family == AF_INET6){
-					if(listener->host &&
-							memcmp(&((struct sockaddr_in6 *)rp->ai_addr)->sin6_addr,
-							&((struct sockaddr_in6 *)ifa->ifa_addr)->sin6_addr,
-							sizeof(struct in6_addr))){
+				}ಇಲ್ಲದಿದ್ದರೆ ಆದರೆ(rp->ai_addr->sa_family == AF_INET6){
+					ಆದರೆ(listener->host &&
+							memcmp(&((ರಚನೆ sockaddr_in6 *)rp->ai_addr)->sin6_addr,
+							&((ರಚನೆ sockaddr_in6 *)ifa->ifa_addr)->sin6_addr,
+							ಗಾತ್ರ(ರಚನೆ in6_addr))){
 
-						log__printf(NULL, MOSQ_LOG_ERR, "Error: Interface address for %s does not match specified listener address (%s).",
+						log__printf(ಖಾಲಿ, MOSQ_LOG_ERR, "Error: Interface address for %s does not match specified listener address (%s).",
 								listener->bind_interface, listener->host);
-						return MOSQ_ERR_INVAL;
-					}else{
-						memcpy(&((struct sockaddr_in6 *)rp->ai_addr)->sin6_addr,
-								&((struct sockaddr_in6 *)ifa->ifa_addr)->sin6_addr,
-								sizeof(struct in6_addr));
+						ಹಿಂತಿರುಗಿ MOSQ_ERR_INVAL;
+					}ಇಲ್ಲದಿದ್ದರೆ{
+						ಸ್ಮರಣೆ_ನಕಲು(&((ರಚನೆ sockaddr_in6 *)rp->ai_addr)->sin6_addr,
+								&((ರಚನೆ sockaddr_in6 *)ifa->ifa_addr)->sin6_addr,
+								ಗಾತ್ರ(ರಚನೆ in6_addr));
 
-						((struct sockaddr_in6 *)rp->ai_addr)->sin6_scope_id = ((struct sockaddr_in6 *)ifa->ifa_addr)->sin6_scope_id;
+						((ರಚನೆ sockaddr_in6 *)rp->ai_addr)->sin6_scope_id = ((ರಚನೆ sockaddr_in6 *)ifa->ifa_addr)->sin6_scope_id;
 
 						freeifaddrs(ifaddr);
-						return MOSQ_ERR_SUCCESS;
+						ಹಿಂತಿರುಗಿ MOSQ_ERR_SUCCESS;
 					}
 				}
 			}
 		}
 	}
 	freeifaddrs(ifaddr);
-	if(have_interface){
-		log__printf(NULL, MOSQ_LOG_WARNING, "Warning: Interface %s does not support %s configuration.",
+	ಆದರೆ(have_interface){
+		log__printf(ಖಾಲಿ, MOSQ_LOG_WARNING, "Warning: Interface %s does not support %s configuration.",
 				listener->bind_interface, rp->ai_addr->sa_family == AF_INET ? "IPv4" : "IPv6");
-		return MOSQ_ERR_NOT_SUPPORTED;
-	}else{
-		log__printf(NULL, MOSQ_LOG_ERR, "Error: Interface %s does not exist.", listener->bind_interface);
-		return MOSQ_ERR_NOT_FOUND;
+		ಹಿಂತಿರುಗಿ MOSQ_ERR_NOT_SUPPORTED;
+	}ಇಲ್ಲದಿದ್ದರೆ{
+		log__printf(ಖಾಲಿ, MOSQ_LOG_ERR, "Error: Interface %s does not exist.", listener->bind_interface);
+		ಹಿಂತಿರುಗಿ MOSQ_ERR_NOT_ಸಿಕ್ಕಿತು;
 	}
 }
-#endif
+#ಆದರೆ_ಅಂತ್ಯ
 
 
-static int net__socket_listen_tcp(struct mosquitto__listener *listener)
+ಸ್ಥಿರ ಪೂರ್ಣಾಂಕ net__socket_listen_tcp(ರಚನೆ mosquitto__listener *listener)
 {
 	mosq_sock_t sock = INVALID_SOCKET;
-	struct addrinfo hints;
-	struct addrinfo *ainfo, *rp;
-	char service[10];
-	int rc;
-	int ss_opt = 1;
-#ifndef WIN32
+	ರಚನೆ addrinfo hints;
+	ರಚನೆ addrinfo *ainfo, *rp;
+	ಅಕ್ಷರ service[10];
+	ಪೂರ್ಣಾಂಕ rc;
+	ಪೂರ್ಣಾಂಕ ss_opt = 1;
+#ವ್ಯಾಖ್ಯಾನಿತವಾಗದಿದ್ದರೆ WIN32
 	bool interface_bound = false;
-#endif
+#ಆದರೆ_ಅಂತ್ಯ
 
-	if(!listener){
-		return MOSQ_ERR_INVAL;
+	ಆದರೆ(!listener){
+		ಹಿಂತಿರುಗಿ MOSQ_ERR_INVAL;
 	}
 
-	snprintf(service, 10, "%d", listener->port);
-	memset(&hints, 0, sizeof(struct addrinfo));
-	if(listener->socket_domain){
+	snprintf(service, 10, "%d", listener->ಪೋರ್ಟ್);
+	memset(&hints, 0, ಗಾತ್ರ(ರಚನೆ addrinfo));
+	ಆದರೆ(listener->socket_domain){
 		hints.ai_family = listener->socket_domain;
-	}else{
+	}ಇಲ್ಲದಿದ್ದರೆ{
 		hints.ai_family = AF_UNSPEC;
 	}
 	hints.ai_flags = AI_PASSIVE;
 	hints.ai_socktype = SOCK_STREAM;
 
 	rc = getaddrinfo(listener->host, service, &hints, &ainfo);
-	if(rc){
-		log__printf(NULL, MOSQ_LOG_ERR, "Error creating listener: %s.", gai_strerror(rc));
-		return INVALID_SOCKET;
+	ಆದರೆ(rc){
+		log__printf(ಖಾಲಿ, MOSQ_LOG_ERR, "Error creating listener: %s.", gai_strerror(rc));
+		ಹಿಂತಿರುಗಿ INVALID_SOCKET;
 	}
 
-	listener->sock_count = 0;
-	listener->socks = NULL;
+	listener->sock_ಎಣಿಕೆ = 0;
+	listener->socks = ಖಾಲಿ;
 
-	for(rp = ainfo; rp; rp = rp->ai_next){
-		if(rp->ai_family == AF_INET){
-			log__printf(NULL, MOSQ_LOG_INFO, "Opening ipv4 listen socket on port %d.", ntohs(((struct sockaddr_in *)rp->ai_addr)->sin_port));
-		}else if(rp->ai_family == AF_INET6){
-			log__printf(NULL, MOSQ_LOG_INFO, "Opening ipv6 listen socket on port %d.", ntohs(((struct sockaddr_in6 *)rp->ai_addr)->sin6_port));
-		}else{
-			continue;
+	ಗಾಗಿ(rp = ainfo; rp; rp = rp->ai_ಮುಂದಿನ){
+		ಆದರೆ(rp->ai_family == AF_INET){
+			log__printf(ಖಾಲಿ, MOSQ_LOG_INFO, "Opening ipv4 listen socket on port %d.", ntohs(((ರಚನೆ sockaddr_in *)rp->ai_addr)->sin_port));
+		}ಇಲ್ಲದಿದ್ದರೆ ಆದರೆ(rp->ai_family == AF_INET6){
+			log__printf(ಖಾಲಿ, MOSQ_LOG_INFO, "Opening ipv6 listen socket on port %d.", ntohs(((ರಚನೆ sockaddr_in6 *)rp->ai_addr)->sin6_port));
+		}ಇಲ್ಲದಿದ್ದರೆ{
+			ಮುಂದುವರಿ;
 		}
 
 		sock = socket(rp->ai_family, rp->ai_socktype, rp->ai_protocol);
-		if(sock == INVALID_SOCKET){
+		ಆದರೆ(sock == INVALID_SOCKET){
 			net__print_error(MOSQ_LOG_WARNING, "Warning: %s");
-			continue;
+			ಮುಂದುವರಿ;
 		}
-		listener->sock_count++;
-		listener->socks = mosquitto_realloc(listener->socks, sizeof(mosq_sock_t)*(size_t)listener->sock_count);
-		if(!listener->socks){
-			log__printf(NULL, MOSQ_LOG_ERR, "Error: Out of memory.");
+		listener->sock_ಎಣಿಕೆ++;
+		listener->socks = mosquitto_realloc(listener->socks, ಗಾತ್ರ(mosq_sock_t)*(size_t)listener->sock_ಎಣಿಕೆ);
+		ಆದರೆ(!listener->socks){
+			log__printf(ಖಾಲಿ, MOSQ_LOG_ERR, "Error: Out of memory.");
 			freeaddrinfo(ainfo);
 			COMPAT_CLOSE(sock);
-			return MOSQ_ERR_NOMEM;
+			ಹಿಂತಿರುಗಿ MOSQ_ERR_NOMEM;
 		}
-		listener->socks[listener->sock_count-1] = sock;
+		listener->socks[listener->sock_ಎಣಿಕೆ-1] = sock;
 
-#ifndef WIN32
+#ವ್ಯಾಖ್ಯಾನಿತವಾಗದಿದ್ದರೆ WIN32
 		ss_opt = 1;
 		/* Unimportant if this fails */
-		(void)setsockopt(sock, SOL_SOCKET, SO_REUSEADDR, (const void *)&ss_opt, sizeof(ss_opt));
-#endif
-#ifdef IPV6_V6ONLY
+		(ಶೂನ್ಯ)setsockopt(sock, SOL_SOCKET, SO_REUSEADDR, (ಸ್ಥಿರಾಂಕ ಶೂನ್ಯ *)&ss_opt, ಗಾತ್ರ(ss_opt));
+#ಆದರೆ_ಅಂತ್ಯ
+#ವ್ಯಾಖ್ಯಾನಿತವಾದರೆ IPV6_V6ONLY
 		ss_opt = 1;
-		(void)setsockopt(sock, IPPROTO_IPV6, IPV6_V6ONLY, (const void *)&ss_opt, sizeof(ss_opt));
-#endif
+		(ಶೂನ್ಯ)setsockopt(sock, IPPROTO_IPV6, IPV6_V6ONLY, (ಸ್ಥಿರಾಂಕ ಶೂನ್ಯ *)&ss_opt, ಗಾತ್ರ(ss_opt));
+#ಆದರೆ_ಅಂತ್ಯ
 
-		if(net__socket_nonblock(&sock)){
+		ಆದರೆ(net__socket_nonblock(&sock)){
 			freeaddrinfo(ainfo);
 			mosquitto_FREE(listener->socks);
-			return 1;
+			ಹಿಂತಿರುಗಿ 1;
 		}
 
-#if !defined(WIN32) && !defined(_AIX)
-		if(listener->bind_interface){
+#ಆದರೆ !defined(WIN32) && !defined(_AIX)
+		ಆದರೆ(listener->bind_interface){
 			/* It might be possible that an interface does not support all relevant sa_families.
 			 * We should successfully find at least one. */
 			rc = net__bind_interface(listener, rp);
-			if(rc){
+			ಆದರೆ(rc){
 				COMPAT_CLOSE(sock);
-				listener->sock_count--;
-				if(rc == MOSQ_ERR_NOT_FOUND || rc == MOSQ_ERR_INVAL){
+				listener->sock_ಎಣಿಕೆ--;
+				ಆದರೆ(rc == MOSQ_ERR_NOT_ಸಿಕ್ಕಿತು || rc == MOSQ_ERR_INVAL){
 					freeaddrinfo(ainfo);
-					return rc;
-				}else{
-					continue;
+					ಹಿಂತಿರುಗಿ rc;
+				}ಇಲ್ಲದಿದ್ದರೆ{
+					ಮುಂದುವರಿ;
 				}
 			}
 			interface_bound = true;
 		}
-#endif
+#ಆದರೆ_ಅಂತ್ಯ
 
-		if(bind(sock, rp->ai_addr, rp->ai_addrlen) == -1){
-#if defined(__linux__)
-			if(errno == EACCES){
-				log__printf(NULL, MOSQ_LOG_ERR, "If you are trying to bind to a privileged port (<1024), try using setcap and do not start the broker as root:");
-				log__printf(NULL, MOSQ_LOG_ERR, "    sudo setcap 'CAP_NET_BIND_SERVICE=+ep /usr/sbin/mosquitto'");
+		ಆದರೆ(bind(sock, rp->ai_addr, rp->ai_addrlen) == -1){
+#ಆದರೆ defined(__linux__)
+			ಆದರೆ(errno == EACCES){
+				log__printf(ಖಾಲಿ, MOSQ_LOG_ERR, "If you are trying to bind to a privileged port (<1024), try using setcap and do not start the broker as root:");
+				log__printf(ಖಾಲಿ, MOSQ_LOG_ERR, "    sudo setcap 'CAP_NET_BIND_SERVICE=+ep /usr/sbin/mosquitto'");
 			}
-#endif
+#ಆದರೆ_ಅಂತ್ಯ
 			net__print_error(MOSQ_LOG_ERR, "Error: %s");
 			COMPAT_CLOSE(sock);
 			freeaddrinfo(ainfo);
 			mosquitto_FREE(listener->socks);
-			return 1;
+			ಹಿಂತಿರುಗಿ 1;
 		}
 
-		if(listen(sock, 100) == -1){
+		ಆದರೆ(listen(sock, 100) == -1){
 			net__print_error(MOSQ_LOG_ERR, "Error: %s");
 			freeaddrinfo(ainfo);
 			COMPAT_CLOSE(sock);
 			mosquitto_FREE(listener->socks);
-			return 1;
+			ಹಿಂತಿರುಗಿ 1;
 		}
 	}
 	freeaddrinfo(ainfo);
 
-#ifndef WIN32
-	if(listener->bind_interface && !interface_bound){
+#ವ್ಯಾಖ್ಯಾನಿತವಾಗದಿದ್ದರೆ WIN32
+	ಆದರೆ(listener->bind_interface && !interface_bound){
 		mosquitto_FREE(listener->socks);
-		return 1;
+		ಹಿಂತಿರುಗಿ 1;
 	}
-#endif
+#ಆದರೆ_ಅಂತ್ಯ
 
-	return 0;
+	ಹಿಂತಿರುಗಿ 0;
 }
 
 
-#ifdef WITH_UNIX_SOCKETS
+#ವ್ಯಾಖ್ಯಾನಿತವಾದರೆ WITH_UNIX_SOCKETS
 
 
-static int net__socket_listen_unix(struct mosquitto__listener *listener)
+ಸ್ಥಿರ ಪೂರ್ಣಾಂಕ net__socket_listen_unix(ರಚನೆ mosquitto__listener *listener)
 {
-	struct sockaddr_un addr;
+	ರಚನೆ sockaddr_un addr;
 	mosq_sock_t sock = INVALID_SOCKET;
-	int rc;
-#ifndef WIN32
-	mode_t old_mask;
-#endif
+	ಪೂರ್ಣಾಂಕ rc;
+#ವ್ಯಾಖ್ಯಾನಿತವಾಗದಿದ್ದರೆ WIN32
+	mode_t old_ಮುಖವಾಡ;
+#ಆದರೆ_ಅಂತ್ಯ
 
-	if(listener->unix_socket_path == NULL){
-		return MOSQ_ERR_INVAL;
+	ಆದರೆ(listener->unix_socket_ಮಾರ್ಗ == ಖಾಲಿ){
+		ಹಿಂತಿರುಗಿ MOSQ_ERR_INVAL;
 	}
-	if(strlen(listener->unix_socket_path) > sizeof(addr.sun_path)-1){
-		log__printf(NULL, MOSQ_LOG_ERR, "Error: Path to unix socket is too long \"%s\".", listener->unix_socket_path);
-		return MOSQ_ERR_INVAL;
+	ಆದರೆ(ಅಕ್ಷರಸರಣಿ_ಉದ್ದ(listener->unix_socket_ಮಾರ್ಗ) > ಗಾತ್ರ(addr.sun_ಮಾರ್ಗ)-1){
+		log__printf(ಖಾಲಿ, MOSQ_LOG_ERR, "Error: Path to unix socket is too long \"%s\".", listener->unix_socket_ಮಾರ್ಗ);
+		ಹಿಂತಿರುಗಿ MOSQ_ERR_INVAL;
 	}
 
-#ifdef WIN32
-	DeleteFile(listener->unix_socket_path);
-#else
-	unlink(listener->unix_socket_path);
-#endif
-	log__printf(NULL, MOSQ_LOG_INFO, "Opening unix listen socket on path %s.", listener->unix_socket_path);
-	memset(&addr, 0, sizeof(struct sockaddr_un));
+#ವ್ಯಾಖ್ಯಾನಿತವಾದರೆ WIN32
+	DeleteFile(listener->unix_socket_ಮಾರ್ಗ);
+#ಇಲ್ಲದಿದ್ದರೆ
+	unlink(listener->unix_socket_ಮಾರ್ಗ);
+#ಆದರೆ_ಅಂತ್ಯ
+	log__printf(ಖಾಲಿ, MOSQ_LOG_INFO, "Opening unix listen socket on path %s.", listener->unix_socket_ಮಾರ್ಗ);
+	memset(&addr, 0, ಗಾತ್ರ(ರಚನೆ sockaddr_un));
 	addr.sun_family = AF_UNIX;
-	strncpy(addr.sun_path, listener->unix_socket_path, sizeof(addr.sun_path)-1);
+	strncpy(addr.sun_ಮಾರ್ಗ, listener->unix_socket_ಮಾರ್ಗ, ಗಾತ್ರ(addr.sun_ಮಾರ್ಗ)-1);
 
 	sock = socket(AF_UNIX, SOCK_STREAM, 0);
-	if(sock == INVALID_SOCKET){
+	ಆದರೆ(sock == INVALID_SOCKET){
 		net__print_error(MOSQ_LOG_ERR, "Error creating unix socket: %s");
-		return 1;
+		ಹಿಂತಿರುಗಿ 1;
 	}
-	listener->sock_count++;
-	listener->socks = mosquitto_realloc(listener->socks, sizeof(mosq_sock_t)*(size_t)listener->sock_count);
-	if(!listener->socks){
-		log__printf(NULL, MOSQ_LOG_ERR, "Error: Out of memory.");
+	listener->sock_ಎಣಿಕೆ++;
+	listener->socks = mosquitto_realloc(listener->socks, ಗಾತ್ರ(mosq_sock_t)*(size_t)listener->sock_ಎಣಿಕೆ);
+	ಆದರೆ(!listener->socks){
+		log__printf(ಖಾಲಿ, MOSQ_LOG_ERR, "Error: Out of memory.");
 		COMPAT_CLOSE(sock);
-		return MOSQ_ERR_NOMEM;
+		ಹಿಂತಿರುಗಿ MOSQ_ERR_NOMEM;
 	}
-	listener->socks[listener->sock_count-1] = sock;
+	listener->socks[listener->sock_ಎಣಿಕೆ-1] = sock;
 
 
-#ifndef WIN32
-	old_mask = umask(0007);
-#endif
-	rc = bind(sock, (struct sockaddr *)&addr, sizeof(struct sockaddr_un));
-#ifndef WIN32
-	umask(old_mask);
-#endif
+#ವ್ಯಾಖ್ಯಾನಿತವಾಗದಿದ್ದರೆ WIN32
+	old_ಮುಖವಾಡ = umask(0007);
+#ಆದರೆ_ಅಂತ್ಯ
+	rc = bind(sock, (ರಚನೆ sockaddr *)&addr, ಗಾತ್ರ(ರಚನೆ sockaddr_un));
+#ವ್ಯಾಖ್ಯಾನಿತವಾಗದಿದ್ದರೆ WIN32
+	umask(old_ಮುಖವಾಡ);
+#ಆದರೆ_ಅಂತ್ಯ
 
-	if(rc == -1){
+	ಆದರೆ(rc == -1){
 		net__print_error(MOSQ_LOG_ERR, "Error binding unix socket: %s");
-		return 1;
+		ಹಿಂತಿರುಗಿ 1;
 	}
 
-	if(listen(sock, 10) == -1){
+	ಆದರೆ(listen(sock, 10) == -1){
 		net__print_error(MOSQ_LOG_ERR, "Error listening to unix socket: %s");
-		return 1;
+		ಹಿಂತಿರುಗಿ 1;
 	}
 
-	if(net__socket_nonblock(&sock)){
-		return 1;
+	ಆದರೆ(net__socket_nonblock(&sock)){
+		ಹಿಂತಿರುಗಿ 1;
 	}
 
-	return 0;
+	ಹಿಂತಿರುಗಿ 0;
 }
-#endif
+#ಆದರೆ_ಅಂತ್ಯ
 
 
 /* Creates a socket and listens on port 'port'.
  * Returns 1 on failure
  * Returns 0 on success.
  */
-int net__socket_listen(struct mosquitto__listener *listener)
+ಪೂರ್ಣಾಂಕ net__socket_listen(ರಚನೆ mosquitto__listener *listener)
 {
-	int rc;
+	ಪೂರ್ಣಾಂಕ rc;
 
-	if(!listener){
-		return MOSQ_ERR_INVAL;
+	ಆದರೆ(!listener){
+		ಹಿಂತಿರುಗಿ MOSQ_ERR_INVAL;
 	}
 
-#ifdef WITH_UNIX_SOCKETS
-	if(listener->port == 0 && listener->unix_socket_path != NULL){
+#ವ್ಯಾಖ್ಯಾನಿತವಾದರೆ WITH_UNIX_SOCKETS
+	ಆದರೆ(listener->ಪೋರ್ಟ್ == 0 && listener->unix_socket_ಮಾರ್ಗ != ಖಾಲಿ){
 		rc = net__socket_listen_unix(listener);
-	}else
-#endif
+	}ಇಲ್ಲದಿದ್ದರೆ
+#ಆದರೆ_ಅಂತ್ಯ
 	{
 		rc = net__socket_listen_tcp(listener);
 	}
-	if(rc){
-		return rc;
+	ಆದರೆ(rc){
+		ಹಿಂತಿರುಗಿ rc;
 	}
 
 	/* We need to have at least one working socket. */
-	if(listener->sock_count > 0){
-#ifdef WITH_TLS
-		if(listener->certfile && listener->keyfile){
-			if(net__tls_server_ctx(listener)){
-				return 1;
+	ಆದರೆ(listener->sock_ಎಣಿಕೆ > 0){
+#ವ್ಯಾಖ್ಯಾನಿತವಾದರೆ WITH_TLS
+		ಆದರೆ(listener->certfile && listener->keyfile){
+			ಆದರೆ(net__tls_server_ctx(listener)){
+				ಹಿಂತಿರುಗಿ 1;
 			}
 
-			if(net__tls_load_verify(listener)){
-				return 1;
+			ಆದರೆ(net_tls_ತುಂಬು_verify(listener)){
+				ಹಿಂತಿರುಗಿ 1;
 			}
 		}
 #  ifdef FINAL_WITH_TLS_PSK
-		if(listener->psk_hint){
-			if(listener->certfile == NULL || listener->keyfile == NULL){
-				if(net__tls_server_ctx(listener)){
-					return 1;
+		ಆದರೆ(listener->psk_hint){
+			ಆದರೆ(listener->certfile == ಖಾಲಿ || listener->keyfile == ಖಾಲಿ){
+				ಆದರೆ(net__tls_server_ctx(listener)){
+					ಹಿಂತಿರುಗಿ 1;
 				}
 			}
-			SSL_CTX_set_psk_server_callback(listener->ssl_ctx, psk_server_callback);
-			if(listener->psk_hint){
-				rc = SSL_CTX_use_psk_identity_hint(listener->ssl_ctx, listener->psk_hint);
-				if(rc == 0){
-					log__printf(NULL, MOSQ_LOG_ERR, "Error: Unable to set TLS PSK hint.");
-					net__print_ssl_error(NULL, NULL);
-					return 1;
+			SSL_CTX_ಗಣ_psk_server_callback(listener->ssl_ctx, psk_server_callback);
+			ಆದರೆ(listener->psk_hint){
+				rc = SSL_CTX_use_psk_ತಟಸ್ಥ_hint(listener->ssl_ctx, listener->psk_hint);
+				ಆದರೆ(rc == 0){
+					log__printf(ಖಾಲಿ, MOSQ_LOG_ERR, "Error: Unable to set TLS PSK hint.");
+					net__print_ssl_error(ಖಾಲಿ, ಖಾಲಿ);
+					ಹಿಂತಿರುಗಿ 1;
 				}
 			}
 		}
 #  endif /* FINAL_WITH_TLS_PSK */
-		if(tls_ex_index_context == -1){
-			tls_ex_index_context = SSL_get_ex_new_index(0, "client context", NULL, NULL, NULL);
+		ಆದರೆ(tls_ex_ಸೂಚ್ಯಂಕ_context == -1){
+			tls_ex_ಸೂಚ್ಯಂಕ_context = SSL_get_ex_new_ಸೂಚ್ಯಂಕ(0, "client context", ಖಾಲಿ, ಖಾಲಿ, ಖಾಲಿ);
 		}
-		if(tls_ex_index_listener == -1){
-			tls_ex_index_listener = SSL_get_ex_new_index(0, "listener", NULL, NULL, NULL);
+		ಆದರೆ(tls_ex_ಸೂಚ್ಯಂಕ_listener == -1){
+			tls_ex_ಸೂಚ್ಯಂಕ_listener = SSL_get_ex_new_ಸೂಚ್ಯಂಕ(0, "listener", ಖಾಲಿ, ಖಾಲಿ, ಖಾಲಿ);
 		}
-#endif /* WITH_TLS */
-		return 0;
-	}else{
-		return 1;
+#ಆದರೆ_ಅಂತ್ಯ /* WITH_TLS */
+		ಹಿಂತಿರುಗಿ 0;
+	}ಇಲ್ಲದಿದ್ದರೆ{
+		ಹಿಂತಿರುಗಿ 1;
 	}
 }
 
 
-int net__socket_get_address(mosq_sock_t sock, char *buf, size_t len, uint16_t *remote_port)
+ಪೂರ್ಣಾಂಕ net_socket_get_ವಿಳಾಸ(mosq_sock_t sock, ಅಕ್ಷರ *buf, size_t len, uint16_t *remote_ಪೋರ್ಟ್)
 {
-	struct sockaddr_storage addr;
+	ರಚನೆ sockaddr_storage addr;
 	socklen_t addrlen;
 
-	memset(&addr, 0, sizeof(struct sockaddr_storage));
-	addrlen = sizeof(addr);
-	if(!getpeername(sock, (struct sockaddr *)&addr, &addrlen)){
-		if(addr.ss_family == AF_INET){
-			if(remote_port){
-				*remote_port = ntohs(((struct sockaddr_in *)&addr)->sin_port);
+	memset(&addr, 0, ಗಾತ್ರ(ರಚನೆ sockaddr_storage));
+	addrlen = ಗಾತ್ರ(addr);
+	ಆದರೆ(!getpeername(sock, (ರಚನೆ sockaddr *)&addr, &addrlen)){
+		ಆದರೆ(addr.ss_family == AF_INET){
+			ಆದರೆ(remote_ಪೋರ್ಟ್){
+				*remote_ಪೋರ್ಟ್ = ntohs(((ರಚನೆ sockaddr_in *)&addr)->sin_port);
 			}
-			if(inet_ntop(AF_INET, &((struct sockaddr_in *)&addr)->sin_addr.s_addr, buf, (socklen_t)len)){
-				return 0;
+			ಆದರೆ(inet_ntop(AF_INET, &((ರಚನೆ sockaddr_in *)&addr)->sin_addr.s_addr, buf, (socklen_t)len)){
+				ಹಿಂತಿರುಗಿ 0;
 			}
-		}else if(addr.ss_family == AF_INET6){
-			if(remote_port){
-				*remote_port = ntohs(((struct sockaddr_in6 *)&addr)->sin6_port);
+		}ಇಲ್ಲದಿದ್ದರೆ ಆದರೆ(addr.ss_family == AF_INET6){
+			ಆದರೆ(remote_ಪೋರ್ಟ್){
+				*remote_ಪೋರ್ಟ್ = ntohs(((ರಚನೆ sockaddr_in6 *)&addr)->sin6_port);
 			}
-			if(inet_ntop(AF_INET6, &((struct sockaddr_in6 *)&addr)->sin6_addr.s6_addr, buf, (socklen_t)len)){
-				return 0;
+			ಆದರೆ(inet_ntop(AF_INET6, &((ರಚನೆ sockaddr_in6 *)&addr)->sin6_addr.s6_addr, buf, (socklen_t)len)){
+				ಹಿಂತಿರುಗಿ 0;
 			}
-#ifdef WITH_UNIX_SOCKETS
-		}else if(addr.ss_family == AF_UNIX){
-			struct sockaddr_un un;
-			addrlen = sizeof(struct sockaddr_un);
-			if(!getsockname(sock, (struct sockaddr *)&un, &addrlen)){
-				snprintf(buf, len, "%s", un.sun_path);
-			}else{
+#ವ್ಯಾಖ್ಯಾನಿತವಾದರೆ WITH_UNIX_SOCKETS
+		}ಇಲ್ಲದಿದ್ದರೆ ಆದರೆ(addr.ss_family == AF_UNIX){
+			ರಚನೆ sockaddr_un un;
+			addrlen = ಗಾತ್ರ(ರಚನೆ sockaddr_un);
+			ಆದರೆ(!getsockname(sock, (ರಚನೆ sockaddr *)&un, &addrlen)){
+				snprintf(buf, len, "%s", un.sun_ಮಾರ್ಗ);
+			}ಇಲ್ಲದಿದ್ದರೆ{
 				snprintf(buf, len, "unix-socket");
 			}
-			return 0;
-#endif
+			ಹಿಂತಿರುಗಿ 0;
+#ಆದರೆ_ಅಂತ್ಯ
 		}
 	}
-	return 1;
+	ಹಿಂತಿರುಗಿ 1;
 }

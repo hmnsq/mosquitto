@@ -16,44 +16,44 @@ Contributors:
    Roger Light - initial implementation and documentation.
 */
 
-#include "config.h"
+#ಅನ್ತರ್ಭಾವ "config.h"
 
-#include "mosquitto_broker_internal.h"
-#include "mosquitto/mqtt_protocol.h"
-#include "packet_mosq.h"
-#include "property_mosq.h"
-#include "sys_tree.h"
-#include "util_mosq.h"
+#ಅನ್ತರ್ಭಾವ "mosquitto_broker_internal.h"
+#ಅನ್ತರ್ಭಾವ "mosquitto/mqtt_protocol.h"
+#ಅನ್ತರ್ಭಾವ "packet_mosq.h"
+#ಅನ್ತರ್ಭಾವ "property_mosq.h"
+#ಅನ್ತರ್ಭಾವ "sys_tree.h"
+#ಅನ್ತರ್ಭಾವ "util_mosq.h"
 
 
-int send__suback(struct mosquitto *context, uint16_t mid, uint32_t payloadlen, const void *payload)
+ಪೂರ್ಣಾಂಕ send__suback(ರಚನೆ mosquitto *context, uint16_t mid, uint32_t payloadlen, ಸ್ಥಿರಾಂಕ ಶೂನ್ಯ *payload)
 {
-	struct mosquitto__packet *packet = NULL;
-	int rc;
-	mosquitto_property *properties = NULL;
-	uint32_t remaining_length;
+	ರಚನೆ mosquitto__packet *packet = ಖಾಲಿ;
+	ಪೂರ್ಣಾಂಕ rc;
+	mosquitto_property *properties = ಖಾಲಿ;
+	uint32_t ಉಳಿದ_ಉದ್ದಳತೆ;
 
-	log__printf(NULL, MOSQ_LOG_DEBUG, "Sending SUBACK to %s", context->id);
+	log__printf(ಖಾಲಿ, MOSQ_LOG_DEBUG, "Sending SUBACK to %s", context->id);
 
-	remaining_length = 2+payloadlen;
-	if(context->protocol == mosq_p_mqtt5){
-		remaining_length += mosquitto_property_get_remaining_length(properties);
+	ಉಳಿದ_ಉದ್ದಳತೆ = 2+payloadlen;
+	ಆದರೆ(context->protocol == mosq_p_mqtt5){
+		ಉಳಿದ_ಉದ್ದಳತೆ += mosquitto_property_get_ಉಳಿದ_ಉದ್ದಳತೆ(properties);
 	}
-	rc = packet__alloc(&packet, CMD_SUBACK, remaining_length);
-	if(rc){
-		return rc;
+	rc = packet__alloc(&packet, CMD_SUBACK, ಉಳಿದ_ಉದ್ದಳತೆ);
+	ಆದರೆ(rc){
+		ಹಿಂತಿರುಗಿ rc;
 	}
 	packet__write_uint16(packet, mid);
 
-	if(context->protocol == mosq_p_mqtt5){
+	ಆದರೆ(context->protocol == mosq_p_mqtt5){
 		/* We don't use Reason String or User Property yet. */
 		property__write_all(packet, properties, true);
 	}
 
-	if(payloadlen){
-		packet__write_bytes(packet, payload, payloadlen);
+	ಆದರೆ(payloadlen){
+		packet_write_ಬೈಟುಗಳು(packet, payload, payloadlen);
 	}
 
-	metrics__int_inc(mosq_counter_mqtt_suback_sent, 1);
-	return packet__queue(context, packet);
+	metrics__int_inc(mosq_counter_mqtt_suback_ಕಳುಹಿಸಿದ, 1);
+	ಹಿಂತಿರುಗಿ packet_ಸರತಿ(context, packet);
 }

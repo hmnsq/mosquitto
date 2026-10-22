@@ -16,121 +16,121 @@ Contributors:
    Roger Light - initial implementation and documentation.
 */
 
-#include "config.h"
+#ಅನ್ತರ್ಭಾವ "config.h"
 
-#include <stdio.h>
-#include <string.h>
+#ಅನ್ತರ್ಭಾವ <stdio.h>
+#ಅನ್ತರ್ಭಾವ <string.h>
 
-#include "mosquitto/broker.h"
-#include "mosquitto_broker_internal.h"
-#include "mosquitto/broker_plugin.h"
-#include "lib_load.h"
-#include "utlist.h"
+#ಅನ್ತರ್ಭಾವ "mosquitto/broker.h"
+#ಅನ್ತರ್ಭಾವ "mosquitto_broker_internal.h"
+#ಅನ್ತರ್ಭಾವ "mosquitto/broker_plugin.h"
+#ಅನ್ತರ್ಭಾವ "lib_load.h"
+#ಅನ್ತರ್ಭಾವ "utlist.h"
 
-static int plugin__security_cleanup_single(mosquitto_plugin_id_t *plugin, bool reload);
+ಸ್ಥಿರ ಪೂರ್ಣಾಂಕ plugin__security_cleanup_single(mosquitto_plugin_id_t *plugin, bool reload);
 
 
-static void plugin__unload_single(mosquitto_plugin_id_t *plugin)
+ಸ್ಥಿರ ಶೂನ್ಯ plugin__unload_single(mosquitto_plugin_id_t *plugin)
 {
-	struct control_endpoint *ep, *tmp;
+	ರಚನೆ control_endpoint *ep, *tmp;
 
 	/* Run plugin cleanup function */
-	if(plugin->lib.version == 5){
-		if(plugin->lib.plugin_cleanup_v5){
+	ಆದರೆ(plugin->lib.ಆವೃತ್ತಿ_2 == 5){
+		ಆದರೆ(plugin->lib.plugin_cleanup_v5){
 			plugin->lib.plugin_cleanup_v5(
-					plugin->lib.user_data,
+					plugin->lib.user_ದತ್ತಾಂಶ,
 					plugin->config.options,
-					plugin->config.option_count);
+					plugin->config.option_ಎಣಿಕೆ);
 		}
-	}else if(plugin->lib.version == 4){
-		if(plugin->lib.plugin_cleanup_v4){
+	}ಇಲ್ಲದಿದ್ದರೆ ಆದರೆ(plugin->lib.ಆವೃತ್ತಿ_2 == 4){
+		ಆದರೆ(plugin->lib.plugin_cleanup_v4){
 			plugin->lib.plugin_cleanup_v4(
-					plugin->lib.user_data,
+					plugin->lib.user_ದತ್ತಾಂಶ,
 					plugin->config.options,
-					plugin->config.option_count);
+					plugin->config.option_ಎಣಿಕೆ);
 		}
-	}else if(plugin->lib.version == 3){
-		if(plugin->lib.plugin_cleanup_v3){
+	}ಇಲ್ಲದಿದ್ದರೆ ಆದರೆ(plugin->lib.ಆವೃತ್ತಿ_2 == 3){
+		ಆದರೆ(plugin->lib.plugin_cleanup_v3){
 			plugin->lib.plugin_cleanup_v3(
-					plugin->lib.user_data,
+					plugin->lib.user_ದತ್ತಾಂಶ,
 					plugin->config.options,
-					plugin->config.option_count);
+					plugin->config.option_ಎಣಿಕೆ);
 		}
-	}else if(plugin->lib.version == 2){
-		if(plugin->lib.plugin_cleanup_v2){
+	}ಇಲ್ಲದಿದ್ದರೆ ಆದರೆ(plugin->lib.ಆವೃತ್ತಿ_2 == 2){
+		ಆದರೆ(plugin->lib.plugin_cleanup_v2){
 			plugin->lib.plugin_cleanup_v2(
-					plugin->lib.user_data,
-					(struct mosquitto_auth_opt *)plugin->config.options,
-					plugin->config.option_count);
+					plugin->lib.user_ದತ್ತಾಂಶ,
+					(ರಚನೆ mosquitto_auth_opt *)plugin->config.options,
+					plugin->config.option_ಎಣಿಕೆ);
 		}
 	}
 
 	plugin__callback_unregister_all(plugin);
 	mosquitto_FREE(plugin->plugin_name);
-	mosquitto_FREE(plugin->plugin_version);
-	DL_FOREACH_SAFE(plugin->control_endpoints, ep, tmp){
+	mosquitto_FREE(plugin->plugin_ಆವೃತ್ತಿ);
+	DL_FOREACH_ಸುರಕ್ಷಿತ(plugin->control_endpoints, ep, tmp){
 		DL_DELETE(plugin->control_endpoints, ep);
 		mosquitto_FREE(ep);
 	}
 
-	if(plugin->lib.lib){
+	ಆದರೆ(plugin->lib.lib){
 		//LIB_CLOSE(plugin->lib.lib);
 	}
-	memset(&plugin->lib, 0, sizeof(struct mosquitto__plugin_lib));
+	memset(&plugin->lib, 0, ಗಾತ್ರ(ರಚನೆ mosquitto__plugin_lib));
 }
 
 
-int plugin__unload_all(void)
+ಪೂರ್ಣಾಂಕ plugin__unload_all(ಶೂನ್ಯ)
 {
-	for(int i=0; i<db.plugin_count; i++){
+	ಗಾಗಿ(ಪೂರ್ಣಾಂಕ i=0; i<db.plugin_ಎಣಿಕೆ; i++){
 		plugin__unload_single(db.plugins[i]);
 	}
 
 	mosquitto_security_cleanup(false);
 
-	return MOSQ_ERR_SUCCESS;
+	ಹಿಂತಿರುಗಿ MOSQ_ERR_SUCCESS;
 }
 
 
-static int plugin__security_cleanup_single(mosquitto_plugin_id_t *plugin, bool reload)
+ಸ್ಥಿರ ಪೂರ್ಣಾಂಕ plugin__security_cleanup_single(mosquitto_plugin_id_t *plugin, bool reload)
 {
-	int rc;
+	ಪೂರ್ಣಾಂಕ rc;
 
-	if(plugin->lib.version == 5){
+	ಆದರೆ(plugin->lib.ಆವೃತ್ತಿ_2 == 5){
 		rc = MOSQ_ERR_SUCCESS;
-	}else if(plugin->lib.version == 4){
+	}ಇಲ್ಲದಿದ್ದರೆ ಆದರೆ(plugin->lib.ಆವೃತ್ತಿ_2 == 4){
 		rc = plugin->lib.security_cleanup_v4(
-				plugin->lib.user_data,
+				plugin->lib.user_ದತ್ತಾಂಶ,
 				plugin->config.options,
-				plugin->config.option_count,
+				plugin->config.option_ಎಣಿಕೆ,
 				reload);
 
-	}else if(plugin->lib.version == 3){
+	}ಇಲ್ಲದಿದ್ದರೆ ಆದರೆ(plugin->lib.ಆವೃತ್ತಿ_2 == 3){
 		rc = plugin->lib.security_cleanup_v3(
-				plugin->lib.user_data,
+				plugin->lib.user_ದತ್ತಾಂಶ,
 				plugin->config.options,
-				plugin->config.option_count,
+				plugin->config.option_ಎಣಿಕೆ,
 				reload);
 
-	}else if(plugin->lib.version == 2){
+	}ಇಲ್ಲದಿದ್ದರೆ ಆದರೆ(plugin->lib.ಆವೃತ್ತಿ_2 == 2){
 		rc = plugin->lib.security_cleanup_v2(
-				plugin->lib.user_data,
-				(struct mosquitto_auth_opt *)plugin->config.options,
-				plugin->config.option_count,
+				plugin->lib.user_ದತ್ತಾಂಶ,
+				(ರಚನೆ mosquitto_auth_opt *)plugin->config.options,
+				plugin->config.option_ಎಣಿಕೆ,
 				reload);
-	}else{
+	}ಇಲ್ಲದಿದ್ದರೆ{
 		rc = MOSQ_ERR_INVAL;
 	}
 
-	return rc;
+	ಹಿಂತಿರುಗಿ rc;
 }
 
 
-int mosquitto_security_cleanup(bool reload)
+ಪೂರ್ಣಾಂಕ mosquitto_security_cleanup(bool reload)
 {
-	for(int i=0; i<db.plugin_count; i++){
+	ಗಾಗಿ(ಪೂರ್ಣಾಂಕ i=0; i<db.plugin_ಎಣಿಕೆ; i++){
 		plugin__security_cleanup_single(db.plugins[i], reload);
 	}
 
-	return mosquitto_security_cleanup_default();
+	ಹಿಂತಿರುಗಿ mosquitto_security_cleanup_default();
 }

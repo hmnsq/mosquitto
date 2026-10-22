@@ -15,38 +15,38 @@ SPDX-License-Identifier: EPL-2.0 OR BSD-3-Clause
 Contributors:
    Roger Light - initial implementation and documentation.
 */
-#ifndef ACL_FILE_H
-#define ACL_FILE_H
+#ವ್ಯಾಖ್ಯಾನಿತವಾಗದಿದ್ದರೆ ACL_FILE_H
+#ವ್ಯಾಖ್ಯಾನಿಸು ACL_FILE_H
 
-#include <uthash.h>
+#ಅನ್ತರ್ಭಾವ <uthash.h>
 
-struct acl__entry {
-	struct acl__entry *next, *prev;
-	char *topic;
-	int access;
-	int ucount;
-	int ccount;
+ರಚನೆ acl_ನಮೂದು {
+	ರಚನೆ acl_ನಮೂದು *ಮುಂದಿನ, *prev;
+	ಅಕ್ಷರ *topic;
+	ಪೂರ್ಣಾಂಕ access;
+	ಪೂರ್ಣಾಂಕ ucount;
+	ಪೂರ್ಣಾಂಕ ccount;
 };
 
 
-struct acl__user {
+ರಚನೆ acl__user {
 	UT_hash_handle hh;
-	char *username;
-	struct acl__entry *acl;
+	ಅಕ್ಷರ *username;
+	ರಚನೆ acl_ನಮೂದು *acl;
 };
 
 
-struct acl_file_data {
-	char *acl_file;
-	struct acl__user *acl_users;
-	struct acl__user acl_anon;
-	struct acl__entry *acl_patterns;
+ರಚನೆ acl_file_ದತ್ತಾಂಶ {
+	ಅಕ್ಷರ *acl_file;
+	ರಚನೆ acl__user *acl_users;
+	ರಚನೆ acl__user acl_anon;
+	ರಚನೆ acl_ನಮೂದು *acl_patterns;
 };
 
 
-int acl_file__parse(struct acl_file_data *data);
-int acl_file__check(int event, void *event_data, void *userdata);
-int acl_file__reload(int event, void *event_data, void *userdata);
-void acl_file__cleanup(struct acl_file_data *data);
+ಪೂರ್ಣಾಂಕ acl_file__parse(ರಚನೆ acl_file_ದತ್ತಾಂಶ *ದತ್ತಾಂಶ);
+ಪೂರ್ಣಾಂಕ acl_file__check(ಪೂರ್ಣಾಂಕ event, ಶೂನ್ಯ *event_ದತ್ತಾಂಶ, ಶೂನ್ಯ *userdata);
+ಪೂರ್ಣಾಂಕ acl_file__reload(ಪೂರ್ಣಾಂಕ event, ಶೂನ್ಯ *event_ದತ್ತಾಂಶ, ಶೂನ್ಯ *userdata);
+ಶೂನ್ಯ acl_file__cleanup(ರಚನೆ acl_file_ದತ್ತಾಂಶ *ದತ್ತಾಂಶ);
 
-#endif
+#ಆದರೆ_ಅಂತ್ಯ

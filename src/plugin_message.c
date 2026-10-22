@@ -16,111 +16,111 @@ Contributors:
    Roger Light - initial implementation and documentation.
 */
 
-#include "config.h"
+#ಅನ್ತರ್ಭಾವ "config.h"
 
-#include "mosquitto_broker_internal.h"
-#include "utlist.h"
+#ಅನ್ತರ್ಭಾವ "mosquitto_broker_internal.h"
+#ಅನ್ತರ್ಭಾವ "utlist.h"
 
-struct should_free {
+ರಚನೆ should_free {
 	bool topic;
 	bool payload;
 	bool properties;
 };
 
 
-static int plugin__handle_message_single(struct mosquitto__callback *callbacks, enum mosquitto_plugin_event ev_type, struct should_free *to_free, struct mosquitto *context, struct mosquitto_base_msg *stored)
+ಸ್ಥಿರ ಪೂರ್ಣಾಂಕ plugin_handle_ಸಂದೇಶ_single(ರಚನೆ mosquitto__callback *callbacks, ಎಣಿಕೆ mosquitto_plugin_event ev_type, ರಚನೆ should_free *ಗಮ್ಯ_free, ರಚನೆ mosquitto *context, ರಚನೆ mosquitto_ತಳ_ಸಂದೇಶ_2 *stored)
 {
-	struct mosquitto_evt_message event_data;
-	struct mosquitto__callback *cb_base, *cb_next;
-	int rc = MOSQ_ERR_SUCCESS;
+	ರಚನೆ mosquitto_evt_ಸಂದೇಶ event_ದತ್ತಾಂಶ;
+	ರಚನೆ mosquitto__callback *cb_ತಳ, *cb_ಮುಂದಿನ;
+	ಪೂರ್ಣಾಂಕ rc = MOSQ_ERR_SUCCESS;
 
-	memset(&event_data, 0, sizeof(event_data));
-	event_data.client = context;
-	event_data.topic = stored->topic;
-	event_data.payloadlen = stored->payloadlen;
-	event_data.payload = stored->payload;
-	event_data.qos = stored->qos;
-	event_data.retain = stored->retain;
-	event_data.properties = stored->properties;
+	memset(&event_ದತ್ತಾಂಶ, 0, ಗಾತ್ರ(event_ದತ್ತಾಂಶ));
+	event_ದತ್ತಾಂಶ.client = context;
+	event_ದತ್ತಾಂಶ.topic = stored->topic;
+	event_ದತ್ತಾಂಶ.payloadlen = stored->payloadlen;
+	event_ದತ್ತಾಂಶ.payload = stored->payload;
+	event_ದತ್ತಾಂಶ.qos = stored->qos;
+	event_ದತ್ತಾಂಶ.retain = stored->retain;
+	event_ದತ್ತಾಂಶ.properties = stored->properties;
 
-	DL_FOREACH_SAFE(callbacks, cb_base, cb_next){
-		rc = cb_base->cb((int)ev_type, &event_data, cb_base->userdata);
-		if(rc != MOSQ_ERR_SUCCESS){
-			break;
+	DL_FOREACH_ಸುರಕ್ಷಿತ(callbacks, cb_ತಳ, cb_ಮುಂದಿನ){
+		rc = cb_ತಳ->cb((ಪೂರ್ಣಾಂಕ)ev_type, &event_ದತ್ತಾಂಶ, cb_ತಳ->userdata);
+		ಆದರೆ(rc != MOSQ_ERR_SUCCESS){
+			ನಿಲ್ಲಿಸು;
 		}
 
-		if(stored->topic != event_data.topic){
-			if(to_free->topic){
+		ಆದರೆ(stored->topic != event_ದತ್ತಾಂಶ.topic){
+			ಆದರೆ(ಗಮ್ಯ_free->topic){
 				mosquitto_FREE(stored->topic);
 			}
-			stored->topic = event_data.topic;
-			to_free->topic = true;
+			stored->topic = event_ದತ್ತಾಂಶ.topic;
+			ಗಮ್ಯ_free->topic = true;
 		}
 
-		if(stored->payload != event_data.payload){
-			if(to_free->payload){
+		ಆದರೆ(stored->payload != event_ದತ್ತಾಂಶ.payload){
+			ಆದರೆ(ಗಮ್ಯ_free->payload){
 				mosquitto_FREE(stored->payload);
 			}
-			stored->payload = event_data.payload;
-			stored->payloadlen = event_data.payloadlen;
-			to_free->payload = true;
+			stored->payload = event_ದತ್ತಾಂಶ.payload;
+			stored->payloadlen = event_ದತ್ತಾಂಶ.payloadlen;
+			ಗಮ್ಯ_free->payload = true;
 		}
 
-		if(stored->properties != event_data.properties){
-			if(to_free->properties){
+		ಆದರೆ(stored->properties != event_ದತ್ತಾಂಶ.properties){
+			ಆದರೆ(ಗಮ್ಯ_free->properties){
 				mosquitto_property_free_all(&stored->properties);
 			}
-			stored->properties = event_data.properties;
-			to_free->properties = true;
+			stored->properties = event_ದತ್ತಾಂಶ.properties;
+			ಗಮ್ಯ_free->properties = true;
 		}
 	}
 
-	stored->retain = event_data.retain;
-	if(ev_type == MOSQ_EVT_MESSAGE_OUT){
-		stored->qos = event_data.qos;
+	stored->retain = event_ದತ್ತಾಂಶ.retain;
+	ಆದರೆ(ev_type == MOSQ_EVT_ಸಂದೇಶ_ಹೊರಹೋಗು){
+		stored->qos = event_ದತ್ತಾಂಶ.qos;
 	}
 
-	return rc;
+	ಹಿಂತಿರುಗಿ rc;
 }
 
 
-int plugin__handle_message_out(struct mosquitto *context, struct mosquitto_base_msg *stored)
+ಪೂರ್ಣಾಂಕ plugin_handle_ಸಂದೇಶ_ಹೊರಹೋಗು(ರಚನೆ mosquitto *context, ರಚನೆ mosquitto_ತಳ_ಸಂದೇಶ_2 *stored)
 {
-	int rc = MOSQ_ERR_SUCCESS;
-	struct should_free to_free = {false, false, false}; /* in msg_out, original data will be freed later */
+	ಪೂರ್ಣಾಂಕ rc = MOSQ_ERR_SUCCESS;
+	ರಚನೆ should_free ಗಮ್ಯ_free = {false, false, false}; /* in msg_out, original data will be freed later */
 
 	/* Global plugins */
-	rc = plugin__handle_message_single(db.config->security_options.plugin_callbacks.message_out,
-			MOSQ_EVT_MESSAGE_OUT, &to_free, context, stored);
-	if(rc){
-		return rc;
+	rc = plugin_handle_ಸಂದೇಶ_single(db.config->security_options.plugin_callbacks.ಸಂದೇಶ_ಹೊರಹೋಗು,
+			MOSQ_EVT_ಸಂದೇಶ_ಹೊರಹೋಗು, &ಗಮ್ಯ_free, context, stored);
+	ಆದರೆ(rc){
+		ಹಿಂತಿರುಗಿ rc;
 	}
 
-	if(context->listener){
-		rc = plugin__handle_message_single(context->listener->security_options->plugin_callbacks.message_out,
-				MOSQ_EVT_MESSAGE_OUT, &to_free, context, stored);
+	ಆದರೆ(context->listener){
+		rc = plugin_handle_ಸಂದೇಶ_single(context->listener->security_options->plugin_callbacks.ಸಂದೇಶ_ಹೊರಹೋಗು,
+				MOSQ_EVT_ಸಂದೇಶ_ಹೊರಹೋಗು, &ಗಮ್ಯ_free, context, stored);
 	}
 
-	return rc;
+	ಹಿಂತಿರುಗಿ rc;
 }
 
 
-int plugin__handle_message_in(struct mosquitto *context, struct mosquitto_base_msg *stored)
+ಪೂರ್ಣಾಂಕ plugin_handle_ಸಂದೇಶ_ಒಳ(ರಚನೆ mosquitto *context, ರಚನೆ mosquitto_ತಳ_ಸಂದೇಶ_2 *stored)
 {
-	int rc = MOSQ_ERR_SUCCESS;
-	struct should_free to_free = {true, true, true}; /* in msg_in, original data should be freed */
+	ಪೂರ್ಣಾಂಕ rc = MOSQ_ERR_SUCCESS;
+	ರಚನೆ should_free ಗಮ್ಯ_free = {true, true, true}; /* in msg_in, original data should be freed */
 
 	/* Global plugins */
-	rc = plugin__handle_message_single(db.config->security_options.plugin_callbacks.message_in,
-			MOSQ_EVT_MESSAGE_IN, &to_free, context, stored);
-	if(rc){
-		return rc;
+	rc = plugin_handle_ಸಂದೇಶ_single(db.config->security_options.plugin_callbacks.ಸಂದೇಶ_ಒಳ,
+			MOSQ_EVT_ಸಂದೇಶ_ಒಳ, &ಗಮ್ಯ_free, context, stored);
+	ಆದರೆ(rc){
+		ಹಿಂತಿರುಗಿ rc;
 	}
 
-	if(context->listener){
-		rc = plugin__handle_message_single(context->listener->security_options->plugin_callbacks.message_in,
-				MOSQ_EVT_MESSAGE_IN, &to_free, context, stored);
+	ಆದರೆ(context->listener){
+		rc = plugin_handle_ಸಂದೇಶ_single(context->listener->security_options->plugin_callbacks.ಸಂದೇಶ_ಒಳ,
+				MOSQ_EVT_ಸಂದೇಶ_ಒಳ, &ಗಮ್ಯ_free, context, stored);
 	}
 
-	return rc;
+	ಹಿಂತಿರುಗಿ rc;
 }

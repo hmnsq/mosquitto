@@ -16,107 +16,107 @@ Contributors:
    Roger Light - initial implementation and documentation.
 */
 
-#include "config.h"
+#ಅನ್ತರ್ಭಾವ "config.h"
 
-#include <ctype.h>
-#include <stdio.h>
-#include <string.h>
+#ಅನ್ತರ್ಭಾವ <ctype.h>
+#ಅನ್ತರ್ಭಾವ <stdio.h>
+#ಅನ್ತರ್ಭಾವ <string.h>
 
-#include "mosquitto_broker_internal.h"
-#include "mosquitto/mqtt_protocol.h"
-#include "password_file.h"
-#include "send_mosq.h"
-#include "util_mosq.h"
+#ಅನ್ತರ್ಭಾವ "mosquitto_broker_internal.h"
+#ಅನ್ತರ್ಭಾವ "mosquitto/mqtt_protocol.h"
+#ಅನ್ತರ್ಭಾವ "password_file.h"
+#ಅನ್ತರ್ಭಾವ "send_mosq.h"
+#ಅನ್ತರ್ಭಾವ "util_mosq.h"
 
 
-int mosquitto_security_init_default(void)
+ಪೂರ್ಣಾಂಕ mosquitto_security_init_default(ಶೂನ್ಯ)
 {
-	int rc;
+	ಪೂರ್ಣಾಂಕ rc;
 
 	/* Configure plugin identifier */
-	if(db.config->per_listener_settings){
-		for(int i=0; i<db.config->listener_count; i++){
-			db.config->listeners[i].security_options->pid = mosquitto_calloc(1, sizeof(mosquitto_plugin_id_t));
-			if(db.config->listeners[i].security_options->pid == NULL){
-				log__printf(NULL, MOSQ_LOG_ERR, "Error: Out of memory.");
-				return MOSQ_ERR_NOMEM;
+	ಆದರೆ(db.config->ಪ್ರತಿ_listener_settings){
+		ಗಾಗಿ(ಪೂರ್ಣಾಂಕ i=0; i<db.config->listener_ಎಣಿಕೆ; i++){
+			db.config->listeners[i].security_options->pid = mosquitto_calloc(1, ಗಾತ್ರ(mosquitto_plugin_id_t));
+			ಆದರೆ(db.config->listeners[i].security_options->pid == ಖಾಲಿ){
+				log__printf(ಖಾಲಿ, MOSQ_LOG_ERR, "Error: Out of memory.");
+				ಹಿಂತಿರುಗಿ MOSQ_ERR_NOMEM;
 			}
 			db.config->listeners[i].security_options->pid->plugin_name = mosquitto_strdup("builtin-security");
 			db.config->listeners[i].security_options->pid->listener = &db.config->listeners[i];
-			config__plugin_add_secopt(db.config->listeners[i].security_options->pid, db.config->listeners[i].security_options);
+			config_plugin_ಕೂಡಿಸು_secopt(db.config->listeners[i].security_options->pid, db.config->listeners[i].security_options);
 		}
-	}else{
-		db.config->security_options.pid = mosquitto_calloc(1, sizeof(mosquitto_plugin_id_t));
-		if(db.config->security_options.pid == NULL){
-			log__printf(NULL, MOSQ_LOG_ERR, "Error: Out of memory.");
-			return MOSQ_ERR_NOMEM;
+	}ಇಲ್ಲದಿದ್ದರೆ{
+		db.config->security_options.pid = mosquitto_calloc(1, ಗಾತ್ರ(mosquitto_plugin_id_t));
+		ಆದರೆ(db.config->security_options.pid == ಖಾಲಿ){
+			log__printf(ಖಾಲಿ, MOSQ_LOG_ERR, "Error: Out of memory.");
+			ಹಿಂತಿರುಗಿ MOSQ_ERR_NOMEM;
 		}
 		db.config->security_options.pid->plugin_name = mosquitto_strdup("builtin-security");
-		config__plugin_add_secopt(db.config->security_options.pid, &db.config->security_options);
+		config_plugin_ಕೂಡಿಸು_secopt(db.config->security_options.pid, &db.config->security_options);
 	}
 
 	rc = broker_password_file__init();
-	if(rc){
-		return rc;
+	ಆದರೆ(rc){
+		ಹಿಂತಿರುಗಿ rc;
 	}
 
 	rc = broker_acl_file__init();
-	if(rc){
-		return rc;
+	ಆದರೆ(rc){
+		ಹಿಂತಿರುಗಿ rc;
 	}
 
 	rc = psk_file__init();
-	if(rc){
-		return rc;
+	ಆದರೆ(rc){
+		ಹಿಂತಿರುಗಿ rc;
 	}
 
-	return MOSQ_ERR_SUCCESS;
+	ಹಿಂತಿರುಗಿ MOSQ_ERR_SUCCESS;
 }
 
 
-int mosquitto_security_cleanup_default(void)
+ಪೂರ್ಣಾಂಕ mosquitto_security_cleanup_default(ಶೂನ್ಯ)
 {
-	int rc = 0;
+	ಪೂರ್ಣಾಂಕ rc = 0;
 
 	broker_password_file__cleanup();
 	broker_acl_file__cleanup();
 
 	rc = psk_file__cleanup();
-	if(rc != MOSQ_ERR_SUCCESS){
-		return rc;
+	ಆದರೆ(rc != MOSQ_ERR_SUCCESS){
+		ಹಿಂತಿರುಗಿ rc;
 	}
 
-	if(db.config->per_listener_settings){
-		for(int i=0; i<db.config->listener_count; i++){
-			if(db.config->listeners[i].security_options->pid){
+	ಆದರೆ(db.config->ಪ್ರತಿ_listener_settings){
+		ಗಾಗಿ(ಪೂರ್ಣಾಂಕ i=0; i<db.config->listener_ಎಣಿಕೆ; i++){
+			ಆದರೆ(db.config->listeners[i].security_options->pid){
 				mosquitto_FREE(db.config->listeners[i].security_options->pid->plugin_name);
 				mosquitto_FREE(db.config->listeners[i].security_options->pid->config.security_options);
 				mosquitto_FREE(db.config->listeners[i].security_options->pid);
 			}
 		}
-	}else{
-		if(db.config->security_options.pid){
+	}ಇಲ್ಲದಿದ್ದರೆ{
+		ಆದರೆ(db.config->security_options.pid){
 			mosquitto_FREE(db.config->security_options.pid->plugin_name);
 			mosquitto_FREE(db.config->security_options.pid->config.security_options);
 			mosquitto_FREE(db.config->security_options.pid);
 		}
 	}
-	return MOSQ_ERR_SUCCESS;
+	ಹಿಂತಿರುಗಿ MOSQ_ERR_SUCCESS;
 }
 
 
-#ifdef WITH_TLS
+#ವ್ಯಾಖ್ಯಾನಿತವಾದರೆ WITH_TLS
 
 
-static void security__disconnect_auth(struct mosquitto *context)
+ಸ್ಥಿರ ಶೂನ್ಯ security__disconnect_auth(ರಚನೆ mosquitto *context)
 {
-	if(context->protocol == mosq_p_mqtt5){
-		send__disconnect(context, MQTT_RC_ADMINISTRATIVE_ACTION, NULL);
+	ಆದರೆ(context->protocol == mosq_p_mqtt5){
+		send__disconnect(context, MQTT_RC_ADMINISTRATIVE_ACTION, ಖಾಲಿ);
 	}
-	mosquitto__set_state(context, mosq_cs_disconnecting);
+	mosquitto_ಗಣ_state(context, mosq_cs_disconnecting);
 	do_disconnect(context, MOSQ_ERR_AUTH);
 }
-#endif
+#ಆದರೆ_ಅಂತ್ಯ
 
 
 /* Apply security settings after a reload.
@@ -125,162 +125,162 @@ static void security__disconnect_auth(struct mosquitto *context)
  * - Disconnecting users with invalid passwords
  * - Reapplying ACLs
  */
-int mosquitto_security_apply_default(void)
+ಪೂರ್ಣಾಂಕ mosquitto_security_apply_default(ಶೂನ್ಯ)
 {
-	struct mosquitto *context, *ctxt_tmp = NULL;
+	ರಚನೆ mosquitto *context, *ctxt_tmp = ಖಾಲಿ;
 	bool allow_anonymous;
-#ifdef WITH_TLS
+#ವ್ಯಾಖ್ಯಾನಿತವಾದರೆ WITH_TLS
 	X509_NAME *name;
-	X509_NAME_ENTRY *name_entry;
-	ASN1_STRING *name_asn1 = NULL;
-	struct mosquitto__listener *listener;
+	X509_NAME_ನಮೂದು *name_ನಮೂದು;
+	ASN1_STRING *name_asn1 = ಖಾಲಿ;
+	ರಚನೆ mosquitto__listener *listener;
 	BIO *subject_bio;
-	char *data_start;
-	size_t name_length;
-	char *subject;
-#endif
+	ಅಕ್ಷರ *ದತ್ತಾಂಶ_ಆರಂಭ;
+	size_t name_ಉದ್ದಳತೆ;
+	ಅಕ್ಷರ *subject;
+#ಆದರೆ_ಅಂತ್ಯ
 
-#ifdef WITH_TLS
-	for(int i=0; i<db.config->listener_count; i++){
+#ವ್ಯಾಖ್ಯಾನಿತವಾದರೆ WITH_TLS
+	ಗಾಗಿ(ಪೂರ್ಣಾಂಕ i=0; i<db.config->listener_ಎಣಿಕೆ; i++){
 		listener = &db.config->listeners[i];
-		if(listener && listener->ssl_ctx && listener->certfile && listener->keyfile && listener->crlfile && listener->require_certificate){
-			if(net__tls_server_ctx(listener)){
-				return MOSQ_ERR_TLS;
+		ಆದರೆ(listener && listener->ssl_ctx && listener->certfile && listener->keyfile && listener->crlfile && listener->require_certificate){
+			ಆದರೆ(net__tls_server_ctx(listener)){
+				ಹಿಂತಿರುಗಿ MOSQ_ERR_TLS;
 			}
 
-			if(net__tls_load_verify(listener)){
-				return MOSQ_ERR_TLS;
+			ಆದರೆ(net_tls_ತುಂಬು_verify(listener)){
+				ಹಿಂತಿರುಗಿ MOSQ_ERR_TLS;
 			}
 		}
 	}
-#endif
+#ಆದರೆ_ಅಂತ್ಯ
 
 	HASH_ITER(hh_id, db.contexts_by_id, context, ctxt_tmp){
-		if(context->bridge){
-			continue;
+		ಆದರೆ(context->bridge){
+			ಮುಂದುವರಿ;
 		}
 
-		if((context->listener && context->listener->security_options->allow_anonymous == true)
-				|| (!db.config->per_listener_settings && db.config->security_options.allow_anonymous == true
+		ಆದರೆ((context->listener && context->listener->security_options->allow_anonymous == true)
+				|| (!db.config->ಪ್ರತಿ_listener_settings && db.config->security_options.allow_anonymous == true
 				&& context->listener && context->listener->security_options->allow_anonymous != false)){
 			allow_anonymous = true;
-		}else{
+		}ಇಲ್ಲದಿದ್ದರೆ{
 			allow_anonymous = false;
 		}
 
-		if(!allow_anonymous && !context->username){
-			mosquitto__set_state(context, mosq_cs_disconnecting);
+		ಆದರೆ(!allow_anonymous && !context->username){
+			mosquitto_ಗಣ_state(context, mosq_cs_disconnecting);
 			do_disconnect(context, MOSQ_ERR_AUTH);
-			continue;
+			ಮುಂದುವರಿ;
 		}
 
 		/* Check for connected clients that are no longer authorised */
-#ifdef WITH_TLS
-		if(context->listener && context->listener->ssl_ctx && (context->listener->use_identity_as_username || context->listener->use_subject_as_username)){
+#ವ್ಯಾಖ್ಯಾನಿತವಾದರೆ WITH_TLS
+		ಆದರೆ(context->listener && context->listener->ssl_ctx && (context->listener->use_ತಟಸ್ಥ_as_username || context->listener->use_subject_as_username)){
 			/* Client must have either a valid certificate, or valid PSK used as a username. */
-			if(!context->ssl){
-				if(context->protocol == mosq_p_mqtt5){
-					send__disconnect(context, MQTT_RC_ADMINISTRATIVE_ACTION, NULL);
+			ಆದರೆ(!context->ssl){
+				ಆದರೆ(context->protocol == mosq_p_mqtt5){
+					send__disconnect(context, MQTT_RC_ADMINISTRATIVE_ACTION, ಖಾಲಿ);
 				}
-				mosquitto__set_state(context, mosq_cs_disconnecting);
+				mosquitto_ಗಣ_state(context, mosq_cs_disconnecting);
 				do_disconnect(context, MOSQ_ERR_AUTH);
-				continue;
+				ಮುಂದುವರಿ;
 			}
-#ifdef FINAL_WITH_TLS_PSK
-			if(context->listener->psk_hint){
+#ವ್ಯಾಖ್ಯಾನಿತವಾದರೆ FINAL_WITH_TLS_PSK
+			ಆದರೆ(context->listener->psk_hint){
 				/* Client should have provided an identity to get this far. */
-				if(!context->username){
+				ಆದರೆ(!context->username){
 					security__disconnect_auth(context);
-					continue;
+					ಮುಂದುವರಿ;
 				}
-			}else
-#endif /* FINAL_WITH_TLS_PSK */
+			}ಇಲ್ಲದಿದ್ದರೆ
+#ಆದರೆ_ಅಂತ್ಯ /* FINAL_WITH_TLS_PSK */
 			{
 				/* Free existing credentials and then recover them. */
 				mosquitto_FREE(context->username);
 				mosquitto_FREE(context->password);
 
 				X509 *client_cert = SSL_get_peer_certificate(context->ssl);
-				if(!client_cert){
+				ಆದರೆ(!client_cert){
 					security__disconnect_auth(context);
-					continue;
+					ಮುಂದುವರಿ;
 				}
 				name = X509_get_subject_name(client_cert);
-				if(!name){
+				ಆದರೆ(!name){
 					X509_free(client_cert);
 					security__disconnect_auth(context);
-					continue;
+					ಮುಂದುವರಿ;
 				}
-				if(context->listener->use_identity_as_username){   /* use_identity_as_username */
-					int i = X509_NAME_get_index_by_NID(name, NID_commonName, -1);
-					if(i == -1){
+				ಆದರೆ(context->listener->use_ತಟಸ್ಥ_as_username){   /* use_identity_as_username */
+					ಪೂರ್ಣಾಂಕ i = X509_NAME_get_ಸೂಚ್ಯಂಕ_by_NID(name, NID_commonName, -1);
+					ಆದರೆ(i == -1){
 						X509_free(client_cert);
 						security__disconnect_auth(context);
-						continue;
+						ಮುಂದುವರಿ;
 					}
-					name_entry = X509_NAME_get_entry(name, i);
-					if(name_entry){
-						name_asn1 = X509_NAME_ENTRY_get_data(name_entry);
-						if(name_asn1 == NULL){
+					name_ನಮೂದು = X509_NAME_get_ನಮೂದು(name, i);
+					ಆದರೆ(name_ನಮೂದು){
+						name_asn1 = X509_NAME_ನಮೂದು_get_ದತ್ತಾಂಶ(name_ನಮೂದು);
+						ಆದರೆ(name_asn1 == ಖಾಲಿ){
 							X509_free(client_cert);
 							security__disconnect_auth(context);
-							continue;
+							ಮುಂದುವರಿ;
 						}
-						const char *username = (const char *)ASN1_STRING_get0_data(name_asn1);
-						if(!username){
+						ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *username = (ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *)ASN1_STRING_get0_ದತ್ತಾಂಶ(name_asn1);
+						ಆದರೆ(!username){
 							X509_free(client_cert);
-							client_cert = NULL;
+							client_cert = ಖಾಲಿ;
 							security__disconnect_auth(context);
-							continue;
+							ಮುಂದುವರಿ;
 						}
 						context->username = mosquitto_strdup(username);
-						if(!context->username){
+						ಆದರೆ(!context->username){
 							X509_free(client_cert);
 							security__disconnect_auth(context);
-							continue;
+							ಮುಂದುವರಿ;
 						}
 						/* Make sure there isn't an embedded NUL character in the CN */
-						if((size_t)ASN1_STRING_length(name_asn1) != strlen(context->username)){
+						ಆದರೆ((size_t)ASN1_STRING_ಉದ್ದಳತೆ(name_asn1) != ಅಕ್ಷರಸರಣಿ_ಉದ್ದ(context->username)){
 							X509_free(client_cert);
 							security__disconnect_auth(context);
-							continue;
+							ಮುಂದುವರಿ;
 						}
 					}
-				}else{   /* use_subject_as_username */
+				}ಇಲ್ಲದಿದ್ದರೆ{   /* use_subject_as_username */
 					subject_bio = BIO_new(BIO_s_mem());
 					X509_NAME_print_ex(subject_bio, X509_get_subject_name(client_cert), 0, XN_FLAG_RFC2253);
-					data_start = NULL;
-					name_length = (size_t)BIO_get_mem_data(subject_bio, &data_start);
-					subject = mosquitto_malloc(sizeof(char)*name_length+1);
-					if(!subject){
+					ದತ್ತಾಂಶ_ಆರಂಭ = ಖಾಲಿ;
+					name_ಉದ್ದಳತೆ = (size_t)BIO_get_mem_ದತ್ತಾಂಶ(subject_bio, &ದತ್ತಾಂಶ_ಆರಂಭ);
+					subject = mosquitto_malloc(ಗಾತ್ರ(ಅಕ್ಷರ)*name_ಉದ್ದಳತೆ+1);
+					ಆದರೆ(!subject){
 						BIO_free(subject_bio);
 						X509_free(client_cert);
 						security__disconnect_auth(context);
-						continue;
+						ಮುಂದುವರಿ;
 					}
-					memcpy(subject, data_start, name_length);
-					subject[name_length] = '\0';
+					ಸ್ಮರಣೆ_ನಕಲು(subject, ದತ್ತಾಂಶ_ಆರಂಭ, name_ಉದ್ದಳತೆ);
+					subject[name_ಉದ್ದಳತೆ] = '\0';
 					BIO_free(subject_bio);
 					context->username = subject;
 				}
-				if(!context->username){
+				ಆದರೆ(!context->username){
 					X509_free(client_cert);
 					security__disconnect_auth(context);
-					continue;
+					ಮುಂದುವರಿ;
 				}
 				X509_free(client_cert);
 			}
-		}else
-#endif
+		}ಇಲ್ಲದಿದ್ದರೆ
+#ಆದರೆ_ಅಂತ್ಯ
 		{
 			/* Username/password check only if the identity/subject check not used */
-			if(mosquitto_basic_auth(context) != MOSQ_ERR_SUCCESS){
-				mosquitto__set_state(context, mosq_cs_disconnecting);
+			ಆದರೆ(mosquitto_basic_auth(context) != MOSQ_ERR_SUCCESS){
+				mosquitto_ಗಣ_state(context, mosq_cs_disconnecting);
 				do_disconnect(context, MOSQ_ERR_AUTH);
-				continue;
+				ಮುಂದುವರಿ;
 			}
 		}
 	}
 
-	return MOSQ_ERR_SUCCESS;
+	ಹಿಂತಿರುಗಿ MOSQ_ERR_SUCCESS;
 }

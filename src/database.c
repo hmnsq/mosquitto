@@ -16,16 +16,16 @@ Contributors:
    Roger Light - initial implementation and documentation.
 */
 
-#include "config.h"
+#ಅನ್ತರ್ಭಾವ "config.h"
 
-#include <assert.h>
-#include <stdio.h>
-#include <utlist.h>
+#ಅನ್ತರ್ಭಾವ <assert.h>
+#ಅನ್ತರ್ಭಾವ <stdio.h>
+#ಅನ್ತರ್ಭಾವ <utlist.h>
 
-#include "mosquitto_broker_internal.h"
-#include "send_mosq.h"
-#include "sys_tree.h"
-#include "util_mosq.h"
+#ಅನ್ತರ್ಭಾವ "mosquitto_broker_internal.h"
+#ಅನ್ತರ್ಭಾವ "send_mosq.h"
+#ಅನ್ತರ್ಭಾವ "sys_tree.h"
+#ಅನ್ತರ್ಭಾವ "util_mosq.h"
 
 
 /**
@@ -34,57 +34,57 @@ Contributors:
  * @param qos qos for the packet of interest
  * @return true if more in flight are allowed.
  */
-bool db__ready_for_flight(struct mosquitto *context, enum mosquitto_msg_direction dir, int qos)
+bool db__ready_for_flight(ರಚನೆ mosquitto *context, ಎಣಿಕೆ mosquitto_ಸಂದೇಶ_direction dir, ಪೂರ್ಣಾಂಕ qos)
 {
-	struct mosquitto_msg_data *msgs;
-	bool valid_bytes;
-	bool valid_count;
+	ರಚನೆ mosquitto_ಸಂದೇಶ_ದತ್ತಾಂಶ *msgs;
+	bool valid_ಬೈಟುಗಳು;
+	bool valid_ಎಣಿಕೆ;
 
-	if(dir == mosq_md_out){
-		msgs = &context->msgs_out;
-	}else{
-		msgs = &context->msgs_in;
+	ಆದರೆ(dir == mosq_md_ಹೊರಹೋಗು){
+		msgs = &context->msgs_ಹೊರಹೋಗು;
+	}ಇಲ್ಲದಿದ್ದರೆ{
+		msgs = &context->msgs_ಒಳ;
 	}
 
-	if(msgs->inflight_maximum == 0 && db.config->max_inflight_bytes == 0){
-		return true;
+	ಆದರೆ(msgs->inflight_ಗರಿಷ್ಠ == 0 && db.config->max_inflight_ಬೈಟುಗಳು == 0){
+		ಹಿಂತಿರುಗಿ true;
 	}
 
-	if(qos == 0){
+	ಆದರೆ(qos == 0){
 		/* Deliver QoS 0 messages unless the queue is already full.
 		 * For QoS 0 messages the choice is either "inflight" or dropped.
 		 * There is no queueing option, unless the client is offline and
 		 * queue_qos0_messages is enabled.
 		 */
-		if(db.config->max_queued_messages == 0 && db.config->max_inflight_bytes == 0){
-			return true;
+		ಆದರೆ(db.config->max_queued_messages == 0 && db.config->max_inflight_ಬೈಟುಗಳು == 0){
+			ಹಿಂತಿರುಗಿ true;
 		}
-		valid_bytes = ((msgs->inflight_bytes - (ssize_t)db.config->max_inflight_bytes) < (ssize_t)db.config->max_queued_bytes);
-		if(dir == mosq_md_out){
-			valid_count = context->out_packet_count < db.config->max_queued_messages;
-		}else{
-			valid_count = msgs->inflight_count - msgs->inflight_maximum < db.config->max_queued_messages;
+		valid_ಬೈಟುಗಳು = ((msgs->inflight_ಬೈಟುಗಳು - (ssize_t)db.config->max_inflight_ಬೈಟುಗಳು) < (ssize_t)db.config->max_queued_ಬೈಟುಗಳು);
+		ಆದರೆ(dir == mosq_md_ಹೊರಹೋಗು){
+			valid_ಎಣಿಕೆ = context->ಹೊರಹೋಗು_packet_ಎಣಿಕೆ < db.config->max_queued_messages;
+		}ಇಲ್ಲದಿದ್ದರೆ{
+			valid_ಎಣಿಕೆ = msgs->inflight_ಎಣಿಕೆ - msgs->inflight_ಗರಿಷ್ಠ < db.config->max_queued_messages;
 		}
 
-		if(db.config->max_queued_messages == 0){
-			return valid_bytes;
+		ಆದರೆ(db.config->max_queued_messages == 0){
+			ಹಿಂತಿರುಗಿ valid_ಬೈಟುಗಳು;
 		}
-		if(db.config->max_queued_bytes == 0){
-			return valid_count;
+		ಆದರೆ(db.config->max_queued_ಬೈಟುಗಳು == 0){
+			ಹಿಂತಿರುಗಿ valid_ಎಣಿಕೆ;
 		}
-	}else{
-		valid_bytes = (ssize_t)msgs->inflight_bytes12 < (ssize_t)db.config->max_inflight_bytes;
-		valid_count = msgs->inflight_quota > 0;
+	}ಇಲ್ಲದಿದ್ದರೆ{
+		valid_ಬೈಟುಗಳು = (ssize_t)msgs->inflight_bytes12 < (ssize_t)db.config->max_inflight_ಬೈಟುಗಳು;
+		valid_ಎಣಿಕೆ = msgs->inflight_quota > 0;
 
-		if(msgs->inflight_maximum == 0){
-			return valid_bytes;
+		ಆದರೆ(msgs->inflight_ಗರಿಷ್ಠ == 0){
+			ಹಿಂತಿರುಗಿ valid_ಬೈಟುಗಳು;
 		}
-		if(db.config->max_inflight_bytes == 0){
-			return valid_count;
+		ಆದರೆ(db.config->max_inflight_ಬೈಟುಗಳು == 0){
+			ಹಿಂತಿರುಗಿ valid_ಎಣಿಕೆ;
 		}
 	}
 
-	return valid_bytes && valid_count;
+	ಹಿಂತಿರುಗಿ valid_ಬೈಟುಗಳು && valid_ಎಣಿಕೆ;
 }
 
 
@@ -96,137 +96,137 @@ bool db__ready_for_flight(struct mosquitto *context, enum mosquitto_msg_directio
  * @param qos destination qos for the packet of interest
  * @return true if queuing is allowed, false if should be dropped
  */
-bool db__ready_for_queue(struct mosquitto *context, int qos, struct mosquitto_msg_data *msg_data)
+bool db_ready_for_ಸರತಿ(ರಚನೆ mosquitto *context, ಪೂರ್ಣಾಂಕ qos, ರಚನೆ mosquitto_ಸಂದೇಶ_ದತ್ತಾಂಶ *ಸಂದೇಶ_ದತ್ತಾಂಶ)
 {
-	int source_count;
-	int adjust_count;
-	long source_bytes;
-	ssize_t adjust_bytes = (ssize_t)db.config->max_inflight_bytes;
-	bool valid_bytes;
-	bool valid_count;
+	ಪೂರ್ಣಾಂಕ ಮೂಲ_ಎಣಿಕೆ;
+	ಪೂರ್ಣಾಂಕ adjust_ಎಣಿಕೆ;
+	ದೀರ್ಘ ಮೂಲ_ಬೈಟುಗಳು;
+	ssize_t adjust_ಬೈಟುಗಳು = (ssize_t)db.config->max_inflight_ಬೈಟುಗಳು;
+	bool valid_ಬೈಟುಗಳು;
+	bool valid_ಎಣಿಕೆ;
 
-	if(db.config->max_queued_messages == 0 && db.config->max_queued_bytes == 0){
-		return true;
+	ಆದರೆ(db.config->max_queued_messages == 0 && db.config->max_queued_ಬೈಟುಗಳು == 0){
+		ಹಿಂತಿರುಗಿ true;
 	}
 
-	if(qos == 0 && db.config->queue_qos0_messages == false){
-		return false; /* This case is handled in db__ready_for_flight() */
-	}else{
-		source_bytes = (ssize_t)msg_data->queued_bytes12;
-		source_count = msg_data->queued_count12;
+	ಆದರೆ(qos == 0 && db.config->ಸರತಿ_qos0_messages == false){
+		ಹಿಂತಿರುಗಿ false; /* This case is handled in db__ready_for_flight() */
+	}ಇಲ್ಲದಿದ್ದರೆ{
+		ಮೂಲ_ಬೈಟುಗಳು = (ssize_t)ಸಂದೇಶ_ದತ್ತಾಂಶ->queued_bytes12;
+		ಮೂಲ_ಎಣಿಕೆ = ಸಂದೇಶ_ದತ್ತಾಂಶ->queued_count12;
 	}
-	adjust_count = msg_data->inflight_maximum;
+	adjust_ಎಣಿಕೆ = ಸಂದೇಶ_ದತ್ತಾಂಶ->inflight_ಗರಿಷ್ಠ;
 
 	/* nothing in flight for offline clients */
-	if(!net__is_connected(context)){
-		adjust_bytes = 0;
-		adjust_count = 0;
+	ಆದರೆ(!net__is_connected(context)){
+		adjust_ಬೈಟುಗಳು = 0;
+		adjust_ಎಣಿಕೆ = 0;
 	}
 
-	valid_bytes = (source_bytes - (ssize_t)adjust_bytes) < (ssize_t)db.config->max_queued_bytes;
-	valid_count = source_count - adjust_count < db.config->max_queued_messages;
+	valid_ಬೈಟುಗಳು = (ಮೂಲ_ಬೈಟುಗಳು - (ssize_t)adjust_ಬೈಟುಗಳು) < (ssize_t)db.config->max_queued_ಬೈಟುಗಳು;
+	valid_ಎಣಿಕೆ = ಮೂಲ_ಎಣಿಕೆ - adjust_ಎಣಿಕೆ < db.config->max_queued_messages;
 
-	if(db.config->max_queued_bytes == 0){
-		return valid_count;
+	ಆದರೆ(db.config->max_queued_ಬೈಟುಗಳು == 0){
+		ಹಿಂತಿರುಗಿ valid_ಎಣಿಕೆ;
 	}
-	if(db.config->max_queued_messages == 0){
-		return valid_bytes;
+	ಆದರೆ(db.config->max_queued_messages == 0){
+		ಹಿಂತಿರುಗಿ valid_ಬೈಟುಗಳು;
 	}
 
-	return valid_bytes && valid_count;
+	ಹಿಂತಿರುಗಿ valid_ಬೈಟುಗಳು && valid_ಎಣಿಕೆ;
 }
 
 
-void db__msg_add_to_inflight_stats(struct mosquitto_msg_data *msg_data, struct mosquitto__client_msg *client_msg)
+ಶೂನ್ಯ db_ಸಂದೇಶ_ಕೂಡಿಸು_ಗಮ್ಯ_inflight_stats(ರಚನೆ mosquitto_ಸಂದೇಶ_ದತ್ತಾಂಶ *ಸಂದೇಶ_ದತ್ತಾಂಶ, ರಚನೆ mosquitto_client_ಸಂದೇಶ *client_ಸಂದೇಶ)
 {
-	msg_data->inflight_count++;
-	msg_data->inflight_bytes += client_msg->base_msg->data.payloadlen;
-	if(client_msg->data.qos != 0){
-		msg_data->inflight_count12++;
-		msg_data->inflight_bytes12 += client_msg->base_msg->data.payloadlen;
-	}
-}
-
-
-static void db__msg_remove_from_inflight_stats(struct mosquitto_msg_data *msg_data, struct mosquitto__client_msg *client_msg)
-{
-	msg_data->inflight_count--;
-	msg_data->inflight_bytes -= client_msg->base_msg->data.payloadlen;
-	if(client_msg->data.qos != 0){
-		msg_data->inflight_count12--;
-		msg_data->inflight_bytes12 -= client_msg->base_msg->data.payloadlen;
+	ಸಂದೇಶ_ದತ್ತಾಂಶ->inflight_ಎಣಿಕೆ++;
+	ಸಂದೇಶ_ದತ್ತಾಂಶ->inflight_ಬೈಟುಗಳು += client_ಸಂದೇಶ->ತಳ_ಸಂದೇಶ->ದತ್ತಾಂಶ.payloadlen;
+	ಆದರೆ(client_ಸಂದೇಶ->ದತ್ತಾಂಶ.qos != 0){
+		ಸಂದೇಶ_ದತ್ತಾಂಶ->inflight_count12++;
+		ಸಂದೇಶ_ದತ್ತಾಂಶ->inflight_bytes12 += client_ಸಂದೇಶ->ತಳ_ಸಂದೇಶ->ದತ್ತಾಂಶ.payloadlen;
 	}
 }
 
 
-void db__msg_add_to_queued_stats(struct mosquitto_msg_data *msg_data, struct mosquitto__client_msg *client_msg)
+ಸ್ಥಿರ ಶೂನ್ಯ db_ಸಂದೇಶ_remove_from_inflight_stats(ರಚನೆ mosquitto_ಸಂದೇಶ_ದತ್ತಾಂಶ *ಸಂದೇಶ_ದತ್ತಾಂಶ, ರಚನೆ mosquitto_client_ಸಂದೇಶ *client_ಸಂದೇಶ)
 {
-	msg_data->queued_count++;
-	msg_data->queued_bytes += client_msg->base_msg->data.payloadlen;
-	if(client_msg->data.qos != 0){
-		msg_data->queued_count12++;
-		msg_data->queued_bytes12 += client_msg->base_msg->data.payloadlen;
+	ಸಂದೇಶ_ದತ್ತಾಂಶ->inflight_ಎಣಿಕೆ--;
+	ಸಂದೇಶ_ದತ್ತಾಂಶ->inflight_ಬೈಟುಗಳು -= client_ಸಂದೇಶ->ತಳ_ಸಂದೇಶ->ದತ್ತಾಂಶ.payloadlen;
+	ಆದರೆ(client_ಸಂದೇಶ->ದತ್ತಾಂಶ.qos != 0){
+		ಸಂದೇಶ_ದತ್ತಾಂಶ->inflight_count12--;
+		ಸಂದೇಶ_ದತ್ತಾಂಶ->inflight_bytes12 -= client_ಸಂದೇಶ->ತಳ_ಸಂದೇಶ->ದತ್ತಾಂಶ.payloadlen;
 	}
 }
 
 
-static void db__msg_remove_from_queued_stats(struct mosquitto_msg_data *msg_data, struct mosquitto__client_msg *client_msg)
+ಶೂನ್ಯ db_ಸಂದೇಶ_ಕೂಡಿಸು_ಗಮ್ಯ_queued_stats(ರಚನೆ mosquitto_ಸಂದೇಶ_ದತ್ತಾಂಶ *ಸಂದೇಶ_ದತ್ತಾಂಶ, ರಚನೆ mosquitto_client_ಸಂದೇಶ *client_ಸಂದೇಶ)
 {
-	msg_data->queued_count--;
-	msg_data->queued_bytes -= client_msg->base_msg->data.payloadlen;
-	if(client_msg->data.qos != 0){
-		msg_data->queued_count12--;
-		msg_data->queued_bytes12 -= client_msg->base_msg->data.payloadlen;
+	ಸಂದೇಶ_ದತ್ತಾಂಶ->queued_ಎಣಿಕೆ++;
+	ಸಂದೇಶ_ದತ್ತಾಂಶ->queued_ಬೈಟುಗಳು += client_ಸಂದೇಶ->ತಳ_ಸಂದೇಶ->ದತ್ತಾಂಶ.payloadlen;
+	ಆದರೆ(client_ಸಂದೇಶ->ದತ್ತಾಂಶ.qos != 0){
+		ಸಂದೇಶ_ದತ್ತಾಂಶ->queued_count12++;
+		ಸಂದೇಶ_ದತ್ತಾಂಶ->queued_bytes12 += client_ಸಂದೇಶ->ತಳ_ಸಂದೇಶ->ದತ್ತಾಂಶ.payloadlen;
 	}
 }
 
 
-int db__open(struct mosquitto__config *config)
+ಸ್ಥಿರ ಶೂನ್ಯ db_ಸಂದೇಶ_remove_from_queued_stats(ರಚನೆ mosquitto_ಸಂದೇಶ_ದತ್ತಾಂಶ *ಸಂದೇಶ_ದತ್ತಾಂಶ, ರಚನೆ mosquitto_client_ಸಂದೇಶ *client_ಸಂದೇಶ)
 {
-	if(!config){
-		return MOSQ_ERR_INVAL;
+	ಸಂದೇಶ_ದತ್ತಾಂಶ->queued_ಎಣಿಕೆ--;
+	ಸಂದೇಶ_ದತ್ತಾಂಶ->queued_ಬೈಟುಗಳು -= client_ಸಂದೇಶ->ತಳ_ಸಂದೇಶ->ದತ್ತಾಂಶ.payloadlen;
+	ಆದರೆ(client_ಸಂದೇಶ->ದತ್ತಾಂಶ.qos != 0){
+		ಸಂದೇಶ_ದತ್ತಾಂಶ->queued_count12--;
+		ಸಂದೇಶ_ದತ್ತಾಂಶ->queued_bytes12 -= client_ಸಂದೇಶ->ತಳ_ಸಂದೇಶ->ದತ್ತಾಂಶ.payloadlen;
+	}
+}
+
+
+ಪೂರ್ಣಾಂಕ db__open(ರಚನೆ mosquitto__config *config)
+{
+	ಆದರೆ(!config){
+		ಹಿಂತಿರುಗಿ MOSQ_ERR_INVAL;
 	}
 
-	db.contexts_by_id = NULL;
-	db.contexts_by_sock = NULL;
-	db.contexts_for_free = NULL;
-#ifdef WITH_BRIDGE
-	db.bridges = NULL;
-	db.bridge_count = 0;
-#endif
+	db.contexts_by_id = ಖಾಲಿ;
+	db.contexts_by_sock = ಖಾಲಿ;
+	db.contexts_for_free = ಖಾಲಿ;
+#ವ್ಯಾಖ್ಯಾನಿತವಾದರೆ WITH_BRIDGE
+	db.bridges = ಖಾಲಿ;
+	db.bridge_ಎಣಿಕೆ = 0;
+#ಆದರೆ_ಅಂತ್ಯ
 
 	/* Initialize the hashtable */
-	db.clientid_index_hash = NULL;
+	db.clientid_ಸೂಚ್ಯಂಕ_hash = ಖಾಲಿ;
 
-	db.normal_subs = NULL;
-	db.shared_subs = NULL;
+	db.ಸಾಮಾನ್ಯ_subs = ಖಾಲಿ;
+	db.shared_subs = ಖಾಲಿ;
 
 	sub__init();
 	retain__init();
 
-	db.config->security_options.unpwd = NULL;
+	db.config->security_options.unpwd = ಖಾಲಿ;
 
-#ifdef WITH_PERSISTENCE
-	if(persist__restore()){
-		return 1;
+#ವ್ಯಾಖ್ಯಾನಿತವಾದರೆ WITH_PERSISTENCE
+	ಆದರೆ(persist__restore()){
+		ಹಿಂತಿರುಗಿ 1;
 	}
-#endif
+#ಆದರೆ_ಅಂತ್ಯ
 
-	return MOSQ_ERR_SUCCESS;
+	ಹಿಂತಿರುಗಿ MOSQ_ERR_SUCCESS;
 }
 
 
-static void subhier_clean(struct mosquitto__subhier **subhier)
+ಸ್ಥಿರ ಶೂನ್ಯ subhier_clean(ರಚನೆ mosquitto__subhier **subhier)
 {
-	struct mosquitto__subhier *peer, *subhier_tmp;
-	struct mosquitto__subleaf *leaf, *nextleaf;
+	ರಚನೆ mosquitto__subhier *peer, *subhier_tmp;
+	ರಚನೆ mosquitto__subleaf *ಎಲೆ, *nextleaf;
 
 	HASH_ITER(hh, *subhier, peer, subhier_tmp){
-		leaf = peer->subs;
-		while(leaf){
-			nextleaf = leaf->next;
-			mosquitto_FREE(leaf);
-			leaf = nextleaf;
+		ಎಲೆ = peer->subs;
+		ಆಗ(ಎಲೆ){
+			nextleaf = ಎಲೆ->ಮುಂದಿನ;
+			mosquitto_FREE(ಎಲೆ);
+			ಎಲೆ = nextleaf;
 		}
 		subhier_clean(&peer->children);
 
@@ -236,345 +236,345 @@ static void subhier_clean(struct mosquitto__subhier **subhier)
 }
 
 
-int db__close(void)
+ಪೂರ್ಣಾಂಕ db__close(ಶೂನ್ಯ)
 {
-	subhier_clean(&db.normal_subs);
+	subhier_clean(&db.ಸಾಮಾನ್ಯ_subs);
 	subhier_clean(&db.shared_subs);
 	retain__clean(&db.retains);
-	db__msg_store_clean();
+	db_ಸಂದೇಶ_store_clean();
 
-	return MOSQ_ERR_SUCCESS;
+	ಹಿಂತಿರುಗಿ MOSQ_ERR_SUCCESS;
 }
 
 
-int db__msg_store_add(struct mosquitto__base_msg *base_msg)
+ಪೂರ್ಣಾಂಕ db_ಸಂದೇಶ_store_ಕೂಡಿಸು(ರಚನೆ mosquitto_ತಳ_ಸಂದೇಶ *ತಳ_ಸಂದೇಶ)
 {
-	struct mosquitto__base_msg *found;
-	unsigned hashv;
+	ರಚನೆ mosquitto_ತಳ_ಸಂದೇಶ *ಸಿಕ್ಕಿತು;
+	ಚಿಹ್ನೆರಹಿತ hashv;
 
-	HASH_VALUE(&base_msg->data.store_id, sizeof(base_msg->data.store_id), hashv);
-	HASH_FIND_BYHASHVALUE(hh, db.msg_store, &base_msg->data.store_id, sizeof(base_msg->data.store_id), hashv, found);
-	if(found == NULL){
-		HASH_ADD_KEYPTR_BYHASHVALUE(hh, db.msg_store, &base_msg->data.store_id, sizeof(base_msg->data.store_id), hashv, base_msg);
-		return MOSQ_ERR_SUCCESS;
-	}else{
-		return MOSQ_ERR_ALREADY_EXISTS;
+	HASH_ಮೌಲ್ಯ(&ತಳ_ಸಂದೇಶ->ದತ್ತಾಂಶ.store_id, ಗಾತ್ರ(ತಳ_ಸಂದೇಶ->ದತ್ತಾಂಶ.store_id), hashv);
+	HASH_ಕಂಡುಹಿಡಿ_BYHASHVALUE(hh, db.ಸಂದೇಶ_store, &ತಳ_ಸಂದೇಶ->ದತ್ತಾಂಶ.store_id, ಗಾತ್ರ(ತಳ_ಸಂದೇಶ->ದತ್ತಾಂಶ.store_id), hashv, ಸಿಕ್ಕಿತು);
+	ಆದರೆ(ಸಿಕ್ಕಿತು == ಖಾಲಿ){
+		HASH_ಕೂಡಿಸು_KEYPTR_BYHASHVALUE(hh, db.ಸಂದೇಶ_store, &ತಳ_ಸಂದೇಶ->ದತ್ತಾಂಶ.store_id, ಗಾತ್ರ(ತಳ_ಸಂದೇಶ->ದತ್ತಾಂಶ.store_id), hashv, ತಳ_ಸಂದೇಶ);
+		ಹಿಂತಿರುಗಿ MOSQ_ERR_SUCCESS;
+	}ಇಲ್ಲದಿದ್ದರೆ{
+		ಹಿಂತಿರುಗಿ MOSQ_ERR_ALREADY_EXISTS;
 	}
 }
 
 
-void db__msg_store_free(struct mosquitto__base_msg *base_msg)
+ಶೂನ್ಯ db_ಸಂದೇಶ_store_free(ರಚನೆ mosquitto_ತಳ_ಸಂದೇಶ *ತಳ_ಸಂದೇಶ)
 {
-	mosquitto_FREE(base_msg->data.source_id);
-	mosquitto_FREE(base_msg->data.source_username);
-	if(base_msg->dest_ids){
-		for(int i=0; i<base_msg->dest_id_count; i++){
-			mosquitto_FREE(base_msg->dest_ids[i]);
+	mosquitto_FREE(ತಳ_ಸಂದೇಶ->ದತ್ತಾಂಶ.ಮೂಲ_id);
+	mosquitto_FREE(ತಳ_ಸಂದೇಶ->ದತ್ತಾಂಶ.ಮೂಲ_username);
+	ಆದರೆ(ತಳ_ಸಂದೇಶ->dest_ids){
+		ಗಾಗಿ(ಪೂರ್ಣಾಂಕ i=0; i<ತಳ_ಸಂದೇಶ->dest_id_ಎಣಿಕೆ; i++){
+			mosquitto_FREE(ತಳ_ಸಂದೇಶ->dest_ids[i]);
 		}
-		mosquitto_FREE(base_msg->dest_ids);
+		mosquitto_FREE(ತಳ_ಸಂದೇಶ->dest_ids);
 	}
-	mosquitto_FREE(base_msg->data.topic);
-	mosquitto_property_free_all(&base_msg->data.properties);
-	mosquitto_FREE(base_msg->data.payload);
-	mosquitto_FREE(base_msg);
+	mosquitto_FREE(ತಳ_ಸಂದೇಶ->ದತ್ತಾಂಶ.topic);
+	mosquitto_property_free_all(&ತಳ_ಸಂದೇಶ->ದತ್ತಾಂಶ.properties);
+	mosquitto_FREE(ತಳ_ಸಂದೇಶ->ದತ್ತಾಂಶ.payload);
+	mosquitto_FREE(ತಳ_ಸಂದೇಶ);
 }
 
 
-void db__msg_store_remove(struct mosquitto__base_msg *base_msg, bool notify)
+ಶೂನ್ಯ db_ಸಂದೇಶ_store_remove(ರಚನೆ mosquitto_ತಳ_ಸಂದೇಶ *ತಳ_ಸಂದೇಶ, bool notify)
 {
-	if(base_msg == NULL){
-		return;
+	ಆದರೆ(ತಳ_ಸಂದೇಶ == ಖಾಲಿ){
+		ಹಿಂತಿರುಗಿ;
 	}
-	HASH_DELETE(hh, db.msg_store, base_msg);
-	db.msg_store_count--;
-	db.msg_store_bytes -= base_msg->data.payloadlen;
-	if(notify == true){
-		plugin_persist__handle_base_msg_delete(base_msg);
+	HASH_DELETE(hh, db.ಸಂದೇಶ_store, ತಳ_ಸಂದೇಶ);
+	db.ಸಂದೇಶ_store_ಎಣಿಕೆ--;
+	db.ಸಂದೇಶ_store_ಬೈಟುಗಳು -= ತಳ_ಸಂದೇಶ->ದತ್ತಾಂಶ.payloadlen;
+	ಆದರೆ(notify == true){
+		plugin_persist_handle_ತಳ_ಸಂದೇಶ_delete(ತಳ_ಸಂದೇಶ);
 	}
-	db__msg_store_free(base_msg);
+	db_ಸಂದೇಶ_store_free(ತಳ_ಸಂದೇಶ);
 }
 
 
-void db__msg_store_clean(void)
+ಶೂನ್ಯ db_ಸಂದೇಶ_store_clean(ಶೂನ್ಯ)
 {
-	struct mosquitto__base_msg *base_msg, *base_msg_tmp;
+	ರಚನೆ mosquitto_ತಳ_ಸಂದೇಶ *ತಳ_ಸಂದೇಶ, *ತಳ_ಸಂದೇಶ_tmp;
 
-	HASH_ITER(hh, db.msg_store, base_msg, base_msg_tmp){
-		db__msg_store_remove(base_msg, false);
-	}
-}
-
-
-void db__msg_store_ref_inc(struct mosquitto__base_msg *base_msg)
-{
-	base_msg->ref_count++;
-}
-
-
-void db__msg_store_ref_dec(struct mosquitto__base_msg **base_msg)
-{
-	(*base_msg)->ref_count--;
-	if((*base_msg)->ref_count == 0){
-		db__msg_store_remove(*base_msg, true);
-		*base_msg = NULL;
+	HASH_ITER(hh, db.ಸಂದೇಶ_store, ತಳ_ಸಂದೇಶ, ತಳ_ಸಂದೇಶ_tmp){
+		db_ಸಂದೇಶ_store_remove(ತಳ_ಸಂದೇಶ, false);
 	}
 }
 
 
-void db__msg_store_compact(void)
+ಶೂನ್ಯ db_ಸಂದೇಶ_store_ref_inc(ರಚನೆ mosquitto_ತಳ_ಸಂದೇಶ *ತಳ_ಸಂದೇಶ)
 {
-	struct mosquitto__base_msg *base_msg, *base_msg_tmp;
+	ತಳ_ಸಂದೇಶ->ref_ಎಣಿಕೆ++;
+}
 
-	HASH_ITER(hh, db.msg_store, base_msg, base_msg_tmp){
-		if(base_msg->ref_count < 1){
-			db__msg_store_remove(base_msg, true);
+
+ಶೂನ್ಯ db_ಸಂದೇಶ_store_ref_dec(ರಚನೆ mosquitto_ತಳ_ಸಂದೇಶ **ತಳ_ಸಂದೇಶ)
+{
+	(*ತಳ_ಸಂದೇಶ)->ref_ಎಣಿಕೆ--;
+	ಆದರೆ((*ತಳ_ಸಂದೇಶ)->ref_ಎಣಿಕೆ == 0){
+		db_ಸಂದೇಶ_store_remove(*ತಳ_ಸಂದೇಶ, true);
+		*ತಳ_ಸಂದೇಶ = ಖಾಲಿ;
+	}
+}
+
+
+ಶೂನ್ಯ db_ಸಂದೇಶ_store_compact(ಶೂನ್ಯ)
+{
+	ರಚನೆ mosquitto_ತಳ_ಸಂದೇಶ *ತಳ_ಸಂದೇಶ, *ತಳ_ಸಂದೇಶ_tmp;
+
+	HASH_ITER(hh, db.ಸಂದೇಶ_store, ತಳ_ಸಂದೇಶ, ತಳ_ಸಂದೇಶ_tmp){
+		ಆದರೆ(ತಳ_ಸಂದೇಶ->ref_ಎಣಿಕೆ < 1){
+			db_ಸಂದೇಶ_store_remove(ತಳ_ಸಂದೇಶ, true);
 		}
 	}
 }
 
 
-static void db__message_remove_inflight(struct mosquitto *context, struct mosquitto_msg_data *msg_data, struct mosquitto__client_msg *item)
+ಸ್ಥಿರ ಶೂನ್ಯ db_ಸಂದೇಶ_remove_inflight(ರಚನೆ mosquitto *context, ರಚನೆ mosquitto_ಸಂದೇಶ_ದತ್ತಾಂಶ *ಸಂದೇಶ_ದತ್ತಾಂಶ, ರಚನೆ mosquitto_client_ಸಂದೇಶ *ಅಂಶ)
 {
-	if(!context || !msg_data || !item){
-		return;
+	ಆದರೆ(!context || !ಸಂದೇಶ_ದತ್ತಾಂಶ || !ಅಂಶ){
+		ಹಿಂತಿರುಗಿ;
 	}
 
-	plugin_persist__handle_client_msg_delete(context, item);
+	plugin_persist_handle_client_ಸಂದೇಶ_delete(context, ಅಂಶ);
 
-	DL_DELETE(msg_data->inflight, item);
-	if(item->base_msg){
-		db__msg_remove_from_inflight_stats(msg_data, item);
-		db__msg_store_ref_dec(&item->base_msg);
+	DL_DELETE(ಸಂದೇಶ_ದತ್ತಾಂಶ->inflight, ಅಂಶ);
+	ಆದರೆ(ಅಂಶ->ತಳ_ಸಂದೇಶ){
+		db_ಸಂದೇಶ_remove_from_inflight_stats(ಸಂದೇಶ_ದತ್ತಾಂಶ, ಅಂಶ);
+		db_ಸಂದೇಶ_store_ref_dec(&ಅಂಶ->ತಳ_ಸಂದೇಶ);
 	}
 
-	mosquitto_FREE(item);
+	mosquitto_FREE(ಅಂಶ);
 }
 
 
-static void db__message_remove_queued(struct mosquitto *context, struct mosquitto_msg_data *msg_data, struct mosquitto__client_msg *item)
+ಸ್ಥಿರ ಶೂನ್ಯ db_ಸಂದೇಶ_remove_queued(ರಚನೆ mosquitto *context, ರಚನೆ mosquitto_ಸಂದೇಶ_ದತ್ತಾಂಶ *ಸಂದೇಶ_ದತ್ತಾಂಶ, ರಚನೆ mosquitto_client_ಸಂದೇಶ *ಅಂಶ)
 {
-	if(!context || !msg_data || !item){
-		return;
+	ಆದರೆ(!context || !ಸಂದೇಶ_ದತ್ತಾಂಶ || !ಅಂಶ){
+		ಹಿಂತಿರುಗಿ;
 	}
 
-	plugin_persist__handle_client_msg_delete(context, item);
+	plugin_persist_handle_client_ಸಂದೇಶ_delete(context, ಅಂಶ);
 
-	DL_DELETE(msg_data->queued, item);
-	if(item->base_msg){
-		db__msg_remove_from_queued_stats(msg_data, item);
-		db__msg_store_ref_dec(&item->base_msg);
+	DL_DELETE(ಸಂದೇಶ_ದತ್ತಾಂಶ->queued, ಅಂಶ);
+	ಆದರೆ(ಅಂಶ->ತಳ_ಸಂದೇಶ){
+		db_ಸಂದೇಶ_remove_from_queued_stats(ಸಂದೇಶ_ದತ್ತಾಂಶ, ಅಂಶ);
+		db_ಸಂದೇಶ_store_ref_dec(&ಅಂಶ->ತಳ_ಸಂದೇಶ);
 	}
 
-	mosquitto_FREE(item);
+	mosquitto_FREE(ಅಂಶ);
 }
 
 
-static void db__fill_inflight_out_from_queue(struct mosquitto *context)
+ಸ್ಥಿರ ಶೂನ್ಯ db_fill_inflight_ಹೊರಹೋಗು_from_ಸರತಿ(ರಚನೆ mosquitto *context)
 {
-	struct mosquitto__client_msg *client_msg, *tmp;
+	ರಚನೆ mosquitto_client_ಸಂದೇಶ *client_ಸಂದೇಶ, *tmp;
 
-	DL_FOREACH_SAFE(context->msgs_out.queued, client_msg, tmp){
-		if(!db__ready_for_flight(context, mosq_md_out, client_msg->data.qos)){
-			return;
+	DL_FOREACH_ಸುರಕ್ಷಿತ(context->msgs_ಹೊರಹೋಗು.queued, client_ಸಂದೇಶ, tmp){
+		ಆದರೆ(!db__ready_for_flight(context, mosq_md_ಹೊರಹೋಗು, client_ಸಂದೇಶ->ದತ್ತಾಂಶ.qos)){
+			ಹಿಂತಿರುಗಿ;
 		}
-		switch(client_msg->data.qos){
-			case 0:
-				client_msg->data.state = mosq_ms_publish_qos0;
-				break;
-			case 1:
-				client_msg->data.state = mosq_ms_publish_qos1;
-				break;
-			case 2:
-				client_msg->data.state = mosq_ms_publish_qos2;
-				break;
+		ಆಯ್ಕೆ(client_ಸಂದೇಶ->ದತ್ತಾಂಶ.qos){
+			ಸ್ಥಿತಿ 0:
+				client_ಸಂದೇಶ->ದತ್ತಾಂಶ.state = mosq_ms_publish_qos0;
+				ನಿಲ್ಲಿಸು;
+			ಸ್ಥಿತಿ 1:
+				client_ಸಂದೇಶ->ದತ್ತಾಂಶ.state = mosq_ms_publish_qos1;
+				ನಿಲ್ಲಿಸು;
+			ಸ್ಥಿತಿ 2:
+				client_ಸಂದೇಶ->ದತ್ತಾಂಶ.state = mosq_ms_publish_qos2;
+				ನಿಲ್ಲಿಸು;
 		}
-		if(client_msg->base_msg->data.expiry_time && db.now_real_s > client_msg->base_msg->data.expiry_time){
-			db__message_remove_queued(context, &context->msgs_out, client_msg);
-			continue;
+		ಆದರೆ(client_ಸಂದೇಶ->ತಳ_ಸಂದೇಶ->ದತ್ತಾಂಶ.expiry_ಸಮಯ && db.now_real_s > client_ಸಂದೇಶ->ತಳ_ಸಂದೇಶ->ದತ್ತಾಂಶ.expiry_ಸಮಯ){
+			db_ಸಂದೇಶ_remove_queued(context, &context->msgs_ಹೊರಹೋಗು, client_ಸಂದೇಶ);
+			ಮುಂದುವರಿ;
 		}
-		plugin_persist__handle_client_msg_update(context, client_msg);
-		db__message_dequeue_first(context, &context->msgs_out);
+		plugin_persist_handle_client_ಸಂದೇಶ_update(context, client_ಸಂದೇಶ);
+		db_ಸಂದೇಶ_ಸರತಿಯಿಂದ_ತೆಗೆ_ಮೊದಲ(context, &context->msgs_ಹೊರಹೋಗು);
 	}
 }
 
 
-void db__message_dequeue_first(struct mosquitto *context, struct mosquitto_msg_data *msg_data)
+ಶೂನ್ಯ db_ಸಂದೇಶ_ಸರತಿಯಿಂದ_ತೆಗೆ_ಮೊದಲ(ರಚನೆ mosquitto *context, ರಚನೆ mosquitto_ಸಂದೇಶ_ದತ್ತಾಂಶ *ಸಂದೇಶ_ದತ್ತಾಂಶ)
 {
-	struct mosquitto__client_msg *client_msg;
+	ರಚನೆ mosquitto_client_ಸಂದೇಶ *client_ಸಂದೇಶ;
 
-	UNUSED(context);
+	ಬಳಸದ(context);
 
-	client_msg = msg_data->queued;
-	DL_DELETE(msg_data->queued, client_msg);
-	DL_APPEND(msg_data->inflight, client_msg);
-	if(msg_data->inflight_quota > 0){
-		msg_data->inflight_quota--;
+	client_ಸಂದೇಶ = ಸಂದೇಶ_ದತ್ತಾಂಶ->queued;
+	DL_DELETE(ಸಂದೇಶ_ದತ್ತಾಂಶ->queued, client_ಸಂದೇಶ);
+	DL_APPEND(ಸಂದೇಶ_ದತ್ತಾಂಶ->inflight, client_ಸಂದೇಶ);
+	ಆದರೆ(ಸಂದೇಶ_ದತ್ತಾಂಶ->inflight_quota > 0){
+		ಸಂದೇಶ_ದತ್ತಾಂಶ->inflight_quota--;
 	}
 
-	db__msg_remove_from_queued_stats(msg_data, client_msg);
-	db__msg_add_to_inflight_stats(msg_data, client_msg);
+	db_ಸಂದೇಶ_remove_from_queued_stats(ಸಂದೇಶ_ದತ್ತಾಂಶ, client_ಸಂದೇಶ);
+	db_ಸಂದೇಶ_ಕೂಡಿಸು_ಗಮ್ಯ_inflight_stats(ಸಂದೇಶ_ದತ್ತಾಂಶ, client_ಸಂದೇಶ);
 }
 
 
-int db__message_delete_outgoing(struct mosquitto *context, uint16_t mid, enum mosquitto_msg_state expect_state, int qos)
+ಪೂರ್ಣಾಂಕ db_ಸಂದೇಶ_delete_outgoing(ರಚನೆ mosquitto *context, uint16_t mid, ಎಣಿಕೆ mosquitto_ಸಂದೇಶ_state expect_state, ಪೂರ್ಣಾಂಕ qos)
 {
-	struct mosquitto__client_msg *client_msg, *tmp;
+	ರಚನೆ mosquitto_client_ಸಂದೇಶ *client_ಸಂದೇಶ, *tmp;
 	bool deleted = false;
 
-	if(!context){
-		return MOSQ_ERR_INVAL;
+	ಆದರೆ(!context){
+		ಹಿಂತಿರುಗಿ MOSQ_ERR_INVAL;
 	}
 
-	DL_FOREACH_SAFE(context->msgs_out.inflight, client_msg, tmp){
-		if(client_msg->data.mid == mid){
-			if(client_msg->data.qos != qos){
-				log__printf(NULL, MOSQ_LOG_INFO, "Protocol error from %s: Mismatched QoS (%d:%d) when deleting outgoing message.",
-						context->id, client_msg->data.qos, qos);
-				return MOSQ_ERR_PROTOCOL;
-			}else if(qos == 2 && client_msg->data.state != expect_state && expect_state != mosq_ms_any){
-				log__printf(NULL, MOSQ_LOG_INFO, "Protocol error from %s: Mismatched state (%d:%d) when deleting outgoing message.",
-						context->id, client_msg->data.state, expect_state);
-				return MOSQ_ERR_PROTOCOL;
+	DL_FOREACH_ಸುರಕ್ಷಿತ(context->msgs_ಹೊರಹೋಗು.inflight, client_ಸಂದೇಶ, tmp){
+		ಆದರೆ(client_ಸಂದೇಶ->ದತ್ತಾಂಶ.mid == mid){
+			ಆದರೆ(client_ಸಂದೇಶ->ದತ್ತಾಂಶ.qos != qos){
+				log__printf(ಖಾಲಿ, MOSQ_LOG_INFO, "Protocol error from %s: Mismatched QoS (%d:%d) when deleting outgoing message.",
+						context->id, client_ಸಂದೇಶ->ದತ್ತಾಂಶ.qos, qos);
+				ಹಿಂತಿರುಗಿ MOSQ_ERR_PROTOCOL;
+			}ಇಲ್ಲದಿದ್ದರೆ ಆದರೆ(qos == 2 && client_ಸಂದೇಶ->ದತ್ತಾಂಶ.state != expect_state && expect_state != mosq_ms_any){
+				log__printf(ಖಾಲಿ, MOSQ_LOG_INFO, "Protocol error from %s: Mismatched state (%d:%d) when deleting outgoing message.",
+						context->id, client_ಸಂದೇಶ->ದತ್ತಾಂಶ.state, expect_state);
+				ಹಿಂತಿರುಗಿ MOSQ_ERR_PROTOCOL;
 			}
-			db__message_remove_inflight(context, &context->msgs_out, client_msg);
+			db_ಸಂದೇಶ_remove_inflight(context, &context->msgs_ಹೊರಹೋಗು, client_ಸಂದೇಶ);
 			deleted = true;
-			break;
+			ನಿಲ್ಲಿಸು;
 		}
 	}
 
-	if(deleted == false){
-		DL_FOREACH_SAFE(context->msgs_out.queued, client_msg, tmp){
-			if(client_msg->data.mid == mid){
-				if(client_msg->data.qos != qos){
-					return MOSQ_ERR_PROTOCOL;
-				}else if(qos == 2 && client_msg->data.state != expect_state && expect_state != mosq_ms_any){
-					return MOSQ_ERR_PROTOCOL;
+	ಆದರೆ(deleted == false){
+		DL_FOREACH_ಸುರಕ್ಷಿತ(context->msgs_ಹೊರಹೋಗು.queued, client_ಸಂದೇಶ, tmp){
+			ಆದರೆ(client_ಸಂದೇಶ->ದತ್ತಾಂಶ.mid == mid){
+				ಆದರೆ(client_ಸಂದೇಶ->ದತ್ತಾಂಶ.qos != qos){
+					ಹಿಂತಿರುಗಿ MOSQ_ERR_PROTOCOL;
+				}ಇಲ್ಲದಿದ್ದರೆ ಆದರೆ(qos == 2 && client_ಸಂದೇಶ->ದತ್ತಾಂಶ.state != expect_state && expect_state != mosq_ms_any){
+					ಹಿಂತಿರುಗಿ MOSQ_ERR_PROTOCOL;
 				}
-				db__message_remove_queued(context, &context->msgs_out, client_msg);
-				break;
+				db_ಸಂದೇಶ_remove_queued(context, &context->msgs_ಹೊರಹೋಗು, client_ಸಂದೇಶ);
+				ನಿಲ್ಲಿಸು;
 			}
 		}
 	}
-	db__fill_inflight_out_from_queue(context);
-#ifdef WITH_PERSISTENCE
+	db_fill_inflight_ಹೊರಹೋಗು_from_ಸರತಿ(context);
+#ವ್ಯಾಖ್ಯಾನಿತವಾದರೆ WITH_PERSISTENCE
 	db.persistence_changes++;
-#endif
+#ಆದರೆ_ಅಂತ್ಯ
 
-	return db__message_write_inflight_out_latest(context);
+	ಹಿಂತಿರುಗಿ db_ಸಂದೇಶ_write_inflight_ಹೊರಹೋಗು_latest(context);
 }
 
 
 /* Only for QoS 2 messages */
-int db__message_insert_incoming(struct mosquitto *context, uint64_t cmsg_id, struct mosquitto__base_msg *base_msg, bool persist)
+ಪೂರ್ಣಾಂಕ db_ಸಂದೇಶ_ಸೇರಿಸು_incoming(ರಚನೆ mosquitto *context, uint64_t cmsg_id, ರಚನೆ mosquitto_ತಳ_ಸಂದೇಶ *ತಳ_ಸಂದೇಶ, bool persist)
 {
-	struct mosquitto__client_msg *client_msg;
-	struct mosquitto_msg_data *msg_data;
-	enum mosquitto_msg_state state = mosq_ms_invalid;
-	int rc = 0;
+	ರಚನೆ mosquitto_client_ಸಂದೇಶ *client_ಸಂದೇಶ;
+	ರಚನೆ mosquitto_ಸಂದೇಶ_ದತ್ತಾಂಶ *ಸಂದೇಶ_ದತ್ತಾಂಶ;
+	ಎಣಿಕೆ mosquitto_ಸಂದೇಶ_state state = mosq_ms_invalid;
+	ಪೂರ್ಣಾಂಕ rc = 0;
 
-	assert(base_msg);
-	if(!context){
-		return MOSQ_ERR_INVAL;
+	ಪ್ರತಿಜ್ಞಾ(ತಳ_ಸಂದೇಶ);
+	ಆದರೆ(!context){
+		ಹಿಂತಿರುಗಿ MOSQ_ERR_INVAL;
 	}
-	if(!context->id){
+	ಆದರೆ(!context->id){
 		/* Protect against unlikely "client is disconnected but not entirely freed" scenario */
-		return MOSQ_ERR_SUCCESS;
+		ಹಿಂತಿರುಗಿ MOSQ_ERR_SUCCESS;
 
 	}
-	msg_data = &context->msgs_in;
+	ಸಂದೇಶ_ದತ್ತಾಂಶ = &context->msgs_ಒಳ;
 
-	if(db__ready_for_flight(context, mosq_md_in, base_msg->data.qos)){
+	ಆದರೆ(db__ready_for_flight(context, mosq_md_ಒಳ, ತಳ_ಸಂದೇಶ->ದತ್ತಾಂಶ.qos)){
 		state = mosq_ms_wait_for_pubrel;
-	}else if(base_msg->data.qos != 0 && db__ready_for_queue(context, base_msg->data.qos, msg_data)){
+	}ಇಲ್ಲದಿದ್ದರೆ ಆದರೆ(ತಳ_ಸಂದೇಶ->ದತ್ತಾಂಶ.qos != 0 && db_ready_for_ಸರತಿ(context, ತಳ_ಸಂದೇಶ->ದತ್ತಾಂಶ.qos, ಸಂದೇಶ_ದತ್ತಾಂಶ)){
 		state = mosq_ms_queued;
 		rc = 2;
-	}else{
+	}ಇಲ್ಲದಿದ್ದರೆ{
 		/* Dropping message due to full queue. */
-		if(context->is_dropping == false){
+		ಆದರೆ(context->is_dropping == false){
 			context->is_dropping = true;
-			log__printf(NULL, MOSQ_LOG_NOTICE,
+			log__printf(ಖಾಲಿ, MOSQ_LOG_NOTICE,
 					"Outgoing messages are being dropped for client %s.",
 					context->id);
 		}
 		metrics__int_inc(mosq_counter_mqtt_publish_dropped, 1);
 		context->stats.messages_dropped++;
 
-		return 2;
+		ಹಿಂತಿರುಗಿ 2;
 	}
 
-	assert(state != mosq_ms_invalid);
+	ಪ್ರತಿಜ್ಞಾ(state != mosq_ms_invalid);
 
-#ifdef WITH_PERSISTENCE
-	if(state == mosq_ms_queued){
+#ವ್ಯಾಖ್ಯಾನಿತವಾದರೆ WITH_PERSISTENCE
+	ಆದರೆ(state == mosq_ms_queued){
 		db.persistence_changes++;
 	}
-#endif
+#ಆದರೆ_ಅಂತ್ಯ
 
-	client_msg = mosquitto_malloc(sizeof(struct mosquitto__client_msg));
-	if(!client_msg){
-		return MOSQ_ERR_NOMEM;
+	client_ಸಂದೇಶ = mosquitto_malloc(ಗಾತ್ರ(ರಚನೆ mosquitto_client_ಸಂದೇಶ));
+	ಆದರೆ(!client_ಸಂದೇಶ){
+		ಹಿಂತಿರುಗಿ MOSQ_ERR_NOMEM;
 	}
-	client_msg->prev = NULL;
-	client_msg->next = NULL;
-	if(cmsg_id){
-		client_msg->data.cmsg_id = cmsg_id;
-	}else{
-		client_msg->data.cmsg_id = ++context->last_cmsg_id;
+	client_ಸಂದೇಶ->prev = ಖಾಲಿ;
+	client_ಸಂದೇಶ->ಮುಂದಿನ = ಖಾಲಿ;
+	ಆದರೆ(cmsg_id){
+		client_ಸಂದೇಶ->ದತ್ತಾಂಶ.cmsg_id = cmsg_id;
+	}ಇಲ್ಲದಿದ್ದರೆ{
+		client_ಸಂದೇಶ->ದತ್ತಾಂಶ.cmsg_id = ++context->ಕೊನೆಯ_cmsg_id;
 	}
-	client_msg->base_msg = base_msg;
-	db__msg_store_ref_inc(client_msg->base_msg);
-	client_msg->data.mid = base_msg->data.source_mid;
-	client_msg->data.direction = mosq_md_in;
-	client_msg->data.state = (uint8_t)state;
-	client_msg->data.dup = false;
-	if(base_msg->data.qos > context->max_qos){
-		client_msg->data.qos = context->max_qos;
-	}else{
-		client_msg->data.qos = base_msg->data.qos;
+	client_ಸಂದೇಶ->ತಳ_ಸಂದೇಶ = ತಳ_ಸಂದೇಶ;
+	db_ಸಂದೇಶ_store_ref_inc(client_ಸಂದೇಶ->ತಳ_ಸಂದೇಶ);
+	client_ಸಂದೇಶ->ದತ್ತಾಂಶ.mid = ತಳ_ಸಂದೇಶ->ದತ್ತಾಂಶ.ಮೂಲ_mid;
+	client_ಸಂದೇಶ->ದತ್ತಾಂಶ.direction = mosq_md_ಒಳ;
+	client_ಸಂದೇಶ->ದತ್ತಾಂಶ.state = (uint8_t)state;
+	client_ಸಂದೇಶ->ದತ್ತಾಂಶ.dup = false;
+	ಆದರೆ(ತಳ_ಸಂದೇಶ->ದತ್ತಾಂಶ.qos > context->max_qos){
+		client_ಸಂದೇಶ->ದತ್ತಾಂಶ.qos = context->max_qos;
+	}ಇಲ್ಲದಿದ್ದರೆ{
+		client_ಸಂದೇಶ->ದತ್ತಾಂಶ.qos = ತಳ_ಸಂದೇಶ->ದತ್ತಾಂಶ.qos;
 	}
-	client_msg->data.retain = base_msg->data.retain;
-	client_msg->data.subscription_identifier = 0;
+	client_ಸಂದೇಶ->ದತ್ತಾಂಶ.retain = ತಳ_ಸಂದೇಶ->ದತ್ತಾಂಶ.retain;
+	client_ಸಂದೇಶ->ದತ್ತಾಂಶ.subscription_identifier = 0;
 
-	if(state == mosq_ms_queued){
-		DL_APPEND(msg_data->queued, client_msg);
-		db__msg_add_to_queued_stats(msg_data, client_msg);
-	}else{
-		DL_APPEND(msg_data->inflight, client_msg);
-		db__msg_add_to_inflight_stats(msg_data, client_msg);
-	}
-
-	if(persist && context->is_persisted){
-		plugin_persist__handle_base_msg_add(client_msg->base_msg);
-		plugin_persist__handle_client_msg_add(context, client_msg);
+	ಆದರೆ(state == mosq_ms_queued){
+		DL_APPEND(ಸಂದೇಶ_ದತ್ತಾಂಶ->queued, client_ಸಂದೇಶ);
+		db_ಸಂದೇಶ_ಕೂಡಿಸು_ಗಮ್ಯ_queued_stats(ಸಂದೇಶ_ದತ್ತಾಂಶ, client_ಸಂದೇಶ);
+	}ಇಲ್ಲದಿದ್ದರೆ{
+		DL_APPEND(ಸಂದೇಶ_ದತ್ತಾಂಶ->inflight, client_ಸಂದೇಶ);
+		db_ಸಂದೇಶ_ಕೂಡಿಸು_ಗಮ್ಯ_inflight_stats(ಸಂದೇಶ_ದತ್ತಾಂಶ, client_ಸಂದೇಶ);
 	}
 
-	if(client_msg->base_msg->data.qos > 0){
+	ಆದರೆ(persist && context->is_persisted){
+		plugin_persist_handle_ತಳ_ಸಂದೇಶ_ಕೂಡಿಸು(client_ಸಂದೇಶ->ತಳ_ಸಂದೇಶ);
+		plugin_persist_handle_client_ಸಂದೇಶ_ಕೂಡಿಸು(context, client_ಸಂದೇಶ);
+	}
+
+	ಆದರೆ(client_ಸಂದೇಶ->ತಳ_ಸಂದೇಶ->ದತ್ತಾಂಶ.qos > 0){
 		util__decrement_receive_quota(context);
 	}
-	return rc;
+	ಹಿಂತಿರುಗಿ rc;
 }
 
 
-int db__message_insert_outgoing(struct mosquitto *context, uint64_t cmsg_id, uint16_t mid, uint8_t qos, bool retain, struct mosquitto__base_msg *base_msg, uint32_t subscription_identifier, bool update, bool persist)
+ಪೂರ್ಣಾಂಕ db_ಸಂದೇಶ_ಸೇರಿಸು_outgoing(ರಚನೆ mosquitto *context, uint64_t cmsg_id, uint16_t mid, uint8_t qos, bool retain, ರಚನೆ mosquitto_ತಳ_ಸಂದೇಶ *ತಳ_ಸಂದೇಶ, uint32_t subscription_identifier, bool update, bool persist)
 {
-	struct mosquitto__client_msg *client_msg;
-	struct mosquitto_msg_data *msg_data;
-	enum mosquitto_msg_state state = mosq_ms_invalid;
-	int rc = 0;
-	char **dest_ids;
+	ರಚನೆ mosquitto_client_ಸಂದೇಶ *client_ಸಂದೇಶ;
+	ರಚನೆ mosquitto_ಸಂದೇಶ_ದತ್ತಾಂಶ *ಸಂದೇಶ_ದತ್ತಾಂಶ;
+	ಎಣಿಕೆ mosquitto_ಸಂದೇಶ_state state = mosq_ms_invalid;
+	ಪೂರ್ಣಾಂಕ rc = 0;
+	ಅಕ್ಷರ **dest_ids;
 
-	assert(base_msg);
-	if(!context){
-		return MOSQ_ERR_INVAL;
+	ಪ್ರತಿಜ್ಞಾ(ತಳ_ಸಂದೇಶ);
+	ಆದರೆ(!context){
+		ಹಿಂತಿರುಗಿ MOSQ_ERR_INVAL;
 	}
-	if(!context->id){
+	ಆದರೆ(!context->id){
 		/* Protect against unlikely "client is disconnected but not entirely freed" scenario */
-		return MOSQ_ERR_SUCCESS;
+		ಹಿಂತಿರುಗಿ MOSQ_ERR_SUCCESS;
 
 	}
-	context->stats.messages_sent++;
+	context->stats.messages_ಕಳುಹಿಸಿದ++;
 
-	msg_data = &context->msgs_out;
+	ಸಂದೇಶ_ದತ್ತಾಂಶ = &context->msgs_ಹೊರಹೋಗು;
 
 	/* Check whether we've already sent this message to this client
 	 * for outgoing messages only.
@@ -583,121 +583,121 @@ int db__message_insert_outgoing(struct mosquitto *context, uint64_t cmsg_id, uin
 	 * multiple times for overlapping subscriptions, although this is only the
 	 * case for SUBSCRIPTION with multiple subs in so is a minor concern.
 	 */
-	if(context->protocol != mosq_p_mqtt5
+	ಆದರೆ(context->protocol != mosq_p_mqtt5
 			&& db.config->allow_duplicate_messages == false
-			&& retain == false && base_msg->dest_ids){
+			&& retain == false && ತಳ_ಸಂದೇಶ->dest_ids){
 
-		for(int i=0; i<base_msg->dest_id_count; i++){
-			if(base_msg->dest_ids[i] && !strcmp(base_msg->dest_ids[i], context->id)){
+		ಗಾಗಿ(ಪೂರ್ಣಾಂಕ i=0; i<ತಳ_ಸಂದೇಶ->dest_id_ಎಣಿಕೆ; i++){
+			ಆದರೆ(ತಳ_ಸಂದೇಶ->dest_ids[i] && !strcmp(ತಳ_ಸಂದೇಶ->dest_ids[i], context->id)){
 				/* We have already sent this message to this client. */
-				return MOSQ_ERR_SUCCESS;
+				ಹಿಂತಿರುಗಿ MOSQ_ERR_SUCCESS;
 			}
 		}
 	}
-	if(!net__is_connected(context)){
+	ಆದರೆ(!net__is_connected(context)){
 		/* Client is not connected only queue messages with QoS>0. */
-		if(qos == 0 && !db.config->queue_qos0_messages){
-			if(!context->bridge){
-				return 2;
-			}else{
-				if(context->bridge->start_type != bst_lazy){
-					return 2;
+		ಆದರೆ(qos == 0 && !db.config->ಸರತಿ_qos0_messages){
+			ಆದರೆ(!context->bridge){
+				ಹಿಂತಿರುಗಿ 2;
+			}ಇಲ್ಲದಿದ್ದರೆ{
+				ಆದರೆ(context->bridge->ಆರಂಭ_type != bst_lazy){
+					ಹಿಂತಿರುಗಿ 2;
 				}
 			}
 		}
-		if(context->bridge && context->bridge->clean_start_local == true){
-			return 2;
+		ಆದರೆ(context->bridge && context->bridge->clean_ಆರಂಭ_local == true){
+			ಹಿಂತಿರುಗಿ 2;
 		}
 	}
 
-	if(net__is_connected(context)){
-		if(db__ready_for_flight(context, mosq_md_out, qos)){
-			switch(qos){
-				case 0:
+	ಆದರೆ(net__is_connected(context)){
+		ಆದರೆ(db__ready_for_flight(context, mosq_md_ಹೊರಹೋಗು, qos)){
+			ಆಯ್ಕೆ(qos){
+				ಸ್ಥಿತಿ 0:
 					state = mosq_ms_publish_qos0;
-					break;
-				case 1:
+					ನಿಲ್ಲಿಸು;
+				ಸ್ಥಿತಿ 1:
 					state = mosq_ms_publish_qos1;
-					break;
-				case 2:
+					ನಿಲ್ಲಿಸು;
+				ಸ್ಥಿತಿ 2:
 					state = mosq_ms_publish_qos2;
-					break;
+					ನಿಲ್ಲಿಸು;
 			}
-		}else if(qos != 0 && db__ready_for_queue(context, qos, msg_data)){
+		}ಇಲ್ಲದಿದ್ದರೆ ಆದರೆ(qos != 0 && db_ready_for_ಸರತಿ(context, qos, ಸಂದೇಶ_ದತ್ತಾಂಶ)){
 			state = mosq_ms_queued;
 			rc = 2;
-		}else{
+		}ಇಲ್ಲದಿದ್ದರೆ{
 			/* Dropping message due to full queue. */
-			if(context->is_dropping == false){
+			ಆದರೆ(context->is_dropping == false){
 				context->is_dropping = true;
-				log__printf(NULL, MOSQ_LOG_NOTICE,
+				log__printf(ಖಾಲಿ, MOSQ_LOG_NOTICE,
 						"Outgoing messages are being dropped for client %s.",
 						context->id);
 			}
 			metrics__int_inc(mosq_counter_mqtt_publish_dropped, 1);
-			return 2;
+			ಹಿಂತಿರುಗಿ 2;
 		}
-	}else{
-		if(db__ready_for_queue(context, qos, msg_data)){
+	}ಇಲ್ಲದಿದ್ದರೆ{
+		ಆದರೆ(db_ready_for_ಸರತಿ(context, qos, ಸಂದೇಶ_ದತ್ತಾಂಶ)){
 			state = mosq_ms_queued;
-		}else{
+		}ಇಲ್ಲದಿದ್ದರೆ{
 			metrics__int_inc(mosq_counter_mqtt_publish_dropped, 1);
-			if(context->is_dropping == false){
+			ಆದರೆ(context->is_dropping == false){
 				context->is_dropping = true;
-				log__printf(NULL, MOSQ_LOG_NOTICE,
+				log__printf(ಖಾಲಿ, MOSQ_LOG_NOTICE,
 						"Outgoing messages are being dropped for client %s.",
 						context->id);
 			}
-			return 2;
+			ಹಿಂತಿರುಗಿ 2;
 		}
 	}
-	assert(state != mosq_ms_invalid);
+	ಪ್ರತಿಜ್ಞಾ(state != mosq_ms_invalid);
 
-#ifdef WITH_PERSISTENCE
-	if(state == mosq_ms_queued){
+#ವ್ಯಾಖ್ಯಾನಿತವಾದರೆ WITH_PERSISTENCE
+	ಆದರೆ(state == mosq_ms_queued){
 		db.persistence_changes++;
 	}
-#endif
+#ಆದರೆ_ಅಂತ್ಯ
 
-	client_msg = mosquitto_malloc(sizeof(struct mosquitto__client_msg));
-	if(!client_msg){
-		return MOSQ_ERR_NOMEM;
+	client_ಸಂದೇಶ = mosquitto_malloc(ಗಾತ್ರ(ರಚನೆ mosquitto_client_ಸಂದೇಶ));
+	ಆದರೆ(!client_ಸಂದೇಶ){
+		ಹಿಂತಿರುಗಿ MOSQ_ERR_NOMEM;
 	}
-	client_msg->prev = NULL;
-	client_msg->next = NULL;
-	if(cmsg_id){
-		client_msg->data.cmsg_id = cmsg_id;
-	}else{
-		client_msg->data.cmsg_id = ++context->last_cmsg_id;
+	client_ಸಂದೇಶ->prev = ಖಾಲಿ;
+	client_ಸಂದೇಶ->ಮುಂದಿನ = ಖಾಲಿ;
+	ಆದರೆ(cmsg_id){
+		client_ಸಂದೇಶ->ದತ್ತಾಂಶ.cmsg_id = cmsg_id;
+	}ಇಲ್ಲದಿದ್ದರೆ{
+		client_ಸಂದೇಶ->ದತ್ತಾಂಶ.cmsg_id = ++context->ಕೊನೆಯ_cmsg_id;
 	}
-	client_msg->base_msg = base_msg;
-	db__msg_store_ref_inc(client_msg->base_msg);
-	client_msg->data.mid = mid;
-	client_msg->data.direction = mosq_md_out;
-	client_msg->data.state = (uint8_t)state;
-	client_msg->data.dup = false;
-	if(qos > context->max_qos){
-		client_msg->data.qos = context->max_qos;
-	}else{
-		client_msg->data.qos = qos;
+	client_ಸಂದೇಶ->ತಳ_ಸಂದೇಶ = ತಳ_ಸಂದೇಶ;
+	db_ಸಂದೇಶ_store_ref_inc(client_ಸಂದೇಶ->ತಳ_ಸಂದೇಶ);
+	client_ಸಂದೇಶ->ದತ್ತಾಂಶ.mid = mid;
+	client_ಸಂದೇಶ->ದತ್ತಾಂಶ.direction = mosq_md_ಹೊರಹೋಗು;
+	client_ಸಂದೇಶ->ದತ್ತಾಂಶ.state = (uint8_t)state;
+	client_ಸಂದೇಶ->ದತ್ತಾಂಶ.dup = false;
+	ಆದರೆ(qos > context->max_qos){
+		client_ಸಂದೇಶ->ದತ್ತಾಂಶ.qos = context->max_qos;
+	}ಇಲ್ಲದಿದ್ದರೆ{
+		client_ಸಂದೇಶ->ದತ್ತಾಂಶ.qos = qos;
 	}
-	client_msg->data.retain = retain;
-	client_msg->data.subscription_identifier = subscription_identifier;
+	client_ಸಂದೇಶ->ದತ್ತಾಂಶ.retain = retain;
+	client_ಸಂದೇಶ->ದತ್ತಾಂಶ.subscription_identifier = subscription_identifier;
 
-	if(state == mosq_ms_queued){
-		DL_APPEND(msg_data->queued, client_msg);
-		db__msg_add_to_queued_stats(msg_data, client_msg);
-	}else{
-		DL_APPEND(msg_data->inflight, client_msg);
-		db__msg_add_to_inflight_stats(msg_data, client_msg);
-	}
-
-	if(persist && context->is_persisted){
-		plugin_persist__handle_base_msg_add(client_msg->base_msg);
-		plugin_persist__handle_client_msg_add(context, client_msg);
+	ಆದರೆ(state == mosq_ms_queued){
+		DL_APPEND(ಸಂದೇಶ_ದತ್ತಾಂಶ->queued, client_ಸಂದೇಶ);
+		db_ಸಂದೇಶ_ಕೂಡಿಸು_ಗಮ್ಯ_queued_stats(ಸಂದೇಶ_ದತ್ತಾಂಶ, client_ಸಂದೇಶ);
+	}ಇಲ್ಲದಿದ್ದರೆ{
+		DL_APPEND(ಸಂದೇಶ_ದತ್ತಾಂಶ->inflight, client_ಸಂದೇಶ);
+		db_ಸಂದೇಶ_ಕೂಡಿಸು_ಗಮ್ಯ_inflight_stats(ಸಂದೇಶ_ದತ್ತಾಂಶ, client_ಸಂದೇಶ);
 	}
 
-	if(db.config->allow_duplicate_messages == false && retain == false){
+	ಆದರೆ(persist && context->is_persisted){
+		plugin_persist_handle_ತಳ_ಸಂದೇಶ_ಕೂಡಿಸು(client_ಸಂದೇಶ->ತಳ_ಸಂದೇಶ);
+		plugin_persist_handle_client_ಸಂದೇಶ_ಕೂಡಿಸು(context, client_ಸಂದೇಶ);
+	}
+
+	ಆದರೆ(db.config->allow_duplicate_messages == false && retain == false){
 		/* Record which client ids this message has been sent to so we can avoid duplicates.
 		 * Outgoing messages only.
 		 * If retain==true then this is a stale retained message and so should be
@@ -705,220 +705,220 @@ int db__message_insert_outgoing(struct mosquitto *context, uint64_t cmsg_id, uin
 		 * multiple times for overlapping subscriptions, although this is only the
 		 * case for SUBSCRIPTION with multiple subs in so is a minor concern.
 		 */
-		dest_ids = mosquitto_realloc(base_msg->dest_ids, sizeof(char *)*(size_t)(base_msg->dest_id_count+1));
-		if(dest_ids){
-			base_msg->dest_ids = dest_ids;
-			base_msg->dest_id_count++;
-			base_msg->dest_ids[base_msg->dest_id_count-1] = mosquitto_strdup(context->id);
-			if(!base_msg->dest_ids[base_msg->dest_id_count-1]){
-				return MOSQ_ERR_NOMEM;
+		dest_ids = mosquitto_realloc(ತಳ_ಸಂದೇಶ->dest_ids, ಗಾತ್ರ(ಅಕ್ಷರ *)*(size_t)(ತಳ_ಸಂದೇಶ->dest_id_ಎಣಿಕೆ+1));
+		ಆದರೆ(dest_ids){
+			ತಳ_ಸಂದೇಶ->dest_ids = dest_ids;
+			ತಳ_ಸಂದೇಶ->dest_id_ಎಣಿಕೆ++;
+			ತಳ_ಸಂದೇಶ->dest_ids[ತಳ_ಸಂದೇಶ->dest_id_ಎಣಿಕೆ-1] = mosquitto_strdup(context->id);
+			ಆದರೆ(!ತಳ_ಸಂದೇಶ->dest_ids[ತಳ_ಸಂದೇಶ->dest_id_ಎಣಿಕೆ-1]){
+				ಹಿಂತಿರುಗಿ MOSQ_ERR_NOMEM;
 			}
-		}else{
-			return MOSQ_ERR_NOMEM;
+		}ಇಲ್ಲದಿದ್ದರೆ{
+			ಹಿಂತಿರುಗಿ MOSQ_ERR_NOMEM;
 		}
 	}
-#ifdef WITH_BRIDGE
-	if(context->bridge && context->bridge->start_type == bst_lazy
+#ವ್ಯಾಖ್ಯಾನಿತವಾದರೆ WITH_BRIDGE
+	ಆದರೆ(context->bridge && context->bridge->ಆರಂಭ_type == bst_lazy
 			&& !net__is_connected(context)
-			&& context->msgs_out.inflight_count + context->msgs_out.queued_count >= context->bridge->threshold){
+			&& context->msgs_ಹೊರಹೋಗು.inflight_ಎಣಿಕೆ + context->msgs_ಹೊರಹೋಗು.queued_ಎಣಿಕೆ >= context->bridge->ಮಿತಿ){
 
 		context->bridge->lazy_reconnect = true;
 	}
-#endif
+#ಆದರೆ_ಅಂತ್ಯ
 
-	if(client_msg->data.qos > 0 && state != mosq_ms_queued){
+	ಆದರೆ(client_ಸಂದೇಶ->ದತ್ತಾಂಶ.qos > 0 && state != mosq_ms_queued){
 		util__decrement_send_quota(context);
 	}
 
-	if(update){
-		rc = db__message_write_inflight_out_latest(context);
-		if(rc){
-			return rc;
+	ಆದರೆ(update){
+		rc = db_ಸಂದೇಶ_write_inflight_ಹೊರಹೋಗು_latest(context);
+		ಆದರೆ(rc){
+			ಹಿಂತಿರುಗಿ rc;
 		}
-		rc = db__message_write_queued_out(context);
-		if(rc){
-			return rc;
+		rc = db_ಸಂದೇಶ_write_queued_ಹೊರಹೋಗು(context);
+		ಆದರೆ(rc){
+			ಹಿಂತಿರುಗಿ rc;
 		}
 	}
 
-	return rc;
+	ಹಿಂತಿರುಗಿ rc;
 }
 
 
-static inline int db__message_update_outgoing_state(struct mosquitto *context, struct mosquitto__client_msg *head,
-		uint16_t mid, enum mosquitto_msg_state state, int qos, bool persist)
+ಸ್ಥಿರ ಸಾಲೊಳಗೆ ಪೂರ್ಣಾಂಕ db_ಸಂದೇಶ_update_outgoing_state(ರಚನೆ mosquitto *context, ರಚನೆ mosquitto_client_ಸಂದೇಶ *ತಲೆ,
+		uint16_t mid, ಎಣಿಕೆ mosquitto_ಸಂದೇಶ_state state, ಪೂರ್ಣಾಂಕ qos, bool persist)
 {
-	struct mosquitto__client_msg *client_msg;
+	ರಚನೆ mosquitto_client_ಸಂದೇಶ *client_ಸಂದೇಶ;
 
-	DL_FOREACH(head, client_msg){
-		if(client_msg->data.mid == mid){
-			if(client_msg->data.qos != qos){
-				log__printf(NULL, MOSQ_LOG_INFO, "Protocol error from %s: Mismatched QoS (%d:%d) when updating outgoing message.",
-						context->id, client_msg->data.qos, qos);
-				return MOSQ_ERR_PROTOCOL;
+	DL_FOREACH(ತಲೆ, client_ಸಂದೇಶ){
+		ಆದರೆ(client_ಸಂದೇಶ->ದತ್ತಾಂಶ.mid == mid){
+			ಆದರೆ(client_ಸಂದೇಶ->ದತ್ತಾಂಶ.qos != qos){
+				log__printf(ಖಾಲಿ, MOSQ_LOG_INFO, "Protocol error from %s: Mismatched QoS (%d:%d) when updating outgoing message.",
+						context->id, client_ಸಂದೇಶ->ದತ್ತಾಂಶ.qos, qos);
+				ಹಿಂತಿರುಗಿ MOSQ_ERR_PROTOCOL;
 			}
-			client_msg->data.state = (uint8_t)state;
-			if(persist){
-				plugin_persist__handle_client_msg_update(context, client_msg);
+			client_ಸಂದೇಶ->ದತ್ತಾಂಶ.state = (uint8_t)state;
+			ಆದರೆ(persist){
+				plugin_persist_handle_client_ಸಂದೇಶ_update(context, client_ಸಂದೇಶ);
 			}
-			return MOSQ_ERR_SUCCESS;
+			ಹಿಂತಿರುಗಿ MOSQ_ERR_SUCCESS;
 		}
 	}
-	return MOSQ_ERR_NOT_FOUND;
+	ಹಿಂತಿರುಗಿ MOSQ_ERR_NOT_ಸಿಕ್ಕಿತು;
 }
 
 
-int db__message_update_outgoing(struct mosquitto *context, uint16_t mid, enum mosquitto_msg_state state, int qos, bool persist)
+ಪೂರ್ಣಾಂಕ db_ಸಂದೇಶ_update_outgoing(ರಚನೆ mosquitto *context, uint16_t mid, ಎಣಿಕೆ mosquitto_ಸಂದೇಶ_state state, ಪೂರ್ಣಾಂಕ qos, bool persist)
 {
-	int rc;
+	ಪೂರ್ಣಾಂಕ rc;
 
-	rc = db__message_update_outgoing_state(context, context->msgs_out.inflight, mid, state, qos, persist);
-	if(!persist && rc == MOSQ_ERR_NOT_FOUND){
-		rc = db__message_update_outgoing_state(context, context->msgs_out.queued, mid, state, qos, persist);
+	rc = db_ಸಂದೇಶ_update_outgoing_state(context, context->msgs_ಹೊರಹೋಗು.inflight, mid, state, qos, persist);
+	ಆದರೆ(!persist && rc == MOSQ_ERR_NOT_ಸಿಕ್ಕಿತು){
+		rc = db_ಸಂದೇಶ_update_outgoing_state(context, context->msgs_ಹೊರಹೋಗು.queued, mid, state, qos, persist);
 	}
-	return rc;
+	ಹಿಂತಿರುಗಿ rc;
 }
 
 
-static void db__messages_delete_list(struct mosquitto__client_msg **head)
+ಸ್ಥಿರ ಶೂನ್ಯ db__messages_delete_list(ರಚನೆ mosquitto_client_ಸಂದೇಶ **ತಲೆ)
 {
-	struct mosquitto__client_msg *client_msg, *tmp;
+	ರಚನೆ mosquitto_client_ಸಂದೇಶ *client_ಸಂದೇಶ, *tmp;
 
-	DL_FOREACH_SAFE(*head, client_msg, tmp){
-		DL_DELETE(*head, client_msg);
-		db__msg_store_ref_dec(&client_msg->base_msg);
-		mosquitto_FREE(client_msg);
+	DL_FOREACH_ಸುರಕ್ಷಿತ(*ತಲೆ, client_ಸಂದೇಶ, tmp){
+		DL_DELETE(*ತಲೆ, client_ಸಂದೇಶ);
+		db_ಸಂದೇಶ_store_ref_dec(&client_ಸಂದೇಶ->ತಳ_ಸಂದೇಶ);
+		mosquitto_FREE(client_ಸಂದೇಶ);
 	}
-	*head = NULL;
+	*ತಲೆ = ಖಾಲಿ;
 }
 
 
-int db__messages_delete_incoming(struct mosquitto *context)
+ಪೂರ್ಣಾಂಕ db__messages_delete_incoming(ರಚನೆ mosquitto *context)
 {
-	if(!context){
-		return MOSQ_ERR_INVAL;
+	ಆದರೆ(!context){
+		ಹಿಂತಿರುಗಿ MOSQ_ERR_INVAL;
 	}
 
-	db__messages_delete_list(&context->msgs_in.inflight);
-	db__messages_delete_list(&context->msgs_in.queued);
-	context->msgs_in.inflight_bytes = 0;
-	context->msgs_in.inflight_bytes12 = 0;
-	context->msgs_in.inflight_count = 0;
-	context->msgs_in.inflight_count12 = 0;
-	context->msgs_in.queued_bytes = 0;
-	context->msgs_in.queued_bytes12 = 0;
-	context->msgs_in.queued_count = 0;
-	context->msgs_in.queued_count12 = 0;
+	db__messages_delete_list(&context->msgs_ಒಳ.inflight);
+	db__messages_delete_list(&context->msgs_ಒಳ.queued);
+	context->msgs_ಒಳ.inflight_ಬೈಟುಗಳು = 0;
+	context->msgs_ಒಳ.inflight_bytes12 = 0;
+	context->msgs_ಒಳ.inflight_ಎಣಿಕೆ = 0;
+	context->msgs_ಒಳ.inflight_count12 = 0;
+	context->msgs_ಒಳ.queued_ಬೈಟುಗಳು = 0;
+	context->msgs_ಒಳ.queued_bytes12 = 0;
+	context->msgs_ಒಳ.queued_ಎಣಿಕೆ = 0;
+	context->msgs_ಒಳ.queued_count12 = 0;
 
-	return MOSQ_ERR_SUCCESS;
+	ಹಿಂತಿರುಗಿ MOSQ_ERR_SUCCESS;
 }
 
 
-int db__messages_delete_outgoing(struct mosquitto *context)
+ಪೂರ್ಣಾಂಕ db__messages_delete_outgoing(ರಚನೆ mosquitto *context)
 {
-	if(!context){
-		return MOSQ_ERR_INVAL;
+	ಆದರೆ(!context){
+		ಹಿಂತಿರುಗಿ MOSQ_ERR_INVAL;
 	}
 
-	db__messages_delete_list(&context->msgs_out.inflight);
-	db__messages_delete_list(&context->msgs_out.queued);
-	context->msgs_out.inflight_bytes = 0;
-	context->msgs_out.inflight_bytes12 = 0;
-	context->msgs_out.inflight_count = 0;
-	context->msgs_out.inflight_count12 = 0;
-	context->msgs_out.queued_bytes = 0;
-	context->msgs_out.queued_bytes12 = 0;
-	context->msgs_out.queued_count = 0;
-	context->msgs_out.queued_count12 = 0;
+	db__messages_delete_list(&context->msgs_ಹೊರಹೋಗು.inflight);
+	db__messages_delete_list(&context->msgs_ಹೊರಹೋಗು.queued);
+	context->msgs_ಹೊರಹೋಗು.inflight_ಬೈಟುಗಳು = 0;
+	context->msgs_ಹೊರಹೋಗು.inflight_bytes12 = 0;
+	context->msgs_ಹೊರಹೋಗು.inflight_ಎಣಿಕೆ = 0;
+	context->msgs_ಹೊರಹೋಗು.inflight_count12 = 0;
+	context->msgs_ಹೊರಹೋಗು.queued_ಬೈಟುಗಳು = 0;
+	context->msgs_ಹೊರಹೋಗು.queued_bytes12 = 0;
+	context->msgs_ಹೊರಹೋಗು.queued_ಎಣಿಕೆ = 0;
+	context->msgs_ಹೊರಹೋಗು.queued_count12 = 0;
 
-	return MOSQ_ERR_SUCCESS;
+	ಹಿಂತಿರುಗಿ MOSQ_ERR_SUCCESS;
 }
 
 
-int db__messages_delete(struct mosquitto *context, bool force_free)
+ಪೂರ್ಣಾಂಕ db__messages_delete(ರಚನೆ mosquitto *context, bool force_free)
 {
-	if(!context){
-		return MOSQ_ERR_INVAL;
+	ಆದರೆ(!context){
+		ಹಿಂತಿರುಗಿ MOSQ_ERR_INVAL;
 	}
 
-	if(force_free || context->clean_start || (context->bridge && context->bridge->clean_start)){
+	ಆದರೆ(force_free || context->clean_ಆರಂಭ || (context->bridge && context->bridge->clean_ಆರಂಭ)){
 		db__messages_delete_incoming(context);
 	}
 
-	if(force_free || (context->bridge && context->bridge->clean_start_local)
-			|| (context->bridge == NULL && context->clean_start)){
+	ಆದರೆ(force_free || (context->bridge && context->bridge->clean_ಆರಂಭ_local)
+			|| (context->bridge == ಖಾಲಿ && context->clean_ಆರಂಭ)){
 
 		db__messages_delete_outgoing(context);
 	}
 
-	return MOSQ_ERR_SUCCESS;
+	ಹಿಂತಿರುಗಿ MOSQ_ERR_SUCCESS;
 }
 
 
-int db__messages_easy_queue(struct mosquitto *context, const char *topic, uint8_t qos, uint32_t payloadlen, const void *payload, int retain, uint32_t message_expiry_interval, mosquitto_property **properties)
+ಪೂರ್ಣಾಂಕ db_messages_easy_ಸರತಿ(ರಚನೆ mosquitto *context, ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *topic, uint8_t qos, uint32_t payloadlen, ಸ್ಥಿರಾಂಕ ಶೂನ್ಯ *payload, ಪೂರ್ಣಾಂಕ retain, uint32_t ಸಂದೇಶ_expiry_interval, mosquitto_property **properties)
 {
-	struct mosquitto__base_msg *base_msg;
-	const char *source_id;
-	enum mosquitto_msg_origin origin;
+	ರಚನೆ mosquitto_ತಳ_ಸಂದೇಶ *ತಳ_ಸಂದೇಶ;
+	ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *ಮೂಲ_id;
+	ಎಣಿಕೆ mosquitto_ಸಂದೇಶ_origin origin;
 
-	if(!topic){
-		return MOSQ_ERR_INVAL;
+	ಆದರೆ(!topic){
+		ಹಿಂತಿರುಗಿ MOSQ_ERR_INVAL;
 	}
 
-	base_msg = mosquitto_calloc(1, sizeof(struct mosquitto__base_msg));
-	if(base_msg == NULL){
-		return MOSQ_ERR_NOMEM;
+	ತಳ_ಸಂದೇಶ = mosquitto_calloc(1, ಗಾತ್ರ(ರಚನೆ mosquitto_ತಳ_ಸಂದೇಶ));
+	ಆದರೆ(ತಳ_ಸಂದೇಶ == ಖಾಲಿ){
+		ಹಿಂತಿರುಗಿ MOSQ_ERR_NOMEM;
 	}
 
-	base_msg->data.topic = mosquitto_strdup(topic);
-	if(base_msg->data.topic == NULL){
-		db__msg_store_free(base_msg);
-		return MOSQ_ERR_INVAL;
+	ತಳ_ಸಂದೇಶ->ದತ್ತಾಂಶ.topic = mosquitto_strdup(topic);
+	ಆದರೆ(ತಳ_ಸಂದೇಶ->ದತ್ತಾಂಶ.topic == ಖಾಲಿ){
+		db_ಸಂದೇಶ_store_free(ತಳ_ಸಂದೇಶ);
+		ಹಿಂತಿರುಗಿ MOSQ_ERR_INVAL;
 	}
 
-	base_msg->data.qos = qos;
-	if(db.config->retain_available == false){
-		base_msg->data.retain = 0;
-	}else{
-		base_msg->data.retain = retain;
+	ತಳ_ಸಂದೇಶ->ದತ್ತಾಂಶ.qos = qos;
+	ಆದರೆ(db.config->retain_ಲಭ್ಯ == false){
+		ತಳ_ಸಂದೇಶ->ದತ್ತಾಂಶ.retain = 0;
+	}ಇಲ್ಲದಿದ್ದರೆ{
+		ತಳ_ಸಂದೇಶ->ದತ್ತಾಂಶ.retain = retain;
 	}
 
-	base_msg->data.payloadlen = payloadlen;
-	if(payloadlen > 0){
-		base_msg->data.payload = mosquitto_malloc(base_msg->data.payloadlen+1);
-		if(base_msg->data.payload == NULL){
-			db__msg_store_free(base_msg);
-			return MOSQ_ERR_NOMEM;
+	ತಳ_ಸಂದೇಶ->ದತ್ತಾಂಶ.payloadlen = payloadlen;
+	ಆದರೆ(payloadlen > 0){
+		ತಳ_ಸಂದೇಶ->ದತ್ತಾಂಶ.payload = mosquitto_malloc(ತಳ_ಸಂದೇಶ->ದತ್ತಾಂಶ.payloadlen+1);
+		ಆದರೆ(ತಳ_ಸಂದೇಶ->ದತ್ತಾಂಶ.payload == ಖಾಲಿ){
+			db_ಸಂದೇಶ_store_free(ತಳ_ಸಂದೇಶ);
+			ಹಿಂತಿರುಗಿ MOSQ_ERR_NOMEM;
 		}
 		/* Ensure payload is always zero terminated, this is the reason for the extra byte above */
-		((uint8_t *)base_msg->data.payload)[base_msg->data.payloadlen] = 0;
-		memcpy(base_msg->data.payload, payload, base_msg->data.payloadlen);
+		((uint8_t *)ತಳ_ಸಂದೇಶ->ದತ್ತಾಂಶ.payload)[ತಳ_ಸಂದೇಶ->ದತ್ತಾಂಶ.payloadlen] = 0;
+		ಸ್ಮರಣೆ_ನಕಲು(ತಳ_ಸಂದೇಶ->ದತ್ತಾಂಶ.payload, payload, ತಳ_ಸಂದೇಶ->ದತ್ತಾಂಶ.payloadlen);
 	}
 
-	if(context && context->id){
-		source_id = context->id;
-	}else{
-		source_id = "";
+	ಆದರೆ(context && context->id){
+		ಮೂಲ_id = context->id;
+	}ಇಲ್ಲದಿದ್ದರೆ{
+		ಮೂಲ_id = "";
 	}
-	if(properties){
-		base_msg->data.properties = *properties;
-		*properties = NULL;
+	ಆದರೆ(properties){
+		ತಳ_ಸಂದೇಶ->ದತ್ತಾಂಶ.properties = *properties;
+		*properties = ಖಾಲಿ;
 	}
 
-	if(context){
+	ಆದರೆ(context){
 		origin = mosq_mo_client;
-	}else{
+	}ಇಲ್ಲದಿದ್ದರೆ{
 		origin = mosq_mo_broker;
 	}
-	if(db__message_store(context, base_msg, &message_expiry_interval, origin)){
-		return 1;
+	ಆದರೆ(db_ಸಂದೇಶ_store(context, ತಳ_ಸಂದೇಶ, &ಸಂದೇಶ_expiry_interval, origin)){
+		ಹಿಂತಿರುಗಿ 1;
 	}
 
-	return sub__messages_queue(source_id, base_msg->data.qos, &base_msg);
+	ಹಿಂತಿರುಗಿ sub_messages_ಸರತಿ(ಮೂಲ_id, ತಳ_ಸಂದೇಶ->ದತ್ತಾಂಶ.qos, &ತಳ_ಸಂದೇಶ);
 }
 
 
-#define MOSQ_UUID_EPOCH 1637168273
+#ವ್ಯಾಖ್ಯಾನಿಸು MOSQ_UUID_EPOCH 1637168273
 
 
 /* db__new_msg_id() attempts to generate a new unique id on the broker, or a
@@ -941,169 +941,169 @@ int db__messages_easy_queue(struct mosquitto *context, const char *topic, uint8_
  * 23-bit fractional seconds gives a resolution of 120ns, or 8.4 million
  *    messages per second per broker.
  */
-uint64_t db__new_msg_id(void)
+uint64_t db_new_ಸಂದೇಶ_id(ಶೂನ್ಯ)
 {
-#ifdef WIN32
+#ವ್ಯಾಖ್ಯಾನಿತವಾದರೆ WIN32
 	FILETIME ftime;
 	uint64_t ftime64;
-#else
-	struct timespec ts;
-#endif
+#ಇಲ್ಲದಿದ್ದರೆ
+	ರಚನೆ timespec ts;
+#ಆದರೆ_ಅಂತ್ಯ
 	uint64_t id;
 	uint64_t tmp;
 	time_t sec;
-	long nsec;
+	ದೀರ್ಘ nsec;
 
-	id = db.node_id_shifted; /* Top 10-bits */
+	id = db.ಗಂಟು_id_shifted; /* Top 10-bits */
 
-#ifdef WIN32
-	GetSystemTimePreciseAsFileTime(&ftime);
-	ftime64 = (((uint64_t)ftime.dwHighDateTime)<<32) + ftime.dwLowDateTime;
+#ವ್ಯಾಖ್ಯಾನಿತವಾದರೆ WIN32
+	Get_System_ಸಮಯ_Precise_As_File_ಸಮಯ(&ftime);
+	ftime64 = (((uint64_t)ftime.dw_ಮೇಲಿನ_Date_ಸಮಯ)<<32) + ftime.dw_ಕೆಳಗಿನ_Date_ಸಮಯ;
 	tmp = ftime64 - 116444736000000000LL; /* Convert offset to unix epoch, still in counts of 100ns */
 	sec = tmp / 10000000; /* Convert to seconds */
-	nsec = (long)(tmp - sec)*100; /* Remove seconds, convert to counts of 1ns */
-#else
+	nsec = (ದೀರ್ಘ)(tmp - sec)*100; /* Remove seconds, convert to counts of 1ns */
+#ಇಲ್ಲದಿದ್ದರೆ
 	clock_gettime(CLOCK_REALTIME, &ts);
 	sec = ts.tv_sec;
 	nsec = ts.tv_nsec;
-#endif
+#ಆದರೆ_ಅಂತ್ಯ
 	tmp = (sec - MOSQ_UUID_EPOCH) & 0x7FFFFFFF;
 	id = id | (tmp << 23); /* Seconds, 31-bits (68 years) */
 
 	tmp = (nsec & 0x7FFFFF80); /* top 23-bits of the bottom 30 bits (1 billion ns), ~100 ns resolution */
 	id = id | (tmp >> 7);
 
-	if(id <= db.last_db_id){
-		id = db.last_db_id + 1;
+	ಆದರೆ(id <= db.ಕೊನೆಯ_db_id){
+		id = db.ಕೊನೆಯ_db_id + 1;
 	}
-	db.last_db_id = id;
+	db.ಕೊನೆಯ_db_id = id;
 
-	return id;
+	ಹಿಂತಿರುಗಿ id;
 }
 
 
 /* This function requires topic to be allocated on the heap. Once called, it owns topic and will free it on error. Likewise payload and properties. */
-int db__message_store(const struct mosquitto *source, struct mosquitto__base_msg *base_msg, uint32_t *message_expiry_interval, enum mosquitto_msg_origin origin)
+ಪೂರ್ಣಾಂಕ db_ಸಂದೇಶ_store(ಸ್ಥಿರಾಂಕ ರಚನೆ mosquitto *ಮೂಲ, ರಚನೆ mosquitto_ತಳ_ಸಂದೇಶ *ತಳ_ಸಂದೇಶ, uint32_t *ಸಂದೇಶ_expiry_interval, ಎಣಿಕೆ mosquitto_ಸಂದೇಶ_origin origin)
 {
-	int rc;
+	ಪೂರ್ಣಾಂಕ rc;
 
-	assert(base_msg);
+	ಪ್ರತಿಜ್ಞಾ(ತಳ_ಸಂದೇಶ);
 
-	if(source && source->id){
-		base_msg->data.source_id = mosquitto_strdup(source->id);
-	}else{
-		base_msg->data.source_id = mosquitto_strdup("");
+	ಆದರೆ(ಮೂಲ && ಮೂಲ->id){
+		ತಳ_ಸಂದೇಶ->ದತ್ತಾಂಶ.ಮೂಲ_id = mosquitto_strdup(ಮೂಲ->id);
+	}ಇಲ್ಲದಿದ್ದರೆ{
+		ತಳ_ಸಂದೇಶ->ದತ್ತಾಂಶ.ಮೂಲ_id = mosquitto_strdup("");
 	}
-	if(!base_msg->data.source_id){
-		log__printf(NULL, MOSQ_LOG_ERR, "Error: Out of memory.");
-		db__msg_store_free(base_msg);
-		return MOSQ_ERR_NOMEM;
+	ಆದರೆ(!ತಳ_ಸಂದೇಶ->ದತ್ತಾಂಶ.ಮೂಲ_id){
+		log__printf(ಖಾಲಿ, MOSQ_LOG_ERR, "Error: Out of memory.");
+		db_ಸಂದೇಶ_store_free(ತಳ_ಸಂದೇಶ);
+		ಹಿಂತಿರುಗಿ MOSQ_ERR_NOMEM;
 	}
 
-	if(source && source->username){
-		base_msg->data.source_username = mosquitto_strdup(source->username);
-		if(!base_msg->data.source_username){
-			db__msg_store_free(base_msg);
-			return MOSQ_ERR_NOMEM;
+	ಆದರೆ(ಮೂಲ && ಮೂಲ->username){
+		ತಳ_ಸಂದೇಶ->ದತ್ತಾಂಶ.ಮೂಲ_username = mosquitto_strdup(ಮೂಲ->username);
+		ಆದರೆ(!ತಳ_ಸಂದೇಶ->ದತ್ತಾಂಶ.ಮೂಲ_username){
+			db_ಸಂದೇಶ_store_free(ತಳ_ಸಂದೇಶ);
+			ಹಿಂತಿರುಗಿ MOSQ_ERR_NOMEM;
 		}
 	}
-	if(source){
-		base_msg->source_listener = source->listener;
+	ಆದರೆ(ಮೂಲ){
+		ತಳ_ಸಂದೇಶ->ಮೂಲ_listener = ಮೂಲ->listener;
 	}
-	base_msg->origin = origin;
-	if(message_expiry_interval){
-		if(*message_expiry_interval > 0 && *message_expiry_interval != MSG_EXPIRY_INFINITE){
-			base_msg->data.expiry_time = db.now_real_s + *message_expiry_interval;
-		}else{
-			base_msg->data.expiry_time = 0;
+	ತಳ_ಸಂದೇಶ->origin = origin;
+	ಆದರೆ(ಸಂದೇಶ_expiry_interval){
+		ಆದರೆ(*ಸಂದೇಶ_expiry_interval > 0 && *ಸಂದೇಶ_expiry_interval != ಸಂದೇಶ_EXPIRY_INFINITE){
+			ತಳ_ಸಂದೇಶ->ದತ್ತಾಂಶ.expiry_ಸಮಯ = db.now_real_s + *ಸಂದೇಶ_expiry_interval;
+		}ಇಲ್ಲದಿದ್ದರೆ{
+			ತಳ_ಸಂದೇಶ->ದತ್ತಾಂಶ.expiry_ಸಮಯ = 0;
 		}
 	}
 
-	base_msg->dest_ids = NULL;
-	base_msg->dest_id_count = 0;
-	db.msg_store_count++;
-	db.msg_store_bytes += base_msg->data.payloadlen;
+	ತಳ_ಸಂದೇಶ->dest_ids = ಖಾಲಿ;
+	ತಳ_ಸಂದೇಶ->dest_id_ಎಣಿಕೆ = 0;
+	db.ಸಂದೇಶ_store_ಎಣಿಕೆ++;
+	db.ಸಂದೇಶ_store_ಬೈಟುಗಳು += ತಳ_ಸಂದೇಶ->ದತ್ತಾಂಶ.payloadlen;
 
-	if(!base_msg->data.store_id){
-		base_msg->data.store_id = db__new_msg_id();
+	ಆದರೆ(!ತಳ_ಸಂದೇಶ->ದತ್ತಾಂಶ.store_id){
+		ತಳ_ಸಂದೇಶ->ದತ್ತಾಂಶ.store_id = db_new_ಸಂದೇಶ_id();
 	}
 
-	rc = db__msg_store_add(base_msg);
-	if(rc){
-		db__msg_store_free(base_msg);
-		return rc;
+	rc = db_ಸಂದೇಶ_store_ಕೂಡಿಸು(ತಳ_ಸಂದೇಶ);
+	ಆದರೆ(rc){
+		db_ಸಂದೇಶ_store_free(ತಳ_ಸಂದೇಶ);
+		ಹಿಂತಿರುಗಿ rc;
 	}
 
-	return MOSQ_ERR_SUCCESS;
+	ಹಿಂತಿರುಗಿ MOSQ_ERR_SUCCESS;
 }
 
 
-int db__message_store_find(struct mosquitto *context, uint16_t mid, struct mosquitto__client_msg **client_msg)
+ಪೂರ್ಣಾಂಕ db_ಸಂದೇಶ_store_ಕಂಡುಹಿಡಿ(ರಚನೆ mosquitto *context, uint16_t mid, ರಚನೆ mosquitto_client_ಸಂದೇಶ **client_ಸಂದೇಶ)
 {
-	struct mosquitto__client_msg *cmsg;
+	ರಚನೆ mosquitto_client_ಸಂದೇಶ *cmsg;
 
-	*client_msg = NULL;
+	*client_ಸಂದೇಶ = ಖಾಲಿ;
 
-	if(!context){
-		return MOSQ_ERR_INVAL;
+	ಆದರೆ(!context){
+		ಹಿಂತಿರುಗಿ MOSQ_ERR_INVAL;
 	}
 
-	DL_FOREACH(context->msgs_in.inflight, cmsg){
-		if(cmsg->base_msg->data.source_mid == mid){
-			*client_msg = cmsg;
-			return MOSQ_ERR_SUCCESS;
+	DL_FOREACH(context->msgs_ಒಳ.inflight, cmsg){
+		ಆದರೆ(cmsg->ತಳ_ಸಂದೇಶ->ದತ್ತಾಂಶ.ಮೂಲ_mid == mid){
+			*client_ಸಂದೇಶ = cmsg;
+			ಹಿಂತಿರುಗಿ MOSQ_ERR_SUCCESS;
 		}
 	}
 
-	DL_FOREACH(context->msgs_in.queued, cmsg){
-		if(cmsg->base_msg->data.source_mid == mid){
-			*client_msg = cmsg;
-			return MOSQ_ERR_SUCCESS;
+	DL_FOREACH(context->msgs_ಒಳ.queued, cmsg){
+		ಆದರೆ(cmsg->ತಳ_ಸಂದೇಶ->ದತ್ತಾಂಶ.ಮೂಲ_mid == mid){
+			*client_ಸಂದೇಶ = cmsg;
+			ಹಿಂತಿರುಗಿ MOSQ_ERR_SUCCESS;
 		}
 	}
 
-	return 1;
+	ಹಿಂತಿರುಗಿ 1;
 }
 
 
 /* Called on reconnect to set outgoing messages to a sensible state and force a
  * retry, and to set incoming messages to expect an appropriate retry. */
-static int db__message_reconnect_reset_outgoing(struct mosquitto *context)
+ಸ್ಥಿರ ಪೂರ್ಣಾಂಕ db_ಸಂದೇಶ_reconnect_reset_outgoing(ರಚನೆ mosquitto *context)
 {
-	struct mosquitto__client_msg *client_msg, *tmp;
+	ರಚನೆ mosquitto_client_ಸಂದೇಶ *client_ಸಂದೇಶ, *tmp;
 
-	context->msgs_out.inflight_bytes = 0;
-	context->msgs_out.inflight_bytes12 = 0;
-	context->msgs_out.inflight_count = 0;
-	context->msgs_out.inflight_count12 = 0;
-	context->msgs_out.queued_bytes = 0;
-	context->msgs_out.queued_bytes12 = 0;
-	context->msgs_out.queued_count = 0;
-	context->msgs_out.queued_count12 = 0;
-	context->msgs_out.inflight_quota = context->msgs_out.inflight_maximum;
+	context->msgs_ಹೊರಹೋಗು.inflight_ಬೈಟುಗಳು = 0;
+	context->msgs_ಹೊರಹೋಗು.inflight_bytes12 = 0;
+	context->msgs_ಹೊರಹೋಗು.inflight_ಎಣಿಕೆ = 0;
+	context->msgs_ಹೊರಹೋಗು.inflight_count12 = 0;
+	context->msgs_ಹೊರಹೋಗು.queued_ಬೈಟುಗಳು = 0;
+	context->msgs_ಹೊರಹೋಗು.queued_bytes12 = 0;
+	context->msgs_ಹೊರಹೋಗು.queued_ಎಣಿಕೆ = 0;
+	context->msgs_ಹೊರಹೋಗು.queued_count12 = 0;
+	context->msgs_ಹೊರಹೋಗು.inflight_quota = context->msgs_ಹೊರಹೋಗು.inflight_ಗರಿಷ್ಠ;
 
-	DL_FOREACH_SAFE(context->msgs_out.inflight, client_msg, tmp){
-		db__msg_add_to_inflight_stats(&context->msgs_out, client_msg);
-		if(client_msg->data.qos > 0){
+	DL_FOREACH_ಸುರಕ್ಷಿತ(context->msgs_ಹೊರಹೋಗು.inflight, client_ಸಂದೇಶ, tmp){
+		db_ಸಂದೇಶ_ಕೂಡಿಸು_ಗಮ್ಯ_inflight_stats(&context->msgs_ಹೊರಹೋಗು, client_ಸಂದೇಶ);
+		ಆದರೆ(client_ಸಂದೇಶ->ದತ್ತಾಂಶ.qos > 0){
 			util__decrement_send_quota(context);
 		}
 
-		switch(client_msg->data.qos){
-			case 0:
-				client_msg->data.state = mosq_ms_publish_qos0;
-				break;
-			case 1:
-				client_msg->data.state = mosq_ms_publish_qos1;
-				break;
-			case 2:
-				if(client_msg->data.state == mosq_ms_wait_for_pubcomp){
-					client_msg->data.state = mosq_ms_resend_pubrel;
-				}else{
-					client_msg->data.state = mosq_ms_publish_qos2;
+		ಆಯ್ಕೆ(client_ಸಂದೇಶ->ದತ್ತಾಂಶ.qos){
+			ಸ್ಥಿತಿ 0:
+				client_ಸಂದೇಶ->ದತ್ತಾಂಶ.state = mosq_ms_publish_qos0;
+				ನಿಲ್ಲಿಸು;
+			ಸ್ಥಿತಿ 1:
+				client_ಸಂದೇಶ->ದತ್ತಾಂಶ.state = mosq_ms_publish_qos1;
+				ನಿಲ್ಲಿಸು;
+			ಸ್ಥಿತಿ 2:
+				ಆದರೆ(client_ಸಂದೇಶ->ದತ್ತಾಂಶ.state == mosq_ms_wait_for_pubcomp){
+					client_ಸಂದೇಶ->ದತ್ತಾಂಶ.state = mosq_ms_resend_pubrel;
+				}ಇಲ್ಲದಿದ್ದರೆ{
+					client_ಸಂದೇಶ->ದತ್ತಾಂಶ.state = mosq_ms_publish_qos2;
 				}
-				break;
+				ನಿಲ್ಲಿಸು;
 		}
-		plugin_persist__handle_client_msg_update(context, client_msg);
+		plugin_persist_handle_client_ಸಂದೇಶ_update(context, client_ಸಂದೇಶ);
 	}
 	/* Messages received when the client was disconnected are put
 	 * in the mosq_ms_queued state. If we don't change them to the
@@ -1111,44 +1111,44 @@ static int db__message_reconnect_reset_outgoing(struct mosquitto *context)
 	 * get sent until the client next receives a message - and they
 	 * will be sent out of order.
 	 */
-	DL_FOREACH_SAFE(context->msgs_out.queued, client_msg, tmp){
-		db__msg_add_to_queued_stats(&context->msgs_out, client_msg);
+	DL_FOREACH_ಸುರಕ್ಷಿತ(context->msgs_ಹೊರಹೋಗು.queued, client_ಸಂದೇಶ, tmp){
+		db_ಸಂದೇಶ_ಕೂಡಿಸು_ಗಮ್ಯ_queued_stats(&context->msgs_ಹೊರಹೋಗು, client_ಸಂದೇಶ);
 	}
-	db__fill_inflight_out_from_queue(context);
+	db_fill_inflight_ಹೊರಹೋಗು_from_ಸರತಿ(context);
 
-	return MOSQ_ERR_SUCCESS;
+	ಹಿಂತಿರುಗಿ MOSQ_ERR_SUCCESS;
 }
 
 
 /* Called on reconnect to set incoming messages to expect an appropriate retry. */
-static int db__message_reconnect_reset_incoming(struct mosquitto *context)
+ಸ್ಥಿರ ಪೂರ್ಣಾಂಕ db_ಸಂದೇಶ_reconnect_reset_incoming(ರಚನೆ mosquitto *context)
 {
-	struct mosquitto__client_msg *client_msg, *tmp;
+	ರಚನೆ mosquitto_client_ಸಂದೇಶ *client_ಸಂದೇಶ, *tmp;
 
-	context->msgs_in.inflight_bytes = 0;
-	context->msgs_in.inflight_bytes12 = 0;
-	context->msgs_in.inflight_count = 0;
-	context->msgs_in.inflight_count12 = 0;
-	context->msgs_in.queued_bytes = 0;
-	context->msgs_in.queued_bytes12 = 0;
-	context->msgs_in.queued_count = 0;
-	context->msgs_in.queued_count12 = 0;
-	context->msgs_in.inflight_quota = context->msgs_in.inflight_maximum;
+	context->msgs_ಒಳ.inflight_ಬೈಟುಗಳು = 0;
+	context->msgs_ಒಳ.inflight_bytes12 = 0;
+	context->msgs_ಒಳ.inflight_ಎಣಿಕೆ = 0;
+	context->msgs_ಒಳ.inflight_count12 = 0;
+	context->msgs_ಒಳ.queued_ಬೈಟುಗಳು = 0;
+	context->msgs_ಒಳ.queued_bytes12 = 0;
+	context->msgs_ಒಳ.queued_ಎಣಿಕೆ = 0;
+	context->msgs_ಒಳ.queued_count12 = 0;
+	context->msgs_ಒಳ.inflight_quota = context->msgs_ಒಳ.inflight_ಗರಿಷ್ಠ;
 
-	DL_FOREACH_SAFE(context->msgs_in.inflight, client_msg, tmp){
-		db__msg_add_to_inflight_stats(&context->msgs_in, client_msg);
-		if(client_msg->data.qos > 0){
+	DL_FOREACH_ಸುರಕ್ಷಿತ(context->msgs_ಒಳ.inflight, client_ಸಂದೇಶ, tmp){
+		db_ಸಂದೇಶ_ಕೂಡಿಸು_ಗಮ್ಯ_inflight_stats(&context->msgs_ಒಳ, client_ಸಂದೇಶ);
+		ಆದರೆ(client_ಸಂದೇಶ->ದತ್ತಾಂಶ.qos > 0){
 			util__decrement_receive_quota(context);
 		}
 
-		if(client_msg->data.qos != 2){
+		ಆದರೆ(client_ಸಂದೇಶ->ದತ್ತಾಂಶ.qos != 2){
 			/* Anything <QoS 2 can be completely retried by the client at
 			 * no harm. */
-			db__message_remove_inflight(context, &context->msgs_in, client_msg);
-		}else{
+			db_ಸಂದೇಶ_remove_inflight(context, &context->msgs_ಒಳ, client_ಸಂದೇಶ);
+		}ಇಲ್ಲದಿದ್ದರೆ{
 			/* Message state can be preserved here because it should match
 			 * whatever the client has got. */
-			client_msg->data.dup = 0;
+			client_ಸಂದೇಶ->ದತ್ತಾಂಶ.dup = 0;
 		}
 	}
 
@@ -1158,402 +1158,402 @@ static int db__message_reconnect_reset_incoming(struct mosquitto *context)
 	 * get sent until the client next receives a message - and they
 	 * will be sent out of order.
 	 */
-	DL_FOREACH_SAFE(context->msgs_in.queued, client_msg, tmp){
-		client_msg->data.dup = 0;
-		db__msg_add_to_queued_stats(&context->msgs_in, client_msg);
-		if(db__ready_for_flight(context, mosq_md_in, client_msg->data.qos)){
-			switch(client_msg->data.qos){
-				case 0:
-					client_msg->data.state = mosq_ms_publish_qos0;
-					break;
-				case 1:
-					client_msg->data.state = mosq_ms_publish_qos1;
-					break;
-				case 2:
-					client_msg->data.state = mosq_ms_publish_qos2;
-					break;
+	DL_FOREACH_ಸುರಕ್ಷಿತ(context->msgs_ಒಳ.queued, client_ಸಂದೇಶ, tmp){
+		client_ಸಂದೇಶ->ದತ್ತಾಂಶ.dup = 0;
+		db_ಸಂದೇಶ_ಕೂಡಿಸು_ಗಮ್ಯ_queued_stats(&context->msgs_ಒಳ, client_ಸಂದೇಶ);
+		ಆದರೆ(db__ready_for_flight(context, mosq_md_ಒಳ, client_ಸಂದೇಶ->ದತ್ತಾಂಶ.qos)){
+			ಆಯ್ಕೆ(client_ಸಂದೇಶ->ದತ್ತಾಂಶ.qos){
+				ಸ್ಥಿತಿ 0:
+					client_ಸಂದೇಶ->ದತ್ತಾಂಶ.state = mosq_ms_publish_qos0;
+					ನಿಲ್ಲಿಸು;
+				ಸ್ಥಿತಿ 1:
+					client_ಸಂದೇಶ->ದತ್ತಾಂಶ.state = mosq_ms_publish_qos1;
+					ನಿಲ್ಲಿಸು;
+				ಸ್ಥಿತಿ 2:
+					client_ಸಂದೇಶ->ದತ್ತಾಂಶ.state = mosq_ms_publish_qos2;
+					ನಿಲ್ಲಿಸು;
 			}
-			db__message_dequeue_first(context, &context->msgs_in);
-			plugin_persist__handle_client_msg_update(context, client_msg);
+			db_ಸಂದೇಶ_ಸರತಿಯಿಂದ_ತೆಗೆ_ಮೊದಲ(context, &context->msgs_ಒಳ);
+			plugin_persist_handle_client_ಸಂದೇಶ_update(context, client_ಸಂದೇಶ);
 		}
 	}
 
-	return MOSQ_ERR_SUCCESS;
+	ಹಿಂತಿರುಗಿ MOSQ_ERR_SUCCESS;
 }
 
 
-int db__message_reconnect_reset(struct mosquitto *context)
+ಪೂರ್ಣಾಂಕ db_ಸಂದೇಶ_reconnect_reset(ರಚನೆ mosquitto *context)
 {
-	int rc;
+	ಪೂರ್ಣಾಂಕ rc;
 
-	rc = db__message_reconnect_reset_outgoing(context);
-	if(rc){
-		return rc;
+	rc = db_ಸಂದೇಶ_reconnect_reset_outgoing(context);
+	ಆದರೆ(rc){
+		ಹಿಂತಿರುಗಿ rc;
 	}
-	return db__message_reconnect_reset_incoming(context);
+	ಹಿಂತಿರುಗಿ db_ಸಂದೇಶ_reconnect_reset_incoming(context);
 }
 
 
-int db__message_remove_incoming(struct mosquitto *context, uint16_t mid)
+ಪೂರ್ಣಾಂಕ db_ಸಂದೇಶ_remove_incoming(ರಚನೆ mosquitto *context, uint16_t mid)
 {
-	struct mosquitto__client_msg *client_msg, *tmp;
+	ರಚನೆ mosquitto_client_ಸಂದೇಶ *client_ಸಂದೇಶ, *tmp;
 
-	if(!context){
-		return MOSQ_ERR_INVAL;
+	ಆದರೆ(!context){
+		ಹಿಂತಿರುಗಿ MOSQ_ERR_INVAL;
 	}
 
-	DL_FOREACH_SAFE(context->msgs_in.inflight, client_msg, tmp){
-		if(client_msg->data.mid == mid){
-			if(client_msg->base_msg->data.qos != 2){
-				log__printf(NULL, MOSQ_LOG_INFO, "Protocol error from %s: Incorrect QoS (%d) when deleting incoming message.",
-						context->id, client_msg->base_msg->data.qos);
-				return MOSQ_ERR_PROTOCOL;
+	DL_FOREACH_ಸುರಕ್ಷಿತ(context->msgs_ಒಳ.inflight, client_ಸಂದೇಶ, tmp){
+		ಆದರೆ(client_ಸಂದೇಶ->ದತ್ತಾಂಶ.mid == mid){
+			ಆದರೆ(client_ಸಂದೇಶ->ತಳ_ಸಂದೇಶ->ದತ್ತಾಂಶ.qos != 2){
+				log__printf(ಖಾಲಿ, MOSQ_LOG_INFO, "Protocol error from %s: Incorrect QoS (%d) when deleting incoming message.",
+						context->id, client_ಸಂದೇಶ->ತಳ_ಸಂದೇಶ->ದತ್ತಾಂಶ.qos);
+				ಹಿಂತಿರುಗಿ MOSQ_ERR_PROTOCOL;
 			}
-			db__message_remove_inflight(context, &context->msgs_in, client_msg);
-			return MOSQ_ERR_SUCCESS;
+			db_ಸಂದೇಶ_remove_inflight(context, &context->msgs_ಒಳ, client_ಸಂದೇಶ);
+			ಹಿಂತಿರುಗಿ MOSQ_ERR_SUCCESS;
 		}
 	}
 
-	return MOSQ_ERR_NOT_FOUND;
+	ಹಿಂತಿರುಗಿ MOSQ_ERR_NOT_ಸಿಕ್ಕಿತು;
 }
 
 
-int db__message_release_incoming(struct mosquitto *context, uint16_t mid)
+ಪೂರ್ಣಾಂಕ db_ಸಂದೇಶ_release_incoming(ರಚನೆ mosquitto *context, uint16_t mid)
 {
-	struct mosquitto__client_msg *client_msg, *tmp;
+	ರಚನೆ mosquitto_client_ಸಂದೇಶ *client_ಸಂದೇಶ, *tmp;
 	bool deleted = false;
-	int rc;
+	ಪೂರ್ಣಾಂಕ rc;
 
-	if(!context){
-		return MOSQ_ERR_INVAL;
+	ಆದರೆ(!context){
+		ಹಿಂತಿರುಗಿ MOSQ_ERR_INVAL;
 	}
 
-	DL_FOREACH_SAFE(context->msgs_in.inflight, client_msg, tmp){
-		if(client_msg->data.mid == mid){
-			if(client_msg->base_msg->data.qos != 2){
-				log__printf(NULL, MOSQ_LOG_INFO, "Protocol error from %s: Incorrect QoS (%d) when releasing incoming message.",
-						context->id, client_msg->base_msg->data.qos);
-				return MOSQ_ERR_PROTOCOL;
+	DL_FOREACH_ಸುರಕ್ಷಿತ(context->msgs_ಒಳ.inflight, client_ಸಂದೇಶ, tmp){
+		ಆದರೆ(client_ಸಂದೇಶ->ದತ್ತಾಂಶ.mid == mid){
+			ಆದರೆ(client_ಸಂದೇಶ->ತಳ_ಸಂದೇಶ->ದತ್ತಾಂಶ.qos != 2){
+				log__printf(ಖಾಲಿ, MOSQ_LOG_INFO, "Protocol error from %s: Incorrect QoS (%d) when releasing incoming message.",
+						context->id, client_ಸಂದೇಶ->ತಳ_ಸಂದೇಶ->ದತ್ತಾಂಶ.qos);
+				ಹಿಂತಿರುಗಿ MOSQ_ERR_PROTOCOL;
 			}
-			const char *topic = client_msg->base_msg->data.topic;
-			const char *source_id = client_msg->base_msg->data.source_id;
+			ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *topic = client_ಸಂದೇಶ->ತಳ_ಸಂದೇಶ->ದತ್ತಾಂಶ.topic;
+			ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *ಮೂಲ_id = client_ಸಂದೇಶ->ತಳ_ಸಂದೇಶ->ದತ್ತಾಂಶ.ಮೂಲ_id;
 
 			/* topic==NULL should be a QoS 2 message that was
 			 * denied/dropped and is being processed so the client doesn't
 			 * keep resending it. That means we don't send it to other
 			 * clients. */
-			if(topic == NULL){
-				db__message_remove_inflight(context, &context->msgs_in, client_msg);
+			ಆದರೆ(topic == ಖಾಲಿ){
+				db_ಸಂದೇಶ_remove_inflight(context, &context->msgs_ಒಳ, client_ಸಂದೇಶ);
 				deleted = true;
-			}else{
-				rc = sub__messages_queue(source_id, 2, &client_msg->base_msg);
-				if(rc == MOSQ_ERR_SUCCESS || rc == MOSQ_ERR_NO_SUBSCRIBERS){
-					db__message_remove_inflight(context, &context->msgs_in, client_msg);
+			}ಇಲ್ಲದಿದ್ದರೆ{
+				rc = sub_messages_ಸರತಿ(ಮೂಲ_id, 2, &client_ಸಂದೇಶ->ತಳ_ಸಂದೇಶ);
+				ಆದರೆ(rc == MOSQ_ERR_SUCCESS || rc == MOSQ_ERR_NO_SUBSCRIBERS){
+					db_ಸಂದೇಶ_remove_inflight(context, &context->msgs_ಒಳ, client_ಸಂದೇಶ);
 					deleted = true;
-				}else{
-					return 1;
+				}ಇಲ್ಲದಿದ್ದರೆ{
+					ಹಿಂತಿರುಗಿ 1;
 				}
 			}
 		}
 	}
 
-	DL_FOREACH_SAFE(context->msgs_in.queued, client_msg, tmp){
-		if(db__ready_for_flight(context, mosq_md_in, client_msg->data.qos)){
-			break;
+	DL_FOREACH_ಸುರಕ್ಷಿತ(context->msgs_ಒಳ.queued, client_ಸಂದೇಶ, tmp){
+		ಆದರೆ(db__ready_for_flight(context, mosq_md_ಒಳ, client_ಸಂದೇಶ->ದತ್ತಾಂಶ.qos)){
+			ನಿಲ್ಲಿಸು;
 		}
 
-		if(client_msg->data.qos == 2){
-			send__pubrec(context, client_msg->data.mid, 0, NULL);
-			client_msg->data.state = mosq_ms_wait_for_pubrel;
-			db__message_dequeue_first(context, &context->msgs_in);
-			plugin_persist__handle_client_msg_update(context, client_msg);
+		ಆದರೆ(client_ಸಂದೇಶ->ದತ್ತಾಂಶ.qos == 2){
+			send__pubrec(context, client_ಸಂದೇಶ->ದತ್ತಾಂಶ.mid, 0, ಖಾಲಿ);
+			client_ಸಂದೇಶ->ದತ್ತಾಂಶ.state = mosq_ms_wait_for_pubrel;
+			db_ಸಂದೇಶ_ಸರತಿಯಿಂದ_ತೆಗೆ_ಮೊದಲ(context, &context->msgs_ಒಳ);
+			plugin_persist_handle_client_ಸಂದೇಶ_update(context, client_ಸಂದೇಶ);
 		}
 	}
-	if(deleted){
-		return MOSQ_ERR_SUCCESS;
-	}else{
-		return MOSQ_ERR_NOT_FOUND;
+	ಆದರೆ(deleted){
+		ಹಿಂತಿರುಗಿ MOSQ_ERR_SUCCESS;
+	}ಇಲ್ಲದಿದ್ದರೆ{
+		ಹಿಂತಿರುಗಿ MOSQ_ERR_NOT_ಸಿಕ್ಕಿತು;
 	}
 }
 
 
-void db__expire_all_messages(struct mosquitto *context)
+ಶೂನ್ಯ db__expire_all_messages(ರಚನೆ mosquitto *context)
 {
-	struct mosquitto__client_msg *client_msg, *tmp;
+	ರಚನೆ mosquitto_client_ಸಂದೇಶ *client_ಸಂದೇಶ, *tmp;
 
-	DL_FOREACH_SAFE(context->msgs_out.inflight, client_msg, tmp){
-		if(client_msg->base_msg->data.expiry_time && db.now_real_s > client_msg->base_msg->data.expiry_time){
-			if(client_msg->data.qos > 0){
+	DL_FOREACH_ಸುರಕ್ಷಿತ(context->msgs_ಹೊರಹೋಗು.inflight, client_ಸಂದೇಶ, tmp){
+		ಆದರೆ(client_ಸಂದೇಶ->ತಳ_ಸಂದೇಶ->ದತ್ತಾಂಶ.expiry_ಸಮಯ && db.now_real_s > client_ಸಂದೇಶ->ತಳ_ಸಂದೇಶ->ದತ್ತಾಂಶ.expiry_ಸಮಯ){
+			ಆದರೆ(client_ಸಂದೇಶ->ದತ್ತಾಂಶ.qos > 0){
 				util__increment_send_quota(context);
 			}
-			db__message_remove_inflight(context, &context->msgs_out, client_msg);
+			db_ಸಂದೇಶ_remove_inflight(context, &context->msgs_ಹೊರಹೋಗು, client_ಸಂದೇಶ);
 		}
 	}
-	db__fill_inflight_out_from_queue(context);
-	DL_FOREACH_SAFE(context->msgs_out.queued, client_msg, tmp){
-		if(client_msg->base_msg->data.expiry_time && db.now_real_s > client_msg->base_msg->data.expiry_time){
-			db__message_remove_queued(context, &context->msgs_out, client_msg);
+	db_fill_inflight_ಹೊರಹೋಗು_from_ಸರತಿ(context);
+	DL_FOREACH_ಸುರಕ್ಷಿತ(context->msgs_ಹೊರಹೋಗು.queued, client_ಸಂದೇಶ, tmp){
+		ಆದರೆ(client_ಸಂದೇಶ->ತಳ_ಸಂದೇಶ->ದತ್ತಾಂಶ.expiry_ಸಮಯ && db.now_real_s > client_ಸಂದೇಶ->ತಳ_ಸಂದೇಶ->ದತ್ತಾಂಶ.expiry_ಸಮಯ){
+			db_ಸಂದೇಶ_remove_queued(context, &context->msgs_ಹೊರಹೋಗು, client_ಸಂದೇಶ);
 		}
 	}
-	DL_FOREACH_SAFE(context->msgs_in.inflight, client_msg, tmp){
-		if(client_msg->base_msg->data.expiry_time && db.now_real_s > client_msg->base_msg->data.expiry_time){
-			if(client_msg->data.qos > 0){
+	DL_FOREACH_ಸುರಕ್ಷಿತ(context->msgs_ಒಳ.inflight, client_ಸಂದೇಶ, tmp){
+		ಆದರೆ(client_ಸಂದೇಶ->ತಳ_ಸಂದೇಶ->ದತ್ತಾಂಶ.expiry_ಸಮಯ && db.now_real_s > client_ಸಂದೇಶ->ತಳ_ಸಂದೇಶ->ದತ್ತಾಂಶ.expiry_ಸಮಯ){
+			ಆದರೆ(client_ಸಂದೇಶ->ದತ್ತಾಂಶ.qos > 0){
 				util__increment_receive_quota(context);
 			}
-			db__message_remove_inflight(context, &context->msgs_in, client_msg);
+			db_ಸಂದೇಶ_remove_inflight(context, &context->msgs_ಒಳ, client_ಸಂದೇಶ);
 		}
 	}
-	DL_FOREACH_SAFE(context->msgs_in.queued, client_msg, tmp){
-		if(client_msg->base_msg->data.expiry_time && db.now_real_s > client_msg->base_msg->data.expiry_time){
-			db__message_remove_queued(context, &context->msgs_in, client_msg);
+	DL_FOREACH_ಸುರಕ್ಷಿತ(context->msgs_ಒಳ.queued, client_ಸಂದೇಶ, tmp){
+		ಆದರೆ(client_ಸಂದೇಶ->ತಳ_ಸಂದೇಶ->ದತ್ತಾಂಶ.expiry_ಸಮಯ && db.now_real_s > client_ಸಂದೇಶ->ತಳ_ಸಂದೇಶ->ದತ್ತಾಂಶ.expiry_ಸಮಯ){
+			db_ಸಂದೇಶ_remove_queued(context, &context->msgs_ಒಳ, client_ಸಂದೇಶ);
 		}
 	}
 }
 
 
-static void db__client_messages_check_acl(struct mosquitto *context, struct mosquitto_msg_data *msg_data, struct mosquitto__client_msg **head,
-		void (*decrement_stats_fn)(struct mosquitto_msg_data *msg_data, struct mosquitto__client_msg *client_msg))
+ಸ್ಥಿರ ಶೂನ್ಯ db__client_messages_check_acl(ರಚನೆ mosquitto *context, ರಚನೆ mosquitto_ಸಂದೇಶ_ದತ್ತಾಂಶ *ಸಂದೇಶ_ದತ್ತಾಂಶ, ರಚನೆ mosquitto_client_ಸಂದೇಶ **ತಲೆ,
+		ಶೂನ್ಯ (*decrement_stats_fn)(ರಚನೆ mosquitto_ಸಂದೇಶ_ದತ್ತಾಂಶ *ಸಂದೇಶ_ದತ್ತಾಂಶ, ರಚನೆ mosquitto_client_ಸಂದೇಶ *client_ಸಂದೇಶ))
 {
-	struct mosquitto__client_msg *client_msg, *tmp;
-	struct mosquitto__base_msg *base_msg;
-	int access;
+	ರಚನೆ mosquitto_client_ಸಂದೇಶ *client_ಸಂದೇಶ, *tmp;
+	ರಚನೆ mosquitto_ತಳ_ಸಂದೇಶ *ತಳ_ಸಂದೇಶ;
+	ಪೂರ್ಣಾಂಕ access;
 
-	DL_FOREACH_SAFE((*head), client_msg, tmp){
-		base_msg = client_msg->base_msg;
-		if(client_msg->data.direction == mosq_md_out){
+	DL_FOREACH_ಸುರಕ್ಷಿತ((*ತಲೆ), client_ಸಂದೇಶ, tmp){
+		ತಳ_ಸಂದೇಶ = client_ಸಂದೇಶ->ತಳ_ಸಂದೇಶ;
+		ಆದರೆ(client_ಸಂದೇಶ->ದತ್ತಾಂಶ.direction == mosq_md_ಹೊರಹೋಗು){
 			access = MOSQ_ACL_READ;
-		}else{
+		}ಇಲ್ಲದಿದ್ದರೆ{
 			access = MOSQ_ACL_WRITE;
 		}
-		if(mosquitto_acl_check(context, base_msg->data.topic,
-				base_msg->data.payloadlen, base_msg->data.payload,
-				base_msg->data.qos, base_msg->data.retain,
-				base_msg->data.properties, access) != MOSQ_ERR_SUCCESS){
+		ಆದರೆ(mosquitto_acl_check(context, ತಳ_ಸಂದೇಶ->ದತ್ತಾಂಶ.topic,
+				ತಳ_ಸಂದೇಶ->ದತ್ತಾಂಶ.payloadlen, ತಳ_ಸಂದೇಶ->ದತ್ತಾಂಶ.payload,
+				ತಳ_ಸಂದೇಶ->ದತ್ತಾಂಶ.qos, ತಳ_ಸಂದೇಶ->ದತ್ತಾಂಶ.retain,
+				ತಳ_ಸಂದೇಶ->ದತ್ತಾಂಶ.properties, access) != MOSQ_ERR_SUCCESS){
 
-			DL_DELETE((*head), client_msg);
-			decrement_stats_fn(msg_data, client_msg);
-			plugin_persist__handle_client_msg_delete(context, client_msg);
-			db__msg_store_ref_dec(&client_msg->base_msg);
-			mosquitto_FREE(client_msg);
+			DL_DELETE((*ತಲೆ), client_ಸಂದೇಶ);
+			decrement_stats_fn(ಸಂದೇಶ_ದತ್ತಾಂಶ, client_ಸಂದೇಶ);
+			plugin_persist_handle_client_ಸಂದೇಶ_delete(context, client_ಸಂದೇಶ);
+			db_ಸಂದೇಶ_store_ref_dec(&client_ಸಂದೇಶ->ತಳ_ಸಂದೇಶ);
+			mosquitto_FREE(client_ಸಂದೇಶ);
 		}
 	}
 }
 
 
-void db__check_acl_of_all_messages(struct mosquitto *context)
+ಶೂನ್ಯ db_check_acl_ದ_all_messages(ರಚನೆ mosquitto *context)
 {
-	db__client_messages_check_acl(context, &context->msgs_in, &context->msgs_in.inflight, &db__msg_remove_from_inflight_stats);
-	db__client_messages_check_acl(context, &context->msgs_in, &context->msgs_in.queued, &db__msg_remove_from_queued_stats);
-	db__client_messages_check_acl(context, &context->msgs_out, &context->msgs_out.inflight, &db__msg_remove_from_inflight_stats);
-	db__client_messages_check_acl(context, &context->msgs_out, &context->msgs_out.queued, &db__msg_remove_from_queued_stats);
+	db__client_messages_check_acl(context, &context->msgs_ಒಳ, &context->msgs_ಒಳ.inflight, &db_ಸಂದೇಶ_remove_from_inflight_stats);
+	db__client_messages_check_acl(context, &context->msgs_ಒಳ, &context->msgs_ಒಳ.queued, &db_ಸಂದೇಶ_remove_from_queued_stats);
+	db__client_messages_check_acl(context, &context->msgs_ಹೊರಹೋಗು, &context->msgs_ಹೊರಹೋಗು.inflight, &db_ಸಂದೇಶ_remove_from_inflight_stats);
+	db__client_messages_check_acl(context, &context->msgs_ಹೊರಹೋಗು, &context->msgs_ಹೊರಹೋಗು.queued, &db_ಸಂದೇಶ_remove_from_queued_stats);
 }
 
 
-static int db__message_write_inflight_out_single(struct mosquitto *context, struct mosquitto__client_msg *client_msg)
+ಸ್ಥಿರ ಪೂರ್ಣಾಂಕ db_ಸಂದೇಶ_write_inflight_ಹೊರಹೋಗು_single(ರಚನೆ mosquitto *context, ರಚನೆ mosquitto_client_ಸಂದೇಶ *client_ಸಂದೇಶ)
 {
-	struct mosquitto__base_msg *base_msg;
-	mosquitto_property *base_msg_props = NULL;
-	int rc;
+	ರಚನೆ mosquitto_ತಳ_ಸಂದೇಶ *ತಳ_ಸಂದೇಶ;
+	mosquitto_property *ತಳ_ಸಂದೇಶ_props = ಖಾಲಿ;
+	ಪೂರ್ಣಾಂಕ rc;
 	uint16_t mid;
-	int retries;
-	int retain;
-	const char *topic;
+	ಪೂರ್ಣಾಂಕ retries;
+	ಪೂರ್ಣಾಂಕ retain;
+	ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *topic;
 	uint8_t qos;
 	uint32_t payloadlen;
-	const void *payload;
+	ಸ್ಥಿರಾಂಕ ಶೂನ್ಯ *payload;
 	uint32_t expiry_interval;
 	uint32_t subscription_id;
 
-	base_msg = client_msg->base_msg;
+	ತಳ_ಸಂದೇಶ = client_ಸಂದೇಶ->ತಳ_ಸಂದೇಶ;
 
 	expiry_interval = 0;
-	if(base_msg->data.expiry_time){
-		if(db.now_real_s > base_msg->data.expiry_time){
+	ಆದರೆ(ತಳ_ಸಂದೇಶ->ದತ್ತಾಂಶ.expiry_ಸಮಯ){
+		ಆದರೆ(db.now_real_s > ತಳ_ಸಂದೇಶ->ದತ್ತಾಂಶ.expiry_ಸಮಯ){
 			/* Message is expired, must not send. */
-			if(client_msg->data.direction == mosq_md_out && client_msg->data.qos > 0){
+			ಆದರೆ(client_ಸಂದೇಶ->ದತ್ತಾಂಶ.direction == mosq_md_ಹೊರಹೋಗು && client_ಸಂದೇಶ->ದತ್ತಾಂಶ.qos > 0){
 				util__increment_send_quota(context);
 			}
-			db__message_remove_inflight(context, &context->msgs_out, client_msg);
-			db__fill_inflight_out_from_queue(context);
-			return MOSQ_ERR_SUCCESS;
-		}else{
-			expiry_interval = (uint32_t)(base_msg->data.expiry_time - db.now_real_s);
+			db_ಸಂದೇಶ_remove_inflight(context, &context->msgs_ಹೊರಹೋಗು, client_ಸಂದೇಶ);
+			db_fill_inflight_ಹೊರಹೋಗು_from_ಸರತಿ(context);
+			ಹಿಂತಿರುಗಿ MOSQ_ERR_SUCCESS;
+		}ಇಲ್ಲದಿದ್ದರೆ{
+			expiry_interval = (uint32_t)(ತಳ_ಸಂದೇಶ->ದತ್ತಾಂಶ.expiry_ಸಮಯ - db.now_real_s);
 		}
 	}
-	mid = client_msg->data.mid;
-	retries = client_msg->data.dup;
-	retain = client_msg->data.retain;
-	topic = base_msg->data.topic;
-	qos = (uint8_t)client_msg->data.qos;
-	payloadlen = base_msg->data.payloadlen;
-	payload = base_msg->data.payload;
-	subscription_id = client_msg->data.subscription_identifier;
-	base_msg_props = base_msg->data.properties;
+	mid = client_ಸಂದೇಶ->ದತ್ತಾಂಶ.mid;
+	retries = client_ಸಂದೇಶ->ದತ್ತಾಂಶ.dup;
+	retain = client_ಸಂದೇಶ->ದತ್ತಾಂಶ.retain;
+	topic = ತಳ_ಸಂದೇಶ->ದತ್ತಾಂಶ.topic;
+	qos = (uint8_t)client_ಸಂದೇಶ->ದತ್ತಾಂಶ.qos;
+	payloadlen = ತಳ_ಸಂದೇಶ->ದತ್ತಾಂಶ.payloadlen;
+	payload = ತಳ_ಸಂದೇಶ->ದತ್ತಾಂಶ.payload;
+	subscription_id = client_ಸಂದೇಶ->ದತ್ತಾಂಶ.subscription_identifier;
+	ತಳ_ಸಂದೇಶ_props = ತಳ_ಸಂದೇಶ->ದತ್ತಾಂಶ.properties;
 
-	switch(client_msg->data.state){
-		case mosq_ms_publish_qos0:
-			rc = send__publish(context, mid, topic, payloadlen, payload, qos, retain, retries, subscription_id, base_msg_props, expiry_interval);
-			if(rc == MOSQ_ERR_SUCCESS || rc == MOSQ_ERR_OVERSIZE_PACKET){
-				db__message_remove_inflight(context, &context->msgs_out, client_msg);
-			}else{
-				return rc;
+	ಆಯ್ಕೆ(client_ಸಂದೇಶ->ದತ್ತಾಂಶ.state){
+		ಸ್ಥಿತಿ mosq_ms_publish_qos0:
+			rc = send__publish(context, mid, topic, payloadlen, payload, qos, retain, retries, subscription_id, ತಳ_ಸಂದೇಶ_props, expiry_interval);
+			ಆದರೆ(rc == MOSQ_ERR_SUCCESS || rc == MOSQ_ERR_OVERSIZE_PACKET){
+				db_ಸಂದೇಶ_remove_inflight(context, &context->msgs_ಹೊರಹೋಗು, client_ಸಂದೇಶ);
+			}ಇಲ್ಲದಿದ್ದರೆ{
+				ಹಿಂತಿರುಗಿ rc;
 			}
-			break;
+			ನಿಲ್ಲಿಸು;
 
-		case mosq_ms_publish_qos1:
-			rc = send__publish(context, mid, topic, payloadlen, payload, qos, retain, retries, subscription_id, base_msg_props, expiry_interval);
-			if(rc == MOSQ_ERR_SUCCESS){
-				client_msg->data.dup = 1; /* Any retry attempts are a duplicate. */
-				client_msg->data.state = mosq_ms_wait_for_puback;
-				plugin_persist__handle_client_msg_update(context, client_msg);
-			}else if(rc == MOSQ_ERR_OVERSIZE_PACKET){
-				db__message_remove_inflight(context, &context->msgs_out, client_msg);
-			}else{
-				return rc;
+		ಸ್ಥಿತಿ mosq_ms_publish_qos1:
+			rc = send__publish(context, mid, topic, payloadlen, payload, qos, retain, retries, subscription_id, ತಳ_ಸಂದೇಶ_props, expiry_interval);
+			ಆದರೆ(rc == MOSQ_ERR_SUCCESS){
+				client_ಸಂದೇಶ->ದತ್ತಾಂಶ.dup = 1; /* Any retry attempts are a duplicate. */
+				client_ಸಂದೇಶ->ದತ್ತಾಂಶ.state = mosq_ms_wait_for_puback;
+				plugin_persist_handle_client_ಸಂದೇಶ_update(context, client_ಸಂದೇಶ);
+			}ಇಲ್ಲದಿದ್ದರೆ ಆದರೆ(rc == MOSQ_ERR_OVERSIZE_PACKET){
+				db_ಸಂದೇಶ_remove_inflight(context, &context->msgs_ಹೊರಹೋಗು, client_ಸಂದೇಶ);
+			}ಇಲ್ಲದಿದ್ದರೆ{
+				ಹಿಂತಿರುಗಿ rc;
 			}
-			break;
+			ನಿಲ್ಲಿಸು;
 
-		case mosq_ms_publish_qos2:
-			rc = send__publish(context, mid, topic, payloadlen, payload, qos, retain, retries, subscription_id, base_msg_props, expiry_interval);
-			if(rc == MOSQ_ERR_SUCCESS){
-				client_msg->data.dup = 1; /* Any retry attempts are a duplicate. */
-				client_msg->data.state = mosq_ms_wait_for_pubrec;
-				plugin_persist__handle_client_msg_update(context, client_msg);
-			}else if(rc == MOSQ_ERR_OVERSIZE_PACKET){
-				db__message_remove_inflight(context, &context->msgs_out, client_msg);
-			}else{
-				return rc;
+		ಸ್ಥಿತಿ mosq_ms_publish_qos2:
+			rc = send__publish(context, mid, topic, payloadlen, payload, qos, retain, retries, subscription_id, ತಳ_ಸಂದೇಶ_props, expiry_interval);
+			ಆದರೆ(rc == MOSQ_ERR_SUCCESS){
+				client_ಸಂದೇಶ->ದತ್ತಾಂಶ.dup = 1; /* Any retry attempts are a duplicate. */
+				client_ಸಂದೇಶ->ದತ್ತಾಂಶ.state = mosq_ms_wait_for_pubrec;
+				plugin_persist_handle_client_ಸಂದೇಶ_update(context, client_ಸಂದೇಶ);
+			}ಇಲ್ಲದಿದ್ದರೆ ಆದರೆ(rc == MOSQ_ERR_OVERSIZE_PACKET){
+				db_ಸಂದೇಶ_remove_inflight(context, &context->msgs_ಹೊರಹೋಗು, client_ಸಂದೇಶ);
+			}ಇಲ್ಲದಿದ್ದರೆ{
+				ಹಿಂತಿರುಗಿ rc;
 			}
-			break;
+			ನಿಲ್ಲಿಸು;
 
-		case mosq_ms_resend_pubrel:
-			rc = send__pubrel(context, mid, NULL);
-			if(!rc){
-				client_msg->data.state = mosq_ms_wait_for_pubcomp;
-				plugin_persist__handle_client_msg_update(context, client_msg);
-			}else{
-				return rc;
+		ಸ್ಥಿತಿ mosq_ms_resend_pubrel:
+			rc = send__pubrel(context, mid, ಖಾಲಿ);
+			ಆದರೆ(!rc){
+				client_ಸಂದೇಶ->ದತ್ತಾಂಶ.state = mosq_ms_wait_for_pubcomp;
+				plugin_persist_handle_client_ಸಂದೇಶ_update(context, client_ಸಂದೇಶ);
+			}ಇಲ್ಲದಿದ್ದರೆ{
+				ಹಿಂತಿರುಗಿ rc;
 			}
-			break;
+			ನಿಲ್ಲಿಸು;
 
-		case mosq_ms_invalid:
-		case mosq_ms_send_pubrec:
-		case mosq_ms_resend_pubcomp:
-		case mosq_ms_wait_for_puback:
-		case mosq_ms_wait_for_pubrec:
-		case mosq_ms_wait_for_pubrel:
-		case mosq_ms_wait_for_pubcomp:
-		case mosq_ms_queued:
-			break;
+		ಸ್ಥಿತಿ mosq_ms_invalid:
+		ಸ್ಥಿತಿ mosq_ms_send_pubrec:
+		ಸ್ಥಿತಿ mosq_ms_resend_pubcomp:
+		ಸ್ಥಿತಿ mosq_ms_wait_for_puback:
+		ಸ್ಥಿತಿ mosq_ms_wait_for_pubrec:
+		ಸ್ಥಿತಿ mosq_ms_wait_for_pubrel:
+		ಸ್ಥಿತಿ mosq_ms_wait_for_pubcomp:
+		ಸ್ಥಿತಿ mosq_ms_queued:
+			ನಿಲ್ಲಿಸು;
 	}
-	return MOSQ_ERR_SUCCESS;
+	ಹಿಂತಿರುಗಿ MOSQ_ERR_SUCCESS;
 }
 
 
-int db__message_write_inflight_out_all(struct mosquitto *context)
+ಪೂರ್ಣಾಂಕ db_ಸಂದೇಶ_write_inflight_ಹೊರಹೋಗು_all(ರಚನೆ mosquitto *context)
 {
-	struct mosquitto__client_msg *client_msg, *tmp;
-	int rc;
+	ರಚನೆ mosquitto_client_ಸಂದೇಶ *client_ಸಂದೇಶ, *tmp;
+	ಪೂರ್ಣಾಂಕ rc;
 
-	if(context->state != mosq_cs_active || !net__is_connected(context)){
-		return MOSQ_ERR_SUCCESS;
+	ಆದರೆ(context->state != mosq_cs_ಸಕ್ರಿಯ || !net__is_connected(context)){
+		ಹಿಂತಿರುಗಿ MOSQ_ERR_SUCCESS;
 	}
 
-	DL_FOREACH_SAFE(context->msgs_out.inflight, client_msg, tmp){
-		rc = db__message_write_inflight_out_single(context, client_msg);
-		if(rc){
-			return rc;
+	DL_FOREACH_ಸುರಕ್ಷಿತ(context->msgs_ಹೊರಹೋಗು.inflight, client_ಸಂದೇಶ, tmp){
+		rc = db_ಸಂದೇಶ_write_inflight_ಹೊರಹೋಗು_single(context, client_ಸಂದೇಶ);
+		ಆದರೆ(rc){
+			ಹಿಂತಿರುಗಿ rc;
 		}
 	}
-	return MOSQ_ERR_SUCCESS;
+	ಹಿಂತಿರುಗಿ MOSQ_ERR_SUCCESS;
 }
 
 
-int db__message_write_inflight_out_latest(struct mosquitto *context)
+ಪೂರ್ಣಾಂಕ db_ಸಂದೇಶ_write_inflight_ಹೊರಹೋಗು_latest(ರಚನೆ mosquitto *context)
 {
-	struct mosquitto__client_msg *client_msg, *next;
-	int rc;
+	ರಚನೆ mosquitto_client_ಸಂದೇಶ *client_ಸಂದೇಶ, *ಮುಂದಿನ;
+	ಪೂರ್ಣಾಂಕ rc;
 
-	if(context->state != mosq_cs_active
+	ಆದರೆ(context->state != mosq_cs_ಸಕ್ರಿಯ
 			|| !net__is_connected(context)
-			|| context->msgs_out.inflight == NULL){
+			|| context->msgs_ಹೊರಹೋಗು.inflight == ಖಾಲಿ){
 
-		return MOSQ_ERR_SUCCESS;
+		ಹಿಂತಿರುಗಿ MOSQ_ERR_SUCCESS;
 	}
 
-	if(context->msgs_out.inflight->prev == context->msgs_out.inflight){
+	ಆದರೆ(context->msgs_ಹೊರಹೋಗು.inflight->prev == context->msgs_ಹೊರಹೋಗು.inflight){
 		/* Only one message */
-		return db__message_write_inflight_out_single(context, context->msgs_out.inflight);
+		ಹಿಂತಿರುಗಿ db_ಸಂದೇಶ_write_inflight_ಹೊರಹೋಗು_single(context, context->msgs_ಹೊರಹೋಗು.inflight);
 	}
 
 	/* Start at the end of the list and work backwards looking for the first
 	 * message in a non-publish state */
-	client_msg = context->msgs_out.inflight->prev;
-	while(client_msg != context->msgs_out.inflight &&
-			(client_msg->data.state == mosq_ms_publish_qos0
-			|| client_msg->data.state == mosq_ms_publish_qos1
-			|| client_msg->data.state == mosq_ms_publish_qos2)){
+	client_ಸಂದೇಶ = context->msgs_ಹೊರಹೋಗು.inflight->prev;
+	ಆಗ(client_ಸಂದೇಶ != context->msgs_ಹೊರಹೋಗು.inflight &&
+			(client_ಸಂದೇಶ->ದತ್ತಾಂಶ.state == mosq_ms_publish_qos0
+			|| client_ಸಂದೇಶ->ದತ್ತಾಂಶ.state == mosq_ms_publish_qos1
+			|| client_ಸಂದೇಶ->ದತ್ತಾಂಶ.state == mosq_ms_publish_qos2)){
 
-		client_msg = client_msg->prev;
+		client_ಸಂದೇಶ = client_ಸಂದೇಶ->prev;
 	}
 
 	/* Tail is now either the head of the list, if that message is waiting for
 	 * publish, or the oldest message not waiting for a publish. In the latter
 	 * case, any pending publishes should be next after this message. */
-	if(client_msg != context->msgs_out.inflight){
-		client_msg = client_msg->next;
+	ಆದರೆ(client_ಸಂದೇಶ != context->msgs_ಹೊರಹೋಗು.inflight){
+		client_ಸಂದೇಶ = client_ಸಂದೇಶ->ಮುಂದಿನ;
 	}
 
-	while(client_msg){
-		next = client_msg->next;
-		rc = db__message_write_inflight_out_single(context, client_msg);
-		if(rc){
-			return rc;
+	ಆಗ(client_ಸಂದೇಶ){
+		ಮುಂದಿನ = client_ಸಂದೇಶ->ಮುಂದಿನ;
+		rc = db_ಸಂದೇಶ_write_inflight_ಹೊರಹೋಗು_single(context, client_ಸಂದೇಶ);
+		ಆದರೆ(rc){
+			ಹಿಂತಿರುಗಿ rc;
 		}
-		client_msg = next;
+		client_ಸಂದೇಶ = ಮುಂದಿನ;
 	}
-	return MOSQ_ERR_SUCCESS;
+	ಹಿಂತಿರುಗಿ MOSQ_ERR_SUCCESS;
 }
 
 
-int db__message_write_queued_in(struct mosquitto *context)
+ಪೂರ್ಣಾಂಕ db_ಸಂದೇಶ_write_queued_ಒಳ(ರಚನೆ mosquitto *context)
 {
-	struct mosquitto__client_msg *client_msg, *tmp;
-	int rc;
+	ರಚನೆ mosquitto_client_ಸಂದೇಶ *client_ಸಂದೇಶ, *tmp;
+	ಪೂರ್ಣಾಂಕ rc;
 
-	if(context->state != mosq_cs_active){
-		return MOSQ_ERR_SUCCESS;
+	ಆದರೆ(context->state != mosq_cs_ಸಕ್ರಿಯ){
+		ಹಿಂತಿರುಗಿ MOSQ_ERR_SUCCESS;
 	}
 
-	DL_FOREACH_SAFE(context->msgs_in.queued, client_msg, tmp){
-		if(context->msgs_in.inflight_maximum != 0 && context->msgs_in.inflight_quota == 0){
-			break;
+	DL_FOREACH_ಸುರಕ್ಷಿತ(context->msgs_ಒಳ.queued, client_ಸಂದೇಶ, tmp){
+		ಆದರೆ(context->msgs_ಒಳ.inflight_ಗರಿಷ್ಠ != 0 && context->msgs_ಒಳ.inflight_quota == 0){
+			ನಿಲ್ಲಿಸು;
 		}
 
-		if(client_msg->data.qos == 2){
-			client_msg->data.state = mosq_ms_send_pubrec;
-			db__message_dequeue_first(context, &context->msgs_in);
-			rc = send__pubrec(context, client_msg->data.mid, 0, NULL);
-			if(!rc){
-				client_msg->data.state = mosq_ms_wait_for_pubrel;
-				plugin_persist__handle_client_msg_update(context, client_msg);
-			}else{
-				plugin_persist__handle_client_msg_update(context, client_msg);
-				return rc;
+		ಆದರೆ(client_ಸಂದೇಶ->ದತ್ತಾಂಶ.qos == 2){
+			client_ಸಂದೇಶ->ದತ್ತಾಂಶ.state = mosq_ms_send_pubrec;
+			db_ಸಂದೇಶ_ಸರತಿಯಿಂದ_ತೆಗೆ_ಮೊದಲ(context, &context->msgs_ಒಳ);
+			rc = send__pubrec(context, client_ಸಂದೇಶ->ದತ್ತಾಂಶ.mid, 0, ಖಾಲಿ);
+			ಆದರೆ(!rc){
+				client_ಸಂದೇಶ->ದತ್ತಾಂಶ.state = mosq_ms_wait_for_pubrel;
+				plugin_persist_handle_client_ಸಂದೇಶ_update(context, client_ಸಂದೇಶ);
+			}ಇಲ್ಲದಿದ್ದರೆ{
+				plugin_persist_handle_client_ಸಂದೇಶ_update(context, client_ಸಂದೇಶ);
+				ಹಿಂತಿರುಗಿ rc;
 			}
 		}
 	}
-	return MOSQ_ERR_SUCCESS;
+	ಹಿಂತಿರುಗಿ MOSQ_ERR_SUCCESS;
 }
 
 
-int db__message_write_queued_out(struct mosquitto *context)
+ಪೂರ್ಣಾಂಕ db_ಸಂದೇಶ_write_queued_ಹೊರಹೋಗು(ರಚನೆ mosquitto *context)
 {
-	if(context->state != mosq_cs_active){
-		return MOSQ_ERR_SUCCESS;
+	ಆದರೆ(context->state != mosq_cs_ಸಕ್ರಿಯ){
+		ಹಿಂತಿರುಗಿ MOSQ_ERR_SUCCESS;
 	}
 
-	db__fill_inflight_out_from_queue(context);
+	db_fill_inflight_ಹೊರಹೋಗು_from_ಸರತಿ(context);
 
-	return MOSQ_ERR_SUCCESS;
+	ಹಿಂತಿರುಗಿ MOSQ_ERR_SUCCESS;
 }
