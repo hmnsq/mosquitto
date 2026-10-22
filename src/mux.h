@@ -21,34 +21,34 @@ Contributors:
 
 #include "mosquitto_broker_internal.h"
 
-int mux_epoll__init(void);
-int mux_epoll__add_listeners(struct mosquitto__listener_sock *listensock, int listensock_count);
-int mux_epoll__delete_listeners(struct mosquitto__listener_sock *listensock, int listensock_count);
-int mux_epoll__new(struct mosquitto *context);
-int mux_epoll__add_out(struct mosquitto *context);
-int mux_epoll__remove_out(struct mosquitto *context);
-int mux_epoll__delete(struct mosquitto *context);
-int mux_epoll__handle(void);
-int mux_epoll__cleanup(void);
+ကိန်းပြည့် mux_epoll__init(void);
+ကိန်းပြည့် mux_epoll__add_listeners(sa_nracanaa mosquitto__listener_sock *listensock, ကိန်းပြည့် listensock_count);
+ကိန်းပြည့် mux_epoll__delete_listeners(sa_nracanaa mosquitto__listener_sock *listensock, ကိန်းပြည့် listensock_count);
+ကိန်းပြည့် mux_epoll__new(sa_nracanaa mosquitto *context);
+ကိန်းပြည့် mux_epoll__add_out(sa_nracanaa mosquitto *context);
+ကိန်းပြည့် mux_epoll__remove_out(sa_nracanaa mosquitto *context);
+ကိန်းပြည့် mux_epoll__delete(sa_nracanaa mosquitto *context);
+ကိန်းပြည့် mux_epoll__handle(void);
+ကိန်းပြည့် mux_epoll__cleanup(void);
 
-int mux_kqueue__init(void);
-int mux_kqueue__add_listeners(struct mosquitto__listener_sock *listensock, int listensock_count);
-int mux_kqueue__delete_listeners(struct mosquitto__listener_sock *listensock, int listensock_count);
-int mux_kqueue__new(struct mosquitto *context);
-int mux_kqueue__add_out(struct mosquitto *context);
-int mux_kqueue__remove_out(struct mosquitto *context);
-int mux_kqueue__delete(struct mosquitto *context);
-int mux_kqueue__handle(void);
-int mux_kqueue__cleanup(void);
+ကိန်းပြည့် mux_kqueue__init(void);
+ကိန်းပြည့် mux_kqueue__add_listeners(sa_nracanaa mosquitto__listener_sock *listensock, ကိန်းပြည့် listensock_count);
+ကိန်းပြည့် mux_kqueue__delete_listeners(sa_nracanaa mosquitto__listener_sock *listensock, ကိန်းပြည့် listensock_count);
+ကိန်းပြည့် mux_kqueue__new(sa_nracanaa mosquitto *context);
+ကိန်းပြည့် mux_kqueue__add_out(sa_nracanaa mosquitto *context);
+ကိန်းပြည့် mux_kqueue__remove_out(sa_nracanaa mosquitto *context);
+ကိန်းပြည့် mux_kqueue__delete(sa_nracanaa mosquitto *context);
+ကိန်းပြည့် mux_kqueue__handle(void);
+ကိန်းပြည့် mux_kqueue__cleanup(void);
 
-int mux_poll__init(void);
-int mux_poll__add_listeners(struct mosquitto__listener_sock *listensock, int listensock_count);
-int mux_poll__delete_listeners(struct mosquitto__listener_sock *listensock, int listensock_count);
-int mux_poll__new(struct mosquitto *context);
-int mux_poll__add_out(struct mosquitto *context);
-int mux_poll__remove_out(struct mosquitto *context);
-int mux_poll__delete(struct mosquitto *context);
-int mux_poll__handle(struct mosquitto__listener_sock *listensock, int listensock_count);
-int mux_poll__cleanup(void);
+ကိန်းပြည့် mux_poll__init(void);
+ကိန်းပြည့် mux_poll__add_listeners(sa_nracanaa mosquitto__listener_sock *listensock, ကိန်းပြည့် listensock_count);
+ကိန်းပြည့် mux_poll__delete_listeners(sa_nracanaa mosquitto__listener_sock *listensock, ကိန်းပြည့် listensock_count);
+ကိန်းပြည့် mux_poll__new(sa_nracanaa mosquitto *context);
+ကိန်းပြည့် mux_poll__add_out(sa_nracanaa mosquitto *context);
+ကိန်းပြည့် mux_poll__remove_out(sa_nracanaa mosquitto *context);
+ကိန်းပြည့် mux_poll__delete(sa_nracanaa mosquitto *context);
+ကိန်းပြည့် mux_poll__handle(sa_nracanaa mosquitto__listener_sock *listensock, ကိန်းပြည့် listensock_count);
+ကိန်းပြည့် mux_poll__cleanup(void);
 
 #endif

@@ -28,87 +28,87 @@ Contributors:
 #include "utlist.h"
 
 
-static int plugin__basic_auth(struct mosquitto__security_options *opts, struct mosquitto *context)
+static ကိန်းပြည့် plugin__basic_auth(sa_nracanaa mosquitto__security_options *opts, sa_nracanaa mosquitto *context)
 {
-	struct mosquitto_evt_basic_auth event_data;
-	struct mosquitto__callback *cb_base, *cb_next;
-	int rc;
-	int rc_final = MOSQ_ERR_PLUGIN_IGNORE;
+	sa_nracanaa mosquitto_evt_basic_auth event_data;
+	sa_nracanaa mosquitto__callback *cb_base, *cb_next;
+	ကိန်းပြည့် rc;
+	ကိန်းပြည့် rc_final = MOSQ_ERR_PLUGIN_IGNORE;
 
 	DL_FOREACH_SAFE(opts->plugin_callbacks.basic_auth, cb_base, cb_next){
-		memset(&event_data, 0, sizeof(event_data));
+		memset(&event_data, 0, parimaa_na(event_data));
 		event_data.client = context;
 		event_data.username = context->username;
 		event_data.password = context->password;
 		event_data.password_len = context->password_len;
 		rc = cb_base->cb(MOSQ_EVT_BASIC_AUTH, &event_data, cb_base->userdata);
-		if(rc == MOSQ_ERR_PLUGIN_IGNORE){
+		အကယ်၍(rc == MOSQ_ERR_PLUGIN_IGNORE){
 			/* Do nothing, this is as if the plugin doesn't exist */
-		}else if(rc == MOSQ_ERR_PLUGIN_DEFER){
+		}မဟုတ်ပါက အကယ်၍(rc == MOSQ_ERR_PLUGIN_DEFER){
 			rc_final = MOSQ_ERR_PLUGIN_DEFER;
-		}else{
-			return rc;
+		}မဟုတ်ပါက{
+			ပြန်ပေး rc;
 		}
 	}
-	return rc_final;
+	ပြန်ပေး rc_final;
 }
 
 
-int mosquitto_basic_auth(struct mosquitto *context)
+ကိန်းပြည့် mosquitto_basic_auth(sa_nracanaa mosquitto *context)
 {
-	int rc;
+	ကိန်းပြည့် rc;
 	bool plugin_used = false;
 
 	/* Global plugins */
-	if(db.config->security_options.plugin_callbacks.basic_auth){
+	အကယ်၍(db.config->security_options.plugin_callbacks.basic_auth){
 		rc = plugin__basic_auth(&db.config->security_options, context);
 
-		if(rc == MOSQ_ERR_PLUGIN_IGNORE){
+		အကယ်၍(rc == MOSQ_ERR_PLUGIN_IGNORE){
 			/* Do nothing */
-		}else if(rc == MOSQ_ERR_PLUGIN_DEFER){
+		}မဟုတ်ပါက အကယ်၍(rc == MOSQ_ERR_PLUGIN_DEFER){
 			plugin_used = true;
-		}else{
-			return rc;
+		}မဟုတ်ပါက{
+			ပြန်ပေး rc;
 		}
 	}
 
-	if(context->listener && context->listener->security_options->plugin_callbacks.basic_auth){
+	အကယ်၍(context->listener && context->listener->security_options->plugin_callbacks.basic_auth){
 		rc = plugin__basic_auth(context->listener->security_options, context);
 
-		if(rc == MOSQ_ERR_PLUGIN_IGNORE){
+		အကယ်၍(rc == MOSQ_ERR_PLUGIN_IGNORE){
 			/* Do nothing */
-		}else if(rc == MOSQ_ERR_PLUGIN_DEFER){
+		}မဟုတ်ပါက အကယ်၍(rc == MOSQ_ERR_PLUGIN_DEFER){
 			plugin_used = true;
-		}else{
-			return rc;
+		}မဟုတ်ပါက{
+			ပြန်ပေး rc;
 		}
 	}
 
 	/* If all plugins deferred, this is a denial. plugin_used == false
 	 * here, then no plugins were configured.
 	 * anonymous logins are allowed. */
-	if(plugin_used == false){
-		if((context->listener && context->listener->security_options->allow_anonymous == true)
+	အကယ်၍(plugin_used == false){
+		အကယ်၍((context->listener && context->listener->security_options->allow_anonymous == true)
 				|| (!db.config->per_listener_settings && db.config->security_options.allow_anonymous == true
 				&& context->listener && context->listener->security_options->allow_anonymous != false)){
 
-			return MOSQ_ERR_SUCCESS;
-		}else{
-			return MOSQ_ERR_AUTH;
+			ပြန်ပေး MOSQ_ERR_SUCCESS;
+		}မဟုတ်ပါက{
+			ပြန်ပေး MOSQ_ERR_AUTH;
 		}
-	}else{
+	}မဟုတ်ပါက{
 		/* Can't have got here without at least one plugin returning MOSQ_ERR_PLUGIN_DEFER.
 		 * This will now be a denial, unless it is anon and allow anon is true. */
-		if(context->username == NULL &&
+		အကယ်၍(context->username == NULL &&
 				((context->listener && context->listener->security_options->allow_anonymous == true)
 				|| (!db.config->per_listener_settings && db.config->security_options.allow_anonymous == true
 				&& context->listener && context->listener->security_options->allow_anonymous != false))){
 
-			return MOSQ_ERR_SUCCESS;
-		}else{
-			return MOSQ_ERR_AUTH;
+			ပြန်ပေး MOSQ_ERR_SUCCESS;
+		}မဟုတ်ပါက{
+			ပြန်ပေး MOSQ_ERR_AUTH;
 		}
 	}
 
-	return rc;
+	ပြန်ပေး rc;
 }

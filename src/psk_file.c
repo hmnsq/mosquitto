@@ -27,11 +27,11 @@ Contributors:
 #include "send_mosq.h"
 #include "util_mosq.h"
 
-static int psk__cleanup(struct mosquitto__psk **psk);
-static int psk__file_parse(struct mosquitto__psk **psk_id, const char *psk_file);
+static ကိန်းပြည့် psk__cleanup(sa_nracanaa mosquitto__psk **psk);
+static ကိန်းပြည့် psk__file_parse(sa_nracanaa mosquitto__psk **psk_id, const var_na *psk_file);
 
 
-static void psk__free_item(struct mosquitto__psk *psk)
+static void psk__free_item(sa_nracanaa mosquitto__psk *psk)
 {
 	mosquitto_FREE(psk->username);
 	mosquitto_FREE(psk->password);
@@ -39,142 +39,142 @@ static void psk__free_item(struct mosquitto__psk *psk)
 }
 
 
-int psk_file__init(void)
+ကိန်းပြည့် psk_file__init(void)
 {
-	int rc;
-	char *pskf = NULL;
+	ကိန်းပြည့် rc;
+	var_na *pskf = NULL;
 
 	/* Load psk data if required. */
-	if(db.config->per_listener_settings){
-		for(int i=0; i<db.config->listener_count; i++){
+	အကယ်၍(db.config->per_listener_settings){
+		အတွက်(ကိန်းပြည့် i=0; i<db.config->listener_count; i++){
 			pskf = db.config->listeners[i].security_options->psk_file;
-			if(pskf){
+			အကယ်၍(pskf){
 				rc = psk__file_parse(&db.config->listeners[i].security_options->psk_id, pskf);
-				if(rc){
+				အကယ်၍(rc){
 					log__printf(NULL, MOSQ_LOG_ERR, "Error opening psk file \"%s\".", pskf);
-					return rc;
+					ပြန်ပေး rc;
 				}
 			}
 		}
-	}else{
+	}မဟုတ်ပါက{
 		pskf = db.config->security_options.psk_file;
-		if(pskf){
+		အကယ်၍(pskf){
 			rc = psk__file_parse(&db.config->security_options.psk_id, pskf);
-			if(rc){
+			အကယ်၍(rc){
 				log__printf(NULL, MOSQ_LOG_ERR, "Error opening psk file \"%s\".", pskf);
-				return rc;
+				ပြန်ပေး rc;
 			}
 		}
 	}
 
-	return MOSQ_ERR_SUCCESS;
+	ပြန်ပေး MOSQ_ERR_SUCCESS;
 }
 
 
-int psk_file__cleanup(void)
+ကိန်းပြည့် psk_file__cleanup(void)
 {
-	int rc;
+	ကိန်းပြည့် rc;
 
 	rc = psk__cleanup(&db.config->security_options.psk_id);
-	if(rc != MOSQ_ERR_SUCCESS){
-		return rc;
+	အကယ်၍(rc != MOSQ_ERR_SUCCESS){
+		ပြန်ပေး rc;
 	}
 
-	for(int i=0; i<db.config->listener_count; i++){
-		if(db.config->listeners[i].security_options->psk_id){
+	အတွက်(ကိန်းပြည့် i=0; i<db.config->listener_count; i++){
+		အကယ်၍(db.config->listeners[i].security_options->psk_id){
 			rc = psk__cleanup(&db.config->listeners[i].security_options->psk_id);
-			if(rc != MOSQ_ERR_SUCCESS){
-				return rc;
+			အကယ်၍(rc != MOSQ_ERR_SUCCESS){
+				ပြန်ပေး rc;
 			}
 		}
 	}
 
-	return MOSQ_ERR_SUCCESS;
+	ပြန်ပေး MOSQ_ERR_SUCCESS;
 }
 
 
-static int pwfile__parse(const char *file, struct mosquitto__psk **root)
+static ကိန်းပြည့် pwfile__parse(const var_na *file, sa_nracanaa mosquitto__psk **root)
 {
 	FILE *pwfile;
-	struct mosquitto__psk *psk;
-	char *username, *password;
-	char *saveptr = NULL;
-	char *buf;
-	int buflen = 256;
+	sa_nracanaa mosquitto__psk *psk;
+	var_na *username, *password;
+	var_na *saveptr = NULL;
+	var_na *buf;
+	ကိန်းပြည့် buflen = 256;
 
 	buf = mosquitto_malloc((size_t)buflen);
-	if(buf == NULL){
+	အကယ်၍(buf == NULL){
 		log__printf(NULL, MOSQ_LOG_ERR, "Error: Out of memory.");
-		return MOSQ_ERR_NOMEM;
+		ပြန်ပေး MOSQ_ERR_NOMEM;
 	}
 
 	pwfile = mosquitto_fopen(file, "rt", true);
-	if(!pwfile){
+	အကယ်၍(!pwfile){
 		log__printf(NULL, MOSQ_LOG_ERR, "Error: Unable to open pwfile \"%s\".", file);
 		mosquitto_FREE(buf);
-		return MOSQ_ERR_UNKNOWN;
+		ပြန်ပေး MOSQ_ERR_UNKNOWN;
 	}
 
-	while(!feof(pwfile)){
-		if(mosquitto_fgets(&buf, &buflen, pwfile)){
-			if(buf[0] == '#'){
+	နေစဉ်(!feof(pwfile)){
+		အကယ်၍(mosquitto_fgets(&buf, &buflen, pwfile)){
+			အကယ်၍(buf[0] == '#'){
 				continue;
 			}
-			if(!strchr(buf, ':')){
+			အကယ်၍(!strchr(buf, ':')){
 				continue;
 			}
 
 			username = strtok_r(buf, ":", &saveptr);
-			if(username){
+			အကယ်၍(username){
 				username = mosquitto_trimblanks(username);
-				if(strlen(username) > 65535){
+				အကယ်၍(strlen(username) > 65535){
 					log__printf(NULL, MOSQ_LOG_NOTICE, "Warning: Invalid line in password file '%s', username too long.", file);
 					continue;
 				}
-				if(strlen(username) <= 0){
+				အကယ်၍(strlen(username) <= 0){
 					log__printf(NULL, MOSQ_LOG_NOTICE, "Warning: Empty username in password file '%s', ingoring.", file);
 					continue;
 				}
 
 				HASH_FIND(hh, *root, username, strlen(username), psk);
-				if(psk){
+				အကယ်၍(psk){
 					log__printf(NULL, MOSQ_LOG_NOTICE, "Error: Duplicate user '%s' in password file '%s', ignoring.", username, file);
 					continue;
 				}
 
-				psk = mosquitto_calloc(1, sizeof(struct mosquitto__psk));
-				if(!psk){
+				psk = mosquitto_calloc(1, parimaa_na(sa_nracanaa mosquitto__psk));
+				အကယ်၍(!psk){
 					fclose(pwfile);
 					mosquitto_FREE(buf);
-					return MOSQ_ERR_NOMEM;
+					ပြန်ပေး MOSQ_ERR_NOMEM;
 				}
 
 				psk->username = mosquitto_strdup(username);
-				if(!psk->username){
+				အကယ်၍(!psk->username){
 					psk__free_item(psk);
 					mosquitto_FREE(buf);
 					fclose(pwfile);
-					return MOSQ_ERR_NOMEM;
+					ပြန်ပေး MOSQ_ERR_NOMEM;
 				}
 				password = strtok_r(NULL, ":", &saveptr);
-				if(password){
+				အကယ်၍(password){
 					password = mosquitto_trimblanks(password);
 
-					if(strlen(password) > 65535){
+					အကယ်၍(strlen(password) > 65535){
 						log__printf(NULL, MOSQ_LOG_NOTICE, "Warning: Invalid line in password file '%s', password too long.", file);
 						psk__free_item(psk);
 						continue;
 					}
 
 					psk->password = mosquitto_strdup(password);
-					if(!psk->password){
+					အကယ်၍(!psk->password){
 						log__printf(NULL, MOSQ_LOG_NOTICE, "Warning: Unable to decode line in password file '%s'.", file);
 						psk__free_item(psk);
 						continue;
 					}
 
 					HASH_ADD_KEYPTR(hh, *root, psk->username, strlen(psk->username), psk);
-				}else{
+				}မဟုတ်ပါက{
 					log__printf(NULL, MOSQ_LOG_NOTICE, "Warning: Invalid line in psk file '%s': %s", file, buf);
 					psk__free_item(psk);
 				}
@@ -184,50 +184,50 @@ static int pwfile__parse(const char *file, struct mosquitto__psk **root)
 	fclose(pwfile);
 	mosquitto_FREE(buf);
 
-	return MOSQ_ERR_SUCCESS;
+	ပြန်ပေး MOSQ_ERR_SUCCESS;
 }
 
 
-static int psk__file_parse(struct mosquitto__psk **psk_id, const char *psk_file)
+static ကိန်းပြည့် psk__file_parse(sa_nracanaa mosquitto__psk **psk_id, const var_na *psk_file)
 {
-	int rc;
-	struct mosquitto__psk *psk, *tmp = NULL;
+	ကိန်းပြည့် rc;
+	sa_nracanaa mosquitto__psk *psk, *tmp = NULL;
 
-	if(!db.config || !psk_id){
-		return MOSQ_ERR_INVAL;
+	အကယ်၍(!db.config || !psk_id){
+		ပြန်ပေး MOSQ_ERR_INVAL;
 	}
 
 	/* We haven't been asked to parse a psk file. */
-	if(!psk_file){
-		return MOSQ_ERR_SUCCESS;
+	အကယ်၍(!psk_file){
+		ပြန်ပေး MOSQ_ERR_SUCCESS;
 	}
 
 	rc = pwfile__parse(psk_file, psk_id);
-	if(rc){
-		return rc;
+	အကယ်၍(rc){
+		ပြန်ပေး rc;
 	}
 
 	HASH_ITER(hh, (*psk_id), psk, tmp){
 		/* Check for hex only digits */
-		if(!psk->password){
+		အကယ်၍(!psk->password){
 			log__printf(NULL, MOSQ_LOG_ERR, "Error: Empty psk for identity \"%s\".", psk->username);
-			return MOSQ_ERR_INVAL;
+			ပြန်ပေး MOSQ_ERR_INVAL;
 		}
-		if(strspn(psk->password, "0123456789abcdefABCDEF") < strlen(psk->password)){
+		အကယ်၍(strspn(psk->password, "0123456789abcdefABCDEF") < strlen(psk->password)){
 			log__printf(NULL, MOSQ_LOG_ERR, "Error: psk for identity \"%s\" contains non-hexadecimal characters.", psk->username);
-			return MOSQ_ERR_INVAL;
+			ပြန်ပေး MOSQ_ERR_INVAL;
 		}
 	}
-	return MOSQ_ERR_SUCCESS;
+	ပြန်ပေး MOSQ_ERR_SUCCESS;
 }
 
 
-static int psk__cleanup(struct mosquitto__psk **root)
+static ကိန်းပြည့် psk__cleanup(sa_nracanaa mosquitto__psk **root)
 {
-	struct mosquitto__psk *psk, *tmp = NULL;
+	sa_nracanaa mosquitto__psk *psk, *tmp = NULL;
 
-	if(!root){
-		return MOSQ_ERR_INVAL;
+	အကယ်၍(!root){
+		ပြန်ပေး MOSQ_ERR_INVAL;
 	}
 
 	HASH_ITER(hh, *root, psk, tmp){
@@ -237,36 +237,36 @@ static int psk__cleanup(struct mosquitto__psk **root)
 
 	*root = NULL;
 
-	return MOSQ_ERR_SUCCESS;
+	ပြန်ပေး MOSQ_ERR_SUCCESS;
 }
 
 
-int mosquitto_psk_key_get_default(struct mosquitto *context, const char *hint, const char *identity, char *key, int max_key_len)
+ကိန်းပြည့် mosquitto_psk_key_get_default(sa_nracanaa mosquitto *context, const var_na *hint, const var_na *identity, var_na *key, ကိန်းပြည့် max_key_len)
 {
-	struct mosquitto__psk *psk;
-	struct mosquitto__psk *psk_id_ref = NULL;
+	sa_nracanaa mosquitto__psk *psk;
+	sa_nracanaa mosquitto__psk *psk_id_ref = NULL;
 
-	if(!hint || !identity || !key){
-		return MOSQ_ERR_INVAL;
+	အကယ်၍(!hint || !identity || !key){
+		ပြန်ပေး MOSQ_ERR_INVAL;
 	}
 
-	if(db.config->per_listener_settings){
-		if(!context->listener){
-			return MOSQ_ERR_INVAL;
+	အကယ်၍(db.config->per_listener_settings){
+		အကယ်၍(!context->listener){
+			ပြန်ပေး MOSQ_ERR_INVAL;
 		}
 		psk_id_ref = context->listener->security_options->psk_id;
-	}else{
+	}မဟုတ်ပါက{
 		psk_id_ref = db.config->security_options.psk_id;
 	}
-	if(!psk_id_ref){
-		return MOSQ_ERR_PLUGIN_IGNORE;
+	အကယ်၍(!psk_id_ref){
+		ပြန်ပေး MOSQ_ERR_PLUGIN_IGNORE;
 	}
 
 	HASH_FIND(hh, psk_id_ref, identity, strlen(identity), psk);
-	if(psk){
+	အကယ်၍(psk){
 		strncpy(key, psk->password, (size_t)max_key_len);
-		return MOSQ_ERR_SUCCESS;
+		ပြန်ပေး MOSQ_ERR_SUCCESS;
 	}
 
-	return MOSQ_ERR_AUTH;
+	ပြန်ပေး MOSQ_ERR_AUTH;
 }

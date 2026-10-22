@@ -30,96 +30,96 @@ Contributors:
 #include "util_mosq.h"
 
 
-int handle__packet(struct mosquitto *context)
+ကိန်းပြည့် handle__packet(sa_nracanaa mosquitto *context)
 {
-	int rc = MOSQ_ERR_INVAL;
+	ကိန်းပြည့် rc = MOSQ_ERR_INVAL;
 
-	if(!context){
-		return MOSQ_ERR_INVAL;
+	အကယ်၍(!context){
+		ပြန်ပေး MOSQ_ERR_INVAL;
 	}
 
 	switch((context->in_packet.command)&0xF0){
-		case CMD_PINGREQ:
+		pak_sa CMD_PINGREQ:
 			metrics__int_inc(mosq_counter_mqtt_pingreq_received, 1);
 			rc = handle__pingreq(context);
-			break;
-		case CMD_PINGRESP:
+			bha_nga;
+		pak_sa CMD_PINGRESP:
 			metrics__int_inc(mosq_counter_mqtt_pingresp_received, 1);
 			rc = handle__pingresp(context);
-			break;
-		case CMD_PUBACK:
+			bha_nga;
+		pak_sa CMD_PUBACK:
 			metrics__int_inc(mosq_counter_mqtt_puback_received, 1);
 			rc = handle__pubackcomp(context, "PUBACK");
-			break;
-		case CMD_PUBCOMP:
+			bha_nga;
+		pak_sa CMD_PUBCOMP:
 			metrics__int_inc(mosq_counter_mqtt_pubcomp_received, 1);
 			rc = handle__pubackcomp(context, "PUBCOMP");
-			break;
-		case CMD_PUBLISH:
+			bha_nga;
+		pak_sa CMD_PUBLISH:
 			metrics__int_inc(mosq_counter_mqtt_publish_received, 1);
 			rc = handle__publish(context);
-			break;
-		case CMD_PUBREC:
+			bha_nga;
+		pak_sa CMD_PUBREC:
 			metrics__int_inc(mosq_counter_mqtt_pubrec_received, 1);
 			rc = handle__pubrec(context);
-			break;
-		case CMD_PUBREL:
+			bha_nga;
+		pak_sa CMD_PUBREL:
 			metrics__int_inc(mosq_counter_mqtt_pubrel_received, 1);
 			rc = handle__pubrel(context);
-			break;
-		case CMD_CONNECT:
+			bha_nga;
+		pak_sa CMD_CONNECT:
 			metrics__int_inc(mosq_counter_mqtt_connect_received, 1);
-			return handle__connect(context);
-		case CMD_DISCONNECT:
+			ပြန်ပေး handle__connect(context);
+		pak_sa CMD_DISCONNECT:
 			metrics__int_inc(mosq_counter_mqtt_disconnect_received, 1);
 			rc = handle__disconnect(context);
-			break;
-		case CMD_SUBSCRIBE:
+			bha_nga;
+		pak_sa CMD_SUBSCRIBE:
 			metrics__int_inc(mosq_counter_mqtt_subscribe_received, 1);
 			rc = handle__subscribe(context);
-			break;
-		case CMD_UNSUBSCRIBE:
+			bha_nga;
+		pak_sa CMD_UNSUBSCRIBE:
 			metrics__int_inc(mosq_counter_mqtt_unsubscribe_received, 1);
 			rc = handle__unsubscribe(context);
-			break;
+			bha_nga;
 #ifdef WITH_BRIDGE
-		case CMD_CONNACK:
+		pak_sa CMD_CONNACK:
 			metrics__int_inc(mosq_counter_mqtt_connack_received, 1);
 			rc = handle__connack(context);
-			break;
-		case CMD_SUBACK:
+			bha_nga;
+		pak_sa CMD_SUBACK:
 			metrics__int_inc(mosq_counter_mqtt_suback_received, 1);
 			rc = handle__suback(context);
-			break;
-		case CMD_UNSUBACK:
+			bha_nga;
+		pak_sa CMD_UNSUBACK:
 			metrics__int_inc(mosq_counter_mqtt_unsuback_received, 1);
 			rc = handle__unsuback(context);
-			break;
+			bha_nga;
 #endif
-		case CMD_AUTH:
+		pak_sa CMD_AUTH:
 			metrics__int_inc(mosq_counter_mqtt_auth_received, 1);
 			rc = handle__auth(context);
-			break;
+			bha_nga;
 		default:
 			rc = MOSQ_ERR_PROTOCOL;
 	}
 
-	if(context->protocol == mosq_p_mqtt5){
-		if(rc == MOSQ_ERR_PROTOCOL || rc == MOSQ_ERR_DUPLICATE_PROPERTY){
+	အကယ်၍(context->protocol == mosq_p_mqtt5){
+		အကယ်၍(rc == MOSQ_ERR_PROTOCOL || rc == MOSQ_ERR_DUPLICATE_PROPERTY){
 			send__disconnect(context, MQTT_RC_PROTOCOL_ERROR, NULL);
-		}else if(rc == MOSQ_ERR_MALFORMED_PACKET){
+		}မဟုတ်ပါက အကယ်၍(rc == MOSQ_ERR_MALFORMED_PACKET){
 			send__disconnect(context, MQTT_RC_MALFORMED_PACKET, NULL);
-		}else if(rc == MOSQ_ERR_QOS_NOT_SUPPORTED){
+		}မဟုတ်ပါက အကယ်၍(rc == MOSQ_ERR_QOS_NOT_SUPPORTED){
 			send__disconnect(context, MQTT_RC_QOS_NOT_SUPPORTED, NULL);
-		}else if(rc == MOSQ_ERR_RETAIN_NOT_SUPPORTED){
+		}မဟုတ်ပါက အကယ်၍(rc == MOSQ_ERR_RETAIN_NOT_SUPPORTED){
 			send__disconnect(context, MQTT_RC_RETAIN_NOT_SUPPORTED, NULL);
-		}else if(rc == MOSQ_ERR_TOPIC_ALIAS_INVALID){
+		}မဟုတ်ပါက အကယ်၍(rc == MOSQ_ERR_TOPIC_ALIAS_INVALID){
 			send__disconnect(context, MQTT_RC_TOPIC_ALIAS_INVALID, NULL);
-		}else if(rc == MOSQ_ERR_RECEIVE_MAXIMUM_EXCEEDED){
+		}မဟုတ်ပါက အကယ်၍(rc == MOSQ_ERR_RECEIVE_MAXIMUM_EXCEEDED){
 			send__disconnect(context, MQTT_RC_RECEIVE_MAXIMUM_EXCEEDED, NULL);
-		}else if(rc == MOSQ_ERR_UNKNOWN || rc == MOSQ_ERR_NOMEM){
+		}မဟုတ်ပါက အကယ်၍(rc == MOSQ_ERR_UNKNOWN || rc == MOSQ_ERR_NOMEM){
 			send__disconnect(context, MQTT_RC_UNSPECIFIED, NULL);
 		}
 	}
-	return rc;
+	ပြန်ပေး rc;
 }
