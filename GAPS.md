@@ -1,0 +1,546 @@
+# What is still missing
+
+76 languages. Each line says in how many languages it is missing.
+
+## Files in languages BURP cannot read yet
+
+
+## Keywords with no word in a language's table
+
+- guru:size_t: 71
+- guru:errno: 71
+- guru:FILE: 71
+- guru:strerror: 71
+- guru:fprintf: 71
+- guru:time_t: 71
+- guru:fclose: 71
+- guru:fread: 71
+- guru:atoi: 71
+- guru:stderr: 71
+- guru:getenv: 71
+- guru:memcmp: 71
+- guru:va_list: 71
+- guru:time: 71
+- guru:strncpy: 71
+- guru:strchr: 71
+- guru:strtol: 71
+- guru:remove: 71
+- guru:UINT_MAX: 71
+- guru:strrchr: 71
+- guru:closedir: 71
+- guru:fseek: 71
+- guru:fopen: 71
+- guru:fstat: 71
+- guru:close: 71
+- guru:stdout: 71
+- guru:va_start: 71
+- guru:va_end: 71
+- guru:freopen: 71
+- guru:SIGINT: 71
+- guru:DIR: 71
+- guru:opendir: 71
+- guru:tm: 71
+- guru:setvbuf: 71
+- guru:fwrite: 71
+- guru:SEEK_CUR: 71
+- guru:SIGTERM: 71
+- guru:INT_MIN: 71
+- guru:atol: 71
+- guru:readdir: 71
+- guru:SEEK_SET: 71
+- guru:BUFSIZ: 71
+- guru:localtime: 71
+- guru:strftime: 71
+- guru:fflush: 71
+- guru:fork: 71
+- guru:stdin: 71
+- guru:feof: 71
+- guru:strspn: 71
+- guru:SIG_IGN: 71
+- guru:fabs: 71
+- guru:strcmp: 70
+- guru:memset: 70
+- guru:strcat: 70
+- guru:strcpy: 70
+- guru:qsort: 70
+- guru:open: 70
+- guru:log: 67
+- guru:exp: 67
+- guru:#endif: 66
+- guru:#ifdef: 66
+- guru:#define: 66
+- guru:#ifndef: 66
+- guru:#undef: 66
+- guru:strlen: 62
+- guru:unsigned: 62
+- guru:printf: 62
+- guru:long: 62
+- guru:strncmp: 62
+- guru:memcpy: 62
+- guru:exit: 62
+- guru:INT_MAX: 62
+- guru:short: 62
+- guru:toupper: 62
+- guru:abs: 62
+- guru:main: 54
+- guru:NULL: 25
+- guru:void: 25
+- guru:static: 25
+- guru:const: 25
+- guru:goto: 25
+- guru:continue: 25
+- guru:switch: 25
+- guru:typedef: 25
+- guru:default: 25
+- guru:assert: 25
+- guru:do: 25
+- guru:#elif: 25
+- guru:extern: 25
+- guru:free: 25
+- guru:for: 9
+- guru:struct: 9
+- guru:char: 9
+- guru:sizeof: 9
+- guru:case: 9
+- guru:break: 9
+- guru:enum: 9
+- guru:signal: 9
+- guru:double: 9
+- guru:union: 9
+- guru:inline: 9
+- guru:if: 1
+- guru:return: 1
+- guru:int: 1
+- guru:else: 1
+- guru:#else: 1
+- guru:#if: 1
+- guru:while: 1
+
+## Names with no dictionary entry (the most common first)
+
+- `context`: 76
+- `rc`: 76
+- `config`: 76
+- `db`: 76
+- `i`: 76
+- `log__printf`: 76
+- `token`: 76
+- `listener`: 76
+- `mosquitto_FREE`: 76
+- `mosquitto`: 76
+- `MOSQ_ERR_SUCCESS`: 76
+- `chunk`: 76
+- `MOSQ_ERR_INVAL`: 76
+- `MOSQ_LOG_ERR`: 76
+- `topic`: 76
+- `bridge`: 76
+- `plugin`: 76
+- `security_options`: 76
+- `qos`: 76
+- `id`: 76
+- `lib`: 76
+- `F`: 76
+- `sub`: 76
+- `saveptr`: 76
+- `defined`: 76
+- `properties`: 76
+- `db_fptr`: 76
+- `MOSQ_ERR_NOMEM`: 76
+- `listeners`: 76
+- `mosq`: 76
+- `payload`: 76
+- `clientid`: 76
+- `len`: 76
+- `buf`: 76
+- `payloadlen`: 76
+- `username`: 76
+- `name`: 76
+- `client`: 76
+- `cur_bridge`: 76
+- `WITH_WEBSOCKETS`: 76
+- `fptr`: 76
+- `proxy`: 76
+- `MOSQ_LOG_INFO`: 76
+- `state`: 76
+- `cur_listener`: 76
+- `MOSQ_LOG_WARNING`: 76
+- `retain`: 76
+- `protocol`: 76
+- `WIN32`: 76
+- `tmp_int`: 76
+- `p`: 76
+- `sock`: 76
+- `opts`: 76
+- `cur_topic`: 76
+- `mid`: 76
+- `pos`: 76
+- `new_context`: 76
+- `WITH_TLS`: 76
+- `userdata`: 76
+- `MOSQ_LOG_NOTICE`: 76
+- `error`: 76
+- `plugin_callbacks`: 76
+- `subs`: 76
+- `WITH_BRIDGE`: 76
+- `ed`: 76
+- `subhier`: 76
+- `identifier`: 76
+- `session_expiry_interval`: 76
+- `topic_filter`: 76
+- `mosquitto__callback`: 76
+- `hh`: 76
+- `event`: 76
+- `topics`: 76
+- `MOSQ_ERR_PROTOCOL`: 76
+- `slen`: 76
+- `branch`: 76
+- `stored`: 76
+- `pid`: 76
+- `bridges`: 76
+- `mosquitto_plugin_id_t`: 76
+- `options`: 76
+- `rc2`: 76
+- `MOSQ_ERR_UNKNOWN`: 76
+- `retainhier`: 76
+- `cmd`: 76
+- `tmp`: 76
+- `mosquitto_property`: 76
+- `mosquitto_strdup`: 76
+- `dest`: 76
+- `ctxt`: 76
+- `listensock`: 76
+- `mosq_p_mqtt5`: 76
+- `mosquitto__listener`: 76
+- `wsi`: 76
+- `shared`: 76
+- `direction`: 76
+- `ssl_ctx`: 76
+- `retained`: 76
+- `j`: 76
+- `mosquitto__security_options`: 76
+- `reason`: 76
+- `conf__parse_string`: 76
+- `reload`: 76
+- `now_s`: 76
+- `cmsg`: 76
+- `packet`: 76
+- `argv`: 76
+- `snprintf`: 76
+- `REQUIRE_BRIDGE`: 76
+- `topic_len`: 76
+- `mosquitto_calloc`: 76
+- `ev`: 76
+- `max_qos`: 76
+- `mosquitto__subhier`: 76
+- `store_id`: 76
+- `password`: 76
+- `mosquitto_malloc`: 76
+- `err`: 76
+- `http_dir`: 76
+- `MOSQ_ERR_MALFORMED_PACKET`: 76
+- `BROKER_EXPORT`: 76
+- `ssl`: 76
+- `client_cert`: 76
+- `events`: 76
+- `cr`: 76
+- `strtok_r`: 76
+- `will`: 76
+- `u`: 76
+- `hh_id`: 76
+- `INVALID_SOCKET`: 76
+- `allow_anonymous`: 76
+- `src`: 76
+- `psk`: 76
+- `MOSQ_ERR_PLUGIN_DEFER`: 76
+- `mosquitto__config`: 76
+- `prop_packet`: 76
+- `WS_IS_LWS`: 76
+- `will_struct`: 76
+- `connection`: 76
+- `rp`: 76
+- `pollfds`: 76
+- `id_len`: 76
+- `ret`: 76
+- `notification_topic`: 76
+- `HASH_ITER`: 76
+- `conf__parse_bool`: 76
+- `conf__parse_int`: 76
+- `cb`: 76
+- `children`: 76
+- `timeout`: 76
+- `MOSQ_LOG_DEBUG`: 76
+- `user`: 76
+- `contexts_by_id`: 76
+- `ctxt_tmp`: 76
+- `mosquitto_property_free_all`: 76
+- `now_real_s`: 76
+- `metrics__int_inc`: 76
+- `metrics`: 76
+- `mosquitto__listener_sock`: 76
+- `addr`: 76
+- `dup`: 76
+- `MOSQ_ERR_AUTH`: 76
+- `send__connack`: 76
+- `read_e`: 76
+- `keepalive`: 76
+- `inflight`: 76
+- `access`: 76
+- `do_disconnect`: 76
+- `mosquitto__retainhier`: 76
+- `A`: 76
+- `level`: 76
+- `filename_canonical`: 76
+- `mosquitto_subscription`: 76
+- `MOSQ_ERR_TLS`: 76
+- `mosquitto_free`: 76
+- `plugins`: 76
+- `host`: 76
+- `hier`: 76
+- `fd`: 76
+- `sharename`: 76
+- `LIB_SYM`: 76
+- `contexts_by_sock`: 76
+- `log_type`: 76
+- `cur_security_options`: 76
+- `l_files`: 76
+- `mosquitto__subleaf`: 76
+- `write_e`: 76
+- `ep`: 76
+- `j_listener`: 76
+- `cb_func`: 76
+- `LIB_ERROR`: 76
+- `notification_payload`: 76
+- `certfile`: 76
+- `keyfile`: 76
+- `WITH_PERSISTENCE`: 76
+- `queued`: 76
+- `connack_props`: 76
+- `handle_connect_error`: 76
+- `shutdown`: 76
+- `mosquitto_realloc`: 76
+- `rc_final`: 76
+- `local_topic`: 76
+- `hh_sock`: 76
+- `plugin_name`: 76
+- `log_dest`: 76
+- `cur_plugin`: 76
+- `DL_DELETE`: 76
+- `subscription_identifier`: 76
+- `local_sub`: 76
+- `will_delay_interval`: 76
+- `command`: 76
+- `filename`: 76
+- `info`: 76
+- `mosquitto__bridge`: 76
+- `MOSQ_ERR_ERRNO`: 76
+- `REQUIRE_LISTENER_OR_DEFAULT_LISTENER`: 76
+- `log_fptr`: 76
+- `cafile`: 76
+- `buflen`: 76
+- `g_listensock`: 76
+- `send__disconnect`: 76
+- `max_topic_alias`: 76
+- `argc`: 76
+- `WS_IS_BUILTIN`: 76
+- `cb_new`: 76
+- `MOSQ_ERR_NOT_SUPPORTED`: 76
+- `is_persisted`: 76
+- `url`: 76
+- `va`: 76
+- `proxy_cleanup`: 76
+- `newleaf`: 76
+- `remote_clientid`: 76
+- `psk_file`: 76
+- `persistence_filepath`: 76
+- `capath`: 76
+- `mosq_p_mqtt311`: 76
+- `peer`: 76
+- `reason_codes`: 76
+- `i16temp`: 76
+- `MOSQ_ERR_PLUGIN_IGNORE`: 76
+- `restart_timeout`: 76
+- `COMPAT_CLOSE`: 76
+- `cJSON`: 76
+- `default_listener`: 76
+- `socks`: 76
+- `bridge1`: 76
+- `WITH_EPOLL`: 76
+- `WITH_KQUEUE`: 76
+- `inflight_quota`: 76
+- `cmsg_id`: 76
+- `persist`: 76
+- `MOSQ_ERR_NO_SUBSCRIBERS`: 76
+- `response`: 76
+- `str`: 76
+- `fmt`: 76
+- `log_destinations`: 76
+- `new_sock`: 76
+- `proplen`: 76
+- `topiclen`: 76
+- `persistence_location`: 76
+- `sys_interval`: 76
+- `HASH_DELETE`: 76
+- `dest_ids`: 76
+- `post_shutdown_cleanup`: 76
+- `props`: 76
+- `kevent`: 76
+- `fam`: 76
+- `context__cleanup`: 76
+- `mosq_cs_new`: 76
+- `file`: 76
+- `ws_context`: 76
+- `ws_origins`: 76
+- `endptr`: 76
+- `mosq_sock_t`: 76
+- `MOSQ_ERR_ACL_DENIED`: 76
+- `subject`: 76
+- `topic_alias`: 76
+- `epollfd`: 76
+- `wspoll`: 76
+- `revents`: 76
+- `m`: 76
+- `acl_file`: 76
+- `FINAL_WITH_TLS_PSK`: 76
+- `define`: 76
+- `mux__delete`: 76
+- `topic_alias_max`: 76
+- `WITH_UNIX_SOCKETS`: 76
+- `connection_messages`: 76
+- `persistence_file`: 76
+- `psk_hint`: 76
+- `mosq_p_mqtt31`: 76
+- `X509_free`: 76
+- `ainfo`: 76
+- `ai_addr`: 76
+- `s`: 76
+- `mosquitto__psk`: 76
+- `hint`: 76
+- `mosquitto__bridge_topic`: 76
+- `mosquitto__packet`: 76
+- `net__is_connected`: 76
+
+## Comments with no translation
+
+- Global plugins: 76
+- Do nothing: 76
+- Error already printed: 76
+- Per listener plugins: 76
+- rx_buffer_size: 76
+- user v1.4 on: 76
+- tx_packet_size v2.3.0: 76
+- coverity[missing_lock] - broker is single threaded, so no lock required: 76
+- plugin not currently valid for reloading.: 76
+- tls_engine not valid for reloading.: 76
+- Ensure payload is always zero terminated, this is the reason for the extra byte above: 76
+- FINAL_WITH_TLS_PSK: 76
+- Nothing needs to happen here, because we always call lws_service in the loop.
+					 * The important : 76
+- Not supported with LWS: 76
+- in per_listener_settings mode, try to find the listener by persisted port: 76
+- Do nothing, this is as if the plugin doesn't exist: 76
+- Delete all local subscriptions even for clean_start==false. We don't
+	 * remove any messages and the: 76
+- Auth plugin not currently valid for reloading.: 76
+- Rebinding listeners not valid during reloading.: 76
+- getpeername and inet_ntop failed and not a bridge: 76
+- Protect against unlikely "client is disconnected but not entirely freed" scenario: 76
+- Dropping message due to full queue.: 76
+- Messages received when the client was disconnected are put
+	 * in the mosq_ms_queued state. If we do: 76
+- Any retry attempts are a duplicate.: 76
+- FIXME - TEMPORARY UNTIL PROPERTIES PROCESSED: 76
+- Client has requested extended authentication, but we don't support it.: 76
+- Make sure there isn't an embedded NUL character in the CN: 76
+- Client should have provided an identity to get this far.: 76
+- use_subject_as_username: 76
+- WITH_TLS: 76
+- Client isn't allowed any more incoming messages, so fail early: 76
+- FIXME - it would be better if property__read_all() returned
+			 * MOSQ_ERR_MALFORMED_PACKET, but thi: 76
+- We don't use Reason String or User Property yet.: 76
+- Get canonical path and check it is within our http_dir: 76
+- Client has exceeded keepalive*1.5: 76
+- prevent persistence removal: 76
+- ============================================================
+ * Property related functions
+ * ======: 76
+- Ensure zero terminated regardless of contents: 76
+- If all plugins deferred, this is a denial. If rc == MOSQ_ERR_SUCCESS
+	 * here, then no plugins were : 76
+- FIXME: 76
+- Leave this in *props, to be freed: 76
+- Already added, may happen in cases like a client disconnecting then
+		 * being kicked by a plugin.: 76
+- There isn't a global expiry set, and the client has asked to
+			 * never expire, so we don't add it : 76
+- Call on broker shutdown only: 76
+- mqttv311/mqttv5 requires retained messages are resent on
+		 * resubscribe.: 76
+- End of list: 76
+- mosq_gauge_heap_current: 76
+- mosq_gauge_heap_maximum: 76
+- FIXME - use header functions from lws 2.x: 76
+- Load acl data if required.: 76
+- (possible from persistent db): 76
+- id wasn't found, so generate a new context: 76
+- default to "regular" clean start setting: 76
+- We've restored from persistence and been added to the session
+			 * expiry list, even though we shou: 76
+- force quick restart of bridge: 76
+- direction = inwards only. This means we should not be subscribed
+					* to the topic. It is possible: 76
+- destroy old bridges that dissappeared: 76
+- a new bridge was found, create it: 76
+- in this case, an existing bridge should match: 76
+- “Decorrelated Jitter” calculation, according to:
+			https://aws.amazon.com/blogs/architecture/expone: 76
+- skip if not using jitter: 76
+- Check for bridges that are not round robin and not currently
+			 * connected to their primary broker: 76
+- Want to try to restart the bridge connection: 76
+- Connection attempted, waiting on DNS lookup: 76
+- Just keep on waiting: 76
+- Need to retry: 76
+- Short wait for ADNS lookup: 76
+- Print full_prefix+pattern to check for validity: 76
+- Print just the prefix for storage: 76
+- topic <topic> [[[out | in | both] qos-level] local-prefix remote-prefix]: 76
+- Topic mapping required on this topic if the message matches: 76
+- This prefix needs removing.: 76
+- This prefix needs adding.: 76
+- ################################################################
+ * #
+ * # $CONTROL/broker/v1 handle: 76
+- Unknown: 76
+- Set defaults: 76
+- This is running as a Windows service. Default to no logging. Using
+		 * stdout/stderr is forbidden b: 76
+- libwebsockets frees its own SSL_CTX: 76
+- Default to drop to mosquitto user if we are privileged and no user specified.: 76
+- Re-initialise appropriate config vars to default for reload.: 76
+- If auth/access options are set and allow_anonymous not explicitly set, disallow anon.: 76
+- Default option if no security options set: 76
+- Default to drop to mosquitto user if no other user specified. This must
+	 * remain here even though : 76
+- Add to db list: 76
+- cur_bridge->addresses[i].address is now
+						 * "address[:port]". If address is an IPv6 address,
+		: 76
+- Remove ':', so cur_bridge->addresses[i].address
+							 * now just looks like the address.: 76
+- The remainder of the string: 76
+- auth_opt_ == 9, + one digit key == 10, + one space == 11, + one value == 12: 76
+- Check for existing bridge name.: 76
+- Not valid for reloading.: 76
+- Only process include_dir from the main config file.: 76
+- Free happens below: 76
+- This returns if config__read_file() fails above: 76
+- Look for bind address / unix socket path: 76
+- We reload listeners settings based on port number/unix socket path.
+						 * If the port number/unix: 76
+- Now check we have a matching bind address, if defined: 76
+- They both have a bind address, and they match: 76
+- Neither this config nor the new config have a bind address,
+											 * so they match.: 76
+- Get remaining string.: 76
+- Duplicate "token" check here saves a log__printf(): 76
