@@ -16,180 +16,180 @@ Contributors:
    Roger Light - initial implementation and documentation.
 */
 
-#include "config.h"
+#अन्तर्भाव "config.h"
 
-#include "mosquitto_broker_internal.h"
-#include "utlist.h"
-#include "lib_load.h"
+#अन्तर्भाव "mosquitto_broker_internal.h"
+#अन्तर्भाव "utlist.h"
+#अन्तर्भाव "lib_load.h"
 
 
-static const char *get_event_name(enum mosquitto_plugin_event event)
+स्थिर स्थिरांक अक्षर *get_event_name(गणना mosquitto_plugin_event event)
 {
-	switch(event){
-		case MOSQ_EVT_RELOAD:
-			return "reload";
-		case MOSQ_EVT_ACL_CHECK:
-			return "acl-check";
-		case MOSQ_EVT_BASIC_AUTH:
-			return "basic-auth";
-		case MOSQ_EVT_PSK_KEY:
-			return "psk-key";
-		case MOSQ_EVT_EXT_AUTH_START:
-			return "auth-start";
-		case MOSQ_EVT_EXT_AUTH_CONTINUE:
-			return "auth-continue";
-		case MOSQ_EVT_CONTROL:
-			return "control";
-		case MOSQ_EVT_MESSAGE_IN:
-			return "message-in";
-		case MOSQ_EVT_MESSAGE_OUT:
-			return "message-out";
-		case MOSQ_EVT_TICK:
-			return "tick";
-		case MOSQ_EVT_DISCONNECT:
-			return "disconnect";
-		case MOSQ_EVT_CONNECT:
-			return "connect";
-		case MOSQ_EVT_CLIENT_OFFLINE:
-			return "connect";
-		case MOSQ_EVT_SUBSCRIBE:
-			return "subscribe";
-		case MOSQ_EVT_UNSUBSCRIBE:
-			return "unsubscribe";
-		case MOSQ_EVT_PERSIST_RESTORE:
-			return "persist-restore";
-		case MOSQ_EVT_PERSIST_BASE_MSG_ADD:
-			return "persist-base-msg-add";
-		case MOSQ_EVT_PERSIST_BASE_MSG_DELETE:
-			return "persist-base-msg-delete";
-		case MOSQ_EVT_PERSIST_RETAIN_MSG_SET:
-			return "persist-retain-msg-set";
-		case MOSQ_EVT_PERSIST_RETAIN_MSG_DELETE:
-			return "persist-retain-msg-delete";
-		case MOSQ_EVT_PERSIST_CLIENT_ADD:
-			return "persist-client-add";
-		case MOSQ_EVT_PERSIST_CLIENT_DELETE:
-			return "persist-client-delete";
-		case MOSQ_EVT_PERSIST_CLIENT_UPDATE:
-			return "persist-client-update";
-		case MOSQ_EVT_PERSIST_SUBSCRIPTION_ADD:
-			return "persist-subscription-add";
-		case MOSQ_EVT_PERSIST_SUBSCRIPTION_DELETE:
-			return "persist-subscription-delete";
-		case MOSQ_EVT_PERSIST_CLIENT_MSG_ADD:
-			return "persist-client-msg-add";
-		case MOSQ_EVT_PERSIST_CLIENT_MSG_DELETE:
-			return "persist-client-msg-delete";
-		case MOSQ_EVT_PERSIST_CLIENT_MSG_UPDATE:
-			return "persist-client-msg-update";
-		case MOSQ_EVT_PERSIST_WILL_ADD:
-			return "persist-will-add";
-		case MOSQ_EVT_PERSIST_WILL_DELETE:
-			return "persist-will-delete";
+	निवड(event){
+		स्थिती MOSQ_EVT_RELOAD:
+			परत "reload";
+		स्थिती MOSQ_EVT_ACL_CHECK:
+			परत "acl-check";
+		स्थिती MOSQ_EVT_BASIC_AUTH:
+			परत "basic-auth";
+		स्थिती MOSQ_EVT_PSK_किल्ली:
+			परत "psk-key";
+		स्थिती MOSQ_EVT_EXT_AUTH_START:
+			परत "auth-start";
+		स्थिती MOSQ_EVT_EXT_AUTH_CONTINUE:
+			परत "auth-continue";
+		स्थिती MOSQ_EVT_CONTROL:
+			परत "control";
+		स्थिती MOSQ_EVT_MESSAGE_IN:
+			परत "message-in";
+		स्थिती MOSQ_EVT_MESSAGE_OUT:
+			परत "message-out";
+		स्थिती MOSQ_EVT_TICK:
+			परत "tick";
+		स्थिती MOSQ_EVT_DISCONNECT:
+			परत "disconnect";
+		स्थिती MOSQ_EVT_CONNECT:
+			परत "connect";
+		स्थिती MOSQ_EVT_CLIENT_OFFLINE:
+			परत "connect";
+		स्थिती MOSQ_EVT_SUBSCRIBE:
+			परत "subscribe";
+		स्थिती MOSQ_EVT_UNSUBSCRIBE:
+			परत "unsubscribe";
+		स्थिती MOSQ_EVT_PERSIST_RESTORE:
+			परत "persist-restore";
+		स्थिती MOSQ_EVT_PERSIST_BASE_संदेश_ADD:
+			परत "persist-base-msg-add";
+		स्थिती MOSQ_EVT_PERSIST_BASE_संदेश_DELETE:
+			परत "persist-base-msg-delete";
+		स्थिती MOSQ_EVT_PERSIST_RETAIN_संदेश_SET:
+			परत "persist-retain-msg-set";
+		स्थिती MOSQ_EVT_PERSIST_RETAIN_संदेश_DELETE:
+			परत "persist-retain-msg-delete";
+		स्थिती MOSQ_EVT_PERSIST_CLIENT_ADD:
+			परत "persist-client-add";
+		स्थिती MOSQ_EVT_PERSIST_CLIENT_DELETE:
+			परत "persist-client-delete";
+		स्थिती MOSQ_EVT_PERSIST_CLIENT_UPDATE:
+			परत "persist-client-update";
+		स्थिती MOSQ_EVT_PERSIST_SUBSCRIPTION_ADD:
+			परत "persist-subscription-add";
+		स्थिती MOSQ_EVT_PERSIST_SUBSCRIPTION_DELETE:
+			परत "persist-subscription-delete";
+		स्थिती MOSQ_EVT_PERSIST_CLIENT_संदेश_ADD:
+			परत "persist-client-msg-add";
+		स्थिती MOSQ_EVT_PERSIST_CLIENT_संदेश_DELETE:
+			परत "persist-client-msg-delete";
+		स्थिती MOSQ_EVT_PERSIST_CLIENT_संदेश_UPDATE:
+			परत "persist-client-msg-update";
+		स्थिती MOSQ_EVT_PERSIST_WILL_ADD:
+			परत "persist-will-add";
+		स्थिती MOSQ_EVT_PERSIST_WILL_DELETE:
+			परत "persist-will-delete";
 	}
-	return "";
+	परत "";
 }
 
 
-static bool check_callback_exists(struct mosquitto__callback *cb_base, mosquitto_plugin_id_t *identifier, MOSQ_FUNC_generic_callback cb_func)
+स्थिर bool check_callback_exists(संरचना mosquitto__callback *cb_base, mosquitto_plugin_id_t *identifier, MOSQ_FUNC_generic_callback cb_func)
 {
-	struct mosquitto__callback *tail, *tmp;
+	संरचना mosquitto__callback *tail, *tmp;
 
 	DL_FOREACH_SAFE(cb_base, tail, tmp){
-		if(tail->identifier == identifier && tail->cb == cb_func){
-			return true;
+		जर(tail->identifier == identifier && tail->cb == cb_func){
+			परत true;
 		}
 	}
-	return false;
+	परत false;
 }
 
-static struct mosquitto__callback **plugin__get_callback_base(struct mosquitto__security_options *security_options, enum mosquitto_plugin_event event)
+स्थिर संरचना mosquitto__callback **plugin__get_callback_base(संरचना mosquitto__security_options *security_options, गणना mosquitto_plugin_event event)
 {
-	switch(event){
-		case MOSQ_EVT_RELOAD:
-			return &security_options->plugin_callbacks.reload;
-		case MOSQ_EVT_ACL_CHECK:
-			return &security_options->plugin_callbacks.acl_check;
-		case MOSQ_EVT_BASIC_AUTH:
-			return &security_options->plugin_callbacks.basic_auth;
-		case MOSQ_EVT_PSK_KEY:
-			return &security_options->plugin_callbacks.psk_key;
-		case MOSQ_EVT_EXT_AUTH_START:
-			return &security_options->plugin_callbacks.ext_auth_start;
-		case MOSQ_EVT_EXT_AUTH_CONTINUE:
-			return &security_options->plugin_callbacks.ext_auth_continue;
-		case MOSQ_EVT_CONTROL:
-			return NULL;
-		case MOSQ_EVT_MESSAGE_IN: /* same as MOSQ_EVT_MESSAGE */
-			return &security_options->plugin_callbacks.message_in;
-		case MOSQ_EVT_TICK:
-			return &security_options->plugin_callbacks.tick;
-		case MOSQ_EVT_DISCONNECT:
-			return &security_options->plugin_callbacks.disconnect;
-		case MOSQ_EVT_CONNECT:
-			return &security_options->plugin_callbacks.connect;
-		case MOSQ_EVT_CLIENT_OFFLINE:
-			return &security_options->plugin_callbacks.client_offline;
-		case MOSQ_EVT_SUBSCRIBE:
-			return &security_options->plugin_callbacks.subscribe;
-		case MOSQ_EVT_UNSUBSCRIBE:
-			return &security_options->plugin_callbacks.unsubscribe;
-		case MOSQ_EVT_PERSIST_RESTORE:
-			return &security_options->plugin_callbacks.persist_restore;
-		case MOSQ_EVT_PERSIST_CLIENT_ADD:
-			return &security_options->plugin_callbacks.persist_client_add;
-		case MOSQ_EVT_PERSIST_CLIENT_DELETE:
-			return &security_options->plugin_callbacks.persist_client_delete;
-		case MOSQ_EVT_PERSIST_CLIENT_UPDATE:
-			return &security_options->plugin_callbacks.persist_client_update;
-		case MOSQ_EVT_PERSIST_SUBSCRIPTION_ADD:
-			return &security_options->plugin_callbacks.persist_subscription_add;
-		case MOSQ_EVT_PERSIST_SUBSCRIPTION_DELETE:
-			return &security_options->plugin_callbacks.persist_subscription_delete;
-		case MOSQ_EVT_PERSIST_CLIENT_MSG_ADD:
-			return &security_options->plugin_callbacks.persist_client_msg_add;
-		case MOSQ_EVT_PERSIST_CLIENT_MSG_DELETE:
-			return &security_options->plugin_callbacks.persist_client_msg_delete;
-		case MOSQ_EVT_PERSIST_CLIENT_MSG_UPDATE:
-			return &security_options->plugin_callbacks.persist_client_msg_update;
-		case MOSQ_EVT_PERSIST_BASE_MSG_ADD:
-			return &security_options->plugin_callbacks.persist_base_msg_add;
-		case MOSQ_EVT_PERSIST_BASE_MSG_DELETE:
-			return &security_options->plugin_callbacks.persist_base_msg_delete;
-		case MOSQ_EVT_PERSIST_RETAIN_MSG_SET:
-			return &security_options->plugin_callbacks.persist_retain_msg_set;
-		case MOSQ_EVT_PERSIST_RETAIN_MSG_DELETE:
-			return &security_options->plugin_callbacks.persist_retain_msg_delete;
-		case MOSQ_EVT_MESSAGE_OUT:
-			return &security_options->plugin_callbacks.message_out;
-		case MOSQ_EVT_PERSIST_WILL_ADD:
-			return &security_options->plugin_callbacks.persist_will_add;
-		case MOSQ_EVT_PERSIST_WILL_DELETE:
-			return &security_options->plugin_callbacks.persist_will_delete;
+	निवड(event){
+		स्थिती MOSQ_EVT_RELOAD:
+			परत &security_options->plugin_callbacks.reload;
+		स्थिती MOSQ_EVT_ACL_CHECK:
+			परत &security_options->plugin_callbacks.acl_check;
+		स्थिती MOSQ_EVT_BASIC_AUTH:
+			परत &security_options->plugin_callbacks.basic_auth;
+		स्थिती MOSQ_EVT_PSK_किल्ली:
+			परत &security_options->plugin_callbacks.psk_किल्ली;
+		स्थिती MOSQ_EVT_EXT_AUTH_START:
+			परत &security_options->plugin_callbacks.ext_auth_start;
+		स्थिती MOSQ_EVT_EXT_AUTH_CONTINUE:
+			परत &security_options->plugin_callbacks.ext_auth_continue;
+		स्थिती MOSQ_EVT_CONTROL:
+			परत रिक्त;
+		स्थिती MOSQ_EVT_MESSAGE_IN: /* same as MOSQ_EVT_MESSAGE */
+			परत &security_options->plugin_callbacks.message_in;
+		स्थिती MOSQ_EVT_TICK:
+			परत &security_options->plugin_callbacks.tick;
+		स्थिती MOSQ_EVT_DISCONNECT:
+			परत &security_options->plugin_callbacks.disconnect;
+		स्थिती MOSQ_EVT_CONNECT:
+			परत &security_options->plugin_callbacks.connect;
+		स्थिती MOSQ_EVT_CLIENT_OFFLINE:
+			परत &security_options->plugin_callbacks.client_offline;
+		स्थिती MOSQ_EVT_SUBSCRIBE:
+			परत &security_options->plugin_callbacks.subscribe;
+		स्थिती MOSQ_EVT_UNSUBSCRIBE:
+			परत &security_options->plugin_callbacks.unsubscribe;
+		स्थिती MOSQ_EVT_PERSIST_RESTORE:
+			परत &security_options->plugin_callbacks.persist_restore;
+		स्थिती MOSQ_EVT_PERSIST_CLIENT_ADD:
+			परत &security_options->plugin_callbacks.persist_client_add;
+		स्थिती MOSQ_EVT_PERSIST_CLIENT_DELETE:
+			परत &security_options->plugin_callbacks.persist_client_delete;
+		स्थिती MOSQ_EVT_PERSIST_CLIENT_UPDATE:
+			परत &security_options->plugin_callbacks.persist_client_update;
+		स्थिती MOSQ_EVT_PERSIST_SUBSCRIPTION_ADD:
+			परत &security_options->plugin_callbacks.persist_subscription_add;
+		स्थिती MOSQ_EVT_PERSIST_SUBSCRIPTION_DELETE:
+			परत &security_options->plugin_callbacks.persist_subscription_delete;
+		स्थिती MOSQ_EVT_PERSIST_CLIENT_संदेश_ADD:
+			परत &security_options->plugin_callbacks.persist_client_संदेश_add;
+		स्थिती MOSQ_EVT_PERSIST_CLIENT_संदेश_DELETE:
+			परत &security_options->plugin_callbacks.persist_client_संदेश_delete;
+		स्थिती MOSQ_EVT_PERSIST_CLIENT_संदेश_UPDATE:
+			परत &security_options->plugin_callbacks.persist_client_संदेश_update;
+		स्थिती MOSQ_EVT_PERSIST_BASE_संदेश_ADD:
+			परत &security_options->plugin_callbacks.persist_base_संदेश_add;
+		स्थिती MOSQ_EVT_PERSIST_BASE_संदेश_DELETE:
+			परत &security_options->plugin_callbacks.persist_base_संदेश_delete;
+		स्थिती MOSQ_EVT_PERSIST_RETAIN_संदेश_SET:
+			परत &security_options->plugin_callbacks.persist_retain_संदेश_set;
+		स्थिती MOSQ_EVT_PERSIST_RETAIN_संदेश_DELETE:
+			परत &security_options->plugin_callbacks.persist_retain_संदेश_delete;
+		स्थिती MOSQ_EVT_MESSAGE_OUT:
+			परत &security_options->plugin_callbacks.message_out;
+		स्थिती MOSQ_EVT_PERSIST_WILL_ADD:
+			परत &security_options->plugin_callbacks.persist_will_add;
+		स्थिती MOSQ_EVT_PERSIST_WILL_DELETE:
+			परत &security_options->plugin_callbacks.persist_will_delete;
 	}
-	return NULL;
+	परत रिक्त;
 }
 
 
-static int remove_callback(mosquitto_plugin_id_t *plugin, struct plugin_own_callback *own)
+स्थिर पूर्णांक remove_callback(mosquitto_plugin_id_t *plugin, संरचना plugin_own_callback *own)
 {
-	struct mosquitto__security_options *security_options;
-	struct mosquitto__callback *tail, *tmp;
-	struct mosquitto__callback **cb_base = NULL;
+	संरचना mosquitto__security_options *security_options;
+	संरचना mosquitto__callback *tail, *tmp;
+	संरचना mosquitto__callback **cb_base = रिक्त;
 
-	for(int i=0; i<plugin->config.security_option_count; i++){
+	साठी(पूर्णांक i=0; i<plugin->config.security_option_मोजणी; i++){
 		security_options = plugin->config.security_options[i];
 
 		cb_base = plugin__get_callback_base(security_options, own->event);
-		if(cb_base == NULL){
-			return MOSQ_ERR_NOT_SUPPORTED;
+		जर(cb_base == रिक्त){
+			परत MOSQ_ERR_NOT_SUPPORTED;
 		}
 
 		DL_FOREACH_SAFE(*cb_base, tail, tmp){
-			if(tail->identifier == plugin && tail->cb == own->cb_func){
+			जर(tail->identifier == plugin && tail->cb == own->cb_func){
 				DL_DELETE(*cb_base, tail);
 				mosquitto_FREE(tail);
-				break;
+				थांबा;
 			}
 		}
 	}
@@ -197,80 +197,80 @@ static int remove_callback(mosquitto_plugin_id_t *plugin, struct plugin_own_call
 	DL_DELETE(plugin->own_callbacks, own);
 	mosquitto_FREE(own);
 
-	return MOSQ_ERR_SUCCESS;
+	परत MOSQ_ERR_SUCCESS;
 }
 
 
-BROKER_EXPORT int mosquitto_callback_register(
+BROKER_EXPORT पूर्णांक mosquitto_callback_register(
 		mosquitto_plugin_id_t *identifier,
-		int event,
+		पूर्णांक event,
 		MOSQ_FUNC_generic_callback cb_func,
-		const void *event_data,
-		void *userdata)
+		स्थिरांक शून्य *event_data,
+		शून्य *userdata)
 {
-	struct mosquitto__callback **cb_base = NULL, *cb_new;
-	struct mosquitto__security_options *security_options;
-	struct plugin_own_callback *own_callback;
+	संरचना mosquitto__callback **cb_base = रिक्त, *cb_new;
+	संरचना mosquitto__security_options *security_options;
+	संरचना plugin_own_callback *own_callback;
 
-	if(cb_func == NULL){
-		return MOSQ_ERR_INVAL;
+	जर(cb_func == रिक्त){
+		परत MOSQ_ERR_INVAL;
 	}
 
-	if(db.config->persistence && (event == MOSQ_EVT_PERSIST_RESTORE
-			|| event == MOSQ_EVT_PERSIST_BASE_MSG_ADD
-			|| event == MOSQ_EVT_PERSIST_BASE_MSG_DELETE
-			|| event == MOSQ_EVT_PERSIST_RETAIN_MSG_SET
-			|| event == MOSQ_EVT_PERSIST_RETAIN_MSG_DELETE
+	जर(db.config->persistence && (event == MOSQ_EVT_PERSIST_RESTORE
+			|| event == MOSQ_EVT_PERSIST_BASE_संदेश_ADD
+			|| event == MOSQ_EVT_PERSIST_BASE_संदेश_DELETE
+			|| event == MOSQ_EVT_PERSIST_RETAIN_संदेश_SET
+			|| event == MOSQ_EVT_PERSIST_RETAIN_संदेश_DELETE
 			|| event == MOSQ_EVT_PERSIST_CLIENT_ADD
 			|| event == MOSQ_EVT_PERSIST_CLIENT_DELETE
 			|| event == MOSQ_EVT_PERSIST_CLIENT_UPDATE
 			|| event == MOSQ_EVT_PERSIST_SUBSCRIPTION_ADD
 			|| event == MOSQ_EVT_PERSIST_SUBSCRIPTION_DELETE
-			|| event == MOSQ_EVT_PERSIST_CLIENT_MSG_ADD
-			|| event == MOSQ_EVT_PERSIST_CLIENT_MSG_DELETE
-			|| event == MOSQ_EVT_PERSIST_CLIENT_MSG_UPDATE
+			|| event == MOSQ_EVT_PERSIST_CLIENT_संदेश_ADD
+			|| event == MOSQ_EVT_PERSIST_CLIENT_संदेश_DELETE
+			|| event == MOSQ_EVT_PERSIST_CLIENT_संदेश_UPDATE
 			|| event == MOSQ_EVT_PERSIST_WILL_ADD
 			|| event == MOSQ_EVT_PERSIST_WILL_DELETE
 			)){
-		log__printf(NULL, MOSQ_LOG_ERR, "Error: `persistence true` cannot be used with a persistence plugin.");
-		return MOSQ_ERR_INVAL;
+		log__printf(रिक्त, MOSQ_LOG_ERR, "Error: `persistence true` cannot be used with a persistence plugin.");
+		परत MOSQ_ERR_INVAL;
 	}
 
-	if(event == MOSQ_EVT_CONTROL){
-		return control__register_callback(identifier, cb_func, event_data, userdata);
+	जर(event == MOSQ_EVT_CONTROL){
+		परत control__register_callback(identifier, cb_func, event_data, userdata);
 	}
 
-	own_callback = mosquitto_calloc(1, sizeof(struct plugin_own_callback));
-	if(own_callback == NULL){
-		return MOSQ_ERR_NOMEM;
+	own_callback = mosquitto_calloc(1, आकार(संरचना plugin_own_callback));
+	जर(own_callback == रिक्त){
+		परत MOSQ_ERR_NOMEM;
 	}
-	own_callback->event = (enum mosquitto_plugin_event)event;
+	own_callback->event = (गणना mosquitto_plugin_event)event;
 	own_callback->cb_func = cb_func;
 	DL_APPEND(identifier->own_callbacks, own_callback);
 
-	if(identifier->config.security_option_count == 0){
-		log__printf(NULL, MOSQ_LOG_WARNING, "Plugin could not register callback '%s'",
-				get_event_name((enum mosquitto_plugin_event)event));
-		return MOSQ_ERR_INVAL;
+	जर(identifier->config.security_option_मोजणी == 0){
+		log__printf(रिक्त, MOSQ_LOG_WARNING, "Plugin could not register callback '%s'",
+				get_event_name((गणना mosquitto_plugin_event)event));
+		परत MOSQ_ERR_INVAL;
 	}
 
-	for(int i=0; i<identifier->config.security_option_count; i++){
+	साठी(पूर्णांक i=0; i<identifier->config.security_option_मोजणी; i++){
 		security_options = identifier->config.security_options[i];
 
-		cb_base = plugin__get_callback_base(security_options, (enum mosquitto_plugin_event)event);
-		if(cb_base == NULL){
-			return MOSQ_ERR_NOT_SUPPORTED;
+		cb_base = plugin__get_callback_base(security_options, (गणना mosquitto_plugin_event)event);
+		जर(cb_base == रिक्त){
+			परत MOSQ_ERR_NOT_SUPPORTED;
 		}
 
-		if(check_callback_exists(*cb_base, identifier, cb_func)){
-			return MOSQ_ERR_ALREADY_EXISTS;
+		जर(check_callback_exists(*cb_base, identifier, cb_func)){
+			परत MOSQ_ERR_ALREADY_EXISTS;
 		}
 
-		cb_new = mosquitto_calloc(1, sizeof(struct mosquitto__callback));
-		if(cb_new == NULL){
+		cb_new = mosquitto_calloc(1, आकार(संरचना mosquitto__callback));
+		जर(cb_new == रिक्त){
 			DL_DELETE(identifier->own_callbacks, own_callback);
 			mosquitto_FREE(own_callback);
-			return MOSQ_ERR_NOMEM;
+			परत MOSQ_ERR_NOMEM;
 		}
 
 		DL_APPEND(*cb_base, cb_new);
@@ -279,24 +279,24 @@ BROKER_EXPORT int mosquitto_callback_register(
 		cb_new->userdata = userdata;
 	}
 
-	if(identifier->plugin_name){
-		log__printf(NULL, MOSQ_LOG_INFO, "Plugin %s has registered to receive '%s' events.",
-				identifier->plugin_name, get_event_name((enum mosquitto_plugin_event)event));
-	}else{
-		log__printf(NULL, MOSQ_LOG_INFO, "Plugin has registered to receive '%s' events.",
-				get_event_name((enum mosquitto_plugin_event)event));
+	जर(identifier->plugin_name){
+		log__printf(रिक्त, MOSQ_LOG_INFO, "Plugin %s has registered to receive '%s' events.",
+				identifier->plugin_name, get_event_name((गणना mosquitto_plugin_event)event));
+	}अन्यथा{
+		log__printf(रिक्त, MOSQ_LOG_INFO, "Plugin has registered to receive '%s' events.",
+				get_event_name((गणना mosquitto_plugin_event)event));
 	}
 
-	return MOSQ_ERR_SUCCESS;
+	परत MOSQ_ERR_SUCCESS;
 }
 
 
-int plugin__callback_unregister_all(mosquitto_plugin_id_t *plugin)
+पूर्णांक plugin__callback_unregister_all(mosquitto_plugin_id_t *plugin)
 {
-	struct plugin_own_callback *own, *own_tmp;
+	संरचना plugin_own_callback *own, *own_tmp;
 
-	if(plugin == NULL){
-		return MOSQ_ERR_INVAL;
+	जर(plugin == रिक्त){
+		परत MOSQ_ERR_INVAL;
 	}
 
 	control__unregister_all_callbacks(plugin);
@@ -304,31 +304,31 @@ int plugin__callback_unregister_all(mosquitto_plugin_id_t *plugin)
 	DL_FOREACH_SAFE(plugin->own_callbacks, own, own_tmp){
 		remove_callback(plugin, own);
 	}
-	return MOSQ_ERR_SUCCESS;
+	परत MOSQ_ERR_SUCCESS;
 }
 
 
-BROKER_EXPORT int mosquitto_callback_unregister(
+BROKER_EXPORT पूर्णांक mosquitto_callback_unregister(
 		mosquitto_plugin_id_t *identifier,
-		int event,
+		पूर्णांक event,
 		MOSQ_FUNC_generic_callback cb_func,
-		const void *event_data)
+		स्थिरांक शून्य *event_data)
 {
-	struct plugin_own_callback *own, *own_tmp;
+	संरचना plugin_own_callback *own, *own_tmp;
 
-	if(identifier == NULL || cb_func == NULL){
-		return MOSQ_ERR_INVAL;
+	जर(identifier == रिक्त || cb_func == रिक्त){
+		परत MOSQ_ERR_INVAL;
 	}
 
-	if(event == MOSQ_EVT_CONTROL){
-		return control__unregister_callback(identifier, cb_func, event_data);
+	जर(event == MOSQ_EVT_CONTROL){
+		परत control__unregister_callback(identifier, cb_func, event_data);
 	}
 
 	DL_FOREACH_SAFE(identifier->own_callbacks, own, own_tmp){
-		if(own->event == (enum mosquitto_plugin_event)event && own->cb_func == cb_func){
-			return remove_callback(identifier, own);
+		जर(own->event == (गणना mosquitto_plugin_event)event && own->cb_func == cb_func){
+			परत remove_callback(identifier, own);
 		}
 	}
 
-	return MOSQ_ERR_NOT_FOUND;
+	परत MOSQ_ERR_NOT_FOUND;
 }

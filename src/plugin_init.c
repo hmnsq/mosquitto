@@ -16,166 +16,166 @@ Contributors:
    Roger Light - initial implementation and documentation.
 */
 
-#include "config.h"
+#अन्तर्भाव "config.h"
 
-#include <stdio.h>
-#include <string.h>
+#अन्तर्भाव <stdio.h>
+#अन्तर्भाव <string.h>
 
-#include "mosquitto/broker.h"
-#include "mosquitto_broker_internal.h"
-#include "mosquitto/broker_plugin.h"
-#include "lib_load.h"
-#include "utlist.h"
+#अन्तर्भाव "mosquitto/broker.h"
+#अन्तर्भाव "mosquitto_broker_internal.h"
+#अन्तर्भाव "mosquitto/broker_plugin.h"
+#अन्तर्भाव "lib_load.h"
+#अन्तर्भाव "utlist.h"
 
-typedef int (*FUNC_auth_plugin_version)(void);
-typedef int (*FUNC_plugin_version)(int, const int *);
+प्रकारव्याख्या पूर्णांक (*FUNC_auth_plugin_version)(शून्य);
+प्रकारव्याख्या पूर्णांक (*FUNC_plugin_version)(पूर्णांक, स्थिरांक पूर्णांक *);
 
 
-void LIB_ERROR(void)
+शून्य LIB_ERROR(शून्य)
 {
 #ifdef WIN32
-	char *buf;
+	अक्षर *buf;
 	FormatMessage(FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM,
-			NULL, GetLastError(), LANG_NEUTRAL, (LPTSTR)&buf, 0, NULL);
-	log__printf(NULL, MOSQ_LOG_ERR, "Load error: %s", buf);
+			रिक्त, GetLastError(), LANG_NEUTRAL, (LPTSTR)&buf, 0, रिक्त);
+	log__printf(रिक्त, MOSQ_LOG_ERR, "Load error: %s", buf);
 	LocalFree(buf);
-#else
-	log__printf(NULL, MOSQ_LOG_ERR, "Load error: %s", dlerror());
+#अन्यथा
+	log__printf(रिक्त, MOSQ_LOG_ERR, "Load error: %s", dlerror());
 #endif
 }
 
 
-static int plugin__load_single(mosquitto_plugin_id_t *plugin)
+स्थिर पूर्णांक plugin__load_single(mosquitto_plugin_id_t *plugin)
 {
-	void *lib;
-	int (*plugin_version)(int, const int *) = NULL;
-	int (*plugin_auth_version)(void) = NULL;
-	int version;
-	int rc;
-	const int plugin_versions[] = {5, 4, 3, 2};
-	int plugin_version_count = sizeof(plugin_versions)/sizeof(int);
+	शून्य *lib;
+	पूर्णांक (*plugin_version)(पूर्णांक, स्थिरांक पूर्णांक *) = रिक्त;
+	पूर्णांक (*plugin_auth_version)(शून्य) = रिक्त;
+	पूर्णांक version;
+	पूर्णांक rc;
+	स्थिरांक पूर्णांक plugin_versions[] = {5, 4, 3, 2};
+	पूर्णांक plugin_version_मोजणी = आकार(plugin_versions)/आकार(पूर्णांक);
 
-	if(plugin->config.security_option_count == 0){
-		return MOSQ_ERR_SUCCESS;
+	जर(plugin->config.security_option_मोजणी == 0){
+		परत MOSQ_ERR_SUCCESS;
 	}
 
-	memset(&plugin->lib, 0, sizeof(struct mosquitto__plugin_lib));
+	स_रखो(&plugin->lib, 0, आकार(संरचना mosquitto__plugin_lib));
 
-	log__printf(NULL, MOSQ_LOG_INFO, "Loading plugin: %s", plugin->config.path);
+	log__printf(रिक्त, MOSQ_LOG_INFO, "Loading plugin: %s", plugin->config.path);
 
 	lib = LIB_LOAD(plugin->config.path);
-	if(!lib){
-		log__printf(NULL, MOSQ_LOG_ERR,
+	जर(!lib){
+		log__printf(रिक्त, MOSQ_LOG_ERR,
 				"Error: Unable to load plugin \"%s\".", plugin->config.path);
 		LIB_ERROR();
-		return MOSQ_ERR_UNKNOWN;
+		परत MOSQ_ERR_UNKNOWN;
 	}
 
-	plugin->lib.lib = NULL;
-	if((plugin_version = (FUNC_plugin_version)LIB_SYM(lib, "mosquitto_plugin_version"))){
-		version = plugin_version(plugin_version_count, plugin_versions);
-	}else if((plugin_auth_version = (FUNC_auth_plugin_version)LIB_SYM(lib, "mosquitto_auth_plugin_version"))){
+	plugin->lib.lib = रिक्त;
+	जर((plugin_version = (FUNC_plugin_version)LIB_SYM(lib, "mosquitto_plugin_version"))){
+		version = plugin_version(plugin_version_मोजणी, plugin_versions);
+	}अन्यथा जर((plugin_auth_version = (FUNC_auth_plugin_version)LIB_SYM(lib, "mosquitto_auth_plugin_version"))){
 		version = plugin_auth_version();
-	}else{
-		log__printf(NULL, MOSQ_LOG_ERR,
+	}अन्यथा{
+		log__printf(रिक्त, MOSQ_LOG_ERR,
 				"Error: Unable to load auth plugin function mosquitto_auth_plugin_version() or mosquitto_plugin_version().");
 		LIB_ERROR();
 		LIB_CLOSE(lib);
-		return MOSQ_ERR_UNKNOWN;
+		परत MOSQ_ERR_UNKNOWN;
 	}
 
 	plugin->lib.version = version;
-	if(version == 5){
+	जर(version == 5){
 		rc = plugin__load_v5(plugin, lib);
-		if(rc){
-			return rc;
+		जर(rc){
+			परत rc;
 		}
-	}else if(version == 4){
+	}अन्यथा जर(version == 4){
 		rc = plugin__load_v4(plugin, lib);
-		if(rc){
-			return rc;
+		जर(rc){
+			परत rc;
 		}
-	}else if(version == 3){
+	}अन्यथा जर(version == 3){
 		rc = plugin__load_v3(plugin, lib);
-		if(rc){
-			return rc;
+		जर(rc){
+			परत rc;
 		}
-	}else if(version == 2){
+	}अन्यथा जर(version == 2){
 		rc = plugin__load_v2(plugin, lib);
-		if(rc){
-			return rc;
+		जर(rc){
+			परत rc;
 		}
-	}else{
-		log__printf(NULL, MOSQ_LOG_ERR,
+	}अन्यथा{
+		log__printf(रिक्त, MOSQ_LOG_ERR,
 				"Error: Unsupported auth plugin version (got %d, expected %d).",
 				version, MOSQ_PLUGIN_VERSION);
 		LIB_ERROR();
 
 		LIB_CLOSE(lib);
-		return MOSQ_ERR_UNKNOWN;
+		परत MOSQ_ERR_UNKNOWN;
 	}
-	return MOSQ_ERR_SUCCESS;
+	परत MOSQ_ERR_SUCCESS;
 }
 
 
-int plugin__load_all(void)
+पूर्णांक plugin__load_all(शून्य)
 {
-	int rc = MOSQ_ERR_SUCCESS;
+	पूर्णांक rc = MOSQ_ERR_SUCCESS;
 
-	for(int i=0; i<db.plugin_count; i++){
+	साठी(पूर्णांक i=0; i<db.plugin_मोजणी; i++){
 		rc = plugin__load_single(db.plugins[i]);
-		if(rc){
-			return rc;
+		जर(rc){
+			परत rc;
 		}
 	}
-	return MOSQ_ERR_SUCCESS;
+	परत MOSQ_ERR_SUCCESS;
 }
 
 
-static int plugin__security_init_single(mosquitto_plugin_id_t *plugin, bool reload)
+स्थिर पूर्णांक plugin__security_init_single(mosquitto_plugin_id_t *plugin, bool reload)
 {
-	int rc;
+	पूर्णांक rc;
 
-	if(plugin->lib.version == 5){
+	जर(plugin->lib.version == 5){
 		rc = MOSQ_ERR_SUCCESS;
-	}else if(plugin->lib.version == 4){
+	}अन्यथा जर(plugin->lib.version == 4){
 		rc = plugin->lib.security_init_v4(
 				plugin->lib.user_data,
 				plugin->config.options,
-				plugin->config.option_count,
+				plugin->config.option_मोजणी,
 				reload);
 
-	}else if(plugin->lib.version == 3){
+	}अन्यथा जर(plugin->lib.version == 3){
 		rc = plugin->lib.security_init_v3(
 				plugin->lib.user_data,
 				plugin->config.options,
-				plugin->config.option_count,
+				plugin->config.option_मोजणी,
 				reload);
 
-	}else if(plugin->lib.version == 2){
+	}अन्यथा जर(plugin->lib.version == 2){
 		rc = plugin->lib.security_init_v2(
 				plugin->lib.user_data,
-				(struct mosquitto_auth_opt *)plugin->config.options,
-				plugin->config.option_count,
+				(संरचना mosquitto_auth_opt *)plugin->config.options,
+				plugin->config.option_मोजणी,
 				reload);
-	}else{
+	}अन्यथा{
 		rc = MOSQ_ERR_INVAL;
 	}
 
-	return rc;
+	परत rc;
 }
 
 
-int mosquitto_security_init(bool reload)
+पूर्णांक mosquitto_security_init(bool reload)
 {
-	int rc;
+	पूर्णांक rc;
 
-	for(int i=0; i<db.plugin_count; i++){
+	साठी(पूर्णांक i=0; i<db.plugin_मोजणी; i++){
 		rc = plugin__security_init_single(db.plugins[i], reload);
-		if(rc != MOSQ_ERR_SUCCESS){
-			return rc;
+		जर(rc != MOSQ_ERR_SUCCESS){
+			परत rc;
 		}
 	}
 	rc = mosquitto_security_init_default();
-	return rc;
+	परत rc;
 }

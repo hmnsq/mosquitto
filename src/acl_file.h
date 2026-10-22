@@ -18,35 +18,35 @@ Contributors:
 #ifndef ACL_FILE_H
 #define ACL_FILE_H
 
-#include <uthash.h>
+#अन्तर्भाव <uthash.h>
 
-struct acl__entry {
-	struct acl__entry *next, *prev;
-	char *topic;
-	int access;
-	int ucount;
-	int ccount;
+संरचना acl__entry {
+	संरचना acl__entry *next, *prev;
+	अक्षर *topic;
+	पूर्णांक access;
+	पूर्णांक ucount;
+	पूर्णांक ccount;
 };
 
 
-struct acl__user {
+संरचना acl__user {
 	UT_hash_handle hh;
-	char *username;
-	struct acl__entry *acl;
+	अक्षर *username;
+	संरचना acl__entry *acl;
 };
 
 
-struct acl_file_data {
-	char *acl_file;
-	struct acl__user *acl_users;
-	struct acl__user acl_anon;
-	struct acl__entry *acl_patterns;
+संरचना acl_file_data {
+	अक्षर *acl_file;
+	संरचना acl__user *acl_users;
+	संरचना acl__user acl_anon;
+	संरचना acl__entry *acl_patterns;
 };
 
 
-int acl_file__parse(struct acl_file_data *data);
-int acl_file__check(int event, void *event_data, void *userdata);
-int acl_file__reload(int event, void *event_data, void *userdata);
-void acl_file__cleanup(struct acl_file_data *data);
+पूर्णांक acl_file__parse(संरचना acl_file_data *data);
+पूर्णांक acl_file__check(पूर्णांक event, शून्य *event_data, शून्य *userdata);
+पूर्णांक acl_file__reload(पूर्णांक event, शून्य *event_data, शून्य *userdata);
+शून्य acl_file__cleanup(संरचना acl_file_data *data);
 
 #endif

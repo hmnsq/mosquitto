@@ -16,75 +16,75 @@ Contributors:
    Roger Light - initial implementation and documentation.
 */
 
-#include "config.h"
+#अन्तर्भाव "config.h"
 
-#include <ctype.h>
-#include <stdio.h>
-#include <string.h>
+#अन्तर्भाव <ctype.h>
+#अन्तर्भाव <stdio.h>
+#अन्तर्भाव <string.h>
 
-#include "acl_file.h"
-#include "mosquitto_broker_internal.h"
-#include "mosquitto/mqtt_protocol.h"
-#include "send_mosq.h"
-#include "util_mosq.h"
+#अन्तर्भाव "acl_file.h"
+#अन्तर्भाव "mosquitto_broker_internal.h"
+#अन्तर्भाव "mosquitto/mqtt_protocol.h"
+#अन्तर्भाव "send_mosq.h"
+#अन्तर्भाव "util_mosq.h"
 
 
-int broker_acl_file__init(void)
+पूर्णांक broker_acl_file__init(शून्य)
 {
-	int rc;
+	पूर्णांक rc;
 
 	/* Load acl data if required. */
-	if(db.config->per_listener_settings){
-		for(int i=0; i<db.config->listener_count; i++){
-			if(db.config->listeners[i].security_options->acl_data.acl_file){
+	जर(db.config->per_listener_settings){
+		साठी(पूर्णांक i=0; i<db.config->listener_मोजणी; i++){
+			जर(db.config->listeners[i].security_options->acl_data.acl_file){
 				rc = acl_file__parse(&db.config->listeners[i].security_options->acl_data);
-				if(rc){
-					log__printf(NULL, MOSQ_LOG_ERR, "Error opening acl file \"%s\".", db.config->listeners[i].security_options->acl_data.acl_file);
-					return rc;
+				जर(rc){
+					log__printf(रिक्त, MOSQ_LOG_ERR, "Error opening acl file \"%s\".", db.config->listeners[i].security_options->acl_data.acl_file);
+					परत rc;
 				}
-				if(db.config->listeners[i].security_options->plugin_count == 0){
+				जर(db.config->listeners[i].security_options->plugin_मोजणी == 0){
 					config__plugin_add_secopt(db.config->listeners[i].security_options->pid, db.config->listeners[i].security_options);
 				}
 
 				mosquitto_callback_register(db.config->listeners[i].security_options->pid,
-						MOSQ_EVT_ACL_CHECK, acl_file__check, NULL, &db.config->listeners[i].security_options->acl_data);
+						MOSQ_EVT_ACL_CHECK, acl_file__check, रिक्त, &db.config->listeners[i].security_options->acl_data);
 			}
 		}
-	}else{
-		if(db.config->security_options.acl_data.acl_file){
+	}अन्यथा{
+		जर(db.config->security_options.acl_data.acl_file){
 			rc = acl_file__parse(&db.config->security_options.acl_data);
-			if(rc){
-				log__printf(NULL, MOSQ_LOG_ERR, "Error opening acl file \"%s\".", db.config->security_options.acl_data.acl_file);
-				return rc;
+			जर(rc){
+				log__printf(रिक्त, MOSQ_LOG_ERR, "Error opening acl file \"%s\".", db.config->security_options.acl_data.acl_file);
+				परत rc;
 			}
-			if(db.config->security_options.plugin_count == 0){
+			जर(db.config->security_options.plugin_मोजणी == 0){
 				config__plugin_add_secopt(db.config->security_options.pid, &db.config->security_options);
 			}
 
 			mosquitto_callback_register(db.config->security_options.pid,
-					MOSQ_EVT_ACL_CHECK, acl_file__check, NULL, &db.config->security_options.acl_data);
+					MOSQ_EVT_ACL_CHECK, acl_file__check, रिक्त, &db.config->security_options.acl_data);
 		}
 	}
 
-	return MOSQ_ERR_SUCCESS;
+	परत MOSQ_ERR_SUCCESS;
 }
 
 
-void broker_acl_file__cleanup(void)
+शून्य broker_acl_file__cleanup(शून्य)
 {
-	if(db.config->per_listener_settings){
-		for(int i=0; i<db.config->listener_count; i++){
-			if(db.config->listeners[i].security_options->pid){
+	जर(db.config->per_listener_settings){
+		साठी(पूर्णांक i=0; i<db.config->listener_मोजणी; i++){
+			जर(db.config->listeners[i].security_options->pid){
 				mosquitto_callback_unregister(db.config->listeners[i].security_options->pid,
-						MOSQ_EVT_ACL_CHECK, acl_file__check, NULL);
+						MOSQ_EVT_ACL_CHECK, acl_file__check, रिक्त);
 
 				acl_file__cleanup(&db.config->listeners[i].security_options->acl_data);
 			}
 		}
-	}else{
-		if(db.config->security_options.pid){
+	}अन्यथा{
+		जर(db.config->security_options.pid){
 			mosquitto_callback_unregister(db.config->security_options.pid,
-					MOSQ_EVT_ACL_CHECK, acl_file__check, NULL);
+					MOSQ_EVT_ACL_CHECK, acl_file__check, रिक्त);
 
 			acl_file__cleanup(&db.config->security_options.acl_data);
 		}
