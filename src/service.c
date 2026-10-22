@@ -16,41 +16,41 @@ Contributors:
    Roger Light - initial implementation and documentation.
 */
 
-#if defined(WIN32) || defined(__CYGWIN__)
+#જો defined(WIN32) || defined(__CYGWIN__)
 
-#include "config.h"
+#અન્તર્ભાવ "config.h"
 
-#include "mosquitto_broker_internal.h"
-#include <windows.h>
+#અન્તર્ભાવ "mosquitto_broker_internal.h"
+#અન્તર્ભાવ <windows.h>
 
-extern int g_run;
+બાહ્ય પૂર્ણાંક g_run;
 SERVICE_STATUS_HANDLE service_handle = 0;
-static SERVICE_STATUS service_status;
-int main(int argc, char *argv[]);
+સ્થિર SERVICE_STATUS service_status;
+પૂર્ણાંક મુખ્ય(પૂર્ણાંક argc, અક્ષર *argv[]);
 
 
-static char *fix_name(char *name)
+સ્થિર અક્ષર *fix_name(અક્ષર *name)
 {
 	size_t len;
 
-	if(strrchr(name, '\\')){
+	જો(strrchr(name, '\\')){
 		name = strrchr(name, '\\') + 1;
 	}
 	len = strlen(name);
-	if(!strcasecmp(&name[len-4], ".exe")){
+	જો(!strcasecmp(&name[len-4], ".exe")){
 		name[len-4] = '\0';
 	}
 
-	return name;
+	પાછા name;
 }
 
 
-static void print_error(void)
+સ્થિર શૂન્ય print_error(શૂન્ય)
 {
-	char *buf = NULL;
+	અક્ષર *buf = ખાલી;
 
 	FormatMessage(FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM,
-			NULL, GetLastError(), LANG_NEUTRAL, (LPTSTR)&buf, 0, NULL);
+			ખાલી, GetLastError(), LANG_NEUTRAL, (LPTSTR)&buf, 0, ખાલી);
 
 	fprintf(stderr, "Error: %s\n", buf);
 	LocalFree(buf);
@@ -58,66 +58,66 @@ static void print_error(void)
 
 
 /* Service control callback */
-void __stdcall service_handler(DWORD fdwControl)
+શૂન્ય __stdcall service_handler(DWORD fdwControl)
 {
-	switch(fdwControl){
-		case SERVICE_CONTROL_CONTINUE:
+	પસંદગી(fdwControl){
+		સ્થિતિ SERVICE_CONTROL_CONTINUE:
 			/* Continue from Paused state. */
-			break;
-		case SERVICE_CONTROL_PAUSE:
+			તોડો;
+		સ્થિતિ SERVICE_CONTROL_PAUSE:
 			/* Pause service. */
-			break;
-		case SERVICE_CONTROL_SHUTDOWN:
+			તોડો;
+		સ્થિતિ SERVICE_CONTROL_SHUTDOWN:
 		/* System is shutting down. */
-		case SERVICE_CONTROL_STOP:
+		સ્થિતિ SERVICE_CONTROL_STOP:
 			/* Service should stop. */
 			service_status.dwCurrentState = SERVICE_STOP_PENDING;
 			SetServiceStatus(service_handle, &service_status);
 			g_run = 0;
-			break;
+			તોડો;
 	}
 }
 
 
 /* Function called when started as a service. */
-void __stdcall service_main(DWORD dwArgc, LPTSTR *lpszArgv)
+શૂન્ય __stdcall service_main(DWORD dwArgc, LPTSTR *lpszArgv)
 {
-	char **argv;
-	int argc = 1;
-	char conf_path[MAX_PATH + 20];
-	int rc;
-	char *name;
-	char env_name[MAX_PATH];
+	અક્ષર **argv;
+	પૂર્ણાંક argc = 1;
+	અક્ષર conf_path[MAX_PATH + 20];
+	પૂર્ણાંક rc;
+	અક્ષર *name;
+	અક્ષર env_name[MAX_PATH];
 
 	UNUSED(dwArgc);
 
 	name = fix_name(lpszArgv[0]);
-	snprintf(env_name, sizeof(env_name), "%s_DIR", name);
-	for(int i=0; i<strlen(env_name); i++){
-		if(env_name[i]>='A' && env_name[i]<='Z'){
+	snprintf(env_name, કદ(env_name), "%s_DIR", name);
+	માટે(પૂર્ણાંક i=0; i<strlen(env_name); i++){
+		જો(env_name[i]>='A' && env_name[i]<='Z'){
 			/* Keep upper case letter */
-		}else if(env_name[i]>='0' && env_name[i]<='9'){
+		}નહીંતર જો(env_name[i]>='0' && env_name[i]<='9'){
 			/* Keep number */
-		}else if(env_name[i]>='a' && env_name[i]<='z'){
+		}નહીંતર જો(env_name[i]>='a' && env_name[i]<='z'){
 			/* Convert lower case to upper case */
 			env_name[i] -= 32;
-		}else{
+		}નહીંતર{
 			env_name[i] = '_';
 		}
 	}
 
 	service_handle = RegisterServiceCtrlHandler(name, service_handler);
-	if(service_handle){
-		memset(conf_path, 0, sizeof(conf_path));
+	જો(service_handle){
+		memset(conf_path, 0, કદ(conf_path));
 		rc = GetEnvironmentVariable(env_name, conf_path, MAX_PATH);
-		if(!rc || rc == MAX_PATH){
+		જો(!rc || rc == MAX_PATH){
 			service_status.dwCurrentState = SERVICE_STOPPED;
 			SetServiceStatus(service_handle, &service_status);
-			return;
+			પાછા;
 		}
 		strcat(conf_path, "\\mosquitto.conf");
 
-		argv = mosquitto_malloc(sizeof(char *)*3);
+		argv = mosquitto_malloc(કદ(અક્ષર *)*3);
 		argv[0] = name;
 		argv[1] = "-c";
 		argv[2] = conf_path;
@@ -130,7 +130,7 @@ void __stdcall service_main(DWORD dwArgc, LPTSTR *lpszArgv)
 		service_status.dwCheckPoint = 0;
 		SetServiceStatus(service_handle, &service_status);
 
-		main(argc, argv);
+		મુખ્ય(argc, argv);
 		mosquitto_FREE(argv);
 
 		service_status.dwCurrentState = SERVICE_STOPPED;
@@ -139,83 +139,83 @@ void __stdcall service_main(DWORD dwArgc, LPTSTR *lpszArgv)
 }
 
 
-void service_install(char *name)
+શૂન્ય service_install(અક્ષર *name)
 {
 	SC_HANDLE sc_manager, svc_handle;
-	char service_string[MAX_PATH + 20];
-	char exe_path[MAX_PATH + 1];
-	char display_name[MAX_PATH+1];
+	અક્ષર service_string[MAX_PATH + 20];
+	અક્ષર exe_path[MAX_PATH + 1];
+	અક્ષર display_name[MAX_PATH+1];
 	SERVICE_DESCRIPTION svc_desc;
 
-	memset(exe_path, 0, sizeof(exe_path));
-	if(GetModuleFileName(NULL, exe_path, MAX_PATH) == MAX_PATH){
+	memset(exe_path, 0, કદ(exe_path));
+	જો(GetModuleFileName(ખાલી, exe_path, MAX_PATH) == MAX_PATH){
 		fprintf(stderr, "Error: Path too long.\n");
-		return;
+		પાછા;
 	}
-	snprintf(service_string, sizeof(service_string), "\"%s\" run", exe_path);
+	snprintf(service_string, કદ(service_string), "\"%s\" run", exe_path);
 
 	name = fix_name(name);
 
-	sc_manager = OpenSCManager(NULL, NULL, SC_MANAGER_CREATE_SERVICE);
-	if(sc_manager){
-		if(!strcmp(name, "mosquitto")){
-			snprintf(display_name, sizeof(display_name), "Mosquitto Broker");
-		}else{
-			snprintf(display_name, sizeof(display_name), "Mosquitto Broker (%s.exe)", name);
+	sc_manager = OpenSCManager(ખાલી, ખાલી, SC_MANAGER_CREATE_SERVICE);
+	જો(sc_manager){
+		જો(!strcmp(name, "mosquitto")){
+			snprintf(display_name, કદ(display_name), "Mosquitto Broker");
+		}નહીંતર{
+			snprintf(display_name, કદ(display_name), "Mosquitto Broker (%s.exe)", name);
 		}
 
 		svc_handle = CreateService(sc_manager, name, display_name,
 				SERVICE_START | SERVICE_STOP | SERVICE_CHANGE_CONFIG,
 				SERVICE_WIN32_OWN_PROCESS, SERVICE_AUTO_START, SERVICE_ERROR_NORMAL,
-				service_string, NULL, NULL, NULL, NULL, NULL);
+				service_string, ખાલી, ખાલી, ખાલી, ખાલી, ખાલી);
 
-		if(svc_handle){
-			memset(&svc_desc, 0, sizeof(svc_desc));
+		જો(svc_handle){
+			memset(&svc_desc, 0, કદ(svc_desc));
 			svc_desc.lpDescription = "Eclipse Mosquitto MQTT v5/v3.1.1 broker";
 			ChangeServiceConfig2(svc_handle, SERVICE_CONFIG_DESCRIPTION, &svc_desc);
 			CloseServiceHandle(svc_handle);
-		}else{
+		}નહીંતર{
 			print_error();
 		}
 		CloseServiceHandle(sc_manager);
-	}else{
+	}નહીંતર{
 		print_error();
 	}
 }
 
 
-void service_uninstall(char *name)
+શૂન્ય service_uninstall(અક્ષર *name)
 {
 	SC_HANDLE sc_manager, svc_handle;
 	SERVICE_STATUS status;
 
 	name = fix_name(name);
 
-	sc_manager = OpenSCManager(NULL, SERVICES_ACTIVE_DATABASE, SC_MANAGER_CONNECT);
-	if(sc_manager){
+	sc_manager = OpenSCManager(ખાલી, SERVICES_ACTIVE_DATABASE, SC_MANAGER_CONNECT);
+	જો(sc_manager){
 		svc_handle = OpenService(sc_manager, name, SERVICE_QUERY_STATUS | DELETE);
-		if(svc_handle){
-			if(QueryServiceStatus(svc_handle, &status)){
-				if(status.dwCurrentState == SERVICE_STOPPED){
+		જો(svc_handle){
+			જો(QueryServiceStatus(svc_handle, &status)){
+				જો(status.dwCurrentState == SERVICE_STOPPED){
 					DeleteService(svc_handle);
 				}
 			}
 			CloseServiceHandle(svc_handle);
-		}else{
+		}નહીંતર{
 			print_error();
 		}
 		CloseServiceHandle(sc_manager);
-	}else{
+	}નહીંતર{
 		print_error();
 	}
 }
 
 
-void service_run(char *name)
+શૂન્ય service_run(અક્ષર *name)
 {
 	SERVICE_TABLE_ENTRY ste[] = {
 		{ name, service_main },
-		{ NULL, NULL }
+		{ ખાલી, ખાલી }
 	};
 	name = fix_name(name);
 	ste[0].lpServiceName = name;

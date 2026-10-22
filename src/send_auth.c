@@ -16,57 +16,57 @@ Contributors:
    Roger Light - initial implementation and documentation.
 */
 
-#include "config.h"
+#અન્તર્ભાવ "config.h"
 
-#include "mosquitto_broker_internal.h"
-#include "mosquitto/mqtt_protocol.h"
-#include "packet_mosq.h"
-#include "property_mosq.h"
-#include "sys_tree.h"
-#include "util_mosq.h"
+#અન્તર્ભાવ "mosquitto_broker_internal.h"
+#અન્તર્ભાવ "mosquitto/mqtt_protocol.h"
+#અન્તર્ભાવ "packet_mosq.h"
+#અન્તર્ભાવ "property_mosq.h"
+#અન્તર્ભાવ "sys_tree.h"
+#અન્તર્ભાવ "util_mosq.h"
 
 
-int send__auth(struct mosquitto *context, uint8_t reason_code, const void *auth_data, uint16_t auth_data_len)
+પૂર્ણાંક send__auth(સંરચના mosquitto *context, uint8_t reason_code, અચલ શૂન્ય *auth_data, uint16_t auth_data_len)
 {
-	struct mosquitto__packet *packet = NULL;
-	int rc;
-	mosquitto_property *properties = NULL;
+	સંરચના mosquitto__packet *packet = ખાલી;
+	પૂર્ણાંક rc;
+	mosquitto_property *properties = ખાલી;
 	uint32_t remaining_length;
 
-	if(context->auth_method == NULL){
-		return MOSQ_ERR_INVAL;
+	જો(context->auth_method == ખાલી){
+		પાછા MOSQ_ERR_INVAL;
 	}
-	if(context->protocol != mosq_p_mqtt5){
-		log__printf(NULL, MOSQ_LOG_INFO, "Protocol error from %s: Sending AUTH packet when session not MQTT v5.0.", context->id);
-		return MOSQ_ERR_PROTOCOL;
+	જો(context->protocol != mosq_p_mqtt5){
+		log__printf(ખાલી, MOSQ_LOG_INFO, "Protocol error from %s: Sending AUTH packet when session not MQTT v5.0.", context->id);
+		પાછા MOSQ_ERR_PROTOCOL;
 	}
 
-	log__printf(NULL, MOSQ_LOG_DEBUG, "Sending AUTH to %s (rc%d, %s)", context->id, reason_code, context->auth_method);
+	log__printf(ખાલી, MOSQ_LOG_DEBUG, "Sending AUTH to %s (rc%d, %s)", context->id, reason_code, context->auth_method);
 
 	remaining_length = 1;
 
 	rc = mosquitto_property_add_string(&properties, MQTT_PROP_AUTHENTICATION_METHOD, context->auth_method);
-	if(rc){
-		goto error;
+	જો(rc){
+		જાઓ error;
 	}
 
-	if(auth_data != NULL && auth_data_len > 0){
-		rc = mosquitto_property_add_binary(&properties, MQTT_PROP_AUTHENTICATION_DATA, auth_data, auth_data_len);
-		if(rc){
-			goto error;
+	જો(auth_data != ખાલી && auth_data_len > 0){
+		rc = mosquitto_property_add_દ્વિઅંકી(&properties, MQTT_PROP_AUTHENTICATION_DATA, auth_data, auth_data_len);
+		જો(rc){
+			જાઓ error;
 		}
 	}
 
 	remaining_length += mosquitto_property_get_remaining_length(properties);
 
 	rc = packet__check_oversize(context, remaining_length);
-	if(rc){
-		goto error;
+	જો(rc){
+		જાઓ error;
 	}
 
 	rc = packet__alloc(&packet, CMD_AUTH, remaining_length);
-	if(rc){
-		goto error;
+	જો(rc){
+		જાઓ error;
 	}
 
 	packet__write_byte(packet, reason_code);
@@ -74,8 +74,8 @@ int send__auth(struct mosquitto *context, uint8_t reason_code, const void *auth_
 	mosquitto_property_free_all(&properties);
 
 	metrics__int_inc(mosq_counter_mqtt_auth_sent, 1);
-	return packet__queue(context, packet);
+	પાછા packet__queue(context, packet);
 error:
 	mosquitto_property_free_all(&properties);
-	return rc;
+	પાછા rc;
 }

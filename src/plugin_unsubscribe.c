@@ -17,54 +17,54 @@ Contributors:
    Roger Light - initial implementation and documentation.
 */
 
-#include "config.h"
+#અન્તર્ભાવ "config.h"
 
-#include "mosquitto_broker_internal.h"
-#include "utlist.h"
+#અન્તર્ભાવ "mosquitto_broker_internal.h"
+#અન્તર્ભાવ "utlist.h"
 
 
-static int plugin__handle_unsubscribe_single(struct mosquitto__security_options *opts, struct mosquitto *context, struct mosquitto_subscription *sub)
+સ્થિર પૂર્ણાંક plugin__handle_unsubscribe_single(સંરચના mosquitto__security_options *opts, સંરચના mosquitto *context, સંરચના mosquitto_subscription *sub)
 {
-	struct mosquitto_evt_unsubscribe event_data;
-	struct mosquitto__callback *cb_base, *cb_next;
-	int rc = MOSQ_ERR_SUCCESS;
+	સંરચના mosquitto_evt_unsubscribe event_data;
+	સંરચના mosquitto__callback *cb_base, *cb_next;
+	પૂર્ણાંક rc = MOSQ_ERR_SUCCESS;
 
-	memset(&event_data, 0, sizeof(event_data));
+	memset(&event_data, 0, કદ(event_data));
 	event_data.client = context;
 	event_data.data.topic_filter = sub->topic_filter;
 	event_data.data.properties = sub->properties;
 
 	DL_FOREACH_SAFE(opts->plugin_callbacks.unsubscribe, cb_base, cb_next){
 		rc = cb_base->cb(MOSQ_EVT_UNSUBSCRIBE, &event_data, cb_base->userdata);
-		if(rc != MOSQ_ERR_SUCCESS){
-			break;
+		જો(rc != MOSQ_ERR_SUCCESS){
+			તોડો;
 		}
 
-		if(sub->topic_filter != event_data.data.topic_filter){
+		જો(sub->topic_filter != event_data.data.topic_filter){
 			mosquitto_free(sub->topic_filter);
 			sub->topic_filter = event_data.data.topic_filter;
 		}
 	}
 
-	return rc;
+	પાછા rc;
 }
 
 
-int plugin__handle_unsubscribe(struct mosquitto *context, struct mosquitto_subscription *sub)
+પૂર્ણાંક plugin__handle_unsubscribe(સંરચના mosquitto *context, સંરચના mosquitto_subscription *sub)
 {
-	int rc = MOSQ_ERR_SUCCESS;
+	પૂર્ણાંક rc = MOSQ_ERR_SUCCESS;
 
 	/* Global plugins */
 	rc = plugin__handle_unsubscribe_single(&db.config->security_options,
 			context, sub);
-	if(rc){
-		return rc;
+	જો(rc){
+		પાછા rc;
 	}
 
-	if(context->listener){
+	જો(context->listener){
 		rc = plugin__handle_unsubscribe_single(context->listener->security_options,
 				context, sub);
 	}
 
-	return rc;
+	પાછા rc;
 }

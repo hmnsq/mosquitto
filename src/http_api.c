@@ -16,41 +16,41 @@ Contributors:
 	 Roger Light - initial implementation and documentation.
 */
 
-#include "config.h"
+#અન્તર્ભાવ "config.h"
 
 #ifdef WITH_HTTP_API
 
-#include <assert.h>
-#include <errno.h>
-#include <limits.h>
-#include <microhttpd.h>
-#include <string.h>
-#include <sys/stat.h>
+#અન્તર્ભાવ <assert.h>
+#અન્તર્ભાવ <errno.h>
+#અન્તર્ભાવ <limits.h>
+#અન્તર્ભાવ <microhttpd.h>
+#અન્તર્ભાવ <string.h>
+#અન્તર્ભાવ <sys/stat.h>
 #ifndef WIN32
 #  include <netdb.h>
 #endif
 
-#include "json_help.h"
-#include "mosquitto_broker_internal.h"
-#include "mosquitto/mqtt_protocol.h"
-#include "sys_tree.h"
+#અન્તર્ભાવ "json_help.h"
+#અન્તર્ભાવ "mosquitto_broker_internal.h"
+#અન્તર્ભાવ "mosquitto/mqtt_protocol.h"
+#અન્તર્ભાવ "sys_tree.h"
 
 #ifndef HTTP_API_DIR
 #  define HTTP_API_DIR ""
 #endif
 
-struct metric {
+સંરચના metric {
 	int64_t current;
 	int64_t next;
-	const char *topic, *topic_alias;
+	અચલ અક્ષર *topic, *topic_alias;
 	bool is_max;
 };
 
-time_t broker_uptime(void);
-struct MHD_Daemon *mhd = NULL;
+time_t broker_uptime(શૂન્ય);
+સંરચના MHD_Daemon *mhd = ખાલી;
 
-#ifdef WITH_SYS_TREE
-extern struct metric metrics[mosq_metric_max];
+#ifdef WITH_SYS_વૃક્ષ
+બાહ્ય સંરચના metric metrics[mosq_metric_max];
 #endif
 
 #define HTTP_RESPONSE_BUFLEN 10000
@@ -58,7 +58,7 @@ extern struct metric metrics[mosq_metric_max];
 #ifdef WIN32
 #define DIR_SEP '\\'
 #define PATH_MAX MAX_PATH
-#else
+#નહીંતર
 #define DIR_SEP '/'
 #endif
 
@@ -67,400 +67,400 @@ extern struct metric metrics[mosq_metric_max];
 #endif
 
 
-static char *http__canonical_filename(
-		const char *url,
-		const char *http_dir,
-		int *error_code)
+સ્થિર અક્ષર *http__canonical_filename(
+		અચલ અક્ષર *url,
+		અચલ અક્ષર *http_dir,
+		પૂર્ણાંક *error_code)
 {
 	size_t urllen, slen;
-	char *filename, *filename_canonical;
+	અક્ષર *filename, *filename_canonical;
 
 	urllen = strlen(url);
-	if(url[urllen-1] == '/'){
+	જો(url[urllen-1] == '/'){
 		slen = strlen(http_dir) + urllen + strlen("/index.html") + 2;
-	}else{
+	}નહીંતર{
 		slen = strlen(http_dir) + urllen + 2;
 	}
 	filename = mosquitto_malloc(slen);
-	if(!filename){
+	જો(!filename){
 		*error_code = MHD_HTTP_INTERNAL_SERVER_ERROR;
-		return NULL;
+		પાછા ખાલી;
 	}
-	if(((char *)url)[urllen-1] == '/'){
+	જો(((અક્ષર *)url)[urllen-1] == '/'){
 		snprintf(filename, slen, "%s%c%sindex.html", http_dir, DIR_SEP, url);
-	}else{
+	}નહીંતર{
 		snprintf(filename, slen, "%s%c%s", http_dir, DIR_SEP, url);
 	}
 
 
 	/* Get canonical path and check it is within our http_dir */
 	filename_canonical = mosquitto_calloc(1, PATH_MAX);
-	if(!filename_canonical){
+	જો(!filename_canonical){
 		*error_code = MHD_HTTP_INTERNAL_SERVER_ERROR;
-		return NULL;
+		પાછા ખાલી;
 	}
 #ifdef WIN32
-	char *resolved = _fullpath(filename_canonical, filename, PATH_MAX);
+	અક્ષર *resolved = _fullpath(filename_canonical, filename, PATH_MAX);
 	mosquitto_FREE(filename);
-	if(!resolved){
+	જો(!resolved){
 		*error_code = MHD_HTTP_INTERNAL_SERVER_ERROR;
 		mosquitto_FREE(filename_canonical);
-		return NULL;
+		પાછા ખાલી;
 	}
-#else
-	char *resolved = realpath(filename, filename_canonical);
+#નહીંતર
+	અક્ષર *resolved = realpath(filename, filename_canonical);
 	mosquitto_FREE(filename);
-	if(!resolved){
-		if(errno == EACCES){
+	જો(!resolved){
+		જો(errno == EACCES){
 			*error_code = MHD_HTTP_FORBIDDEN;
-		}else if(errno == EINVAL || errno == EIO || errno == ELOOP){
+		}નહીંતર જો(errno == EINVAL || errno == EIO || errno == ELOOP){
 			*error_code = MHD_HTTP_INTERNAL_SERVER_ERROR;
-		}else if(errno == ENAMETOOLONG){
+		}નહીંતર જો(errno == ENAMETOOLONG){
 			*error_code = MHD_HTTP_URI_TOO_LONG;
-		}else if(errno == ENOENT || errno == ENOTDIR){
+		}નહીંતર જો(errno == ENOENT || errno == ENOTDIR){
 			*error_code = MHD_HTTP_NOT_FOUND;
 		}
 		mosquitto_FREE(filename_canonical);
-		return NULL;
+		પાછા ખાલી;
 	}
 #endif
-	if(strncmp(http_dir, filename_canonical, strlen(http_dir))){
+	જો(strncmp(http_dir, filename_canonical, strlen(http_dir))){
 		/* Requested file isn't within http_dir, deny access because it's not found. */
 		mosquitto_FREE(filename_canonical);
 		*error_code = MHD_HTTP_NOT_FOUND;
-		return NULL;
+		પાછા ખાલી;
 	}
 
-	return filename_canonical;
+	પાછા filename_canonical;
 }
 
-static enum MHD_Result http_api__send_error_response(struct MHD_Connection *connection, const char *error_str, unsigned int error_code)
+સ્થિર ગણના MHD_Result http_api__send_error_response(સંરચના MHD_Connection *connection, અચલ અક્ષર *error_str, unsigned પૂર્ણાંક error_code)
 {
-	struct MHD_Response *response = MHD_create_response_from_buffer(strlen(error_str), (void *)error_str, MHD_RESPMEM_MUST_COPY);
-	enum MHD_Result ret = MHD_queue_response(connection, error_code, response);
+	સંરચના MHD_Response *response = MHD_create_response_from_buffer(strlen(error_str), (શૂન્ય *)error_str, MHD_RESPMEM_MUST_COPY);
+	ગણના MHD_Result ret = MHD_queue_response(connection, error_code, response);
 	MHD_destroy_response(response);
-	return ret;
+	પાછા ret;
 }
 
-static enum MHD_Result http_api__send_response_with_headers(struct MHD_Connection *connection, const char *buf)
+સ્થિર ગણના MHD_Result http_api__send_response_with_headers(સંરચના MHD_Connection *connection, અચલ અક્ષર *buf)
 {
-	enum MHD_Result ret;
-	struct MHD_Response *response = MHD_create_response_from_buffer(strlen(buf), (void *)buf, MHD_RESPMEM_MUST_COPY);
+	ગણના MHD_Result ret;
+	સંરચના MHD_Response *response = MHD_create_response_from_buffer(strlen(buf), (શૂન્ય *)buf, MHD_RESPMEM_MUST_COPY);
 
 	ret = MHD_add_response_header(response, "Access-Control-Allow-Origin", "*");
-	if(ret != MHD_YES){
+	જો(ret != MHD_YES){
 		MHD_destroy_response(response);
-		return ret;
+		પાછા ret;
 	}
 	ret = MHD_queue_response(connection, MHD_HTTP_OK, response);
 	MHD_destroy_response(response);
-	return ret;
+	પાછા ret;
 }
 
-static enum MHD_Result http_api__process_version(struct MHD_Connection *connection)
+સ્થિર ગણના MHD_Result http_api__process_version(સંરચના MHD_Connection *connection)
 {
-	return http_api__send_response_with_headers(connection, VERSION);
+	પાછા http_api__send_response_with_headers(connection, VERSION);
 }
 
-static enum MHD_Result http_api__process_listeners(struct MHD_Connection *connection)
+સ્થિર ગણના MHD_Result http_api__process_listeners(સંરચના MHD_Connection *connection)
 {
-	char *buf;
-	enum MHD_Result ret;
+	અક્ષર *buf;
+	ગણના MHD_Result ret;
 
-	cJSON *j_tree = cJSON_CreateObject();
-	if(!j_tree){
-		return http_api__send_error_response(connection, "Internal server error.\n", MHD_HTTP_INTERNAL_SERVER_ERROR);
+	cJSON *j_વૃક્ષ = cJSON_CreateObject();
+	જો(!j_વૃક્ષ){
+		પાછા http_api__send_error_response(connection, "Internal server error.\n", MHD_HTTP_INTERNAL_SERVER_ERROR);
 	}
 
-	cJSON *j_listeners = cJSON_AddArrayToObject(j_tree, "listeners");
-	if(!j_listeners){
-		cJSON_Delete(j_tree);
-		return http_api__send_error_response(connection, "Internal server error.\n", MHD_HTTP_INTERNAL_SERVER_ERROR);
+	cJSON *j_listeners = cJSON_AddArrayToObject(j_વૃક્ષ, "listeners");
+	જો(!j_listeners){
+		cJSON_Delete(j_વૃક્ષ);
+		પાછા http_api__send_error_response(connection, "Internal server error.\n", MHD_HTTP_INTERNAL_SERVER_ERROR);
 	}
 
-	for(int i=0; i<db.config->listener_count; i++){
+	માટે(પૂર્ણાંક i=0; i<db.config->listener_ગણતરી; i++){
 		cJSON *j_listener = cJSON_CreateObject();
-		if(!j_listener){
-			cJSON_Delete(j_tree);
-			return http_api__send_error_response(connection, "Internal server error.\n", MHD_HTTP_INTERNAL_SERVER_ERROR);
+		જો(!j_listener){
+			cJSON_Delete(j_વૃક્ષ);
+			પાછા http_api__send_error_response(connection, "Internal server error.\n", MHD_HTTP_INTERNAL_SERVER_ERROR);
 		}
 		cJSON_AddItemToArray(j_listeners, j_listener);
 
-		struct mosquitto__listener *listener = &db.config->listeners[i];
+		સંરચના mosquitto__listener *listener = &db.config->listeners[i];
 #ifdef WITH_UNIX_SOCKETS
-		if(listener->unix_socket_path){
+		જો(listener->unix_socket_path){
 			cJSON_AddStringToObject(j_listener, "path", listener->unix_socket_path);
-		}else
+		}નહીંતર
 #endif
 		{
 			cJSON_AddIntToObject(j_listener, "port", listener->port);
 		}
 
-		switch(listener->protocol){
-			case mp_mqtt:
+		પસંદગી(listener->protocol){
+			સ્થિતિ mp_mqtt:
 				cJSON_AddStringToObject(j_listener, "protocol", "mqtt");
-				break;
-			case mp_mqttsn:
+				તોડો;
+			સ્થિતિ mp_mqttsn:
 				cJSON_AddStringToObject(j_listener, "protocol", "mqtt-sn");
-				break;
-			case mp_websockets:
+				તોડો;
+			સ્થિતિ mp_websockets:
 				cJSON_AddStringToObject(j_listener, "protocol", "websockets");
-				break;
-			case mp_http_api:
+				તોડો;
+			સ્થિતિ mp_http_api:
 				cJSON_AddStringToObject(j_listener, "protocol", "httpapi");
-				break;
+				તોડો;
 		}
 
 #ifdef WITH_TLS
 		cJSON_AddBoolToObject(j_listener, "tls", listener->certfile && listener->keyfile);
 		cJSON_AddBoolToObject(j_listener, "mtls", listener->require_certificate);
-#else
+#નહીંતર
 		cJSON_AddBoolToObject(j_listener, "tls", false);
 		cJSON_AddBoolToObject(j_listener, "mtls", false);
 #endif
-		if(listener->security_options->allow_anonymous == -1){
+		જો(listener->security_options->allow_anonymous == -1){
 			cJSON_AddBoolToObject(j_listener, "allow_anonymous", db.config->security_options.allow_anonymous);
-		}else{
+		}નહીંતર{
 			cJSON_AddBoolToObject(j_listener, "allow_anonymous", listener->security_options->allow_anonymous);
 		}
 	}
-	buf = cJSON_Print(j_tree);
-	cJSON_Delete(j_tree);
-	if(buf){
+	buf = cJSON_Print(j_વૃક્ષ);
+	cJSON_Delete(j_વૃક્ષ);
+	જો(buf){
 		ret = http_api__send_response_with_headers(connection, buf);
-		free(buf);
-	}else{
+		મુક્ત(buf);
+	}નહીંતર{
 		ret = http_api__send_error_response(connection, "Internal server error.\n", MHD_HTTP_INTERNAL_SERVER_ERROR);
 	}
 
-	return ret;
+	પાછા ret;
 }
 
 
-static enum MHD_Result http_api__process_systree(struct MHD_Connection *connection)
+સ્થિર ગણના MHD_Result http_api__process_systree(સંરચના MHD_Connection *connection)
 {
-	enum MHD_Result ret;
-#ifdef WITH_SYS_TREE
-	char *buf;
+	ગણના MHD_Result ret;
+#ifdef WITH_SYS_વૃક્ષ
+	અક્ષર *buf;
 
-	cJSON *j_tree = cJSON_CreateObject();
-	for(int i=0; i<mosq_metric_max; i++){
-		if(metrics[i].topic){
-			cJSON_AddIntToObject(j_tree, metrics[i].topic, metrics[i].current);
+	cJSON *j_વૃક્ષ = cJSON_CreateObject();
+	માટે(પૂર્ણાંક i=0; i<mosq_metric_max; i++){
+		જો(metrics[i].topic){
+			cJSON_AddIntToObject(j_વૃક્ષ, metrics[i].topic, metrics[i].current);
 		}
 	}
-	cJSON_AddIntToObject(j_tree, "$SYS/broker/uptime", broker_uptime());
+	cJSON_AddIntToObject(j_વૃક્ષ, "$SYS/broker/uptime", broker_uptime());
 
-	buf = cJSON_Print(j_tree);
-	cJSON_Delete(j_tree);
+	buf = cJSON_Print(j_વૃક્ષ);
+	cJSON_Delete(j_વૃક્ષ);
 
-	if(buf){
+	જો(buf){
 		ret = http_api__send_response_with_headers(connection, buf);
-		free(buf);
-	}else{
+		મુક્ત(buf);
+	}નહીંતર{
 		ret = http_api__send_error_response(connection, "Internal server error.\n", MHD_HTTP_INTERNAL_SERVER_ERROR);
 	}
-#else
+#નહીંતર
 	ret = http_api__send_error_response(connection, "Not found.\n", 404);
 #endif
 
-	return ret;
+	પાછા ret;
 }
 
 
-static ssize_t http_file_read_cb(void *cls, uint64_t pos, char *buf, size_t max)
+સ્થિર ssize_t http_file_read_cb(શૂન્ય *cls, uint64_t pos, અક્ષર *buf, size_t max)
 {
 	FILE *fptr = cls;
-	if(fseek(fptr, (long )pos, SEEK_SET) < 0){
-		return -1;
+	જો(fseek(fptr, (long )pos, SEEK_SET) < 0){
+		પાછા -1;
 	}
-	return (ssize_t )fread(buf, 1, max, fptr);
+	પાછા (ssize_t )fread(buf, 1, max, fptr);
 }
 
 
-static void http_file_free_cb(void *cls)
+સ્થિર શૂન્ય http_file_free_cb(શૂન્ય *cls)
 {
 	FILE *fptr = cls;
 	fclose(fptr);
 }
 
 
-static enum MHD_Result http_api__process_file(struct mosquitto__listener *listener, struct MHD_Connection *connection, const char *url)
+સ્થિર ગણના MHD_Result http_api__process_file(સંરચના mosquitto__listener *listener, સંરચના MHD_Connection *connection, અચલ અક્ષર *url)
 {
-	int error_code = MHD_HTTP_INTERNAL_SERVER_ERROR;
-	char *canonical_filename;
+	પૂર્ણાંક error_code = MHD_HTTP_INTERNAL_SERVER_ERROR;
+	અક્ષર *canonical_filename;
 
-	if(!listener || !listener->http_dir){
+	જો(!listener || !listener->http_dir){
 		http_api__send_error_response(connection, "Not found.\n", 404);
-		return MHD_YES;
+		પાછા MHD_YES;
 	}
 
 	canonical_filename = http__canonical_filename(url, listener->http_dir, &error_code);
-	if(!canonical_filename){
+	જો(!canonical_filename){
 		http_api__send_error_response(connection, "Not found.\n", 404);
-		return MHD_YES;
+		પાછા MHD_YES;
 	}
 
 	FILE *fptr = fopen(canonical_filename, "rb");
 	mosquitto_FREE(canonical_filename);
-	if(!fptr){
+	જો(!fptr){
 		http_api__send_error_response(connection, "Not found.\n", 404);
-		return MHD_YES;
+		પાછા MHD_YES;
 	}
 
-	struct stat statbuf;
-	if(fstat(fileno(fptr), &statbuf)){
+	સંરચના stat statbuf;
+	જો(fstat(fileno(fptr), &statbuf)){
 		fclose(fptr);
 		http_api__send_error_response(connection, "Internal server error.\n", 500);
-		return MHD_YES;
+		પાછા MHD_YES;
 	}
 
-	if(!S_ISREG(statbuf.st_mode)){
+	જો(!S_ISREG(statbuf.st_mode)){
 		fclose(fptr);
 		http_api__send_error_response(connection, "Not found.\n", 404);
-		return MHD_YES;
+		પાછા MHD_YES;
 	}
 	uint64_t flen = (uint64_t )statbuf.st_size;
 
 	/* Using MHD_create_response_from_fd would be easier here, but is less portable */
-	struct MHD_Response *response = MHD_create_response_from_callback(
+	સંરચના MHD_Response *response = MHD_create_response_from_callback(
 			flen,
 			65536,
 			http_file_read_cb,
 			fptr,
 			http_file_free_cb);
 
-	enum MHD_Result ret = MHD_queue_response(connection, 200, response);
+	ગણના MHD_Result ret = MHD_queue_response(connection, 200, response);
 	MHD_destroy_response(response);
-	return ret;
+	પાછા ret;
 }
 
 
-static enum MHD_Result http_api__process_api(struct MHD_Connection *connection, const char *url)
+સ્થિર ગણના MHD_Result http_api__process_api(સંરચના MHD_Connection *connection, અચલ અક્ષર *url)
 {
-	if(strcmp(url, "/api/v1/systree") == 0){
-		return http_api__process_systree(connection);
-	}else if(strcmp(url, "/api/v1/listeners") == 0){
-		return http_api__process_listeners(connection);
-	}else if(strcmp(url, "/api/v1/version") == 0){
-		return http_api__process_version(connection);
-	}else{
-		return http_api__send_error_response(connection, "Not found.\n", 404);
+	જો(strcmp(url, "/api/v1/systree") == 0){
+		પાછા http_api__process_systree(connection);
+	}નહીંતર જો(strcmp(url, "/api/v1/listeners") == 0){
+		પાછા http_api__process_listeners(connection);
+	}નહીંતર જો(strcmp(url, "/api/v1/version") == 0){
+		પાછા http_api__process_version(connection);
+	}નહીંતર{
+		પાછા http_api__send_error_response(connection, "Not found.\n", 404);
 	}
 }
 
 
-static int check_access(struct mosquitto__listener *listener, struct MHD_Connection *connection, const char *url)
+સ્થિર પૂર્ણાંક check_access(સંરચના mosquitto__listener *listener, સંરચના MHD_Connection *connection, અચલ અક્ષર *url)
 {
-	struct mosquitto context = {0};
-	int auth_rc, acl_rc = MOSQ_ERR_SUCCESS;
+	સંરચના mosquitto context = {0};
+	પૂર્ણાંક auth_rc, acl_rc = MOSQ_ERR_SUCCESS;
 
 	context.listener = listener;
 
-	context.id = (char *)"http-api";
+	context.id = (અક્ષર *)"http-api";
 	context.username = MHD_basic_auth_get_username_password(connection, &context.password);
 
 	/* Authentication */
 	auth_rc = mosquitto_basic_auth(&context);
-	if(auth_rc == MOSQ_ERR_SUCCESS){
-		acl_rc = mosquitto_acl_check(&context, url, 0, NULL, 0, false, NULL, MOSQ_ACL_READ);
+	જો(auth_rc == MOSQ_ERR_SUCCESS){
+		acl_rc = mosquitto_acl_check(&context, url, 0, ખાલી, 0, false, ખાલી, MOSQ_ACL_READ);
 	}
 	MHD_free(context.username);
 	MHD_free(context.password);
 
-	if(auth_rc || acl_rc){
-		const char *buf = "Not authorised\n";
-		struct MHD_Response *response = MHD_create_response_from_buffer(strlen(buf), (void *)buf, MHD_RESPMEM_MUST_COPY);
+	જો(auth_rc || acl_rc){
+		અચલ અક્ષર *buf = "Not authorised\n";
+		સંરચના MHD_Response *response = MHD_create_response_from_buffer(strlen(buf), (શૂન્ય *)buf, MHD_RESPMEM_MUST_COPY);
 		MHD_queue_basic_auth_fail_response(connection, "Mosquitto API", response);
 		MHD_destroy_response(response);
 
-		return MOSQ_ERR_AUTH;
+		પાછા MOSQ_ERR_AUTH;
 	}
 
-	return MOSQ_ERR_SUCCESS;
+	પાછા MOSQ_ERR_SUCCESS;
 }
 
-static enum MHD_Result http_api_handler(void *cls, struct MHD_Connection
-		*connection, const char *url, const char *method, const char *version,
-		const char *upload_data, size_t *upload_data_size, void **con_cls)
+સ્થિર ગણના MHD_Result http_api_handler(શૂન્ય *cls, સંરચના MHD_Connection
+		*connection, અચલ અક્ષર *url, અચલ અક્ષર *method, અચલ અક્ષર *version,
+		અચલ અક્ષર *upload_data, size_t *upload_data_size, શૂન્ય **con_cls)
 {
 	UNUSED(version);
 	UNUSED(upload_data);
 	UNUSED(upload_data_size);
 	UNUSED(con_cls);
 
-	struct mosquitto__listener *listener = cls;
+	સંરચના mosquitto__listener *listener = cls;
 
-	if(strcmp(method, "GET") != 0){
-		char *buf = "Invalid HTTP Method\n";
-		struct MHD_Response *response = MHD_create_response_from_buffer(strlen(buf), (void *)buf, MHD_RESPMEM_MUST_COPY);
-		enum MHD_Result ret = MHD_queue_response(connection, MHD_HTTP_METHOD_NOT_ALLOWED, response);
+	જો(strcmp(method, "GET") != 0){
+		અક્ષર *buf = "Invalid HTTP Method\n";
+		સંરચના MHD_Response *response = MHD_create_response_from_buffer(strlen(buf), (શૂન્ય *)buf, MHD_RESPMEM_MUST_COPY);
+		ગણના MHD_Result ret = MHD_queue_response(connection, MHD_HTTP_METHOD_NOT_ALLOWED, response);
 		MHD_destroy_response(response);
-		return ret;
+		પાછા ret;
 	}
 
-	if(check_access(listener, connection, url) != MOSQ_ERR_SUCCESS){
-		return MHD_YES;
+	જો(check_access(listener, connection, url) != MOSQ_ERR_SUCCESS){
+		પાછા MHD_YES;
 	}
 
-	if(!strncasecmp(url, "/api/", strlen("/api/"))){
-		return http_api__process_api(connection, url);
-	}else{
-		return http_api__process_file(listener, connection, url);
+	જો(!strncasecmp(url, "/api/", strlen("/api/"))){
+		પાછા http_api__process_api(connection, url);
+	}નહીંતર{
+		પાછા http_api__process_file(listener, connection, url);
 	}
 }
 
 
-int http_api__start_local(struct mosquitto__listener *listener)
+પૂર્ણાંક http_api__start_local(સંરચના mosquitto__listener *listener)
 {
-	listener->security_options = mosquitto_calloc(1, sizeof(struct mosquitto__security_options));
-	if(listener->security_options == NULL){
-		return MOSQ_ERR_NOMEM;
+	listener->security_options = mosquitto_calloc(1, કદ(સંરચના mosquitto__security_options));
+	જો(listener->security_options == ખાલી){
+		પાછા MOSQ_ERR_NOMEM;
 	}
 
 	listener->host = mosquitto_strdup("127.0.0.1");
-	if(!listener->host){
+	જો(!listener->host){
 		mosquitto_FREE(listener->security_options);
-		return MOSQ_ERR_NOMEM;
+		પાછા MOSQ_ERR_NOMEM;
 	}
 	listener->port = 9883;
 
-	if(db.config->security_options.allow_anonymous == -1){
+	જો(db.config->security_options.allow_anonymous == -1){
 		listener->security_options->allow_anonymous = true;
-	}else{
+	}નહીંતર{
 		listener->security_options->allow_anonymous = db.config->security_options.allow_anonymous;
 	}
 
-	if(listener->http_dir == NULL && strlen(HTTP_API_DIR) > 0){
+	જો(listener->http_dir == ખાલી && strlen(HTTP_API_DIR) > 0){
 #ifdef WIN32
-		char *http_dir_canonical = _fullpath(NULL, HTTP_API_DIR, 0);
-#else
-		char *http_dir_canonical = realpath(HTTP_API_DIR, NULL);
+		અક્ષર *http_dir_canonical = _fullpath(ખાલી, HTTP_API_DIR, 0);
+#નહીંતર
+		અક્ષર *http_dir_canonical = realpath(HTTP_API_DIR, ખાલી);
 #endif
-		if(!http_dir_canonical){
-			return MOSQ_ERR_NOMEM;
+		જો(!http_dir_canonical){
+			પાછા MOSQ_ERR_NOMEM;
 		}
 		mosquitto_FREE(listener->http_dir);
 		listener->http_dir = mosquitto_strdup(http_dir_canonical);
 		mosquitto_FREE(http_dir_canonical);
 	}
 
-	return http_api__start(listener);
+	પાછા http_api__start(listener);
 }
 
 
-int http_api__start(struct mosquitto__listener *listener)
+પૂર્ણાંક http_api__start(સંરચના mosquitto__listener *listener)
 {
-	unsigned int flags = MHD_USE_AUTO_INTERNAL_THREAD;
-	const char *bind_address;
+	unsigned પૂર્ણાંક flags = MHD_USE_AUTO_INTERNAL_THREAD;
+	અચલ અક્ષર *bind_address;
 	uint16_t port = 9883;
-	char *x509_cert = NULL;
-	char *x509_key = NULL;
+	અક્ષર *x509_cert = ખાલી;
+	અક્ષર *x509_ચાવી = ખાલી;
 
-	if(!listener->security_options){
-		listener->security_options = mosquitto_calloc(1, sizeof(struct mosquitto__security_options));
-		if(listener->security_options == NULL){
-			return MOSQ_ERR_NOMEM;
+	જો(!listener->security_options){
+		listener->security_options = mosquitto_calloc(1, કદ(સંરચના mosquitto__security_options));
+		જો(listener->security_options == ખાલી){
+			પાછા MOSQ_ERR_NOMEM;
 		}
 	}
 	listener->protocol = mp_http_api;
@@ -469,100 +469,100 @@ int http_api__start(struct mosquitto__listener *listener)
 	port = listener->port;
 
 #ifdef WITH_TLS
-	if(listener->certfile && listener->keyfile){
-		if(mosquitto_read_file(listener->certfile, false, &x509_cert, NULL)){
-			log__printf(NULL, MOSQ_LOG_ERR, "Error: Unable to load server certificate \"%s\". Check certfile.", listener->certfile);
-			return MOSQ_ERR_INVAL;
+	જો(listener->certfile && listener->keyfile){
+		જો(mosquitto_read_file(listener->certfile, false, &x509_cert, ખાલી)){
+			log__printf(ખાલી, MOSQ_LOG_ERR, "Error: Unable to load server certificate \"%s\". Check certfile.", listener->certfile);
+			પાછા MOSQ_ERR_INVAL;
 		}
-		if(mosquitto_read_file(listener->keyfile, false, &x509_key, NULL)){
-			log__printf(NULL, MOSQ_LOG_ERR, "Error: Unable to load server key file \"%s\". Check keyfile.", listener->keyfile);
+		જો(mosquitto_read_file(listener->keyfile, false, &x509_ચાવી, ખાલી)){
+			log__printf(ખાલી, MOSQ_LOG_ERR, "Error: Unable to load server key file \"%s\". Check keyfile.", listener->keyfile);
 			mosquitto_FREE(x509_cert);
-			return MOSQ_ERR_INVAL;
+			પાછા MOSQ_ERR_INVAL;
 		}
 		flags |= MHD_USE_TLS;
 	}
 #endif
 
-	if(bind_address){
-		char service[10];
-		struct addrinfo hints;
-		struct addrinfo *ainfo, *rp;
+	જો(bind_address){
+		અક્ષર service[10];
+		સંરચના addrinfo hints;
+		સંરચના addrinfo *ainfo, *rp;
 
-		snprintf(service, sizeof(service), "%d", port);
+		snprintf(service, કદ(service), "%d", port);
 
-		memset(&hints, 0, sizeof(struct addrinfo));
+		memset(&hints, 0, કદ(સંરચના addrinfo));
 		hints.ai_family = AF_UNSPEC;
 		hints.ai_flags = AI_PASSIVE;
 		hints.ai_socktype = SOCK_STREAM;
 
-		int rc = getaddrinfo(bind_address, service, &hints, &ainfo);
-		if(rc){
-			log__printf(NULL, MOSQ_LOG_ERR, "Unable to start http api listener (%s).", strerror(errno));
+		પૂર્ણાંક rc = getaddrinfo(bind_address, service, &hints, &ainfo);
+		જો(rc){
+			log__printf(ખાલી, MOSQ_LOG_ERR, "Unable to start http api listener (%s).", strerror(errno));
 			mosquitto_FREE(x509_cert);
-			mosquitto_FREE(x509_key);
-			return MOSQ_ERR_ERRNO;
+			mosquitto_FREE(x509_ચાવી);
+			પાછા MOSQ_ERR_ERRNO;
 		}
 
-		for(rp = ainfo; rp; rp = rp->ai_next){
-			if(rp->ai_family == AF_INET || rp->ai_family == AF_INET6){
-				break;
+		માટે(rp = ainfo; rp; rp = rp->ai_next){
+			જો(rp->ai_family == AF_INET || rp->ai_family == AF_INET6){
+				તોડો;
 			}
 		}
-		if(!rp){
-			log__printf(NULL, MOSQ_LOG_ERR, "Unable to start http api listener, could not find address.");
+		જો(!rp){
+			log__printf(ખાલી, MOSQ_LOG_ERR, "Unable to start http api listener, could not find address.");
 			freeaddrinfo(ainfo);
 			mosquitto_FREE(x509_cert);
-			mosquitto_FREE(x509_key);
+			mosquitto_FREE(x509_ચાવી);
 
-			return MOSQ_ERR_INVAL;
+			પાછા MOSQ_ERR_INVAL;
 		}
 
-		if(rp->ai_family == AF_INET6){
+		જો(rp->ai_family == AF_INET6){
 			flags |= MHD_USE_IPv6;
 		}
-		if(x509_cert && x509_key){
-			listener->mhd = MHD_start_daemon(flags, port, NULL, NULL, &http_api_handler, listener,
+		જો(x509_cert && x509_ચાવી){
+			listener->mhd = MHD_start_daemon(flags, port, ખાલી, ખાલી, &http_api_handler, listener,
 					MHD_OPTION_SOCK_ADDR, rp->ai_addr,
 					MHD_OPTION_HTTPS_MEM_CERT, x509_cert,
-					MHD_OPTION_HTTPS_MEM_KEY, x509_key,
+					MHD_OPTION_HTTPS_MEM_ચાવી, x509_ચાવી,
 					MHD_OPTION_END);
-		}else{
-			listener->mhd = MHD_start_daemon(flags, port, NULL, NULL, &http_api_handler, listener,
+		}નહીંતર{
+			listener->mhd = MHD_start_daemon(flags, port, ખાલી, ખાલી, &http_api_handler, listener,
 					MHD_OPTION_SOCK_ADDR, rp->ai_addr,
 					MHD_OPTION_END);
 		}
 		freeaddrinfo(ainfo);
-	}else{
-		if(x509_cert && x509_key){
-			listener->mhd = MHD_start_daemon(flags | MHD_USE_DUAL_STACK, port, NULL, NULL, &http_api_handler, listener,
+	}નહીંતર{
+		જો(x509_cert && x509_ચાવી){
+			listener->mhd = MHD_start_daemon(flags | MHD_USE_DUAL_ઢગલો, port, ખાલી, ખાલી, &http_api_handler, listener,
 					MHD_OPTION_HTTPS_MEM_CERT, x509_cert,
-					MHD_OPTION_HTTPS_MEM_KEY, x509_key,
+					MHD_OPTION_HTTPS_MEM_ચાવી, x509_ચાવી,
 					MHD_OPTION_END);
-		}else{
-			listener->mhd = MHD_start_daemon(flags | MHD_USE_DUAL_STACK, port, NULL, NULL, &http_api_handler, listener,
+		}નહીંતર{
+			listener->mhd = MHD_start_daemon(flags | MHD_USE_DUAL_ઢગલો, port, ખાલી, ખાલી, &http_api_handler, listener,
 					MHD_OPTION_END);
 		}
 	}
 
 	mosquitto_FREE(x509_cert);
-	mosquitto_FREE(x509_key);
+	mosquitto_FREE(x509_ચાવી);
 
-	if(listener->mhd){
-		log__printf(NULL, MOSQ_LOG_INFO, "Opening http api listen socket on port %d.", port);
-		if(listener->http_dir){
-			log__printf(NULL, MOSQ_LOG_INFO, "Using http_dir %s", listener->http_dir);
+	જો(listener->mhd){
+		log__printf(ખાલી, MOSQ_LOG_INFO, "Opening http api listen socket on port %d.", port);
+		જો(listener->http_dir){
+			log__printf(ખાલી, MOSQ_LOG_INFO, "Using http_dir %s", listener->http_dir);
 		}
-		return MOSQ_ERR_SUCCESS;
-	}else{
-		return MOSQ_ERR_UNKNOWN;
+		પાછા MOSQ_ERR_SUCCESS;
+	}નહીંતર{
+		પાછા MOSQ_ERR_UNKNOWN;
 	}
 }
 
 
-void http_api__stop(struct mosquitto__listener *listener)
+શૂન્ય http_api__stop(સંરચના mosquitto__listener *listener)
 {
 	MHD_stop_daemon(listener->mhd);
-	listener->mhd = NULL;
+	listener->mhd = ખાલી;
 }
 
 #endif

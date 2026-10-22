@@ -16,56 +16,56 @@ Contributors:
    Roger Light - initial implementation and documentation.
 */
 
-#include "config.h"
+#અન્તર્ભાવ "config.h"
 
-#include <string.h>
+#અન્તર્ભાવ <string.h>
 
-#include "mosquitto_broker_internal.h"
-#include "mosquitto/broker.h"
-#include "utlist.h"
+#અન્તર્ભાવ "mosquitto_broker_internal.h"
+#અન્તર્ભાવ "mosquitto/broker.h"
+#અન્તર્ભાવ "utlist.h"
 
 
-static int plugin__handle_reload_single(struct mosquitto__security_options *opts)
+સ્થિર પૂર્ણાંક plugin__handle_reload_single(સંરચના mosquitto__security_options *opts)
 {
-	struct mosquitto_evt_reload event_data;
-	struct mosquitto__callback *cb_base, *cb_next;
+	સંરચના mosquitto_evt_reload event_data;
+	સંરચના mosquitto__callback *cb_base, *cb_next;
 
-	memset(&event_data, 0, sizeof(event_data));
+	memset(&event_data, 0, કદ(event_data));
 
 	// Using DL_FOREACH_SAFE here, as reload callbacks might unregister themself
 	DL_FOREACH_SAFE(opts->plugin_callbacks.reload, cb_base, cb_next){
-		int rc = cb_base->cb(MOSQ_EVT_RELOAD, &event_data, cb_base->userdata);
-		if(rc){
-			log__printf(NULL, MOSQ_LOG_ERR, "Error: Plugin %s produced error on reload: %s",
+		પૂર્ણાંક rc = cb_base->cb(MOSQ_EVT_RELOAD, &event_data, cb_base->userdata);
+		જો(rc){
+			log__printf(ખાલી, MOSQ_LOG_ERR, "Error: Plugin %s produced error on reload: %s",
 					cb_base->identifier->plugin_name?cb_base->identifier->plugin_name:"",
 					mosquitto_strerror(rc));
 
-			return rc;
+			પાછા rc;
 		}
 	}
-	return MOSQ_ERR_SUCCESS;
+	પાછા MOSQ_ERR_SUCCESS;
 }
 
 
-int plugin__handle_reload(void)
+પૂર્ણાંક plugin__handle_reload(શૂન્ય)
 {
-	struct mosquitto__security_options *opts;
-	int rc;
+	સંરચના mosquitto__security_options *opts;
+	પૂર્ણાંક rc;
 
 	/* Global plugins */
 	rc = plugin__handle_reload_single(&db.config->security_options);
-	if(rc){
-		return rc;
+	જો(rc){
+		પાછા rc;
 	}
 
-	for(int i=0; i<db.config->listener_count; i++){
+	માટે(પૂર્ણાંક i=0; i<db.config->listener_ગણતરી; i++){
 		opts = db.config->listeners[i].security_options;
-		if(opts && opts->plugin_callbacks.reload){
+		જો(opts && opts->plugin_callbacks.reload){
 			rc = plugin__handle_reload_single(opts);
-			if(rc){
-				return rc;
+			જો(rc){
+				પાછા rc;
 			}
 		}
 	}
-	return MOSQ_ERR_SUCCESS;
+	પાછા MOSQ_ERR_SUCCESS;
 }
