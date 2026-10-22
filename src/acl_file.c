@@ -29,20 +29,20 @@ Contributors:
 #include "util_mosq.h"
 
 
-int broker_acl_file__init(void)
+จำนวนเต็ม broker_acl_file__init(void)
 {
-	int rc;
+	จำนวนเต็ม rc;
 
 	/* Load acl data if required. */
-	if(db.config->per_listener_settings){
-		for(int i=0; i<db.config->listener_count; i++){
-			if(db.config->listeners[i].security_options->acl_data.acl_file){
+	ถ้า(db.config->per_listener_settings){
+		สำหรับ(จำนวนเต็ม i=0; i<db.config->listener_count; i++){
+			ถ้า(db.config->listeners[i].security_options->acl_data.acl_file){
 				rc = acl_file__parse(&db.config->listeners[i].security_options->acl_data);
-				if(rc){
+				ถ้า(rc){
 					log__printf(NULL, MOSQ_LOG_ERR, "Error opening acl file \"%s\".", db.config->listeners[i].security_options->acl_data.acl_file);
-					return rc;
+					คืน rc;
 				}
-				if(db.config->listeners[i].security_options->plugin_count == 0){
+				ถ้า(db.config->listeners[i].security_options->plugin_count == 0){
 					config__plugin_add_secopt(db.config->listeners[i].security_options->pid, db.config->listeners[i].security_options);
 				}
 
@@ -50,14 +50,14 @@ int broker_acl_file__init(void)
 						MOSQ_EVT_ACL_CHECK, acl_file__check, NULL, &db.config->listeners[i].security_options->acl_data);
 			}
 		}
-	}else{
-		if(db.config->security_options.acl_data.acl_file){
+	}มิฉะนั้น{
+		ถ้า(db.config->security_options.acl_data.acl_file){
 			rc = acl_file__parse(&db.config->security_options.acl_data);
-			if(rc){
+			ถ้า(rc){
 				log__printf(NULL, MOSQ_LOG_ERR, "Error opening acl file \"%s\".", db.config->security_options.acl_data.acl_file);
-				return rc;
+				คืน rc;
 			}
-			if(db.config->security_options.plugin_count == 0){
+			ถ้า(db.config->security_options.plugin_count == 0){
 				config__plugin_add_secopt(db.config->security_options.pid, &db.config->security_options);
 			}
 
@@ -66,23 +66,23 @@ int broker_acl_file__init(void)
 		}
 	}
 
-	return MOSQ_ERR_SUCCESS;
+	คืน MOSQ_ERR_SUCCESS;
 }
 
 
 void broker_acl_file__cleanup(void)
 {
-	if(db.config->per_listener_settings){
-		for(int i=0; i<db.config->listener_count; i++){
-			if(db.config->listeners[i].security_options->pid){
+	ถ้า(db.config->per_listener_settings){
+		สำหรับ(จำนวนเต็ม i=0; i<db.config->listener_count; i++){
+			ถ้า(db.config->listeners[i].security_options->pid){
 				mosquitto_callback_unregister(db.config->listeners[i].security_options->pid,
 						MOSQ_EVT_ACL_CHECK, acl_file__check, NULL);
 
 				acl_file__cleanup(&db.config->listeners[i].security_options->acl_data);
 			}
 		}
-	}else{
-		if(db.config->security_options.pid){
+	}มิฉะนั้น{
+		ถ้า(db.config->security_options.pid){
 			mosquitto_callback_unregister(db.config->security_options.pid,
 					MOSQ_EVT_ACL_CHECK, acl_file__check, NULL);
 

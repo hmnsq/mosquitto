@@ -27,57 +27,57 @@ Contributors:
 #include "will_mosq.h"
 
 
-int handle__disconnect(struct mosquitto *context)
+จำนวนเต็ม handle__disconnect(sa_nracanaa mosquitto *context)
 {
-	int rc;
+	จำนวนเต็ม rc;
 	uint8_t reason_code = 0;
 	mosquitto_property *properties = NULL;
 
-	if(!context){
-		return MOSQ_ERR_INVAL;
+	ถ้า(!context){
+		คืน MOSQ_ERR_INVAL;
 	}
 
-	if(context->protocol == mosq_p_mqtt311 || context->protocol == mosq_p_mqtt5){
-		if((context->in_packet.command&0x0F) != 0x00){
+	ถ้า(context->protocol == mosq_p_mqtt311 || context->protocol == mosq_p_mqtt5){
+		ถ้า((context->in_packet.command&0x0F) != 0x00){
 			log__printf(NULL, MOSQ_LOG_INFO, "Protocol error from %s: DISCONNECT packet with incorrect flags %02X.",
 					context->id, context->in_packet.command);
-			return MOSQ_ERR_PROTOCOL;
+			คืน MOSQ_ERR_PROTOCOL;
 		}
 	}
 
-	if(context->protocol == mosq_p_mqtt5 && context->in_packet.remaining_length > 0){
+	ถ้า(context->protocol == mosq_p_mqtt5 && context->in_packet.remaining_length > 0){
 		/* FIXME - must handle reason code */
 		rc = packet__read_byte(&context->in_packet, &reason_code);
-		if(rc){
-			return rc;
+		ถ้า(rc){
+			คืน rc;
 		}
 
-		if(context->in_packet.remaining_length > 1){
+		ถ้า(context->in_packet.remaining_length > 1){
 			rc = property__read_all(CMD_DISCONNECT, &context->in_packet, &properties);
-			if(rc){
-				return rc;
+			ถ้า(rc){
+				คืน rc;
 			}
 		}
 	}
 	rc = property__process_disconnect(context, &properties);
-	if(rc){
+	ถ้า(rc){
 		mosquitto_property_free_all(&properties);
-		return rc;
+		คืน rc;
 	}
 	mosquitto_property_free_all(&properties); /* FIXME - TEMPORARY UNTIL PROPERTIES PROCESSED */
 
-	if(context->in_packet.pos != context->in_packet.remaining_length){
+	ถ้า(context->in_packet.pos != context->in_packet.remaining_length){
 		log__printf(NULL, MOSQ_LOG_INFO, "Protocol error from %s: DISCONNECT packet with overlong remaining length (%d:%d).",
 				context->id, context->in_packet.pos, context->in_packet.remaining_length);
-		return MOSQ_ERR_PROTOCOL;
+		คืน MOSQ_ERR_PROTOCOL;
 	}
 	log__printf(NULL, MOSQ_LOG_DEBUG, "Received DISCONNECT from %s", context->id);
-	if(reason_code == MQTT_RC_DISCONNECT_WITH_WILL_MSG){
+	ถ้า(reason_code == MQTT_RC_DISCONNECT_WITH_WILL_MSG){
 		mosquitto__set_state(context, mosq_cs_disconnect_with_will);
-	}else{
+	}มิฉะนั้น{
 		will__clear(context);
 		mosquitto__set_state(context, mosq_cs_disconnecting);
 	}
 	do_disconnect(context, MOSQ_ERR_SUCCESS);
-	return MOSQ_ERR_SUCCESS;
+	คืน MOSQ_ERR_SUCCESS;
 }

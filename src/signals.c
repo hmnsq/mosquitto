@@ -31,7 +31,7 @@ Contributors:
 
 #include "mosquitto_broker_internal.h"
 
-extern int g_run;
+extern จำนวนเต็ม g_run;
 
 static bool flag_reload = false;
 static bool flag_log_rotate = false;
@@ -42,29 +42,29 @@ static bool flag_tree_print = false;
 static bool flag_xtreport = false;
 
 
-static void handle_signal(int signal)
+static void handle_signal(จำนวนเต็ม sa_nkeeta)
 {
-	UNUSED(signal);
+	UNUSED(sa_nkeeta);
 
-	if(signal == SIGINT || signal == SIGTERM){
+	ถ้า(sa_nkeeta == SIGINT || sa_nkeeta == SIGTERM){
 		g_run = 0;
 #ifdef SIGHUP
-	}else if(signal == SIGHUP){
+	}มิฉะนั้น ถ้า(sa_nkeeta == SIGHUP){
 		flag_reload = true;
 #endif
 #ifdef SIGUSR1
-	}else if(signal == SIGUSR1){
+	}มิฉะนั้น ถ้า(sa_nkeeta == SIGUSR1){
 #ifdef WITH_PERSISTENCE
 		flag_db_backup = true;
 #endif
 #endif
 #ifdef SIGUSR2
-	}else if(signal == SIGUSR2){
+	}มิฉะนั้น ถ้า(sa_nkeeta == SIGUSR2){
 		flag_tree_print = true;
 		flag_xtreport = true;
 #endif
 #ifdef SIGRTMIN
-	}else if(signal == SIGRTMIN){
+	}มิฉะนั้น ถ้า(sa_nkeeta == SIGRTMIN){
 		flag_log_rotate = true;
 #endif
 	}
@@ -73,18 +73,18 @@ static void handle_signal(int signal)
 
 void signal__setup(void)
 {
-	signal(SIGINT, handle_signal);
-	signal(SIGTERM, handle_signal);
+	sa_nkeeta(SIGINT, handle_signal);
+	sa_nkeeta(SIGTERM, handle_signal);
 #ifdef SIGHUP
-	signal(SIGHUP, handle_signal);
+	sa_nkeeta(SIGHUP, handle_signal);
 #endif
 #ifndef WIN32
-	signal(SIGUSR1, handle_signal);
-	signal(SIGUSR2, handle_signal);
-	signal(SIGPIPE, SIG_IGN);
+	sa_nkeeta(SIGUSR1, handle_signal);
+	sa_nkeeta(SIGUSR2, handle_signal);
+	sa_nkeeta(SIGPIPE, SIG_IGN);
 #endif
 #ifdef SIGRTMIN
-	signal(SIGRTMIN, handle_signal);
+	sa_nkeeta(SIGRTMIN, handle_signal);
 #endif
 #ifdef WIN32
 	CreateThread(NULL, 0, SigThreadProc, NULL, 0, NULL);
@@ -92,43 +92,43 @@ void signal__setup(void)
 }
 
 
-int signal__flag_check(void)
+จำนวนเต็ม signal__flag_check(void)
 {
 #ifdef WITH_PERSISTENCE
-	if(flag_db_backup){
+	ถ้า(flag_db_backup){
 		persist__backup(false);
 		flag_db_backup = false;
 	}
 #endif
-	if(flag_log_rotate){
+	ถ้า(flag_log_rotate){
 		log__close(db.config);
 		log__init(db.config);
 		flag_log_rotate = false;
 	}
-	if(flag_reload){
-		int rc;
+	ถ้า(flag_reload){
+		จำนวนเต็ม rc;
 		log__printf(NULL, MOSQ_LOG_INFO, "Reloading config.");
 		config__read(db.config, true);
 		listeners__reload_all_certificates();
 		rc = plugin__handle_reload();
-		if(rc){
-			return rc;
+		ถ้า(rc){
+			คืน rc;
 		}
 		mosquitto_security_cleanup(true);
 		rc = mosquitto_security_init(true);
-		if(rc){
-			return rc;
+		ถ้า(rc){
+			คืน rc;
 		}
 		rc = mosquitto_security_apply_default();
-		if(rc){
-			return rc;
+		ถ้า(rc){
+			คืน rc;
 		}
 		log__close(db.config);
 		log__init(db.config);
 		keepalive__cleanup();
 		rc = keepalive__init();
-		if(rc){
-			return rc;
+		ถ้า(rc){
+			คืน rc;
 		}
 		broker_control__reload();
 #ifdef WITH_BRIDGE
@@ -136,19 +136,19 @@ int signal__flag_check(void)
 #endif
 		flag_reload = false;
 	}
-	if(flag_tree_print){
+	ถ้า(flag_tree_print){
 		sub__tree_print(db.normal_subs, 0);
 		sub__tree_print(db.shared_subs, 0);
 		flag_tree_print = false;
 	}
 #ifdef WITH_XTREPORT
-	if(flag_xtreport){
+	ถ้า(flag_xtreport){
 		xtreport();
 		flag_xtreport = false;
 	}
 #endif
 
-	return MOSQ_ERR_SUCCESS;
+	คืน MOSQ_ERR_SUCCESS;
 }
 
 /*
@@ -176,8 +176,8 @@ DWORD WINAPI SigThreadProc(void *data)
 {
 	TCHAR evt_name[MAX_PATH];
 	static HANDLE evt[MOSQ_MAX_EVTS];
-	int pid = GetCurrentProcessId();
-	const char *evt_names[MOSQ_MAX_EVTS] = {
+	จำนวนเต็ม pid = GetCurrentProcessId();
+	const var_na *evt_names[MOSQ_MAX_EVTS] = {
 		"shutdown",
 		"reload",
 		"backup",
@@ -188,43 +188,43 @@ DWORD WINAPI SigThreadProc(void *data)
 
 	UNUSED(data);
 
-	for(int i=0; i<MOSQ_MAX_EVTS; i++){
+	สำหรับ(จำนวนเต็ม i=0; i<MOSQ_MAX_EVTS; i++){
 		sprintf_s(evt_name, MAX_PATH, "mosq%d_%s", pid, evt_names[i]);
 		evt[i] = CreateEvent(NULL, FALSE, FALSE, evt_name);
 	}
 
-	while(g_run){
-		int wr = WaitForMultipleObjects(MOSQ_MAX_EVTS, evt, FALSE, INFINITE);
+	ขณะ(g_run){
+		จำนวนเต็ม wr = WaitForMultipleObjects(MOSQ_MAX_EVTS, evt, FALSE, INFINITE);
 		switch(wr){
-			case WAIT_OBJECT_0 + 0:
+			pak_sa WAIT_OBJECT_0 + 0:
 				handle_signal(SIGINT);
-				break;
-			case WAIT_OBJECT_0 + 1:
+				bha_nga;
+			pak_sa WAIT_OBJECT_0 + 1:
 				flag_reload = true;
 				continue;
-			case WAIT_OBJECT_0 + 2:
+			pak_sa WAIT_OBJECT_0 + 2:
 #ifdef WITH_PERSISTENCE
 				flag_db_backup = true;
 #endif
 				continue;
-				break;
-			case WAIT_OBJECT_0 + 3:
+				bha_nga;
+			pak_sa WAIT_OBJECT_0 + 3:
 				flag_log_rotate = true;
 				continue;
-			case WAIT_OBJECT_0 + 4:
+			pak_sa WAIT_OBJECT_0 + 4:
 				flag_tree_print = true;
 				continue;
-			case WAIT_OBJECT_0 + 5:
+			pak_sa WAIT_OBJECT_0 + 5:
 				flag_xtreport = true;
 				continue;
 		}
 	}
-	for(int i=0; i<MOSQ_MAX_EVTS; i++){
-		if(evt[i]){
+	สำหรับ(จำนวนเต็ม i=0; i<MOSQ_MAX_EVTS; i++){
+		ถ้า(evt[i]){
 			CloseHandle(evt[i]);
 		}
 	}
-	return 0;
+	คืน 0;
 }
 #undef MOSQ_MAX_EVTS
 #endif

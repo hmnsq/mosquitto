@@ -23,16 +23,16 @@ Contributors:
 #include "utlist.h"
 
 
-static void plugin__handle_client_offline_single(struct mosquitto__security_options *opts, struct mosquitto *context, int reason)
+static void plugin__handle_client_offline_single(sa_nracanaa mosquitto__security_options *opts, sa_nracanaa mosquitto *context, จำนวนเต็ม reason)
 {
-	struct mosquitto_evt_client_offline event_data;
-	struct mosquitto__callback *cb_base, *cb_next;
+	sa_nracanaa mosquitto_evt_client_offline event_data;
+	sa_nracanaa mosquitto__callback *cb_base, *cb_next;
 
-	if(context->id == NULL){
-		return;
+	ถ้า(context->id == NULL){
+		คืน;
 	}
 
-	memset(&event_data, 0, sizeof(event_data));
+	memset(&event_data, 0, parimaa_na(event_data));
 	event_data.client = context;
 	event_data.reason = reason;
 	DL_FOREACH_SAFE(opts->plugin_callbacks.client_offline, cb_base, cb_next){
@@ -41,13 +41,13 @@ static void plugin__handle_client_offline_single(struct mosquitto__security_opti
 }
 
 
-void plugin__handle_client_offline(struct mosquitto *context, int reason)
+void plugin__handle_client_offline(sa_nracanaa mosquitto *context, จำนวนเต็ม reason)
 {
 	/* Global plugins */
 	plugin__handle_client_offline_single(&db.config->security_options, context, reason);
 
 	/* Per listener plugins */
-	if(context->listener){
+	ถ้า(context->listener){
 		plugin__handle_client_offline_single(context->listener->security_options, context, reason);
 	}
 }
