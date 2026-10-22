@@ -16,22 +16,22 @@ Contributors:
    Roger Light - initial implementation and documentation.
 */
 
-#include "config.h"
+#অন্তর্ভাব "config.h"
 
-#include "mosquitto_broker_internal.h"
-#include "utlist.h"
+#অন্তর্ভাব "mosquitto_broker_internal.h"
+#অন্তর্ভাব "utlist.h"
 
 
-static void plugin__handle_disconnect_single(struct mosquitto__security_options *opts, struct mosquitto *context, int reason)
+স্থির শূন্য plugin__handle_disconnect_single(সংরচনা mosquitto__security_options *opts, সংরচনা mosquitto *context, পূর্ণাঙ্ক reason)
 {
-	struct mosquitto_evt_disconnect event_data;
-	struct mosquitto__callback *cb_base, *cb_next;
+	সংরচনা mosquitto_evt_disconnect event_data;
+	সংরচনা mosquitto__callback *cb_base, *cb_next;
 
-	if(context->id == NULL){
-		return;
+	যদি(context->id == রিক্ত){
+		প্রত্যাগম;
 	}
 
-	memset(&event_data, 0, sizeof(event_data));
+	memset(&event_data, 0, পরিমাণ(event_data));
 	event_data.client = context;
 	event_data.reason = reason;
 	DL_FOREACH_SAFE(opts->plugin_callbacks.disconnect, cb_base, cb_next){
@@ -40,13 +40,13 @@ static void plugin__handle_disconnect_single(struct mosquitto__security_options 
 }
 
 
-void plugin__handle_disconnect(struct mosquitto *context, int reason)
+শূন্য plugin__handle_disconnect(সংরচনা mosquitto *context, পূর্ণাঙ্ক reason)
 {
 	/* Global plugins */
 	plugin__handle_disconnect_single(&db.config->security_options, context, reason);
 
 	/* Per listener plugins */
-	if(context->listener){
+	যদি(context->listener){
 		plugin__handle_disconnect_single(context->listener->security_options, context, reason);
 	}
 }

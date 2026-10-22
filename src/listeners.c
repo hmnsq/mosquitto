@@ -16,15 +16,15 @@ Contributors:
    Roger Light - initial implementation and documentation.
 */
 
-#include "config.h"
-#include "net_mosq.h"
-#include "mosquitto_broker_internal.h"
+#অন্তর্ভাব "config.h"
+#অন্তর্ভাব "net_mosq.h"
+#অন্তর্ভাব "mosquitto_broker_internal.h"
 
-static int listensock_index = 0;
-extern int g_run;
+স্থির পূর্ণাঙ্ক listensock_index = 0;
+বাহ্য পূর্ণাঙ্ক g_run;
 
 
-void listener__set_defaults(struct mosquitto__listener *listener)
+শূন্য listener__set_defaults(সংরচনা mosquitto__listener *listener)
 {
 	listener->disable_protocol_v3 = false;
 	listener->disable_protocol_v4 = false;
@@ -51,25 +51,25 @@ void listener__set_defaults(struct mosquitto__listener *listener)
 	listener->disable_client_cert_date_checks = false;
 #endif
 
-#if defined(WITH_WEBSOCKETS) && (LWS_LIBRARY_VERSION_NUMBER >= 3001000 || WITH_WEBSOCKETS == WS_IS_BUILTIN)
-	for(int i=0; i<listener->ws_origin_count; i++){
+#যদি defined(WITH_WEBSOCKETS) && (LWS_LIBRARY_VERSION_সংখ্যা >= 3001000 || WITH_WEBSOCKETS == WS_IS_BUILTIN)
+	প্রতি(পূর্ণাঙ্ক i=0; i<listener->ws_origin_গুনতি; i++){
 		mosquitto_FREE(listener->ws_origins[i]);
 	}
 	mosquitto_FREE(listener->ws_origins);
-	listener->ws_origin_count = 0;
+	listener->ws_origin_গুনতি = 0;
 #endif
 }
 
 
-void listeners__reload_all_certificates(void)
+শূন্য listeners__reload_all_certificates(শূন্য)
 {
 #ifdef WITH_TLS
-	for(int i=0; i<db.config->listener_count; i++){
-		struct mosquitto__listener *listener = &db.config->listeners[i];
-		if(listener->ssl_ctx && listener->certfile && listener->keyfile){
-			int rc = net__load_certificates(listener);
-			if(rc){
-				log__printf(NULL, MOSQ_LOG_ERR, "Error when reloading certificate '%s' or key '%s'.",
+	প্রতি(পূর্ণাঙ্ক i=0; i<db.config->listener_গুনতি; i++){
+		সংরচনা mosquitto__listener *listener = &db.config->listeners[i];
+		যদি(listener->ssl_ctx && listener->certfile && listener->keyfile){
+			পূর্ণাঙ্ক rc = net__load_certificates(listener);
+			যদি(rc){
+				log__printf(রিক্ত, MOSQ_LOG_ERR, "Error when reloading certificate '%s' or key '%s'.",
 						listener->certfile, listener->keyfile);
 			}
 		}
@@ -78,69 +78,69 @@ void listeners__reload_all_certificates(void)
 }
 
 
-static int listeners__start_single_mqtt(struct mosquitto__listener *listener)
+স্থির পূর্ণাঙ্ক listeners__start_single_mqtt(সংরচনা mosquitto__listener *listener)
 {
-	struct mosquitto__listener_sock *listensock_new;
+	সংরচনা mosquitto__listener_sock *listensock_new;
 
-	if(net__socket_listen(listener)){
-		return 1;
+	যদি(net__socket_listen(listener)){
+		প্রত্যাগম 1;
 	}
-	g_listensock_count += listener->sock_count;
-	listensock_new = mosquitto_realloc(g_listensock, sizeof(struct mosquitto__listener_sock)*(size_t)g_listensock_count);
-	if(!listensock_new){
-		return 1;
+	g_listensock_গুনতি += listener->sock_গুনতি;
+	listensock_new = mosquitto_realloc(g_listensock, পরিমাণ(সংরচনা mosquitto__listener_sock)*(size_t)g_listensock_গুনতি);
+	যদি(!listensock_new){
+		প্রত্যাগম 1;
 	}
 	g_listensock = listensock_new;
 
-	for(int i=0; i<listener->sock_count; i++){
-		if(listener->socks[i] == INVALID_SOCKET){
-			return 1;
+	প্রতি(পূর্ণাঙ্ক i=0; i<listener->sock_গুনতি; i++){
+		যদি(listener->socks[i] == INVALID_SOCKET){
+			প্রত্যাগম 1;
 		}
 		g_listensock[listensock_index].sock = listener->socks[i];
 		g_listensock[listensock_index].listener = listener;
-#if defined(WITH_EPOLL) || defined(WITH_KQUEUE)
+#যদি defined(WITH_EPOLL) || defined(WITH_KQUEUE)
 		g_listensock[listensock_index].ident = id_listener;
 #endif
 		listensock_index++;
 	}
-	return MOSQ_ERR_SUCCESS;
+	প্রত্যাগম MOSQ_ERR_SUCCESS;
 }
 
 
-#if defined(WITH_WEBSOCKETS) && WITH_WEBSOCKETS == WS_IS_LWS
+#যদি defined(WITH_WEBSOCKETS) && WITH_WEBSOCKETS == WS_IS_LWS
 
 
-void listeners__add_websockets(struct lws_context *ws_context, mosq_sock_t fd)
+শূন্য listeners__add_websockets(সংরচনা lws_context *ws_context, mosq_sock_t fd)
 {
-	struct mosquitto__listener *listener = NULL;
-	struct mosquitto__listener_sock *listensock_new;
+	সংরচনা mosquitto__listener *listener = রিক্ত;
+	সংরচনা mosquitto__listener_sock *listensock_new;
 
 	/* Don't add more listeners after we've started the main loop */
-	if(g_run || ws_context == NULL){
-		return;
+	যদি(g_run || ws_context == রিক্ত){
+		প্রত্যাগম;
 	}
 
 	/* Find context */
-	for(int i=0; i<db.config->listener_count; i++){
-		if(db.config->listeners[i].ws_in_init){
+	প্রতি(পূর্ণাঙ্ক i=0; i<db.config->listener_গুনতি; i++){
+		যদি(db.config->listeners[i].ws_in_init){
 			listener = &db.config->listeners[i];
-			break;
+			ভঙ্গ;
 		}
 	}
-	if(listener == NULL){
-		return;
+	যদি(listener == রিক্ত){
+		প্রত্যাগম;
 	}
 
-	g_listensock_count++;
-	listensock_new = mosquitto_realloc(g_listensock, sizeof(struct mosquitto__listener_sock)*(size_t)g_listensock_count);
-	if(!listensock_new){
-		return;
+	g_listensock_গুনতি++;
+	listensock_new = mosquitto_realloc(g_listensock, পরিমাণ(সংরচনা mosquitto__listener_sock)*(size_t)g_listensock_গুনতি);
+	যদি(!listensock_new){
+		প্রত্যাগম;
 	}
 	g_listensock = listensock_new;
 
 	g_listensock[listensock_index].sock = fd;
 	g_listensock[listensock_index].listener = listener;
-#if defined(WITH_EPOLL) || defined(WITH_KQUEUE)
+#যদি defined(WITH_EPOLL) || defined(WITH_KQUEUE)
 	g_listensock[listensock_index].ident = id_listener_ws;
 #endif
 	listensock_index++;
@@ -148,197 +148,197 @@ void listeners__add_websockets(struct lws_context *ws_context, mosq_sock_t fd)
 #endif
 
 
-static int listeners__add_local(const char *host, uint16_t port)
+স্থির পূর্ণাঙ্ক listeners__add_local(ধ্রুব বর্ণ *host, uint16_t port)
 {
-	struct mosquitto__listener *listeners;
+	সংরচনা mosquitto__listener *listeners;
 	bool allow_anonymous;
 
 	listeners = db.config->listeners;
-	if(db.config->security_options.allow_anonymous == -1){
+	যদি(db.config->security_options.allow_anonymous == -1){
 		allow_anonymous = true;
-	}else{
+	}অন্যথা{
 		allow_anonymous = db.config->security_options.allow_anonymous;
 	}
 
-	listeners[db.config->listener_count].security_options = mosquitto_calloc(1, sizeof(struct mosquitto__security_options));
-	if(listeners[db.config->listener_count].security_options == NULL){
-		return MOSQ_ERR_NOMEM;
+	listeners[db.config->listener_গুনতি].security_options = mosquitto_calloc(1, পরিমাণ(সংরচনা mosquitto__security_options));
+	যদি(listeners[db.config->listener_গুনতি].security_options == রিক্ত){
+		প্রত্যাগম MOSQ_ERR_NOMEM;
 	}
 
-	listener__set_defaults(&listeners[db.config->listener_count]);
-	listeners[db.config->listener_count].security_options->allow_anonymous = allow_anonymous;
-	listeners[db.config->listener_count].security_options->auto_id_prefix = mosquitto_strdup("auto-");
-	if(listeners[db.config->listener_count].security_options->auto_id_prefix == NULL){
-		mosquitto_FREE(listeners[db.config->listener_count].security_options);
-		return MOSQ_ERR_NOMEM;
+	listener__set_defaults(&listeners[db.config->listener_গুনতি]);
+	listeners[db.config->listener_গুনতি].security_options->allow_anonymous = allow_anonymous;
+	listeners[db.config->listener_গুনতি].security_options->auto_id_prefix = mosquitto_strdup("auto-");
+	যদি(listeners[db.config->listener_গুনতি].security_options->auto_id_prefix == রিক্ত){
+		mosquitto_FREE(listeners[db.config->listener_গুনতি].security_options);
+		প্রত্যাগম MOSQ_ERR_NOMEM;
 	}
-	listeners[db.config->listener_count].security_options->auto_id_prefix_len = (int)strlen("auto-");
-	listeners[db.config->listener_count].port = port;
-	listeners[db.config->listener_count].host = mosquitto_strdup(host);
-	if(listeners[db.config->listener_count].host == NULL){
-		mosquitto_FREE(listeners[db.config->listener_count].security_options->auto_id_prefix);
-		mosquitto_FREE(listeners[db.config->listener_count].security_options);
-		return MOSQ_ERR_NOMEM;
+	listeners[db.config->listener_গুনতি].security_options->auto_id_prefix_len = (পূর্ণাঙ্ক)strlen("auto-");
+	listeners[db.config->listener_গুনতি].port = port;
+	listeners[db.config->listener_গুনতি].host = mosquitto_strdup(host);
+	যদি(listeners[db.config->listener_গুনতি].host == রিক্ত){
+		mosquitto_FREE(listeners[db.config->listener_গুনতি].security_options->auto_id_prefix);
+		mosquitto_FREE(listeners[db.config->listener_গুনতি].security_options);
+		প্রত্যাগম MOSQ_ERR_NOMEM;
 	}
-	if(listeners__start_single_mqtt(&listeners[db.config->listener_count])){
-		mosquitto_FREE(listeners[db.config->listener_count].security_options->auto_id_prefix);
-		mosquitto_FREE(listeners[db.config->listener_count].security_options);
-		mosquitto_FREE(listeners[db.config->listener_count].host);
-		return MOSQ_ERR_UNKNOWN;
+	যদি(listeners__start_single_mqtt(&listeners[db.config->listener_গুনতি])){
+		mosquitto_FREE(listeners[db.config->listener_গুনতি].security_options->auto_id_prefix);
+		mosquitto_FREE(listeners[db.config->listener_গুনতি].security_options);
+		mosquitto_FREE(listeners[db.config->listener_গুনতি].host);
+		প্রত্যাগম MOSQ_ERR_UNKNOWN;
 	}
-	db.config->listener_count++;
-	return MOSQ_ERR_SUCCESS;
+	db.config->listener_গুনতি++;
+	প্রত্যাগম MOSQ_ERR_SUCCESS;
 }
 
 
-static int listeners__start_local_only(void)
+স্থির পূর্ণাঙ্ক listeners__start_local_only(শূন্য)
 {
 	/* Attempt to open listeners bound to 127.0.0.1 and ::1 only */
-	int rc;
-	struct mosquitto__listener *listeners;
-	size_t count;
+	পূর্ণাঙ্ক rc;
+	সংরচনা mosquitto__listener *listeners;
+	size_t গুনতি;
 
-	if(db.config->cmd_port_count == 0){
-		count = 2;
-	}else{
-		count = (size_t)(db.config->cmd_port_count*2);
+	যদি(db.config->cmd_port_গুনতি == 0){
+		গুনতি = 2;
+	}অন্যথা{
+		গুনতি = (size_t)(db.config->cmd_port_গুনতি*2);
 	}
 
 #ifdef WITH_HTTP_API
-	count++;
+	গুনতি++;
 #endif
 
-	listeners = mosquitto_realloc(db.config->listeners, count*sizeof(struct mosquitto__listener));
-	if(listeners == NULL){
-		return MOSQ_ERR_NOMEM;
+	listeners = mosquitto_realloc(db.config->listeners, গুনতি*পরিমাণ(সংরচনা mosquitto__listener));
+	যদি(listeners == রিক্ত){
+		প্রত্যাগম MOSQ_ERR_NOMEM;
 	}
-	memset(listeners, 0, count*sizeof(struct mosquitto__listener));
-	db.config->listener_count = 0;
+	memset(listeners, 0, গুনতি*পরিমাণ(সংরচনা mosquitto__listener));
+	db.config->listener_গুনতি = 0;
 	db.config->listeners = listeners;
 
-	log__printf(NULL, MOSQ_LOG_WARNING, "Starting in local only mode. Connections will only be possible from clients running on this machine.");
-	log__printf(NULL, MOSQ_LOG_WARNING, "Create a configuration file which defines a listener to allow remote access.");
-	log__printf(NULL, MOSQ_LOG_WARNING, "For more details see https://mosquitto.org/documentation/authentication-methods/");
-	if(db.config->cmd_port_count == 0){
+	log__printf(রিক্ত, MOSQ_LOG_WARNING, "Starting in local only mode. Connections will only be possible from clients running on this machine.");
+	log__printf(রিক্ত, MOSQ_LOG_WARNING, "Create a configuration file which defines a listener to allow remote access.");
+	log__printf(রিক্ত, MOSQ_LOG_WARNING, "For more details see https://mosquitto.org/documentation/authentication-methods/");
+	যদি(db.config->cmd_port_গুনতি == 0){
 		rc = listeners__add_local("127.0.0.1", 1883);
-		if(rc == MOSQ_ERR_NOMEM){
-			return MOSQ_ERR_NOMEM;
+		যদি(rc == MOSQ_ERR_NOMEM){
+			প্রত্যাগম MOSQ_ERR_NOMEM;
 		}
 		rc = listeners__add_local("::1", 1883);
-		if(rc == MOSQ_ERR_NOMEM){
-			return MOSQ_ERR_NOMEM;
+		যদি(rc == MOSQ_ERR_NOMEM){
+			প্রত্যাগম MOSQ_ERR_NOMEM;
 		}
-	}else{
-		for(int i=0; i<db.config->cmd_port_count; i++){
+	}অন্যথা{
+		প্রতি(পূর্ণাঙ্ক i=0; i<db.config->cmd_port_গুনতি; i++){
 			rc = listeners__add_local("127.0.0.1", db.config->cmd_port[i]);
-			if(rc == MOSQ_ERR_NOMEM){
-				return MOSQ_ERR_NOMEM;
+			যদি(rc == MOSQ_ERR_NOMEM){
+				প্রত্যাগম MOSQ_ERR_NOMEM;
 			}
 			rc = listeners__add_local("::1", db.config->cmd_port[i]);
-			if(rc == MOSQ_ERR_NOMEM){
-				return MOSQ_ERR_NOMEM;
+			যদি(rc == MOSQ_ERR_NOMEM){
+				প্রত্যাগম MOSQ_ERR_NOMEM;
 			}
 		}
 	}
 
-	if(db.config->listener_count > 0){
+	যদি(db.config->listener_গুনতি > 0){
 #ifdef WITH_HTTP_API
-		db.config->listener_count++;
-		http_api__start_local(&db.config->listeners[db.config->listener_count-1]);
+		db.config->listener_গুনতি++;
+		http_api__start_local(&db.config->listeners[db.config->listener_গুনতি-1]);
 #endif
-		return MOSQ_ERR_SUCCESS;
-	}else{
-		return MOSQ_ERR_UNKNOWN;
+		প্রত্যাগম MOSQ_ERR_SUCCESS;
+	}অন্যথা{
+		প্রত্যাগম MOSQ_ERR_UNKNOWN;
 	}
 }
 
 
-int listeners__start(void)
+পূর্ণাঙ্ক listeners__start(শূন্য)
 {
-	g_listensock_count = 0;
+	g_listensock_গুনতি = 0;
 
-	if(db.config->local_only){
-		if(listeners__start_local_only()){
+	যদি(db.config->local_only){
+		যদি(listeners__start_local_only()){
 			db__close();
-			if(db.config->pid_file){
-				(void)remove(db.config->pid_file);
+			যদি(db.config->pid_file){
+				(শূন্য)remove(db.config->pid_file);
 			}
-			return 1;
+			প্রত্যাগম 1;
 		}
-		mux__add_listeners(g_listensock, g_listensock_count);
-		return MOSQ_ERR_SUCCESS;
+		mux__add_listeners(g_listensock, g_listensock_গুনতি);
+		প্রত্যাগম MOSQ_ERR_SUCCESS;
 	}
 
-	for(int i=0; i<db.config->listener_count; i++){
-		if(db.config->listeners[i].protocol == mp_mqtt){
-			if(listeners__start_single_mqtt(&db.config->listeners[i])){
+	প্রতি(পূর্ণাঙ্ক i=0; i<db.config->listener_গুনতি; i++){
+		যদি(db.config->listeners[i].protocol == mp_mqtt){
+			যদি(listeners__start_single_mqtt(&db.config->listeners[i])){
 				db__close();
-				if(db.config->pid_file){
-					(void)remove(db.config->pid_file);
+				যদি(db.config->pid_file){
+					(শূন্য)remove(db.config->pid_file);
 				}
-				return 1;
+				প্রত্যাগম 1;
 			}
-		}else if(db.config->listeners[i].protocol == mp_websockets){
-#if defined(WITH_WEBSOCKETS) && WITH_WEBSOCKETS == WS_IS_LWS
+		}অন্যথা যদি(db.config->listeners[i].protocol == mp_websockets){
+#যদি defined(WITH_WEBSOCKETS) && WITH_WEBSOCKETS == WS_IS_LWS
 			mosq_websockets_init(&db.config->listeners[i], db.config);
-			if(!db.config->listeners[i].ws_context){
-				log__printf(NULL, MOSQ_LOG_ERR, "Error: Unable to create websockets listener on port %d.", db.config->listeners[i].port);
-				return 1;
+			যদি(!db.config->listeners[i].ws_context){
+				log__printf(রিক্ত, MOSQ_LOG_ERR, "Error: Unable to create websockets listener on port %d.", db.config->listeners[i].port);
+				প্রত্যাগম 1;
 			}
-#elif defined(WITH_WEBSOCKETS) && WITH_WEBSOCKETS == WS_IS_BUILTIN
-			if(listeners__start_single_mqtt(&db.config->listeners[i])){
+#নোচেদ্যদি defined(WITH_WEBSOCKETS) && WITH_WEBSOCKETS == WS_IS_BUILTIN
+			যদি(listeners__start_single_mqtt(&db.config->listeners[i])){
 				db__close();
-				if(db.config->pid_file){
-					(void)remove(db.config->pid_file);
+				যদি(db.config->pid_file){
+					(শূন্য)remove(db.config->pid_file);
 				}
-				return 1;
+				প্রত্যাগম 1;
 			}
 #endif
 #ifdef WITH_HTTP_API
-		}else if(db.config->listeners[i].protocol == mp_http_api){
+		}অন্যথা যদি(db.config->listeners[i].protocol == mp_http_api){
 			http_api__start(&db.config->listeners[i]);
 #endif
 		}
 	}
-	if(g_listensock == NULL){
-		log__printf(NULL, MOSQ_LOG_ERR, "Error: Unable to start any listening sockets, exiting.");
-		return 1;
+	যদি(g_listensock == রিক্ত){
+		log__printf(রিক্ত, MOSQ_LOG_ERR, "Error: Unable to start any listening sockets, exiting.");
+		প্রত্যাগম 1;
 	}
 
-	mux__add_listeners(g_listensock, g_listensock_count);
-	return MOSQ_ERR_SUCCESS;
+	mux__add_listeners(g_listensock, g_listensock_গুনতি);
+	প্রত্যাগম MOSQ_ERR_SUCCESS;
 }
 
 
-void listeners__stop(void)
+শূন্য listeners__stop(শূন্য)
 {
-	mux__delete_listeners(g_listensock, g_listensock_count);
+	mux__delete_listeners(g_listensock, g_listensock_গুনতি);
 
-	for(int i=0; i<db.config->listener_count; i++){
-#if defined(WITH_WEBSOCKETS) && WITH_WEBSOCKETS == WS_IS_LWS
-		if(db.config->listeners[i].ws_context){
+	প্রতি(পূর্ণাঙ্ক i=0; i<db.config->listener_গুনতি; i++){
+#যদি defined(WITH_WEBSOCKETS) && WITH_WEBSOCKETS == WS_IS_LWS
+		যদি(db.config->listeners[i].ws_context){
 			lws_context_destroy(db.config->listeners[i].ws_context);
 		}
 		mosquitto_FREE(db.config->listeners[i].ws_protocol);
 #endif
 #ifdef WITH_UNIX_SOCKETS
-		if(db.config->listeners[i].unix_socket_path != NULL){
+		যদি(db.config->listeners[i].unix_socket_path != রিক্ত){
 			unlink(db.config->listeners[i].unix_socket_path);
 		}
 #endif
 #ifdef WITH_HTTP_API
-		if(db.config->listeners[i].mhd){
+		যদি(db.config->listeners[i].mhd){
 			http_api__stop(&db.config->listeners[i]);
 		}
 #endif
 	}
 
-	for(int i=0; i<g_listensock_count; i++){
-		if(g_listensock[i].sock != INVALID_SOCKET){
+	প্রতি(পূর্ণাঙ্ক i=0; i<g_listensock_গুনতি; i++){
+		যদি(g_listensock[i].sock != INVALID_SOCKET){
 			COMPAT_CLOSE(g_listensock[i].sock);
 		}
 	}
 	mosquitto_FREE(g_listensock);
-	g_listensock_count = 0;
+	g_listensock_গুনতি = 0;
 	listensock_index = 0;
 }
