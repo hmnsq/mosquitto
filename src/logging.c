@@ -15,42 +15,42 @@ SPDX-License-Identifier: EPL-2.0 OR BSD-3-Clause
 Contributors:
    Roger Light - initial implementation and documentation.
 */
-#include "config.h"
+#ضمن "config.h"
 
-#include <inttypes.h>
-#include <stdarg.h>
-#include <stdio.h>
-#include <string.h>
-#include <inttypes.h>
-#ifndef WIN32
-#include <syslog.h>
-#endif
-#include <time.h>
+#ضمن <inttypes.h>
+#ضمن <stdarg.h>
+#ضمن <stdio.h>
+#ضمن <string.h>
+#ضمن <inttypes.h>
+#که_نه_تعریف_شوی WIN32
+#ضمن <syslog.h>
+#د_که_پای
+#ضمن <time.h>
 
-#if defined(__APPLE__)
+#إذا defined(__APPLE__)
 #  include <sys/time.h>
-#endif
+#د_که_پای
 
-#ifdef WITH_DLT
-#include <sys/stat.h>
-#include <dlt/dlt.h>
-#endif
+#که_تعریف_شوی WITH_DLT
+#ضمن <sys/stat.h>
+#ضمن <dlt/dlt.h>
+#د_که_پای
 
-#include "logging_mosq.h"
-#include "mosquitto_broker_internal.h"
-#include "util_mosq.h"
+#ضمن "logging_mosq.h"
+#ضمن "mosquitto_broker_internal.h"
+#ضمن "util_mosq.h"
 
-#ifdef WIN32
+#که_تعریف_شوی WIN32
 HANDLE syslog_h;
-#endif
+#د_که_پای
 
-#ifdef ANDROID
-#include <android/log.h>
-static const char *LOG_TAG = "mosquitto";
-#endif
+#که_تعریف_شوی ANDROID
+#ضمن <android/log.h>
+ساكن ثابت حرف *LOG_نښان = "mosquitto";
+#د_که_پای
 
-static char log_fptr_buffer[BUFSIZ];
-static void libcommon__vprintf(const char *fmt, va_list va);
+ساكن حرف log_fptr_بفر[BUFSIZ];
+ساكن فراغ libcommon__vprintf(ثابت حرف *fmt, va_list va);
 
 /* Options for logging should be:
  *
@@ -64,386 +64,386 @@ static void libcommon__vprintf(const char *fmt, va_list va);
 /* Give option of logging timestamp.
  * Logging pid.
  */
-static unsigned int log_destinations = MQTT3_LOG_STDERR;
-static unsigned int log_priorities = MOSQ_LOG_ERR | MOSQ_LOG_WARNING | MOSQ_LOG_NOTICE | MOSQ_LOG_INFO;
+ساكن بینښه صحيح log_destinations = MQTT3_LOG_STDERR;
+ساكن بینښه صحيح log_priorities = MOSQ_LOG_ERR | MOSQ_LOG_WARNING | MOSQ_LOG_NOTICE | MOSQ_LOG_INFO;
 
-#ifdef WITH_DLT
-static DltContext dltContext;
-static bool dlt_allowed = false;
+#که_تعریف_شوی WITH_DLT
+ساكن DltContext dltContext;
+ساكن bool dlt_allowed = false;
 
 
-void dlt_fifo_check(void)
+فراغ dlt_fifo_check(فراغ)
 {
-	struct stat statbuf;
+	بنية stat statbuf;
 
 	/* If we start DLT but the /tmp/dlt fifo doesn't exist, or isn't available
 	 * for writing then there is a big delay when we try and close the log
 	 * later, so check for it first. This has the side effect of not letting
 	 * people using DLT create the fifo after Mosquitto has started, but at the
 	 * benefit of not having a massive delay for everybody else. */
-	memset(&statbuf, 0, sizeof(statbuf));
-	if(stat("/tmp/dlt", &statbuf) == 0){
-		if(S_ISFIFO(statbuf.st_mode)){
-			int fd = open("/tmp/dlt", O_NONBLOCK | O_WRONLY);
-			if(fd != -1){
+	memset(&statbuf, 0, حجم(statbuf));
+	إذا(stat("/tmp/dlt", &statbuf) == 0){
+		إذا(S_ISFIFO(statbuf.st_ډېرپېښ)){
+			صحيح fd = open("/tmp/dlt", O_NONBLOCK | O_WRONLY);
+			إذا(fd != -1){
 				dlt_allowed = true;
 				close(fd);
 			}
 		}
 	}
 }
-#endif
+#د_که_پای
 
 
-static int get_time(struct tm **ti)
+ساكن صحيح get_وخت(بنية tm **ti)
 {
 	time_t s;
 
 	s = db.now_real_s;
 
 	*ti = localtime(&s);
-	if(!(*ti)){
+	إذا(!(*ti)){
 		fprintf(stderr, "Error obtaining system time.\n");
-		return 1;
+		أرجع 1;
 	}
 
-	return 0;
+	أرجع 0;
 }
 
 
-int log__init(struct mosquitto__config *config)
+صحيح log__init(بنية mosquitto__config *config)
 {
-	int rc = 0;
+	صحيح rc = 0;
 
 	libcommon_vprintf = libcommon__vprintf;
 
 	log_priorities = config->log_type;
 	log_destinations = config->log_dest;
 
-	if(log_destinations & MQTT3_LOG_SYSLOG){
-#ifndef WIN32
+	إذا(log_destinations & MQTT3_LOG_SYSLOG){
+#که_نه_تعریف_شوی WIN32
 		openlog("mosquitto", LOG_PID|LOG_CONS, config->log_facility);
-#else
-		syslog_h = OpenEventLog(NULL, "mosquitto");
-#endif
+#وإلا
+		syslog_h = OpenEventLog(عدم, "mosquitto");
+#د_که_پای
 	}
 
-	if(log_destinations & MQTT3_LOG_FILE){
+	إذا(log_destinations & MQTT3_LOG_FILE){
 		config->log_fptr = mosquitto_fopen(config->log_file, "at", true);
-		if(config->log_fptr){
-			setvbuf(config->log_fptr, log_fptr_buffer, _IOLBF, sizeof(log_fptr_buffer));
-		}else{
+		إذا(config->log_fptr){
+			setvbuf(config->log_fptr, log_fptr_بفر, _IOLBF, حجم(log_fptr_بفر));
+		}وإلا{
 			log_destinations = MQTT3_LOG_STDERR;
 			log_priorities = MOSQ_LOG_ERR;
-			log__printf(NULL, MOSQ_LOG_ERR, "Error: Unable to open log file %s for writing.", config->log_file);
+			log__printf(عدم, MOSQ_LOG_ERR, "Error: Unable to open log file %s for writing.", config->log_file);
 		}
 	}
-#ifndef WIN32
-	if(log_destinations & MQTT3_LOG_STDOUT){
-		setvbuf(stdout, NULL, _IOLBF, 0);
+#که_نه_تعریف_شوی WIN32
+	إذا(log_destinations & MQTT3_LOG_STDOUT){
+		setvbuf(stdout, عدم, _IOLBF, 0);
 	}
-#endif
-#ifdef WITH_DLT
-	if(log_destinations & MQTT3_LOG_DLT){
+#د_که_پای
+#که_تعریف_شوی WITH_DLT
+	إذا(log_destinations & MQTT3_LOG_DLT){
 		dlt_fifo_check();
-		if(dlt_allowed){
-			DLT_REGISTER_APP("MQTT", "mosquitto log");
-			dlt_register_context(&dltContext, "MQTT", "mosquitto DLT context");
+		إذا(dlt_allowed){
+			DLT_ثبتوونکی_APP("MQTT", "mosquitto log");
+			dlt_ثبتوونکی_context(&dltContext, "MQTT", "mosquitto DLT context");
 		}
 	}
-#endif
-	return rc;
+#د_که_پای
+	أرجع rc;
 }
 
 
-int log__close(struct mosquitto__config *config)
+صحيح log__close(بنية mosquitto__config *config)
 {
-	if(log_destinations & MQTT3_LOG_SYSLOG){
-#ifndef WIN32
+	إذا(log_destinations & MQTT3_LOG_SYSLOG){
+#که_نه_تعریف_شوی WIN32
 		closelog();
-#else
+#وإلا
 		CloseEventLog(syslog_h);
-#endif
+#د_که_پای
 	}
-	if(log_destinations & MQTT3_LOG_FILE){
-		if(config->log_fptr){
+	إذا(log_destinations & MQTT3_LOG_FILE){
+		إذا(config->log_fptr){
 			fclose(config->log_fptr);
-			config->log_fptr = NULL;
+			config->log_fptr = عدم;
 		}
 	}
 
-#ifdef WITH_DLT
-	if(dlt_allowed){
+#که_تعریف_شوی WITH_DLT
+	إذا(dlt_allowed){
 		dlt_unregister_context(&dltContext);
 		DLT_UNREGISTER_APP();
 	}
-#endif
+#د_که_پای
 	/* FIXME - do something for all destinations! */
-	return MOSQ_ERR_SUCCESS;
+	أرجع MOSQ_ERR_SUCCESS;
 }
 
-#ifdef WITH_DLT
+#که_تعریف_شوی WITH_DLT
 
 
-DltLogLevelType get_dlt_level(unsigned int priority)
+DltLogLevelType get_dlt_level(بینښه صحيح لومړیتوب)
 {
-	switch(priority){
-		case MOSQ_LOG_ERR:
-			return DLT_LOG_ERROR;
-		case MOSQ_LOG_WARNING:
-			return DLT_LOG_WARN;
-		case MOSQ_LOG_INFO:
-			return DLT_LOG_INFO;
-		case MOSQ_LOG_DEBUG:
-			return DLT_LOG_DEBUG;
-		case MOSQ_LOG_NOTICE:
-		case MOSQ_LOG_SUBSCRIBE:
-		case MOSQ_LOG_UNSUBSCRIBE:
-			return DLT_LOG_VERBOSE;
-		default:
-			return DLT_LOG_DEFAULT;
+	بدل(لومړیتوب){
+		حالة MOSQ_LOG_ERR:
+			أرجع DLT_LOG_ERROR;
+		حالة MOSQ_LOG_WARNING:
+			أرجع DLT_LOG_WARN;
+		حالة MOSQ_LOG_INFO:
+			أرجع DLT_LOG_INFO;
+		حالة MOSQ_LOG_DEBUG:
+			أرجع DLT_LOG_DEBUG;
+		حالة MOSQ_LOG_NOTICE:
+		حالة MOSQ_LOG_SUBSCRIBE:
+		حالة MOSQ_LOG_UNSUBSCRIBE:
+			أرجع DLT_LOG_VERBOSE;
+		افتراضي:
+			أرجع DLT_LOG_DEFAULT;
 	}
 }
-#endif
+#د_که_پای
 
-#ifdef ANDROID
+#که_تعریف_شوی ANDROID
 
 
-android_LogPriority get_android_level(unsigned int priority)
+android_Log_لومړیتوب get_android_level(بینښه صحيح لومړیتوب)
 {
-	switch(priority){
-		case MOSQ_LOG_ERR:
-			return ANDROID_LOG_ERROR;
-		case MOSQ_LOG_WARNING:
-			return ANDROID_LOG_WARN;
-		case MOSQ_LOG_INFO:
-			return ANDROID_LOG_INFO;
-		case MOSQ_LOG_DEBUG:
-			return ANDROID_LOG_DEBUG;
-		case MOSQ_LOG_NOTICE:
-		case MOSQ_LOG_SUBSCRIBE:
-		case MOSQ_LOG_UNSUBSCRIBE:
-			return ANDROID_LOG_VERBOSE;
-		default:
-			return ANDROID_LOG_DEBUG;
+	بدل(لومړیتوب){
+		حالة MOSQ_LOG_ERR:
+			أرجع ANDROID_LOG_ERROR;
+		حالة MOSQ_LOG_WARNING:
+			أرجع ANDROID_LOG_WARN;
+		حالة MOSQ_LOG_INFO:
+			أرجع ANDROID_LOG_INFO;
+		حالة MOSQ_LOG_DEBUG:
+			أرجع ANDROID_LOG_DEBUG;
+		حالة MOSQ_LOG_NOTICE:
+		حالة MOSQ_LOG_SUBSCRIBE:
+		حالة MOSQ_LOG_UNSUBSCRIBE:
+			أرجع ANDROID_LOG_VERBOSE;
+		افتراضي:
+			أرجع ANDROID_LOG_DEBUG;
 	}
 }
-#endif
+#د_که_پای
 
 
-static int log__vprintf(unsigned int priority, const char *fmt, va_list va)
+ساكن صحيح log__vprintf(بینښه صحيح لومړیتوب, ثابت حرف *fmt, va_list va)
 {
-	const char *topic;
-	int syslog_priority;
-	char log_line[1000];
-	size_t log_line_pos;
-#ifdef WIN32
-	char *sp;
-#endif
+	ثابت حرف *topic;
+	صحيح syslog_لومړیتوب;
+	حرف log_کرښه[1000];
+	size_t log_کرښه_pos;
+#که_تعریف_شوی WIN32
+	حرف *sp;
+#د_که_پای
 	bool log_timestamp = true;
-	char *log_timestamp_format = NULL;
-	FILE *log_fptr = NULL;
+	حرف *log_timestamp_format = عدم;
+	FILE *log_fptr = عدم;
 
-	if(db.config){
+	إذا(db.config){
 		log_timestamp = db.config->log_timestamp;
 		log_timestamp_format = db.config->log_timestamp_format;
 		log_fptr = db.config->log_fptr;
 	}
 
-	if((log_priorities & priority) && log_destinations != MQTT3_LOG_NONE){
-		switch(priority){
-			case MOSQ_LOG_SUBSCRIBE:
+	إذا((log_priorities & لومړیتوب) && log_destinations != MQTT3_LOG_NONE){
+		بدل(لومړیتوب){
+			حالة MOSQ_LOG_SUBSCRIBE:
 				topic = "$SYS/broker/log/M/subscribe";
-#ifndef WIN32
-				syslog_priority = LOG_NOTICE;
-#else
-				syslog_priority = EVENTLOG_INFORMATION_TYPE;
-#endif
-				break;
-			case MOSQ_LOG_UNSUBSCRIBE:
+#که_نه_تعریف_شوی WIN32
+				syslog_لومړیتوب = LOG_NOTICE;
+#وإلا
+				syslog_لومړیتوب = EVENTLOG_INFORMATION_TYPE;
+#د_که_پای
+				اكسر;
+			حالة MOSQ_LOG_UNSUBSCRIBE:
 				topic = "$SYS/broker/log/M/unsubscribe";
-#ifndef WIN32
-				syslog_priority = LOG_NOTICE;
-#else
-				syslog_priority = EVENTLOG_INFORMATION_TYPE;
-#endif
-				break;
-			case MOSQ_LOG_DEBUG:
+#که_نه_تعریف_شوی WIN32
+				syslog_لومړیتوب = LOG_NOTICE;
+#وإلا
+				syslog_لومړیتوب = EVENTLOG_INFORMATION_TYPE;
+#د_که_پای
+				اكسر;
+			حالة MOSQ_LOG_DEBUG:
 				topic = "$SYS/broker/log/D";
-#ifndef WIN32
-				syslog_priority = LOG_DEBUG;
-#else
-				syslog_priority = EVENTLOG_INFORMATION_TYPE;
-#endif
-				break;
-			case MOSQ_LOG_ERR:
+#که_نه_تعریف_شوی WIN32
+				syslog_لومړیتوب = LOG_DEBUG;
+#وإلا
+				syslog_لومړیتوب = EVENTLOG_INFORMATION_TYPE;
+#د_که_پای
+				اكسر;
+			حالة MOSQ_LOG_ERR:
 				topic = "$SYS/broker/log/E";
-#ifndef WIN32
-				syslog_priority = LOG_ERR;
-#else
-				syslog_priority = EVENTLOG_ERROR_TYPE;
-#endif
-				break;
-			case MOSQ_LOG_WARNING:
+#که_نه_تعریف_شوی WIN32
+				syslog_لومړیتوب = LOG_ERR;
+#وإلا
+				syslog_لومړیتوب = EVENTLOG_ERROR_TYPE;
+#د_که_پای
+				اكسر;
+			حالة MOSQ_LOG_WARNING:
 				topic = "$SYS/broker/log/W";
-#ifndef WIN32
-				syslog_priority = LOG_WARNING;
-#else
-				syslog_priority = EVENTLOG_WARNING_TYPE;
-#endif
-				break;
-			case MOSQ_LOG_NOTICE:
+#که_نه_تعریف_شوی WIN32
+				syslog_لومړیتوب = LOG_WARNING;
+#وإلا
+				syslog_لومړیتوب = EVENTLOG_WARNING_TYPE;
+#د_که_پای
+				اكسر;
+			حالة MOSQ_LOG_NOTICE:
 				topic = "$SYS/broker/log/N";
-#ifndef WIN32
-				syslog_priority = LOG_NOTICE;
-#else
-				syslog_priority = EVENTLOG_INFORMATION_TYPE;
-#endif
-				break;
-			case MOSQ_LOG_INFO:
+#که_نه_تعریف_شوی WIN32
+				syslog_لومړیتوب = LOG_NOTICE;
+#وإلا
+				syslog_لومړیتوب = EVENTLOG_INFORMATION_TYPE;
+#د_که_پای
+				اكسر;
+			حالة MOSQ_LOG_INFO:
 				topic = "$SYS/broker/log/I";
-#ifndef WIN32
-				syslog_priority = LOG_INFO;
-#else
-				syslog_priority = EVENTLOG_INFORMATION_TYPE;
-#endif
-				break;
-#if defined(WITH_WEBSOCKETS) && WITH_WEBSOCKETS == WS_IS_LWS
-			case MOSQ_LOG_WEBSOCKETS:
+#که_نه_تعریف_شوی WIN32
+				syslog_لومړیتوب = LOG_INFO;
+#وإلا
+				syslog_لومړیتوب = EVENTLOG_INFORMATION_TYPE;
+#د_که_پای
+				اكسر;
+#إذا defined(WITH_WEBSOCKETS) && WITH_WEBSOCKETS == WS_IS_LWS
+			حالة MOSQ_LOG_WEBSOCKETS:
 				topic = "$SYS/broker/log/WS";
-#ifndef WIN32
-				syslog_priority = LOG_DEBUG;
-#else
-				syslog_priority = EVENTLOG_INFORMATION_TYPE;
-#endif
-				break;
-#endif
-			default:
+#که_نه_تعریف_شوی WIN32
+				syslog_لومړیتوب = LOG_DEBUG;
+#وإلا
+				syslog_لومړیتوب = EVENTLOG_INFORMATION_TYPE;
+#د_که_پای
+				اكسر;
+#د_که_پای
+			افتراضي:
 				topic = "$SYS/broker/log/E";
-#ifndef WIN32
-				syslog_priority = LOG_ERR;
-#else
-				syslog_priority = EVENTLOG_ERROR_TYPE;
-#endif
+#که_نه_تعریف_شوی WIN32
+				syslog_لومړیتوب = LOG_ERR;
+#وإلا
+				syslog_لومړیتوب = EVENTLOG_ERROR_TYPE;
+#د_که_پای
 		}
-		if(log_timestamp){
-			if(log_timestamp_format){
-				struct tm *ti = NULL;
-				get_time(&ti);
-				log_line_pos = strftime(log_line, sizeof(log_line), log_timestamp_format, ti);
-				if(log_line_pos == 0){
-					log_line_pos = (size_t)snprintf(log_line, sizeof(log_line), "Time error");
+		إذا(log_timestamp){
+			إذا(log_timestamp_format){
+				بنية tm *ti = عدم;
+				get_وخت(&ti);
+				log_کرښه_pos = strftime(log_کرښه, حجم(log_کرښه), log_timestamp_format, ti);
+				إذا(log_کرښه_pos == 0){
+					log_کرښه_pos = (size_t)snprintf(log_کرښه, حجم(log_کرښه), "Time error");
 				}
-			}else{
-				log_line_pos = (size_t)snprintf(log_line, sizeof(log_line), "%" PRIu64, (uint64_t)db.now_real_s);
+			}وإلا{
+				log_کرښه_pos = (size_t)snprintf(log_کرښه, حجم(log_کرښه), "%" PRIu64, (uint64_t)db.now_real_s);
 			}
-			if(log_line_pos < sizeof(log_line)-3){
-				log_line[log_line_pos] = ':';
-				log_line[log_line_pos+1] = ' ';
-				log_line[log_line_pos+2] = '\0';
-				log_line_pos += 2;
+			إذا(log_کرښه_pos < حجم(log_کرښه)-3){
+				log_کرښه[log_کرښه_pos] = ':';
+				log_کرښه[log_کرښه_pos+1] = ' ';
+				log_کرښه[log_کرښه_pos+2] = '\0';
+				log_کرښه_pos += 2;
 			}
-		}else{
-			log_line_pos = 0;
+		}وإلا{
+			log_کرښه_pos = 0;
 		}
-		vsnprintf(&log_line[log_line_pos], sizeof(log_line)-log_line_pos, fmt, va);
-		log_line[sizeof(log_line)-1] = '\0'; /* Ensure string is null terminated. */
+		vsnprintf(&log_کرښه[log_کرښه_pos], حجم(log_کرښه)-log_کرښه_pos, fmt, va);
+		log_کرښه[حجم(log_کرښه)-1] = '\0'; /* Ensure string is null terminated. */
 
-		if(log_destinations & MQTT3_LOG_STDOUT){
-			fprintf(stdout, "%s\n", log_line);
+		إذا(log_destinations & MQTT3_LOG_STDOUT){
+			fprintf(stdout, "%s\n", log_کرښه);
 		}
-		if(log_destinations & MQTT3_LOG_STDERR){
-			fprintf(stderr, "%s\n", log_line);
+		إذا(log_destinations & MQTT3_LOG_STDERR){
+			fprintf(stderr, "%s\n", log_کرښه);
 		}
-		if(log_destinations & MQTT3_LOG_FILE && log_fptr){
-			fprintf(log_fptr, "%s\n", log_line);
-#ifdef WIN32
+		إذا(log_destinations & MQTT3_LOG_FILE && log_fptr){
+			fprintf(log_fptr, "%s\n", log_کرښه);
+#که_تعریف_شوی WIN32
 			/* Windows doesn't support line buffering, so flush. */
 			fflush(log_fptr);
-#endif
+#د_که_پای
 		}
-		if(log_destinations & MQTT3_LOG_SYSLOG){
-#ifndef WIN32
-			syslog(syslog_priority, "%s", log_line);
-#else
-			sp = (char *)log_line;
-			ReportEvent(syslog_h, syslog_priority, 0, 0, NULL, 1, 0, (const char **)&sp, NULL);
-#endif
+		إذا(log_destinations & MQTT3_LOG_SYSLOG){
+#که_نه_تعریف_شوی WIN32
+			syslog(syslog_لومړیتوب, "%s", log_کرښه);
+#وإلا
+			sp = (حرف *)log_کرښه;
+			ReportEvent(syslog_h, syslog_لومړیتوب, 0, 0, عدم, 1, 0, (ثابت حرف **)&sp, عدم);
+#د_که_پای
 		}
-		if(log_destinations & MQTT3_LOG_TOPIC && priority != MOSQ_LOG_DEBUG && priority != MOSQ_LOG_INTERNAL){
-			db__messages_easy_queue(NULL, topic, 2, (uint32_t)strlen(log_line), log_line, 0, 20, NULL);
+		إذا(log_destinations & MQTT3_LOG_TOPIC && لومړیتوب != MOSQ_LOG_DEBUG && لومړیتوب != MOSQ_LOG_دننی){
+			db_messages_easy_کتار(عدم, topic, 2, (uint32_t)مزي_اوږدوالی(log_کرښه), log_کرښه, 0, 20, عدم);
 		}
-#ifdef WITH_DLT
-		if(log_destinations & MQTT3_LOG_DLT && priority != MOSQ_LOG_INTERNAL){
-			DLT_LOG_STRING(dltContext, get_dlt_level(priority), log_line);
+#که_تعریف_شوی WITH_DLT
+		إذا(log_destinations & MQTT3_LOG_DLT && لومړیتوب != MOSQ_LOG_دننی){
+			DLT_LOG_STRING(dltContext, get_dlt_level(لومړیتوب), log_کرښه);
 		}
-#endif
-#ifdef ANDROID
-		if(log_destinations & MQTT3_LOG_ANDROID && priority != MOSQ_LOG_INTERNAL){
-			__android_log_write(get_android_level(priority), LOG_TAG, log_line);
+#د_که_پای
+#که_تعریف_شوی ANDROID
+		إذا(log_destinations & MQTT3_LOG_ANDROID && لومړیتوب != MOSQ_LOG_دننی){
+			__android_log_write(get_android_level(لومړیتوب), LOG_نښان, log_کرښه);
 		}
-#endif
+#د_که_پای
 	}
 
-	return MOSQ_ERR_SUCCESS;
+	أرجع MOSQ_ERR_SUCCESS;
 }
 
 
-int log__printf(struct mosquitto *mosq, unsigned int priority, const char *fmt, ...)
+صحيح log__printf(بنية mosquitto *mosq, بینښه صحيح لومړیتوب, ثابت حرف *fmt, ...)
 {
 	va_list va;
-	int rc;
+	صحيح rc;
 
-	UNUSED(mosq);
+	ناکارول_شوی(mosq);
 
-	va_start(va, fmt);
-	rc = log__vprintf(priority, fmt, va);
-	va_end(va);
+	va_پیل(va, fmt);
+	rc = log__vprintf(لومړیتوب, fmt, va);
+	va_پای_ټکی(va);
 
-	return rc;
+	أرجع rc;
 }
 
 
-void log__internal(const char *fmt, ...)
+فراغ log_دننی(ثابت حرف *fmt, ...)
 {
 	va_list va;
-	char buf[200];
-	int len;
+	حرف buf[200];
+	صحيح len;
 
-	va_start(va, fmt);
+	va_پیل(va, fmt);
 	len = vsnprintf(buf, 200, fmt, va);
-	va_end(va);
+	va_پای_ټکی(va);
 
-	if(len >= 200){
-		log__printf(NULL, MOSQ_LOG_INTERNAL, "Internal log buffer too short (%d)", len);
-		return;
+	إذا(len >= 200){
+		log__printf(عدم, MOSQ_LOG_دننی, "Internal log buffer too short (%d)", len);
+		أرجع;
 	}
 
-#ifdef WIN32
-	log__printf(NULL, MOSQ_LOG_INTERNAL, "%s", buf);
-#else
-	log__printf(NULL, MOSQ_LOG_INTERNAL, "%s%s%s", "\e[32m", buf, "\e[0m");
-#endif
+#که_تعریف_شوی WIN32
+	log__printf(عدم, MOSQ_LOG_دننی, "%s", buf);
+#وإلا
+	log__printf(عدم, MOSQ_LOG_دننی, "%s%s%s", "\e[32m", buf, "\e[0m");
+#د_که_پای
 }
 
 
-BROKER_EXPORT int mosquitto_log_vprintf(int level, const char *fmt, va_list va)
+BROKER_EXPORT صحيح mosquitto_log_vprintf(صحيح level, ثابت حرف *fmt, va_list va)
 {
-	return log__vprintf((unsigned int)level, fmt, va);
+	أرجع log__vprintf((بینښه صحيح)level, fmt, va);
 }
 
 
-BROKER_EXPORT void mosquitto_log_printf(int level, const char *fmt, ...)
+BROKER_EXPORT فراغ mosquitto_log_printf(صحيح level, ثابت حرف *fmt, ...)
 {
 	va_list va;
 
-	va_start(va, fmt);
-	log__vprintf((unsigned int)level, fmt, va);
-	va_end(va);
+	va_پیل(va, fmt);
+	log__vprintf((بینښه صحيح)level, fmt, va);
+	va_پای_ټکی(va);
 }
 
 
-static void libcommon__vprintf(const char *fmt, va_list va)
+ساكن فراغ libcommon__vprintf(ثابت حرف *fmt, va_list va)
 {
 	log__vprintf(MOSQ_LOG_INFO, fmt, va);
 }

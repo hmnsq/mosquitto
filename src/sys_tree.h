@@ -16,109 +16,109 @@ Contributors:
    Roger Light - initial implementation and documentation.
 */
 
-#ifndef SYS_TREE_H
-#define SYS_TREE_H
+#که_نه_تعریف_شوی SYS_ونه_H
+#تعریف_کړه SYS_ونه_H
 
-#if defined(WITH_SYS_TREE) && defined(WITH_BROKER)
+#إذا defined(WITH_SYS_ونه) && defined(WITH_BROKER)
 
 /* This ordering *must* match the metrics array in sys_tree.c. */
-enum mosq_metric_type {
-	mosq_gauge_clients_total = 0,
-	mosq_counter_clients_maximum = 1,
+تعداد mosq_metric_type {
+	mosq_gauge_clients_ټول = 0,
+	mosq_counter_clients_اعظمي = 1,
 	mosq_gauge_clients_disconnected = 2,
 	mosq_gauge_clients_connected = 3,
 	mosq_counter_clients_expired = 4,
-	mosq_gauge_message_store_count = 5,
-	mosq_gauge_message_store_bytes = 6,
+	mosq_gauge_پیغام_store_شمېر = 5,
+	mosq_gauge_پیغام_store_بایټونه = 6,
 	mosq_gauge_subscriptions = 7,
 	mosq_gauge_shared_subscriptions = 8,
 	mosq_gauge_retained_messages = 9,
-	mosq_gauge_heap_current = 10,
-	mosq_counter_heap_maximum = 11,
+	mosq_gauge_ډېرۍ_current = 10,
+	mosq_counter_ډېرۍ_اعظمي = 11,
 	mosq_counter_messages_received = 12,
-	mosq_counter_messages_sent = 13,
-	mosq_counter_bytes_received = 14,
-	mosq_counter_bytes_sent = 15,
-	mosq_counter_pub_bytes_received = 16,
-	mosq_counter_pub_bytes_sent = 17,
-	mosq_gauge_out_packets = 18,
-	mosq_gauge_out_packet_bytes = 19,
+	mosq_counter_messages_لېږل_شوی = 13,
+	mosq_counter_بایټونه_received = 14,
+	mosq_counter_بایټونه_لېږل_شوی = 15,
+	mosq_counter_pub_بایټونه_received = 16,
+	mosq_counter_pub_بایټونه_لېږل_شوی = 17,
+	mosq_gauge_بهر_packets = 18,
+	mosq_gauge_بهر_packet_بایټونه = 19,
 	mosq_counter_socket_connections = 20,
 	mosq_counter_mqtt_connect_received = 21,
-	mosq_counter_mqtt_connect_sent = 22,
+	mosq_counter_mqtt_connect_لېږل_شوی = 22,
 	mosq_counter_mqtt_connack_received = 23,
-	mosq_counter_mqtt_connack_sent = 24,
+	mosq_counter_mqtt_connack_لېږل_شوی = 24,
 	mosq_counter_mqtt_publish_dropped = 25,
 	mosq_counter_mqtt_publish_received = 26,
-	mosq_counter_mqtt_publish_sent = 27,
+	mosq_counter_mqtt_publish_لېږل_شوی = 27,
 	mosq_counter_mqtt_puback_received = 28,
-	mosq_counter_mqtt_puback_sent = 29,
+	mosq_counter_mqtt_puback_لېږل_شوی = 29,
 	mosq_counter_mqtt_pubrec_received = 30,
-	mosq_counter_mqtt_pubrec_sent = 31,
+	mosq_counter_mqtt_pubrec_لېږل_شوی = 31,
 	mosq_counter_mqtt_pubrel_received = 32,
-	mosq_counter_mqtt_pubrel_sent = 33,
+	mosq_counter_mqtt_pubrel_لېږل_شوی = 33,
 	mosq_counter_mqtt_pubcomp_received = 34,
-	mosq_counter_mqtt_pubcomp_sent = 35,
+	mosq_counter_mqtt_pubcomp_لېږل_شوی = 35,
 	mosq_counter_mqtt_subscribe_received = 36,
-	mosq_counter_mqtt_subscribe_sent = 37,
+	mosq_counter_mqtt_subscribe_لېږل_شوی = 37,
 	mosq_counter_mqtt_suback_received = 38,
-	mosq_counter_mqtt_suback_sent = 39,
+	mosq_counter_mqtt_suback_لېږل_شوی = 39,
 	mosq_counter_mqtt_unsubscribe_received = 40,
-	mosq_counter_mqtt_unsubscribe_sent = 41,
+	mosq_counter_mqtt_unsubscribe_لېږل_شوی = 41,
 	mosq_counter_mqtt_unsuback_received = 42,
-	mosq_counter_mqtt_unsuback_sent = 43,
+	mosq_counter_mqtt_unsuback_لېږل_شوی = 43,
 	mosq_counter_mqtt_pingreq_received = 44,
-	mosq_counter_mqtt_pingreq_sent = 45,
+	mosq_counter_mqtt_pingreq_لېږل_شوی = 45,
 	mosq_counter_mqtt_pingresp_received = 46,
-	mosq_counter_mqtt_pingresp_sent = 47,
+	mosq_counter_mqtt_pingresp_لېږل_شوی = 47,
 	mosq_counter_mqtt_disconnect_received = 48,
-	mosq_counter_mqtt_disconnect_sent = 49,
+	mosq_counter_mqtt_disconnect_لېږل_شوی = 49,
 	mosq_counter_mqtt_auth_received = 50,
-	mosq_counter_mqtt_auth_sent = 51,
+	mosq_counter_mqtt_auth_لېږل_شوی = 51,
 
 	mosq_metric_max,
 };
 
 /* This ordering *must* match the metrics_load array in sys_tree.c. */
-enum mosq_metric_load_type {
-	mosq_load_messages_received_1min = 0,
-	mosq_load_messages_received_5min = 1,
-	mosq_load_messages_received_15min = 2,
-	mosq_load_messages_sent_1min = 3,
-	mosq_load_messages_sent_5min = 4,
-	mosq_load_messages_sent_15min = 5,
-	mosq_load_pub_messages_dropped_1min = 6,
-	mosq_load_pub_messages_dropped_5min = 7,
-	mosq_load_pub_messages_dropped_15min = 8,
-	mosq_load_pub_messages_received_1min = 9,
-	mosq_load_pub_messages_received_5min = 10,
-	mosq_load_pub_messages_received_15min = 11,
-	mosq_load_pub_messages_sent_1min = 12,
-	mosq_load_pub_messages_sent_5min = 13,
-	mosq_load_pub_messages_sent_15min = 14,
-	mosq_load_bytes_received_1min = 15,
-	mosq_load_bytes_received_5min = 16,
-	mosq_load_bytes_received_15min = 17,
-	mosq_load_bytes_sent_1min = 18,
-	mosq_load_bytes_sent_5min = 19,
-	mosq_load_bytes_sent_15min = 20,
-	mosq_load_sockets_1min = 21,
-	mosq_load_sockets_5min = 22,
-	mosq_load_sockets_15min = 23,
-	mosq_load_connections_1min = 24,
-	mosq_load_connections_5min = 25,
-	mosq_load_connections_15min = 26,
+تعداد mosq_metric_بارول_type {
+	mosq_بارول_messages_received_1min = 0,
+	mosq_بارول_messages_received_5min = 1,
+	mosq_بارول_messages_received_15min = 2,
+	mosq_بارول_messages_لېږل_شوی_1min = 3,
+	mosq_بارول_messages_لېږل_شوی_5min = 4,
+	mosq_بارول_messages_لېږل_شوی_15min = 5,
+	mosq_بارول_pub_messages_dropped_1min = 6,
+	mosq_بارول_pub_messages_dropped_5min = 7,
+	mosq_بارول_pub_messages_dropped_15min = 8,
+	mosq_بارول_pub_messages_received_1min = 9,
+	mosq_بارول_pub_messages_received_5min = 10,
+	mosq_بارول_pub_messages_received_15min = 11,
+	mosq_بارول_pub_messages_لېږل_شوی_1min = 12,
+	mosq_بارول_pub_messages_لېږل_شوی_5min = 13,
+	mosq_بارول_pub_messages_لېږل_شوی_15min = 14,
+	mosq_بارول_بایټونه_received_1min = 15,
+	mosq_بارول_بایټونه_received_5min = 16,
+	mosq_بارول_بایټونه_received_15min = 17,
+	mosq_بارول_بایټونه_لېږل_شوی_1min = 18,
+	mosq_بارول_بایټونه_لېږل_شوی_5min = 19,
+	mosq_بارول_بایټونه_لېږل_شوی_15min = 20,
+	mosq_بارول_sockets_1min = 21,
+	mosq_بارول_sockets_5min = 22,
+	mosq_بارول_sockets_15min = 23,
+	mosq_بارول_connections_1min = 24,
+	mosq_بارول_connections_5min = 25,
+	mosq_بارول_connections_15min = 26,
 
-	mosq_metric_load_max,
+	mosq_metric_بارول_max,
 };
 
-void metrics__int_inc(enum mosq_metric_type m, int64_t value);
-void metrics__int_dec(enum mosq_metric_type m, int64_t value);
+فراغ metrics__int_inc(تعداد mosq_metric_type m, int64_t ارزښت);
+فراغ metrics__int_dec(تعداد mosq_metric_type m, int64_t ارزښت);
 
-#else
+#وإلا
 #  define metrics__int_inc(A, B)
 #  define metrics__int_dec(A, B)
 
-#endif
+#د_که_پای
 
-#endif
+#د_که_پای

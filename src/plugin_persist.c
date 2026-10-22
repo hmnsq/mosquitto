@@ -16,428 +16,428 @@ Contributors:
    Roger Light - initial implementation and documentation.
 */
 
-#include "config.h"
+#ضمن "config.h"
 
-#include "mosquitto_broker_internal.h"
-#include "mosquitto_internal.h"
-#include "mosquitto/broker.h"
-#include "mosquitto/mqtt_protocol.h"
-#include "send_mosq.h"
-#include "util_mosq.h"
-#include "utlist.h"
-#include "lib_load.h"
-#include "will_mosq.h"
-#include <stdint.h>
+#ضمن "mosquitto_broker_internal.h"
+#ضمن "mosquitto_internal.h"
+#ضمن "mosquitto/broker.h"
+#ضمن "mosquitto/mqtt_protocol.h"
+#ضمن "send_mosq.h"
+#ضمن "util_mosq.h"
+#ضمن "utlist.h"
+#ضمن "lib_load.h"
+#ضمن "will_mosq.h"
+#ضمن <stdint.h>
 
 
-void plugin_persist__handle_restore(void)
+فراغ plugin_persist__handle_restore(فراغ)
 {
-	struct mosquitto_evt_persist_restore event_data;
-	struct mosquitto__callback *cb_base, *cb_next;
-	struct mosquitto__security_options *opts;
+	بنية mosquitto_evt_persist_restore event_معلومات;
+	بنية mosquitto__callback *cb_بنسټ, *cb_بل;
+	بنية mosquitto__security_options *opts;
 
 	opts = &db.config->security_options;
-	memset(&event_data, 0, sizeof(event_data));
+	memset(&event_معلومات, 0, حجم(event_معلومات));
 
-	DL_FOREACH_SAFE(opts->plugin_callbacks.persist_restore, cb_base, cb_next){
-		cb_base->cb(MOSQ_EVT_PERSIST_RESTORE, &event_data, cb_base->userdata);
+	DL_FOREACH_خوندي(opts->plugin_callbacks.persist_restore, cb_بنسټ, cb_بل){
+		cb_بنسټ->cb(MOSQ_EVT_PERSIST_RESTORE, &event_معلومات, cb_بنسټ->userdata);
 	}
 }
 
 
-void plugin_persist__handle_client_add(struct mosquitto *context)
+فراغ plugin_persist_handle_client_جمع_کړه(بنية mosquitto *context)
 {
-	struct mosquitto_evt_persist_client event_data;
-	struct mosquitto__callback *cb_base, *cb_next;
-	struct mosquitto__security_options *opts;
+	بنية mosquitto_evt_persist_client event_معلومات;
+	بنية mosquitto__callback *cb_بنسټ, *cb_بل;
+	بنية mosquitto__security_options *opts;
 
-	if(db.shutdown || context->is_persisted){
-		return;
+	إذا(db.shutdown || context->is_persisted){
+		أرجع;
 	}
 
 	opts = &db.config->security_options;
-	memset(&event_data, 0, sizeof(event_data));
-	event_data.data.clientid = context->id;
-	event_data.data.username = context->username;
-	event_data.data.auth_method = context->auth_method;
-	event_data.data.will_delay_time = context->will_delay_time;
-	event_data.data.session_expiry_time = context->session_expiry_time;
-	event_data.data.will_delay_interval = context->will_delay_interval;
-	event_data.data.session_expiry_interval = context->session_expiry_interval;
-	if(context->listener){
-		event_data.data.listener_port = context->listener->port;
-	}else{
-		event_data.data.listener_port = 0;
+	memset(&event_معلومات, 0, حجم(event_معلومات));
+	event_معلومات.معلومات.clientid = context->id;
+	event_معلومات.معلومات.username = context->username;
+	event_معلومات.معلومات.auth_لاره = context->auth_لاره;
+	event_معلومات.معلومات.will_delay_وخت = context->will_delay_وخت;
+	event_معلومات.معلومات.session_expiry_وخت = context->session_expiry_وخت;
+	event_معلومات.معلومات.will_delay_interval = context->will_delay_interval;
+	event_معلومات.معلومات.session_expiry_interval = context->session_expiry_interval;
+	إذا(context->listener){
+		event_معلومات.معلومات.listener_پورټ = context->listener->پورټ;
+	}وإلا{
+		event_معلومات.معلومات.listener_پورټ = 0;
 	}
-	event_data.data.max_qos = context->max_qos;
-	event_data.data.retain_available = context->retain_available;
-	event_data.data.max_packet_size = context->maximum_packet_size;
+	event_معلومات.معلومات.max_qos = context->max_qos;
+	event_معلومات.معلومات.retain_شته = context->retain_شته;
+	event_معلومات.معلومات.max_packet_اندازه = context->اعظمي_packet_اندازه;
 
-	DL_FOREACH_SAFE(opts->plugin_callbacks.persist_client_add, cb_base, cb_next){
-		cb_base->cb(MOSQ_EVT_PERSIST_CLIENT_ADD, &event_data, cb_base->userdata);
+	DL_FOREACH_خوندي(opts->plugin_callbacks.persist_client_جمع_کړه, cb_بنسټ, cb_بل){
+		cb_بنسټ->cb(MOSQ_EVT_PERSIST_CLIENT_جمع_کړه, &event_معلومات, cb_بنسټ->userdata);
 	}
 
-	if(context->will){
-		plugin_persist__handle_will_add(context);
+	إذا(context->will){
+		plugin_persist_handle_will_جمع_کړه(context);
 	}
 
 	context->is_persisted = true;
 }
 
 
-void plugin_persist__handle_client_update(struct mosquitto *context)
+فراغ plugin_persist__handle_client_update(بنية mosquitto *context)
 {
-	struct mosquitto_evt_persist_client event_data;
-	struct mosquitto__callback *cb_base, *cb_next;
-	struct mosquitto__security_options *opts;
-	struct mosquitto_message_v5 will;
+	بنية mosquitto_evt_persist_client event_معلومات;
+	بنية mosquitto__callback *cb_بنسټ, *cb_بل;
+	بنية mosquitto__security_options *opts;
+	بنية mosquitto_پیغام_v5_2 will;
 
-	UNUSED(will); /* FIXME */
+	ناکارول_شوی(will); /* FIXME */
 
-	if(db.shutdown){
-		return;
+	إذا(db.shutdown){
+		أرجع;
 	}
 
 	opts = &db.config->security_options;
-	memset(&event_data, 0, sizeof(event_data));
-	event_data.data.clientid = context->id;
-	event_data.data.username = context->username;
-	event_data.data.auth_method = context->auth_method;
-	event_data.data.will_delay_time = context->will_delay_time;
-	event_data.data.session_expiry_time = context->session_expiry_time;
-	event_data.data.will_delay_interval = context->will_delay_interval;
-	event_data.data.session_expiry_interval = context->session_expiry_interval;
-	if(context->listener){
-		event_data.data.listener_port = context->listener->port;
-	}else{
-		event_data.data.listener_port = 0;
+	memset(&event_معلومات, 0, حجم(event_معلومات));
+	event_معلومات.معلومات.clientid = context->id;
+	event_معلومات.معلومات.username = context->username;
+	event_معلومات.معلومات.auth_لاره = context->auth_لاره;
+	event_معلومات.معلومات.will_delay_وخت = context->will_delay_وخت;
+	event_معلومات.معلومات.session_expiry_وخت = context->session_expiry_وخت;
+	event_معلومات.معلومات.will_delay_interval = context->will_delay_interval;
+	event_معلومات.معلومات.session_expiry_interval = context->session_expiry_interval;
+	إذا(context->listener){
+		event_معلومات.معلومات.listener_پورټ = context->listener->پورټ;
+	}وإلا{
+		event_معلومات.معلومات.listener_پورټ = 0;
 	}
-	event_data.data.max_qos = context->max_qos;
-	event_data.data.retain_available = context->retain_available;
-	event_data.data.max_packet_size = context->maximum_packet_size;
+	event_معلومات.معلومات.max_qos = context->max_qos;
+	event_معلومات.معلومات.retain_شته = context->retain_شته;
+	event_معلومات.معلومات.max_packet_اندازه = context->اعظمي_packet_اندازه;
 
-	DL_FOREACH_SAFE(opts->plugin_callbacks.persist_client_update, cb_base, cb_next){
-		cb_base->cb(MOSQ_EVT_PERSIST_CLIENT_UPDATE, &event_data, cb_base->userdata);
+	DL_FOREACH_خوندي(opts->plugin_callbacks.persist_client_update, cb_بنسټ, cb_بل){
+		cb_بنسټ->cb(MOSQ_EVT_PERSIST_CLIENT_UPDATE, &event_معلومات, cb_بنسټ->userdata);
 	}
 
-	if(context->will){
-		plugin_persist__handle_will_add(context);
-	}else{
+	إذا(context->will){
+		plugin_persist_handle_will_جمع_کړه(context);
+	}وإلا{
 		plugin_persist__handle_will_delete(context);
 	}
 }
 
 
-void plugin_persist__handle_client_delete(struct mosquitto *context)
+فراغ plugin_persist__handle_client_delete(بنية mosquitto *context)
 {
-	struct mosquitto_evt_persist_client event_data;
-	struct mosquitto__callback *cb_base, *cb_next;
-	struct mosquitto__security_options *opts;
+	بنية mosquitto_evt_persist_client event_معلومات;
+	بنية mosquitto__callback *cb_بنسټ, *cb_بل;
+	بنية mosquitto__security_options *opts;
 
-	if(context->id == NULL
+	إذا(context->id == عدم
 			|| context->state == mosq_cs_duplicate
 			|| db.shutdown){
-		return;
+		أرجع;
 	}
 
 	plugin_persist__handle_will_delete(context);
 
-	if(context->is_persisted == false
-			|| context->session_expiry_interval != MQTT_SESSION_EXPIRY_IMMEDIATE){
-		return;
+	إذا(context->is_persisted == false
+			|| context->session_expiry_interval != MQTT_SESSION_EXPIRY_سمدستي){
+		أرجع;
 	}
 
 	opts = &db.config->security_options;
-	memset(&event_data, 0, sizeof(event_data));
-	event_data.data.clientid = context->id;
+	memset(&event_معلومات, 0, حجم(event_معلومات));
+	event_معلومات.معلومات.clientid = context->id;
 
-	DL_FOREACH_SAFE(opts->plugin_callbacks.persist_client_delete, cb_base, cb_next){
-		cb_base->cb(MOSQ_EVT_PERSIST_CLIENT_DELETE, &event_data, cb_base->userdata);
+	DL_FOREACH_خوندي(opts->plugin_callbacks.persist_client_delete, cb_بنسټ, cb_بل){
+		cb_بنسټ->cb(MOSQ_EVT_PERSIST_CLIENT_DELETE, &event_معلومات, cb_بنسټ->userdata);
 	}
 	context->is_persisted = false;
 }
 
 
-void plugin_persist__handle_subscription_add(struct mosquitto *context, const struct mosquitto_subscription *sub)
+فراغ plugin_persist_handle_subscription_جمع_کړه(بنية mosquitto *context, ثابت بنية mosquitto_subscription *sub)
 {
-	struct mosquitto_evt_persist_subscription event_data;
-	struct mosquitto__callback *cb_base, *cb_next;
-	struct mosquitto__security_options *opts;
+	بنية mosquitto_evt_persist_subscription event_معلومات;
+	بنية mosquitto__callback *cb_بنسټ, *cb_بل;
+	بنية mosquitto__security_options *opts;
 
-	if(db.shutdown || context->is_persisted == false){
-		return;
+	إذا(db.shutdown || context->is_persisted == false){
+		أرجع;
 	}
 
 	opts = &db.config->security_options;
-	memset(&event_data, 0, sizeof(event_data));
-	event_data.data.clientid = context->id;
-	event_data.data.topic_filter = sub->topic_filter;
-	event_data.data.identifier = sub->identifier;
-	event_data.data.options = sub->options;
+	memset(&event_معلومات, 0, حجم(event_معلومات));
+	event_معلومات.معلومات.clientid = context->id;
+	event_معلومات.معلومات.topic_filter = sub->topic_filter;
+	event_معلومات.معلومات.identifier = sub->identifier;
+	event_معلومات.معلومات.options = sub->options;
 
-	DL_FOREACH_SAFE(opts->plugin_callbacks.persist_subscription_add, cb_base, cb_next){
-		cb_base->cb(MOSQ_EVT_PERSIST_SUBSCRIPTION_ADD, &event_data, cb_base->userdata);
+	DL_FOREACH_خوندي(opts->plugin_callbacks.persist_subscription_جمع_کړه, cb_بنسټ, cb_بل){
+		cb_بنسټ->cb(MOSQ_EVT_PERSIST_SUBSCRIPTION_جمع_کړه, &event_معلومات, cb_بنسټ->userdata);
 	}
 }
 
 
-void plugin_persist__handle_subscription_delete(struct mosquitto *context, char *sub)
+فراغ plugin_persist__handle_subscription_delete(بنية mosquitto *context, حرف *sub)
 {
-	struct mosquitto_evt_persist_subscription event_data;
-	struct mosquitto__callback *cb_base, *cb_next;
-	struct mosquitto__security_options *opts;
+	بنية mosquitto_evt_persist_subscription event_معلومات;
+	بنية mosquitto__callback *cb_بنسټ, *cb_بل;
+	بنية mosquitto__security_options *opts;
 
-	if(db.shutdown || context->is_persisted == false){
-		return;
+	إذا(db.shutdown || context->is_persisted == false){
+		أرجع;
 	}
-	if(!sub){
-		return;
+	إذا(!sub){
+		أرجع;
 	}
 
 	opts = &db.config->security_options;
-	memset(&event_data, 0, sizeof(event_data));
-	event_data.data.clientid = context->id;
-	event_data.data.topic_filter = sub;
+	memset(&event_معلومات, 0, حجم(event_معلومات));
+	event_معلومات.معلومات.clientid = context->id;
+	event_معلومات.معلومات.topic_filter = sub;
 
-	DL_FOREACH_SAFE(opts->plugin_callbacks.persist_subscription_delete, cb_base, cb_next){
-		cb_base->cb(MOSQ_EVT_PERSIST_SUBSCRIPTION_DELETE, &event_data, cb_base->userdata);
+	DL_FOREACH_خوندي(opts->plugin_callbacks.persist_subscription_delete, cb_بنسټ, cb_بل){
+		cb_بنسټ->cb(MOSQ_EVT_PERSIST_SUBSCRIPTION_DELETE, &event_معلومات, cb_بنسټ->userdata);
 	}
 }
 
 
-static inline void set_client_msg_event_data(struct mosquitto_evt_persist_client_msg *event_data, struct mosquitto *context, const struct mosquitto__client_msg *client_msg)
+ساكن مضمن فراغ سېټ_client_پیغام_event_معلومات(بنية mosquitto_evt_persist_client_پیغام *event_معلومات, بنية mosquitto *context, ثابت بنية mosquitto_client_پیغام *client_پیغام)
 {
-	event_data->data.clientid = context->id;
-	event_data->data.cmsg_id = client_msg->data.cmsg_id;
-	event_data->data.direction = (uint8_t)client_msg->data.direction;
-	event_data->data.dup = client_msg->data.dup;
-	event_data->data.mid = client_msg->data.mid;
-	event_data->data.qos = client_msg->data.qos;
-	event_data->data.retain = client_msg->data.retain;
-	event_data->data.state = (uint8_t)client_msg->data.state;
-	event_data->data.store_id = client_msg->base_msg->data.store_id;
-	event_data->data.subscription_identifier = client_msg->data.subscription_identifier;
+	event_معلومات->معلومات.clientid = context->id;
+	event_معلومات->معلومات.cmsg_id = client_پیغام->معلومات.cmsg_id;
+	event_معلومات->معلومات.direction = (uint8_t)client_پیغام->معلومات.direction;
+	event_معلومات->معلومات.dup = client_پیغام->معلومات.dup;
+	event_معلومات->معلومات.mid = client_پیغام->معلومات.mid;
+	event_معلومات->معلومات.qos = client_پیغام->معلومات.qos;
+	event_معلومات->معلومات.retain = client_پیغام->معلومات.retain;
+	event_معلومات->معلومات.state = (uint8_t)client_پیغام->معلومات.state;
+	event_معلومات->معلومات.store_id = client_پیغام->بنسټ_پیغام->معلومات.store_id;
+	event_معلومات->معلومات.subscription_identifier = client_پیغام->معلومات.subscription_identifier;
 }
 
 
-void plugin_persist__handle_client_msg_add(struct mosquitto *context, const struct mosquitto__client_msg *client_msg)
+فراغ plugin_persist_handle_client_پیغام_جمع_کړه(بنية mosquitto *context, ثابت بنية mosquitto_client_پیغام *client_پیغام)
 {
-	struct mosquitto_evt_persist_client_msg event_data;
-	struct mosquitto__callback *cb_base, *cb_next;
-	struct mosquitto__security_options *opts;
+	بنية mosquitto_evt_persist_client_پیغام event_معلومات;
+	بنية mosquitto__callback *cb_بنسټ, *cb_بل;
+	بنية mosquitto__security_options *opts;
 
-	if(context->is_persisted == false
-			|| (client_msg->data.qos == 0 && db.config->queue_qos0_messages == false)
+	إذا(context->is_persisted == false
+			|| (client_پیغام->معلومات.qos == 0 && db.config->کتار_qos0_messages == false)
 			|| db.shutdown){
 
-		return;
+		أرجع;
 	}
 
 	opts = &db.config->security_options;
-	memset(&event_data, 0, sizeof(event_data));
+	memset(&event_معلومات, 0, حجم(event_معلومات));
 
-	set_client_msg_event_data(&event_data, context, client_msg);
+	سېټ_client_پیغام_event_معلومات(&event_معلومات, context, client_پیغام);
 
-	DL_FOREACH_SAFE(opts->plugin_callbacks.persist_client_msg_add, cb_base, cb_next){
-		cb_base->cb(MOSQ_EVT_PERSIST_CLIENT_MSG_ADD, &event_data, cb_base->userdata);
+	DL_FOREACH_خوندي(opts->plugin_callbacks.persist_client_پیغام_جمع_کړه, cb_بنسټ, cb_بل){
+		cb_بنسټ->cb(MOSQ_EVT_PERSIST_CLIENT_پیغام_جمع_کړه, &event_معلومات, cb_بنسټ->userdata);
 	}
 }
 
 
-void plugin_persist__handle_client_msg_delete(struct mosquitto *context, const struct mosquitto__client_msg *client_msg)
+فراغ plugin_persist_handle_client_پیغام_delete(بنية mosquitto *context, ثابت بنية mosquitto_client_پیغام *client_پیغام)
 {
-	struct mosquitto_evt_persist_client_msg event_data;
-	struct mosquitto__callback *cb_base, *cb_next;
-	struct mosquitto__security_options *opts;
+	بنية mosquitto_evt_persist_client_پیغام event_معلومات;
+	بنية mosquitto__callback *cb_بنسټ, *cb_بل;
+	بنية mosquitto__security_options *opts;
 
-	if(context->is_persisted == false
-			|| (client_msg->data.qos == 0 && db.config->queue_qos0_messages == false)
+	إذا(context->is_persisted == false
+			|| (client_پیغام->معلومات.qos == 0 && db.config->کتار_qos0_messages == false)
 			|| db.shutdown){
 
-		return;
+		أرجع;
 	}
 
 	opts = &db.config->security_options;
-	memset(&event_data, 0, sizeof(event_data));
+	memset(&event_معلومات, 0, حجم(event_معلومات));
 
-	set_client_msg_event_data(&event_data, context, client_msg);
+	سېټ_client_پیغام_event_معلومات(&event_معلومات, context, client_پیغام);
 
-	DL_FOREACH_SAFE(opts->plugin_callbacks.persist_client_msg_delete, cb_base, cb_next){
-		cb_base->cb(MOSQ_EVT_PERSIST_CLIENT_MSG_DELETE, &event_data, cb_base->userdata);
+	DL_FOREACH_خوندي(opts->plugin_callbacks.persist_client_پیغام_delete, cb_بنسټ, cb_بل){
+		cb_بنسټ->cb(MOSQ_EVT_PERSIST_CLIENT_پیغام_DELETE, &event_معلومات, cb_بنسټ->userdata);
 	}
 }
 
 
-void plugin_persist__handle_client_msg_update(struct mosquitto *context, const struct mosquitto__client_msg *client_msg)
+فراغ plugin_persist_handle_client_پیغام_update(بنية mosquitto *context, ثابت بنية mosquitto_client_پیغام *client_پیغام)
 {
-	struct mosquitto_evt_persist_client_msg event_data;
-	struct mosquitto__callback *cb_base, *cb_next;
-	struct mosquitto__security_options *opts;
+	بنية mosquitto_evt_persist_client_پیغام event_معلومات;
+	بنية mosquitto__callback *cb_بنسټ, *cb_بل;
+	بنية mosquitto__security_options *opts;
 
-	if(context->is_persisted == false
-			|| (client_msg->data.qos == 0 && db.config->queue_qos0_messages == false)
+	إذا(context->is_persisted == false
+			|| (client_پیغام->معلومات.qos == 0 && db.config->کتار_qos0_messages == false)
 			|| db.shutdown){
 
-		return;
+		أرجع;
 	}
 
 	opts = &db.config->security_options;
-	memset(&event_data, 0, sizeof(event_data));
+	memset(&event_معلومات, 0, حجم(event_معلومات));
 
-	set_client_msg_event_data(&event_data, context, client_msg);
+	سېټ_client_پیغام_event_معلومات(&event_معلومات, context, client_پیغام);
 
-	DL_FOREACH_SAFE(opts->plugin_callbacks.persist_client_msg_update, cb_base, cb_next){
-		cb_base->cb(MOSQ_EVT_PERSIST_CLIENT_MSG_UPDATE, &event_data, cb_base->userdata);
+	DL_FOREACH_خوندي(opts->plugin_callbacks.persist_client_پیغام_update, cb_بنسټ, cb_بل){
+		cb_بنسټ->cb(MOSQ_EVT_PERSIST_CLIENT_پیغام_UPDATE, &event_معلومات, cb_بنسټ->userdata);
 	}
 }
 
 
-void plugin_persist__handle_base_msg_add(struct mosquitto__base_msg *base_msg)
+فراغ plugin_persist_handle_بنسټ_پیغام_جمع_کړه(بنية mosquitto_بنسټ_پیغام *بنسټ_پیغام)
 {
-	struct mosquitto_evt_persist_base_msg event_data;
-	struct mosquitto__callback *cb_base, *cb_next;
-	struct mosquitto__security_options *opts;
+	بنية mosquitto_evt_persist_بنسټ_پیغام event_معلومات;
+	بنية mosquitto__callback *cb_بنسټ, *cb_بل;
+	بنية mosquitto__security_options *opts;
 
-	if(base_msg->stored || db.shutdown){
-		return;
+	إذا(بنسټ_پیغام->stored || db.shutdown){
+		أرجع;
 	}
 
 	opts = &db.config->security_options;
-	memset(&event_data, 0, sizeof(event_data));
+	memset(&event_معلومات, 0, حجم(event_معلومات));
 
-	event_data.data.store_id = base_msg->data.store_id;
-	event_data.data.expiry_time = base_msg->data.expiry_time;
-	event_data.data.topic = base_msg->data.topic;
-	event_data.data.payload = base_msg->data.payload;
-	event_data.data.source_id = base_msg->data.source_id;
-	event_data.data.source_username = base_msg->data.source_username;
-	event_data.data.properties = base_msg->data.properties;
-	event_data.data.payloadlen = base_msg->data.payloadlen;
-	event_data.data.source_mid = base_msg->data.source_mid;
-	if(base_msg->source_listener){
-		event_data.data.source_port = base_msg->source_listener->port;
-	}else{
-		event_data.data.source_port = 0;
+	event_معلومات.معلومات.store_id = بنسټ_پیغام->معلومات.store_id;
+	event_معلومات.معلومات.expiry_وخت = بنسټ_پیغام->معلومات.expiry_وخت;
+	event_معلومات.معلومات.topic = بنسټ_پیغام->معلومات.topic;
+	event_معلومات.معلومات.payload = بنسټ_پیغام->معلومات.payload;
+	event_معلومات.معلومات.سرچینه_id = بنسټ_پیغام->معلومات.سرچینه_id;
+	event_معلومات.معلومات.سرچینه_username = بنسټ_پیغام->معلومات.سرچینه_username;
+	event_معلومات.معلومات.properties = بنسټ_پیغام->معلومات.properties;
+	event_معلومات.معلومات.payloadlen = بنسټ_پیغام->معلومات.payloadlen;
+	event_معلومات.معلومات.سرچینه_mid = بنسټ_پیغام->معلومات.سرچینه_mid;
+	إذا(بنسټ_پیغام->سرچینه_listener){
+		event_معلومات.معلومات.سرچینه_پورټ = بنسټ_پیغام->سرچینه_listener->پورټ;
+	}وإلا{
+		event_معلومات.معلومات.سرچینه_پورټ = 0;
 	}
-	event_data.data.qos = base_msg->data.qos;
-	event_data.data.retain = base_msg->data.retain;
+	event_معلومات.معلومات.qos = بنسټ_پیغام->معلومات.qos;
+	event_معلومات.معلومات.retain = بنسټ_پیغام->معلومات.retain;
 
-	DL_FOREACH_SAFE(opts->plugin_callbacks.persist_base_msg_add, cb_base, cb_next){
-		cb_base->cb(MOSQ_EVT_PERSIST_BASE_MSG_ADD, &event_data, cb_base->userdata);
+	DL_FOREACH_خوندي(opts->plugin_callbacks.persist_بنسټ_پیغام_جمع_کړه, cb_بنسټ, cb_بل){
+		cb_بنسټ->cb(MOSQ_EVT_PERSIST_بنسټ_پیغام_جمع_کړه, &event_معلومات, cb_بنسټ->userdata);
 	}
-	base_msg->stored = true;
+	بنسټ_پیغام->stored = true;
 }
 
 
-void plugin_persist__handle_base_msg_delete(struct mosquitto__base_msg *base_msg)
+فراغ plugin_persist_handle_بنسټ_پیغام_delete(بنية mosquitto_بنسټ_پیغام *بنسټ_پیغام)
 {
-	struct mosquitto_evt_persist_base_msg event_data;
-	struct mosquitto__callback *cb_base, *cb_next;
-	struct mosquitto__security_options *opts;
+	بنية mosquitto_evt_persist_بنسټ_پیغام event_معلومات;
+	بنية mosquitto__callback *cb_بنسټ, *cb_بل;
+	بنية mosquitto__security_options *opts;
 
-	if(base_msg->stored == false || db.shutdown){
-		return;
+	إذا(بنسټ_پیغام->stored == false || db.shutdown){
+		أرجع;
 	}
 
 	opts = &db.config->security_options;
-	memset(&event_data, 0, sizeof(event_data));
+	memset(&event_معلومات, 0, حجم(event_معلومات));
 
-	event_data.data.store_id = base_msg->data.store_id;
+	event_معلومات.معلومات.store_id = بنسټ_پیغام->معلومات.store_id;
 
-	DL_FOREACH_SAFE(opts->plugin_callbacks.persist_base_msg_delete, cb_base, cb_next){
-		cb_base->cb(MOSQ_EVT_PERSIST_BASE_MSG_DELETE, &event_data, cb_base->userdata);
+	DL_FOREACH_خوندي(opts->plugin_callbacks.persist_بنسټ_پیغام_delete, cb_بنسټ, cb_بل){
+		cb_بنسټ->cb(MOSQ_EVT_PERSIST_بنسټ_پیغام_DELETE, &event_معلومات, cb_بنسټ->userdata);
 	}
-	base_msg->stored = false;
+	بنسټ_پیغام->stored = false;
 }
 
 
-void plugin_persist__handle_retain_msg_set(struct mosquitto__base_msg *base_msg)
+فراغ plugin_persist_handle_retain_پیغام_سېټ(بنية mosquitto_بنسټ_پیغام *بنسټ_پیغام)
 {
-	struct mosquitto_evt_persist_retain_msg event_data;
-	struct mosquitto__callback *cb_base, *cb_next;
-	struct mosquitto__security_options *opts;
+	بنية mosquitto_evt_persist_retain_پیغام event_معلومات;
+	بنية mosquitto__callback *cb_بنسټ, *cb_بل;
+	بنية mosquitto__security_options *opts;
 
-	if(db.shutdown){
-		return;
+	إذا(db.shutdown){
+		أرجع;
 	}
 
 	opts = &db.config->security_options;
-	memset(&event_data, 0, sizeof(event_data));
+	memset(&event_معلومات, 0, حجم(event_معلومات));
 
-	event_data.store_id = base_msg->data.store_id;
-	event_data.topic = base_msg->data.topic;
+	event_معلومات.store_id = بنسټ_پیغام->معلومات.store_id;
+	event_معلومات.topic = بنسټ_پیغام->معلومات.topic;
 
-	DL_FOREACH_SAFE(opts->plugin_callbacks.persist_retain_msg_set, cb_base, cb_next){
-		cb_base->cb(MOSQ_EVT_PERSIST_RETAIN_MSG_SET, &event_data, cb_base->userdata);
-	}
-}
-
-
-void plugin_persist__handle_retain_msg_delete(struct mosquitto__base_msg *base_msg)
-{
-	struct mosquitto_evt_persist_retain_msg event_data;
-	struct mosquitto__callback *cb_base, *cb_next;
-	struct mosquitto__security_options *opts;
-
-	if(db.shutdown){
-		return;
-	}
-
-	opts = &db.config->security_options;
-	memset(&event_data, 0, sizeof(event_data));
-
-	event_data.topic = base_msg->data.topic;
-
-	DL_FOREACH_SAFE(opts->plugin_callbacks.persist_retain_msg_delete, cb_base, cb_next){
-		cb_base->cb(MOSQ_EVT_PERSIST_RETAIN_MSG_DELETE, &event_data, cb_base->userdata);
+	DL_FOREACH_خوندي(opts->plugin_callbacks.persist_retain_پیغام_سېټ, cb_بنسټ, cb_بل){
+		cb_بنسټ->cb(MOSQ_EVT_PERSIST_RETAIN_پیغام_سېټ, &event_معلومات, cb_بنسټ->userdata);
 	}
 }
 
 
-void plugin_persist__handle_will_add(struct mosquitto *context)
+فراغ plugin_persist_handle_retain_پیغام_delete(بنية mosquitto_بنسټ_پیغام *بنسټ_پیغام)
 {
-	struct mosquitto_evt_persist_will_msg event_data;
-	struct mosquitto__callback *cb_base, *cb_next;
-	struct mosquitto__security_options *opts;
-	struct mosquitto_message *will_msg;
+	بنية mosquitto_evt_persist_retain_پیغام event_معلومات;
+	بنية mosquitto__callback *cb_بنسټ, *cb_بل;
+	بنية mosquitto__security_options *opts;
 
-	if(db.shutdown || !context->will){
-		return;
+	إذا(db.shutdown){
+		أرجع;
 	}
 
 	opts = &db.config->security_options;
-	will_msg = &context->will->msg;
-	memset(&event_data, 0, sizeof(event_data));
-	event_data.data.clientid = context->id;
-	event_data.data.topic = will_msg->topic;
-	event_data.data.payload = will_msg->payload;
-	event_data.data.payloadlen = (uint32_t)will_msg->payloadlen;
-	event_data.data.qos = (uint8_t)will_msg->qos;
-	event_data.data.retain = will_msg->retain;
-	event_data.data.properties = context->will->properties;
+	memset(&event_معلومات, 0, حجم(event_معلومات));
 
-	DL_FOREACH_SAFE(opts->plugin_callbacks.persist_will_add, cb_base, cb_next){
-		cb_base->cb(MOSQ_EVT_PERSIST_WILL_ADD, &event_data, cb_base->userdata);
+	event_معلومات.topic = بنسټ_پیغام->معلومات.topic;
+
+	DL_FOREACH_خوندي(opts->plugin_callbacks.persist_retain_پیغام_delete, cb_بنسټ, cb_بل){
+		cb_بنسټ->cb(MOSQ_EVT_PERSIST_RETAIN_پیغام_DELETE, &event_معلومات, cb_بنسټ->userdata);
 	}
 }
 
 
-void plugin_persist__handle_will_delete(struct mosquitto *context)
+فراغ plugin_persist_handle_will_جمع_کړه(بنية mosquitto *context)
 {
-	struct mosquitto_evt_persist_will_msg event_data;
-	struct mosquitto__callback *cb_base, *cb_next;
-	struct mosquitto__security_options *opts;
+	بنية mosquitto_evt_persist_will_پیغام event_معلومات;
+	بنية mosquitto__callback *cb_بنسټ, *cb_بل;
+	بنية mosquitto__security_options *opts;
+	بنية mosquitto_پیغام *will_پیغام;
 
-	memset(&event_data, 0, sizeof(event_data));
-	event_data.data.clientid = context->id;
-
-	if(db.shutdown){
-		return;
+	إذا(db.shutdown || !context->will){
+		أرجع;
 	}
 
 	opts = &db.config->security_options;
-	DL_FOREACH_SAFE(opts->plugin_callbacks.persist_will_delete, cb_base, cb_next){
-		cb_base->cb(MOSQ_EVT_PERSIST_WILL_ADD, &event_data, cb_base->userdata);
+	will_پیغام = &context->will->پیغام;
+	memset(&event_معلومات, 0, حجم(event_معلومات));
+	event_معلومات.معلومات.clientid = context->id;
+	event_معلومات.معلومات.topic = will_پیغام->topic;
+	event_معلومات.معلومات.payload = will_پیغام->payload;
+	event_معلومات.معلومات.payloadlen = (uint32_t)will_پیغام->payloadlen;
+	event_معلومات.معلومات.qos = (uint8_t)will_پیغام->qos;
+	event_معلومات.معلومات.retain = will_پیغام->retain;
+	event_معلومات.معلومات.properties = context->will->properties;
+
+	DL_FOREACH_خوندي(opts->plugin_callbacks.persist_will_جمع_کړه, cb_بنسټ, cb_بل){
+		cb_بنسټ->cb(MOSQ_EVT_PERSIST_WILL_جمع_کړه, &event_معلومات, cb_بنسټ->userdata);
+	}
+}
+
+
+فراغ plugin_persist__handle_will_delete(بنية mosquitto *context)
+{
+	بنية mosquitto_evt_persist_will_پیغام event_معلومات;
+	بنية mosquitto__callback *cb_بنسټ, *cb_بل;
+	بنية mosquitto__security_options *opts;
+
+	memset(&event_معلومات, 0, حجم(event_معلومات));
+	event_معلومات.معلومات.clientid = context->id;
+
+	إذا(db.shutdown){
+		أرجع;
+	}
+
+	opts = &db.config->security_options;
+	DL_FOREACH_خوندي(opts->plugin_callbacks.persist_will_delete, cb_بنسټ, cb_بل){
+		cb_بنسټ->cb(MOSQ_EVT_PERSIST_WILL_جمع_کړه, &event_معلومات, cb_بنسټ->userdata);
 	}
 
 }
