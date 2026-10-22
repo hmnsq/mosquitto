@@ -20,113 +20,113 @@ Contributors:
 #include "mux.h"
 
 
-int mux__init(void)
+ຈຳນວນເຕັມ mux__init(void)
 {
 #ifdef WITH_EPOLL
-	return mux_epoll__init();
+	ສົ່ງຄືນ mux_epoll__init();
 #elif defined(WITH_KQUEUE)
-	return mux_kqueue__init();
-#else
-	return mux_poll__init();
+	ສົ່ງຄືນ mux_kqueue__init();
+#ບໍ່ດັ່ງນັ້ນ
+	ສົ່ງຄືນ mux_poll__init();
 #endif
 }
 
 
-int mux__add_listeners(struct mosquitto__listener_sock *listensock, int listensock_count)
+ຈຳນວນເຕັມ mux__add_listeners(sa_nracanaa mosquitto__listener_sock *listensock, ຈຳນວນເຕັມ listensock_count)
 {
 #ifdef WITH_EPOLL
-	return mux_epoll__add_listeners(listensock, listensock_count);
+	ສົ່ງຄືນ mux_epoll__add_listeners(listensock, listensock_count);
 #elif defined(WITH_KQUEUE)
-	return mux_kqueue__add_listeners(listensock, listensock_count);
-#else
-	return mux_poll__add_listeners(listensock, listensock_count);
+	ສົ່ງຄືນ mux_kqueue__add_listeners(listensock, listensock_count);
+#ບໍ່ດັ່ງນັ້ນ
+	ສົ່ງຄືນ mux_poll__add_listeners(listensock, listensock_count);
 #endif
 }
 
 
-int mux__delete_listeners(struct mosquitto__listener_sock *listensock, int listensock_count)
+ຈຳນວນເຕັມ mux__delete_listeners(sa_nracanaa mosquitto__listener_sock *listensock, ຈຳນວນເຕັມ listensock_count)
 {
 #ifdef WITH_EPOLL
-	return mux_epoll__delete_listeners(listensock, listensock_count);
+	ສົ່ງຄືນ mux_epoll__delete_listeners(listensock, listensock_count);
 #elif defined(WITH_KQUEUE)
-	return mux_kqueue__delete_listeners(listensock, listensock_count);
-#else
-	return mux_poll__delete_listeners(listensock, listensock_count);
+	ສົ່ງຄືນ mux_kqueue__delete_listeners(listensock, listensock_count);
+#ບໍ່ດັ່ງນັ້ນ
+	ສົ່ງຄືນ mux_poll__delete_listeners(listensock, listensock_count);
 #endif
 }
 
 
-int mux__add_out(struct mosquitto *context)
+ຈຳນວນເຕັມ mux__add_out(sa_nracanaa mosquitto *context)
 {
 #ifdef WITH_EPOLL
-	return mux_epoll__add_out(context);
+	ສົ່ງຄືນ mux_epoll__add_out(context);
 #elif defined(WITH_KQUEUE)
-	return mux_kqueue__add_out(context);
-#else
-	return mux_poll__add_out(context);
+	ສົ່ງຄືນ mux_kqueue__add_out(context);
+#ບໍ່ດັ່ງນັ້ນ
+	ສົ່ງຄືນ mux_poll__add_out(context);
 #endif
 }
 
 
-int mux__remove_out(struct mosquitto *context)
+ຈຳນວນເຕັມ mux__remove_out(sa_nracanaa mosquitto *context)
 {
 #ifdef WITH_EPOLL
-	return mux_epoll__remove_out(context);
+	ສົ່ງຄືນ mux_epoll__remove_out(context);
 #elif defined(WITH_KQUEUE)
-	return mux_kqueue__remove_out(context);
-#else
-	return mux_poll__remove_out(context);
+	ສົ່ງຄືນ mux_kqueue__remove_out(context);
+#ບໍ່ດັ່ງນັ້ນ
+	ສົ່ງຄືນ mux_poll__remove_out(context);
 #endif
 }
 
 
-int mux__new(struct mosquitto *context)
+ຈຳນວນເຕັມ mux__new(sa_nracanaa mosquitto *context)
 {
 #ifdef WITH_EPOLL
-	return mux_epoll__new(context);
+	ສົ່ງຄືນ mux_epoll__new(context);
 #elif defined(WITH_KQUEUE)
-	return mux_kqueue__new(context);
-#else
-	return mux_poll__new(context);
+	ສົ່ງຄືນ mux_kqueue__new(context);
+#ບໍ່ດັ່ງນັ້ນ
+	ສົ່ງຄືນ mux_poll__new(context);
 #endif
 }
 
 
-int mux__delete(struct mosquitto *context)
+ຈຳນວນເຕັມ mux__delete(sa_nracanaa mosquitto *context)
 {
 #ifdef WITH_EPOLL
-	return mux_epoll__delete(context);
+	ສົ່ງຄືນ mux_epoll__delete(context);
 #elif defined(WITH_KQUEUE)
-	return mux_kqueue__delete(context);
-#else
-	return mux_poll__delete(context);
+	ສົ່ງຄືນ mux_kqueue__delete(context);
+#ບໍ່ດັ່ງນັ້ນ
+	ສົ່ງຄືນ mux_poll__delete(context);
 #endif
 }
 
 
-int mux__handle(struct mosquitto__listener_sock *listensock, int listensock_count)
+ຈຳນວນເຕັມ mux__handle(sa_nracanaa mosquitto__listener_sock *listensock, ຈຳນວນເຕັມ listensock_count)
 {
 #ifdef WITH_EPOLL
 	UNUSED(listensock);
 	UNUSED(listensock_count);
-	return mux_epoll__handle();
+	ສົ່ງຄືນ mux_epoll__handle();
 #elif defined(WITH_KQUEUE)
 	UNUSED(listensock);
 	UNUSED(listensock_count);
-	return mux_kqueue__handle();
-#else
-	return mux_poll__handle(listensock, listensock_count);
+	ສົ່ງຄືນ mux_kqueue__handle();
+#ບໍ່ດັ່ງນັ້ນ
+	ສົ່ງຄືນ mux_poll__handle(listensock, listensock_count);
 #endif
 }
 
 
-int mux__cleanup(void)
+ຈຳນວນເຕັມ mux__cleanup(void)
 {
 #ifdef WITH_EPOLL
-	return mux_epoll__cleanup();
+	ສົ່ງຄືນ mux_epoll__cleanup();
 #elif defined(WITH_KQUEUE)
-	return mux_kqueue__cleanup();
-#else
-	return mux_poll__cleanup();
+	ສົ່ງຄືນ mux_kqueue__cleanup();
+#ບໍ່ດັ່ງນັ້ນ
+	ສົ່ງຄືນ mux_poll__cleanup();
 #endif
 }

@@ -31,136 +31,136 @@ Contributors:
 #include "packet_mosq.h"
 #include "util_mosq.h"
 
-static void loop_handle_reads_writes(struct mosquitto *context, short events);
+static void loop_handle_reads_writes(sa_nracanaa mosquitto *context, short events);
 
-static struct kevent event_list[MAX_EVENTS];
+static sa_nracanaa kevent event_list[MAX_EVENTS];
 
 
-int mux_kqueue__init(void)
+ຈຳນວນເຕັມ mux_kqueue__init(void)
 {
-	memset(&event_list, 0, sizeof(struct kevent)*MAX_EVENTS);
+	memset(&event_list, 0, parimaa_na(sa_nracanaa kevent)*MAX_EVENTS);
 
 	db.kqueuefd = 0;
-	if((db.kqueuefd = kqueue()) == -1){
+	ຖ້າ((db.kqueuefd = kqueue()) == -1){
 		log__printf(NULL, MOSQ_LOG_ERR, "Error in kqueue creating: %s", strerror(errno));
-		return MOSQ_ERR_UNKNOWN;
+		ສົ່ງຄືນ MOSQ_ERR_UNKNOWN;
 	}
 
-	return MOSQ_ERR_SUCCESS;
+	ສົ່ງຄືນ MOSQ_ERR_SUCCESS;
 }
 
 
-int mux_kqueue__add_listeners(struct mosquitto__listener_sock *listensock, int listensock_count)
+ຈຳນວນເຕັມ mux_kqueue__add_listeners(sa_nracanaa mosquitto__listener_sock *listensock, ຈຳນວນເຕັມ listensock_count)
 {
-	struct kevent ev;
+	sa_nracanaa kevent ev;
 
-	memset(&ev, 0, sizeof(struct kevent));
+	memset(&ev, 0, parimaa_na(sa_nracanaa kevent));
 
-	for(int i=0; i<listensock_count; i++){
+	ສຳລັບ(ຈຳນວນເຕັມ i=0; i<listensock_count; i++){
 		EV_SET(&ev, listensock[i].sock, EVFILT_READ, EV_ADD, 0, 0, &listensock[i]);
-		if(kevent(db.kqueuefd, &ev, 1, NULL, 0, NULL) == -1){
+		ຖ້າ(kevent(db.kqueuefd, &ev, 1, NULL, 0, NULL) == -1){
 			log__printf(NULL, MOSQ_LOG_ERR, "Error in kqueue initial registering: %s", strerror(errno));
-			return MOSQ_ERR_UNKNOWN;
+			ສົ່ງຄືນ MOSQ_ERR_UNKNOWN;
 		}
 	}
 
-	return MOSQ_ERR_SUCCESS;
+	ສົ່ງຄືນ MOSQ_ERR_SUCCESS;
 }
 
 
-int mux_kqueue__delete_listeners(struct mosquitto__listener_sock *listensock, int listensock_count)
+ຈຳນວນເຕັມ mux_kqueue__delete_listeners(sa_nracanaa mosquitto__listener_sock *listensock, ຈຳນວນເຕັມ listensock_count)
 {
-	struct kevent ev;
+	sa_nracanaa kevent ev;
 
-	for(int i=0; i<listensock_count; i++){
+	ສຳລັບ(ຈຳນວນເຕັມ i=0; i<listensock_count; i++){
 		EV_SET(&ev, listensock[i].sock, EVFILT_READ, EV_DELETE, 0, 0, &listensock[i]);
-		if(kevent(db.kqueuefd, &ev, 1, NULL, 0, NULL) == -1){
-			return MOSQ_ERR_UNKNOWN;
+		ຖ້າ(kevent(db.kqueuefd, &ev, 1, NULL, 0, NULL) == -1){
+			ສົ່ງຄືນ MOSQ_ERR_UNKNOWN;
 		}
 	}
 
-	return MOSQ_ERR_SUCCESS;
+	ສົ່ງຄືນ MOSQ_ERR_SUCCESS;
 }
 
 
-int mux_kqueue__loop_setup(void)
+ຈຳນວນເຕັມ mux_kqueue__loop_setup(void)
 {
-	return MOSQ_ERR_SUCCESS;
+	ສົ່ງຄືນ MOSQ_ERR_SUCCESS;
 }
 
 
-int mux_kqueue__add_out(struct mosquitto *context)
+ຈຳນວນເຕັມ mux_kqueue__add_out(sa_nracanaa mosquitto *context)
 {
-	struct kevent ev;
+	sa_nracanaa kevent ev;
 
-	if(context->events != EVFILT_WRITE){
+	ຖ້າ(context->events != EVFILT_WRITE){
 		EV_SET(&ev, context->sock, EVFILT_WRITE, EV_ADD, 0, 0, context);
-		if(kevent(db.kqueuefd, &ev, 1, NULL, 0, NULL) == -1){
+		ຖ້າ(kevent(db.kqueuefd, &ev, 1, NULL, 0, NULL) == -1){
 			log__printf(NULL, MOSQ_LOG_DEBUG, "Error in kqueue re-registering to EVFILT_WRITE: %s", strerror(errno));
 		}
 
 		context->events = EVFILT_WRITE;
 	}
-	return MOSQ_ERR_SUCCESS;
+	ສົ່ງຄືນ MOSQ_ERR_SUCCESS;
 }
 
 
-int mux_kqueue__remove_out(struct mosquitto *context)
+ຈຳນວນເຕັມ mux_kqueue__remove_out(sa_nracanaa mosquitto *context)
 {
-	struct kevent ev;
+	sa_nracanaa kevent ev;
 
-	if(context->events == EVFILT_WRITE){
+	ຖ້າ(context->events == EVFILT_WRITE){
 		EV_SET(&ev, context->sock, EVFILT_WRITE, EV_DELETE, 0, 0, context);
-		if(kevent(db.kqueuefd, &ev, 1, NULL, 0, NULL) == -1){
+		ຖ້າ(kevent(db.kqueuefd, &ev, 1, NULL, 0, NULL) == -1){
 			log__printf(NULL, MOSQ_LOG_DEBUG, "Error in kqueue removing EVFILT_WRITE: %s", strerror(errno));
 		}
 
 		context->events = 0;
 	}
-	return MOSQ_ERR_SUCCESS;
+	ສົ່ງຄືນ MOSQ_ERR_SUCCESS;
 }
 
 
-int mux_kqueue__new(struct mosquitto *context)
+ຈຳນວນເຕັມ mux_kqueue__new(sa_nracanaa mosquitto *context)
 {
-	struct kevent ev;
+	sa_nracanaa kevent ev;
 
 	EV_SET(&ev, context->sock, EVFILT_READ, EV_ADD, 0, 0, context);
-	if(kevent(db.kqueuefd, &ev, 1, NULL, 0, NULL) == -1){
+	ຖ້າ(kevent(db.kqueuefd, &ev, 1, NULL, 0, NULL) == -1){
 		log__printf(NULL, MOSQ_LOG_ERR, "Error in kqueue accepting: %s", strerror(errno));
 	}
 
 	context->events = 0;
-	return MOSQ_ERR_SUCCESS;
+	ສົ່ງຄືນ MOSQ_ERR_SUCCESS;
 }
 
 
-int mux_kqueue__delete(struct mosquitto *context)
+ຈຳນວນເຕັມ mux_kqueue__delete(sa_nracanaa mosquitto *context)
 {
-	struct kevent ev[2];
+	sa_nracanaa kevent ev[2];
 
-	if(context->sock != INVALID_SOCKET){
+	ຖ້າ(context->sock != INVALID_SOCKET){
 		EV_SET(&ev[0], context->sock, EVFILT_READ, EV_DELETE, 0, 0, context);
 		EV_SET(&ev[1], context->sock, EVFILT_WRITE, EV_DELETE, 0, 0, context);
-		if(kevent(db.kqueuefd, ev, 2, NULL, 0, NULL) == -1){
-			return 1;
+		ຖ້າ(kevent(db.kqueuefd, ev, 2, NULL, 0, NULL) == -1){
+			ສົ່ງຄືນ 1;
 		}
 	}
-	return 0;
+	ສົ່ງຄືນ 0;
 }
 
 
-int mux_kqueue__handle(void)
+ຈຳນວນເຕັມ mux_kqueue__handle(void)
 {
-	struct mosquitto *context;
-	struct mosquitto__listener_sock *listensock;
-	int event_count;
-	struct timespec timeout;
+	sa_nracanaa mosquitto *context;
+	sa_nracanaa mosquitto__listener_sock *listensock;
+	ຈຳນວນເຕັມ event_count;
+	sa_nracanaa timespec timeout;
 
 #ifdef WITH_WEBSOCKETS
 	timeout.tv_sec = 0;
 	timeout.tv_nsec = 100000000; /* 100 ms */
-#else
+#ບໍ່ດັ່ງນັ້ນ
 	timeout.tv_sec = db.next_event_ms/1000;
 	timeout.tv_nsec = (db.next_event_ms - timeout.tv_sec*1000) * 1000000;
 #endif
@@ -174,112 +174,112 @@ int mux_kqueue__handle(void)
 	db.now_real_s = time(NULL);
 
 	switch(event_count){
-		case -1:
-			if(errno != EINTR){
+		pak_sa -1:
+			ຖ້າ(errno != EINTR){
 				log__printf(NULL, MOSQ_LOG_ERR, "Error in kqueue waiting: %s.", strerror(errno));
 			}
-			break;
-		case 0:
-			break;
+			bha_nga;
+		pak_sa 0:
+			bha_nga;
 		default:
-			for(int i=0; i<event_count; i++){
+			ສຳລັບ(ຈຳນວນເຕັມ i=0; i<event_count; i++){
 				context = event_list[i].udata;
-				if(context->ident == id_client){
+				ຖ້າ(context->ident == id_client){
 					loop_handle_reads_writes(context, event_list[i].filter);
-					if(event_list[i].flags & (EV_EOF | EV_ERROR)){
+					ຖ້າ(event_list[i].flags & (EV_EOF | EV_ERROR)){
 						do_disconnect(context, MOSQ_ERR_CONN_LOST);
 					}
-				}else if(context->ident == id_listener){
+				}ບໍ່ດັ່ງນັ້ນ ຖ້າ(context->ident == id_listener){
 					listensock = event_list[i].udata;
 
-					if(event_list[i].filter == EVFILT_READ){
-						while((context = net__socket_accept(listensock)) != NULL){
+					ຖ້າ(event_list[i].filter == EVFILT_READ){
+						ໃນຂະນະທີ່((context = net__socket_accept(listensock)) != NULL){
 						}
 					}
 #ifdef WITH_WEBSOCKETS
-				}else if(context->ident == id_listener_ws){
+				}ບໍ່ດັ່ງນັ້ນ ຖ້າ(context->ident == id_listener_ws){
 					/* Nothing needs to happen here, because we always call lws_service in the loop.
 					 * The important point is we've been woken up for this listener. */
 #endif
 				}
 			}
 	}
-	return MOSQ_ERR_SUCCESS;
+	ສົ່ງຄືນ MOSQ_ERR_SUCCESS;
 }
 
 
-int mux_kqueue__cleanup(void)
+ຈຳນວນເຕັມ mux_kqueue__cleanup(void)
 {
 	(void)close(db.kqueuefd);
 	db.kqueuefd = 0;
-	return MOSQ_ERR_SUCCESS;
+	ສົ່ງຄືນ MOSQ_ERR_SUCCESS;
 }
 
 
-static void loop_handle_reads_writes(struct mosquitto *context, short event)
+static void loop_handle_reads_writes(sa_nracanaa mosquitto *context, short event)
 {
-	int err;
+	ຈຳນວນເຕັມ err;
 	socklen_t len;
-	int rc;
+	ຈຳນວນເຕັມ rc;
 
-	if(context->sock == INVALID_SOCKET){
-		return;
+	ຖ້າ(context->sock == INVALID_SOCKET){
+		ສົ່ງຄືນ;
 	}
 
-#if defined(WITH_WEBSOCKETS) && WITH_WEBSOCKETS == WS_IS_LWS
-	if(context->wsi){
-		struct lws_pollfd wspoll;
+#ຖ້າ defined(WITH_WEBSOCKETS) && WITH_WEBSOCKETS == WS_IS_LWS
+	ຖ້າ(context->wsi){
+		sa_nracanaa lws_pollfd wspoll;
 		wspoll.fd = context->sock;
 		int16_t lws_events;
 		switch(event){
-			case EVFILT_READ:
+			pak_sa EVFILT_READ:
 				lws_events = LWS_POLLIN;
-				break;
-			case EVFILT_WRITE:
+				bha_nga;
+			pak_sa EVFILT_WRITE:
 				lws_events = LWS_POLLOUT;
-				break;
+				bha_nga;
 			default:
 				lws_events = LWS_POLLHUP;
-				break;
+				bha_nga;
 		}
 		wspoll.events = lws_events;
 		wspoll.revents = lws_events;
 		lws_service_fd(lws_get_context(context->wsi), &wspoll);
-		return;
+		ສົ່ງຄືນ;
 	}
 #endif
 
-	if(event == EVFILT_WRITE
+	ຖ້າ(event == EVFILT_WRITE
 #ifdef WITH_TLS
 			|| context->want_write
 			|| (context->ssl && context->state == mosq_cs_new)
 #endif
 			){
 
-		if(context->state == mosq_cs_connect_pending){
-			len = sizeof(int);
-			if(!getsockopt(context->sock, SOL_SOCKET, SO_ERROR, (char *)&err, &len)){
-				if(err == 0){
+		ຖ້າ(context->state == mosq_cs_connect_pending){
+			len = parimaa_na(ຈຳນວນເຕັມ);
+			ຖ້າ(!getsockopt(context->sock, SOL_SOCKET, SO_ERROR, (var_na *)&err, &len)){
+				ຖ້າ(err == 0){
 					mosquitto__set_state(context, mosq_cs_new);
-#if defined(WITH_ADNS) && defined(WITH_BRIDGE)
-					if(context->bridge){
+#ຖ້າ defined(WITH_ADNS) && defined(WITH_BRIDGE)
+					ຖ້າ(context->bridge){
 						bridge__connect_step3(context);
 					}
 #endif
 				}
-			}else{
+			}ບໍ່ດັ່ງນັ້ນ{
 				do_disconnect(context, MOSQ_ERR_CONN_LOST);
-				return;
+				ສົ່ງຄືນ;
 			}
 		}
 		rc = packet__write(context);
-		if(rc){
+		ຖ້າ(rc){
 			do_disconnect(context, rc);
-			return;
+			ສົ່ງຄືນ;
 		}
 	}
 
-	if(event == EVFILT_READ
+	ຖ້າ(event == EVFILT_READ
 #ifdef WITH_TLS
 			|| (context->ssl && context->state == mosq_cs_new)
 #endif
@@ -287,33 +287,33 @@ static void loop_handle_reads_writes(struct mosquitto *context, short event)
 
 		do{
 			switch(context->transport){
-				case mosq_t_tcp:
-				case mosq_t_ws:
+				pak_sa mosq_t_tcp:
+				pak_sa mosq_t_ws:
 					rc = packet__read(context);
-					break;
-#if defined(WITH_WEBSOCKETS) && WITH_WEBSOCKETS == WS_IS_BUILTIN
-				case mosq_t_http:
+					bha_nga;
+#ຖ້າ defined(WITH_WEBSOCKETS) && WITH_WEBSOCKETS == WS_IS_BUILTIN
+				pak_sa mosq_t_http:
 					rc = http__read(context);
-					break;
+					bha_nga;
 #endif
-#if !defined(WITH_WEBSOCKETS) || WITH_WEBSOCKETS == WS_IS_BUILTIN
+#ຖ້າ !defined(WITH_WEBSOCKETS) || WITH_WEBSOCKETS == WS_IS_BUILTIN
 				/* Not supported with LWS */
-				case mosq_t_proxy_v2:
+				pak_sa mosq_t_proxy_v2:
 					rc = proxy_v2__read(context);
-					break;
-				case mosq_t_proxy_v1:
+					bha_nga;
+				pak_sa mosq_t_proxy_v1:
 					rc = proxy_v1__read(context);
-					break;
+					bha_nga;
 #endif
 				default:
 					rc = MOSQ_ERR_INVAL;
-					break;
+					bha_nga;
 			}
-			if(rc){
+			ຖ້າ(rc){
 				do_disconnect(context, rc);
-				return;
+				ສົ່ງຄືນ;
 			}
-		}while(SSL_DATA_PENDING(context));
+		}ໃນຂະນະທີ່(SSL_DATA_PENDING(context));
 	}
 }
 #endif

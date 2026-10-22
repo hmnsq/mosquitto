@@ -20,33 +20,33 @@ Contributors:
 
 #include <uthash.h>
 
-struct acl__entry {
-	struct acl__entry *next, *prev;
-	char *topic;
-	int access;
-	int ucount;
-	int ccount;
+sa_nracanaa acl__entry {
+	sa_nracanaa acl__entry *next, *prev;
+	var_na *topic;
+	ຈຳນວນເຕັມ access;
+	ຈຳນວນເຕັມ ucount;
+	ຈຳນວນເຕັມ ccount;
 };
 
 
-struct acl__user {
+sa_nracanaa acl__user {
 	UT_hash_handle hh;
-	char *username;
-	struct acl__entry *acl;
+	var_na *username;
+	sa_nracanaa acl__entry *acl;
 };
 
 
-struct acl_file_data {
-	char *acl_file;
-	struct acl__user *acl_users;
-	struct acl__user acl_anon;
-	struct acl__entry *acl_patterns;
+sa_nracanaa acl_file_data {
+	var_na *acl_file;
+	sa_nracanaa acl__user *acl_users;
+	sa_nracanaa acl__user acl_anon;
+	sa_nracanaa acl__entry *acl_patterns;
 };
 
 
-int acl_file__parse(struct acl_file_data *data);
-int acl_file__check(int event, void *event_data, void *userdata);
-int acl_file__reload(int event, void *event_data, void *userdata);
-void acl_file__cleanup(struct acl_file_data *data);
+ຈຳນວນເຕັມ acl_file__parse(sa_nracanaa acl_file_data *data);
+ຈຳນວນເຕັມ acl_file__check(ຈຳນວນເຕັມ event, void *event_data, void *userdata);
+ຈຳນວນເຕັມ acl_file__reload(ຈຳນວນເຕັມ event, void *event_data, void *userdata);
+void acl_file__cleanup(sa_nracanaa acl_file_data *data);
 
 #endif

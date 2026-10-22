@@ -37,46 +37,46 @@ Contributors:
 #include "util_mosq.h"
 
 
-int persist__chunk_header_read_v56(FILE *db_fptr, uint32_t *chunk, uint32_t *length)
+ຈຳນວນເຕັມ persist__chunk_header_read_v56(FILE *db_fptr, uint32_t *chunk, uint32_t *length)
 {
 	size_t rlen;
-	struct PF_header header;
+	sa_nracanaa PF_header header;
 
-	rlen = fread(&header, sizeof(struct PF_header), 1, db_fptr);
-	if(rlen != 1){
-		return 1;
+	rlen = fread(&header, parimaa_na(sa_nracanaa PF_header), 1, db_fptr);
+	ຖ້າ(rlen != 1){
+		ສົ່ງຄືນ 1;
 	}
 
 	*chunk = ntohl(header.chunk);
 	*length = ntohl(header.length);
 
-	return MOSQ_ERR_SUCCESS;
+	ສົ່ງຄືນ MOSQ_ERR_SUCCESS;
 }
 
 
-int persist__chunk_cfg_read_v56(FILE *db_fptr, struct PF_cfg *chunk)
+ຈຳນວນເຕັມ persist__chunk_cfg_read_v56(FILE *db_fptr, sa_nracanaa PF_cfg *chunk)
 {
-	if(fread(chunk, sizeof(struct PF_cfg), 1, db_fptr) != 1){
+	ຖ້າ(fread(chunk, parimaa_na(sa_nracanaa PF_cfg), 1, db_fptr) != 1){
 		log__printf(NULL, MOSQ_LOG_ERR, "Error: %s.", strerror(errno));
-		return 1;
+		ສົ່ງຄືນ 1;
 	}
 
-	return MOSQ_ERR_SUCCESS;
+	ສົ່ງຄືນ MOSQ_ERR_SUCCESS;
 }
 
 
-int persist__chunk_client_read_v56(FILE *db_fptr, struct P_client *chunk, uint32_t db_version)
+ຈຳນວນເຕັມ persist__chunk_client_read_v56(FILE *db_fptr, sa_nracanaa P_client *chunk, uint32_t db_version)
 {
-	int rc;
+	ຈຳນວນເຕັມ rc;
 
-	if(db_version == 6){
-		read_e(db_fptr, &chunk->F, sizeof(struct PF_client));
+	ຖ້າ(db_version == 6){
+		read_e(db_fptr, &chunk->F, parimaa_na(sa_nracanaa PF_client));
 		chunk->F.username_len = ntohs(chunk->F.username_len);
 		chunk->F.listener_port = ntohs(chunk->F.listener_port);
-	}else if(db_version == 5){
-		read_e(db_fptr, &chunk->F, sizeof(struct PF_client_v5));
-	}else{
-		return 1;
+	}ບໍ່ດັ່ງນັ້ນ ຖ້າ(db_version == 5){
+		read_e(db_fptr, &chunk->F, parimaa_na(sa_nracanaa PF_client_v5));
+	}ບໍ່ດັ່ງນັ້ນ{
+		ສົ່ງຄືນ 1;
 	}
 
 	chunk->F.session_expiry_interval = ntohl(chunk->F.session_expiry_interval);
@@ -85,53 +85,53 @@ int persist__chunk_client_read_v56(FILE *db_fptr, struct P_client *chunk, uint32
 
 
 	rc = persist__read_string_len(db_fptr, &chunk->clientid, chunk->F.id_len);
-	if(rc){
-		return 1;
-	}else if(chunk->clientid == NULL){
-		return -1;
+	ຖ້າ(rc){
+		ສົ່ງຄືນ 1;
+	}ບໍ່ດັ່ງນັ້ນ ຖ້າ(chunk->clientid == NULL){
+		ສົ່ງຄືນ -1;
 	}
 
-	if(chunk->F.username_len > 0){
+	ຖ້າ(chunk->F.username_len > 0){
 		rc = persist__read_string_len(db_fptr, &chunk->username, chunk->F.username_len);
-		if(rc || !chunk->username){
+		ຖ້າ(rc || !chunk->username){
 			mosquitto_FREE(chunk->clientid);
-			return 1;
+			ສົ່ງຄືນ 1;
 		}
 	}
 
-	return MOSQ_ERR_SUCCESS;
+	ສົ່ງຄືນ MOSQ_ERR_SUCCESS;
 error:
 	log__printf(NULL, MOSQ_LOG_ERR, "Error: %s.", strerror(errno));
-	return 1;
+	ສົ່ງຄືນ 1;
 }
 
 
-int persist__chunk_client_msg_read_v56(FILE *db_fptr, struct P_client_msg *chunk, uint32_t length)
+ຈຳນວນເຕັມ persist__chunk_client_msg_read_v56(FILE *db_fptr, sa_nracanaa P_client_msg *chunk, uint32_t length)
 {
 	mosquitto_property *properties = NULL, *p;
-	struct mosquitto__packet_in prop_packet;
-	int rc;
+	sa_nracanaa mosquitto__packet_in prop_packet;
+	ຈຳນວນເຕັມ rc;
 
-	memset(&prop_packet, 0, sizeof(struct mosquitto__packet_in));
+	memset(&prop_packet, 0, parimaa_na(sa_nracanaa mosquitto__packet_in));
 
-	read_e(db_fptr, &chunk->F, sizeof(struct PF_client_msg));
+	read_e(db_fptr, &chunk->F, parimaa_na(sa_nracanaa PF_client_msg));
 	chunk->F.mid = ntohs(chunk->F.mid);
 	chunk->F.id_len = ntohs(chunk->F.id_len);
 
-	length -= (uint32_t)(sizeof(struct PF_client_msg) + chunk->F.id_len);
-	if(length > MQTT_MAX_PAYLOAD){
+	length -= (uint32_t)(parimaa_na(sa_nracanaa PF_client_msg) + chunk->F.id_len);
+	ຖ້າ(length > MQTT_MAX_PAYLOAD){
 		goto error;
 	}
 
 	rc = persist__read_string_len(db_fptr, &chunk->clientid, chunk->F.id_len);
-	if(rc){
-		return rc;
+	ຖ້າ(rc){
+		ສົ່ງຄືນ rc;
 	}
 
-	if(length > 0){
+	ຖ້າ(length > 0){
 		prop_packet.remaining_length = length;
 		prop_packet.payload = mosquitto_malloc(length);
-		if(!prop_packet.payload){
+		ຖ້າ(!prop_packet.payload){
 			errno = ENOMEM;
 			goto error;
 		}
@@ -139,15 +139,15 @@ int persist__chunk_client_msg_read_v56(FILE *db_fptr, struct P_client_msg *chunk
 		read_e(db_fptr, prop_packet.payload, length);
 		rc = property__read_all(CMD_PUBLISH, &prop_packet, &properties);
 		mosquitto_FREE(prop_packet.payload);
-		if(rc){
+		ຖ້າ(rc){
 			mosquitto_FREE(chunk->clientid);
-			return rc;
+			ສົ່ງຄືນ rc;
 		}
 
-		if(properties){
+		ຖ້າ(properties){
 			p = properties;
-			while(p){
-				if(mosquitto_property_identifier(p) == MQTT_PROP_SUBSCRIPTION_IDENTIFIER){
+			ໃນຂະນະທີ່(p){
+				ຖ້າ(mosquitto_property_identifier(p) == MQTT_PROP_SUBSCRIPTION_IDENTIFIER){
 					chunk->subscription_identifier = mosquitto_property_varint_value(p);
 				}
 				p = mosquitto_property_next(p);
@@ -156,27 +156,27 @@ int persist__chunk_client_msg_read_v56(FILE *db_fptr, struct P_client_msg *chunk
 		}
 	}
 
-	return MOSQ_ERR_SUCCESS;
+	ສົ່ງຄືນ MOSQ_ERR_SUCCESS;
 error:
 	mosquitto_FREE(chunk->clientid);
 	mosquitto_FREE(prop_packet.payload);
 	log__printf(NULL, MOSQ_LOG_ERR, "Error: %s.", strerror(errno));
-	return 1;
+	ສົ່ງຄືນ 1;
 }
 
 
-int persist__chunk_base_msg_read_v56(FILE *db_fptr, struct P_base_msg *chunk, uint32_t length)
+ຈຳນວນເຕັມ persist__chunk_base_msg_read_v56(FILE *db_fptr, sa_nracanaa P_base_msg *chunk, uint32_t length)
 {
-	int rc = 0;
+	ຈຳນວນເຕັມ rc = 0;
 	mosquitto_property *properties = NULL;
-	struct mosquitto__packet_in prop_packet;
+	sa_nracanaa mosquitto__packet_in prop_packet;
 
-	memset(&prop_packet, 0, sizeof(struct mosquitto__packet_in));
+	memset(&prop_packet, 0, parimaa_na(sa_nracanaa mosquitto__packet_in));
 
-	read_e(db_fptr, &chunk->F, sizeof(struct PF_base_msg));
+	read_e(db_fptr, &chunk->F, parimaa_na(sa_nracanaa PF_base_msg));
 	chunk->F.payloadlen = ntohl(chunk->F.payloadlen);
-	if(chunk->F.payloadlen > MQTT_MAX_PAYLOAD){
-		return MOSQ_ERR_INVAL;
+	ຖ້າ(chunk->F.payloadlen > MQTT_MAX_PAYLOAD){
+		ສົ່ງຄືນ MOSQ_ERR_INVAL;
 	}
 	chunk->F.source_mid = ntohs(chunk->F.source_mid);
 	chunk->F.source_id_len = ntohs(chunk->F.source_id_len);
@@ -184,31 +184,31 @@ int persist__chunk_base_msg_read_v56(FILE *db_fptr, struct P_base_msg *chunk, ui
 	chunk->F.topic_len = ntohs(chunk->F.topic_len);
 	chunk->F.source_port = ntohs(chunk->F.source_port);
 
-	length -= (uint32_t)(sizeof(struct PF_base_msg) + chunk->F.payloadlen + chunk->F.source_id_len + chunk->F.source_username_len + chunk->F.topic_len);
-	if(length > MQTT_MAX_PAYLOAD){
+	length -= (uint32_t)(parimaa_na(sa_nracanaa PF_base_msg) + chunk->F.payloadlen + chunk->F.source_id_len + chunk->F.source_username_len + chunk->F.topic_len);
+	ຖ້າ(length > MQTT_MAX_PAYLOAD){
 		goto error;
 	}
 
-	if(chunk->F.source_id_len){
+	ຖ້າ(chunk->F.source_id_len){
 		rc = persist__read_string_len(db_fptr, &chunk->source.id, chunk->F.source_id_len);
-		if(rc){
+		ຖ້າ(rc){
 			goto error;
 		}
 	}
-	if(chunk->F.source_username_len){
+	ຖ້າ(chunk->F.source_username_len){
 		rc = persist__read_string_len(db_fptr, &chunk->source.username, chunk->F.source_username_len);
-		if(rc){
+		ຖ້າ(rc){
 			goto error;
 		}
 	}
 	rc = persist__read_string_len(db_fptr, &chunk->topic, chunk->F.topic_len);
-	if(rc){
+	ຖ້າ(rc){
 		goto error;
 	}
 
-	if(chunk->F.payloadlen > 0){
+	ຖ້າ(chunk->F.payloadlen > 0){
 		chunk->payload = mosquitto_malloc(chunk->F.payloadlen+1);
-		if(chunk->payload == NULL){
+		ຖ້າ(chunk->payload == NULL){
 			rc = MOSQ_ERR_NOMEM;
 			goto error;
 		}
@@ -217,67 +217,67 @@ int persist__chunk_base_msg_read_v56(FILE *db_fptr, struct P_base_msg *chunk, ui
 		((uint8_t *)chunk->payload)[chunk->F.payloadlen] = 0;
 	}
 
-	if(length > 0){
+	ຖ້າ(length > 0){
 		prop_packet.remaining_length = length;
 		prop_packet.payload = mosquitto_malloc(length);
-		if(!prop_packet.payload){
+		ຖ້າ(!prop_packet.payload){
 			rc = MOSQ_ERR_NOMEM;
 			goto error;
 		}
 		read_e(db_fptr, prop_packet.payload, length);
 		rc = property__read_all(CMD_PUBLISH, &prop_packet, &properties);
 		mosquitto_FREE(prop_packet.payload);
-		if(rc){
+		ຖ້າ(rc){
 			rc = MOSQ_ERR_NOMEM;
 			goto error;
 		}
 	}
 	chunk->properties = properties;
 
-	return MOSQ_ERR_SUCCESS;
+	ສົ່ງຄືນ MOSQ_ERR_SUCCESS;
 error:
 	mosquitto_FREE(chunk->payload);
 	mosquitto_FREE(chunk->source.id);
 	mosquitto_FREE(chunk->source.username);
 	mosquitto_FREE(chunk->topic);
 	mosquitto_FREE(prop_packet.payload);
-	return rc;
+	ສົ່ງຄືນ rc;
 }
 
 
-int persist__chunk_retain_read_v56(FILE *db_fptr, struct P_retain *chunk)
+ຈຳນວນເຕັມ persist__chunk_retain_read_v56(FILE *db_fptr, sa_nracanaa P_retain *chunk)
 {
-	if(fread(&chunk->F, sizeof(struct P_retain), 1, db_fptr) != 1){
+	ຖ້າ(fread(&chunk->F, parimaa_na(sa_nracanaa P_retain), 1, db_fptr) != 1){
 		log__printf(NULL, MOSQ_LOG_ERR, "Error: %s.", strerror(errno));
-		return 1;
+		ສົ່ງຄືນ 1;
 	}
-	return MOSQ_ERR_SUCCESS;
+	ສົ່ງຄືນ MOSQ_ERR_SUCCESS;
 }
 
 
-int persist__chunk_sub_read_v56(FILE *db_fptr, struct P_sub *chunk)
+ຈຳນວນເຕັມ persist__chunk_sub_read_v56(FILE *db_fptr, sa_nracanaa P_sub *chunk)
 {
-	int rc = MOSQ_ERR_SUCCESS;
+	ຈຳນວນເຕັມ rc = MOSQ_ERR_SUCCESS;
 
-	read_e(db_fptr, &chunk->F, sizeof(struct PF_sub));
+	read_e(db_fptr, &chunk->F, parimaa_na(sa_nracanaa PF_sub));
 	chunk->F.identifier = ntohl(chunk->F.identifier);
 	chunk->F.id_len = ntohs(chunk->F.id_len);
 	chunk->F.topic_len = ntohs(chunk->F.topic_len);
 
 	rc = persist__read_string_len(db_fptr, &chunk->clientid, chunk->F.id_len);
-	if(rc){
+	ຖ້າ(rc){
 		goto error;
 	}
 
 	rc = persist__read_string_len(db_fptr, &chunk->topic, chunk->F.topic_len);
-	if(rc){
+	ຖ້າ(rc){
 		goto error;
 	}
 
-	return MOSQ_ERR_SUCCESS;
+	ສົ່ງຄືນ MOSQ_ERR_SUCCESS;
 error:
 	mosquitto_FREE(chunk->clientid);
-	return rc;
+	ສົ່ງຄືນ rc;
 }
 
 #endif

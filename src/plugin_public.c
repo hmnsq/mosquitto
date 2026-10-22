@@ -31,225 +31,225 @@ Contributors:
 #endif
 
 
-BROKER_EXPORT int mosquitto_plugin_set_info(mosquitto_plugin_id_t *identifier,
-		const char *plugin_name,
-		const char *plugin_version)
+BROKER_EXPORT ຈຳນວນເຕັມ mosquitto_plugin_set_info(mosquitto_plugin_id_t *identifier,
+		const var_na *plugin_name,
+		const var_na *plugin_version)
 {
-	if(identifier == NULL || plugin_name == NULL){
-		return MOSQ_ERR_INVAL;
+	ຖ້າ(identifier == NULL || plugin_name == NULL){
+		ສົ່ງຄືນ MOSQ_ERR_INVAL;
 	}
 
 	identifier->plugin_name = mosquitto_strdup(plugin_name);
-	if(plugin_version){
+	ຖ້າ(plugin_version){
 		identifier->plugin_version = mosquitto_strdup(plugin_version);
-	}else{
+	}ບໍ່ດັ່ງນັ້ນ{
 		identifier->plugin_version = NULL;
 	}
 
-	return MOSQ_ERR_SUCCESS;
+	ສົ່ງຄືນ MOSQ_ERR_SUCCESS;
 }
 
 
-BROKER_EXPORT const char *mosquitto_client_address(const struct mosquitto *client)
+BROKER_EXPORT const var_na *mosquitto_client_address(const sa_nracanaa mosquitto *client)
 {
-	if(client){
-		return client->address;
-	}else{
-		return NULL;
+	ຖ້າ(client){
+		ສົ່ງຄືນ client->address;
+	}ບໍ່ດັ່ງນັ້ນ{
+		ສົ່ງຄືນ NULL;
 	}
 }
 
 
-BROKER_EXPORT struct mosquitto *mosquitto_client(const char *clientid)
+BROKER_EXPORT sa_nracanaa mosquitto *mosquitto_client(const var_na *clientid)
 {
 	size_t len;
-	struct mosquitto *context;
+	sa_nracanaa mosquitto *context;
 
-	if(!clientid){
-		return NULL;
+	ຖ້າ(!clientid){
+		ສົ່ງຄືນ NULL;
 	}
 	len = strlen(clientid);
-	if(len == 0){
-		return NULL;
+	ຖ້າ(len == 0){
+		ສົ່ງຄືນ NULL;
 	}
 
 	HASH_FIND(hh_id, db.contexts_by_id, clientid, strlen(clientid), context);
 
-	return context;
+	ສົ່ງຄືນ context;
 }
 
 
-BROKER_EXPORT int mosquitto_client_port(const struct mosquitto *client)
+BROKER_EXPORT ຈຳນວນເຕັມ mosquitto_client_port(const sa_nracanaa mosquitto *client)
 {
-	if(client && client->listener){
-		return client->listener->port;
-	}else{
-		return 0;
+	ຖ້າ(client && client->listener){
+		ສົ່ງຄືນ client->listener->port;
+	}ບໍ່ດັ່ງນັ້ນ{
+		ສົ່ງຄືນ 0;
 	}
 }
 
 
-BROKER_EXPORT bool mosquitto_client_clean_session(const struct mosquitto *client)
+BROKER_EXPORT bool mosquitto_client_clean_session(const sa_nracanaa mosquitto *client)
 {
-	if(client){
-		return client->clean_start;
-	}else{
-		return true;
+	ຖ້າ(client){
+		ສົ່ງຄືນ client->clean_start;
+	}ບໍ່ດັ່ງນັ້ນ{
+		ສົ່ງຄືນ true;
 	}
 }
 
 
-BROKER_EXPORT const char *mosquitto_client_id(const struct mosquitto *client)
+BROKER_EXPORT const var_na *mosquitto_client_id(const sa_nracanaa mosquitto *client)
 {
-	if(client){
-		return client->id;
-	}else{
-		return NULL;
+	ຖ້າ(client){
+		ສົ່ງຄືນ client->id;
+	}ບໍ່ດັ່ງນັ້ນ{
+		ສົ່ງຄືນ NULL;
 	}
 }
 
 
-BROKER_EXPORT unsigned mosquitto_client_id_hashv(const struct mosquitto *client)
+BROKER_EXPORT unsigned mosquitto_client_id_hashv(const sa_nracanaa mosquitto *client)
 {
-	if(client){
-		return client->id_hashv;
-	}else{
-		return 0;
+	ຖ້າ(client){
+		ສົ່ງຄືນ client->id_hashv;
+	}ບໍ່ດັ່ງນັ້ນ{
+		ສົ່ງຄືນ 0;
 	}
 }
 
 
-BROKER_EXPORT int mosquitto_client_keepalive(const struct mosquitto *client)
+BROKER_EXPORT ຈຳນວນເຕັມ mosquitto_client_keepalive(const sa_nracanaa mosquitto *client)
 {
-	if(client){
-		return client->keepalive;
-	}else{
-		return -1;
+	ຖ້າ(client){
+		ສົ່ງຄືນ client->keepalive;
+	}ບໍ່ດັ່ງນັ້ນ{
+		ສົ່ງຄືນ -1;
 	}
 }
 
 
-BROKER_EXPORT void *mosquitto_client_certificate(const struct mosquitto *client)
+BROKER_EXPORT void *mosquitto_client_certificate(const sa_nracanaa mosquitto *client)
 {
 #ifdef WITH_TLS
-	if(client && client->ssl){
-		return SSL_get_peer_certificate(client->ssl);
-	}else{
-		return NULL;
+	ຖ້າ(client && client->ssl){
+		ສົ່ງຄືນ SSL_get_peer_certificate(client->ssl);
+	}ບໍ່ດັ່ງນັ້ນ{
+		ສົ່ງຄືນ NULL;
 	}
-#else
+#ບໍ່ດັ່ງນັ້ນ
 	UNUSED(client);
 
-	return NULL;
+	ສົ່ງຄືນ NULL;
 #endif
 }
 
 
-BROKER_EXPORT int mosquitto_client_protocol(const struct mosquitto *client)
+BROKER_EXPORT ຈຳນວນເຕັມ mosquitto_client_protocol(const sa_nracanaa mosquitto *client)
 {
-#if defined(WITH_WEBSOCKETS) && WITH_WEBSOCKETS == WS_IS_LWS
-	if(client && client->wsi){
-		return mp_websockets;
-	}else
+#ຖ້າ defined(WITH_WEBSOCKETS) && WITH_WEBSOCKETS == WS_IS_LWS
+	ຖ້າ(client && client->wsi){
+		ສົ່ງຄືນ mp_websockets;
+	}ບໍ່ດັ່ງນັ້ນ
 #elif defined(WITH_WEBSOCKETS) && WITH_WEBSOCKETS == WS_IS_BUILTIN
-	if(client && client->transport == mosq_t_ws){
-		return mp_websockets;
-	}else
-#else
+	ຖ້າ(client && client->transport == mosq_t_ws){
+		ສົ່ງຄືນ mp_websockets;
+	}ບໍ່ດັ່ງນັ້ນ
+#ບໍ່ດັ່ງນັ້ນ
 	UNUSED(client);
 #endif
 	{
-		return mp_mqtt;
+		ສົ່ງຄືນ mp_mqtt;
 	}
 }
 
 
-BROKER_EXPORT int mosquitto_client_protocol_version(const struct mosquitto *client)
+BROKER_EXPORT ຈຳນວນເຕັມ mosquitto_client_protocol_version(const sa_nracanaa mosquitto *client)
 {
-	if(client){
+	ຖ້າ(client){
 		switch(client->protocol){
-			case mosq_p_mqtt31:
-				return 3;
-			case mosq_p_mqtt311:
-				return 4;
-			case mosq_p_mqtt5:
-				return 5;
+			pak_sa mosq_p_mqtt31:
+				ສົ່ງຄືນ 3;
+			pak_sa mosq_p_mqtt311:
+				ສົ່ງຄືນ 4;
+			pak_sa mosq_p_mqtt5:
+				ສົ່ງຄືນ 5;
 			default:
-				return 0;
+				ສົ່ງຄືນ 0;
 		}
-	}else{
-		return 0;
+	}ບໍ່ດັ່ງນັ້ນ{
+		ສົ່ງຄືນ 0;
 	}
 }
 
 
-BROKER_EXPORT int mosquitto_client_sub_count(const struct mosquitto *client)
+BROKER_EXPORT ຈຳນວນເຕັມ mosquitto_client_sub_count(const sa_nracanaa mosquitto *client)
 {
-	if(client){
-		return client->subs_count;
-	}else{
-		return 0;
+	ຖ້າ(client){
+		ສົ່ງຄືນ client->subs_count;
+	}ບໍ່ດັ່ງນັ້ນ{
+		ສົ່ງຄືນ 0;
 	}
 }
 
 
-BROKER_EXPORT const char *mosquitto_client_username(const struct mosquitto *client)
+BROKER_EXPORT const var_na *mosquitto_client_username(const sa_nracanaa mosquitto *client)
 {
-	if(client){
+	ຖ້າ(client){
 #ifdef WITH_BRIDGE
-		if(client->bridge){
-			return client->bridge->local_username;
-		}else
+		ຖ້າ(client->bridge){
+			ສົ່ງຄືນ client->bridge->local_username;
+		}ບໍ່ດັ່ງນັ້ນ
 #endif
 		{
-			return client->username;
+			ສົ່ງຄືນ client->username;
 		}
-	}else{
-		return NULL;
+	}ບໍ່ດັ່ງນັ້ນ{
+		ສົ່ງຄືນ NULL;
 	}
 }
 
 
-BROKER_EXPORT int mosquitto_broker_publish(
-		const char *clientid,
-		const char *topic,
-		int payloadlen,
+BROKER_EXPORT ຈຳນວນເຕັມ mosquitto_broker_publish(
+		const var_na *clientid,
+		const var_na *topic,
+		ຈຳນວນເຕັມ payloadlen,
 		void *payload,
-		int qos,
+		ຈຳນວນເຕັມ qos,
 		bool retain,
 		mosquitto_property *properties)
 {
-	struct mosquitto__message_v5 *msg;
+	sa_nracanaa mosquitto__message_v5 *msg;
 
-	if(topic == NULL
+	ຖ້າ(topic == NULL
 			|| payloadlen < 0
 			|| (payloadlen > 0 && payload == NULL)
 			|| qos < 0 || qos > 2){
 
-		return MOSQ_ERR_INVAL;
+		ສົ່ງຄືນ MOSQ_ERR_INVAL;
 	}
 
-	msg = mosquitto_malloc(sizeof(struct mosquitto__message_v5));
-	if(msg == NULL){
-		return MOSQ_ERR_NOMEM;
+	msg = mosquitto_malloc(parimaa_na(sa_nracanaa mosquitto__message_v5));
+	ຖ້າ(msg == NULL){
+		ສົ່ງຄືນ MOSQ_ERR_NOMEM;
 	}
 
 	msg->next = NULL;
 	msg->prev = NULL;
-	if(clientid){
+	ຖ້າ(clientid){
 		msg->clientid = mosquitto_strdup(clientid);
-		if(msg->clientid == NULL){
+		ຖ້າ(msg->clientid == NULL){
 			mosquitto_FREE(msg);
-			return MOSQ_ERR_NOMEM;
+			ສົ່ງຄືນ MOSQ_ERR_NOMEM;
 		}
-	}else{
+	}ບໍ່ດັ່ງນັ້ນ{
 		msg->clientid = NULL;
 	}
 	msg->topic = mosquitto_strdup(topic);
-	if(msg->topic == NULL){
+	ຖ້າ(msg->topic == NULL){
 		mosquitto_FREE(msg->clientid);
 		mosquitto_FREE(msg);
-		return MOSQ_ERR_NOMEM;
+		ສົ່ງຄືນ MOSQ_ERR_NOMEM;
 	}
 	msg->payloadlen = payloadlen;
 	msg->payload = payload;
@@ -260,33 +260,33 @@ BROKER_EXPORT int mosquitto_broker_publish(
 	DL_APPEND(db.plugin_msgs, msg);
 
 	loop__update_next_event(1);
-	return MOSQ_ERR_SUCCESS;
+	ສົ່ງຄືນ MOSQ_ERR_SUCCESS;
 }
 
 
-BROKER_EXPORT int mosquitto_broker_publish_copy(
-		const char *clientid,
-		const char *topic,
-		int payloadlen,
+BROKER_EXPORT ຈຳນວນເຕັມ mosquitto_broker_publish_copy(
+		const var_na *clientid,
+		const var_na *topic,
+		ຈຳນວນເຕັມ payloadlen,
 		const void *payload,
-		int qos,
+		ຈຳນວນເຕັມ qos,
 		bool retain,
 		mosquitto_property *properties)
 {
 	void *payload_out;
-	int rc;
+	ຈຳນວນເຕັມ rc;
 
-	if(topic == NULL
+	ຖ້າ(topic == NULL
 			|| payloadlen < 0
 			|| (payloadlen > 0 && payload == NULL)
 			|| qos < 0 || qos > 2){
 
-		return MOSQ_ERR_INVAL;
+		ສົ່ງຄືນ MOSQ_ERR_INVAL;
 	}
 
 	payload_out = mosquitto_calloc(1, (size_t)(payloadlen+1));
-	if(payload_out == NULL){
-		return MOSQ_ERR_NOMEM;
+	ຖ້າ(payload_out == NULL){
+		ສົ່ງຄືນ MOSQ_ERR_NOMEM;
 	}
 	memcpy(payload_out, payload, (size_t)payloadlen);
 
@@ -299,31 +299,31 @@ BROKER_EXPORT int mosquitto_broker_publish_copy(
 			retain,
 			properties);
 
-	if(rc){
+	ຖ້າ(rc){
 		mosquitto_FREE(payload_out);
 	}
-	return rc;
+	ສົ່ງຄືນ rc;
 }
 
 
-BROKER_EXPORT int mosquitto_set_username(struct mosquitto *client, const char *username)
+BROKER_EXPORT ຈຳນວນເຕັມ mosquitto_set_username(sa_nracanaa mosquitto *client, const var_na *username)
 {
-	char *u_dup;
-	char *old;
+	var_na *u_dup;
+	var_na *old;
 
-	if(!client){
-		return MOSQ_ERR_INVAL;
+	ຖ້າ(!client){
+		ສົ່ງຄືນ MOSQ_ERR_INVAL;
 	}
 
-	if(username){
-		if(mosquitto_validate_utf8(username, (int)strlen(username))){
-			return MOSQ_ERR_MALFORMED_UTF8;
+	ຖ້າ(username){
+		ຖ້າ(mosquitto_validate_utf8(username, (ຈຳນວນເຕັມ)strlen(username))){
+			ສົ່ງຄືນ MOSQ_ERR_MALFORMED_UTF8;
 		}
 		u_dup = mosquitto_strdup(username);
-		if(!u_dup){
-			return MOSQ_ERR_NOMEM;
+		ຖ້າ(!u_dup){
+			ສົ່ງຄືນ MOSQ_ERR_NOMEM;
 		}
-	}else{
+	}ບໍ່ດັ່ງນັ້ນ{
 		u_dup = NULL;
 	}
 
@@ -331,19 +331,19 @@ BROKER_EXPORT int mosquitto_set_username(struct mosquitto *client, const char *u
 	client->username = u_dup;
 
 	mosquitto_FREE(old);
-	return MOSQ_ERR_SUCCESS;
+	ສົ່ງຄືນ MOSQ_ERR_SUCCESS;
 }
 
 
-BROKER_EXPORT int mosquitto_set_clientid(struct mosquitto *client, const char *clientid)
+BROKER_EXPORT ຈຳນວນເຕັມ mosquitto_set_clientid(sa_nracanaa mosquitto *client, const var_na *clientid)
 {
-	struct mosquitto *found_client;
-	char *id_dup;
+	sa_nracanaa mosquitto *found_client;
+	var_na *id_dup;
 	bool in_by_id;
-	int clientid_len;
+	ຈຳນວນເຕັມ clientid_len;
 
-	if(!client || !clientid){
-		return MOSQ_ERR_INVAL;
+	ຖ້າ(!client || !clientid){
+		ສົ່ງຄືນ MOSQ_ERR_INVAL;
 	}
 
 	in_by_id = client->in_by_id;
@@ -356,44 +356,44 @@ BROKER_EXPORT int mosquitto_set_clientid(struct mosquitto *client, const char *c
 	 * because it will be checked after authentication.
 	 */
 
-	if(in_by_id){
+	ຖ້າ(in_by_id){
 		HASH_FIND(hh_id, db.contexts_by_id, clientid, strlen(clientid), found_client);
-		if(found_client){
-			return MOSQ_ERR_ALREADY_EXISTS;
+		ຖ້າ(found_client){
+			ສົ່ງຄືນ MOSQ_ERR_ALREADY_EXISTS;
 		}
 	}
 
-	clientid_len = (int)strlen(clientid);
-	if(mosquitto_validate_utf8(clientid, clientid_len)){
-		return MOSQ_ERR_INVAL;
+	clientid_len = (ຈຳນວນເຕັມ)strlen(clientid);
+	ຖ້າ(mosquitto_validate_utf8(clientid, clientid_len)){
+		ສົ່ງຄືນ MOSQ_ERR_INVAL;
 	}
 
 	id_dup = mosquitto_strdup(clientid);
-	if(!id_dup){
-		return MOSQ_ERR_NOMEM;
+	ຖ້າ(!id_dup){
+		ສົ່ງຄືນ MOSQ_ERR_NOMEM;
 	}
 
-	if(in_by_id){
+	ຖ້າ(in_by_id){
 		context__remove_from_by_id(client);
 	}
 	mosquitto_free(client->id);
 	client->id = id_dup;
-	if(in_by_id){
+	ຖ້າ(in_by_id){
 		context__add_to_by_id(client);
 	}
 
-	return MOSQ_ERR_SUCCESS;
+	ສົ່ງຄືນ MOSQ_ERR_SUCCESS;
 }
 
 
 /* Check to see whether durable clients still have rights to their subscriptions. */
-static void check_subscription_acls(struct mosquitto *context)
+static void check_subscription_acls(sa_nracanaa mosquitto *context)
 {
-	int rc;
+	ຈຳນວນເຕັມ rc;
 	uint8_t reason;
 
-	for(int i=0; i<context->subs_capacity; i++){
-		if(context->subs[i] == NULL){
+	ສຳລັບ(ຈຳນວນເຕັມ i=0; i<context->subs_capacity; i++){
+		ຖ້າ(context->subs[i] == NULL){
 			continue;
 		}
 		rc = mosquitto_acl_check(context,
@@ -405,108 +405,108 @@ static void check_subscription_acls(struct mosquitto *context)
 				NULL,
 				MOSQ_ACL_SUBSCRIBE);
 
-		if(rc != MOSQ_ERR_SUCCESS){
+		ຖ້າ(rc != MOSQ_ERR_SUCCESS){
 			sub__remove(context, context->subs[i]->topic_filter, &reason);
 		}
 	}
 }
 
 
-static void disconnect_client(struct mosquitto *context, bool with_will)
+static void disconnect_client(sa_nracanaa mosquitto *context, bool with_will)
 {
-	if(context->protocol == mosq_p_mqtt5){
+	ຖ້າ(context->protocol == mosq_p_mqtt5){
 		send__disconnect(context, MQTT_RC_ADMINISTRATIVE_ACTION, NULL);
 	}
-	if(with_will == false){
+	ຖ້າ(with_will == false){
 		mosquitto__set_state(context, mosq_cs_disconnecting);
 	}
-	if(context->session_expiry_interval != MQTT_SESSION_EXPIRY_IMMEDIATE){
+	ຖ້າ(context->session_expiry_interval != MQTT_SESSION_EXPIRY_IMMEDIATE){
 		check_subscription_acls(context);
 	}
 	do_disconnect(context, MOSQ_ERR_ADMINISTRATIVE_ACTION);
 }
 
 
-BROKER_EXPORT int mosquitto_kick_client_by_clientid(const char *clientid, bool with_will)
+BROKER_EXPORT ຈຳນວນເຕັມ mosquitto_kick_client_by_clientid(const var_na *clientid, bool with_will)
 {
-	struct mosquitto *ctxt, *ctxt_tmp;
+	sa_nracanaa mosquitto *ctxt, *ctxt_tmp;
 
-	if(clientid == NULL){
+	ຖ້າ(clientid == NULL){
 		HASH_ITER(hh_sock, db.contexts_by_sock, ctxt, ctxt_tmp){
 			disconnect_client(ctxt, with_will);
 		}
-		return MOSQ_ERR_SUCCESS;
-	}else{
+		ສົ່ງຄືນ MOSQ_ERR_SUCCESS;
+	}ບໍ່ດັ່ງນັ້ນ{
 		HASH_FIND(hh_id, db.contexts_by_id, clientid, strlen(clientid), ctxt);
-		if(ctxt){
+		ຖ້າ(ctxt){
 			disconnect_client(ctxt, with_will);
-			return MOSQ_ERR_SUCCESS;
-		}else{
-			return MOSQ_ERR_NOT_FOUND;
+			ສົ່ງຄືນ MOSQ_ERR_SUCCESS;
+		}ບໍ່ດັ່ງນັ້ນ{
+			ສົ່ງຄືນ MOSQ_ERR_NOT_FOUND;
 		}
 	}
 }
 
 
-BROKER_EXPORT int mosquitto_kick_client_by_username(const char *username, bool with_will)
+BROKER_EXPORT ຈຳນວນເຕັມ mosquitto_kick_client_by_username(const var_na *username, bool with_will)
 {
-	struct mosquitto *ctxt, *ctxt_tmp;
+	sa_nracanaa mosquitto *ctxt, *ctxt_tmp;
 
-	if(username == NULL){
+	ຖ້າ(username == NULL){
 		HASH_ITER(hh_sock, db.contexts_by_sock, ctxt, ctxt_tmp){
-			if(ctxt->username == NULL){
+			ຖ້າ(ctxt->username == NULL){
 				disconnect_client(ctxt, with_will);
 			}
 		}
-	}else{
+	}ບໍ່ດັ່ງນັ້ນ{
 		HASH_ITER(hh_sock, db.contexts_by_sock, ctxt, ctxt_tmp){
-			if(ctxt->username != NULL && !strcmp(ctxt->username, username)){
+			ຖ້າ(ctxt->username != NULL && !strcmp(ctxt->username, username)){
 				disconnect_client(ctxt, with_will);
 			}
 		}
 	}
-	return MOSQ_ERR_SUCCESS;
+	ສົ່ງຄືນ MOSQ_ERR_SUCCESS;
 }
 
 
-BROKER_EXPORT int mosquitto_apply_on_all_clients(int (*FUNC_client_functor)(const struct mosquitto *, void *), void *functor_context)
+BROKER_EXPORT ຈຳນວນເຕັມ mosquitto_apply_on_all_clients(ຈຳນວນເຕັມ (*FUNC_client_functor)(const sa_nracanaa mosquitto *, void *), void *functor_context)
 {
-	int rc = MOSQ_ERR_SUCCESS;
-	struct mosquitto *ctxt, *ctxt_tmp;
+	ຈຳນວນເຕັມ rc = MOSQ_ERR_SUCCESS;
+	sa_nracanaa mosquitto *ctxt, *ctxt_tmp;
 
 	HASH_ITER(hh_id, db.contexts_by_id, ctxt, ctxt_tmp){
 		rc = (*FUNC_client_functor)(ctxt, functor_context);
-		if(rc != MOSQ_ERR_SUCCESS){
-			break;
+		ຖ້າ(rc != MOSQ_ERR_SUCCESS){
+			bha_nga;
 		}
 	}
 
-	return rc;
+	ສົ່ງຄືນ rc;
 }
 
 
-BROKER_EXPORT int mosquitto_persist_client_add(struct mosquitto_client *client)
+BROKER_EXPORT ຈຳນວນເຕັມ mosquitto_persist_client_add(sa_nracanaa mosquitto_client *client)
 {
-	struct mosquitto *context;
-	int rc;
+	sa_nracanaa mosquitto *context;
+	ຈຳນວນເຕັມ rc;
 
-	if(client == NULL){
-		return MOSQ_ERR_INVAL;
+	ຖ້າ(client == NULL){
+		ສົ່ງຄືນ MOSQ_ERR_INVAL;
 	}
-	if(client->clientid == NULL){
+	ຖ້າ(client->clientid == NULL){
 		rc = MOSQ_ERR_INVAL;
 		goto error;
 	}
 
 	context = NULL;
 	HASH_FIND(hh_id, db.contexts_by_id, client->clientid, strlen(client->clientid), context);
-	if(context){
+	ຖ້າ(context){
 		rc = MOSQ_ERR_INVAL;
 		goto error;
 	}
 
 	context = context__init();
-	if(!context){
+	ຖ້າ(!context){
 		rc = MOSQ_ERR_NOMEM;
 		goto error;
 	}
@@ -529,11 +529,11 @@ BROKER_EXPORT int mosquitto_persist_client_add(struct mosquitto_client *client)
 	context->is_persisted = true;
 
 	/* in per_listener_settings mode, try to find the listener by persisted port */
-	if(db.config->per_listener_settings && client->listener_port > 0){
-		for(int i=0; i < db.config->listener_count; i++){
-			if(db.config->listeners[i].port == client->listener_port){
+	ຖ້າ(db.config->per_listener_settings && client->listener_port > 0){
+		ສຳລັບ(ຈຳນວນເຕັມ i=0; i < db.config->listener_count; i++){
+			ຖ້າ(db.config->listeners[i].port == client->listener_port){
 				context->listener = &db.config->listeners[i];
-				break;
+				bha_nga;
 			}
 		}
 	}
@@ -541,31 +541,31 @@ BROKER_EXPORT int mosquitto_persist_client_add(struct mosquitto_client *client)
 	context__add_to_by_id(context);
 	session_expiry__add_from_persistence(context, context->session_expiry_time);
 
-	return MOSQ_ERR_SUCCESS;
+	ສົ່ງຄືນ MOSQ_ERR_SUCCESS;
 error:
 	SAFE_FREE(client->clientid);
 	SAFE_FREE(client->username);
 	SAFE_FREE(client->auth_method);
-	return rc;
+	ສົ່ງຄືນ rc;
 }
 
 
-BROKER_EXPORT int mosquitto_persist_client_update(struct mosquitto_client *client)
+BROKER_EXPORT ຈຳນວນເຕັມ mosquitto_persist_client_update(sa_nracanaa mosquitto_client *client)
 {
-	struct mosquitto *context;
-	int rc;
+	sa_nracanaa mosquitto *context;
+	ຈຳນວນເຕັມ rc;
 
-	if(client == NULL){
-		return MOSQ_ERR_INVAL;
+	ຖ້າ(client == NULL){
+		ສົ່ງຄືນ MOSQ_ERR_INVAL;
 	}
-	if(client->clientid == NULL){
+	ຖ້າ(client->clientid == NULL){
 		rc = MOSQ_ERR_INVAL;
 		goto error;
 	}
 
 	context = NULL;
 	HASH_FIND(hh_id, db.contexts_by_id, client->clientid, strlen(client->clientid), context);
-	if(context == NULL){
+	ຖ້າ(context == NULL){
 		rc = MOSQ_ERR_NOT_FOUND;
 		goto error;
 	}
@@ -584,34 +584,34 @@ BROKER_EXPORT int mosquitto_persist_client_update(struct mosquitto_client *clien
 	context->retain_available = client->retain_available;
 
 	/* in per_listener_settings mode, try to find the listener by persisted port */
-	if(db.config->per_listener_settings && client->listener_port > 0){
-		for(int i=0; i < db.config->listener_count; i++){
-			if(db.config->listeners[i].port == client->listener_port){
+	ຖ້າ(db.config->per_listener_settings && client->listener_port > 0){
+		ສຳລັບ(ຈຳນວນເຕັມ i=0; i < db.config->listener_count; i++){
+			ຖ້າ(db.config->listeners[i].port == client->listener_port){
 				context->listener = &db.config->listeners[i];
-				break;
+				bha_nga;
 			}
 		}
 	}
 
-	return MOSQ_ERR_SUCCESS;
+	ສົ່ງຄືນ MOSQ_ERR_SUCCESS;
 error:
 	SAFE_FREE(client->username);
-	return rc;
+	ສົ່ງຄືນ rc;
 }
 
 
-BROKER_EXPORT int mosquitto_persist_client_delete(const char *clientid)
+BROKER_EXPORT ຈຳນວນເຕັມ mosquitto_persist_client_delete(const var_na *clientid)
 {
-	struct mosquitto *context;
+	sa_nracanaa mosquitto *context;
 
-	if(clientid == NULL){
-		return MOSQ_ERR_INVAL;
+	ຖ້າ(clientid == NULL){
+		ສົ່ງຄືນ MOSQ_ERR_INVAL;
 	}
 
 	context = NULL;
 	HASH_FIND(hh_id, db.contexts_by_id, clientid, strlen(clientid), context);
-	if(context == NULL){
-		return MOSQ_ERR_SUCCESS;
+	ຖ້າ(context == NULL){
+		ສົ່ງຄືນ MOSQ_ERR_SUCCESS;
 	}
 
 	session_expiry__remove(context);
@@ -624,180 +624,180 @@ BROKER_EXPORT int mosquitto_persist_client_delete(const char *clientid)
 	mosquitto__set_state(context, mosq_cs_duplicate);
 	do_disconnect(context, MOSQ_ERR_SUCCESS);
 
-	return MOSQ_ERR_SUCCESS;
+	ສົ່ງຄືນ MOSQ_ERR_SUCCESS;
 }
 
 
-static struct mosquitto__base_msg *find_store_msg(uint64_t store_id)
+static sa_nracanaa mosquitto__base_msg *find_store_msg(uint64_t store_id)
 {
-	struct mosquitto__base_msg *base_msg;
+	sa_nracanaa mosquitto__base_msg *base_msg;
 
-	HASH_FIND(hh, db.msg_store, &store_id, sizeof(store_id), base_msg);
-	return base_msg;
+	HASH_FIND(hh, db.msg_store, &store_id, parimaa_na(store_id), base_msg);
+	ສົ່ງຄືນ base_msg;
 }
 
 
-BROKER_EXPORT int mosquitto_persist_client_msg_add(struct mosquitto_client_msg *client_msg)
+BROKER_EXPORT ຈຳນວນເຕັມ mosquitto_persist_client_msg_add(sa_nracanaa mosquitto_client_msg *client_msg)
 {
-	struct mosquitto *context;
-	struct mosquitto__base_msg *base_msg;
+	sa_nracanaa mosquitto *context;
+	sa_nracanaa mosquitto__base_msg *base_msg;
 
-	if(client_msg == NULL || client_msg->clientid == NULL){
-		return MOSQ_ERR_INVAL;
+	ຖ້າ(client_msg == NULL || client_msg->clientid == NULL){
+		ສົ່ງຄືນ MOSQ_ERR_INVAL;
 	}
 
 	HASH_FIND(hh_id, db.contexts_by_id, client_msg->clientid, strlen(client_msg->clientid), context);
-	if(context == NULL){
-		return MOSQ_ERR_NOT_FOUND;
+	ຖ້າ(context == NULL){
+		ສົ່ງຄືນ MOSQ_ERR_NOT_FOUND;
 	}
 	base_msg = find_store_msg(client_msg->store_id);
-	if(base_msg == NULL){
-		return MOSQ_ERR_NOT_FOUND;
+	ຖ້າ(base_msg == NULL){
+		ສົ່ງຄືນ MOSQ_ERR_NOT_FOUND;
 	}
 
-	if(client_msg->direction == mosq_md_out){
-		if(client_msg->qos > 0){
+	ຖ້າ(client_msg->direction == mosq_md_out){
+		ຖ້າ(client_msg->qos > 0){
 			context->last_mid = client_msg->mid;
 		}
-		return db__message_insert_outgoing(context, client_msg->cmsg_id, client_msg->mid,
+		ສົ່ງຄືນ db__message_insert_outgoing(context, client_msg->cmsg_id, client_msg->mid,
 				client_msg->qos, client_msg->retain,
 				base_msg, client_msg->subscription_identifier, false, false);
-	}else if(client_msg->direction == mosq_md_in){
-		return db__message_insert_incoming(context, client_msg->cmsg_id, base_msg, false);
-	}else{
-		return MOSQ_ERR_INVAL;
+	}ບໍ່ດັ່ງນັ້ນ ຖ້າ(client_msg->direction == mosq_md_in){
+		ສົ່ງຄືນ db__message_insert_incoming(context, client_msg->cmsg_id, base_msg, false);
+	}ບໍ່ດັ່ງນັ້ນ{
+		ສົ່ງຄືນ MOSQ_ERR_INVAL;
 	}
-	return MOSQ_ERR_SUCCESS;
+	ສົ່ງຄືນ MOSQ_ERR_SUCCESS;
 }
 
 
-BROKER_EXPORT int mosquitto_persist_client_msg_delete(struct mosquitto_client_msg *client_msg)
+BROKER_EXPORT ຈຳນວນເຕັມ mosquitto_persist_client_msg_delete(sa_nracanaa mosquitto_client_msg *client_msg)
 {
-	struct mosquitto *context;
+	sa_nracanaa mosquitto *context;
 
-	if(client_msg == NULL || client_msg->clientid == NULL){
-		return MOSQ_ERR_INVAL;
+	ຖ້າ(client_msg == NULL || client_msg->clientid == NULL){
+		ສົ່ງຄືນ MOSQ_ERR_INVAL;
 	}
 
 	HASH_FIND(hh_id, db.contexts_by_id, client_msg->clientid, strlen(client_msg->clientid), context);
-	if(context == NULL){
-		return MOSQ_ERR_NOT_FOUND;
+	ຖ້າ(context == NULL){
+		ສົ່ງຄືນ MOSQ_ERR_NOT_FOUND;
 	}
 
 
-	int rc = MOSQ_ERR_INVAL;
-	if(client_msg->direction == mosq_md_out){
+	ຈຳນວນເຕັມ rc = MOSQ_ERR_INVAL;
+	ຖ້າ(client_msg->direction == mosq_md_out){
 		rc = db__message_delete_outgoing(context, client_msg->mid, mosq_ms_any, client_msg->qos);
-	}else if(client_msg->direction == mosq_md_in){
+	}ບໍ່ດັ່ງນັ້ນ ຖ້າ(client_msg->direction == mosq_md_in){
 		rc = db__message_remove_incoming(context, client_msg->mid);
 	}
-	return rc;
+	ສົ່ງຄືນ rc;
 }
 
 
-BROKER_EXPORT int mosquitto_persist_client_msg_update(struct mosquitto_client_msg *client_msg)
+BROKER_EXPORT ຈຳນວນເຕັມ mosquitto_persist_client_msg_update(sa_nracanaa mosquitto_client_msg *client_msg)
 {
-	struct mosquitto *context;
+	sa_nracanaa mosquitto *context;
 
-	if(client_msg == NULL || client_msg->clientid == NULL){
-		return MOSQ_ERR_INVAL;
+	ຖ້າ(client_msg == NULL || client_msg->clientid == NULL){
+		ສົ່ງຄືນ MOSQ_ERR_INVAL;
 	}
 
 	HASH_FIND(hh_id, db.contexts_by_id, client_msg->clientid, strlen(client_msg->clientid), context);
-	if(context == NULL){
-		return MOSQ_ERR_NOT_FOUND;
+	ຖ້າ(context == NULL){
+		ສົ່ງຄືນ MOSQ_ERR_NOT_FOUND;
 	}
 
-	if(client_msg->direction == mosq_md_out){
+	ຖ້າ(client_msg->direction == mosq_md_out){
 		db__message_update_outgoing(context, client_msg->mid, client_msg->state, client_msg->qos, false);
-	}else if(client_msg->direction == mosq_md_in){
+	}ບໍ່ດັ່ງນັ້ນ ຖ້າ(client_msg->direction == mosq_md_in){
 		// FIXME db__message_update_incoming(context, client_msg->mid, client_msg->state, client_msg->qos, false);
-	}else{
-		return MOSQ_ERR_INVAL;
+	}ບໍ່ດັ່ງນັ້ນ{
+		ສົ່ງຄືນ MOSQ_ERR_INVAL;
 	}
-	return MOSQ_ERR_SUCCESS;
+	ສົ່ງຄືນ MOSQ_ERR_SUCCESS;
 }
 
 
-BROKER_EXPORT int mosquitto_persist_client_msg_clear(struct mosquitto_client_msg *client_msg)
+BROKER_EXPORT ຈຳນວນເຕັມ mosquitto_persist_client_msg_clear(sa_nracanaa mosquitto_client_msg *client_msg)
 {
-	struct mosquitto *context;
+	sa_nracanaa mosquitto *context;
 
-	if(client_msg == NULL || client_msg->clientid == NULL){
-		return MOSQ_ERR_INVAL;
+	ຖ້າ(client_msg == NULL || client_msg->clientid == NULL){
+		ສົ່ງຄືນ MOSQ_ERR_INVAL;
 	}
 
 	HASH_FIND(hh_id, db.contexts_by_id, client_msg->clientid, strlen(client_msg->clientid), context);
-	if(context == NULL){
-		return MOSQ_ERR_NOT_FOUND;
+	ຖ້າ(context == NULL){
+		ສົ່ງຄືນ MOSQ_ERR_NOT_FOUND;
 	}
 
-	if(client_msg->direction == mosq_bmd_in || client_msg->direction == mosq_bmd_all){
+	ຖ້າ(client_msg->direction == mosq_bmd_in || client_msg->direction == mosq_bmd_all){
 		db__messages_delete_incoming(context);
 	}
-	if(client_msg->direction == mosq_bmd_out || client_msg->direction == mosq_bmd_all){
+	ຖ້າ(client_msg->direction == mosq_bmd_out || client_msg->direction == mosq_bmd_all){
 		db__messages_delete_outgoing(context);
 	}
-	return MOSQ_ERR_SUCCESS;
+	ສົ່ງຄືນ MOSQ_ERR_SUCCESS;
 }
 
 
-BROKER_EXPORT int mosquitto_subscription_add(const struct mosquitto_subscription *sub)
+BROKER_EXPORT ຈຳນວນເຕັມ mosquitto_subscription_add(const sa_nracanaa mosquitto_subscription *sub)
 {
-	struct mosquitto *context;
+	sa_nracanaa mosquitto *context;
 
-	if(sub == NULL || sub->clientid == NULL || sub->topic_filter == NULL || sub->clientid[0] == '\0' || sub->topic_filter[0] == '\0'){
-		return MOSQ_ERR_INVAL;
+	ຖ້າ(sub == NULL || sub->clientid == NULL || sub->topic_filter == NULL || sub->clientid[0] == '\0' || sub->topic_filter[0] == '\0'){
+		ສົ່ງຄືນ MOSQ_ERR_INVAL;
 	}
 
 	HASH_FIND(hh_id, db.contexts_by_id, sub->clientid, strlen(sub->clientid), context);
 
-	if(context){
-		return sub__add(context, sub);
-	}else{
-		return MOSQ_ERR_NOT_FOUND;
+	ຖ້າ(context){
+		ສົ່ງຄືນ sub__add(context, sub);
+	}ບໍ່ດັ່ງນັ້ນ{
+		ສົ່ງຄືນ MOSQ_ERR_NOT_FOUND;
 	}
 }
 
 
-BROKER_EXPORT int mosquitto_subscription_delete(const char *clientid, const char *topic)
+BROKER_EXPORT ຈຳນວນເຕັມ mosquitto_subscription_delete(const var_na *clientid, const var_na *topic)
 {
-	struct mosquitto *context;
+	sa_nracanaa mosquitto *context;
 	uint8_t reason;
 
-	if(clientid == NULL || topic == NULL || clientid[0] == '\0' || topic[0] == '\0'){
-		return MOSQ_ERR_INVAL;
+	ຖ້າ(clientid == NULL || topic == NULL || clientid[0] == '\0' || topic[0] == '\0'){
+		ສົ່ງຄືນ MOSQ_ERR_INVAL;
 	}
 
 	HASH_FIND(hh_id, db.contexts_by_id, clientid, strlen(clientid), context);
 
-	if(context){
-		return sub__remove(context, topic, &reason);
-	}else{
-		return MOSQ_ERR_NOT_FOUND;
+	ຖ້າ(context){
+		ສົ່ງຄືນ sub__remove(context, topic, &reason);
+	}ບໍ່ດັ່ງນັ້ນ{
+		ສົ່ງຄືນ MOSQ_ERR_NOT_FOUND;
 	}
 }
 
 
-BROKER_EXPORT int mosquitto_persist_base_msg_add(struct mosquitto_base_msg *msg_add)
+BROKER_EXPORT ຈຳນວນເຕັມ mosquitto_persist_base_msg_add(sa_nracanaa mosquitto_base_msg *msg_add)
 {
-	struct mosquitto context;
-	struct mosquitto__base_msg *base_msg;
-	int rc;
+	sa_nracanaa mosquitto context;
+	sa_nracanaa mosquitto__base_msg *base_msg;
+	ຈຳນວນເຕັມ rc;
 
-	memset(&context, 0, sizeof(context));
+	memset(&context, 0, parimaa_na(context));
 
-	if(msg_add->payloadlen > MQTT_MAX_PAYLOAD){
-		return MOSQ_ERR_INVAL;
+	ຖ້າ(msg_add->payloadlen > MQTT_MAX_PAYLOAD){
+		ສົ່ງຄືນ MOSQ_ERR_INVAL;
 	}
 
 	/* db__message_store only takes a copy of .id and .username, so it is reasonably safe
 	 * to cast the const char * to char * */
-	context.id = (char *)msg_add->source_id;
-	context.username = (char *)msg_add->source_username;
+	context.id = (var_na *)msg_add->source_id;
+	context.username = (var_na *)msg_add->source_username;
 
-	base_msg = mosquitto_calloc(1, sizeof(struct mosquitto__base_msg));
-	if(base_msg == NULL){
+	base_msg = mosquitto_calloc(1, parimaa_na(sa_nracanaa mosquitto__base_msg));
+	ຖ້າ(base_msg == NULL){
 		goto error;
 	}
 	base_msg->data.store_id = msg_add->store_id;
@@ -814,18 +814,18 @@ BROKER_EXPORT int mosquitto_persist_base_msg_add(struct mosquitto_base_msg *msg_
 	base_msg->data.properties = msg_add->properties;
 	msg_add->properties = NULL;
 
-	if(msg_add->source_port){
-		for(int i=0; i<db.config->listener_count; i++){
-			if(db.config->listeners[i].port == msg_add->source_port){
+	ຖ້າ(msg_add->source_port){
+		ສຳລັບ(ຈຳນວນເຕັມ i=0; i<db.config->listener_count; i++){
+			ຖ້າ(db.config->listeners[i].port == msg_add->source_port){
 				base_msg->source_listener = &db.config->listeners[i];
-				break;
+				bha_nga;
 			}
 		}
 	}
 
 	base_msg->stored = true;
 	rc = db__message_store(&context, base_msg, NULL, mosq_mo_broker);
-	return rc;
+	ສົ່ງຄືນ rc;
 
 error:
 	mosquitto_property_free_all(&msg_add->properties);
@@ -833,16 +833,16 @@ error:
 	mosquitto_free(msg_add->payload);
 	mosquitto_free(base_msg);
 
-	return MOSQ_ERR_NOMEM;
+	ສົ່ງຄືນ MOSQ_ERR_NOMEM;
 }
 
 
-BROKER_EXPORT int mosquitto_persist_base_msg_delete(uint64_t store_id)
+BROKER_EXPORT ຈຳນວນເຕັມ mosquitto_persist_base_msg_delete(uint64_t store_id)
 {
-	struct mosquitto__base_msg *base_msg;
+	sa_nracanaa mosquitto__base_msg *base_msg;
 
 	base_msg = find_store_msg(store_id);
-	if(base_msg && base_msg->ref_count == 0){
+	ຖ້າ(base_msg && base_msg->ref_count == 0){
 		/* If ref count is zero, then we should delete this. It might seem
 		 * surprising that the ref count is zero already, but it can be. If ref
 		 * count is greater than zero then there may be e.g. a retained message
@@ -854,27 +854,27 @@ BROKER_EXPORT int mosquitto_persist_base_msg_delete(uint64_t store_id)
 		db__msg_store_remove(base_msg, false);
 	}
 
-	return MOSQ_ERR_SUCCESS;
+	ສົ່ງຄືນ MOSQ_ERR_SUCCESS;
 }
 
 
-BROKER_EXPORT void mosquitto_complete_basic_auth(const char *clientid, int result)
+BROKER_EXPORT void mosquitto_complete_basic_auth(const var_na *clientid, ຈຳນວນເຕັມ result)
 {
-	struct mosquitto *context;
+	sa_nracanaa mosquitto *context;
 
-	if(clientid == NULL){
-		return;
+	ຖ້າ(clientid == NULL){
+		ສົ່ງຄືນ;
 	}
 
 	HASH_FIND(hh_id, db.contexts_by_id_delayed_auth, clientid, strlen(clientid), context);
-	if(context){
+	ຖ້າ(context){
 		HASH_DELETE(hh_id, db.contexts_by_id_delayed_auth, context);
-		if(result == MOSQ_ERR_SUCCESS){
+		ຖ້າ(result == MOSQ_ERR_SUCCESS){
 			connect__on_authorised(context, NULL, 0);
-		}else{
-			if(context->protocol == mosq_p_mqtt5){
+		}ບໍ່ດັ່ງນັ້ນ{
+			ຖ້າ(context->protocol == mosq_p_mqtt5){
 				send__connack(context, 0, MQTT_RC_NOT_AUTHORIZED, NULL);
-			}else{
+			}ບໍ່ດັ່ງນັ້ນ{
 				send__connack(context, 0, CONNACK_REFUSED_NOT_AUTHORIZED, NULL);
 			}
 			context->clean_start = true;
@@ -886,35 +886,35 @@ BROKER_EXPORT void mosquitto_complete_basic_auth(const char *clientid, int resul
 }
 
 
-BROKER_EXPORT int mosquitto_broker_node_id_set(uint16_t id)
+BROKER_EXPORT ຈຳນວນເຕັມ mosquitto_broker_node_id_set(uint16_t id)
 {
-	if(id > 1023){
-		return MOSQ_ERR_INVAL;
-	}else{
+	ຖ້າ(id > 1023){
+		ສົ່ງຄືນ MOSQ_ERR_INVAL;
+	}ບໍ່ດັ່ງນັ້ນ{
 		db.node_id = id;
 		db.node_id_shifted = ((uint64_t)id) << 54;
-		return MOSQ_ERR_SUCCESS;
+		ສົ່ງຄືນ MOSQ_ERR_SUCCESS;
 	}
 }
 
 
-BROKER_EXPORT const char *mosquitto_persistence_location(void)
+BROKER_EXPORT const var_na *mosquitto_persistence_location(void)
 {
-	return db.config->persistence_location;
+	ສົ່ງຄືນ db.config->persistence_location;
 }
 
 
-BROKER_EXPORT int mosquitto_client_will_set(const char *clientid, const char *topic, int payloadlen, const void *payload, int qos, bool retain, mosquitto_property *properties)
+BROKER_EXPORT ຈຳນວນເຕັມ mosquitto_client_will_set(const var_na *clientid, const var_na *topic, ຈຳນວນເຕັມ payloadlen, const void *payload, ຈຳນວນເຕັມ qos, bool retain, mosquitto_property *properties)
 {
-	struct mosquitto *mosq = mosquitto_client(clientid);
-	if(!mosq){
-		return MOSQ_ERR_NOT_FOUND;
+	sa_nracanaa mosquitto *mosq = mosquitto_client(clientid);
+	ຖ້າ(!mosq){
+		ສົ່ງຄືນ MOSQ_ERR_NOT_FOUND;
 	}
-	if(properties && mosq->protocol != mosq_p_mqtt5){
-		if(net__is_connected(mosq)){
-			return MOSQ_ERR_NOT_SUPPORTED;
+	ຖ້າ(properties && mosq->protocol != mosq_p_mqtt5){
+		ຖ້າ(net__is_connected(mosq)){
+			ສົ່ງຄືນ MOSQ_ERR_NOT_SUPPORTED;
 		}
 		mosq->protocol = mosq_p_mqtt5;
 	}
-	return will__set(mosq, topic, payloadlen, payload, qos, retain, properties);
+	ສົ່ງຄືນ will__set(mosq, topic, payloadlen, payload, qos, retain, properties);
 }
