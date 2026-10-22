@@ -16,75 +16,75 @@ Contributors:
    Roger Light - initial implementation and documentation.
 */
 
-#include "config.h"
+#अन्तर्भाव "config.h"
 
-#include <cjson/cJSON.h>
-#include <errno.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <sys/stat.h>
-#include <utlist.h>
+#अन्तर्भाव <cjson/cJSON.h>
+#अन्तर्भाव <errno.h>
+#अन्तर्भाव <stdio.h>
+#अन्तर्भाव <stdlib.h>
+#अन्तर्भाव <string.h>
+#अन्तर्भाव <sys/stat.h>
+#अन्तर्भाव <utlist.h>
 
-#include "json_help.h"
-#include "mosquitto.h"
-#include "mosquitto_broker_internal.h"
-#include "mosquitto/broker.h"
-#include "mosquitto/broker_control.h"
-#include "mosquitto/broker_plugin.h"
-#include "mosquitto/mqtt_protocol.h"
+#अन्तर्भाव "json_help.h"
+#अन्तर्भाव "mosquitto.h"
+#अन्तर्भाव "mosquitto_broker_internal.h"
+#अन्तर्भाव "mosquitto/broker.h"
+#अन्तर्भाव "mosquitto/broker_control.h"
+#अन्तर्भाव "mosquitto/broker_plugin.h"
+#अन्तर्भाव "mosquitto/mqtt_protocol.h"
 
-static mosquitto_plugin_id_t plg_id;
-static int broker__handle_control(struct mosquitto_control_cmd *cmd, void *userdata);
+स्थिर mosquitto_plugin_id_t plg_id;
+स्थिर पूर्णाङ्क broker__handle_control(संरचना mosquitto_control_cmd *cmd, शून्य *userdata);
 
 
-static int add_plugin_info(cJSON *j_plugins, mosquitto_plugin_id_t *pid)
+स्थिर पूर्णाङ्क add_plugin_info(cJSON *j_plugins, mosquitto_plugin_id_t *pid)
 {
 	cJSON *j_plugin, *j_eps, *j_ep;
-	struct control_endpoint *ep;
+	संरचना control_endpoint *ep;
 
-	if(pid->plugin_name == NULL){
-		return MOSQ_ERR_SUCCESS;
+	यदि(pid->plugin_name == रिक्त){
+		फर्काऊ MOSQ_ERR_SUCCESS;
 	}
 
 	j_plugin = cJSON_CreateObject();
-	if(j_plugin == NULL){
-		return MOSQ_ERR_NOMEM;
+	यदि(j_plugin == रिक्त){
+		फर्काऊ MOSQ_ERR_NOMEM;
 	}
 
-	if(cJSON_AddStringToObject(j_plugin, "name", pid->plugin_name) == NULL
-			|| (pid->plugin_version && cJSON_AddStringToObject(j_plugin, "version", pid->plugin_version) == NULL)
-			|| (pid->listener && cJSON_AddNumberToObject(j_plugin, "port", pid->listener->port) == NULL)
-			|| (j_eps = cJSON_AddArrayToObject(j_plugin, "control-endpoints")) == NULL
+	यदि(cJSON_AddStringToObject(j_plugin, "name", pid->plugin_name) == रिक्त
+			|| (pid->plugin_version && cJSON_AddStringToObject(j_plugin, "version", pid->plugin_version) == रिक्त)
+			|| (pid->listener && c_JSON_Add_सङ्ख्या_To_Object(j_plugin, "port", pid->listener->port) == रिक्त)
+			|| (j_eps = cJSON_AddArrayToObject(j_plugin, "control-endpoints")) == रिक्त
 			){
 
 		cJSON_Delete(j_plugin);
-		return MOSQ_ERR_NOMEM;
+		फर्काऊ MOSQ_ERR_NOMEM;
 	}
 
 	DL_FOREACH(pid->control_endpoints, ep){
 		j_ep = cJSON_CreateString(ep->topic);
-		if(j_ep == NULL){
+		यदि(j_ep == रिक्त){
 			cJSON_Delete(j_plugin);
-			return MOSQ_ERR_NOMEM;
+			फर्काऊ MOSQ_ERR_NOMEM;
 		}
 		cJSON_AddItemToArray(j_eps, j_ep);
 	}
 
 	cJSON_AddItemToArray(j_plugins, j_plugin);
-	return MOSQ_ERR_SUCCESS;
+	फर्काऊ MOSQ_ERR_SUCCESS;
 }
 
 
-static int broker__process_list_plugins(struct mosquitto_control_cmd *cmd)
+स्थिर पूर्णाङ्क broker__process_list_plugins(संरचना mosquitto_control_cmd *cmd)
 {
-	cJSON *tree, *j_data, *j_plugins;
-	const char *admin_clientid, *admin_username;
+	cJSON *रूख, *j_data, *j_plugins;
+	अचर वर्ण *admin_clientid, *admin_username;
 
-	tree = cJSON_CreateObject();
-	if(tree == NULL){
+	रूख = cJSON_CreateObject();
+	यदि(रूख == रिक्त){
 		mosquitto_control_command_reply(cmd, "Internal error");
-		return MOSQ_ERR_NOMEM;
+		फर्काऊ MOSQ_ERR_NOMEM;
 	}
 
 	admin_clientid = mosquitto_client_id(cmd->client);
@@ -92,88 +92,88 @@ static int broker__process_list_plugins(struct mosquitto_control_cmd *cmd)
 	mosquitto_log_printf(MOSQ_LOG_INFO, "Broker: %s/%s | listPlugins",
 			admin_clientid, admin_username);
 
-	if(cJSON_AddStringToObject(tree, "command", "listPlugins") == NULL
-			|| ((j_data = cJSON_AddObjectToObject(tree, "data")) == NULL)
-			|| (cmd->correlation_data && cJSON_AddStringToObject(tree, "correlationData", cmd->correlation_data) == NULL)
+	यदि(cJSON_AddStringToObject(रूख, "command", "listPlugins") == रिक्त
+			|| ((j_data = cJSON_AddObjectToObject(रूख, "data")) == रिक्त)
+			|| (cmd->correlation_data && cJSON_AddStringToObject(रूख, "correlationData", cmd->correlation_data) == रिक्त)
 			){
 
-		goto internal_error;
+		गच्छ internal_error;
 	}
 
 	j_plugins = cJSON_AddArrayToObject(j_data, "plugins");
-	if(j_plugins == NULL){
-		goto internal_error;
+	यदि(j_plugins == रिक्त){
+		गच्छ internal_error;
 	}
 
-	for(int i=0; i<db.plugin_count; i++){
-		if(add_plugin_info(j_plugins, db.plugins[i])){
-			goto internal_error;
+	लागि(पूर्णाङ्क i=0; i<db.plugin_गन्ती; i++){
+		यदि(add_plugin_info(j_plugins, db.plugins[i])){
+			गच्छ internal_error;
 		}
 	}
 
-	cJSON_AddItemToArray(cmd->j_responses, tree);
+	cJSON_AddItemToArray(cmd->j_responses, रूख);
 
-	return MOSQ_ERR_SUCCESS;
+	फर्काऊ MOSQ_ERR_SUCCESS;
 
 internal_error:
-	cJSON_Delete(tree);
+	cJSON_Delete(रूख);
 	mosquitto_control_command_reply(cmd, "Internal error");
-	return MOSQ_ERR_NOMEM;
+	फर्काऊ MOSQ_ERR_NOMEM;
 }
 
 
-static int add_listener(cJSON *j_listeners, struct mosquitto__listener *listener)
+स्थिर पूर्णाङ्क add_listener(cJSON *j_listeners, संरचना mosquitto__listener *listener)
 {
 	cJSON *j_listener;
-	const char *protocol = NULL;
+	अचर वर्ण *protocol = रिक्त;
 
 	j_listener = cJSON_CreateObject();
-	if(j_listener == NULL){
-		return MOSQ_ERR_NOMEM;
+	यदि(j_listener == रिक्त){
+		फर्काऊ MOSQ_ERR_NOMEM;
 	}
 	cJSON_AddItemToArray(j_listeners, j_listener);
 
-	if(listener->protocol == mp_mqtt){
+	यदि(listener->protocol == mp_mqtt){
 		protocol = "mqtt";
-	}else if(listener->protocol == mp_websockets){
+	}अन्यथा यदि(listener->protocol == mp_websockets){
 		protocol = "mqtt+websockets";
 	}
 
-	if(cJSON_AddNumberToObject(j_listener, "port", listener->port) == NULL
-			|| (protocol && cJSON_AddStringToObject(j_listener, "protocol", protocol) == NULL)
-			|| (listener->host && cJSON_AddStringToObject(j_listener, "bind-address", listener->host) == NULL)
+	यदि(c_JSON_Add_सङ्ख्या_To_Object(j_listener, "port", listener->port) == रिक्त
+			|| (protocol && cJSON_AddStringToObject(j_listener, "protocol", protocol) == रिक्त)
+			|| (listener->host && cJSON_AddStringToObject(j_listener, "bind-address", listener->host) == रिक्त)
 #ifdef WITH_UNIX_SOCKETS
-			|| (listener->unix_socket_path && cJSON_AddStringToObject(j_listener, "socket-path", listener->unix_socket_path) == NULL)
+			|| (listener->unix_socket_path && cJSON_AddStringToObject(j_listener, "socket-path", listener->unix_socket_path) == रिक्त)
 #endif
 			){
 
-		return MOSQ_ERR_NOMEM;
+		फर्काऊ MOSQ_ERR_NOMEM;
 	}
 
-	if(
+	यदि(
 #ifdef WITH_TLS
-			cJSON_AddBoolToObject(j_listener, "tls", listener->ssl_ctx != NULL) == NULL
-#else
-			cJSON_AddBoolToObject(j_listener, "tls", false) == NULL
+			cJSON_AddBoolToObject(j_listener, "tls", listener->ssl_ctx != रिक्त) == रिक्त
+#अन्यथा
+			cJSON_AddBoolToObject(j_listener, "tls", false) == रिक्त
 #endif
 			){
 
-		return MOSQ_ERR_NOMEM;
+		फर्काऊ MOSQ_ERR_NOMEM;
 	}
 
-	return MOSQ_ERR_SUCCESS;
+	फर्काऊ MOSQ_ERR_SUCCESS;
 }
 
 
-static int broker__process_list_listeners(struct mosquitto_control_cmd *cmd)
+स्थिर पूर्णाङ्क broker__process_list_listeners(संरचना mosquitto_control_cmd *cmd)
 {
-	cJSON *tree, *j_data, *j_listeners;
-	const char *admin_clientid, *admin_username;
+	cJSON *रूख, *j_data, *j_listeners;
+	अचर वर्ण *admin_clientid, *admin_username;
 
-	tree = cJSON_CreateObject();
-	if(tree == NULL){
+	रूख = cJSON_CreateObject();
+	यदि(रूख == रिक्त){
 		mosquitto_control_command_reply(cmd, "Internal error");
-		return MOSQ_ERR_NOMEM;
+		फर्काऊ MOSQ_ERR_NOMEM;
 	}
 
 	admin_clientid = mosquitto_client_id(cmd->client);
@@ -181,63 +181,63 @@ static int broker__process_list_listeners(struct mosquitto_control_cmd *cmd)
 	mosquitto_log_printf(MOSQ_LOG_INFO, "Broker: %s/%s | listListeners",
 			admin_clientid, admin_username);
 
-	if(cJSON_AddStringToObject(tree, "command", "listListeners") == NULL
-			|| ((j_data = cJSON_AddObjectToObject(tree, "data")) == NULL)
-			|| (cmd->correlation_data && cJSON_AddStringToObject(tree, "correlationData", cmd->correlation_data) == NULL)
+	यदि(cJSON_AddStringToObject(रूख, "command", "listListeners") == रिक्त
+			|| ((j_data = cJSON_AddObjectToObject(रूख, "data")) == रिक्त)
+			|| (cmd->correlation_data && cJSON_AddStringToObject(रूख, "correlationData", cmd->correlation_data) == रिक्त)
 			){
 
-		goto internal_error;
+		गच्छ internal_error;
 	}
 
 	j_listeners = cJSON_AddArrayToObject(j_data, "listeners");
-	if(j_listeners == NULL){
-		goto internal_error;
+	यदि(j_listeners == रिक्त){
+		गच्छ internal_error;
 	}
 
-	for(int i=0; i<db.config->listener_count; i++){
-		if(add_listener(j_listeners, &db.config->listeners[i])){
-			goto internal_error;
+	लागि(पूर्णाङ्क i=0; i<db.config->listener_गन्ती; i++){
+		यदि(add_listener(j_listeners, &db.config->listeners[i])){
+			गच्छ internal_error;
 		}
 	}
 
-	cJSON_AddItemToArray(cmd->j_responses, tree);
+	cJSON_AddItemToArray(cmd->j_responses, रूख);
 
-	return MOSQ_ERR_SUCCESS;
+	फर्काऊ MOSQ_ERR_SUCCESS;
 
 internal_error:
-	cJSON_Delete(tree);
+	cJSON_Delete(रूख);
 	mosquitto_control_command_reply(cmd, "Internal error");
-	return MOSQ_ERR_NOMEM;
+	फर्काऊ MOSQ_ERR_NOMEM;
 }
 
 
-static int broker_control_callback(int event, void *event_data, void *userdata)
+स्थिर पूर्णाङ्क broker_control_callback(पूर्णाङ्क event, शून्य *event_data, शून्य *userdata)
 {
-	struct mosquitto_evt_control *ed = event_data;
+	संरचना mosquitto_evt_control *ed = event_data;
 
 	UNUSED(event);
 
-	return mosquitto_control_generic_callback(ed, "$CONTROL/broker/v1/response", userdata, broker__handle_control);
+	फर्काऊ mosquitto_control_generic_callback(ed, "$CONTROL/broker/v1/response", userdata, broker__handle_control);
 }
 
 
-void broker_control__init(void)
+शून्य broker_control__init(शून्य)
 {
-	memset(&plg_id, 0, sizeof(plg_id));
+	स_रखो(&plg_id, 0, परिमाण(plg_id));
 
-	if(db.config->enable_control_api){
-		mosquitto_callback_register(&plg_id, MOSQ_EVT_CONTROL, broker_control_callback, "$CONTROL/broker/v1", NULL);
+	यदि(db.config->enable_control_api){
+		mosquitto_callback_register(&plg_id, MOSQ_EVT_CONTROL, broker_control_callback, "$CONTROL/broker/v1", रिक्त);
 	}
 }
 
 
-void broker_control__cleanup(void)
+शून्य broker_control__cleanup(शून्य)
 {
 	mosquitto_callback_unregister(&plg_id, MOSQ_EVT_CONTROL, broker_control_callback, "$CONTROL/broker/v1");
 }
 
 
-void broker_control__reload(void)
+शून्य broker_control__reload(शून्य)
 {
 	broker_control__cleanup();
 	broker_control__init();
@@ -251,21 +251,21 @@ void broker_control__reload(void)
  * ################################################################ */
 
 
-static int broker__handle_control(struct mosquitto_control_cmd *cmd, void *userdata)
+स्थिर पूर्णाङ्क broker__handle_control(संरचना mosquitto_control_cmd *cmd, शून्य *userdata)
 {
-	int rc = MOSQ_ERR_SUCCESS;
+	पूर्णाङ्क rc = MOSQ_ERR_SUCCESS;
 
 	UNUSED(userdata);
 
-	if(!strcasecmp(cmd->command_name, "listPlugins")){
+	यदि(!strcasecmp(cmd->command_name, "listPlugins")){
 		rc = broker__process_list_plugins(cmd);
-	}else if(!strcasecmp(cmd->command_name, "listListeners")){
+	}अन्यथा यदि(!strcasecmp(cmd->command_name, "listListeners")){
 		rc = broker__process_list_listeners(cmd);
 
 		/* Unknown */
-	}else{
+	}अन्यथा{
 		mosquitto_control_command_reply(cmd, "Unknown command");
 		rc = MOSQ_ERR_INVAL;
 	}
-	return rc;
+	फर्काऊ rc;
 }

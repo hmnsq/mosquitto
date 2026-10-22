@@ -17,22 +17,22 @@ Contributors:
    Roger Light - initial implementation and documentation.
 */
 
-#include "config.h"
+#अन्तर्भाव "config.h"
 
-#include "mosquitto_broker_internal.h"
-#include "utlist.h"
+#अन्तर्भाव "mosquitto_broker_internal.h"
+#अन्तर्भाव "utlist.h"
 
 
-static void plugin__handle_client_offline_single(struct mosquitto__security_options *opts, struct mosquitto *context, int reason)
+स्थिर शून्य plugin__handle_client_offline_single(संरचना mosquitto__security_options *opts, संरचना mosquitto *context, पूर्णाङ्क reason)
 {
-	struct mosquitto_evt_client_offline event_data;
-	struct mosquitto__callback *cb_base, *cb_next;
+	संरचना mosquitto_evt_client_offline event_data;
+	संरचना mosquitto__callback *cb_base, *cb_next;
 
-	if(context->id == NULL){
-		return;
+	यदि(context->id == रिक्त){
+		फर्काऊ;
 	}
 
-	memset(&event_data, 0, sizeof(event_data));
+	स_रखो(&event_data, 0, परिमाण(event_data));
 	event_data.client = context;
 	event_data.reason = reason;
 	DL_FOREACH_SAFE(opts->plugin_callbacks.client_offline, cb_base, cb_next){
@@ -41,13 +41,13 @@ static void plugin__handle_client_offline_single(struct mosquitto__security_opti
 }
 
 
-void plugin__handle_client_offline(struct mosquitto *context, int reason)
+शून्य plugin__handle_client_offline(संरचना mosquitto *context, पूर्णाङ्क reason)
 {
 	/* Global plugins */
 	plugin__handle_client_offline_single(&db.config->security_options, context, reason);
 
 	/* Per listener plugins */
-	if(context->listener){
+	यदि(context->listener){
 		plugin__handle_client_offline_single(context->listener->security_options, context, reason);
 	}
 }

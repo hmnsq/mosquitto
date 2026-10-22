@@ -16,15 +16,15 @@ Contributors:
    Roger Light - initial implementation and documentation.
 */
 
-#include "config.h"
-#include "net_mosq.h"
-#include "mosquitto_broker_internal.h"
+#अन्तर्भाव "config.h"
+#अन्तर्भाव "net_mosq.h"
+#अन्तर्भाव "mosquitto_broker_internal.h"
 
-static int listensock_index = 0;
-extern int g_run;
+स्थिर पूर्णाङ्क listensock_index = 0;
+बाह्य पूर्णाङ्क g_run;
 
 
-void listener__set_defaults(struct mosquitto__listener *listener)
+शून्य listener__set_defaults(संरचना mosquitto__listener *listener)
 {
 	listener->disable_protocol_v3 = false;
 	listener->disable_protocol_v4 = false;
@@ -51,25 +51,25 @@ void listener__set_defaults(struct mosquitto__listener *listener)
 	listener->disable_client_cert_date_checks = false;
 #endif
 
-#if defined(WITH_WEBSOCKETS) && (LWS_LIBRARY_VERSION_NUMBER >= 3001000 || WITH_WEBSOCKETS == WS_IS_BUILTIN)
-	for(int i=0; i<listener->ws_origin_count; i++){
+#यदि defined(WITH_WEBSOCKETS) && (LWS_LIBRARY_VERSION_सङ्ख्या >= 3001000 || WITH_WEBSOCKETS == WS_IS_BUILTIN)
+	लागि(पूर्णाङ्क i=0; i<listener->ws_origin_गन्ती; i++){
 		mosquitto_FREE(listener->ws_origins[i]);
 	}
 	mosquitto_FREE(listener->ws_origins);
-	listener->ws_origin_count = 0;
+	listener->ws_origin_गन्ती = 0;
 #endif
 }
 
 
-void listeners__reload_all_certificates(void)
+शून्य listeners__reload_all_certificates(शून्य)
 {
 #ifdef WITH_TLS
-	for(int i=0; i<db.config->listener_count; i++){
-		struct mosquitto__listener *listener = &db.config->listeners[i];
-		if(listener->ssl_ctx && listener->certfile && listener->keyfile){
-			int rc = net__load_certificates(listener);
-			if(rc){
-				log__printf(NULL, MOSQ_LOG_ERR, "Error when reloading certificate '%s' or key '%s'.",
+	लागि(पूर्णाङ्क i=0; i<db.config->listener_गन्ती; i++){
+		संरचना mosquitto__listener *listener = &db.config->listeners[i];
+		यदि(listener->ssl_ctx && listener->certfile && listener->keyfile){
+			पूर्णाङ्क rc = net__load_certificates(listener);
+			यदि(rc){
+				log__printf(रिक्त, MOSQ_LOG_ERR, "Error when reloading certificate '%s' or key '%s'.",
 						listener->certfile, listener->keyfile);
 			}
 		}
@@ -78,69 +78,69 @@ void listeners__reload_all_certificates(void)
 }
 
 
-static int listeners__start_single_mqtt(struct mosquitto__listener *listener)
+स्थिर पूर्णाङ्क listeners__start_single_mqtt(संरचना mosquitto__listener *listener)
 {
-	struct mosquitto__listener_sock *listensock_new;
+	संरचना mosquitto__listener_sock *listensock_new;
 
-	if(net__socket_listen(listener)){
-		return 1;
+	यदि(net__socket_listen(listener)){
+		फर्काऊ 1;
 	}
-	g_listensock_count += listener->sock_count;
-	listensock_new = mosquitto_realloc(g_listensock, sizeof(struct mosquitto__listener_sock)*(size_t)g_listensock_count);
-	if(!listensock_new){
-		return 1;
+	g_listensock_गन्ती += listener->sock_गन्ती;
+	listensock_new = mosquitto_realloc(g_listensock, परिमाण(संरचना mosquitto__listener_sock)*(माप_प्रकार)g_listensock_गन्ती);
+	यदि(!listensock_new){
+		फर्काऊ 1;
 	}
 	g_listensock = listensock_new;
 
-	for(int i=0; i<listener->sock_count; i++){
-		if(listener->socks[i] == INVALID_SOCKET){
-			return 1;
+	लागि(पूर्णाङ्क i=0; i<listener->sock_गन्ती; i++){
+		यदि(listener->socks[i] == INVALID_SOCKET){
+			फर्काऊ 1;
 		}
 		g_listensock[listensock_index].sock = listener->socks[i];
 		g_listensock[listensock_index].listener = listener;
-#if defined(WITH_EPOLL) || defined(WITH_KQUEUE)
+#यदि defined(WITH_EPOLL) || defined(WITH_KQUEUE)
 		g_listensock[listensock_index].ident = id_listener;
 #endif
 		listensock_index++;
 	}
-	return MOSQ_ERR_SUCCESS;
+	फर्काऊ MOSQ_ERR_SUCCESS;
 }
 
 
-#if defined(WITH_WEBSOCKETS) && WITH_WEBSOCKETS == WS_IS_LWS
+#यदि defined(WITH_WEBSOCKETS) && WITH_WEBSOCKETS == WS_IS_LWS
 
 
-void listeners__add_websockets(struct lws_context *ws_context, mosq_sock_t fd)
+शून्य listeners__add_websockets(संरचना lws_context *ws_context, mosq_sock_t fd)
 {
-	struct mosquitto__listener *listener = NULL;
-	struct mosquitto__listener_sock *listensock_new;
+	संरचना mosquitto__listener *listener = रिक्त;
+	संरचना mosquitto__listener_sock *listensock_new;
 
 	/* Don't add more listeners after we've started the main loop */
-	if(g_run || ws_context == NULL){
-		return;
+	यदि(g_run || ws_context == रिक्त){
+		फर्काऊ;
 	}
 
 	/* Find context */
-	for(int i=0; i<db.config->listener_count; i++){
-		if(db.config->listeners[i].ws_in_init){
+	लागि(पूर्णाङ्क i=0; i<db.config->listener_गन्ती; i++){
+		यदि(db.config->listeners[i].ws_in_init){
 			listener = &db.config->listeners[i];
-			break;
+			रोक;
 		}
 	}
-	if(listener == NULL){
-		return;
+	यदि(listener == रिक्त){
+		फर्काऊ;
 	}
 
-	g_listensock_count++;
-	listensock_new = mosquitto_realloc(g_listensock, sizeof(struct mosquitto__listener_sock)*(size_t)g_listensock_count);
-	if(!listensock_new){
-		return;
+	g_listensock_गन्ती++;
+	listensock_new = mosquitto_realloc(g_listensock, परिमाण(संरचना mosquitto__listener_sock)*(माप_प्रकार)g_listensock_गन्ती);
+	यदि(!listensock_new){
+		फर्काऊ;
 	}
 	g_listensock = listensock_new;
 
 	g_listensock[listensock_index].sock = fd;
 	g_listensock[listensock_index].listener = listener;
-#if defined(WITH_EPOLL) || defined(WITH_KQUEUE)
+#यदि defined(WITH_EPOLL) || defined(WITH_KQUEUE)
 	g_listensock[listensock_index].ident = id_listener_ws;
 #endif
 	listensock_index++;
@@ -148,197 +148,197 @@ void listeners__add_websockets(struct lws_context *ws_context, mosq_sock_t fd)
 #endif
 
 
-static int listeners__add_local(const char *host, uint16_t port)
+स्थिर पूर्णाङ्क listeners__add_local(अचर वर्ण *host, uint16_t port)
 {
-	struct mosquitto__listener *listeners;
+	संरचना mosquitto__listener *listeners;
 	bool allow_anonymous;
 
 	listeners = db.config->listeners;
-	if(db.config->security_options.allow_anonymous == -1){
+	यदि(db.config->security_options.allow_anonymous == -1){
 		allow_anonymous = true;
-	}else{
+	}अन्यथा{
 		allow_anonymous = db.config->security_options.allow_anonymous;
 	}
 
-	listeners[db.config->listener_count].security_options = mosquitto_calloc(1, sizeof(struct mosquitto__security_options));
-	if(listeners[db.config->listener_count].security_options == NULL){
-		return MOSQ_ERR_NOMEM;
+	listeners[db.config->listener_गन्ती].security_options = mosquitto_calloc(1, परिमाण(संरचना mosquitto__security_options));
+	यदि(listeners[db.config->listener_गन्ती].security_options == रिक्त){
+		फर्काऊ MOSQ_ERR_NOMEM;
 	}
 
-	listener__set_defaults(&listeners[db.config->listener_count]);
-	listeners[db.config->listener_count].security_options->allow_anonymous = allow_anonymous;
-	listeners[db.config->listener_count].security_options->auto_id_prefix = mosquitto_strdup("auto-");
-	if(listeners[db.config->listener_count].security_options->auto_id_prefix == NULL){
-		mosquitto_FREE(listeners[db.config->listener_count].security_options);
-		return MOSQ_ERR_NOMEM;
+	listener__set_defaults(&listeners[db.config->listener_गन्ती]);
+	listeners[db.config->listener_गन्ती].security_options->allow_anonymous = allow_anonymous;
+	listeners[db.config->listener_गन्ती].security_options->auto_id_prefix = mosquitto_strdup("auto-");
+	यदि(listeners[db.config->listener_गन्ती].security_options->auto_id_prefix == रिक्त){
+		mosquitto_FREE(listeners[db.config->listener_गन्ती].security_options);
+		फर्काऊ MOSQ_ERR_NOMEM;
 	}
-	listeners[db.config->listener_count].security_options->auto_id_prefix_len = (int)strlen("auto-");
-	listeners[db.config->listener_count].port = port;
-	listeners[db.config->listener_count].host = mosquitto_strdup(host);
-	if(listeners[db.config->listener_count].host == NULL){
-		mosquitto_FREE(listeners[db.config->listener_count].security_options->auto_id_prefix);
-		mosquitto_FREE(listeners[db.config->listener_count].security_options);
-		return MOSQ_ERR_NOMEM;
+	listeners[db.config->listener_गन्ती].security_options->auto_id_prefix_len = (पूर्णाङ्क)म_माप("auto-");
+	listeners[db.config->listener_गन्ती].port = port;
+	listeners[db.config->listener_गन्ती].host = mosquitto_strdup(host);
+	यदि(listeners[db.config->listener_गन्ती].host == रिक्त){
+		mosquitto_FREE(listeners[db.config->listener_गन्ती].security_options->auto_id_prefix);
+		mosquitto_FREE(listeners[db.config->listener_गन्ती].security_options);
+		फर्काऊ MOSQ_ERR_NOMEM;
 	}
-	if(listeners__start_single_mqtt(&listeners[db.config->listener_count])){
-		mosquitto_FREE(listeners[db.config->listener_count].security_options->auto_id_prefix);
-		mosquitto_FREE(listeners[db.config->listener_count].security_options);
-		mosquitto_FREE(listeners[db.config->listener_count].host);
-		return MOSQ_ERR_UNKNOWN;
+	यदि(listeners__start_single_mqtt(&listeners[db.config->listener_गन्ती])){
+		mosquitto_FREE(listeners[db.config->listener_गन्ती].security_options->auto_id_prefix);
+		mosquitto_FREE(listeners[db.config->listener_गन्ती].security_options);
+		mosquitto_FREE(listeners[db.config->listener_गन्ती].host);
+		फर्काऊ MOSQ_ERR_UNKNOWN;
 	}
-	db.config->listener_count++;
-	return MOSQ_ERR_SUCCESS;
+	db.config->listener_गन्ती++;
+	फर्काऊ MOSQ_ERR_SUCCESS;
 }
 
 
-static int listeners__start_local_only(void)
+स्थिर पूर्णाङ्क listeners__start_local_only(शून्य)
 {
 	/* Attempt to open listeners bound to 127.0.0.1 and ::1 only */
-	int rc;
-	struct mosquitto__listener *listeners;
-	size_t count;
+	पूर्णाङ्क rc;
+	संरचना mosquitto__listener *listeners;
+	माप_प्रकार गन्ती;
 
-	if(db.config->cmd_port_count == 0){
-		count = 2;
-	}else{
-		count = (size_t)(db.config->cmd_port_count*2);
+	यदि(db.config->cmd_port_गन्ती == 0){
+		गन्ती = 2;
+	}अन्यथा{
+		गन्ती = (माप_प्रकार)(db.config->cmd_port_गन्ती*2);
 	}
 
 #ifdef WITH_HTTP_API
-	count++;
+	गन्ती++;
 #endif
 
-	listeners = mosquitto_realloc(db.config->listeners, count*sizeof(struct mosquitto__listener));
-	if(listeners == NULL){
-		return MOSQ_ERR_NOMEM;
+	listeners = mosquitto_realloc(db.config->listeners, गन्ती*परिमाण(संरचना mosquitto__listener));
+	यदि(listeners == रिक्त){
+		फर्काऊ MOSQ_ERR_NOMEM;
 	}
-	memset(listeners, 0, count*sizeof(struct mosquitto__listener));
-	db.config->listener_count = 0;
+	स_रखो(listeners, 0, गन्ती*परिमाण(संरचना mosquitto__listener));
+	db.config->listener_गन्ती = 0;
 	db.config->listeners = listeners;
 
-	log__printf(NULL, MOSQ_LOG_WARNING, "Starting in local only mode. Connections will only be possible from clients running on this machine.");
-	log__printf(NULL, MOSQ_LOG_WARNING, "Create a configuration file which defines a listener to allow remote access.");
-	log__printf(NULL, MOSQ_LOG_WARNING, "For more details see https://mosquitto.org/documentation/authentication-methods/");
-	if(db.config->cmd_port_count == 0){
+	log__printf(रिक्त, MOSQ_LOG_WARNING, "Starting in local only mode. Connections will only be possible from clients running on this machine.");
+	log__printf(रिक्त, MOSQ_LOG_WARNING, "Create a configuration file which defines a listener to allow remote access.");
+	log__printf(रिक्त, MOSQ_LOG_WARNING, "For more details see https://mosquitto.org/documentation/authentication-methods/");
+	यदि(db.config->cmd_port_गन्ती == 0){
 		rc = listeners__add_local("127.0.0.1", 1883);
-		if(rc == MOSQ_ERR_NOMEM){
-			return MOSQ_ERR_NOMEM;
+		यदि(rc == MOSQ_ERR_NOMEM){
+			फर्काऊ MOSQ_ERR_NOMEM;
 		}
 		rc = listeners__add_local("::1", 1883);
-		if(rc == MOSQ_ERR_NOMEM){
-			return MOSQ_ERR_NOMEM;
+		यदि(rc == MOSQ_ERR_NOMEM){
+			फर्काऊ MOSQ_ERR_NOMEM;
 		}
-	}else{
-		for(int i=0; i<db.config->cmd_port_count; i++){
+	}अन्यथा{
+		लागि(पूर्णाङ्क i=0; i<db.config->cmd_port_गन्ती; i++){
 			rc = listeners__add_local("127.0.0.1", db.config->cmd_port[i]);
-			if(rc == MOSQ_ERR_NOMEM){
-				return MOSQ_ERR_NOMEM;
+			यदि(rc == MOSQ_ERR_NOMEM){
+				फर्काऊ MOSQ_ERR_NOMEM;
 			}
 			rc = listeners__add_local("::1", db.config->cmd_port[i]);
-			if(rc == MOSQ_ERR_NOMEM){
-				return MOSQ_ERR_NOMEM;
+			यदि(rc == MOSQ_ERR_NOMEM){
+				फर्काऊ MOSQ_ERR_NOMEM;
 			}
 		}
 	}
 
-	if(db.config->listener_count > 0){
+	यदि(db.config->listener_गन्ती > 0){
 #ifdef WITH_HTTP_API
-		db.config->listener_count++;
-		http_api__start_local(&db.config->listeners[db.config->listener_count-1]);
+		db.config->listener_गन्ती++;
+		http_api__start_local(&db.config->listeners[db.config->listener_गन्ती-1]);
 #endif
-		return MOSQ_ERR_SUCCESS;
-	}else{
-		return MOSQ_ERR_UNKNOWN;
+		फर्काऊ MOSQ_ERR_SUCCESS;
+	}अन्यथा{
+		फर्काऊ MOSQ_ERR_UNKNOWN;
 	}
 }
 
 
-int listeners__start(void)
+पूर्णाङ्क listeners__start(शून्य)
 {
-	g_listensock_count = 0;
+	g_listensock_गन्ती = 0;
 
-	if(db.config->local_only){
-		if(listeners__start_local_only()){
+	यदि(db.config->local_only){
+		यदि(listeners__start_local_only()){
 			db__close();
-			if(db.config->pid_file){
-				(void)remove(db.config->pid_file);
+			यदि(db.config->pid_file){
+				(शून्य)हटाओ(db.config->pid_file);
 			}
-			return 1;
+			फर्काऊ 1;
 		}
-		mux__add_listeners(g_listensock, g_listensock_count);
-		return MOSQ_ERR_SUCCESS;
+		mux__add_listeners(g_listensock, g_listensock_गन्ती);
+		फर्काऊ MOSQ_ERR_SUCCESS;
 	}
 
-	for(int i=0; i<db.config->listener_count; i++){
-		if(db.config->listeners[i].protocol == mp_mqtt){
-			if(listeners__start_single_mqtt(&db.config->listeners[i])){
+	लागि(पूर्णाङ्क i=0; i<db.config->listener_गन्ती; i++){
+		यदि(db.config->listeners[i].protocol == mp_mqtt){
+			यदि(listeners__start_single_mqtt(&db.config->listeners[i])){
 				db__close();
-				if(db.config->pid_file){
-					(void)remove(db.config->pid_file);
+				यदि(db.config->pid_file){
+					(शून्य)हटाओ(db.config->pid_file);
 				}
-				return 1;
+				फर्काऊ 1;
 			}
-		}else if(db.config->listeners[i].protocol == mp_websockets){
-#if defined(WITH_WEBSOCKETS) && WITH_WEBSOCKETS == WS_IS_LWS
+		}अन्यथा यदि(db.config->listeners[i].protocol == mp_websockets){
+#यदि defined(WITH_WEBSOCKETS) && WITH_WEBSOCKETS == WS_IS_LWS
 			mosq_websockets_init(&db.config->listeners[i], db.config);
-			if(!db.config->listeners[i].ws_context){
-				log__printf(NULL, MOSQ_LOG_ERR, "Error: Unable to create websockets listener on port %d.", db.config->listeners[i].port);
-				return 1;
+			यदि(!db.config->listeners[i].ws_context){
+				log__printf(रिक्त, MOSQ_LOG_ERR, "Error: Unable to create websockets listener on port %d.", db.config->listeners[i].port);
+				फर्काऊ 1;
 			}
-#elif defined(WITH_WEBSOCKETS) && WITH_WEBSOCKETS == WS_IS_BUILTIN
-			if(listeners__start_single_mqtt(&db.config->listeners[i])){
+#अथवायदि defined(WITH_WEBSOCKETS) && WITH_WEBSOCKETS == WS_IS_BUILTIN
+			यदि(listeners__start_single_mqtt(&db.config->listeners[i])){
 				db__close();
-				if(db.config->pid_file){
-					(void)remove(db.config->pid_file);
+				यदि(db.config->pid_file){
+					(शून्य)हटाओ(db.config->pid_file);
 				}
-				return 1;
+				फर्काऊ 1;
 			}
 #endif
 #ifdef WITH_HTTP_API
-		}else if(db.config->listeners[i].protocol == mp_http_api){
+		}अन्यथा यदि(db.config->listeners[i].protocol == mp_http_api){
 			http_api__start(&db.config->listeners[i]);
 #endif
 		}
 	}
-	if(g_listensock == NULL){
-		log__printf(NULL, MOSQ_LOG_ERR, "Error: Unable to start any listening sockets, exiting.");
-		return 1;
+	यदि(g_listensock == रिक्त){
+		log__printf(रिक्त, MOSQ_LOG_ERR, "Error: Unable to start any listening sockets, exiting.");
+		फर्काऊ 1;
 	}
 
-	mux__add_listeners(g_listensock, g_listensock_count);
-	return MOSQ_ERR_SUCCESS;
+	mux__add_listeners(g_listensock, g_listensock_गन्ती);
+	फर्काऊ MOSQ_ERR_SUCCESS;
 }
 
 
-void listeners__stop(void)
+शून्य listeners__stop(शून्य)
 {
-	mux__delete_listeners(g_listensock, g_listensock_count);
+	mux__delete_listeners(g_listensock, g_listensock_गन्ती);
 
-	for(int i=0; i<db.config->listener_count; i++){
-#if defined(WITH_WEBSOCKETS) && WITH_WEBSOCKETS == WS_IS_LWS
-		if(db.config->listeners[i].ws_context){
+	लागि(पूर्णाङ्क i=0; i<db.config->listener_गन्ती; i++){
+#यदि defined(WITH_WEBSOCKETS) && WITH_WEBSOCKETS == WS_IS_LWS
+		यदि(db.config->listeners[i].ws_context){
 			lws_context_destroy(db.config->listeners[i].ws_context);
 		}
 		mosquitto_FREE(db.config->listeners[i].ws_protocol);
 #endif
 #ifdef WITH_UNIX_SOCKETS
-		if(db.config->listeners[i].unix_socket_path != NULL){
+		यदि(db.config->listeners[i].unix_socket_path != रिक्त){
 			unlink(db.config->listeners[i].unix_socket_path);
 		}
 #endif
 #ifdef WITH_HTTP_API
-		if(db.config->listeners[i].mhd){
+		यदि(db.config->listeners[i].mhd){
 			http_api__stop(&db.config->listeners[i]);
 		}
 #endif
 	}
 
-	for(int i=0; i<g_listensock_count; i++){
-		if(g_listensock[i].sock != INVALID_SOCKET){
+	लागि(पूर्णाङ्क i=0; i<g_listensock_गन्ती; i++){
+		यदि(g_listensock[i].sock != INVALID_SOCKET){
 			COMPAT_CLOSE(g_listensock[i].sock);
 		}
 	}
 	mosquitto_FREE(g_listensock);
-	g_listensock_count = 0;
+	g_listensock_गन्ती = 0;
 	listensock_index = 0;
 }

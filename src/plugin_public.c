@@ -16,279 +16,279 @@ Contributors:
    Roger Light - initial implementation and documentation.
 */
 
-#include "config.h"
+#अन्तर्भाव "config.h"
 
-#include "mosquitto_broker_internal.h"
-#include "mosquitto/mqtt_protocol.h"
-#include "send_mosq.h"
-#include "util_mosq.h"
-#include "will_mosq.h"
-#include "utlist.h"
-#include "will_mosq.h"
+#अन्तर्भाव "mosquitto_broker_internal.h"
+#अन्तर्भाव "mosquitto/mqtt_protocol.h"
+#अन्तर्भाव "send_mosq.h"
+#अन्तर्भाव "util_mosq.h"
+#अन्तर्भाव "will_mosq.h"
+#अन्तर्भाव "utlist.h"
+#अन्तर्भाव "will_mosq.h"
 
 #ifdef WITH_TLS
 #  include <openssl/ssl.h>
 #endif
 
 
-BROKER_EXPORT int mosquitto_plugin_set_info(mosquitto_plugin_id_t *identifier,
-		const char *plugin_name,
-		const char *plugin_version)
+BROKER_EXPORT पूर्णाङ्क mosquitto_plugin_set_info(mosquitto_plugin_id_t *identifier,
+		अचर वर्ण *plugin_name,
+		अचर वर्ण *plugin_version)
 {
-	if(identifier == NULL || plugin_name == NULL){
-		return MOSQ_ERR_INVAL;
+	यदि(identifier == रिक्त || plugin_name == रिक्त){
+		फर्काऊ MOSQ_ERR_INVAL;
 	}
 
 	identifier->plugin_name = mosquitto_strdup(plugin_name);
-	if(plugin_version){
+	यदि(plugin_version){
 		identifier->plugin_version = mosquitto_strdup(plugin_version);
-	}else{
-		identifier->plugin_version = NULL;
+	}अन्यथा{
+		identifier->plugin_version = रिक्त;
 	}
 
-	return MOSQ_ERR_SUCCESS;
+	फर्काऊ MOSQ_ERR_SUCCESS;
 }
 
 
-BROKER_EXPORT const char *mosquitto_client_address(const struct mosquitto *client)
+BROKER_EXPORT अचर वर्ण *mosquitto_client_address(अचर संरचना mosquitto *client)
 {
-	if(client){
-		return client->address;
-	}else{
-		return NULL;
+	यदि(client){
+		फर्काऊ client->address;
+	}अन्यथा{
+		फर्काऊ रिक्त;
 	}
 }
 
 
-BROKER_EXPORT struct mosquitto *mosquitto_client(const char *clientid)
+BROKER_EXPORT संरचना mosquitto *mosquitto_client(अचर वर्ण *clientid)
 {
-	size_t len;
-	struct mosquitto *context;
+	माप_प्रकार len;
+	संरचना mosquitto *context;
 
-	if(!clientid){
-		return NULL;
+	यदि(!clientid){
+		फर्काऊ रिक्त;
 	}
-	len = strlen(clientid);
-	if(len == 0){
-		return NULL;
+	len = म_माप(clientid);
+	यदि(len == 0){
+		फर्काऊ रिक्त;
 	}
 
-	HASH_FIND(hh_id, db.contexts_by_id, clientid, strlen(clientid), context);
+	HASH_FIND(hh_id, db.contexts_by_id, clientid, म_माप(clientid), context);
 
-	return context;
+	फर्काऊ context;
 }
 
 
-BROKER_EXPORT int mosquitto_client_port(const struct mosquitto *client)
+BROKER_EXPORT पूर्णाङ्क mosquitto_client_port(अचर संरचना mosquitto *client)
 {
-	if(client && client->listener){
-		return client->listener->port;
-	}else{
-		return 0;
+	यदि(client && client->listener){
+		फर्काऊ client->listener->port;
+	}अन्यथा{
+		फर्काऊ 0;
 	}
 }
 
 
-BROKER_EXPORT bool mosquitto_client_clean_session(const struct mosquitto *client)
+BROKER_EXPORT bool mosquitto_client_clean_session(अचर संरचना mosquitto *client)
 {
-	if(client){
-		return client->clean_start;
-	}else{
-		return true;
+	यदि(client){
+		फर्काऊ client->clean_start;
+	}अन्यथा{
+		फर्काऊ true;
 	}
 }
 
 
-BROKER_EXPORT const char *mosquitto_client_id(const struct mosquitto *client)
+BROKER_EXPORT अचर वर्ण *mosquitto_client_id(अचर संरचना mosquitto *client)
 {
-	if(client){
-		return client->id;
-	}else{
-		return NULL;
+	यदि(client){
+		फर्काऊ client->id;
+	}अन्यथा{
+		फर्काऊ रिक्त;
 	}
 }
 
 
-BROKER_EXPORT unsigned mosquitto_client_id_hashv(const struct mosquitto *client)
+BROKER_EXPORT अचिन्हित mosquitto_client_id_hashv(अचर संरचना mosquitto *client)
 {
-	if(client){
-		return client->id_hashv;
-	}else{
-		return 0;
+	यदि(client){
+		फर्काऊ client->id_hashv;
+	}अन्यथा{
+		फर्काऊ 0;
 	}
 }
 
 
-BROKER_EXPORT int mosquitto_client_keepalive(const struct mosquitto *client)
+BROKER_EXPORT पूर्णाङ्क mosquitto_client_keepalive(अचर संरचना mosquitto *client)
 {
-	if(client){
-		return client->keepalive;
-	}else{
-		return -1;
+	यदि(client){
+		फर्काऊ client->keepalive;
+	}अन्यथा{
+		फर्काऊ -1;
 	}
 }
 
 
-BROKER_EXPORT void *mosquitto_client_certificate(const struct mosquitto *client)
+BROKER_EXPORT शून्य *mosquitto_client_certificate(अचर संरचना mosquitto *client)
 {
 #ifdef WITH_TLS
-	if(client && client->ssl){
-		return SSL_get_peer_certificate(client->ssl);
-	}else{
-		return NULL;
+	यदि(client && client->ssl){
+		फर्काऊ SSL_get_peer_certificate(client->ssl);
+	}अन्यथा{
+		फर्काऊ रिक्त;
 	}
-#else
+#अन्यथा
 	UNUSED(client);
 
-	return NULL;
+	फर्काऊ रिक्त;
 #endif
 }
 
 
-BROKER_EXPORT int mosquitto_client_protocol(const struct mosquitto *client)
+BROKER_EXPORT पूर्णाङ्क mosquitto_client_protocol(अचर संरचना mosquitto *client)
 {
-#if defined(WITH_WEBSOCKETS) && WITH_WEBSOCKETS == WS_IS_LWS
-	if(client && client->wsi){
-		return mp_websockets;
-	}else
-#elif defined(WITH_WEBSOCKETS) && WITH_WEBSOCKETS == WS_IS_BUILTIN
-	if(client && client->transport == mosq_t_ws){
-		return mp_websockets;
-	}else
-#else
+#यदि defined(WITH_WEBSOCKETS) && WITH_WEBSOCKETS == WS_IS_LWS
+	यदि(client && client->wsi){
+		फर्काऊ mp_websockets;
+	}अन्यथा
+#अथवायदि defined(WITH_WEBSOCKETS) && WITH_WEBSOCKETS == WS_IS_BUILTIN
+	यदि(client && client->transport == mosq_t_ws){
+		फर्काऊ mp_websockets;
+	}अन्यथा
+#अन्यथा
 	UNUSED(client);
 #endif
 	{
-		return mp_mqtt;
+		फर्काऊ mp_mqtt;
 	}
 }
 
 
-BROKER_EXPORT int mosquitto_client_protocol_version(const struct mosquitto *client)
+BROKER_EXPORT पूर्णाङ्क mosquitto_client_protocol_version(अचर संरचना mosquitto *client)
 {
-	if(client){
-		switch(client->protocol){
-			case mosq_p_mqtt31:
-				return 3;
-			case mosq_p_mqtt311:
-				return 4;
-			case mosq_p_mqtt5:
-				return 5;
-			default:
-				return 0;
+	यदि(client){
+		विकल्प(client->protocol){
+			पक्ष mosq_p_mqtt31:
+				फर्काऊ 3;
+			पक्ष mosq_p_mqtt311:
+				फर्काऊ 4;
+			पक्ष mosq_p_mqtt5:
+				फर्काऊ 5;
+			स्वभाव:
+				फर्काऊ 0;
 		}
-	}else{
-		return 0;
+	}अन्यथा{
+		फर्काऊ 0;
 	}
 }
 
 
-BROKER_EXPORT int mosquitto_client_sub_count(const struct mosquitto *client)
+BROKER_EXPORT पूर्णाङ्क mosquitto_client_sub_गन्ती(अचर संरचना mosquitto *client)
 {
-	if(client){
-		return client->subs_count;
-	}else{
-		return 0;
+	यदि(client){
+		फर्काऊ client->subs_गन्ती;
+	}अन्यथा{
+		फर्काऊ 0;
 	}
 }
 
 
-BROKER_EXPORT const char *mosquitto_client_username(const struct mosquitto *client)
+BROKER_EXPORT अचर वर्ण *mosquitto_client_username(अचर संरचना mosquitto *client)
 {
-	if(client){
+	यदि(client){
 #ifdef WITH_BRIDGE
-		if(client->bridge){
-			return client->bridge->local_username;
-		}else
+		यदि(client->bridge){
+			फर्काऊ client->bridge->local_username;
+		}अन्यथा
 #endif
 		{
-			return client->username;
+			फर्काऊ client->username;
 		}
-	}else{
-		return NULL;
+	}अन्यथा{
+		फर्काऊ रिक्त;
 	}
 }
 
 
-BROKER_EXPORT int mosquitto_broker_publish(
-		const char *clientid,
-		const char *topic,
-		int payloadlen,
-		void *payload,
-		int qos,
+BROKER_EXPORT पूर्णाङ्क mosquitto_broker_publish(
+		अचर वर्ण *clientid,
+		अचर वर्ण *topic,
+		पूर्णाङ्क payloadlen,
+		शून्य *payload,
+		पूर्णाङ्क qos,
 		bool retain,
 		mosquitto_property *properties)
 {
-	struct mosquitto__message_v5 *msg;
+	संरचना mosquitto__message_v5 *सन्देश;
 
-	if(topic == NULL
+	यदि(topic == रिक्त
 			|| payloadlen < 0
-			|| (payloadlen > 0 && payload == NULL)
+			|| (payloadlen > 0 && payload == रिक्त)
 			|| qos < 0 || qos > 2){
 
-		return MOSQ_ERR_INVAL;
+		फर्काऊ MOSQ_ERR_INVAL;
 	}
 
-	msg = mosquitto_malloc(sizeof(struct mosquitto__message_v5));
-	if(msg == NULL){
-		return MOSQ_ERR_NOMEM;
+	सन्देश = mosquitto_malloc(परिमाण(संरचना mosquitto__message_v5));
+	यदि(सन्देश == रिक्त){
+		फर्काऊ MOSQ_ERR_NOMEM;
 	}
 
-	msg->next = NULL;
-	msg->prev = NULL;
-	if(clientid){
-		msg->clientid = mosquitto_strdup(clientid);
-		if(msg->clientid == NULL){
-			mosquitto_FREE(msg);
-			return MOSQ_ERR_NOMEM;
+	सन्देश->next = रिक्त;
+	सन्देश->prev = रिक्त;
+	यदि(clientid){
+		सन्देश->clientid = mosquitto_strdup(clientid);
+		यदि(सन्देश->clientid == रिक्त){
+			mosquitto_FREE(सन्देश);
+			फर्काऊ MOSQ_ERR_NOMEM;
 		}
-	}else{
-		msg->clientid = NULL;
+	}अन्यथा{
+		सन्देश->clientid = रिक्त;
 	}
-	msg->topic = mosquitto_strdup(topic);
-	if(msg->topic == NULL){
-		mosquitto_FREE(msg->clientid);
-		mosquitto_FREE(msg);
-		return MOSQ_ERR_NOMEM;
+	सन्देश->topic = mosquitto_strdup(topic);
+	यदि(सन्देश->topic == रिक्त){
+		mosquitto_FREE(सन्देश->clientid);
+		mosquitto_FREE(सन्देश);
+		फर्काऊ MOSQ_ERR_NOMEM;
 	}
-	msg->payloadlen = payloadlen;
-	msg->payload = payload;
-	msg->qos = qos;
-	msg->retain = retain;
-	msg->properties = properties;
+	सन्देश->payloadlen = payloadlen;
+	सन्देश->payload = payload;
+	सन्देश->qos = qos;
+	सन्देश->retain = retain;
+	सन्देश->properties = properties;
 
-	DL_APPEND(db.plugin_msgs, msg);
+	DL_APPEND(db.plugin_msgs, सन्देश);
 
 	loop__update_next_event(1);
-	return MOSQ_ERR_SUCCESS;
+	फर्काऊ MOSQ_ERR_SUCCESS;
 }
 
 
-BROKER_EXPORT int mosquitto_broker_publish_copy(
-		const char *clientid,
-		const char *topic,
-		int payloadlen,
-		const void *payload,
-		int qos,
+BROKER_EXPORT पूर्णाङ्क mosquitto_broker_publish_copy(
+		अचर वर्ण *clientid,
+		अचर वर्ण *topic,
+		पूर्णाङ्क payloadlen,
+		अचर शून्य *payload,
+		पूर्णाङ्क qos,
 		bool retain,
 		mosquitto_property *properties)
 {
-	void *payload_out;
-	int rc;
+	शून्य *payload_out;
+	पूर्णाङ्क rc;
 
-	if(topic == NULL
+	यदि(topic == रिक्त
 			|| payloadlen < 0
-			|| (payloadlen > 0 && payload == NULL)
+			|| (payloadlen > 0 && payload == रिक्त)
 			|| qos < 0 || qos > 2){
 
-		return MOSQ_ERR_INVAL;
+		फर्काऊ MOSQ_ERR_INVAL;
 	}
 
-	payload_out = mosquitto_calloc(1, (size_t)(payloadlen+1));
-	if(payload_out == NULL){
-		return MOSQ_ERR_NOMEM;
+	payload_out = mosquitto_calloc(1, (माप_प्रकार)(payloadlen+1));
+	यदि(payload_out == रिक्त){
+		फर्काऊ MOSQ_ERR_NOMEM;
 	}
-	memcpy(payload_out, payload, (size_t)payloadlen);
+	स_नकल(payload_out, payload, (माप_प्रकार)payloadlen);
 
 	rc = mosquitto_broker_publish(
 			clientid,
@@ -299,51 +299,51 @@ BROKER_EXPORT int mosquitto_broker_publish_copy(
 			retain,
 			properties);
 
-	if(rc){
+	यदि(rc){
 		mosquitto_FREE(payload_out);
 	}
-	return rc;
+	फर्काऊ rc;
 }
 
 
-BROKER_EXPORT int mosquitto_set_username(struct mosquitto *client, const char *username)
+BROKER_EXPORT पूर्णाङ्क mosquitto_set_username(संरचना mosquitto *client, अचर वर्ण *username)
 {
-	char *u_dup;
-	char *old;
+	वर्ण *u_dup;
+	वर्ण *old;
 
-	if(!client){
-		return MOSQ_ERR_INVAL;
+	यदि(!client){
+		फर्काऊ MOSQ_ERR_INVAL;
 	}
 
-	if(username){
-		if(mosquitto_validate_utf8(username, (int)strlen(username))){
-			return MOSQ_ERR_MALFORMED_UTF8;
+	यदि(username){
+		यदि(mosquitto_validate_utf8(username, (पूर्णाङ्क)म_माप(username))){
+			फर्काऊ MOSQ_ERR_MALFORMED_UTF8;
 		}
 		u_dup = mosquitto_strdup(username);
-		if(!u_dup){
-			return MOSQ_ERR_NOMEM;
+		यदि(!u_dup){
+			फर्काऊ MOSQ_ERR_NOMEM;
 		}
-	}else{
-		u_dup = NULL;
+	}अन्यथा{
+		u_dup = रिक्त;
 	}
 
 	old = client->username;
 	client->username = u_dup;
 
 	mosquitto_FREE(old);
-	return MOSQ_ERR_SUCCESS;
+	फर्काऊ MOSQ_ERR_SUCCESS;
 }
 
 
-BROKER_EXPORT int mosquitto_set_clientid(struct mosquitto *client, const char *clientid)
+BROKER_EXPORT पूर्णाङ्क mosquitto_set_clientid(संरचना mosquitto *client, अचर वर्ण *clientid)
 {
-	struct mosquitto *found_client;
-	char *id_dup;
+	संरचना mosquitto *found_client;
+	वर्ण *id_dup;
 	bool in_by_id;
-	int clientid_len;
+	पूर्णाङ्क clientid_len;
 
-	if(!client || !clientid){
-		return MOSQ_ERR_INVAL;
+	यदि(!client || !clientid){
+		फर्काऊ MOSQ_ERR_INVAL;
 	}
 
 	in_by_id = client->in_by_id;
@@ -356,167 +356,167 @@ BROKER_EXPORT int mosquitto_set_clientid(struct mosquitto *client, const char *c
 	 * because it will be checked after authentication.
 	 */
 
-	if(in_by_id){
-		HASH_FIND(hh_id, db.contexts_by_id, clientid, strlen(clientid), found_client);
-		if(found_client){
-			return MOSQ_ERR_ALREADY_EXISTS;
+	यदि(in_by_id){
+		HASH_FIND(hh_id, db.contexts_by_id, clientid, म_माप(clientid), found_client);
+		यदि(found_client){
+			फर्काऊ MOSQ_ERR_ALREADY_EXISTS;
 		}
 	}
 
-	clientid_len = (int)strlen(clientid);
-	if(mosquitto_validate_utf8(clientid, clientid_len)){
-		return MOSQ_ERR_INVAL;
+	clientid_len = (पूर्णाङ्क)म_माप(clientid);
+	यदि(mosquitto_validate_utf8(clientid, clientid_len)){
+		फर्काऊ MOSQ_ERR_INVAL;
 	}
 
 	id_dup = mosquitto_strdup(clientid);
-	if(!id_dup){
-		return MOSQ_ERR_NOMEM;
+	यदि(!id_dup){
+		फर्काऊ MOSQ_ERR_NOMEM;
 	}
 
-	if(in_by_id){
+	यदि(in_by_id){
 		context__remove_from_by_id(client);
 	}
 	mosquitto_free(client->id);
 	client->id = id_dup;
-	if(in_by_id){
+	यदि(in_by_id){
 		context__add_to_by_id(client);
 	}
 
-	return MOSQ_ERR_SUCCESS;
+	फर्काऊ MOSQ_ERR_SUCCESS;
 }
 
 
 /* Check to see whether durable clients still have rights to their subscriptions. */
-static void check_subscription_acls(struct mosquitto *context)
+स्थिर शून्य check_subscription_acls(संरचना mosquitto *context)
 {
-	int rc;
+	पूर्णाङ्क rc;
 	uint8_t reason;
 
-	for(int i=0; i<context->subs_capacity; i++){
-		if(context->subs[i] == NULL){
-			continue;
+	लागि(पूर्णाङ्क i=0; i<context->subs_capacity; i++){
+		यदि(context->subs[i] == रिक्त){
+			जारी;
 		}
 		rc = mosquitto_acl_check(context,
 				context->subs[i]->topic_filter,
 				0,
-				NULL,
+				रिक्त,
 				0, /* FIXME */
 				false,
-				NULL,
+				रिक्त,
 				MOSQ_ACL_SUBSCRIBE);
 
-		if(rc != MOSQ_ERR_SUCCESS){
+		यदि(rc != MOSQ_ERR_SUCCESS){
 			sub__remove(context, context->subs[i]->topic_filter, &reason);
 		}
 	}
 }
 
 
-static void disconnect_client(struct mosquitto *context, bool with_will)
+स्थिर शून्य disconnect_client(संरचना mosquitto *context, bool with_will)
 {
-	if(context->protocol == mosq_p_mqtt5){
-		send__disconnect(context, MQTT_RC_ADMINISTRATIVE_ACTION, NULL);
+	यदि(context->protocol == mosq_p_mqtt5){
+		send__disconnect(context, MQTT_RC_ADMINISTRATIVE_ACTION, रिक्त);
 	}
-	if(with_will == false){
+	यदि(with_will == false){
 		mosquitto__set_state(context, mosq_cs_disconnecting);
 	}
-	if(context->session_expiry_interval != MQTT_SESSION_EXPIRY_IMMEDIATE){
+	यदि(context->session_expiry_interval != MQTT_SESSION_EXPIRY_IMMEDIATE){
 		check_subscription_acls(context);
 	}
 	do_disconnect(context, MOSQ_ERR_ADMINISTRATIVE_ACTION);
 }
 
 
-BROKER_EXPORT int mosquitto_kick_client_by_clientid(const char *clientid, bool with_will)
+BROKER_EXPORT पूर्णाङ्क mosquitto_kick_client_by_clientid(अचर वर्ण *clientid, bool with_will)
 {
-	struct mosquitto *ctxt, *ctxt_tmp;
+	संरचना mosquitto *ctxt, *ctxt_tmp;
 
-	if(clientid == NULL){
+	यदि(clientid == रिक्त){
 		HASH_ITER(hh_sock, db.contexts_by_sock, ctxt, ctxt_tmp){
 			disconnect_client(ctxt, with_will);
 		}
-		return MOSQ_ERR_SUCCESS;
-	}else{
-		HASH_FIND(hh_id, db.contexts_by_id, clientid, strlen(clientid), ctxt);
-		if(ctxt){
+		फर्काऊ MOSQ_ERR_SUCCESS;
+	}अन्यथा{
+		HASH_FIND(hh_id, db.contexts_by_id, clientid, म_माप(clientid), ctxt);
+		यदि(ctxt){
 			disconnect_client(ctxt, with_will);
-			return MOSQ_ERR_SUCCESS;
-		}else{
-			return MOSQ_ERR_NOT_FOUND;
+			फर्काऊ MOSQ_ERR_SUCCESS;
+		}अन्यथा{
+			फर्काऊ MOSQ_ERR_NOT_FOUND;
 		}
 	}
 }
 
 
-BROKER_EXPORT int mosquitto_kick_client_by_username(const char *username, bool with_will)
+BROKER_EXPORT पूर्णाङ्क mosquitto_kick_client_by_username(अचर वर्ण *username, bool with_will)
 {
-	struct mosquitto *ctxt, *ctxt_tmp;
+	संरचना mosquitto *ctxt, *ctxt_tmp;
 
-	if(username == NULL){
+	यदि(username == रिक्त){
 		HASH_ITER(hh_sock, db.contexts_by_sock, ctxt, ctxt_tmp){
-			if(ctxt->username == NULL){
+			यदि(ctxt->username == रिक्त){
 				disconnect_client(ctxt, with_will);
 			}
 		}
-	}else{
+	}अन्यथा{
 		HASH_ITER(hh_sock, db.contexts_by_sock, ctxt, ctxt_tmp){
-			if(ctxt->username != NULL && !strcmp(ctxt->username, username)){
+			यदि(ctxt->username != रिक्त && !म_भेद(ctxt->username, username)){
 				disconnect_client(ctxt, with_will);
 			}
 		}
 	}
-	return MOSQ_ERR_SUCCESS;
+	फर्काऊ MOSQ_ERR_SUCCESS;
 }
 
 
-BROKER_EXPORT int mosquitto_apply_on_all_clients(int (*FUNC_client_functor)(const struct mosquitto *, void *), void *functor_context)
+BROKER_EXPORT पूर्णाङ्क mosquitto_apply_on_all_clients(पूर्णाङ्क (*FUNC_client_functor)(अचर संरचना mosquitto *, शून्य *), शून्य *functor_context)
 {
-	int rc = MOSQ_ERR_SUCCESS;
-	struct mosquitto *ctxt, *ctxt_tmp;
+	पूर्णाङ्क rc = MOSQ_ERR_SUCCESS;
+	संरचना mosquitto *ctxt, *ctxt_tmp;
 
 	HASH_ITER(hh_id, db.contexts_by_id, ctxt, ctxt_tmp){
 		rc = (*FUNC_client_functor)(ctxt, functor_context);
-		if(rc != MOSQ_ERR_SUCCESS){
-			break;
+		यदि(rc != MOSQ_ERR_SUCCESS){
+			रोक;
 		}
 	}
 
-	return rc;
+	फर्काऊ rc;
 }
 
 
-BROKER_EXPORT int mosquitto_persist_client_add(struct mosquitto_client *client)
+BROKER_EXPORT पूर्णाङ्क mosquitto_persist_client_add(संरचना mosquitto_client *client)
 {
-	struct mosquitto *context;
-	int rc;
+	संरचना mosquitto *context;
+	पूर्णाङ्क rc;
 
-	if(client == NULL){
-		return MOSQ_ERR_INVAL;
+	यदि(client == रिक्त){
+		फर्काऊ MOSQ_ERR_INVAL;
 	}
-	if(client->clientid == NULL){
+	यदि(client->clientid == रिक्त){
 		rc = MOSQ_ERR_INVAL;
-		goto error;
+		गच्छ error;
 	}
 
-	context = NULL;
-	HASH_FIND(hh_id, db.contexts_by_id, client->clientid, strlen(client->clientid), context);
-	if(context){
+	context = रिक्त;
+	HASH_FIND(hh_id, db.contexts_by_id, client->clientid, म_माप(client->clientid), context);
+	यदि(context){
 		rc = MOSQ_ERR_INVAL;
-		goto error;
+		गच्छ error;
 	}
 
 	context = context__init();
-	if(!context){
+	यदि(!context){
 		rc = MOSQ_ERR_NOMEM;
-		goto error;
+		गच्छ error;
 	}
 
 	context->id = client->clientid;
-	client->clientid = NULL;
+	client->clientid = रिक्त;
 	context->username = client->username;
-	client->username = NULL;
+	client->username = रिक्त;
 	context->auth_method = client->auth_method;
-	client->auth_method = NULL;
+	client->auth_method = रिक्त;
 
 	context->clean_start = false;
 	context->will_delay_time = client->will_delay_time;
@@ -529,11 +529,11 @@ BROKER_EXPORT int mosquitto_persist_client_add(struct mosquitto_client *client)
 	context->is_persisted = true;
 
 	/* in per_listener_settings mode, try to find the listener by persisted port */
-	if(db.config->per_listener_settings && client->listener_port > 0){
-		for(int i=0; i < db.config->listener_count; i++){
-			if(db.config->listeners[i].port == client->listener_port){
+	यदि(db.config->per_listener_settings && client->listener_port > 0){
+		लागि(पूर्णाङ्क i=0; i < db.config->listener_गन्ती; i++){
+			यदि(db.config->listeners[i].port == client->listener_port){
 				context->listener = &db.config->listeners[i];
-				break;
+				रोक;
 			}
 		}
 	}
@@ -541,38 +541,38 @@ BROKER_EXPORT int mosquitto_persist_client_add(struct mosquitto_client *client)
 	context__add_to_by_id(context);
 	session_expiry__add_from_persistence(context, context->session_expiry_time);
 
-	return MOSQ_ERR_SUCCESS;
+	फर्काऊ MOSQ_ERR_SUCCESS;
 error:
 	SAFE_FREE(client->clientid);
 	SAFE_FREE(client->username);
 	SAFE_FREE(client->auth_method);
-	return rc;
+	फर्काऊ rc;
 }
 
 
-BROKER_EXPORT int mosquitto_persist_client_update(struct mosquitto_client *client)
+BROKER_EXPORT पूर्णाङ्क mosquitto_persist_client_update(संरचना mosquitto_client *client)
 {
-	struct mosquitto *context;
-	int rc;
+	संरचना mosquitto *context;
+	पूर्णाङ्क rc;
 
-	if(client == NULL){
-		return MOSQ_ERR_INVAL;
+	यदि(client == रिक्त){
+		फर्काऊ MOSQ_ERR_INVAL;
 	}
-	if(client->clientid == NULL){
+	यदि(client->clientid == रिक्त){
 		rc = MOSQ_ERR_INVAL;
-		goto error;
+		गच्छ error;
 	}
 
-	context = NULL;
-	HASH_FIND(hh_id, db.contexts_by_id, client->clientid, strlen(client->clientid), context);
-	if(context == NULL){
+	context = रिक्त;
+	HASH_FIND(hh_id, db.contexts_by_id, client->clientid, म_माप(client->clientid), context);
+	यदि(context == रिक्त){
 		rc = MOSQ_ERR_NOT_FOUND;
-		goto error;
+		गच्छ error;
 	}
 
 	mosquitto_free(context->username);
 	context->username = client->username;
-	client->username = NULL;
+	client->username = रिक्त;
 
 	context->clean_start = false;
 	context->will_delay_time = client->will_delay_time;
@@ -584,34 +584,34 @@ BROKER_EXPORT int mosquitto_persist_client_update(struct mosquitto_client *clien
 	context->retain_available = client->retain_available;
 
 	/* in per_listener_settings mode, try to find the listener by persisted port */
-	if(db.config->per_listener_settings && client->listener_port > 0){
-		for(int i=0; i < db.config->listener_count; i++){
-			if(db.config->listeners[i].port == client->listener_port){
+	यदि(db.config->per_listener_settings && client->listener_port > 0){
+		लागि(पूर्णाङ्क i=0; i < db.config->listener_गन्ती; i++){
+			यदि(db.config->listeners[i].port == client->listener_port){
 				context->listener = &db.config->listeners[i];
-				break;
+				रोक;
 			}
 		}
 	}
 
-	return MOSQ_ERR_SUCCESS;
+	फर्काऊ MOSQ_ERR_SUCCESS;
 error:
 	SAFE_FREE(client->username);
-	return rc;
+	फर्काऊ rc;
 }
 
 
-BROKER_EXPORT int mosquitto_persist_client_delete(const char *clientid)
+BROKER_EXPORT पूर्णाङ्क mosquitto_persist_client_delete(अचर वर्ण *clientid)
 {
-	struct mosquitto *context;
+	संरचना mosquitto *context;
 
-	if(clientid == NULL){
-		return MOSQ_ERR_INVAL;
+	यदि(clientid == रिक्त){
+		फर्काऊ MOSQ_ERR_INVAL;
 	}
 
-	context = NULL;
-	HASH_FIND(hh_id, db.contexts_by_id, clientid, strlen(clientid), context);
-	if(context == NULL){
-		return MOSQ_ERR_SUCCESS;
+	context = रिक्त;
+	HASH_FIND(hh_id, db.contexts_by_id, clientid, म_माप(clientid), context);
+	यदि(context == रिक्त){
+		फर्काऊ MOSQ_ERR_SUCCESS;
 	}
 
 	session_expiry__remove(context);
@@ -624,225 +624,225 @@ BROKER_EXPORT int mosquitto_persist_client_delete(const char *clientid)
 	mosquitto__set_state(context, mosq_cs_duplicate);
 	do_disconnect(context, MOSQ_ERR_SUCCESS);
 
-	return MOSQ_ERR_SUCCESS;
+	फर्काऊ MOSQ_ERR_SUCCESS;
 }
 
 
-static struct mosquitto__base_msg *find_store_msg(uint64_t store_id)
+स्थिर संरचना mosquitto_base_सन्देश *find_store_सन्देश(uint64_t store_id)
 {
-	struct mosquitto__base_msg *base_msg;
+	संरचना mosquitto_base_सन्देश *base_सन्देश;
 
-	HASH_FIND(hh, db.msg_store, &store_id, sizeof(store_id), base_msg);
-	return base_msg;
+	HASH_FIND(hh, db.सन्देश_store, &store_id, परिमाण(store_id), base_सन्देश);
+	फर्काऊ base_सन्देश;
 }
 
 
-BROKER_EXPORT int mosquitto_persist_client_msg_add(struct mosquitto_client_msg *client_msg)
+BROKER_EXPORT पूर्णाङ्क mosquitto_persist_client_सन्देश_add(संरचना mosquitto_client_सन्देश_2 *client_सन्देश)
 {
-	struct mosquitto *context;
-	struct mosquitto__base_msg *base_msg;
+	संरचना mosquitto *context;
+	संरचना mosquitto_base_सन्देश *base_सन्देश;
 
-	if(client_msg == NULL || client_msg->clientid == NULL){
-		return MOSQ_ERR_INVAL;
+	यदि(client_सन्देश == रिक्त || client_सन्देश->clientid == रिक्त){
+		फर्काऊ MOSQ_ERR_INVAL;
 	}
 
-	HASH_FIND(hh_id, db.contexts_by_id, client_msg->clientid, strlen(client_msg->clientid), context);
-	if(context == NULL){
-		return MOSQ_ERR_NOT_FOUND;
+	HASH_FIND(hh_id, db.contexts_by_id, client_सन्देश->clientid, म_माप(client_सन्देश->clientid), context);
+	यदि(context == रिक्त){
+		फर्काऊ MOSQ_ERR_NOT_FOUND;
 	}
-	base_msg = find_store_msg(client_msg->store_id);
-	if(base_msg == NULL){
-		return MOSQ_ERR_NOT_FOUND;
+	base_सन्देश = find_store_सन्देश(client_सन्देश->store_id);
+	यदि(base_सन्देश == रिक्त){
+		फर्काऊ MOSQ_ERR_NOT_FOUND;
 	}
 
-	if(client_msg->direction == mosq_md_out){
-		if(client_msg->qos > 0){
-			context->last_mid = client_msg->mid;
+	यदि(client_सन्देश->direction == mosq_md_out){
+		यदि(client_सन्देश->qos > 0){
+			context->last_mid = client_सन्देश->mid;
 		}
-		return db__message_insert_outgoing(context, client_msg->cmsg_id, client_msg->mid,
-				client_msg->qos, client_msg->retain,
-				base_msg, client_msg->subscription_identifier, false, false);
-	}else if(client_msg->direction == mosq_md_in){
-		return db__message_insert_incoming(context, client_msg->cmsg_id, base_msg, false);
-	}else{
-		return MOSQ_ERR_INVAL;
+		फर्काऊ db_message_घुसाउ_outgoing(context, client_सन्देश->cmsg_id, client_सन्देश->mid,
+				client_सन्देश->qos, client_सन्देश->retain,
+				base_सन्देश, client_सन्देश->subscription_identifier, false, false);
+	}अन्यथा यदि(client_सन्देश->direction == mosq_md_in){
+		फर्काऊ db_message_घुसाउ_incoming(context, client_सन्देश->cmsg_id, base_सन्देश, false);
+	}अन्यथा{
+		फर्काऊ MOSQ_ERR_INVAL;
 	}
-	return MOSQ_ERR_SUCCESS;
+	फर्काऊ MOSQ_ERR_SUCCESS;
 }
 
 
-BROKER_EXPORT int mosquitto_persist_client_msg_delete(struct mosquitto_client_msg *client_msg)
+BROKER_EXPORT पूर्णाङ्क mosquitto_persist_client_सन्देश_delete(संरचना mosquitto_client_सन्देश_2 *client_सन्देश)
 {
-	struct mosquitto *context;
+	संरचना mosquitto *context;
 
-	if(client_msg == NULL || client_msg->clientid == NULL){
-		return MOSQ_ERR_INVAL;
+	यदि(client_सन्देश == रिक्त || client_सन्देश->clientid == रिक्त){
+		फर्काऊ MOSQ_ERR_INVAL;
 	}
 
-	HASH_FIND(hh_id, db.contexts_by_id, client_msg->clientid, strlen(client_msg->clientid), context);
-	if(context == NULL){
-		return MOSQ_ERR_NOT_FOUND;
+	HASH_FIND(hh_id, db.contexts_by_id, client_सन्देश->clientid, म_माप(client_सन्देश->clientid), context);
+	यदि(context == रिक्त){
+		फर्काऊ MOSQ_ERR_NOT_FOUND;
 	}
 
 
-	int rc = MOSQ_ERR_INVAL;
-	if(client_msg->direction == mosq_md_out){
-		rc = db__message_delete_outgoing(context, client_msg->mid, mosq_ms_any, client_msg->qos);
-	}else if(client_msg->direction == mosq_md_in){
-		rc = db__message_remove_incoming(context, client_msg->mid);
+	पूर्णाङ्क rc = MOSQ_ERR_INVAL;
+	यदि(client_सन्देश->direction == mosq_md_out){
+		rc = db__message_delete_outgoing(context, client_सन्देश->mid, mosq_ms_any, client_सन्देश->qos);
+	}अन्यथा यदि(client_सन्देश->direction == mosq_md_in){
+		rc = db__message_remove_incoming(context, client_सन्देश->mid);
 	}
-	return rc;
+	फर्काऊ rc;
 }
 
 
-BROKER_EXPORT int mosquitto_persist_client_msg_update(struct mosquitto_client_msg *client_msg)
+BROKER_EXPORT पूर्णाङ्क mosquitto_persist_client_सन्देश_update(संरचना mosquitto_client_सन्देश_2 *client_सन्देश)
 {
-	struct mosquitto *context;
+	संरचना mosquitto *context;
 
-	if(client_msg == NULL || client_msg->clientid == NULL){
-		return MOSQ_ERR_INVAL;
+	यदि(client_सन्देश == रिक्त || client_सन्देश->clientid == रिक्त){
+		फर्काऊ MOSQ_ERR_INVAL;
 	}
 
-	HASH_FIND(hh_id, db.contexts_by_id, client_msg->clientid, strlen(client_msg->clientid), context);
-	if(context == NULL){
-		return MOSQ_ERR_NOT_FOUND;
+	HASH_FIND(hh_id, db.contexts_by_id, client_सन्देश->clientid, म_माप(client_सन्देश->clientid), context);
+	यदि(context == रिक्त){
+		फर्काऊ MOSQ_ERR_NOT_FOUND;
 	}
 
-	if(client_msg->direction == mosq_md_out){
-		db__message_update_outgoing(context, client_msg->mid, client_msg->state, client_msg->qos, false);
-	}else if(client_msg->direction == mosq_md_in){
+	यदि(client_सन्देश->direction == mosq_md_out){
+		db__message_update_outgoing(context, client_सन्देश->mid, client_सन्देश->state, client_सन्देश->qos, false);
+	}अन्यथा यदि(client_सन्देश->direction == mosq_md_in){
 		// FIXME db__message_update_incoming(context, client_msg->mid, client_msg->state, client_msg->qos, false);
-	}else{
-		return MOSQ_ERR_INVAL;
+	}अन्यथा{
+		फर्काऊ MOSQ_ERR_INVAL;
 	}
-	return MOSQ_ERR_SUCCESS;
+	फर्काऊ MOSQ_ERR_SUCCESS;
 }
 
 
-BROKER_EXPORT int mosquitto_persist_client_msg_clear(struct mosquitto_client_msg *client_msg)
+BROKER_EXPORT पूर्णाङ्क mosquitto_persist_client_सन्देश_clear(संरचना mosquitto_client_सन्देश_2 *client_सन्देश)
 {
-	struct mosquitto *context;
+	संरचना mosquitto *context;
 
-	if(client_msg == NULL || client_msg->clientid == NULL){
-		return MOSQ_ERR_INVAL;
+	यदि(client_सन्देश == रिक्त || client_सन्देश->clientid == रिक्त){
+		फर्काऊ MOSQ_ERR_INVAL;
 	}
 
-	HASH_FIND(hh_id, db.contexts_by_id, client_msg->clientid, strlen(client_msg->clientid), context);
-	if(context == NULL){
-		return MOSQ_ERR_NOT_FOUND;
+	HASH_FIND(hh_id, db.contexts_by_id, client_सन्देश->clientid, म_माप(client_सन्देश->clientid), context);
+	यदि(context == रिक्त){
+		फर्काऊ MOSQ_ERR_NOT_FOUND;
 	}
 
-	if(client_msg->direction == mosq_bmd_in || client_msg->direction == mosq_bmd_all){
+	यदि(client_सन्देश->direction == mosq_bmd_in || client_सन्देश->direction == mosq_bmd_all){
 		db__messages_delete_incoming(context);
 	}
-	if(client_msg->direction == mosq_bmd_out || client_msg->direction == mosq_bmd_all){
+	यदि(client_सन्देश->direction == mosq_bmd_out || client_सन्देश->direction == mosq_bmd_all){
 		db__messages_delete_outgoing(context);
 	}
-	return MOSQ_ERR_SUCCESS;
+	फर्काऊ MOSQ_ERR_SUCCESS;
 }
 
 
-BROKER_EXPORT int mosquitto_subscription_add(const struct mosquitto_subscription *sub)
+BROKER_EXPORT पूर्णाङ्क mosquitto_subscription_add(अचर संरचना mosquitto_subscription *sub)
 {
-	struct mosquitto *context;
+	संरचना mosquitto *context;
 
-	if(sub == NULL || sub->clientid == NULL || sub->topic_filter == NULL || sub->clientid[0] == '\0' || sub->topic_filter[0] == '\0'){
-		return MOSQ_ERR_INVAL;
+	यदि(sub == रिक्त || sub->clientid == रिक्त || sub->topic_filter == रिक्त || sub->clientid[0] == '\0' || sub->topic_filter[0] == '\0'){
+		फर्काऊ MOSQ_ERR_INVAL;
 	}
 
-	HASH_FIND(hh_id, db.contexts_by_id, sub->clientid, strlen(sub->clientid), context);
+	HASH_FIND(hh_id, db.contexts_by_id, sub->clientid, म_माप(sub->clientid), context);
 
-	if(context){
-		return sub__add(context, sub);
-	}else{
-		return MOSQ_ERR_NOT_FOUND;
+	यदि(context){
+		फर्काऊ sub__add(context, sub);
+	}अन्यथा{
+		फर्काऊ MOSQ_ERR_NOT_FOUND;
 	}
 }
 
 
-BROKER_EXPORT int mosquitto_subscription_delete(const char *clientid, const char *topic)
+BROKER_EXPORT पूर्णाङ्क mosquitto_subscription_delete(अचर वर्ण *clientid, अचर वर्ण *topic)
 {
-	struct mosquitto *context;
+	संरचना mosquitto *context;
 	uint8_t reason;
 
-	if(clientid == NULL || topic == NULL || clientid[0] == '\0' || topic[0] == '\0'){
-		return MOSQ_ERR_INVAL;
+	यदि(clientid == रिक्त || topic == रिक्त || clientid[0] == '\0' || topic[0] == '\0'){
+		फर्काऊ MOSQ_ERR_INVAL;
 	}
 
-	HASH_FIND(hh_id, db.contexts_by_id, clientid, strlen(clientid), context);
+	HASH_FIND(hh_id, db.contexts_by_id, clientid, म_माप(clientid), context);
 
-	if(context){
-		return sub__remove(context, topic, &reason);
-	}else{
-		return MOSQ_ERR_NOT_FOUND;
+	यदि(context){
+		फर्काऊ sub__remove(context, topic, &reason);
+	}अन्यथा{
+		फर्काऊ MOSQ_ERR_NOT_FOUND;
 	}
 }
 
 
-BROKER_EXPORT int mosquitto_persist_base_msg_add(struct mosquitto_base_msg *msg_add)
+BROKER_EXPORT पूर्णाङ्क mosquitto_persist_base_सन्देश_add(संरचना mosquitto_base_सन्देश_2 *सन्देश_add)
 {
-	struct mosquitto context;
-	struct mosquitto__base_msg *base_msg;
-	int rc;
+	संरचना mosquitto context;
+	संरचना mosquitto_base_सन्देश *base_सन्देश;
+	पूर्णाङ्क rc;
 
-	memset(&context, 0, sizeof(context));
+	स_रखो(&context, 0, परिमाण(context));
 
-	if(msg_add->payloadlen > MQTT_MAX_PAYLOAD){
-		return MOSQ_ERR_INVAL;
+	यदि(सन्देश_add->payloadlen > MQTT_MAX_PAYLOAD){
+		फर्काऊ MOSQ_ERR_INVAL;
 	}
 
 	/* db__message_store only takes a copy of .id and .username, so it is reasonably safe
 	 * to cast the const char * to char * */
-	context.id = (char *)msg_add->source_id;
-	context.username = (char *)msg_add->source_username;
+	context.id = (वर्ण *)सन्देश_add->source_id;
+	context.username = (वर्ण *)सन्देश_add->source_username;
 
-	base_msg = mosquitto_calloc(1, sizeof(struct mosquitto__base_msg));
-	if(base_msg == NULL){
-		goto error;
+	base_सन्देश = mosquitto_calloc(1, परिमाण(संरचना mosquitto_base_सन्देश));
+	यदि(base_सन्देश == रिक्त){
+		गच्छ error;
 	}
-	base_msg->data.store_id = msg_add->store_id;
-	base_msg->data.expiry_time = msg_add->expiry_time;
-	base_msg->data.payloadlen = msg_add->payloadlen;
-	base_msg->data.source_mid = msg_add->source_mid;
-	base_msg->data.qos = msg_add->qos;
-	base_msg->data.retain = msg_add->retain;
+	base_सन्देश->data.store_id = सन्देश_add->store_id;
+	base_सन्देश->data.expiry_time = सन्देश_add->expiry_time;
+	base_सन्देश->data.payloadlen = सन्देश_add->payloadlen;
+	base_सन्देश->data.source_mid = सन्देश_add->source_mid;
+	base_सन्देश->data.qos = सन्देश_add->qos;
+	base_सन्देश->data.retain = सन्देश_add->retain;
 
-	base_msg->data.payload = msg_add->payload;
-	msg_add->payload = NULL;
-	base_msg->data.topic = msg_add->topic;
-	msg_add->topic = NULL;
-	base_msg->data.properties = msg_add->properties;
-	msg_add->properties = NULL;
+	base_सन्देश->data.payload = सन्देश_add->payload;
+	सन्देश_add->payload = रिक्त;
+	base_सन्देश->data.topic = सन्देश_add->topic;
+	सन्देश_add->topic = रिक्त;
+	base_सन्देश->data.properties = सन्देश_add->properties;
+	सन्देश_add->properties = रिक्त;
 
-	if(msg_add->source_port){
-		for(int i=0; i<db.config->listener_count; i++){
-			if(db.config->listeners[i].port == msg_add->source_port){
-				base_msg->source_listener = &db.config->listeners[i];
-				break;
+	यदि(सन्देश_add->source_port){
+		लागि(पूर्णाङ्क i=0; i<db.config->listener_गन्ती; i++){
+			यदि(db.config->listeners[i].port == सन्देश_add->source_port){
+				base_सन्देश->source_listener = &db.config->listeners[i];
+				रोक;
 			}
 		}
 	}
 
-	base_msg->stored = true;
-	rc = db__message_store(&context, base_msg, NULL, mosq_mo_broker);
-	return rc;
+	base_सन्देश->stored = true;
+	rc = db__message_store(&context, base_सन्देश, रिक्त, mosq_mo_broker);
+	फर्काऊ rc;
 
 error:
-	mosquitto_property_free_all(&msg_add->properties);
-	mosquitto_free(msg_add->topic);
-	mosquitto_free(msg_add->payload);
-	mosquitto_free(base_msg);
+	mosquitto_property_free_all(&सन्देश_add->properties);
+	mosquitto_free(सन्देश_add->topic);
+	mosquitto_free(सन्देश_add->payload);
+	mosquitto_free(base_सन्देश);
 
-	return MOSQ_ERR_NOMEM;
+	फर्काऊ MOSQ_ERR_NOMEM;
 }
 
 
-BROKER_EXPORT int mosquitto_persist_base_msg_delete(uint64_t store_id)
+BROKER_EXPORT पूर्णाङ्क mosquitto_persist_base_सन्देश_delete(uint64_t store_id)
 {
-	struct mosquitto__base_msg *base_msg;
+	संरचना mosquitto_base_सन्देश *base_सन्देश;
 
-	base_msg = find_store_msg(store_id);
-	if(base_msg && base_msg->ref_count == 0){
+	base_सन्देश = find_store_सन्देश(store_id);
+	यदि(base_सन्देश && base_सन्देश->ref_गन्ती == 0){
 		/* If ref count is zero, then we should delete this. It might seem
 		 * surprising that the ref count is zero already, but it can be. If ref
 		 * count is greater than zero then there may be e.g. a retained message
@@ -851,31 +851,31 @@ BROKER_EXPORT int mosquitto_persist_base_msg_delete(uint64_t store_id)
 		 * the retain changes there will be use after free errors. All messages
 		 * will eventually hit ref count 0 and be removed in some way or other.
 		 */
-		db__msg_store_remove(base_msg, false);
+		db_सन्देश_store_remove(base_सन्देश, false);
 	}
 
-	return MOSQ_ERR_SUCCESS;
+	फर्काऊ MOSQ_ERR_SUCCESS;
 }
 
 
-BROKER_EXPORT void mosquitto_complete_basic_auth(const char *clientid, int result)
+BROKER_EXPORT शून्य mosquitto_complete_basic_auth(अचर वर्ण *clientid, पूर्णाङ्क result)
 {
-	struct mosquitto *context;
+	संरचना mosquitto *context;
 
-	if(clientid == NULL){
-		return;
+	यदि(clientid == रिक्त){
+		फर्काऊ;
 	}
 
-	HASH_FIND(hh_id, db.contexts_by_id_delayed_auth, clientid, strlen(clientid), context);
-	if(context){
+	HASH_FIND(hh_id, db.contexts_by_id_delayed_auth, clientid, म_माप(clientid), context);
+	यदि(context){
 		HASH_DELETE(hh_id, db.contexts_by_id_delayed_auth, context);
-		if(result == MOSQ_ERR_SUCCESS){
-			connect__on_authorised(context, NULL, 0);
-		}else{
-			if(context->protocol == mosq_p_mqtt5){
-				send__connack(context, 0, MQTT_RC_NOT_AUTHORIZED, NULL);
-			}else{
-				send__connack(context, 0, CONNACK_REFUSED_NOT_AUTHORIZED, NULL);
+		यदि(result == MOSQ_ERR_SUCCESS){
+			connect__on_authorised(context, रिक्त, 0);
+		}अन्यथा{
+			यदि(context->protocol == mosq_p_mqtt5){
+				send__connack(context, 0, MQTT_RC_NOT_AUTHORIZED, रिक्त);
+			}अन्यथा{
+				send__connack(context, 0, CONNACK_REFUSED_NOT_AUTHORIZED, रिक्त);
 			}
 			context->clean_start = true;
 			context->session_expiry_interval = MQTT_SESSION_EXPIRY_IMMEDIATE;
@@ -886,35 +886,35 @@ BROKER_EXPORT void mosquitto_complete_basic_auth(const char *clientid, int resul
 }
 
 
-BROKER_EXPORT int mosquitto_broker_node_id_set(uint16_t id)
+BROKER_EXPORT पूर्णाङ्क mosquitto_broker_गाँठो_id_set(uint16_t id)
 {
-	if(id > 1023){
-		return MOSQ_ERR_INVAL;
-	}else{
-		db.node_id = id;
-		db.node_id_shifted = ((uint64_t)id) << 54;
-		return MOSQ_ERR_SUCCESS;
+	यदि(id > 1023){
+		फर्काऊ MOSQ_ERR_INVAL;
+	}अन्यथा{
+		db.गाँठो_id = id;
+		db.गाँठो_id_shifted = ((uint64_t)id) << 54;
+		फर्काऊ MOSQ_ERR_SUCCESS;
 	}
 }
 
 
-BROKER_EXPORT const char *mosquitto_persistence_location(void)
+BROKER_EXPORT अचर वर्ण *mosquitto_persistence_location(शून्य)
 {
-	return db.config->persistence_location;
+	फर्काऊ db.config->persistence_location;
 }
 
 
-BROKER_EXPORT int mosquitto_client_will_set(const char *clientid, const char *topic, int payloadlen, const void *payload, int qos, bool retain, mosquitto_property *properties)
+BROKER_EXPORT पूर्णाङ्क mosquitto_client_will_set(अचर वर्ण *clientid, अचर वर्ण *topic, पूर्णाङ्क payloadlen, अचर शून्य *payload, पूर्णाङ्क qos, bool retain, mosquitto_property *properties)
 {
-	struct mosquitto *mosq = mosquitto_client(clientid);
-	if(!mosq){
-		return MOSQ_ERR_NOT_FOUND;
+	संरचना mosquitto *mosq = mosquitto_client(clientid);
+	यदि(!mosq){
+		फर्काऊ MOSQ_ERR_NOT_FOUND;
 	}
-	if(properties && mosq->protocol != mosq_p_mqtt5){
-		if(net__is_connected(mosq)){
-			return MOSQ_ERR_NOT_SUPPORTED;
+	यदि(properties && mosq->protocol != mosq_p_mqtt5){
+		यदि(net__is_connected(mosq)){
+			फर्काऊ MOSQ_ERR_NOT_SUPPORTED;
 		}
 		mosq->protocol = mosq_p_mqtt5;
 	}
-	return will__set(mosq, topic, payloadlen, payload, qos, retain, properties);
+	फर्काऊ will__set(mosq, topic, payloadlen, payload, qos, retain, properties);
 }

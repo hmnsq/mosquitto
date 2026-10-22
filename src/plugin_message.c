@@ -16,25 +16,25 @@ Contributors:
    Roger Light - initial implementation and documentation.
 */
 
-#include "config.h"
+#अन्तर्भाव "config.h"
 
-#include "mosquitto_broker_internal.h"
-#include "utlist.h"
+#अन्तर्भाव "mosquitto_broker_internal.h"
+#अन्तर्भाव "utlist.h"
 
-struct should_free {
+संरचना should_free {
 	bool topic;
 	bool payload;
 	bool properties;
 };
 
 
-static int plugin__handle_message_single(struct mosquitto__callback *callbacks, enum mosquitto_plugin_event ev_type, struct should_free *to_free, struct mosquitto *context, struct mosquitto_base_msg *stored)
+स्थिर पूर्णाङ्क plugin__handle_message_single(संरचना mosquitto__callback *callbacks, गणना mosquitto_plugin_event ev_type, संरचना should_free *to_free, संरचना mosquitto *context, संरचना mosquitto_base_सन्देश_2 *stored)
 {
-	struct mosquitto_evt_message event_data;
-	struct mosquitto__callback *cb_base, *cb_next;
-	int rc = MOSQ_ERR_SUCCESS;
+	संरचना mosquitto_evt_message event_data;
+	संरचना mosquitto__callback *cb_base, *cb_next;
+	पूर्णाङ्क rc = MOSQ_ERR_SUCCESS;
 
-	memset(&event_data, 0, sizeof(event_data));
+	स_रखो(&event_data, 0, परिमाण(event_data));
 	event_data.client = context;
 	event_data.topic = stored->topic;
 	event_data.payloadlen = stored->payloadlen;
@@ -44,21 +44,21 @@ static int plugin__handle_message_single(struct mosquitto__callback *callbacks, 
 	event_data.properties = stored->properties;
 
 	DL_FOREACH_SAFE(callbacks, cb_base, cb_next){
-		rc = cb_base->cb((int)ev_type, &event_data, cb_base->userdata);
-		if(rc != MOSQ_ERR_SUCCESS){
-			break;
+		rc = cb_base->cb((पूर्णाङ्क)ev_type, &event_data, cb_base->userdata);
+		यदि(rc != MOSQ_ERR_SUCCESS){
+			रोक;
 		}
 
-		if(stored->topic != event_data.topic){
-			if(to_free->topic){
+		यदि(stored->topic != event_data.topic){
+			यदि(to_free->topic){
 				mosquitto_FREE(stored->topic);
 			}
 			stored->topic = event_data.topic;
 			to_free->topic = true;
 		}
 
-		if(stored->payload != event_data.payload){
-			if(to_free->payload){
+		यदि(stored->payload != event_data.payload){
+			यदि(to_free->payload){
 				mosquitto_FREE(stored->payload);
 			}
 			stored->payload = event_data.payload;
@@ -66,8 +66,8 @@ static int plugin__handle_message_single(struct mosquitto__callback *callbacks, 
 			to_free->payload = true;
 		}
 
-		if(stored->properties != event_data.properties){
-			if(to_free->properties){
+		यदि(stored->properties != event_data.properties){
+			यदि(to_free->properties){
 				mosquitto_property_free_all(&stored->properties);
 			}
 			stored->properties = event_data.properties;
@@ -76,51 +76,51 @@ static int plugin__handle_message_single(struct mosquitto__callback *callbacks, 
 	}
 
 	stored->retain = event_data.retain;
-	if(ev_type == MOSQ_EVT_MESSAGE_OUT){
+	यदि(ev_type == MOSQ_EVT_MESSAGE_OUT){
 		stored->qos = event_data.qos;
 	}
 
-	return rc;
+	फर्काऊ rc;
 }
 
 
-int plugin__handle_message_out(struct mosquitto *context, struct mosquitto_base_msg *stored)
+पूर्णाङ्क plugin__handle_message_out(संरचना mosquitto *context, संरचना mosquitto_base_सन्देश_2 *stored)
 {
-	int rc = MOSQ_ERR_SUCCESS;
-	struct should_free to_free = {false, false, false}; /* in msg_out, original data will be freed later */
+	पूर्णाङ्क rc = MOSQ_ERR_SUCCESS;
+	संरचना should_free to_free = {false, false, false}; /* in msg_out, original data will be freed later */
 
 	/* Global plugins */
 	rc = plugin__handle_message_single(db.config->security_options.plugin_callbacks.message_out,
 			MOSQ_EVT_MESSAGE_OUT, &to_free, context, stored);
-	if(rc){
-		return rc;
+	यदि(rc){
+		फर्काऊ rc;
 	}
 
-	if(context->listener){
+	यदि(context->listener){
 		rc = plugin__handle_message_single(context->listener->security_options->plugin_callbacks.message_out,
 				MOSQ_EVT_MESSAGE_OUT, &to_free, context, stored);
 	}
 
-	return rc;
+	फर्काऊ rc;
 }
 
 
-int plugin__handle_message_in(struct mosquitto *context, struct mosquitto_base_msg *stored)
+पूर्णाङ्क plugin__handle_message_in(संरचना mosquitto *context, संरचना mosquitto_base_सन्देश_2 *stored)
 {
-	int rc = MOSQ_ERR_SUCCESS;
-	struct should_free to_free = {true, true, true}; /* in msg_in, original data should be freed */
+	पूर्णाङ्क rc = MOSQ_ERR_SUCCESS;
+	संरचना should_free to_free = {true, true, true}; /* in msg_in, original data should be freed */
 
 	/* Global plugins */
 	rc = plugin__handle_message_single(db.config->security_options.plugin_callbacks.message_in,
 			MOSQ_EVT_MESSAGE_IN, &to_free, context, stored);
-	if(rc){
-		return rc;
+	यदि(rc){
+		फर्काऊ rc;
 	}
 
-	if(context->listener){
+	यदि(context->listener){
 		rc = plugin__handle_message_single(context->listener->security_options->plugin_callbacks.message_in,
 				MOSQ_EVT_MESSAGE_IN, &to_free, context, stored);
 	}
 
-	return rc;
+	फर्काऊ rc;
 }
