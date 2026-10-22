@@ -16,163 +16,163 @@ Contributors:
    Roger Light - initial implementation and documentation.
 */
 
-#include "config.h"
+#ضمن "config.h"
 
-#include <stdio.h>
-#include <string.h>
+#ضمن <stdio.h>
+#ضمن <string.h>
 
-#include "mosquitto/broker.h"
-#include "mosquitto_broker_internal.h"
-#include "mosquitto/broker_plugin.h"
-#include "lib_load.h"
-#include "utlist.h"
+#ضمن "mosquitto/broker.h"
+#ضمن "mosquitto_broker_internal.h"
+#ضمن "mosquitto/broker_plugin.h"
+#ضمن "lib_load.h"
+#ضمن "utlist.h"
 
 
-static int plugin__ext_auth_start(struct mosquitto__security_options *opts, struct mosquitto *context, bool reauth, const void *data_in, uint16_t data_in_len, void **data_out, uint16_t *data_out_len)
+ساكن صحيح plugin_ext_auth_شروع(بنية mosquitto__security_options *opts, بنية mosquitto *context, bool reauth, ثابت فراغ *داده_درون, uint16_t داده_درون_len, فراغ **داده_بیرون, uint16_t *داده_بیرون_len)
 {
-	struct mosquitto_evt_extended_auth event_data;
-	struct mosquitto__callback *cb_base, *cb_next;
-	int rc;
-	int rc_final = MOSQ_ERR_PLUGIN_DEFER;
+	بنية mosquitto_evt_extended_auth event_داده;
+	بنية mosquitto__callback *cb_پایه, *cb_بعدی;
+	صحيح rc;
+	صحيح rc_final = MOSQ_ERR_PLUGIN_DEFER;
 
-	UNUSED(reauth);
+	استفادهنشده(reauth);
 
-	DL_FOREACH_SAFE(opts->plugin_callbacks.ext_auth_start, cb_base, cb_next){
-		memset(&event_data, 0, sizeof(event_data));
-		event_data.client = context;
-		event_data.auth_method = context->auth_method;
-		event_data.data_in = data_in;
-		event_data.data_out = NULL;
-		event_data.data_in_len = data_in_len;
-		event_data.data_out_len = 0;
-		rc = cb_base->cb(MOSQ_EVT_EXT_AUTH_START, &event_data, cb_base->userdata);
-		if(rc == MOSQ_ERR_PLUGIN_IGNORE){
+	DL_FOREACH_امن(opts->plugin_callbacks.ext_auth_شروع, cb_پایه, cb_بعدی){
+		memset(&event_داده, 0, حجم(event_داده));
+		event_داده.client = context;
+		event_داده.auth_روش = context->auth_روش;
+		event_داده.داده_درون = داده_درون;
+		event_داده.داده_بیرون = عدم;
+		event_داده.داده_درون_len = داده_درون_len;
+		event_داده.داده_بیرون_len = 0;
+		rc = cb_پایه->cb(MOSQ_EVT_EXT_AUTH_شروع, &event_داده, cb_پایه->userdata);
+		إذا(rc == MOSQ_ERR_PLUGIN_IGNORE){
 			/* Do nothing */
-		}else if(rc == MOSQ_ERR_PLUGIN_DEFER){
+		}وإلا إذا(rc == MOSQ_ERR_PLUGIN_DEFER){
 			rc_final = MOSQ_ERR_PLUGIN_DEFER;
-		}else{
-			*data_out = event_data.data_out;
-			*data_out_len = event_data.data_out_len;
-			return rc;
+		}وإلا{
+			*داده_بیرون = event_داده.داده_بیرون;
+			*داده_بیرون_len = event_داده.داده_بیرون_len;
+			أرجع rc;
 		}
 	}
-	return rc_final;
+	أرجع rc_final;
 }
 
 
-int mosquitto_security_auth_start(struct mosquitto *context, bool reauth, const void *data_in, uint16_t data_in_len, void **data_out, uint16_t *data_out_len)
+صحيح mosquitto_security_auth_شروع(بنية mosquitto *context, bool reauth, ثابت فراغ *داده_درون, uint16_t داده_درون_len, فراغ **داده_بیرون, uint16_t *داده_بیرون_len)
 {
-	int rc;
+	صحيح rc;
 
-	if(!context || !context->listener || !context->auth_method){
-		return MOSQ_ERR_INVAL;
+	إذا(!context || !context->listener || !context->auth_روش){
+		أرجع MOSQ_ERR_INVAL;
 	}
-	if(!data_out || !data_out_len){
-		return MOSQ_ERR_INVAL;
+	إذا(!داده_بیرون || !داده_بیرون_len){
+		أرجع MOSQ_ERR_INVAL;
 	}
 
 	/* Global plugins */
-	if(db.config->security_options.plugin_callbacks.ext_auth_start){
-		rc = plugin__ext_auth_start(&db.config->security_options, context,
-				reauth, data_in, data_in_len, data_out, data_out_len);
+	إذا(db.config->security_options.plugin_callbacks.ext_auth_شروع){
+		rc = plugin_ext_auth_شروع(&db.config->security_options, context,
+				reauth, داده_درون, داده_درون_len, داده_بیرون, داده_بیرون_len);
 
-		if(rc == MOSQ_ERR_PLUGIN_IGNORE || rc == MOSQ_ERR_PLUGIN_DEFER){
+		إذا(rc == MOSQ_ERR_PLUGIN_IGNORE || rc == MOSQ_ERR_PLUGIN_DEFER){
 			/* Do nothing */
-		}else{
-			return rc;
+		}وإلا{
+			أرجع rc;
 		}
 	}
 
 	/* Per listener plugins */
-	if(context->listener){
-		if(context->listener->security_options->plugin_callbacks.ext_auth_start){
-			rc = plugin__ext_auth_start(context->listener->security_options, context,
-					reauth, data_in, data_in_len, data_out, data_out_len);
+	إذا(context->listener){
+		إذا(context->listener->security_options->plugin_callbacks.ext_auth_شروع){
+			rc = plugin_ext_auth_شروع(context->listener->security_options, context,
+					reauth, داده_درون, داده_درون_len, داده_بیرون, داده_بیرون_len);
 
-			if(rc == MOSQ_ERR_PLUGIN_IGNORE || rc == MOSQ_ERR_PLUGIN_DEFER){
+			إذا(rc == MOSQ_ERR_PLUGIN_IGNORE || rc == MOSQ_ERR_PLUGIN_DEFER){
 				/* Do nothing */
-			}else{
-				return rc;
+			}وإلا{
+				أرجع rc;
 			}
 		}
-	}else{
-		if(db.config->per_listener_settings){
-			return MOSQ_ERR_AUTH;
+	}وإلا{
+		إذا(db.config->در_هر_listener_settings){
+			أرجع MOSQ_ERR_AUTH;
 		}
 	}
 
-	return MOSQ_ERR_NOT_SUPPORTED;
+	أرجع MOSQ_ERR_NOT_SUPPORTED;
 }
 
 
-static int plugin__ext_auth_continue(struct mosquitto__security_options *opts, struct mosquitto *context, const void *data_in, uint16_t data_in_len, void **data_out, uint16_t *data_out_len)
+ساكن صحيح plugin__ext_auth_continue(بنية mosquitto__security_options *opts, بنية mosquitto *context, ثابت فراغ *داده_درون, uint16_t داده_درون_len, فراغ **داده_بیرون, uint16_t *داده_بیرون_len)
 {
-	int rc;
-	struct mosquitto_evt_extended_auth event_data;
-	struct mosquitto__callback *cb_base, *cb_next;
+	صحيح rc;
+	بنية mosquitto_evt_extended_auth event_داده;
+	بنية mosquitto__callback *cb_پایه, *cb_بعدی;
 
-	DL_FOREACH_SAFE(opts->plugin_callbacks.ext_auth_continue, cb_base, cb_next){
-		memset(&event_data, 0, sizeof(event_data));
-		event_data.client = context;
-		event_data.auth_method = context->auth_method;
-		event_data.data_in = data_in;
-		event_data.data_out = NULL;
-		event_data.data_in_len = data_in_len;
-		event_data.data_out_len = 0;
-		rc = cb_base->cb(MOSQ_EVT_EXT_AUTH_CONTINUE, &event_data, cb_base->userdata);
-		if(rc == MOSQ_ERR_PLUGIN_IGNORE || rc == MOSQ_ERR_PLUGIN_DEFER){
+	DL_FOREACH_امن(opts->plugin_callbacks.ext_auth_continue, cb_پایه, cb_بعدی){
+		memset(&event_داده, 0, حجم(event_داده));
+		event_داده.client = context;
+		event_داده.auth_روش = context->auth_روش;
+		event_داده.داده_درون = داده_درون;
+		event_داده.داده_بیرون = عدم;
+		event_داده.داده_درون_len = داده_درون_len;
+		event_داده.داده_بیرون_len = 0;
+		rc = cb_پایه->cb(MOSQ_EVT_EXT_AUTH_CONTINUE, &event_داده, cb_پایه->userdata);
+		إذا(rc == MOSQ_ERR_PLUGIN_IGNORE || rc == MOSQ_ERR_PLUGIN_DEFER){
 			/* Do nothing */
-		}else{
-			*data_out = event_data.data_out;
-			*data_out_len = event_data.data_out_len;
-			return rc;
+		}وإلا{
+			*داده_بیرون = event_داده.داده_بیرون;
+			*داده_بیرون_len = event_داده.داده_بیرون_len;
+			أرجع rc;
 		}
 	}
 
-	return MOSQ_ERR_PLUGIN_DEFER;
+	أرجع MOSQ_ERR_PLUGIN_DEFER;
 }
 
 
-int mosquitto_security_auth_continue(struct mosquitto *context, const void *data_in, uint16_t data_in_len, void **data_out, uint16_t *data_out_len)
+صحيح mosquitto_security_auth_continue(بنية mosquitto *context, ثابت فراغ *داده_درون, uint16_t داده_درون_len, فراغ **داده_بیرون, uint16_t *داده_بیرون_len)
 {
-	int rc;
+	صحيح rc;
 
-	if(!context || !context->listener || !context->auth_method){
-		return MOSQ_ERR_INVAL;
+	إذا(!context || !context->listener || !context->auth_روش){
+		أرجع MOSQ_ERR_INVAL;
 	}
-	if(!data_out || !data_out_len){
-		return MOSQ_ERR_INVAL;
+	إذا(!داده_بیرون || !داده_بیرون_len){
+		أرجع MOSQ_ERR_INVAL;
 	}
 
 	/* Global plugins */
-	if(db.config->security_options.plugin_callbacks.ext_auth_continue){
+	إذا(db.config->security_options.plugin_callbacks.ext_auth_continue){
 		rc = plugin__ext_auth_continue(&db.config->security_options, context,
-				data_in, data_in_len, data_out, data_out_len);
+				داده_درون, داده_درون_len, داده_بیرون, داده_بیرون_len);
 
-		if(rc == MOSQ_ERR_PLUGIN_IGNORE || rc == MOSQ_ERR_PLUGIN_DEFER){
+		إذا(rc == MOSQ_ERR_PLUGIN_IGNORE || rc == MOSQ_ERR_PLUGIN_DEFER){
 			/* Do nothing */
-		}else{
-			return rc;
+		}وإلا{
+			أرجع rc;
 		}
 	}
 
 	/* Per listener plugins */
-	if(context->listener){
-		if(context->listener->security_options->plugin_callbacks.ext_auth_continue){
+	إذا(context->listener){
+		إذا(context->listener->security_options->plugin_callbacks.ext_auth_continue){
 			rc = plugin__ext_auth_continue(context->listener->security_options, context,
-					data_in, data_in_len, data_out, data_out_len);
+					داده_درون, داده_درون_len, داده_بیرون, داده_بیرون_len);
 
-			if(rc == MOSQ_ERR_PLUGIN_IGNORE || rc == MOSQ_ERR_PLUGIN_DEFER){
+			إذا(rc == MOSQ_ERR_PLUGIN_IGNORE || rc == MOSQ_ERR_PLUGIN_DEFER){
 				/* Do nothing */
-			}else{
-				return rc;
+			}وإلا{
+				أرجع rc;
 			}
 		}
-	}else{
-		if(db.config->per_listener_settings){
-			return MOSQ_ERR_AUTH;
+	}وإلا{
+		إذا(db.config->در_هر_listener_settings){
+			أرجع MOSQ_ERR_AUTH;
 		}
 	}
 
-	return MOSQ_ERR_NOT_SUPPORTED;
+	أرجع MOSQ_ERR_NOT_SUPPORTED;
 }

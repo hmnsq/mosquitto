@@ -16,44 +16,44 @@ Contributors:
    Roger Light - initial implementation and documentation.
 */
 
-#include "config.h"
+#ضمن "config.h"
 
-#include "mosquitto_broker_internal.h"
-#include "mosquitto/mqtt_protocol.h"
-#include "packet_mosq.h"
-#include "property_mosq.h"
-#include "sys_tree.h"
-#include "util_mosq.h"
+#ضمن "mosquitto_broker_internal.h"
+#ضمن "mosquitto/mqtt_protocol.h"
+#ضمن "packet_mosq.h"
+#ضمن "property_mosq.h"
+#ضمن "sys_tree.h"
+#ضمن "util_mosq.h"
 
 
-int send__suback(struct mosquitto *context, uint16_t mid, uint32_t payloadlen, const void *payload)
+صحيح send__suback(بنية mosquitto *context, uint16_t mid, uint32_t payloadlen, ثابت فراغ *payload)
 {
-	struct mosquitto__packet *packet = NULL;
-	int rc;
-	mosquitto_property *properties = NULL;
-	uint32_t remaining_length;
+	بنية mosquitto__packet *packet = عدم;
+	صحيح rc;
+	mosquitto_property *properties = عدم;
+	uint32_t مانده_درازی;
 
-	log__printf(NULL, MOSQ_LOG_DEBUG, "Sending SUBACK to %s", context->id);
+	log__printf(عدم, MOSQ_LOG_DEBUG, "Sending SUBACK to %s", context->id);
 
-	remaining_length = 2+payloadlen;
-	if(context->protocol == mosq_p_mqtt5){
-		remaining_length += mosquitto_property_get_remaining_length(properties);
+	مانده_درازی = 2+payloadlen;
+	إذا(context->protocol == mosq_p_mqtt5){
+		مانده_درازی += mosquitto_property_get_مانده_درازی(properties);
 	}
-	rc = packet__alloc(&packet, CMD_SUBACK, remaining_length);
-	if(rc){
-		return rc;
+	rc = packet__alloc(&packet, CMD_SUBACK, مانده_درازی);
+	إذا(rc){
+		أرجع rc;
 	}
 	packet__write_uint16(packet, mid);
 
-	if(context->protocol == mosq_p_mqtt5){
+	إذا(context->protocol == mosq_p_mqtt5){
 		/* We don't use Reason String or User Property yet. */
 		property__write_all(packet, properties, true);
 	}
 
-	if(payloadlen){
-		packet__write_bytes(packet, payload, payloadlen);
+	إذا(payloadlen){
+		packet_write_بایتها(packet, payload, payloadlen);
 	}
 
-	metrics__int_inc(mosq_counter_mqtt_suback_sent, 1);
-	return packet__queue(context, packet);
+	metrics__int_inc(mosq_counter_mqtt_suback_فرستاده, 1);
+	أرجع packet_صف(context, packet);
 }

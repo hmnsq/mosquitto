@@ -18,190 +18,190 @@ Contributors:
 
 /* This loads v2 plugins in a v5 wrapper to make the core code cleaner */
 
-#include "config.h"
+#ضمن "config.h"
 
-#include <stdio.h>
-#include <string.h>
+#ضمن <stdio.h>
+#ضمن <string.h>
 
-#include "mosquitto/broker.h"
-#include "mosquitto_broker_internal.h"
-#include "mosquitto/broker_plugin.h"
-#include "lib_load.h"
-#include "utlist.h"
+#ضمن "mosquitto/broker.h"
+#ضمن "mosquitto_broker_internal.h"
+#ضمن "mosquitto/broker_plugin.h"
+#ضمن "lib_load.h"
+#ضمن "utlist.h"
 
-typedef int (*FUNC_auth_plugin_version)(void);
-typedef int (*FUNC_plugin_version)(int, const int *);
+تعريفنوع صحيح (*FUNC_auth_plugin_نسخه)(فراغ);
+تعريفنوع صحيح (*FUNC_plugin_نسخه)(صحيح, ثابت صحيح *);
 
 
-static int plugin_v2_basic_auth(int event, void *event_data, void *userdata)
+ساكن صحيح plugin_v2_basic_auth(صحيح event, فراغ *event_داده, فراغ *userdata)
 {
 	mosquitto_plugin_id_t *plugin = userdata;
-	struct mosquitto_evt_basic_auth *ed = event_data;
+	بنية mosquitto_evt_basic_auth *ed = event_داده;
 
-	UNUSED(event);
+	استفادهنشده(event);
 
-	if(plugin->lib.unpwd_check_v2 == NULL){
-		return MOSQ_ERR_INVAL;
+	إذا(plugin->lib.unpwd_check_v2 == عدم){
+		أرجع MOSQ_ERR_INVAL;
 	}
 
-	return plugin->lib.unpwd_check_v2(
-			plugin->lib.user_data,
+	أرجع plugin->lib.unpwd_check_v2(
+			plugin->lib.user_داده,
 			ed->username,
 			ed->password);
 }
 
 
-static int plugin_v2_acl_check(int event, void *event_data, void *userdata)
+ساكن صحيح plugin_v2_acl_check(صحيح event, فراغ *event_داده, فراغ *userdata)
 {
 	mosquitto_plugin_id_t *plugin = userdata;
-	struct mosquitto_evt_acl_check *ed = event_data;
-	int rc;
+	بنية mosquitto_evt_acl_check *ed = event_داده;
+	صحيح rc;
 
-	UNUSED(event);
+	استفادهنشده(event);
 
-	if(plugin->lib.acl_check_v2 == NULL){
-		return MOSQ_ERR_INVAL;
+	إذا(plugin->lib.acl_check_v2 == عدم){
+		أرجع MOSQ_ERR_INVAL;
 	}
 
 	rc = acl__pre_check(plugin, ed->client, ed->access);
-	if(rc == MOSQ_ERR_PLUGIN_DEFER){
-		return plugin->lib.acl_check_v2(
-				plugin->lib.user_data,
+	إذا(rc == MOSQ_ERR_PLUGIN_DEFER){
+		أرجع plugin->lib.acl_check_v2(
+				plugin->lib.user_داده,
 				ed->client->id,
 				ed->client->username,
 				ed->topic,
 				ed->access);
-	}else{
-		return rc;
+	}وإلا{
+		أرجع rc;
 	}
 }
 
 
-static int plugin_v2_psk_key_get(int event, void *event_data, void *userdata)
+ساكن صحيح plugin_v2_psk_کلید_get(صحيح event, فراغ *event_داده, فراغ *userdata)
 {
 	mosquitto_plugin_id_t *plugin = userdata;
-	struct mosquitto_evt_psk_key *ed = event_data;
+	بنية mosquitto_evt_psk_کلید *ed = event_داده;
 
-	UNUSED(event);
+	استفادهنشده(event);
 
-	if(plugin->lib.psk_key_get_v2 == NULL){
-		return MOSQ_ERR_INVAL;
+	إذا(plugin->lib.psk_کلید_get_v2 == عدم){
+		أرجع MOSQ_ERR_INVAL;
 	}
 
-	return plugin->lib.psk_key_get_v2(
-			plugin->lib.user_data,
+	أرجع plugin->lib.psk_کلید_get_v2(
+			plugin->lib.user_داده,
 			ed->hint,
-			ed->identity,
-			ed->key,
-			ed->max_key_len);
+			ed->عنصر_خنثی,
+			ed->کلید,
+			ed->max_کلید_len);
 }
 
 
-static int plugin_v2_reload(int event, void *event_data, void *userdata)
+ساكن صحيح plugin_v2_reload(صحيح event, فراغ *event_داده, فراغ *userdata)
 {
 	mosquitto_plugin_id_t *plugin = userdata;
-	int rc;
+	صحيح rc;
 
-	UNUSED(event);
-	UNUSED(event_data);
+	استفادهنشده(event);
+	استفادهنشده(event_داده);
 
 	rc = plugin->lib.security_cleanup_v2(
-			plugin->lib.user_data,
-			(struct mosquitto_auth_opt *)plugin->config.options,
-			plugin->config.option_count,
+			plugin->lib.user_داده,
+			(بنية mosquitto_auth_opt *)plugin->config.options,
+			plugin->config.option_شمار,
 			true);
-	if(rc){
-		return rc;
+	إذا(rc){
+		أرجع rc;
 	}
 
 	rc = plugin->lib.security_init_v2(
-			plugin->lib.user_data,
-			(struct mosquitto_auth_opt *)plugin->config.options,
-			plugin->config.option_count,
+			plugin->lib.user_داده,
+			(بنية mosquitto_auth_opt *)plugin->config.options,
+			plugin->config.option_شمار,
 			true);
-	return rc;
+	أرجع rc;
 }
 
 
-int plugin__load_v2(mosquitto_plugin_id_t *plugin, void *lib)
+صحيح plugin_بارگیری_v2(mosquitto_plugin_id_t *plugin, فراغ *lib)
 {
-	int rc;
+	صحيح rc;
 
-	if(!(plugin->lib.plugin_init_v2 = (FUNC_auth_plugin_init_v2)LIB_SYM(lib, "mosquitto_auth_plugin_init"))){
-		log__printf(NULL, MOSQ_LOG_ERR,
+	إذا(!(plugin->lib.plugin_init_v2 = (FUNC_auth_plugin_init_v2)LIB_SYM(lib, "mosquitto_auth_plugin_init"))){
+		log__printf(عدم, MOSQ_LOG_ERR,
 				"Error: Unable to load auth plugin function mosquitto_auth_plugin_init().");
 		LIB_ERROR();
-		return MOSQ_ERR_UNKNOWN;
+		أرجع MOSQ_ERR_UNKNOWN;
 	}
-	if(!(plugin->lib.plugin_cleanup_v2 = (FUNC_auth_plugin_cleanup_v2)LIB_SYM(lib, "mosquitto_auth_plugin_cleanup"))){
-		log__printf(NULL, MOSQ_LOG_ERR,
+	إذا(!(plugin->lib.plugin_cleanup_v2 = (FUNC_auth_plugin_cleanup_v2)LIB_SYM(lib, "mosquitto_auth_plugin_cleanup"))){
+		log__printf(عدم, MOSQ_LOG_ERR,
 				"Error: Unable to load auth plugin function mosquitto_auth_plugin_cleanup().");
 		LIB_ERROR();
-		return MOSQ_ERR_UNKNOWN;
+		أرجع MOSQ_ERR_UNKNOWN;
 	}
 
-	if(!(plugin->lib.security_init_v2 = (FUNC_auth_plugin_security_init_v2)LIB_SYM(lib, "mosquitto_auth_security_init"))){
-		log__printf(NULL, MOSQ_LOG_ERR,
+	إذا(!(plugin->lib.security_init_v2 = (FUNC_auth_plugin_security_init_v2)LIB_SYM(lib, "mosquitto_auth_security_init"))){
+		log__printf(عدم, MOSQ_LOG_ERR,
 				"Error: Unable to load auth plugin function mosquitto_auth_security_init().");
 		LIB_ERROR();
-		return MOSQ_ERR_UNKNOWN;
+		أرجع MOSQ_ERR_UNKNOWN;
 	}
 
-	if(!(plugin->lib.security_cleanup_v2 = (FUNC_auth_plugin_security_cleanup_v2)LIB_SYM(lib, "mosquitto_auth_security_cleanup"))){
-		log__printf(NULL, MOSQ_LOG_ERR,
+	إذا(!(plugin->lib.security_cleanup_v2 = (FUNC_auth_plugin_security_cleanup_v2)LIB_SYM(lib, "mosquitto_auth_security_cleanup"))){
+		log__printf(عدم, MOSQ_LOG_ERR,
 				"Error: Unable to load auth plugin function mosquitto_auth_security_cleanup().");
 		LIB_ERROR();
-		return MOSQ_ERR_UNKNOWN;
+		أرجع MOSQ_ERR_UNKNOWN;
 	}
 
-	if(!(plugin->lib.acl_check_v2 = (FUNC_auth_plugin_acl_check_v2)LIB_SYM(lib, "mosquitto_auth_acl_check"))){
-		log__printf(NULL, MOSQ_LOG_ERR,
+	إذا(!(plugin->lib.acl_check_v2 = (FUNC_auth_plugin_acl_check_v2)LIB_SYM(lib, "mosquitto_auth_acl_check"))){
+		log__printf(عدم, MOSQ_LOG_ERR,
 				"Error: Unable to load auth plugin function mosquitto_auth_acl_check().");
 		LIB_ERROR();
-		return MOSQ_ERR_UNKNOWN;
+		أرجع MOSQ_ERR_UNKNOWN;
 	}
 
-	if(!(plugin->lib.unpwd_check_v2 = (FUNC_auth_plugin_unpwd_check_v2)LIB_SYM(lib, "mosquitto_auth_unpwd_check"))){
-		log__printf(NULL, MOSQ_LOG_ERR,
+	إذا(!(plugin->lib.unpwd_check_v2 = (FUNC_auth_plugin_unpwd_check_v2)LIB_SYM(lib, "mosquitto_auth_unpwd_check"))){
+		log__printf(عدم, MOSQ_LOG_ERR,
 				"Error: Unable to load auth plugin function mosquitto_auth_unpwd_check().");
 		LIB_ERROR();
-		return MOSQ_ERR_UNKNOWN;
+		أرجع MOSQ_ERR_UNKNOWN;
 	}
 
-	if(!(plugin->lib.psk_key_get_v2 = (FUNC_auth_plugin_psk_key_get_v2)LIB_SYM(lib, "mosquitto_auth_psk_key_get"))){
-		log__printf(NULL, MOSQ_LOG_ERR,
+	إذا(!(plugin->lib.psk_کلید_get_v2 = (FUNC_auth_plugin_psk_کلید_get_v2)LIB_SYM(lib, "mosquitto_auth_psk_key_get"))){
+		log__printf(عدم, MOSQ_LOG_ERR,
 				"Error: Unable to load auth plugin function mosquitto_auth_psk_key_get().");
 		LIB_ERROR();
-		return MOSQ_ERR_UNKNOWN;
+		أرجع MOSQ_ERR_UNKNOWN;
 	}
 
 	plugin->lib.lib = lib;
-	plugin->lib.user_data = NULL;
+	plugin->lib.user_داده = عدم;
 	plugin->lib.identifier = plugin;
 
-	if(plugin->lib.plugin_init_v2){
+	إذا(plugin->lib.plugin_init_v2){
 		rc = plugin->lib.plugin_init_v2(
-				&plugin->lib.user_data,
-				(struct mosquitto_auth_opt *)plugin->config.options,
-				plugin->config.option_count);
-		if(rc){
-			log__printf(NULL, MOSQ_LOG_ERR,
+				&plugin->lib.user_داده,
+				(بنية mosquitto_auth_opt *)plugin->config.options,
+				plugin->config.option_شمار);
+		إذا(rc){
+			log__printf(عدم, MOSQ_LOG_ERR,
 					"Error: Authentication plugin returned %d when initialising.", rc);
-			return rc;
+			أرجع rc;
 		}
 	}
 
-	mosquitto_callback_register(plugin, MOSQ_EVT_RELOAD, plugin_v2_reload, NULL, plugin);
+	mosquitto_callback_ثبات(plugin, MOSQ_EVT_RELOAD, plugin_v2_reload, عدم, plugin);
 
-	if(plugin->lib.unpwd_check_v2){
-		mosquitto_callback_register(plugin, MOSQ_EVT_BASIC_AUTH, plugin_v2_basic_auth, NULL, plugin);
+	إذا(plugin->lib.unpwd_check_v2){
+		mosquitto_callback_ثبات(plugin, MOSQ_EVT_BASIC_AUTH, plugin_v2_basic_auth, عدم, plugin);
 	}
-	if(plugin->lib.acl_check_v2){
-		mosquitto_callback_register(plugin, MOSQ_EVT_ACL_CHECK, plugin_v2_acl_check, NULL, plugin);
+	إذا(plugin->lib.acl_check_v2){
+		mosquitto_callback_ثبات(plugin, MOSQ_EVT_ACL_CHECK, plugin_v2_acl_check, عدم, plugin);
 	}
-	if(plugin->lib.psk_key_get_v2){
-		mosquitto_callback_register(plugin, MOSQ_EVT_PSK_KEY, plugin_v2_psk_key_get, NULL, plugin);
+	إذا(plugin->lib.psk_کلید_get_v2){
+		mosquitto_callback_ثبات(plugin, MOSQ_EVT_PSK_کلید, plugin_v2_psk_کلید_get, عدم, plugin);
 	}
 
-	return 0;
+	أرجع 0;
 }

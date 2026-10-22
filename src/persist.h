@@ -16,25 +16,25 @@ Contributors:
    Roger Light - initial implementation and documentation.
 */
 
-#ifndef PERSIST_H
-#define PERSIST_H
+#اگر_تعریف_نشده PERSIST_H
+#تعریف_کن PERSIST_H
 
-#include "mosquitto_broker_internal.h"
+#ضمن "mosquitto_broker_internal.h"
 
-#define MOSQ_DB_VERSION 6
+#تعریف_کن MOSQ_DB_نسخه 6
 
 /* DB read/write */
-extern const unsigned char magic[15];
-#define DB_CHUNK_CFG 1
-#define DB_CHUNK_BASE_MSG 2
-#define DB_CHUNK_CLIENT_MSG 3
-#define DB_CHUNK_RETAIN 4
-#define DB_CHUNK_SUB 5
-#define DB_CHUNK_CLIENT 6
+خارجي ثابت بیعلامت حرف magic[15];
+#تعریف_کن DB_CHUNK_CFG 1
+#تعریف_کن DB_CHUNK_پایه_پیام 2
+#تعریف_کن DB_CHUNK_CLIENT_پیام 3
+#تعریف_کن DB_CHUNK_RETAIN 4
+#تعریف_کن DB_CHUNK_SUB 5
+#تعریف_کن DB_CHUNK_CLIENT 6
 /* End DB read/write */
 
-#define read_e(f, b, c) if(fread(b, 1, c, f) != c){ rc = MOSQ_ERR_UNKNOWN; goto error; }
-#define write_e(f, b, c) if(fwrite(b, 1, c, f) != c){ goto error; }
+#تعریف_کن read_e(f, b, c) إذا(fread(b, 1, c, f) != c){ rc = MOSQ_ERR_UNKNOWN; اذهب error; }
+#تعریف_کن write_e(f, b, c) إذا(fwrite(b, 1, c, f) != c){ اذهب error; }
 
 /* COMPATIBILITY NOTES
  *
@@ -49,44 +49,44 @@ extern const unsigned char magic[15];
  * whether what is being added can go in an existing hole in the struct.
  */
 
-struct PF_header {
+بنية PF_سرآیند {
 	uint32_t chunk;
-	uint32_t length;
+	uint32_t درازی;
 };
 
 
-struct PF_cfg {
-	uint64_t last_db_id;
+بنية PF_cfg {
+	uint64_t آخرین_db_id;
 	uint8_t shutdown;
-	uint8_t dbid_size;
+	uint8_t dbid_اندازه;
 };
 
-struct PF_client_v5 {
-	int64_t session_expiry_time;
+بنية PF_client_v5 {
+	int64_t session_expiry_زمان;
 	uint32_t session_expiry_interval;
-	uint16_t last_mid;
+	uint16_t آخرین_mid;
 	uint16_t id_len;
 };
-struct PF_client {
+بنية PF_client {
 	/* struct PF_client_v5; */
-	int64_t session_expiry_time;
+	int64_t session_expiry_زمان;
 	uint32_t session_expiry_interval;
-	uint16_t last_mid;
+	uint16_t آخرین_mid;
 	uint16_t id_len;
 
-	uint16_t listener_port;
+	uint16_t listener_پورت;
 	uint16_t username_len;
 	/* tail: 4 byte padding, because 64bit member
 	 * forces multiple of 8 for struct size */
 };
-struct P_client {
-	struct PF_client F;
-	char *clientid;
-	char *username;
+بنية P_client {
+	بنية PF_client F;
+	حرف *clientid;
+	حرف *username;
 };
 
 
-struct PF_client_msg {
+بنية PF_client_پیام {
 	dbid_t store_id;
 	uint16_t mid;
 	uint16_t id_len;
@@ -95,82 +95,82 @@ struct PF_client_msg {
 	uint8_t retain_dup;
 	uint8_t direction;
 };
-struct P_client_msg {
-	struct PF_client_msg F;
-	char *clientid;
+بنية P_client_پیام {
+	بنية PF_client_پیام F;
+	حرف *clientid;
 	uint32_t subscription_identifier;
 };
 
 
-struct PF_base_msg {
+بنية PF_پایه_پیام {
 	dbid_t store_id;
-	int64_t expiry_time;
+	int64_t expiry_زمان;
 	uint32_t payloadlen;
-	uint16_t source_mid;
-	uint16_t source_id_len;
-	uint16_t source_username_len;
+	uint16_t منبع_mid;
+	uint16_t منبع_id_len;
+	uint16_t منبع_username_len;
 	uint16_t topic_len;
-	uint16_t source_port;
+	uint16_t منبع_پورت;
 	uint8_t qos;
 	uint8_t retain;
 };
-struct P_base_msg {
-	struct PF_base_msg F;
-	void *payload;
-	struct mosquitto source;
-	char *topic;
+بنية P_پایه_پیام {
+	بنية PF_پایه_پیام F;
+	فراغ *payload;
+	بنية mosquitto منبع;
+	حرف *topic;
 	mosquitto_property *properties;
 };
 
 
-struct PF_sub {
+بنية PF_sub {
 	uint32_t identifier;
 	uint16_t id_len;
 	uint16_t topic_len;
 	uint8_t qos;
 	uint8_t options;
 };
-struct P_sub {
-	struct PF_sub F;
-	char *clientid;
-	char *topic;
+بنية P_sub {
+	بنية PF_sub F;
+	حرف *clientid;
+	حرف *topic;
 };
 
 
-struct PF_retain {
+بنية PF_retain {
 	dbid_t store_id;
 };
-struct P_retain {
-	struct PF_retain F;
+بنية P_retain {
+	بنية PF_retain F;
 };
 
 
-int persist__read_string_len(FILE *db_fptr, char **str, uint16_t len);
-int persist__read_string(FILE *db_fptr, char **str);
+صحيح persist__read_string_len(FILE *db_fptr, حرف **str, uint16_t len);
+صحيح persist__read_string(FILE *db_fptr, حرف **str);
 
-int persist__chunk_header_read(FILE *db_fptr, uint32_t *chunk, uint32_t *length);
+صحيح persist_chunk_سرآیند_read(FILE *db_fptr, uint32_t *chunk, uint32_t *درازی);
 
-int persist__chunk_header_read_v234(FILE *db_fptr, uint32_t *chunk, uint32_t *length);
-int persist__chunk_cfg_read_v234(FILE *db_fptr, struct PF_cfg *chunk);
-int persist__chunk_client_read_v234(FILE *db_fptr, struct P_client *chunk, uint32_t db_version);
-int persist__chunk_client_msg_read_v234(FILE *db_fptr, struct P_client_msg *chunk);
-int persist__chunk_base_msg_read_v234(FILE *db_fptr, struct P_base_msg *chunk, uint32_t db_version);
-int persist__chunk_retain_read_v234(FILE *db_fptr, struct P_retain *chunk);
-int persist__chunk_sub_read_v234(FILE *db_fptr, struct P_sub *chunk);
+صحيح persist_chunk_سرآیند_read_v234(FILE *db_fptr, uint32_t *chunk, uint32_t *درازی);
+صحيح persist__chunk_cfg_read_v234(FILE *db_fptr, بنية PF_cfg *chunk);
+صحيح persist__chunk_client_read_v234(FILE *db_fptr, بنية P_client *chunk, uint32_t db_نسخه);
+صحيح persist_chunk_client_پیام_read_v234(FILE *db_fptr, بنية P_client_پیام *chunk);
+صحيح persist_chunk_پایه_پیام_read_v234(FILE *db_fptr, بنية P_پایه_پیام *chunk, uint32_t db_نسخه);
+صحيح persist__chunk_retain_read_v234(FILE *db_fptr, بنية P_retain *chunk);
+صحيح persist__chunk_sub_read_v234(FILE *db_fptr, بنية P_sub *chunk);
 
-int persist__chunk_header_read_v56(FILE *db_fptr, uint32_t *chunk, uint32_t *length);
-int persist__chunk_cfg_read_v56(FILE *db_fptr, struct PF_cfg *chunk);
-int persist__chunk_client_read_v56(FILE *db_fptr, struct P_client *chunk, uint32_t db_version);
-int persist__chunk_client_msg_read_v56(FILE *db_fptr, struct P_client_msg *chunk, uint32_t length);
-int persist__chunk_base_msg_read_v56(FILE *db_fptr, struct P_base_msg *chunk, uint32_t length);
-int persist__chunk_retain_read_v56(FILE *db_fptr, struct P_retain *chunk);
-int persist__chunk_sub_read_v56(FILE *db_fptr, struct P_sub *chunk);
+صحيح persist_chunk_سرآیند_read_v56(FILE *db_fptr, uint32_t *chunk, uint32_t *درازی);
+صحيح persist__chunk_cfg_read_v56(FILE *db_fptr, بنية PF_cfg *chunk);
+صحيح persist__chunk_client_read_v56(FILE *db_fptr, بنية P_client *chunk, uint32_t db_نسخه);
+صحيح persist_chunk_client_پیام_read_v56(FILE *db_fptr, بنية P_client_پیام *chunk, uint32_t درازی);
+صحيح persist_chunk_پایه_پیام_read_v56(FILE *db_fptr, بنية P_پایه_پیام *chunk, uint32_t درازی);
+صحيح persist__chunk_retain_read_v56(FILE *db_fptr, بنية P_retain *chunk);
+صحيح persist__chunk_sub_read_v56(FILE *db_fptr, بنية P_sub *chunk);
 
-int persist__chunk_cfg_write_v6(FILE *db_fptr, struct PF_cfg *chunk);
-int persist__chunk_client_write_v6(FILE *db_fptr, struct P_client *chunk);
-int persist__chunk_client_msg_write_v6(FILE *db_fptr, struct P_client_msg *chunk);
-int persist__chunk_message_store_write_v6(FILE *db_fptr, struct P_base_msg *chunk);
-int persist__chunk_retain_write_v6(FILE *db_fptr, struct P_retain *chunk);
-int persist__chunk_sub_write_v6(FILE *db_fptr, struct P_sub *chunk);
+صحيح persist__chunk_cfg_write_v6(FILE *db_fptr, بنية PF_cfg *chunk);
+صحيح persist__chunk_client_write_v6(FILE *db_fptr, بنية P_client *chunk);
+صحيح persist_chunk_client_پیام_write_v6(FILE *db_fptr, بنية P_client_پیام *chunk);
+صحيح persist_chunk_پیام_store_write_v6(FILE *db_fptr, بنية P_پایه_پیام *chunk);
+صحيح persist__chunk_retain_write_v6(FILE *db_fptr, بنية P_retain *chunk);
+صحيح persist__chunk_sub_write_v6(FILE *db_fptr, بنية P_sub *chunk);
 
-#endif
+#پایان_اگر

@@ -16,10 +16,10 @@ Contributors:
    Roger Light - initial implementation and documentation.
 */
 
-#include "config.h"
-#include <time.h>
-#include "mosquitto_broker_internal.h"
-#include <utlist.h>
+#ضمن "config.h"
+#ضمن <time.h>
+#ضمن "mosquitto_broker_internal.h"
+#ضمن <utlist.h>
 
 
 /* This contains code for checking whether clients have exceeded their keepalive timeouts.
@@ -57,117 +57,117 @@ Contributors:
  * problem for you please get in touch.
  */
 
-static time_t last_keepalive_check = 0;
-#ifndef WITH_OLD_KEEPALIVE
-static int keepalive_list_max = 0;
-static struct mosquitto **keepalive_list = NULL;
-#endif
+ساكن time_t آخرین_keepalive_check = 0;
+#اگر_تعریف_نشده WITH_OLD_KEEPALIVE
+ساكن صحيح keepalive_list_max = 0;
+ساكن بنية mosquitto **keepalive_list = عدم;
+#پایان_اگر
 
-#ifndef WITH_OLD_KEEPALIVE
+#اگر_تعریف_نشده WITH_OLD_KEEPALIVE
 
 
-static int calc_index(struct mosquitto *context)
+ساكن صحيح calc_شاخص(بنية mosquitto *context)
 {
-	return (int)(context->last_msg_in + context->keepalive*3/2) % keepalive_list_max;
+	أرجع (صحيح)(context->آخرین_پیام_درون + context->keepalive*3/2) % keepalive_list_max;
 }
-#endif
+#پایان_اگر
 
 
-int keepalive__init(void)
+صحيح keepalive__init(فراغ)
 {
-#ifndef WITH_OLD_KEEPALIVE
-	struct mosquitto *context, *ctxt_tmp;
+#اگر_تعریف_نشده WITH_OLD_KEEPALIVE
+	بنية mosquitto *context, *ctxt_tmp;
 
-	if(db.config->max_keepalive <= 0){
+	إذا(db.config->max_keepalive <= 0){
 		keepalive_list_max = (UINT16_MAX * 3)/2 + 1;
-	}else{
+	}وإلا{
 		keepalive_list_max = (db.config->max_keepalive * 3)/2 + 1;
 	}
-	keepalive_list = mosquitto_calloc((size_t)keepalive_list_max, sizeof(struct mosquitto *));
-	if(keepalive_list == NULL){
-		log__printf(NULL, MOSQ_LOG_ERR, "Error: Out of memory.");
+	keepalive_list = mosquitto_calloc((size_t)keepalive_list_max, حجم(بنية mosquitto *));
+	إذا(keepalive_list == عدم){
+		log__printf(عدم, MOSQ_LOG_ERR, "Error: Out of memory.");
 		keepalive_list_max = 0;
-		return MOSQ_ERR_NOMEM;
+		أرجع MOSQ_ERR_NOMEM;
 	}
 
 	/* Add existing clients - should only be applicable on MOSQ_EVT_RELOAD */
 	HASH_ITER(hh_sock, db.contexts_by_sock, context, ctxt_tmp){
-		if(net__is_connected(context) && !context->bridge && context->keepalive > 0){
-			keepalive__add(context);
+		إذا(net__is_connected(context) && !context->bridge && context->keepalive > 0){
+			keepalive_جمع_کن(context);
 		}
 	}
-#endif
-	last_keepalive_check = db.now_s;
-	return MOSQ_ERR_SUCCESS;
+#پایان_اگر
+	آخرین_keepalive_check = db.now_s;
+	أرجع MOSQ_ERR_SUCCESS;
 }
 
 
-void keepalive__cleanup(void)
+فراغ keepalive__cleanup(فراغ)
 {
-#ifndef WITH_OLD_KEEPALIVE
-	for(int idx=0; idx<keepalive_list_max; idx++){
-		struct mosquitto *context, *ctxt_tmp;
-		DL_FOREACH_SAFE2(keepalive_list[idx], context, ctxt_tmp, keepalive_next){
-			DL_DELETE2(keepalive_list[idx], context, keepalive_prev, keepalive_next);
+#اگر_تعریف_نشده WITH_OLD_KEEPALIVE
+	لكل(صحيح idx=0; idx<keepalive_list_max; idx++){
+		بنية mosquitto *context, *ctxt_tmp;
+		DL_FOREACH_SAFE2(keepalive_list[idx], context, ctxt_tmp, keepalive_بعدی){
+			DL_DELETE2(keepalive_list[idx], context, keepalive_prev, keepalive_بعدی);
 		}
 	}
 	mosquitto_free(keepalive_list);
-	keepalive_list = NULL;
+	keepalive_list = عدم;
 	keepalive_list_max = 0;
-#endif
+#پایان_اگر
 }
 
 
-int keepalive__add(struct mosquitto *context)
+صحيح keepalive_جمع_کن(بنية mosquitto *context)
 {
-#ifndef WITH_OLD_KEEPALIVE
-	if(context->keepalive <= 0 || !net__is_connected(context)){
-		return MOSQ_ERR_SUCCESS;
+#اگر_تعریف_نشده WITH_OLD_KEEPALIVE
+	إذا(context->keepalive <= 0 || !net__is_connected(context)){
+		أرجع MOSQ_ERR_SUCCESS;
 	}
-#ifdef WITH_BRIDGE
-	if(context->bridge){
-		return MOSQ_ERR_SUCCESS;
+#اگر_تعریف_شده WITH_BRIDGE
+	إذا(context->bridge){
+		أرجع MOSQ_ERR_SUCCESS;
 	}
-#endif
+#پایان_اگر
 
-	DL_APPEND2(keepalive_list[calc_index(context)], context, keepalive_prev, keepalive_next);
-	context->keepalive_add_time = db.now_s;
-#else
-	UNUSED(context);
-#endif
-	return MOSQ_ERR_SUCCESS;
+	DL_APPEND2(keepalive_list[calc_شاخص(context)], context, keepalive_prev, keepalive_بعدی);
+	context->keepalive_جمع_کن_زمان = db.now_s;
+#وإلا
+	استفادهنشده(context);
+#پایان_اگر
+	أرجع MOSQ_ERR_SUCCESS;
 }
 
 
-#ifndef WITH_OLD_KEEPALIVE
+#اگر_تعریف_نشده WITH_OLD_KEEPALIVE
 
 
-void keepalive__check(void)
+فراغ keepalive__check(فراغ)
 {
-	struct mosquitto *context, *ctxt_tmp;
+	بنية mosquitto *context, *ctxt_tmp;
 	time_t timeout;
 
-	if(db.contexts_by_sock){
+	إذا(db.contexts_by_sock){
 		/* Check the next 5 seconds for upcoming expiries */
 		/* FIXME - find the actual next entry without having to iterate over
 		 * the whole list */
 		timeout = 5;
-		for(time_t i=5; i>0; i--){
-			if(keepalive_list[(db.now_s + i) % keepalive_list_max]){
+		لكل(time_t i=5; i>0; i--){
+			إذا(keepalive_list[(db.now_s + i) % keepalive_list_max]){
 				timeout = i;
 			}
 		}
-		loop__update_next_event(timeout*1000);
+		loop_update_بعدی_event(timeout*1000);
 	}
-	for(time_t i=last_keepalive_check; i<db.now_s; i++){
-		int idx = (int)(i % keepalive_list_max);
-		if(keepalive_list[idx]){
-			DL_FOREACH_SAFE2(keepalive_list[idx], context, ctxt_tmp, keepalive_next){
+	لكل(time_t i=آخرین_keepalive_check; i<db.now_s; i++){
+		صحيح idx = (صحيح)(i % keepalive_list_max);
+		إذا(keepalive_list[idx]){
+			DL_FOREACH_SAFE2(keepalive_list[idx], context, ctxt_tmp, keepalive_بعدی){
 				/* keepalive_add_time lets us account for the client adding itself to the keepalive
 				 * list when its last_msg_in value is greater than the last_keepalive_check.
 				 * Without this, the client would be expired if it has keepalive == max_keepalive.
 				 */
-				if(context->keepalive_add_time <= last_keepalive_check && net__is_connected(context)){
+				إذا(context->keepalive_جمع_کن_زمان <= آخرین_keepalive_check && net__is_connected(context)){
 					/* Client has exceeded keepalive*1.5 */
 					do_disconnect(context, MOSQ_ERR_KEEPALIVE);
 				}
@@ -175,34 +175,34 @@ void keepalive__check(void)
 		}
 	}
 
-	last_keepalive_check = db.now_s;
+	آخرین_keepalive_check = db.now_s;
 }
-#else
+#وإلا
 
 
-void keepalive__check(void)
+فراغ keepalive__check(فراغ)
 {
-	struct mosquitto *context, *ctxt_tmp;
+	بنية mosquitto *context, *ctxt_tmp;
 	time_t timeout;
 
-	if(db.contexts_by_sock){
-		timeout = (last_keepalive_check + 5 - db.now_s);
-		if(timeout <= 0){
+	إذا(db.contexts_by_sock){
+		timeout = (آخرین_keepalive_check + 5 - db.now_s);
+		إذا(timeout <= 0){
 			timeout = 5;
 		}
-		loop__update_next_event(timeout*1000);
+		loop_update_بعدی_event(timeout*1000);
 	}
-	if(last_keepalive_check + 5 <= db.now_s){
-		last_keepalive_check = db.now_s;
+	إذا(آخرین_keepalive_check + 5 <= db.now_s){
+		آخرین_keepalive_check = db.now_s;
 
 		HASH_ITER(hh_sock, db.contexts_by_sock, context, ctxt_tmp){
-			if(net__is_connected(context)){
+			إذا(net__is_connected(context)){
 				/* Local bridges never time out in this fashion. */
-				if(!(context->keepalive)
+				إذا(!(context->keepalive)
 						|| context->bridge
-						|| db.now_s - context->last_msg_in <= (time_t)(context->keepalive)*3/2){
+						|| db.now_s - context->آخرین_پیام_درون <= (time_t)(context->keepalive)*3/2){
 
-				}else{
+				}وإلا{
 					/* Client has exceeded keepalive*1.5 */
 					do_disconnect(context, MOSQ_ERR_KEEPALIVE);
 				}
@@ -210,40 +210,40 @@ void keepalive__check(void)
 		}
 	}
 }
-#endif
+#پایان_اگر
 
 
-int keepalive__remove(struct mosquitto *context)
+صحيح keepalive__remove(بنية mosquitto *context)
 {
-#ifndef WITH_OLD_KEEPALIVE
-	int idx;
+#اگر_تعریف_نشده WITH_OLD_KEEPALIVE
+	صحيح idx;
 
-	if(context->keepalive <= 0 || context->keepalive_prev == NULL){
-		return MOSQ_ERR_SUCCESS;
+	إذا(context->keepalive <= 0 || context->keepalive_prev == عدم){
+		أرجع MOSQ_ERR_SUCCESS;
 	}
 
-	idx = calc_index(context);
-	if(keepalive_list[idx]){
-		DL_DELETE2(keepalive_list[idx], context, keepalive_prev, keepalive_next);
-		context->keepalive_next = NULL;
-		context->keepalive_prev = NULL;
+	idx = calc_شاخص(context);
+	إذا(keepalive_list[idx]){
+		DL_DELETE2(keepalive_list[idx], context, keepalive_prev, keepalive_بعدی);
+		context->keepalive_بعدی = عدم;
+		context->keepalive_prev = عدم;
 	}
-#else
-	UNUSED(context);
-#endif
-	return MOSQ_ERR_SUCCESS;
+#وإلا
+	استفادهنشده(context);
+#پایان_اگر
+	أرجع MOSQ_ERR_SUCCESS;
 }
 
 
-int keepalive__update(struct mosquitto *context)
+صحيح keepalive__update(بنية mosquitto *context)
 {
-#ifndef WITH_OLD_KEEPALIVE
+#اگر_تعریف_نشده WITH_OLD_KEEPALIVE
 	keepalive__remove(context);
 	/* coverity[missing_lock] - broker is single threaded, so no lock required */
-	context->last_msg_in = db.now_s;
-	keepalive__add(context);
-#else
-	UNUSED(context);
-#endif
-	return MOSQ_ERR_SUCCESS;
+	context->آخرین_پیام_درون = db.now_s;
+	keepalive_جمع_کن(context);
+#وإلا
+	استفادهنشده(context);
+#پایان_اگر
+	أرجع MOSQ_ERR_SUCCESS;
 }

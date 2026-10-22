@@ -16,170 +16,170 @@ Contributors:
    Roger Light - initial implementation and documentation.
 */
 
-#include "config.h"
+#ضمن "config.h"
 
-#if defined(WITH_WEBSOCKETS) && WITH_WEBSOCKETS == WS_IS_BUILTIN
+#إذا defined(WITH_WEBSOCKETS) && WITH_WEBSOCKETS == WS_IS_BUILTIN
 
-#include <assert.h>
-#include <errno.h>
-#include <string.h>
+#ضمن <assert.h>
+#ضمن <errno.h>
+#ضمن <string.h>
 
-#include "mosquitto_broker_internal.h"
-#include "mosquitto/mqtt_protocol.h"
-#include "net_mosq.h"
-#include "packet_mosq.h"
-#include "read_handle.h"
-#include "sys_tree.h"
-#include "util_mosq.h"
-#include "picohttpparser.h"
+#ضمن "mosquitto_broker_internal.h"
+#ضمن "mosquitto/mqtt_protocol.h"
+#ضمن "net_mosq.h"
+#ضمن "packet_mosq.h"
+#ضمن "read_handle.h"
+#ضمن "sys_tree.h"
+#ضمن "util_mosq.h"
+#ضمن "picohttpparser.h"
 
 
-int http__context_init(struct mosquitto *context)
+صحيح http__context_init(بنية mosquitto *context)
 {
 	context->transport = mosq_t_http;
 
-	return MOSQ_ERR_SUCCESS;
+	أرجع MOSQ_ERR_SUCCESS;
 }
 
 
-int http__context_cleanup(struct mosquitto *context)
+صحيح http__context_cleanup(بنية mosquitto *context)
 {
-	UNUSED(context);
-	return MOSQ_ERR_SUCCESS;
+	استفادهنشده(context);
+	أرجع MOSQ_ERR_SUCCESS;
 }
 
 
-int http__read(struct mosquitto *mosq)
+صحيح http__read(بنية mosquitto *mosq)
 {
-	ssize_t read_length;
-	ssize_t header_length;
-	enum mosquitto_client_state state;
+	ssize_t read_درازی;
+	ssize_t سرآیند_درازی;
+	تعداد mosquitto_client_state state;
 	size_t hlen;
-	const char *http_method, *http_path;
-	size_t http_method_len, http_path_len;
-	int http_minor_version;
-	size_t http_header_count = 100;
-	struct phr_header http_headers[100];
-	const char *client_key = NULL;
-	size_t client_key_len = 0;
-	char *accept_key;
-	bool header_have_upgrade;
-	bool header_have_connection;
-	struct mosquitto__packet *packet;
-	int rc;
-	const char *subprotocol = NULL;
-	int subprotocol_len = 0;
+	ثابت حرف *http_روش, *http_مسیر;
+	size_t http_روش_len, http_مسیر_len;
+	صحيح http_minor_نسخه;
+	size_t http_سرآیند_شمار = 100;
+	بنية phr_سرآیند http_سرآیندها[100];
+	ثابت حرف *client_کلید = عدم;
+	size_t client_کلید_len = 0;
+	حرف *accept_کلید;
+	bool سرآیند_have_upgrade;
+	bool سرآیند_have_connection;
+	بنية mosquitto__packet *packet;
+	صحيح rc;
+	ثابت حرف *subprotocol = عدم;
+	صحيح subprotocol_len = 0;
 
-	if(!mosq){
-		return MOSQ_ERR_INVAL;
+	إذا(!mosq){
+		أرجع MOSQ_ERR_INVAL;
 	}
-	if(mosq->sock == INVALID_SOCKET){
-		return MOSQ_ERR_NO_CONN;
+	إذا(mosq->sock == INVALID_SOCKET){
+		أرجع MOSQ_ERR_NO_CONN;
 	}
 
 	state = mosquitto__get_state(mosq);
-	if(state == mosq_cs_connect_pending){
-		return MOSQ_ERR_SUCCESS;
+	إذا(state == mosq_cs_connect_pending){
+		أرجع MOSQ_ERR_SUCCESS;
 	}
 
-	hlen = strlen((char *)mosq->in_packet.packet_buffer);
-	read_length = net__read(mosq, &mosq->in_packet.packet_buffer[hlen], mosq->in_packet.packet_buffer_size-hlen);
-	if(read_length <= 0){
-		if(read_length == 0){
-			return MOSQ_ERR_CONN_LOST; /* EOF */
+	hlen = طول_رشته((حرف *)mosq->درون_packet.packet_میانگیر);
+	read_درازی = net__read(mosq, &mosq->درون_packet.packet_میانگیر[hlen], mosq->درون_packet.packet_میانگیر_اندازه-hlen);
+	إذا(read_درازی <= 0){
+		إذا(read_درازی == 0){
+			أرجع MOSQ_ERR_CONN_گمشده; /* EOF */
 		}
-#ifdef WIN32
-		errno = WSAGetLastError();
-#endif
-		if(errno == EAGAIN || errno == COMPAT_EWOULDBLOCK){
-			return MOSQ_ERR_SUCCESS;
-		}else{
-			switch(errno){
-				case COMPAT_ECONNRESET:
-					return MOSQ_ERR_CONN_LOST;
-				case COMPAT_EINTR:
-					return MOSQ_ERR_SUCCESS;
-				default:
-					return MOSQ_ERR_ERRNO;
+#اگر_تعریف_شده WIN32
+		errno = WSAGet_آخرین_Error();
+#پایان_اگر
+		إذا(errno == EAGAIN || errno == COMPAT_EWOULDBLOCK){
+			أرجع MOSQ_ERR_SUCCESS;
+		}وإلا{
+			بدل(errno){
+				حالة COMPAT_ECONNRESET:
+					أرجع MOSQ_ERR_CONN_گمشده;
+				حالة COMPAT_EINTR:
+					أرجع MOSQ_ERR_SUCCESS;
+				افتراضي:
+					أرجع MOSQ_ERR_ERRNO;
 			}
 		}
 	}
 
-	mosq->in_packet.packet_buffer[mosq->in_packet.packet_buffer_size-1] = '\0'; /* Always 0 terminate */
-	header_length = phr_parse_request((char *)mosq->in_packet.packet_buffer, strlen((char *)mosq->in_packet.packet_buffer),
-			&http_method, &http_method_len,
-			&http_path, &http_path_len,
-			&http_minor_version,
-			http_headers, &http_header_count,
+	mosq->درون_packet.packet_میانگیر[mosq->درون_packet.packet_میانگیر_اندازه-1] = '\0'; /* Always 0 terminate */
+	سرآیند_درازی = phr_parse_request((حرف *)mosq->درون_packet.packet_میانگیر, طول_رشته((حرف *)mosq->درون_packet.packet_میانگیر),
+			&http_روش, &http_روش_len,
+			&http_مسیر, &http_مسیر_len,
+			&http_minor_نسخه,
+			http_سرآیندها, &http_سرآیند_شمار,
 			0);
 	// FIXME - deal with partial read !
-	if(header_length == -2){
+	إذا(سرآیند_درازی == -2){
 		// Partial read
-		return MOSQ_ERR_SUCCESS;
-	}else if(header_length == -1){
+		أرجع MOSQ_ERR_SUCCESS;
+	}وإلا إذا(سرآیند_درازی == -1){
 		// Error
-		return MOSQ_ERR_UNKNOWN;
-	}else if(header_length < read_length){
+		أرجع MOSQ_ERR_UNKNOWN;
+	}وإلا إذا(سرآیند_درازی < read_درازی){
 		/* Excess data which can't be handled because the client doesn't have a key yet */
-		return MOSQ_ERR_MALFORMED_PACKET;
+		أرجع MOSQ_ERR_MALFORMED_PACKET;
 	}
 
-	if(strncmp(http_method, "GET", http_method_len) && strncmp(http_method, "HEAD", http_method_len)){
+	إذا(مقایسه_رشته(http_روش, "GET", http_روش_len) && مقایسه_رشته(http_روش, "HEAD", http_روش_len)){
 		/* FIXME Not supported - send 501 response */
-		return MOSQ_ERR_UNKNOWN;
+		أرجع MOSQ_ERR_UNKNOWN;
 	}
 
-	header_have_upgrade = false;
-	header_have_connection = false;
-	subprotocol = NULL;
+	سرآیند_have_upgrade = false;
+	سرآیند_have_connection = false;
+	subprotocol = عدم;
 
-	for(size_t i=0; i<http_header_count; i++){
-		if(!strncasecmp(http_headers[i].name, "Upgrade", http_headers[i].name_len)){
-			if(!strncasecmp(http_headers[i].value, "websocket", http_headers[i].value_len)){
-				header_have_upgrade = true;
+	لكل(size_t i=0; i<http_سرآیند_شمار; i++){
+		إذا(!strncasecmp(http_سرآیندها[i].name, "Upgrade", http_سرآیندها[i].name_len)){
+			إذا(!strncasecmp(http_سرآیندها[i].مقدار, "websocket", http_سرآیندها[i].مقدار_len)){
+				سرآیند_have_upgrade = true;
 			}
-		}else if(!strncasecmp(http_headers[i].name, "Connection", http_headers[i].name_len)){
+		}وإلا إذا(!strncasecmp(http_سرآیندها[i].name, "Connection", http_سرآیندها[i].name_len)){
 			/* Check for "upgrade" */
-			const char *str = http_headers[i].value;
-			size_t start = 0;
+			ثابت حرف *str = http_سرآیندها[i].مقدار;
+			size_t شروع = 0;
 			size_t j;
-			for(j=0; j<http_headers[i].value_len; j++){
-				if(str[j] == ','){
-					if(!strncasecmp(&str[start], "upgrade", http_headers[i].value_len-j)){
-						header_have_connection = true;
-						break;
-					}else{
-						start = j+1;
+			لكل(j=0; j<http_سرآیندها[i].مقدار_len; j++){
+				إذا(str[j] == ','){
+					إذا(!strncasecmp(&str[شروع], "upgrade", http_سرآیندها[i].مقدار_len-j)){
+						سرآیند_have_connection = true;
+						اكسر;
+					}وإلا{
+						شروع = j+1;
 					}
-				}else if(str[j] == ' '){
-					start = j+1;
+				}وإلا إذا(str[j] == ' '){
+					شروع = j+1;
 				}
 			}
-			if(!strncasecmp(&str[start], "upgrade", http_headers[i].value_len-j)){
-				header_have_connection = true;
+			إذا(!strncasecmp(&str[شروع], "upgrade", http_سرآیندها[i].مقدار_len-j)){
+				سرآیند_have_connection = true;
 			}
-		}else if(!strncasecmp(http_headers[i].name, "Sec-WebSocket-Key", http_headers[i].name_len)){
-			client_key = http_headers[i].value;
-			client_key_len = http_headers[i].value_len;
-		}else if(!strncasecmp(http_headers[i].name, "Sec-WebSocket-Version", http_headers[i].name_len)){
+		}وإلا إذا(!strncasecmp(http_سرآیندها[i].name, "Sec-WebSocket-Key", http_سرآیندها[i].name_len)){
+			client_کلید = http_سرآیندها[i].مقدار;
+			client_کلید_len = http_سرآیندها[i].مقدار_len;
+		}وإلا إذا(!strncasecmp(http_سرآیندها[i].name, "Sec-WebSocket-Version", http_سرآیندها[i].name_len)){
 			/* Check for "13" */
-			if(http_headers[i].value_len != 2
-					|| http_headers[i].value[0] != '1'
-					|| http_headers[i].value[1] != '3'
+			إذا(http_سرآیندها[i].مقدار_len != 2
+					|| http_سرآیندها[i].مقدار[0] != '1'
+					|| http_سرآیندها[i].مقدار[1] != '3'
 					){
 
 				/* FIXME - not supported */
-				return MOSQ_ERR_NOT_SUPPORTED;
+				أرجع MOSQ_ERR_NOT_SUPPORTED;
 			}
-		}else if(!strncasecmp(http_headers[i].name, "Sec-WebSocket-Protocol", http_headers[i].name_len)){
+		}وإلا إذا(!strncasecmp(http_سرآیندها[i].name, "Sec-WebSocket-Protocol", http_سرآیندها[i].name_len)){
 			/* Check for "mqtt" */
-			if(!strncmp(http_headers[i].value, "mqtt", http_headers[i].value_len)
-					|| !strncmp(http_headers[i].value, "mqttv3.1", http_headers[i].value_len)){
+			إذا(!مقایسه_رشته(http_سرآیندها[i].مقدار, "mqtt", http_سرآیندها[i].مقدار_len)
+					|| !مقایسه_رشته(http_سرآیندها[i].مقدار, "mqttv3.1", http_سرآیندها[i].مقدار_len)){
 
-				subprotocol = http_headers[i].value;
-				subprotocol_len = (int)http_headers[i].value_len;
+				subprotocol = http_سرآیندها[i].مقدار;
+				subprotocol_len = (صحيح)http_سرآیندها[i].مقدار_len;
 			}
-		}else if(!strncasecmp(http_headers[i].name, "X-Forwarded-For", http_headers[i].name_len)){
+		}وإلا إذا(!strncasecmp(http_سرآیندها[i].name, "X-Forwarded-For", http_سرآیندها[i].name_len)){
 			/* Before implementing this, refer to:
 			 * https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/X-Forwarded-For
 			 *
@@ -191,59 +191,59 @@ int http__read(struct mosquitto *mosq)
 			 * control that, so we have to make it very clear to the end user
 			 * that this is the case.
 			 */
-		}else if(!strncasecmp(http_headers[i].name, "Origin", http_headers[i].name_len)){
-			if(mosq->listener){
-				bool have_match = false;
-				for(int j=0; j<mosq->listener->ws_origin_count; j++){
-					if(!strncmp(mosq->listener->ws_origins[j], http_headers[i].value, http_headers[i].value_len)){
-						have_match = true;
-						break;
+		}وإلا إذا(!strncasecmp(http_سرآیندها[i].name, "Origin", http_سرآیندها[i].name_len)){
+			إذا(mosq->listener){
+				bool have_تطابق = false;
+				لكل(صحيح j=0; j<mosq->listener->ws_origin_شمار; j++){
+					إذا(!مقایسه_رشته(mosq->listener->ws_origins[j], http_سرآیندها[i].مقدار, http_سرآیندها[i].مقدار_len)){
+						have_تطابق = true;
+						اكسر;
 					}
 				}
-				if(!have_match && mosq->listener->ws_origin_count > 0){
-					return MOSQ_ERR_HTTP_BAD_ORIGIN;
+				إذا(!have_تطابق && mosq->listener->ws_origin_شمار > 0){
+					أرجع MOSQ_ERR_HTTP_BAD_ORIGIN;
 				}
 			}
-		}else{
+		}وإلا{
 			/* Unknown header */
 		}
 	}
 
-	if(subprotocol == NULL){
+	إذا(subprotocol == عدم){
 		// FIXME ?
-		return MOSQ_ERR_UNKNOWN;
+		أرجع MOSQ_ERR_UNKNOWN;
 	}
 
-	if(header_have_upgrade == false || header_have_connection == false
-			|| client_key == NULL || client_key_len == 0){
+	إذا(سرآیند_have_upgrade == false || سرآیند_have_connection == false
+			|| client_کلید == عدم || client_کلید_len == 0){
 
 		// FIXME - 404
-		return MOSQ_ERR_UNKNOWN;
+		أرجع MOSQ_ERR_UNKNOWN;
 	}
 
-	if(ws__create_accept_key(client_key, client_key_len, &accept_key)){
-		return MOSQ_ERR_UNKNOWN;
+	إذا(ws_create_accept_کلید(client_کلید, client_کلید_len, &accept_کلید)){
+		أرجع MOSQ_ERR_UNKNOWN;
 	}
 
-	packet = mosquitto_calloc(1, sizeof(struct mosquitto__packet) + 1024 + WS_PACKET_OFFSET);
-	if(!packet){
-		SAFE_FREE(accept_key);
-		return MOSQ_ERR_NOMEM;
+	packet = mosquitto_calloc(1, حجم(بنية mosquitto__packet) + 1024 + WS_PACKET_جابه_جایی);
+	إذا(!packet){
+		امن_FREE(accept_کلید);
+		أرجع MOSQ_ERR_NOMEM;
 	}
-	packet->packet_length = (uint32_t )snprintf((char *)&packet->payload[WS_PACKET_OFFSET], 1024,
+	packet->packet_درازی = (uint32_t )snprintf((حرف *)&packet->payload[WS_PACKET_جابه_جایی], 1024,
 			"HTTP/1.1 101 Switching Protocols\r\n"
 			"Upgrade: WebSocket\r\n"
 			"Connection: Upgrade\r\n"
 			"Sec-WebSocket-Accept: %s\r\n"
 			"Sec-WebSocket-Protocol: %.*s\r\n"
-			"\r\n", accept_key, subprotocol_len, subprotocol) + WS_PACKET_OFFSET;
-	SAFE_FREE(accept_key);
-	packet->to_process = packet->packet_length;
+			"\r\n", accept_کلید, subprotocol_len, subprotocol) + WS_PACKET_جابه_جایی;
+	امن_FREE(accept_کلید);
+	packet->مقصد_process = packet->packet_درازی;
 
-	memset(mosq->in_packet.packet_buffer, 0, db.config->packet_buffer_size);
-	rc = packet__queue(mosq, packet);
+	memset(mosq->درون_packet.packet_میانگیر, 0, db.config->packet_میانگیر_اندازه);
+	rc = packet_صف(mosq, packet);
 	http__context_cleanup(mosq);
 	ws__context_init(mosq);
-	return rc;
+	أرجع rc;
 }
-#endif
+#پایان_اگر

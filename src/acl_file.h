@@ -15,38 +15,38 @@ SPDX-License-Identifier: EPL-2.0 OR BSD-3-Clause
 Contributors:
    Roger Light - initial implementation and documentation.
 */
-#ifndef ACL_FILE_H
-#define ACL_FILE_H
+#اگر_تعریف_نشده ACL_FILE_H
+#تعریف_کن ACL_FILE_H
 
-#include <uthash.h>
+#ضمن <uthash.h>
 
-struct acl__entry {
-	struct acl__entry *next, *prev;
-	char *topic;
-	int access;
-	int ucount;
-	int ccount;
+بنية acl_مدخل {
+	بنية acl_مدخل *بعدی, *prev;
+	حرف *topic;
+	صحيح access;
+	صحيح ucount;
+	صحيح ccount;
 };
 
 
-struct acl__user {
+بنية acl__user {
 	UT_hash_handle hh;
-	char *username;
-	struct acl__entry *acl;
+	حرف *username;
+	بنية acl_مدخل *acl;
 };
 
 
-struct acl_file_data {
-	char *acl_file;
-	struct acl__user *acl_users;
-	struct acl__user acl_anon;
-	struct acl__entry *acl_patterns;
+بنية acl_file_داده {
+	حرف *acl_file;
+	بنية acl__user *acl_users;
+	بنية acl__user acl_anon;
+	بنية acl_مدخل *acl_patterns;
 };
 
 
-int acl_file__parse(struct acl_file_data *data);
-int acl_file__check(int event, void *event_data, void *userdata);
-int acl_file__reload(int event, void *event_data, void *userdata);
-void acl_file__cleanup(struct acl_file_data *data);
+صحيح acl_file__parse(بنية acl_file_داده *داده);
+صحيح acl_file__check(صحيح event, فراغ *event_داده, فراغ *userdata);
+صحيح acl_file__reload(صحيح event, فراغ *event_داده, فراغ *userdata);
+فراغ acl_file__cleanup(بنية acl_file_داده *داده);
 
-#endif
+#پایان_اگر

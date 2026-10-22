@@ -16,228 +16,228 @@ Contributors:
    Roger Light - initial implementation and documentation.
 */
 
-#include "config.h"
+#ضمن "config.h"
 
-#include <stdio.h>
-#include <utlist.h>
+#ضمن <stdio.h>
+#ضمن <utlist.h>
 
-#include "mosquitto/mqtt_protocol.h"
-#include "mosquitto_broker_internal.h"
-#include "send_mosq.h"
+#ضمن "mosquitto/mqtt_protocol.h"
+#ضمن "mosquitto_broker_internal.h"
+#ضمن "send_mosq.h"
 
-#ifdef WITH_CONTROL
+#اگر_تعریف_شده WITH_CONTROL
 
 
-static void control__negative_reply(const char *clientid, const char *request_topic)
+ساكن فراغ control_negative_پاسخ(ثابت حرف *clientid, ثابت حرف *request_topic)
 {
 	size_t response_topic_len;
-	char *response_topic;
-	const char payload[] = "{\"error\": \"endpoint not available\"}";
+	حرف *response_topic;
+	ثابت حرف payload[] = "{\"error\": \"endpoint not available\"}";
 
-	response_topic_len = strlen(request_topic) + sizeof("/response") + 1;
+	response_topic_len = طول_رشته(request_topic) + حجم("/response") + 1;
 	response_topic = mosquitto_calloc(1, response_topic_len);
-	if(!response_topic){
-		return;
+	إذا(!response_topic){
+		أرجع;
 	}
 	snprintf(response_topic, response_topic_len, "%s/response", request_topic);
 
-	mosquitto_broker_publish_copy(clientid, response_topic, (int)strlen(payload), payload, 0, false, NULL);
+	mosquitto_broker_publish_copy(clientid, response_topic, (صحيح)طول_رشته(payload), payload, 0, false, عدم);
 	mosquitto_FREE(response_topic);
 }
 
 
 /* Process messages coming in on $CONTROL/<feature>. These messages aren't
  * passed on to other clients. */
-int control__process(struct mosquitto *context, struct mosquitto__base_msg *base_msg)
+صحيح control__process(بنية mosquitto *context, بنية mosquitto_پایه_پیام *پایه_پیام)
 {
-	struct mosquitto__callback *cb_found;
-	struct mosquitto_evt_control event_data;
-	struct mosquitto__security_options *opts;
-	mosquitto_property *properties = NULL;
-	int rc = MOSQ_ERR_SUCCESS;
-	int rc2;
+	بنية mosquitto__callback *cb_یافت;
+	بنية mosquitto_evt_control event_داده;
+	بنية mosquitto__security_options *opts;
+	mosquitto_property *properties = عدم;
+	صحيح rc = MOSQ_ERR_SUCCESS;
+	صحيح rc2;
 
 	/* Check global plugins and non-per-listener settings first */
 	opts = &db.config->security_options;
-	HASH_FIND(hh, opts->plugin_callbacks.control, base_msg->data.topic, strlen(base_msg->data.topic), cb_found);
+	HASH_پیدا_کن(hh, opts->plugin_callbacks.control, پایه_پیام->داده.topic, طول_رشته(پایه_پیام->داده.topic), cb_یافت);
 
 	/* If not found, check for per-listener plugins. */
-	if(cb_found == NULL && db.config->per_listener_settings){
-		if(!context->listener){
-			log__printf(NULL, MOSQ_LOG_WARNING, "Warning: $CONTROL command received from client with no listener, when per_listener_settings is true.");
-			log__printf(NULL, MOSQ_LOG_WARNING, "         If this is a bridge, please be aware this does not work.");
-			return MOSQ_ERR_SUCCESS;
+	إذا(cb_یافت == عدم && db.config->در_هر_listener_settings){
+		إذا(!context->listener){
+			log__printf(عدم, MOSQ_LOG_WARNING, "Warning: $CONTROL command received from client with no listener, when per_listener_settings is true.");
+			log__printf(عدم, MOSQ_LOG_WARNING, "         If this is a bridge, please be aware this does not work.");
+			أرجع MOSQ_ERR_SUCCESS;
 		}
 		opts = context->listener->security_options;
-		HASH_FIND(hh, opts->plugin_callbacks.control, base_msg->data.topic, strlen(base_msg->data.topic), cb_found);
+		HASH_پیدا_کن(hh, opts->plugin_callbacks.control, پایه_پیام->داده.topic, طول_رشته(پایه_پیام->داده.topic), cb_یافت);
 	}
-	if(cb_found){
-		memset(&event_data, 0, sizeof(event_data));
-		event_data.client = context;
-		event_data.topic = base_msg->data.topic;
-		event_data.payload = base_msg->data.payload;
-		event_data.payloadlen = base_msg->data.payloadlen;
-		event_data.qos = base_msg->data.qos;
-		event_data.retain = base_msg->data.retain;
-		event_data.properties = base_msg->data.properties;
-		event_data.reason_code = MQTT_RC_SUCCESS;
-		event_data.reason_string = NULL;
+	إذا(cb_یافت){
+		memset(&event_داده, 0, حجم(event_داده));
+		event_داده.client = context;
+		event_داده.topic = پایه_پیام->داده.topic;
+		event_داده.payload = پایه_پیام->داده.payload;
+		event_داده.payloadlen = پایه_پیام->داده.payloadlen;
+		event_داده.qos = پایه_پیام->داده.qos;
+		event_داده.retain = پایه_پیام->داده.retain;
+		event_داده.properties = پایه_پیام->داده.properties;
+		event_داده.reason_کد = MQTT_RC_SUCCESS;
+		event_داده.reason_string = عدم;
 
-		rc = cb_found->cb(MOSQ_EVT_CONTROL, &event_data, cb_found->userdata);
-		if(rc){
-			if(context->protocol == mosq_p_mqtt5 && event_data.reason_string){
+		rc = cb_یافت->cb(MOSQ_EVT_CONTROL, &event_داده, cb_یافت->userdata);
+		إذا(rc){
+			إذا(context->protocol == mosq_p_mqtt5 && event_داده.reason_string){
 				/* Not a critical error if this fails */
-				(void)mosquitto_property_add_string(&properties, MQTT_PROP_REASON_STRING, event_data.reason_string);
+				(فراغ)mosquitto_property_جمع_کن_string(&properties, MQTT_PROP_REASON_STRING, event_داده.reason_string);
 			}
 		}
-		SAFE_FREE(event_data.reason_string);
-	}else{
-		control__negative_reply(context->id, base_msg->data.topic);
+		امن_FREE(event_داده.reason_string);
+	}وإلا{
+		control_negative_پاسخ(context->id, پایه_پیام->داده.topic);
 	}
 
-	if(base_msg->data.qos == 1){
-		rc2 = send__puback(context, base_msg->data.source_mid, MQTT_RC_SUCCESS, properties);
-		if(rc2){
+	إذا(پایه_پیام->داده.qos == 1){
+		rc2 = send__puback(context, پایه_پیام->داده.منبع_mid, MQTT_RC_SUCCESS, properties);
+		إذا(rc2){
 			rc = rc2;
 		}
-	}else if(base_msg->data.qos == 2){
-		rc2 = send__pubrec(context, base_msg->data.source_mid, MQTT_RC_SUCCESS, properties);
-		if(rc2){
+	}وإلا إذا(پایه_پیام->داده.qos == 2){
+		rc2 = send__pubrec(context, پایه_پیام->داده.منبع_mid, MQTT_RC_SUCCESS, properties);
+		إذا(rc2){
 			rc = rc2;
 		}
 	}
 	mosquitto_property_free_all(&properties);
 
-	return rc;
+	أرجع rc;
 }
-#endif
+#پایان_اگر
 
 
-int control__register_callback(mosquitto_plugin_id_t *pid, MOSQ_FUNC_generic_callback cb_func, const char *topic, void *userdata)
+صحيح control_ثبات_callback(mosquitto_plugin_id_t *pid, MOSQ_FUNC_generic_callback cb_func, ثابت حرف *topic, فراغ *userdata)
 {
-#ifdef WITH_CONTROL
-	struct mosquitto__security_options *opts;
-	struct mosquitto__callback *cb_found, *cb_new;
+#اگر_تعریف_شده WITH_CONTROL
+	بنية mosquitto__security_options *opts;
+	بنية mosquitto__callback *cb_یافت, *cb_new;
 	size_t topic_len;
 
-	if(topic == NULL || cb_func == NULL){
-		return MOSQ_ERR_INVAL;
+	إذا(topic == عدم || cb_func == عدم){
+		أرجع MOSQ_ERR_INVAL;
 	}
-	topic_len = strlen(topic);
-	if(topic_len == 0 || topic_len > 65535){
-		return MOSQ_ERR_INVAL;
+	topic_len = طول_رشته(topic);
+	إذا(topic_len == 0 || topic_len > 65535){
+		أرجع MOSQ_ERR_INVAL;
 	}
-	if(strncmp(topic, "$CONTROL/", strlen("$CONTROL/")) || strlen(topic) < strlen("$CONTROL/A/v1")){
-		return MOSQ_ERR_INVAL;
+	إذا(مقایسه_رشته(topic, "$CONTROL/", طول_رشته("$CONTROL/")) || طول_رشته(topic) < طول_رشته("$CONTROL/A/v1")){
+		أرجع MOSQ_ERR_INVAL;
 	}
 
 	opts = &db.config->security_options;
 
-	HASH_FIND(hh, opts->plugin_callbacks.control, topic, topic_len, cb_found);
-	if(cb_found){
-		return MOSQ_ERR_ALREADY_EXISTS;
+	HASH_پیدا_کن(hh, opts->plugin_callbacks.control, topic, topic_len, cb_یافت);
+	إذا(cb_یافت){
+		أرجع MOSQ_ERR_ALREADY_EXISTS;
 	}
 
-	cb_new = mosquitto_calloc(1, sizeof(struct mosquitto__callback));
-	if(cb_new == NULL){
-		return MOSQ_ERR_NOMEM;
+	cb_new = mosquitto_calloc(1, حجم(بنية mosquitto__callback));
+	إذا(cb_new == عدم){
+		أرجع MOSQ_ERR_NOMEM;
 	}
-	cb_new->data.topic = mosquitto_strdup(topic);
-	if(cb_new->data.topic == NULL){
+	cb_new->داده.topic = mosquitto_strdup(topic);
+	إذا(cb_new->داده.topic == عدم){
 		mosquitto_FREE(cb_new);
-		return MOSQ_ERR_NOMEM;
+		أرجع MOSQ_ERR_NOMEM;
 	}
 	cb_new->identifier = pid;
 	cb_new->cb = cb_func;
 	cb_new->userdata = userdata;
-	HASH_ADD_KEYPTR(hh, opts->plugin_callbacks.control, cb_new->data.topic, strlen(cb_new->data.topic), cb_new);
+	HASH_جمع_کن_KEYPTR(hh, opts->plugin_callbacks.control, cb_new->داده.topic, طول_رشته(cb_new->داده.topic), cb_new);
 
-	if(pid->plugin_name){
-		struct control_endpoint *ep;
-		ep = mosquitto_malloc(sizeof(struct control_endpoint) + topic_len + 2);
-		if(ep){
-			ep->next = NULL;
-			ep->prev = NULL;
+	إذا(pid->plugin_name){
+		بنية control_endpoint *ep;
+		ep = mosquitto_malloc(حجم(بنية control_endpoint) + topic_len + 2);
+		إذا(ep){
+			ep->بعدی = عدم;
+			ep->prev = عدم;
 			snprintf(ep->topic, topic_len+1, "%s", topic);
 			DL_APPEND(pid->control_endpoints, ep);
 		}
-		log__printf(NULL, MOSQ_LOG_INFO, "Plugin %s has registered to receive 'control' events on topic %s.",
+		log__printf(عدم, MOSQ_LOG_INFO, "Plugin %s has registered to receive 'control' events on topic %s.",
 				pid->plugin_name, topic);
 	}
-	return MOSQ_ERR_SUCCESS;
-#else
-	UNUSED(pid);
-	UNUSED(cb_func);
-	UNUSED(topic);
-	UNUSED(userdata);
-	return MOSQ_ERR_NOT_SUPPORTED;
-#endif
+	أرجع MOSQ_ERR_SUCCESS;
+#وإلا
+	استفادهنشده(pid);
+	استفادهنشده(cb_func);
+	استفادهنشده(topic);
+	استفادهنشده(userdata);
+	أرجع MOSQ_ERR_NOT_SUPPORTED;
+#پایان_اگر
 }
 
 
-int control__unregister_callback(mosquitto_plugin_id_t *identifier, MOSQ_FUNC_generic_callback cb_func, const char *topic)
+صحيح control__unregister_callback(mosquitto_plugin_id_t *identifier, MOSQ_FUNC_generic_callback cb_func, ثابت حرف *topic)
 {
-#ifdef WITH_CONTROL
-	struct mosquitto__security_options *opts;
+#اگر_تعریف_شده WITH_CONTROL
+	بنية mosquitto__security_options *opts;
 
-	struct mosquitto__callback *cb_found;
+	بنية mosquitto__callback *cb_یافت;
 	size_t topic_len;
-	struct control_endpoint *ep;
+	بنية control_endpoint *ep;
 
-	if(topic == NULL){
-		return MOSQ_ERR_INVAL;
+	إذا(topic == عدم){
+		أرجع MOSQ_ERR_INVAL;
 	}
-	topic_len = strlen(topic);
-	if(topic_len == 0 || topic_len > 65535){
-		return MOSQ_ERR_INVAL;
+	topic_len = طول_رشته(topic);
+	إذا(topic_len == 0 || topic_len > 65535){
+		أرجع MOSQ_ERR_INVAL;
 	}
-	if(strncmp(topic, "$CONTROL/", strlen("$CONTROL/"))){
-		return MOSQ_ERR_INVAL;
+	إذا(مقایسه_رشته(topic, "$CONTROL/", طول_رشته("$CONTROL/"))){
+		أرجع MOSQ_ERR_INVAL;
 	}
 
 	opts = &db.config->security_options;
 
-	HASH_FIND(hh, opts->plugin_callbacks.control, topic, topic_len, cb_found);
-	if(cb_found && cb_found->cb == cb_func){
-		HASH_DELETE(hh, opts->plugin_callbacks.control, cb_found);
-		mosquitto_FREE(cb_found->data.topic);
-		mosquitto_FREE(cb_found);
+	HASH_پیدا_کن(hh, opts->plugin_callbacks.control, topic, topic_len, cb_یافت);
+	إذا(cb_یافت && cb_یافت->cb == cb_func){
+		HASH_DELETE(hh, opts->plugin_callbacks.control, cb_یافت);
+		mosquitto_FREE(cb_یافت->داده.topic);
+		mosquitto_FREE(cb_یافت);
 
 		DL_FOREACH(identifier->control_endpoints, ep){
-			if(!strcmp(topic, ep->topic)){
+			إذا(!strcmp(topic, ep->topic)){
 				DL_DELETE(identifier->control_endpoints, ep);
 				mosquitto_FREE(ep);
-				break;
+				اكسر;
 			}
 		}
-		return MOSQ_ERR_SUCCESS;
+		أرجع MOSQ_ERR_SUCCESS;
 	}
-	return MOSQ_ERR_NOT_FOUND;
-#else
-	UNUSED(identifier);
-	UNUSED(cb_func);
-	UNUSED(topic);
-	return MOSQ_ERR_NOT_SUPPORTED;
-#endif
+	أرجع MOSQ_ERR_NOT_یافت;
+#وإلا
+	استفادهنشده(identifier);
+	استفادهنشده(cb_func);
+	استفادهنشده(topic);
+	أرجع MOSQ_ERR_NOT_SUPPORTED;
+#پایان_اگر
 }
 
 
 /* Unregister all control callbacks for a single plugin */
-void control__unregister_all_callbacks(mosquitto_plugin_id_t *identifier)
+فراغ control__unregister_all_callbacks(mosquitto_plugin_id_t *identifier)
 {
-	struct mosquitto__security_options *opts;
+	بنية mosquitto__security_options *opts;
 
-	struct mosquitto__callback *cb_found;
-	struct control_endpoint *ep, *ep_tmp;
+	بنية mosquitto__callback *cb_یافت;
+	بنية control_endpoint *ep, *ep_tmp;
 
 	opts = &db.config->security_options;
 
-	DL_FOREACH_SAFE(identifier->control_endpoints, ep, ep_tmp){
-		HASH_FIND(hh, opts->plugin_callbacks.control, ep->topic, strlen(ep->topic), cb_found);
-		if(cb_found){
-			HASH_DELETE(hh, opts->plugin_callbacks.control, cb_found);
-			mosquitto_FREE(cb_found->data.topic);
-			mosquitto_FREE(cb_found);
+	DL_FOREACH_امن(identifier->control_endpoints, ep, ep_tmp){
+		HASH_پیدا_کن(hh, opts->plugin_callbacks.control, ep->topic, طول_رشته(ep->topic), cb_یافت);
+		إذا(cb_یافت){
+			HASH_DELETE(hh, opts->plugin_callbacks.control, cb_یافت);
+			mosquitto_FREE(cb_یافت->داده.topic);
+			mosquitto_FREE(cb_یافت);
 		}
 
 		DL_DELETE(identifier->control_endpoints, ep);
