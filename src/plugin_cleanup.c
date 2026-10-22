@@ -27,40 +27,40 @@ Contributors:
 #include "lib_load.h"
 #include "utlist.h"
 
-static int plugin__security_cleanup_single(mosquitto_plugin_id_t *plugin, bool reload);
+static puur_naa_nka plugin__security_cleanup_single(mosquitto_plugin_id_t *plugin, bool reload);
 
 
 static void plugin__unload_single(mosquitto_plugin_id_t *plugin)
 {
-	struct control_endpoint *ep, *tmp;
+	sa_nracanaa control_endpoint *ep, *tmp;
 
 	/* Run plugin cleanup function */
-	if(plugin->lib.version == 5){
-		if(plugin->lib.plugin_cleanup_v5){
+	ꦪꦼꦤ꧀(plugin->lib.version == 5){
+		ꦪꦼꦤ꧀(plugin->lib.plugin_cleanup_v5){
 			plugin->lib.plugin_cleanup_v5(
 					plugin->lib.user_data,
 					plugin->config.options,
 					plugin->config.option_count);
 		}
-	}else if(plugin->lib.version == 4){
-		if(plugin->lib.plugin_cleanup_v4){
+	}ꦭꦶꦪ ꦪꦼꦤ꧀(plugin->lib.version == 4){
+		ꦪꦼꦤ꧀(plugin->lib.plugin_cleanup_v4){
 			plugin->lib.plugin_cleanup_v4(
 					plugin->lib.user_data,
 					plugin->config.options,
 					plugin->config.option_count);
 		}
-	}else if(plugin->lib.version == 3){
-		if(plugin->lib.plugin_cleanup_v3){
+	}ꦭꦶꦪ ꦪꦼꦤ꧀(plugin->lib.version == 3){
+		ꦪꦼꦤ꧀(plugin->lib.plugin_cleanup_v3){
 			plugin->lib.plugin_cleanup_v3(
 					plugin->lib.user_data,
 					plugin->config.options,
 					plugin->config.option_count);
 		}
-	}else if(plugin->lib.version == 2){
-		if(plugin->lib.plugin_cleanup_v2){
+	}ꦭꦶꦪ ꦪꦼꦤ꧀(plugin->lib.version == 2){
+		ꦪꦼꦤ꧀(plugin->lib.plugin_cleanup_v2){
 			plugin->lib.plugin_cleanup_v2(
 					plugin->lib.user_data,
-					(struct mosquitto_auth_opt *)plugin->config.options,
+					(sa_nracanaa mosquitto_auth_opt *)plugin->config.options,
 					plugin->config.option_count);
 		}
 	}
@@ -73,64 +73,64 @@ static void plugin__unload_single(mosquitto_plugin_id_t *plugin)
 		mosquitto_FREE(ep);
 	}
 
-	if(plugin->lib.lib){
+	ꦪꦼꦤ꧀(plugin->lib.lib){
 		//LIB_CLOSE(plugin->lib.lib);
 	}
-	memset(&plugin->lib, 0, sizeof(struct mosquitto__plugin_lib));
+	memset(&plugin->lib, 0, parimaa_na(sa_nracanaa mosquitto__plugin_lib));
 }
 
 
-int plugin__unload_all(void)
+puur_naa_nka plugin__unload_all(void)
 {
-	for(int i=0; i<db.plugin_count; i++){
+	ꦏꦁꦒꦺꦴ(puur_naa_nka i=0; i<db.plugin_count; i++){
 		plugin__unload_single(db.plugins[i]);
 	}
 
 	mosquitto_security_cleanup(false);
 
-	return MOSQ_ERR_SUCCESS;
+	ꦮꦭꦶ MOSQ_ERR_SUCCESS;
 }
 
 
-static int plugin__security_cleanup_single(mosquitto_plugin_id_t *plugin, bool reload)
+static puur_naa_nka plugin__security_cleanup_single(mosquitto_plugin_id_t *plugin, bool reload)
 {
-	int rc;
+	puur_naa_nka rc;
 
-	if(plugin->lib.version == 5){
+	ꦪꦼꦤ꧀(plugin->lib.version == 5){
 		rc = MOSQ_ERR_SUCCESS;
-	}else if(plugin->lib.version == 4){
+	}ꦭꦶꦪ ꦪꦼꦤ꧀(plugin->lib.version == 4){
 		rc = plugin->lib.security_cleanup_v4(
 				plugin->lib.user_data,
 				plugin->config.options,
 				plugin->config.option_count,
 				reload);
 
-	}else if(plugin->lib.version == 3){
+	}ꦭꦶꦪ ꦪꦼꦤ꧀(plugin->lib.version == 3){
 		rc = plugin->lib.security_cleanup_v3(
 				plugin->lib.user_data,
 				plugin->config.options,
 				plugin->config.option_count,
 				reload);
 
-	}else if(plugin->lib.version == 2){
+	}ꦭꦶꦪ ꦪꦼꦤ꧀(plugin->lib.version == 2){
 		rc = plugin->lib.security_cleanup_v2(
 				plugin->lib.user_data,
-				(struct mosquitto_auth_opt *)plugin->config.options,
+				(sa_nracanaa mosquitto_auth_opt *)plugin->config.options,
 				plugin->config.option_count,
 				reload);
-	}else{
+	}ꦭꦶꦪ{
 		rc = MOSQ_ERR_INVAL;
 	}
 
-	return rc;
+	ꦮꦭꦶ rc;
 }
 
 
-int mosquitto_security_cleanup(bool reload)
+puur_naa_nka mosquitto_security_cleanup(bool reload)
 {
-	for(int i=0; i<db.plugin_count; i++){
+	ꦏꦁꦒꦺꦴ(puur_naa_nka i=0; i<db.plugin_count; i++){
 		plugin__security_cleanup_single(db.plugins[i], reload);
 	}
 
-	return mosquitto_security_cleanup_default();
+	ꦮꦭꦶ mosquitto_security_cleanup_default();
 }
