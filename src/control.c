@@ -16,225 +16,225 @@ Contributors:
    Roger Light - initial implementation and documentation.
 */
 
-#include "config.h"
+#अन्तर्भाव "config.h"
 
-#include <stdio.h>
-#include <utlist.h>
+#अन्तर्भाव <stdio.h>
+#अन्तर्भाव <utlist.h>
 
-#include "mosquitto/mqtt_protocol.h"
-#include "mosquitto_broker_internal.h"
-#include "send_mosq.h"
+#अन्तर्भाव "mosquitto/mqtt_protocol.h"
+#अन्तर्भाव "mosquitto_broker_internal.h"
+#अन्तर्भाव "send_mosq.h"
 
 #ifdef WITH_CONTROL
 
 
-static void control__negative_reply(const char *clientid, const char *request_topic)
+स्थिर शून्य control__negative_reply(ध्रुव वर्ण *clientid, ध्रुव वर्ण *request_topic)
 {
-	size_t response_topic_len;
-	char *response_topic;
-	const char payload[] = "{\"error\": \"endpoint not available\"}";
+	माप_प्रकार response_topic_len;
+	वर्ण *response_topic;
+	ध्रुव वर्ण payload[] = "{\"error\": \"endpoint not available\"}";
 
-	response_topic_len = strlen(request_topic) + sizeof("/response") + 1;
+	response_topic_len = म_माप(request_topic) + परिमाण("/response") + 1;
 	response_topic = mosquitto_calloc(1, response_topic_len);
-	if(!response_topic){
-		return;
+	यदि(!response_topic){
+		प्रत्यागम;
 	}
 	snprintf(response_topic, response_topic_len, "%s/response", request_topic);
 
-	mosquitto_broker_publish_copy(clientid, response_topic, (int)strlen(payload), payload, 0, false, NULL);
+	mosquitto_broker_publish_copy(clientid, response_topic, (पूर्णाङ्क)म_माप(payload), payload, 0, false, रिक्त);
 	mosquitto_FREE(response_topic);
 }
 
 
 /* Process messages coming in on $CONTROL/<feature>. These messages aren't
  * passed on to other clients. */
-int control__process(struct mosquitto *context, struct mosquitto__base_msg *base_msg)
+पूर्णाङ्क control__process(संरचना mosquitto *context, संरचना mosquitto_base_संदेश *base_संदेश)
 {
-	struct mosquitto__callback *cb_found;
-	struct mosquitto_evt_control event_data;
-	struct mosquitto__security_options *opts;
-	mosquitto_property *properties = NULL;
-	int rc = MOSQ_ERR_SUCCESS;
-	int rc2;
+	संरचना mosquitto__callback *cb_found;
+	संरचना mosquitto_evt_control event_data;
+	संरचना mosquitto__security_options *opts;
+	mosquitto_property *properties = रिक्त;
+	पूर्णाङ्क rc = MOSQ_ERR_SUCCESS;
+	पूर्णाङ्क rc2;
 
 	/* Check global plugins and non-per-listener settings first */
 	opts = &db.config->security_options;
-	HASH_FIND(hh, opts->plugin_callbacks.control, base_msg->data.topic, strlen(base_msg->data.topic), cb_found);
+	HASH_FIND(hh, opts->plugin_callbacks.control, base_संदेश->data.topic, म_माप(base_संदेश->data.topic), cb_found);
 
 	/* If not found, check for per-listener plugins. */
-	if(cb_found == NULL && db.config->per_listener_settings){
-		if(!context->listener){
-			log__printf(NULL, MOSQ_LOG_WARNING, "Warning: $CONTROL command received from client with no listener, when per_listener_settings is true.");
-			log__printf(NULL, MOSQ_LOG_WARNING, "         If this is a bridge, please be aware this does not work.");
-			return MOSQ_ERR_SUCCESS;
+	यदि(cb_found == रिक्त && db.config->per_listener_settings){
+		यदि(!context->listener){
+			log__printf(रिक्त, MOSQ_LOG_WARNING, "Warning: $CONTROL command received from client with no listener, when per_listener_settings is true.");
+			log__printf(रिक्त, MOSQ_LOG_WARNING, "         If this is a bridge, please be aware this does not work.");
+			प्रत्यागम MOSQ_ERR_SUCCESS;
 		}
 		opts = context->listener->security_options;
-		HASH_FIND(hh, opts->plugin_callbacks.control, base_msg->data.topic, strlen(base_msg->data.topic), cb_found);
+		HASH_FIND(hh, opts->plugin_callbacks.control, base_संदेश->data.topic, म_माप(base_संदेश->data.topic), cb_found);
 	}
-	if(cb_found){
-		memset(&event_data, 0, sizeof(event_data));
+	यदि(cb_found){
+		स_रखो(&event_data, 0, परिमाण(event_data));
 		event_data.client = context;
-		event_data.topic = base_msg->data.topic;
-		event_data.payload = base_msg->data.payload;
-		event_data.payloadlen = base_msg->data.payloadlen;
-		event_data.qos = base_msg->data.qos;
-		event_data.retain = base_msg->data.retain;
-		event_data.properties = base_msg->data.properties;
+		event_data.topic = base_संदेश->data.topic;
+		event_data.payload = base_संदेश->data.payload;
+		event_data.payloadlen = base_संदेश->data.payloadlen;
+		event_data.qos = base_संदेश->data.qos;
+		event_data.retain = base_संदेश->data.retain;
+		event_data.properties = base_संदेश->data.properties;
 		event_data.reason_code = MQTT_RC_SUCCESS;
-		event_data.reason_string = NULL;
+		event_data.reason_string = रिक्त;
 
 		rc = cb_found->cb(MOSQ_EVT_CONTROL, &event_data, cb_found->userdata);
-		if(rc){
-			if(context->protocol == mosq_p_mqtt5 && event_data.reason_string){
+		यदि(rc){
+			यदि(context->protocol == mosq_p_mqtt5 && event_data.reason_string){
 				/* Not a critical error if this fails */
-				(void)mosquitto_property_add_string(&properties, MQTT_PROP_REASON_STRING, event_data.reason_string);
+				(शून्य)mosquitto_property_add_string(&properties, MQTT_PROP_REASON_STRING, event_data.reason_string);
 			}
 		}
 		SAFE_FREE(event_data.reason_string);
-	}else{
-		control__negative_reply(context->id, base_msg->data.topic);
+	}अन्यथा{
+		control__negative_reply(context->id, base_संदेश->data.topic);
 	}
 
-	if(base_msg->data.qos == 1){
-		rc2 = send__puback(context, base_msg->data.source_mid, MQTT_RC_SUCCESS, properties);
-		if(rc2){
+	यदि(base_संदेश->data.qos == 1){
+		rc2 = send__puback(context, base_संदेश->data.source_mid, MQTT_RC_SUCCESS, properties);
+		यदि(rc2){
 			rc = rc2;
 		}
-	}else if(base_msg->data.qos == 2){
-		rc2 = send__pubrec(context, base_msg->data.source_mid, MQTT_RC_SUCCESS, properties);
-		if(rc2){
+	}अन्यथा यदि(base_संदेश->data.qos == 2){
+		rc2 = send__pubrec(context, base_संदेश->data.source_mid, MQTT_RC_SUCCESS, properties);
+		यदि(rc2){
 			rc = rc2;
 		}
 	}
 	mosquitto_property_free_all(&properties);
 
-	return rc;
+	प्रत्यागम rc;
 }
 #endif
 
 
-int control__register_callback(mosquitto_plugin_id_t *pid, MOSQ_FUNC_generic_callback cb_func, const char *topic, void *userdata)
+पूर्णाङ्क control__register_callback(mosquitto_plugin_id_t *pid, MOSQ_FUNC_generic_callback cb_func, ध्रुव वर्ण *topic, शून्य *userdata)
 {
 #ifdef WITH_CONTROL
-	struct mosquitto__security_options *opts;
-	struct mosquitto__callback *cb_found, *cb_new;
-	size_t topic_len;
+	संरचना mosquitto__security_options *opts;
+	संरचना mosquitto__callback *cb_found, *cb_new;
+	माप_प्रकार topic_len;
 
-	if(topic == NULL || cb_func == NULL){
-		return MOSQ_ERR_INVAL;
+	यदि(topic == रिक्त || cb_func == रिक्त){
+		प्रत्यागम MOSQ_ERR_INVAL;
 	}
-	topic_len = strlen(topic);
-	if(topic_len == 0 || topic_len > 65535){
-		return MOSQ_ERR_INVAL;
+	topic_len = म_माप(topic);
+	यदि(topic_len == 0 || topic_len > 65535){
+		प्रत्यागम MOSQ_ERR_INVAL;
 	}
-	if(strncmp(topic, "$CONTROL/", strlen("$CONTROL/")) || strlen(topic) < strlen("$CONTROL/A/v1")){
-		return MOSQ_ERR_INVAL;
+	यदि(म_भेदन(topic, "$CONTROL/", म_माप("$CONTROL/")) || म_माप(topic) < म_माप("$CONTROL/A/v1")){
+		प्रत्यागम MOSQ_ERR_INVAL;
 	}
 
 	opts = &db.config->security_options;
 
 	HASH_FIND(hh, opts->plugin_callbacks.control, topic, topic_len, cb_found);
-	if(cb_found){
-		return MOSQ_ERR_ALREADY_EXISTS;
+	यदि(cb_found){
+		प्रत्यागम MOSQ_ERR_ALREADY_EXISTS;
 	}
 
-	cb_new = mosquitto_calloc(1, sizeof(struct mosquitto__callback));
-	if(cb_new == NULL){
-		return MOSQ_ERR_NOMEM;
+	cb_new = mosquitto_calloc(1, परिमाण(संरचना mosquitto__callback));
+	यदि(cb_new == रिक्त){
+		प्रत्यागम MOSQ_ERR_NOMEM;
 	}
 	cb_new->data.topic = mosquitto_strdup(topic);
-	if(cb_new->data.topic == NULL){
+	यदि(cb_new->data.topic == रिक्त){
 		mosquitto_FREE(cb_new);
-		return MOSQ_ERR_NOMEM;
+		प्रत्यागम MOSQ_ERR_NOMEM;
 	}
 	cb_new->identifier = pid;
 	cb_new->cb = cb_func;
 	cb_new->userdata = userdata;
-	HASH_ADD_KEYPTR(hh, opts->plugin_callbacks.control, cb_new->data.topic, strlen(cb_new->data.topic), cb_new);
+	HASH_ADD_KEYPTR(hh, opts->plugin_callbacks.control, cb_new->data.topic, म_माप(cb_new->data.topic), cb_new);
 
-	if(pid->plugin_name){
-		struct control_endpoint *ep;
-		ep = mosquitto_malloc(sizeof(struct control_endpoint) + topic_len + 2);
-		if(ep){
-			ep->next = NULL;
-			ep->prev = NULL;
+	यदि(pid->plugin_name){
+		संरचना control_endpoint *ep;
+		ep = mosquitto_malloc(परिमाण(संरचना control_endpoint) + topic_len + 2);
+		यदि(ep){
+			ep->next = रिक्त;
+			ep->prev = रिक्त;
 			snprintf(ep->topic, topic_len+1, "%s", topic);
 			DL_APPEND(pid->control_endpoints, ep);
 		}
-		log__printf(NULL, MOSQ_LOG_INFO, "Plugin %s has registered to receive 'control' events on topic %s.",
+		log__printf(रिक्त, MOSQ_LOG_INFO, "Plugin %s has registered to receive 'control' events on topic %s.",
 				pid->plugin_name, topic);
 	}
-	return MOSQ_ERR_SUCCESS;
-#else
+	प्रत्यागम MOSQ_ERR_SUCCESS;
+#अन्यथा
 	UNUSED(pid);
 	UNUSED(cb_func);
 	UNUSED(topic);
 	UNUSED(userdata);
-	return MOSQ_ERR_NOT_SUPPORTED;
+	प्रत्यागम MOSQ_ERR_NOT_SUPPORTED;
 #endif
 }
 
 
-int control__unregister_callback(mosquitto_plugin_id_t *identifier, MOSQ_FUNC_generic_callback cb_func, const char *topic)
+पूर्णाङ्क control__unregister_callback(mosquitto_plugin_id_t *identifier, MOSQ_FUNC_generic_callback cb_func, ध्रुव वर्ण *topic)
 {
 #ifdef WITH_CONTROL
-	struct mosquitto__security_options *opts;
+	संरचना mosquitto__security_options *opts;
 
-	struct mosquitto__callback *cb_found;
-	size_t topic_len;
-	struct control_endpoint *ep;
+	संरचना mosquitto__callback *cb_found;
+	माप_प्रकार topic_len;
+	संरचना control_endpoint *ep;
 
-	if(topic == NULL){
-		return MOSQ_ERR_INVAL;
+	यदि(topic == रिक्त){
+		प्रत्यागम MOSQ_ERR_INVAL;
 	}
-	topic_len = strlen(topic);
-	if(topic_len == 0 || topic_len > 65535){
-		return MOSQ_ERR_INVAL;
+	topic_len = म_माप(topic);
+	यदि(topic_len == 0 || topic_len > 65535){
+		प्रत्यागम MOSQ_ERR_INVAL;
 	}
-	if(strncmp(topic, "$CONTROL/", strlen("$CONTROL/"))){
-		return MOSQ_ERR_INVAL;
+	यदि(म_भेदन(topic, "$CONTROL/", म_माप("$CONTROL/"))){
+		प्रत्यागम MOSQ_ERR_INVAL;
 	}
 
 	opts = &db.config->security_options;
 
 	HASH_FIND(hh, opts->plugin_callbacks.control, topic, topic_len, cb_found);
-	if(cb_found && cb_found->cb == cb_func){
+	यदि(cb_found && cb_found->cb == cb_func){
 		HASH_DELETE(hh, opts->plugin_callbacks.control, cb_found);
 		mosquitto_FREE(cb_found->data.topic);
 		mosquitto_FREE(cb_found);
 
 		DL_FOREACH(identifier->control_endpoints, ep){
-			if(!strcmp(topic, ep->topic)){
+			यदि(!म_भेद(topic, ep->topic)){
 				DL_DELETE(identifier->control_endpoints, ep);
 				mosquitto_FREE(ep);
-				break;
+				भङ्ग;
 			}
 		}
-		return MOSQ_ERR_SUCCESS;
+		प्रत्यागम MOSQ_ERR_SUCCESS;
 	}
-	return MOSQ_ERR_NOT_FOUND;
-#else
+	प्रत्यागम MOSQ_ERR_NOT_FOUND;
+#अन्यथा
 	UNUSED(identifier);
 	UNUSED(cb_func);
 	UNUSED(topic);
-	return MOSQ_ERR_NOT_SUPPORTED;
+	प्रत्यागम MOSQ_ERR_NOT_SUPPORTED;
 #endif
 }
 
 
 /* Unregister all control callbacks for a single plugin */
-void control__unregister_all_callbacks(mosquitto_plugin_id_t *identifier)
+शून्य control__unregister_all_callbacks(mosquitto_plugin_id_t *identifier)
 {
-	struct mosquitto__security_options *opts;
+	संरचना mosquitto__security_options *opts;
 
-	struct mosquitto__callback *cb_found;
-	struct control_endpoint *ep, *ep_tmp;
+	संरचना mosquitto__callback *cb_found;
+	संरचना control_endpoint *ep, *ep_tmp;
 
 	opts = &db.config->security_options;
 
 	DL_FOREACH_SAFE(identifier->control_endpoints, ep, ep_tmp){
-		HASH_FIND(hh, opts->plugin_callbacks.control, ep->topic, strlen(ep->topic), cb_found);
-		if(cb_found){
+		HASH_FIND(hh, opts->plugin_callbacks.control, ep->topic, म_माप(ep->topic), cb_found);
+		यदि(cb_found){
 			HASH_DELETE(hh, opts->plugin_callbacks.control, cb_found);
 			mosquitto_FREE(cb_found->data.topic);
 			mosquitto_FREE(cb_found);
