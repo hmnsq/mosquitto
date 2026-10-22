@@ -16,68 +16,68 @@ Contributors:
    Roger Light - initial implementation and documentation.
 */
 
-#include "config.h"
+#ಅನ್ತರ್ಭಾವ "config.h"
 
-#include "mosquitto_broker_internal.h"
-#include "mosquitto/mqtt_protocol.h"
-#include "packet_mosq.h"
-#include "property_mosq.h"
-#include "send_mosq.h"
-#include "util_mosq.h"
-#include "will_mosq.h"
+#ಅನ್ತರ್ಭಾವ "mosquitto_broker_internal.h"
+#ಅನ್ತರ್ಭಾವ "mosquitto/mqtt_protocol.h"
+#ಅನ್ತರ್ಭಾವ "packet_mosq.h"
+#ಅನ್ತರ್ಭಾವ "property_mosq.h"
+#ಅನ್ತರ್ಭಾವ "send_mosq.h"
+#ಅನ್ತರ್ಭಾವ "util_mosq.h"
+#ಅನ್ತರ್ಭಾವ "will_mosq.h"
 
 
-int handle__disconnect(struct mosquitto *context)
+ಪೂರ್ಣಾಙ್ಕ handle__disconnect(ಸಂರಚನಾ mosquitto *context)
 {
-	int rc;
+	ಪೂರ್ಣಾಙ್ಕ rc;
 	uint8_t reason_code = 0;
-	mosquitto_property *properties = NULL;
+	mosquitto_property *properties = ರಿಕ್ತ;
 
-	if(!context){
-		return MOSQ_ERR_INVAL;
+	ಯದಿ(!context){
+		ಪ್ರತ್ಯಾಗಮ MOSQ_ERR_INVAL;
 	}
 
-	if(context->protocol == mosq_p_mqtt311 || context->protocol == mosq_p_mqtt5){
-		if((context->in_packet.command&0x0F) != 0x00){
-			log__printf(NULL, MOSQ_LOG_INFO, "Protocol error from %s: DISCONNECT packet with incorrect flags %02X.",
+	ಯದಿ(context->protocol == mosq_p_mqtt311 || context->protocol == mosq_p_mqtt5){
+		ಯದಿ((context->in_packet.command&0x0F) != 0x00){
+			log__printf(ರಿಕ್ತ, MOSQ_LOG_INFO, "Protocol error from %s: DISCONNECT packet with incorrect flags %02X.",
 					context->id, context->in_packet.command);
-			return MOSQ_ERR_PROTOCOL;
+			ಪ್ರತ್ಯಾಗಮ MOSQ_ERR_PROTOCOL;
 		}
 	}
 
-	if(context->protocol == mosq_p_mqtt5 && context->in_packet.remaining_length > 0){
+	ಯದಿ(context->protocol == mosq_p_mqtt5 && context->in_packet.remaining_length > 0){
 		/* FIXME - must handle reason code */
 		rc = packet__read_byte(&context->in_packet, &reason_code);
-		if(rc){
-			return rc;
+		ಯದಿ(rc){
+			ಪ್ರತ್ಯಾಗಮ rc;
 		}
 
-		if(context->in_packet.remaining_length > 1){
+		ಯದಿ(context->in_packet.remaining_length > 1){
 			rc = property__read_all(CMD_DISCONNECT, &context->in_packet, &properties);
-			if(rc){
-				return rc;
+			ಯದಿ(rc){
+				ಪ್ರತ್ಯಾಗಮ rc;
 			}
 		}
 	}
 	rc = property__process_disconnect(context, &properties);
-	if(rc){
+	ಯದಿ(rc){
 		mosquitto_property_free_all(&properties);
-		return rc;
+		ಪ್ರತ್ಯಾಗಮ rc;
 	}
 	mosquitto_property_free_all(&properties); /* FIXME - TEMPORARY UNTIL PROPERTIES PROCESSED */
 
-	if(context->in_packet.pos != context->in_packet.remaining_length){
-		log__printf(NULL, MOSQ_LOG_INFO, "Protocol error from %s: DISCONNECT packet with overlong remaining length (%d:%d).",
+	ಯದಿ(context->in_packet.pos != context->in_packet.remaining_length){
+		log__printf(ರಿಕ್ತ, MOSQ_LOG_INFO, "Protocol error from %s: DISCONNECT packet with overlong remaining length (%d:%d).",
 				context->id, context->in_packet.pos, context->in_packet.remaining_length);
-		return MOSQ_ERR_PROTOCOL;
+		ಪ್ರತ್ಯಾಗಮ MOSQ_ERR_PROTOCOL;
 	}
-	log__printf(NULL, MOSQ_LOG_DEBUG, "Received DISCONNECT from %s", context->id);
-	if(reason_code == MQTT_RC_DISCONNECT_WITH_WILL_MSG){
+	log__printf(ರಿಕ್ತ, MOSQ_LOG_DEBUG, "Received DISCONNECT from %s", context->id);
+	ಯದಿ(reason_code == MQTT_RC_DISCONNECT_WITH_WILL_ಸಂದೇಶ){
 		mosquitto__set_state(context, mosq_cs_disconnect_with_will);
-	}else{
+	}ಅನ್ಯಥಾ{
 		will__clear(context);
 		mosquitto__set_state(context, mosq_cs_disconnecting);
 	}
 	do_disconnect(context, MOSQ_ERR_SUCCESS);
-	return MOSQ_ERR_SUCCESS;
+	ಪ್ರತ್ಯಾಗಮ MOSQ_ERR_SUCCESS;
 }

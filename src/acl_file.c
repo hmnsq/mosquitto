@@ -16,75 +16,75 @@ Contributors:
    Roger Light - initial implementation and documentation.
 */
 
-#include "config.h"
+#ಅನ್ತರ್ಭಾವ "config.h"
 
-#include <ctype.h>
-#include <stdio.h>
-#include <string.h>
+#ಅನ್ತರ್ಭಾವ <ctype.h>
+#ಅನ್ತರ್ಭಾವ <stdio.h>
+#ಅನ್ತರ್ಭಾವ <string.h>
 
-#include "acl_file.h"
-#include "mosquitto_broker_internal.h"
-#include "mosquitto/mqtt_protocol.h"
-#include "send_mosq.h"
-#include "util_mosq.h"
+#ಅನ್ತರ್ಭಾವ "acl_file.h"
+#ಅನ್ತರ್ಭಾವ "mosquitto_broker_internal.h"
+#ಅನ್ತರ್ಭಾವ "mosquitto/mqtt_protocol.h"
+#ಅನ್ತರ್ಭಾವ "send_mosq.h"
+#ಅನ್ತರ್ಭಾವ "util_mosq.h"
 
 
-int broker_acl_file__init(void)
+ಪೂರ್ಣಾಙ್ಕ broker_acl_file__init(ಶೂನ್ಯ)
 {
-	int rc;
+	ಪೂರ್ಣಾಙ್ಕ rc;
 
 	/* Load acl data if required. */
-	if(db.config->per_listener_settings){
-		for(int i=0; i<db.config->listener_count; i++){
-			if(db.config->listeners[i].security_options->acl_data.acl_file){
+	ಯದಿ(db.config->per_listener_settings){
+		ಪ್ರತಿ(ಪೂರ್ಣಾಙ್ಕ i=0; i<db.config->listener_ಎಣಿಕೆ; i++){
+			ಯದಿ(db.config->listeners[i].security_options->acl_data.acl_file){
 				rc = acl_file__parse(&db.config->listeners[i].security_options->acl_data);
-				if(rc){
-					log__printf(NULL, MOSQ_LOG_ERR, "Error opening acl file \"%s\".", db.config->listeners[i].security_options->acl_data.acl_file);
-					return rc;
+				ಯದಿ(rc){
+					log__printf(ರಿಕ್ತ, MOSQ_LOG_ERR, "Error opening acl file \"%s\".", db.config->listeners[i].security_options->acl_data.acl_file);
+					ಪ್ರತ್ಯಾಗಮ rc;
 				}
-				if(db.config->listeners[i].security_options->plugin_count == 0){
+				ಯದಿ(db.config->listeners[i].security_options->plugin_ಎಣಿಕೆ == 0){
 					config__plugin_add_secopt(db.config->listeners[i].security_options->pid, db.config->listeners[i].security_options);
 				}
 
 				mosquitto_callback_register(db.config->listeners[i].security_options->pid,
-						MOSQ_EVT_ACL_CHECK, acl_file__check, NULL, &db.config->listeners[i].security_options->acl_data);
+						MOSQ_EVT_ACL_CHECK, acl_file__check, ರಿಕ್ತ, &db.config->listeners[i].security_options->acl_data);
 			}
 		}
-	}else{
-		if(db.config->security_options.acl_data.acl_file){
+	}ಅನ್ಯಥಾ{
+		ಯದಿ(db.config->security_options.acl_data.acl_file){
 			rc = acl_file__parse(&db.config->security_options.acl_data);
-			if(rc){
-				log__printf(NULL, MOSQ_LOG_ERR, "Error opening acl file \"%s\".", db.config->security_options.acl_data.acl_file);
-				return rc;
+			ಯದಿ(rc){
+				log__printf(ರಿಕ್ತ, MOSQ_LOG_ERR, "Error opening acl file \"%s\".", db.config->security_options.acl_data.acl_file);
+				ಪ್ರತ್ಯಾಗಮ rc;
 			}
-			if(db.config->security_options.plugin_count == 0){
+			ಯದಿ(db.config->security_options.plugin_ಎಣಿಕೆ == 0){
 				config__plugin_add_secopt(db.config->security_options.pid, &db.config->security_options);
 			}
 
 			mosquitto_callback_register(db.config->security_options.pid,
-					MOSQ_EVT_ACL_CHECK, acl_file__check, NULL, &db.config->security_options.acl_data);
+					MOSQ_EVT_ACL_CHECK, acl_file__check, ರಿಕ್ತ, &db.config->security_options.acl_data);
 		}
 	}
 
-	return MOSQ_ERR_SUCCESS;
+	ಪ್ರತ್ಯಾಗಮ MOSQ_ERR_SUCCESS;
 }
 
 
-void broker_acl_file__cleanup(void)
+ಶೂನ್ಯ broker_acl_file__cleanup(ಶೂನ್ಯ)
 {
-	if(db.config->per_listener_settings){
-		for(int i=0; i<db.config->listener_count; i++){
-			if(db.config->listeners[i].security_options->pid){
+	ಯದಿ(db.config->per_listener_settings){
+		ಪ್ರತಿ(ಪೂರ್ಣಾಙ್ಕ i=0; i<db.config->listener_ಎಣಿಕೆ; i++){
+			ಯದಿ(db.config->listeners[i].security_options->pid){
 				mosquitto_callback_unregister(db.config->listeners[i].security_options->pid,
-						MOSQ_EVT_ACL_CHECK, acl_file__check, NULL);
+						MOSQ_EVT_ACL_CHECK, acl_file__check, ರಿಕ್ತ);
 
 				acl_file__cleanup(&db.config->listeners[i].security_options->acl_data);
 			}
 		}
-	}else{
-		if(db.config->security_options.pid){
+	}ಅನ್ಯಥಾ{
+		ಯದಿ(db.config->security_options.pid){
 			mosquitto_callback_unregister(db.config->security_options.pid,
-					MOSQ_EVT_ACL_CHECK, acl_file__check, NULL);
+					MOSQ_EVT_ACL_CHECK, acl_file__check, ರಿಕ್ತ);
 
 			acl_file__cleanup(&db.config->security_options.acl_data);
 		}

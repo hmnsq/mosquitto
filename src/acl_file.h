@@ -18,35 +18,35 @@ Contributors:
 #ifndef ACL_FILE_H
 #define ACL_FILE_H
 
-#include <uthash.h>
+#ಅನ್ತರ್ಭಾವ <uthash.h>
 
-struct acl__entry {
-	struct acl__entry *next, *prev;
-	char *topic;
-	int access;
-	int ucount;
-	int ccount;
+ಸಂರಚನಾ acl__entry {
+	ಸಂರಚನಾ acl__entry *next, *prev;
+	ವರ್ಣ *topic;
+	ಪೂರ್ಣಾಙ್ಕ access;
+	ಪೂರ್ಣಾಙ್ಕ ucount;
+	ಪೂರ್ಣಾಙ್ಕ ccount;
 };
 
 
-struct acl__user {
+ಸಂರಚನಾ acl__user {
 	UT_hash_handle hh;
-	char *username;
-	struct acl__entry *acl;
+	ವರ್ಣ *username;
+	ಸಂರಚನಾ acl__entry *acl;
 };
 
 
-struct acl_file_data {
-	char *acl_file;
-	struct acl__user *acl_users;
-	struct acl__user acl_anon;
-	struct acl__entry *acl_patterns;
+ಸಂರಚನಾ acl_file_data {
+	ವರ್ಣ *acl_file;
+	ಸಂರಚನಾ acl__user *acl_users;
+	ಸಂರಚನಾ acl__user acl_anon;
+	ಸಂರಚನಾ acl__entry *acl_patterns;
 };
 
 
-int acl_file__parse(struct acl_file_data *data);
-int acl_file__check(int event, void *event_data, void *userdata);
-int acl_file__reload(int event, void *event_data, void *userdata);
-void acl_file__cleanup(struct acl_file_data *data);
+ಪೂರ್ಣಾಙ್ಕ acl_file__parse(ಸಂರಚನಾ acl_file_data *data);
+ಪೂರ್ಣಾಙ್ಕ acl_file__check(ಪೂರ್ಣಾಙ್ಕ event, ಶೂನ್ಯ *event_data, ಶೂನ್ಯ *userdata);
+ಪೂರ್ಣಾಙ್ಕ acl_file__reload(ಪೂರ್ಣಾಙ್ಕ event, ಶೂನ್ಯ *event_data, ಶೂನ್ಯ *userdata);
+ಶೂನ್ಯ acl_file__cleanup(ಸಂರಚನಾ acl_file_data *data);
 
 #endif

@@ -16,111 +16,111 @@ Contributors:
    Roger Light - initial implementation and documentation.
 */
 
-#include "config.h"
+#ಅನ್ತರ್ಭಾವ "config.h"
 
-#include <stdio.h>
-#include <string.h>
+#ಅನ್ತರ್ಭಾವ <stdio.h>
+#ಅನ್ತರ್ಭಾವ <string.h>
 
-#include "mosquitto_broker_internal.h"
-#include "mosquitto/mqtt_protocol.h"
-#include "util_mosq.h"
+#ಅನ್ತರ್ಭಾವ "mosquitto_broker_internal.h"
+#ಅನ್ತರ್ಭಾವ "mosquitto/mqtt_protocol.h"
+#ಅನ್ತರ್ಭಾವ "util_mosq.h"
 
-#include "utlist.h"
+#ಅನ್ತರ್ಭಾವ "utlist.h"
 
 
-static char *strtok_hier(char *str, char **saveptr)
+ಸ್ಥಿರ ವರ್ಣ *strtok_hier(ವರ್ಣ *str, ವರ್ಣ **saveptr)
 {
-	char *c;
+	ವರ್ಣ *c;
 
-	if(str != NULL){
+	ಯದಿ(str != ರಿಕ್ತ){
 		*saveptr = str;
 	}
 
-	if(*saveptr == NULL){
-		return NULL;
+	ಯದಿ(*saveptr == ರಿಕ್ತ){
+		ಪ್ರತ್ಯಾಗಮ ರಿಕ್ತ;
 	}
 
 	c = strchr(*saveptr, '/');
-	if(c){
+	ಯದಿ(c){
 		str = *saveptr;
 		*saveptr = c+1;
 		c[0] = '\0';
-	}else if(*saveptr){
+	}ಅನ್ಯಥಾ ಯದಿ(*saveptr){
 		/* No match, but surplus string */
 		str = *saveptr;
-		*saveptr = NULL;
+		*saveptr = ರಿಕ್ತ;
 	}
-	return str;
+	ಪ್ರತ್ಯಾಗಮ str;
 }
 
 
-int sub__topic_tokenise(const char *subtopic, char **local_sub, char ***topics, const char **sharename)
+ಪೂರ್ಣಾಙ್ಕ sub__topic_tokenise(ಧ್ರುವ ವರ್ಣ *subtopic, ವರ್ಣ **local_sub, ವರ್ಣ ***topics, ಧ್ರುವ ವರ್ಣ **sharename)
 {
-	char *saveptr = NULL;
-	char *token;
-	int count;
-	int topic_index = 0;
+	ವರ್ಣ *saveptr = ರಿಕ್ತ;
+	ವರ್ಣ *token;
+	ಪೂರ್ಣಾಙ್ಕ ಎಣಿಕೆ;
+	ಪೂರ್ಣಾಙ್ಕ topic_index = 0;
 	size_t len;
 
-	if(!subtopic){
-		return MOSQ_ERR_INVAL;
+	ಯದಿ(!subtopic){
+		ಪ್ರತ್ಯಾಗಮ MOSQ_ERR_INVAL;
 	}
 
 	len = strlen(subtopic);
-	if(len == 0){
-		return MOSQ_ERR_INVAL;
+	ಯದಿ(len == 0){
+		ಪ್ರತ್ಯಾಗಮ MOSQ_ERR_INVAL;
 	}
 
 	*local_sub = mosquitto_strdup(subtopic);
-	if((*local_sub) == NULL){
-		return MOSQ_ERR_NOMEM;
+	ಯದಿ((*local_sub) == ರಿಕ್ತ){
+		ಪ್ರತ್ಯಾಗಮ MOSQ_ERR_NOMEM;
 	}
 
-	count = 0;
+	ಎಣಿಕೆ = 0;
 	saveptr = *local_sub;
-	while(saveptr){
+	ಯಾವತ್(saveptr){
 		saveptr = strchr(&saveptr[1], '/');
-		count++;
+		ಎಣಿಕೆ++;
 	}
-	*topics = mosquitto_calloc((size_t)(count+3) /* 3=$shared,sharename,NULL */, sizeof(char *));
-	if((*topics) == NULL){
+	*topics = mosquitto_calloc((size_t)(ಎಣಿಕೆ+3) /* 3=$shared,sharename,NULL */, ಪರಿಮಾಣ(ವರ್ಣ *));
+	ಯದಿ((*topics) == ರಿಕ್ತ){
 		mosquitto_FREE(*local_sub);
-		return MOSQ_ERR_NOMEM;
+		ಪ್ರತ್ಯಾಗಮ MOSQ_ERR_NOMEM;
 	}
 
-	if((*local_sub)[0] != '$'){
+	ಯದಿ((*local_sub)[0] != '$'){
 		(*topics)[topic_index] = "";
 		topic_index++;
 	}
 
 	token = strtok_hier((*local_sub), &saveptr);
-	while(token){
+	ಯಾವತ್(token){
 		(*topics)[topic_index] = token;
 		topic_index++;
-		token = strtok_hier(NULL, &saveptr);
+		token = strtok_hier(ರಿಕ್ತ, &saveptr);
 	}
 
-	if(!strcmp((*topics)[0], "$share")){
-		if(count < 3 || (count == 3 && strlen((*topics)[2]) == 0)){
+	ಯದಿ(!strcmp((*topics)[0], "$share")){
+		ಯದಿ(ಎಣಿಕೆ < 3 || (ಎಣಿಕೆ == 3 && strlen((*topics)[2]) == 0)){
 			mosquitto_FREE(*local_sub);
 			mosquitto_FREE(*topics);
-			return MOSQ_ERR_PROTOCOL;
+			ಪ್ರತ್ಯಾಗಮ MOSQ_ERR_PROTOCOL;
 		}
 
-		if(sharename){
-			if(strpbrk((*topics)[1], "+#")){
+		ಯದಿ(sharename){
+			ಯದಿ(strpbrk((*topics)[1], "+#")){
 				mosquitto_FREE(*local_sub);
 				mosquitto_FREE(*topics);
-				return MOSQ_ERR_PROTOCOL;
+				ಪ್ರತ್ಯಾಗಮ MOSQ_ERR_PROTOCOL;
 			}
 			(*sharename) = (*topics)[1];
 		}
 
-		for(int i=1; i<count-1; i++){
+		ಪ್ರತಿ(ಪೂರ್ಣಾಙ್ಕ i=1; i<ಎಣಿಕೆ-1; i++){
 			(*topics)[i] = (*topics)[i+1];
 		}
 		(*topics)[0] = "";
-		(*topics)[count-1] = NULL;
+		(*topics)[ಎಣಿಕೆ-1] = ರಿಕ್ತ;
 	}
-	return MOSQ_ERR_SUCCESS;
+	ಪ್ರತ್ಯಾಗಮ MOSQ_ERR_SUCCESS;
 }

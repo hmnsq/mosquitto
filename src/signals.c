@@ -23,112 +23,112 @@ Contributors:
 #  include <windows.h>
 #endif
 
-#include "config.h"
+#ಅನ್ತರ್ಭಾವ "config.h"
 
-#include <stdio.h>
-#include <stdbool.h>
-#include <signal.h>
+#ಅನ್ತರ್ಭಾವ <stdio.h>
+#ಅನ್ತರ್ಭಾವ <stdbool.h>
+#ಅನ್ತರ್ಭಾವ <signal.h>
 
-#include "mosquitto_broker_internal.h"
+#ಅನ್ತರ್ಭಾವ "mosquitto_broker_internal.h"
 
-extern int g_run;
+ಬಾಹ್ಯ ಪೂರ್ಣಾಙ್ಕ g_run;
 
-static bool flag_reload = false;
-static bool flag_log_rotate = false;
+ಸ್ಥಿರ bool flag_reload = false;
+ಸ್ಥಿರ bool flag_log_rotate = false;
 #ifdef WITH_PERSISTENCE
-static bool flag_db_backup = false;
+ಸ್ಥಿರ bool flag_db_backup = false;
 #endif
-static bool flag_tree_print = false;
-static bool flag_xtreport = false;
+ಸ್ಥಿರ bool flag_ವೃಕ್ಷ_print = false;
+ಸ್ಥಿರ bool flag_xtreport = false;
 
 
-static void handle_signal(int signal)
+ಸ್ಥಿರ ಶೂನ್ಯ handle_signal(ಪೂರ್ಣಾಙ್ಕ ಸಙ್ಕೇತ)
 {
-	UNUSED(signal);
+	UNUSED(ಸಙ್ಕೇತ);
 
-	if(signal == SIGINT || signal == SIGTERM){
+	ಯದಿ(ಸಙ್ಕೇತ == SIGINT || ಸಙ್ಕೇತ == SIGTERM){
 		g_run = 0;
 #ifdef SIGHUP
-	}else if(signal == SIGHUP){
+	}ಅನ್ಯಥಾ ಯದಿ(ಸಙ್ಕೇತ == SIGHUP){
 		flag_reload = true;
 #endif
 #ifdef SIGUSR1
-	}else if(signal == SIGUSR1){
+	}ಅನ್ಯಥಾ ಯದಿ(ಸಙ್ಕೇತ == SIGUSR1){
 #ifdef WITH_PERSISTENCE
 		flag_db_backup = true;
 #endif
 #endif
 #ifdef SIGUSR2
-	}else if(signal == SIGUSR2){
-		flag_tree_print = true;
+	}ಅನ್ಯಥಾ ಯದಿ(ಸಙ್ಕೇತ == SIGUSR2){
+		flag_ವೃಕ್ಷ_print = true;
 		flag_xtreport = true;
 #endif
 #ifdef SIGRTMIN
-	}else if(signal == SIGRTMIN){
+	}ಅನ್ಯಥಾ ಯದಿ(ಸಙ್ಕೇತ == SIGRTMIN){
 		flag_log_rotate = true;
 #endif
 	}
 }
 
 
-void signal__setup(void)
+ಶೂನ್ಯ signal__setup(ಶೂನ್ಯ)
 {
-	signal(SIGINT, handle_signal);
-	signal(SIGTERM, handle_signal);
+	ಸಙ್ಕೇತ(SIGINT, handle_signal);
+	ಸಙ್ಕೇತ(SIGTERM, handle_signal);
 #ifdef SIGHUP
-	signal(SIGHUP, handle_signal);
+	ಸಙ್ಕೇತ(SIGHUP, handle_signal);
 #endif
 #ifndef WIN32
-	signal(SIGUSR1, handle_signal);
-	signal(SIGUSR2, handle_signal);
-	signal(SIGPIPE, SIG_IGN);
+	ಸಙ್ಕೇತ(SIGUSR1, handle_signal);
+	ಸಙ್ಕೇತ(SIGUSR2, handle_signal);
+	ಸಙ್ಕೇತ(SIGPIPE, SIG_IGN);
 #endif
 #ifdef SIGRTMIN
-	signal(SIGRTMIN, handle_signal);
+	ಸಙ್ಕೇತ(SIGRTMIN, handle_signal);
 #endif
 #ifdef WIN32
-	CreateThread(NULL, 0, SigThreadProc, NULL, 0, NULL);
+	CreateThread(ರಿಕ್ತ, 0, SigThreadProc, ರಿಕ್ತ, 0, ರಿಕ್ತ);
 #endif
 }
 
 
-int signal__flag_check(void)
+ಪೂರ್ಣಾಙ್ಕ signal__flag_check(ಶೂನ್ಯ)
 {
 #ifdef WITH_PERSISTENCE
-	if(flag_db_backup){
+	ಯದಿ(flag_db_backup){
 		persist__backup(false);
 		flag_db_backup = false;
 	}
 #endif
-	if(flag_log_rotate){
+	ಯದಿ(flag_log_rotate){
 		log__close(db.config);
 		log__init(db.config);
 		flag_log_rotate = false;
 	}
-	if(flag_reload){
-		int rc;
-		log__printf(NULL, MOSQ_LOG_INFO, "Reloading config.");
+	ಯದಿ(flag_reload){
+		ಪೂರ್ಣಾಙ್ಕ rc;
+		log__printf(ರಿಕ್ತ, MOSQ_LOG_INFO, "Reloading config.");
 		config__read(db.config, true);
 		listeners__reload_all_certificates();
 		rc = plugin__handle_reload();
-		if(rc){
-			return rc;
+		ಯದಿ(rc){
+			ಪ್ರತ್ಯಾಗಮ rc;
 		}
 		mosquitto_security_cleanup(true);
 		rc = mosquitto_security_init(true);
-		if(rc){
-			return rc;
+		ಯದಿ(rc){
+			ಪ್ರತ್ಯಾಗಮ rc;
 		}
 		rc = mosquitto_security_apply_default();
-		if(rc){
-			return rc;
+		ಯದಿ(rc){
+			ಪ್ರತ್ಯಾಗಮ rc;
 		}
 		log__close(db.config);
 		log__init(db.config);
 		keepalive__cleanup();
 		rc = keepalive__init();
-		if(rc){
-			return rc;
+		ಯದಿ(rc){
+			ಪ್ರತ್ಯಾಗಮ rc;
 		}
 		broker_control__reload();
 #ifdef WITH_BRIDGE
@@ -136,19 +136,19 @@ int signal__flag_check(void)
 #endif
 		flag_reload = false;
 	}
-	if(flag_tree_print){
-		sub__tree_print(db.normal_subs, 0);
-		sub__tree_print(db.shared_subs, 0);
-		flag_tree_print = false;
+	ಯದಿ(flag_ವೃಕ್ಷ_print){
+		sub_ವೃಕ್ಷ_print(db.normal_subs, 0);
+		sub_ವೃಕ್ಷ_print(db.shared_subs, 0);
+		flag_ವೃಕ್ಷ_print = false;
 	}
 #ifdef WITH_XTREPORT
-	if(flag_xtreport){
+	ಯದಿ(flag_xtreport){
 		xtreport();
 		flag_xtreport = false;
 	}
 #endif
 
-	return MOSQ_ERR_SUCCESS;
+	ಪ್ರತ್ಯಾಗಮ MOSQ_ERR_SUCCESS;
 }
 
 /*
@@ -172,12 +172,12 @@ int signal__flag_check(void)
 #define MOSQ_MAX_EVTS 6
 
 
-DWORD WINAPI SigThreadProc(void *data)
+DWORD WINAPI SigThreadProc(ಶೂನ್ಯ *data)
 {
 	TCHAR evt_name[MAX_PATH];
-	static HANDLE evt[MOSQ_MAX_EVTS];
-	int pid = GetCurrentProcessId();
-	const char *evt_names[MOSQ_MAX_EVTS] = {
+	ಸ್ಥಿರ HANDLE evt[MOSQ_MAX_EVTS];
+	ಪೂರ್ಣಾಙ್ಕ pid = GetCurrentProcessId();
+	ಧ್ರುವ ವರ್ಣ *evt_names[MOSQ_MAX_EVTS] = {
 		"shutdown",
 		"reload",
 		"backup",
@@ -188,43 +188,43 @@ DWORD WINAPI SigThreadProc(void *data)
 
 	UNUSED(data);
 
-	for(int i=0; i<MOSQ_MAX_EVTS; i++){
+	ಪ್ರತಿ(ಪೂರ್ಣಾಙ್ಕ i=0; i<MOSQ_MAX_EVTS; i++){
 		sprintf_s(evt_name, MAX_PATH, "mosq%d_%s", pid, evt_names[i]);
-		evt[i] = CreateEvent(NULL, FALSE, FALSE, evt_name);
+		evt[i] = CreateEvent(ರಿಕ್ತ, FALSE, FALSE, evt_name);
 	}
 
-	while(g_run){
-		int wr = WaitForMultipleObjects(MOSQ_MAX_EVTS, evt, FALSE, INFINITE);
-		switch(wr){
-			case WAIT_OBJECT_0 + 0:
+	ಯಾವತ್(g_run){
+		ಪೂರ್ಣಾಙ್ಕ wr = WaitForMultipleObjects(MOSQ_MAX_EVTS, evt, FALSE, INFINITE);
+		ವಿಕಲ್ಪ(wr){
+			ಪಕ್ಷ WAIT_OBJECT_0 + 0:
 				handle_signal(SIGINT);
-				break;
-			case WAIT_OBJECT_0 + 1:
+				ಭಙ್ಗ;
+			ಪಕ್ಷ WAIT_OBJECT_0 + 1:
 				flag_reload = true;
-				continue;
-			case WAIT_OBJECT_0 + 2:
+				ಅನುವರ್ತ;
+			ಪಕ್ಷ WAIT_OBJECT_0 + 2:
 #ifdef WITH_PERSISTENCE
 				flag_db_backup = true;
 #endif
-				continue;
-				break;
-			case WAIT_OBJECT_0 + 3:
+				ಅನುವರ್ತ;
+				ಭಙ್ಗ;
+			ಪಕ್ಷ WAIT_OBJECT_0 + 3:
 				flag_log_rotate = true;
-				continue;
-			case WAIT_OBJECT_0 + 4:
-				flag_tree_print = true;
-				continue;
-			case WAIT_OBJECT_0 + 5:
+				ಅನುವರ್ತ;
+			ಪಕ್ಷ WAIT_OBJECT_0 + 4:
+				flag_ವೃಕ್ಷ_print = true;
+				ಅನುವರ್ತ;
+			ಪಕ್ಷ WAIT_OBJECT_0 + 5:
 				flag_xtreport = true;
-				continue;
+				ಅನುವರ್ತ;
 		}
 	}
-	for(int i=0; i<MOSQ_MAX_EVTS; i++){
-		if(evt[i]){
+	ಪ್ರತಿ(ಪೂರ್ಣಾಙ್ಕ i=0; i<MOSQ_MAX_EVTS; i++){
+		ಯದಿ(evt[i]){
 			CloseHandle(evt[i]);
 		}
 	}
-	return 0;
+	ಪ್ರತ್ಯಾಗಮ 0;
 }
 #undef MOSQ_MAX_EVTS
 #endif

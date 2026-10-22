@@ -17,22 +17,22 @@ Contributors:
    Roger Light - initial implementation and documentation.
 */
 
-#include "config.h"
+#ಅನ್ತರ್ಭಾವ "config.h"
 
-#include "mosquitto_broker_internal.h"
-#include "utlist.h"
+#ಅನ್ತರ್ಭಾವ "mosquitto_broker_internal.h"
+#ಅನ್ತರ್ಭಾವ "utlist.h"
 
 
-static void plugin__handle_client_offline_single(struct mosquitto__security_options *opts, struct mosquitto *context, int reason)
+ಸ್ಥಿರ ಶೂನ್ಯ plugin__handle_client_offline_single(ಸಂರಚನಾ mosquitto__security_options *opts, ಸಂರಚನಾ mosquitto *context, ಪೂರ್ಣಾಙ್ಕ reason)
 {
-	struct mosquitto_evt_client_offline event_data;
-	struct mosquitto__callback *cb_base, *cb_next;
+	ಸಂರಚನಾ mosquitto_evt_client_offline event_data;
+	ಸಂರಚನಾ mosquitto__callback *cb_base, *cb_next;
 
-	if(context->id == NULL){
-		return;
+	ಯದಿ(context->id == ರಿಕ್ತ){
+		ಪ್ರತ್ಯಾಗಮ;
 	}
 
-	memset(&event_data, 0, sizeof(event_data));
+	memset(&event_data, 0, ಪರಿಮಾಣ(event_data));
 	event_data.client = context;
 	event_data.reason = reason;
 	DL_FOREACH_SAFE(opts->plugin_callbacks.client_offline, cb_base, cb_next){
@@ -41,13 +41,13 @@ static void plugin__handle_client_offline_single(struct mosquitto__security_opti
 }
 
 
-void plugin__handle_client_offline(struct mosquitto *context, int reason)
+ಶೂನ್ಯ plugin__handle_client_offline(ಸಂರಚನಾ mosquitto *context, ಪೂರ್ಣಾಙ್ಕ reason)
 {
 	/* Global plugins */
 	plugin__handle_client_offline_single(&db.config->security_options, context, reason);
 
 	/* Per listener plugins */
-	if(context->listener){
+	ಯದಿ(context->listener){
 		plugin__handle_client_offline_single(context->listener->security_options, context, reason);
 	}
 }

@@ -20,12 +20,12 @@ Contributors:
 #ifndef MOSQUITTO_BROKER_INTERNAL_H
 #define MOSQUITTO_BROKER_INTERNAL_H
 
-#include "config.h"
-#include <stdio.h>
+#ಅನ್ತರ್ಭಾವ "config.h"
+#ಅನ್ತರ್ಭಾವ <stdio.h>
 
-#if defined(WITH_WEBSOCKETS) && WITH_WEBSOCKETS == WS_IS_LWS
+#ಯದಿ defined(WITH_WEBSOCKETS) && WITH_WEBSOCKETS == WS_IS_LWS
 #  include <libwebsockets.h>
-#  if LWS_LIBRARY_VERSION_NUMBER >= 3002000 && !defined(LWS_WITH_EXTERNAL_POLL)
+#  ಯದಿ LWS_LIBRARY_VERSION_ಸಂಖ್ಯೆ >= 3002000 && !defined(LWS_WITH_EXTERNAL_POLL)
 #    warning "libwebsockets is not compiled with LWS_WITH_EXTERNAL_POLL support. Websocket performance will be unusable."
 #  endif
 #endif
@@ -38,15 +38,15 @@ Contributors:
 #define WITH_TCP_USER_TIMEOUT
 #endif
 
-#include "mosquitto_internal.h"
-#include "mosquitto/broker.h"
-#include "mosquitto/broker_plugin.h"
-#include "mosquitto.h"
-#include "logging_mosq.h"
-#include "tls_mosq.h"
-#include "uthash.h"
-#include "acl_file.h"
-#include "password_file.h"
+#ಅನ್ತರ್ಭಾವ "mosquitto_internal.h"
+#ಅನ್ತರ್ಭಾವ "mosquitto/broker.h"
+#ಅನ್ತರ್ಭಾವ "mosquitto/broker_plugin.h"
+#ಅನ್ತರ್ಭಾವ "mosquitto.h"
+#ಅನ್ತರ್ಭಾವ "logging_mosq.h"
+#ಅನ್ತರ್ಭಾವ "tls_mosq.h"
+#ಅನ್ತರ್ಭಾವ "uthash.h"
+#ಅನ್ತರ್ಭಾವ "acl_file.h"
+#ಅನ್ತರ್ಭಾವ "password_file.h"
 
 #ifndef __GNUC__
 #define __attribute__(attrib)
@@ -67,48 +67,48 @@ Contributors:
 
 #define CMD_PORT_LIMIT 10
 
-typedef uint64_t dbid_t;
+ಪ್ರಕಾರನಿರ್ದೇಶ uint64_t dbid_t;
 
-typedef int (*FUNC_plugin_init_v5)(mosquitto_plugin_id_t *, void **, struct mosquitto_opt *, int);
-typedef int (*FUNC_plugin_cleanup_v5)(void *, struct mosquitto_opt *, int);
+ಪ್ರಕಾರನಿರ್ದೇಶ ಪೂರ್ಣಾಙ್ಕ (*FUNC_plugin_init_v5)(mosquitto_plugin_id_t *, ಶೂನ್ಯ **, ಸಂರಚನಾ mosquitto_opt *, ಪೂರ್ಣಾಙ್ಕ);
+ಪ್ರಕಾರನಿರ್ದೇಶ ಪೂರ್ಣಾಙ್ಕ (*FUNC_plugin_cleanup_v5)(ಶೂನ್ಯ *, ಸಂರಚನಾ mosquitto_opt *, ಪೂರ್ಣಾಙ್ಕ);
 
-typedef int (*FUNC_auth_plugin_init_v4)(void **, struct mosquitto_opt *, int);
-typedef int (*FUNC_auth_plugin_cleanup_v4)(void *, struct mosquitto_opt *, int);
-typedef int (*FUNC_auth_plugin_security_init_v4)(void *, struct mosquitto_opt *, int, bool);
-typedef int (*FUNC_auth_plugin_security_cleanup_v4)(void *, struct mosquitto_opt *, int, bool);
-typedef int (*FUNC_auth_plugin_acl_check_v4)(void *, int, struct mosquitto *, struct mosquitto_acl_msg *);
-typedef int (*FUNC_auth_plugin_unpwd_check_v4)(void *, struct mosquitto *, const char *, const char *);
-typedef int (*FUNC_auth_plugin_psk_key_get_v4)(void *, struct mosquitto *, const char *, const char *, char *, int);
-typedef int (*FUNC_auth_plugin_auth_start_v4)(void *, struct mosquitto *, const char *, bool, const void *, uint16_t, void **, uint16_t *);
-typedef int (*FUNC_auth_plugin_auth_continue_v4)(void *, struct mosquitto *, const char *, const void *, uint16_t, void **, uint16_t *);
+ಪ್ರಕಾರನಿರ್ದೇಶ ಪೂರ್ಣಾಙ್ಕ (*FUNC_auth_plugin_init_v4)(ಶೂನ್ಯ **, ಸಂರಚನಾ mosquitto_opt *, ಪೂರ್ಣಾಙ್ಕ);
+ಪ್ರಕಾರನಿರ್ದೇಶ ಪೂರ್ಣಾಙ್ಕ (*FUNC_auth_plugin_cleanup_v4)(ಶೂನ್ಯ *, ಸಂರಚನಾ mosquitto_opt *, ಪೂರ್ಣಾಙ್ಕ);
+ಪ್ರಕಾರನಿರ್ದೇಶ ಪೂರ್ಣಾಙ್ಕ (*FUNC_auth_plugin_security_init_v4)(ಶೂನ್ಯ *, ಸಂರಚನಾ mosquitto_opt *, ಪೂರ್ಣಾಙ್ಕ, bool);
+ಪ್ರಕಾರನಿರ್ದೇಶ ಪೂರ್ಣಾಙ್ಕ (*FUNC_auth_plugin_security_cleanup_v4)(ಶೂನ್ಯ *, ಸಂರಚನಾ mosquitto_opt *, ಪೂರ್ಣಾಙ್ಕ, bool);
+ಪ್ರಕಾರನಿರ್ದೇಶ ಪೂರ್ಣಾಙ್ಕ (*FUNC_auth_plugin_acl_check_v4)(ಶೂನ್ಯ *, ಪೂರ್ಣಾಙ್ಕ, ಸಂರಚನಾ mosquitto *, ಸಂರಚನಾ mosquitto_acl_ಸಂದೇಶ *);
+ಪ್ರಕಾರನಿರ್ದೇಶ ಪೂರ್ಣಾಙ್ಕ (*FUNC_auth_plugin_unpwd_check_v4)(ಶೂನ್ಯ *, ಸಂರಚನಾ mosquitto *, ಧ್ರುವ ವರ್ಣ *, ಧ್ರುವ ವರ್ಣ *);
+ಪ್ರಕಾರನಿರ್ದೇಶ ಪೂರ್ಣಾಙ್ಕ (*FUNC_auth_plugin_psk_ಕೀಲಿ_get_v4)(ಶೂನ್ಯ *, ಸಂರಚನಾ mosquitto *, ಧ್ರುವ ವರ್ಣ *, ಧ್ರುವ ವರ್ಣ *, ವರ್ಣ *, ಪೂರ್ಣಾಙ್ಕ);
+ಪ್ರಕಾರನಿರ್ದೇಶ ಪೂರ್ಣಾಙ್ಕ (*FUNC_auth_plugin_auth_start_v4)(ಶೂನ್ಯ *, ಸಂರಚನಾ mosquitto *, ಧ್ರುವ ವರ್ಣ *, bool, ಧ್ರುವ ಶೂನ್ಯ *, uint16_t, ಶೂನ್ಯ **, uint16_t *);
+ಪ್ರಕಾರನಿರ್ದೇಶ ಪೂರ್ಣಾಙ್ಕ (*FUNC_auth_plugin_auth_continue_v4)(ಶೂನ್ಯ *, ಸಂರಚನಾ mosquitto *, ಧ್ರುವ ವರ್ಣ *, ಧ್ರುವ ಶೂನ್ಯ *, uint16_t, ಶೂನ್ಯ **, uint16_t *);
 
-typedef int (*FUNC_auth_plugin_init_v3)(void **, struct mosquitto_opt *, int);
-typedef int (*FUNC_auth_plugin_cleanup_v3)(void *, struct mosquitto_opt *, int);
-typedef int (*FUNC_auth_plugin_security_init_v3)(void *, struct mosquitto_opt *, int, bool);
-typedef int (*FUNC_auth_plugin_security_cleanup_v3)(void *, struct mosquitto_opt *, int, bool);
-typedef int (*FUNC_auth_plugin_acl_check_v3)(void *, int, const struct mosquitto *, struct mosquitto_acl_msg *);
-typedef int (*FUNC_auth_plugin_unpwd_check_v3)(void *, const struct mosquitto *, const char *, const char *);
-typedef int (*FUNC_auth_plugin_psk_key_get_v3)(void *, const struct mosquitto *, const char *, const char *, char *, int);
+ಪ್ರಕಾರನಿರ್ದೇಶ ಪೂರ್ಣಾಙ್ಕ (*FUNC_auth_plugin_init_v3)(ಶೂನ್ಯ **, ಸಂರಚನಾ mosquitto_opt *, ಪೂರ್ಣಾಙ್ಕ);
+ಪ್ರಕಾರನಿರ್ದೇಶ ಪೂರ್ಣಾಙ್ಕ (*FUNC_auth_plugin_cleanup_v3)(ಶೂನ್ಯ *, ಸಂರಚನಾ mosquitto_opt *, ಪೂರ್ಣಾಙ್ಕ);
+ಪ್ರಕಾರನಿರ್ದೇಶ ಪೂರ್ಣಾಙ್ಕ (*FUNC_auth_plugin_security_init_v3)(ಶೂನ್ಯ *, ಸಂರಚನಾ mosquitto_opt *, ಪೂರ್ಣಾಙ್ಕ, bool);
+ಪ್ರಕಾರನಿರ್ದೇಶ ಪೂರ್ಣಾಙ್ಕ (*FUNC_auth_plugin_security_cleanup_v3)(ಶೂನ್ಯ *, ಸಂರಚನಾ mosquitto_opt *, ಪೂರ್ಣಾಙ್ಕ, bool);
+ಪ್ರಕಾರನಿರ್ದೇಶ ಪೂರ್ಣಾಙ್ಕ (*FUNC_auth_plugin_acl_check_v3)(ಶೂನ್ಯ *, ಪೂರ್ಣಾಙ್ಕ, ಧ್ರುವ ಸಂರಚನಾ mosquitto *, ಸಂರಚನಾ mosquitto_acl_ಸಂದೇಶ *);
+ಪ್ರಕಾರನಿರ್ದೇಶ ಪೂರ್ಣಾಙ್ಕ (*FUNC_auth_plugin_unpwd_check_v3)(ಶೂನ್ಯ *, ಧ್ರುವ ಸಂರಚನಾ mosquitto *, ಧ್ರುವ ವರ್ಣ *, ಧ್ರುವ ವರ್ಣ *);
+ಪ್ರಕಾರನಿರ್ದೇಶ ಪೂರ್ಣಾಙ್ಕ (*FUNC_auth_plugin_psk_ಕೀಲಿ_get_v3)(ಶೂನ್ಯ *, ಧ್ರುವ ಸಂರಚನಾ mosquitto *, ಧ್ರುವ ವರ್ಣ *, ಧ್ರುವ ವರ್ಣ *, ವರ್ಣ *, ಪೂರ್ಣಾಙ್ಕ);
 
-typedef int (*FUNC_auth_plugin_init_v2)(void **, struct mosquitto_auth_opt *, int);
-typedef int (*FUNC_auth_plugin_cleanup_v2)(void *, struct mosquitto_auth_opt *, int);
-typedef int (*FUNC_auth_plugin_security_init_v2)(void *, struct mosquitto_auth_opt *, int, bool);
-typedef int (*FUNC_auth_plugin_security_cleanup_v2)(void *, struct mosquitto_auth_opt *, int, bool);
-typedef int (*FUNC_auth_plugin_acl_check_v2)(void *, const char *, const char *, const char *, int);
-typedef int (*FUNC_auth_plugin_unpwd_check_v2)(void *, const char *, const char *);
-typedef int (*FUNC_auth_plugin_psk_key_get_v2)(void *, const char *, const char *, char *, int);
+ಪ್ರಕಾರನಿರ್ದೇಶ ಪೂರ್ಣಾಙ್ಕ (*FUNC_auth_plugin_init_v2)(ಶೂನ್ಯ **, ಸಂರಚನಾ mosquitto_auth_opt *, ಪೂರ್ಣಾಙ್ಕ);
+ಪ್ರಕಾರನಿರ್ದೇಶ ಪೂರ್ಣಾಙ್ಕ (*FUNC_auth_plugin_cleanup_v2)(ಶೂನ್ಯ *, ಸಂರಚನಾ mosquitto_auth_opt *, ಪೂರ್ಣಾಙ್ಕ);
+ಪ್ರಕಾರನಿರ್ದೇಶ ಪೂರ್ಣಾಙ್ಕ (*FUNC_auth_plugin_security_init_v2)(ಶೂನ್ಯ *, ಸಂರಚನಾ mosquitto_auth_opt *, ಪೂರ್ಣಾಙ್ಕ, bool);
+ಪ್ರಕಾರನಿರ್ದೇಶ ಪೂರ್ಣಾಙ್ಕ (*FUNC_auth_plugin_security_cleanup_v2)(ಶೂನ್ಯ *, ಸಂರಚನಾ mosquitto_auth_opt *, ಪೂರ್ಣಾಙ್ಕ, bool);
+ಪ್ರಕಾರನಿರ್ದೇಶ ಪೂರ್ಣಾಙ್ಕ (*FUNC_auth_plugin_acl_check_v2)(ಶೂನ್ಯ *, ಧ್ರುವ ವರ್ಣ *, ಧ್ರುವ ವರ್ಣ *, ಧ್ರುವ ವರ್ಣ *, ಪೂರ್ಣಾಙ್ಕ);
+ಪ್ರಕಾರನಿರ್ದೇಶ ಪೂರ್ಣಾಙ್ಕ (*FUNC_auth_plugin_unpwd_check_v2)(ಶೂನ್ಯ *, ಧ್ರುವ ವರ್ಣ *, ಧ್ರುವ ವರ್ಣ *);
+ಪ್ರಕಾರನಿರ್ದೇಶ ಪೂರ್ಣಾಙ್ಕ (*FUNC_auth_plugin_psk_ಕೀಲಿ_get_v2)(ಶೂನ್ಯ *, ಧ್ರುವ ವರ್ಣ *, ಧ್ರುವ ವರ್ಣ *, ವರ್ಣ *, ಪೂರ್ಣಾಙ್ಕ);
 
 
-enum mosquitto_msg_origin {
+ಗಣನಾ mosquitto_ಸಂದೇಶ_origin {
 	mosq_mo_client = 0,
 	mosq_mo_broker = 1,
 };
 
-struct mosquitto__plugin_lib {
-	void *lib;
-	void *user_data;
-	int (*plugin_version)(void);
-	struct mosquitto_plugin_id_t *identifier;
+ಸಂರಚನಾ mosquitto__plugin_lib {
+	ಶೂನ್ಯ *lib;
+	ಶೂನ್ಯ *user_data;
+	ಪೂರ್ಣಾಙ್ಕ (*plugin_version)(ಶೂನ್ಯ);
+	ಸಂರಚನಾ mosquitto_plugin_id_t *identifier;
 
 	FUNC_plugin_init_v5 plugin_init_v5;
 	FUNC_plugin_cleanup_v5 plugin_cleanup_v5;
@@ -119,7 +119,7 @@ struct mosquitto__plugin_lib {
 	FUNC_auth_plugin_security_cleanup_v4 security_cleanup_v4;
 	FUNC_auth_plugin_acl_check_v4 acl_check_v4;
 	FUNC_auth_plugin_unpwd_check_v4 unpwd_check_v4;
-	FUNC_auth_plugin_psk_key_get_v4 psk_key_get_v4;
+	FUNC_auth_plugin_psk_ಕೀಲಿ_get_v4 psk_ಕೀಲಿ_get_v4;
 	FUNC_auth_plugin_auth_start_v4 auth_start_v4;
 	FUNC_auth_plugin_auth_continue_v4 auth_continue_v4;
 
@@ -129,7 +129,7 @@ struct mosquitto__plugin_lib {
 	FUNC_auth_plugin_security_cleanup_v3 security_cleanup_v3;
 	FUNC_auth_plugin_acl_check_v3 acl_check_v3;
 	FUNC_auth_plugin_unpwd_check_v3 unpwd_check_v3;
-	FUNC_auth_plugin_psk_key_get_v3 psk_key_get_v3;
+	FUNC_auth_plugin_psk_ಕೀಲಿ_get_v3 psk_ಕೀಲಿ_get_v3;
 
 	FUNC_auth_plugin_init_v2 plugin_init_v2;
 	FUNC_auth_plugin_cleanup_v2 plugin_cleanup_v2;
@@ -137,89 +137,89 @@ struct mosquitto__plugin_lib {
 	FUNC_auth_plugin_security_cleanup_v2 security_cleanup_v2;
 	FUNC_auth_plugin_acl_check_v2 acl_check_v2;
 	FUNC_auth_plugin_unpwd_check_v2 unpwd_check_v2;
-	FUNC_auth_plugin_psk_key_get_v2 psk_key_get_v2;
-	int version;
+	FUNC_auth_plugin_psk_ಕೀಲಿ_get_v2 psk_ಕೀಲಿ_get_v2;
+	ಪೂರ್ಣಾಙ್ಕ version;
 };
 
-struct mosquitto__plugin_config {
-	char *path;
-	char *name;
-	struct mosquitto_opt *options;
-	struct mosquitto__security_options **security_options;
-	int option_count;
-	int security_option_count;
+ಸಂರಚನಾ mosquitto__plugin_config {
+	ವರ್ಣ *path;
+	ವರ್ಣ *name;
+	ಸಂರಚನಾ mosquitto_opt *options;
+	ಸಂರಚನಾ mosquitto__security_options **security_options;
+	ಪೂರ್ಣಾಙ್ಕ option_ಎಣಿಕೆ;
+	ಪೂರ್ಣಾಙ್ಕ security_option_ಎಣಿಕೆ;
 	bool deny_special_chars;
 };
 
-struct mosquitto__callback {
+ಸಂರಚನಾ mosquitto__callback {
 	UT_hash_handle hh; /* For callbacks that register for e.g. a specific topic */
-	struct mosquitto__callback *next, *prev; /* For typical callbacks */
+	ಸಂರಚನಾ mosquitto__callback *next, *prev; /* For typical callbacks */
 	MOSQ_FUNC_generic_callback cb;
-	void *userdata;
-	union {
-		char *topic;
-		struct timespec next_tick;
+	ಶೂನ್ಯ *userdata;
+	ಸಙ್ಘ {
+		ವರ್ಣ *topic;
+		ಸಂರಚನಾ timespec next_tick;
 	} data;
 	mosquitto_plugin_id_t *identifier;
 };
 
-struct plugin__callbacks {
-	struct mosquitto__callback *tick;
-	struct mosquitto__callback *acl_check;
-	struct mosquitto__callback *basic_auth;
-	struct mosquitto__callback *connect;
-	struct mosquitto__callback *control;
-	struct mosquitto__callback *disconnect;
-	struct mosquitto__callback *client_offline;
-	struct mosquitto__callback *ext_auth_continue;
-	struct mosquitto__callback *ext_auth_start;
-	struct mosquitto__callback *message_in;
-	struct mosquitto__callback *message_out;
-	struct mosquitto__callback *psk_key;
-	struct mosquitto__callback *reload;
-	struct mosquitto__callback *subscribe;
-	struct mosquitto__callback *unsubscribe;
-	struct mosquitto__callback *persist_restore;
-	struct mosquitto__callback *persist_client_add;
-	struct mosquitto__callback *persist_client_delete;
-	struct mosquitto__callback *persist_client_update;
-	struct mosquitto__callback *persist_subscription_add;
-	struct mosquitto__callback *persist_subscription_delete;
-	struct mosquitto__callback *persist_client_msg_add;
-	struct mosquitto__callback *persist_client_msg_delete;
-	struct mosquitto__callback *persist_client_msg_update;
-	struct mosquitto__callback *persist_base_msg_add;
-	struct mosquitto__callback *persist_base_msg_delete;
-	struct mosquitto__callback *persist_retain_msg_set;
-	struct mosquitto__callback *persist_retain_msg_delete;
-	struct mosquitto__callback *persist_will_add;
-	struct mosquitto__callback *persist_will_delete;
+ಸಂರಚನಾ plugin__callbacks {
+	ಸಂರಚನಾ mosquitto__callback *tick;
+	ಸಂರಚನಾ mosquitto__callback *acl_check;
+	ಸಂರಚನಾ mosquitto__callback *basic_auth;
+	ಸಂರಚನಾ mosquitto__callback *connect;
+	ಸಂರಚನಾ mosquitto__callback *control;
+	ಸಂರಚನಾ mosquitto__callback *disconnect;
+	ಸಂರಚನಾ mosquitto__callback *client_offline;
+	ಸಂರಚನಾ mosquitto__callback *ext_auth_continue;
+	ಸಂರಚನಾ mosquitto__callback *ext_auth_start;
+	ಸಂರಚನಾ mosquitto__callback *message_in;
+	ಸಂರಚನಾ mosquitto__callback *message_out;
+	ಸಂರಚನಾ mosquitto__callback *psk_ಕೀಲಿ;
+	ಸಂರಚನಾ mosquitto__callback *reload;
+	ಸಂರಚನಾ mosquitto__callback *subscribe;
+	ಸಂರಚನಾ mosquitto__callback *unsubscribe;
+	ಸಂರಚನಾ mosquitto__callback *persist_restore;
+	ಸಂರಚನಾ mosquitto__callback *persist_client_add;
+	ಸಂರಚನಾ mosquitto__callback *persist_client_delete;
+	ಸಂರಚನಾ mosquitto__callback *persist_client_update;
+	ಸಂರಚನಾ mosquitto__callback *persist_subscription_add;
+	ಸಂರಚನಾ mosquitto__callback *persist_subscription_delete;
+	ಸಂರಚನಾ mosquitto__callback *persist_client_ಸಂದೇಶ_add;
+	ಸಂರಚನಾ mosquitto__callback *persist_client_ಸಂದೇಶ_delete;
+	ಸಂರಚನಾ mosquitto__callback *persist_client_ಸಂದೇಶ_update;
+	ಸಂರಚನಾ mosquitto__callback *persist_base_ಸಂದೇಶ_add;
+	ಸಂರಚನಾ mosquitto__callback *persist_base_ಸಂದೇಶ_delete;
+	ಸಂರಚನಾ mosquitto__callback *persist_retain_ಸಂದೇಶ_set;
+	ಸಂರಚನಾ mosquitto__callback *persist_retain_ಸಂದೇಶ_delete;
+	ಸಂರಚನಾ mosquitto__callback *persist_will_add;
+	ಸಂರಚನಾ mosquitto__callback *persist_will_delete;
 };
 
 /* This is owned by mosquitto__config or mosquitto__listener, and only referred
  * to by other structs */
-struct mosquitto__security_options {
+ಸಂರಚನಾ mosquitto__security_options {
 	/* Any options that get added here also need considering
 	 * in config__read() with regards whether allow_anonymous
 	 * should be disabled when these options are set.
 	 */
-	struct mosquitto__unpwd *unpwd;
-	struct mosquitto__psk *psk_id;
-	struct acl_file_data acl_data;
-	struct password_file_data password_data;
-	char *psk_file;
+	ಸಂರಚನಾ mosquitto__unpwd *unpwd;
+	ಸಂರಚನಾ mosquitto__psk *psk_id;
+	ಸಂರಚನಾ acl_file_data acl_data;
+	ಸಂರಚನಾ password_file_data password_data;
+	ವರ್ಣ *psk_file;
 	mosquitto_plugin_id_t **plugins;
-	int plugin_count;
+	ಪೂರ್ಣಾಙ್ಕ plugin_ಎಣಿಕೆ;
 	int8_t allow_anonymous;
 	bool allow_zero_length_clientid;
-	char *auto_id_prefix;
+	ವರ್ಣ *auto_id_prefix;
 	uint16_t auto_id_prefix_len;
-	struct plugin__callbacks plugin_callbacks;
+	ಸಂರಚನಾ plugin__callbacks plugin_callbacks;
 	mosquitto_plugin_id_t *pid; /* For registering as a "plugin" */
 };
 
-#if defined(WITH_EPOLL) || defined(WITH_KQUEUE)
-enum struct_ident {
+#ಯದಿ defined(WITH_EPOLL) || defined(WITH_KQUEUE)
+ಗಣನಾ struct_ident {
 	id_invalid = 0,
 	id_listener = 1,
 	id_client = 2,
@@ -227,125 +227,125 @@ enum struct_ident {
 };
 #endif
 
-struct mosquitto__listener {
+ಸಂರಚನಾ mosquitto__listener {
 	uint16_t port;
-	char *host;
-	char *bind_interface;
-	int max_connections;
-	char *mount_point;
+	ವರ್ಣ *host;
+	ವರ್ಣ *bind_interface;
+	ಪೂರ್ಣಾಙ್ಕ max_connections;
+	ವರ್ಣ *mount_point;
 	mosq_sock_t *socks;
-	int sock_count;
-	int client_count;
-	enum mosquitto_protocol protocol;
-	int socket_domain;
+	ಪೂರ್ಣಾಙ್ಕ sock_ಎಣಿಕೆ;
+	ಪೂರ್ಣಾಙ್ಕ client_ಎಣಿಕೆ;
+	ಗಣನಾ mosquitto_protocol protocol;
+	ಪೂರ್ಣಾಙ್ಕ socket_domain;
 	bool use_username_as_clientid;
 	uint8_t max_qos;
 	uint16_t max_topic_alias;
 	uint16_t max_topic_alias_broker;
 #ifdef WITH_TLS
-	char *cafile;
-	char *capath;
-	char *certfile;
-	char *keyfile;
-	char *tls_engine;
-	char *tls_engine_kpass_sha1;
-	char *ciphers;
-	char *ciphers_tls13;
-	char *psk_hint;
+	ವರ್ಣ *cafile;
+	ವರ್ಣ *capath;
+	ವರ್ಣ *certfile;
+	ವರ್ಣ *keyfile;
+	ವರ್ಣ *tls_engine;
+	ವರ್ಣ *tls_engine_kpass_sha1;
+	ವರ್ಣ *ciphers;
+	ವರ್ಣ *ciphers_tls13;
+	ವರ್ಣ *psk_hint;
 	SSL_CTX *ssl_ctx;
-	char *crlfile;
-	char *tls_version;
+	ವರ್ಣ *crlfile;
+	ವರ್ಣ *tls_version;
 	bool use_identity_as_username;
 	bool use_subject_as_username;
 	bool require_certificate;
 	bool disable_client_cert_date_checks;
-	enum mosquitto__keyform tls_keyform;
+	ಗಣನಾ mosquitto__keyform tls_keyform;
 #endif
 #ifdef WITH_WEBSOCKETS
-#  if WITH_WEBSOCKETS == WS_IS_LWS
-	struct lws_context *ws_context;
+#  ಯದಿ WITH_WEBSOCKETS == WS_IS_LWS
+	ಸಂರಚನಾ lws_context *ws_context;
 	bool ws_in_init;
-	struct lws_protocols *ws_protocol;
+	ಸಂರಚನಾ lws_protocols *ws_protocol;
 #  endif
-	char **ws_origins;
-	int ws_origin_count;
+	ವರ್ಣ **ws_origins;
+	ಪೂರ್ಣಾಙ್ಕ ws_origin_ಎಣಿಕೆ;
 #endif
-#if defined(WITH_WEBSOCKETS) || defined(WITH_HTTP_API)
-	char *http_dir;
+#ಯದಿ defined(WITH_WEBSOCKETS) || defined(WITH_HTTP_API)
+	ವರ್ಣ *http_dir;
 #endif
-	struct mosquitto__security_options *security_options;
+	ಸಂರಚನಾ mosquitto__security_options *security_options;
 #ifdef WITH_UNIX_SOCKETS
-	char *unix_socket_path;
+	ವರ್ಣ *unix_socket_path;
 #endif
 	bool disable_protocol_v3;
 	bool disable_protocol_v4;
 	bool disable_protocol_v5;
-	int enable_proxy_protocol;
+	ಪೂರ್ಣಾಙ್ಕ enable_proxy_protocol;
 	bool proxy_protocol_v2_require_tls;
 #ifdef WITH_HTTP_API
-	struct MHD_Daemon *mhd;
+	ಸಂರಚನಾ MHD_Daemon *mhd;
 #endif
 };
 
 
-struct mosquitto__listener_sock {
-#if defined(WITH_EPOLL) || defined(WITH_KQUEUE)
+ಸಂರಚನಾ mosquitto__listener_sock {
+#ಯದಿ defined(WITH_EPOLL) || defined(WITH_KQUEUE)
 	/* This *must* be the first element in the struct. */
-	int ident;
+	ಪೂರ್ಣಾಙ್ಕ ident;
 #endif
 	mosq_sock_t sock;
-	struct mosquitto__listener *listener;
+	ಸಂರಚನಾ mosquitto__listener *listener;
 };
 
 
 /* Callbacks belonging to a specific plugin
  * Doesn't include MOSQ_EVT_CONTROL events.
  */
-struct plugin_own_callback {
-	struct plugin_own_callback *next, *prev;
+ಸಂರಚನಾ plugin_own_callback {
+	ಸಂರಚನಾ plugin_own_callback *next, *prev;
 	MOSQ_FUNC_generic_callback cb_func;
-	enum mosquitto_plugin_event event;
+	ಗಣನಾ mosquitto_plugin_event event;
 };
 
-struct mosquitto_plugin_id_t {
-	struct mosquitto__plugin_config config;
-	struct mosquitto__plugin_lib lib;
-	struct mosquitto__listener *listener;
-	char *plugin_name;
-	char *plugin_version;
-	struct control_endpoint *control_endpoints;
-	struct plugin_own_callback *own_callbacks;
-	struct timespec next_tick;
+ಸಂರಚನಾ mosquitto_plugin_id_t {
+	ಸಂರಚನಾ mosquitto__plugin_config config;
+	ಸಂರಚನಾ mosquitto__plugin_lib lib;
+	ಸಂರಚನಾ mosquitto__listener *listener;
+	ವರ್ಣ *plugin_name;
+	ವರ್ಣ *plugin_version;
+	ಸಂರಚನಾ control_endpoint *control_endpoints;
+	ಸಂರಚನಾ plugin_own_callback *own_callbacks;
+	ಸಂರಚನಾ timespec next_tick;
 };
 
-struct mosquitto__config {
+ಸಂರಚನಾ mosquitto__config {
 	bool allow_duplicate_messages;
-	int autosave_interval;
+	ಪೂರ್ಣಾಙ್ಕ autosave_interval;
 	bool autosave_on_changes;
 	bool check_retain_source;
-	char *clientid_prefixes;
+	ವರ್ಣ *clientid_prefixes;
 	bool connection_messages;
 	uint16_t cmd_port[CMD_PORT_LIMIT];
-	int cmd_port_count;
+	ಪೂರ್ಣಾಙ್ಕ cmd_port_ಎಣಿಕೆ;
 	bool daemon;
 	bool test_configuration;
 	bool enable_control_api;
-	int global_max_clients;
-	int global_max_connections;
-	struct mosquitto__listener *default_listener; /* Points to one of `listeners` */
-	struct mosquitto__listener *listeners;
-	int listener_count;
+	ಪೂರ್ಣಾಙ್ಕ global_max_clients;
+	ಪೂರ್ಣಾಙ್ಕ global_max_connections;
+	ಸಂರಚನಾ mosquitto__listener *default_listener; /* Points to one of `listeners` */
+	ಸಂರಚನಾ mosquitto__listener *listeners;
+	ಪೂರ್ಣಾಙ್ಕ listener_ಎಣಿಕೆ;
 	bool local_only;
-	unsigned int log_dest;
-	int log_facility;
-	unsigned int log_type;
+	unsigned ಪೂರ್ಣಾಙ್ಕ log_dest;
+	ಪೂರ್ಣಾಙ್ಕ log_facility;
+	unsigned ಪೂರ್ಣಾಙ್ಕ log_type;
 	bool log_timestamp;
-	char *log_timestamp_format;
-	char *log_file;
+	ವರ್ಣ *log_timestamp_format;
+	ವರ್ಣ *log_file;
 	FILE *log_fptr;
 	size_t max_inflight_bytes;
 	size_t max_queued_bytes;
-	int max_queued_messages;
+	ಪೂರ್ಣಾಙ್ಕ max_queued_messages;
 	uint32_t max_packet_size;
 	uint32_t message_size_limit;
 	uint16_t max_inflight_messages;
@@ -356,201 +356,201 @@ struct mosquitto__config {
 	uint32_t packet_max_sub;
 	uint32_t packet_max_auth;
 	bool persistence;
-	char *persistence_location;
-	char *persistence_file;
-	char *persistence_filepath;
+	ವರ್ಣ *persistence_location;
+	ವರ್ಣ *persistence_file;
+	ವರ್ಣ *persistence_filepath;
 	time_t persistent_client_expiration;
-	char *pid_file;
+	ವರ್ಣ *pid_file;
 	bool queue_qos0_messages;
 	bool per_listener_settings;
 	bool retain_available;
-	int retain_expiry_interval;
+	ಪೂರ್ಣಾಙ್ಕ retain_expiry_interval;
 	bool set_tcp_nodelay;
-	int sys_interval;
+	ಪೂರ್ಣಾಙ್ಕ sys_interval;
 	bool upgrade_outgoing_qos;
-	char *user;
-#if defined(WITH_WEBSOCKETS) && WITH_WEBSOCKETS == WS_IS_LWS
-	int websockets_log_level;
+	ವರ್ಣ *user;
+#ಯದಿ defined(WITH_WEBSOCKETS) && WITH_WEBSOCKETS == WS_IS_LWS
+	ಪೂರ್ಣಾಙ್ಕ websockets_log_level;
 #endif
 	uint16_t packet_buffer_size;
 #ifdef WITH_BRIDGE
-	struct mosquitto__bridge **bridges;
-	int bridge_count;
+	ಸಂರಚನಾ mosquitto__bridge **bridges;
+	ಪೂರ್ಣಾಙ್ಕ bridge_ಎಣಿಕೆ;
 #endif
-	struct mosquitto__security_options security_options;
+	ಸಂರಚನಾ mosquitto__security_options security_options;
 };
 
 
-struct mosquitto__subshared {
+ಸಂರಚನಾ mosquitto__subshared {
 	UT_hash_handle hh;
-	struct mosquitto__subleaf *subs;
-	char name[];
+	ಸಂರಚನಾ mosquitto__subleaf *subs;
+	ವರ್ಣ name[];
 };
 
-struct mosquitto__subhier {
+ಸಂರಚನಾ mosquitto__subhier {
 	UT_hash_handle hh;
-	struct mosquitto__subhier *parent;
-	struct mosquitto__subhier *children;
-	struct mosquitto__subleaf *subs;
-	struct mosquitto__subshared *shared;
+	ಸಂರಚನಾ mosquitto__subhier *parent;
+	ಸಂರಚನಾ mosquitto__subhier *children;
+	ಸಂರಚನಾ mosquitto__subleaf *subs;
+	ಸಂರಚನಾ mosquitto__subshared *shared;
 	uint16_t topic_len;
-	char topic[];
+	ವರ್ಣ topic[];
 };
 
-struct mosquitto__subleaf {
-	struct mosquitto__subleaf *prev;
-	struct mosquitto__subleaf *next;
-	struct mosquitto *context;
-	struct mosquitto__subhier *hier;
-	struct mosquitto__subshared *shared;
+ಸಂರಚನಾ mosquitto__subleaf {
+	ಸಂರಚನಾ mosquitto__subleaf *prev;
+	ಸಂರಚನಾ mosquitto__subleaf *next;
+	ಸಂರಚನಾ mosquitto *context;
+	ಸಂರಚನಾ mosquitto__subhier *hier;
+	ಸಂರಚನಾ mosquitto__subshared *shared;
 	uint32_t identifier;
 	uint8_t subscription_options;
-	char topic_filter[];
+	ವರ್ಣ topic_filter[];
 };
 
-struct sub__token {
-	struct sub__token *next;
+ಸಂರಚನಾ sub__token {
+	ಸಂರಚನಾ sub__token *next;
 	uint16_t topic_len;
-	char topic[];
+	ವರ್ಣ topic[];
 };
 
-struct mosquitto__retainhier {
+ಸಂರಚನಾ mosquitto__retainhier {
 	UT_hash_handle hh;
-	struct mosquitto__retainhier *parent;
-	struct mosquitto__retainhier *children;
-	struct mosquitto__base_msg *retained;
+	ಸಂರಚನಾ mosquitto__retainhier *parent;
+	ಸಂರಚನಾ mosquitto__retainhier *children;
+	ಸಂರಚನಾ mosquitto_base_ಸಂದೇಶ *retained;
 	uint16_t topic_len;
-	char topic[];
+	ವರ್ಣ topic[];
 };
 
-struct mosquitto__base_msg {
+ಸಂರಚನಾ mosquitto_base_ಸಂದೇಶ {
 	UT_hash_handle hh;
-	struct mosquitto_base_msg data;
-	struct mosquitto__listener *source_listener;
-	char **dest_ids;
-	int dest_id_count;
-	int ref_count;
-	enum mosquitto_msg_origin origin;
+	ಸಂರಚನಾ mosquitto_base_ಸಂದೇಶ_2 data;
+	ಸಂರಚನಾ mosquitto__listener *source_listener;
+	ವರ್ಣ **dest_ids;
+	ಪೂರ್ಣಾಙ್ಕ dest_id_ಎಣಿಕೆ;
+	ಪೂರ್ಣಾಙ್ಕ ref_ಎಣಿಕೆ;
+	ಗಣನಾ mosquitto_ಸಂದೇಶ_origin origin;
 	bool stored;
 };
 
-struct mosquitto__client_msg {
-	struct mosquitto_client_msg data;
-	struct mosquitto__client_msg *prev;
-	struct mosquitto__client_msg *next;
-	struct mosquitto__base_msg *base_msg;
+ಸಂರಚನಾ mosquitto_client_ಸಂದೇಶ {
+	ಸಂರಚನಾ mosquitto_client_ಸಂದೇಶ_2 data;
+	ಸಂರಚನಾ mosquitto_client_ಸಂದೇಶ *prev;
+	ಸಂರಚನಾ mosquitto_client_ಸಂದೇಶ *next;
+	ಸಂರಚನಾ mosquitto_base_ಸಂದೇಶ *base_ಸಂದೇಶ;
 };
 
 
-struct mosquitto__psk {
+ಸಂರಚನಾ mosquitto__psk {
 	UT_hash_handle hh;
-	char *username;
-	char *password;
+	ವರ್ಣ *username;
+	ವರ್ಣ *password;
 };
 
-struct mosquitto__message_v5 {
-	struct mosquitto__message_v5 *next, *prev;
-	char *topic;
-	void *payload;
+ಸಂರಚನಾ mosquitto__message_v5 {
+	ಸಂರಚನಾ mosquitto__message_v5 *next, *prev;
+	ವರ್ಣ *topic;
+	ಶೂನ್ಯ *payload;
 	mosquitto_property *properties;
 	/* clientid is used only by mosquitto_broker_publish*() to indicate
 	   this message is for a specific client. */
-	char *clientid;
-	int payloadlen;
-	int qos;
+	ವರ್ಣ *clientid;
+	ಪೂರ್ಣಾಙ್ಕ payloadlen;
+	ಪೂರ್ಣಾಙ್ಕ qos;
 	bool retain;
 };
 
-struct mosquitto_db {
+ಸಂರಚನಾ mosquitto_db {
 	dbid_t last_db_id;
-	uint64_t node_id_shifted;
-	struct mosquitto__subhier *normal_subs;
-	struct mosquitto__subhier *shared_subs;
-	struct mosquitto__retainhier *retains;
-	struct mosquitto *contexts_by_id;
-	struct mosquitto *contexts_by_sock;
-	struct mosquitto *contexts_by_id_delayed_auth;
-	struct mosquitto *contexts_for_free;
+	uint64_t ಗಂಟು_id_shifted;
+	ಸಂರಚನಾ mosquitto__subhier *normal_subs;
+	ಸಂರಚನಾ mosquitto__subhier *shared_subs;
+	ಸಂರಚನಾ mosquitto__retainhier *retains;
+	ಸಂರಚನಾ mosquitto *contexts_by_id;
+	ಸಂರಚನಾ mosquitto *contexts_by_sock;
+	ಸಂರಚನಾ mosquitto *contexts_by_id_delayed_auth;
+	ಸಂರಚನಾ mosquitto *contexts_for_free;
 	mosquitto_plugin_id_t **plugins;
-	int plugin_count;
+	ಪೂರ್ಣಾಙ್ಕ plugin_ಎಣಿಕೆ;
 #ifdef WITH_BRIDGE
-	struct mosquitto **bridges;
-	int bridge_count;
+	ಸಂರಚನಾ mosquitto **bridges;
+	ಪೂರ್ಣಾಙ್ಕ bridge_ಎಣಿಕೆ;
 #endif
-	struct clientid__index_hash *clientid_index_hash;
-	struct mosquitto__base_msg *msg_store;
+	ಸಂರಚನಾ clientid__index_hash *clientid_index_hash;
+	ಸಂರಚನಾ mosquitto_base_ಸಂದೇಶ *ಸಂದೇಶ_store;
 	time_t now_s; /* Monotonic clock, where possible */
 	time_t now_real_s; /* Read clock, for measuring session/message expiry */
-	uint64_t node_id; /* for unique db ids */
+	uint64_t ಗಂಟು_id; /* for unique db ids */
 	time_t next_event_ms; /* for mux timeout */
-	int msg_store_count;
-	unsigned long msg_store_bytes;
-	char *config_file;
-	struct mosquitto__config *config;
+	ಪೂರ್ಣಾಙ್ಕ ಸಂದೇಶ_store_ಎಣಿಕೆ;
+	unsigned long ಸಂದೇಶ_store_bytes;
+	ವರ್ಣ *config_file;
+	ಸಂರಚನಾ mosquitto__config *config;
 	bool quiet;
 	bool verbose;
-#ifdef WITH_SYS_TREE
-	int subscription_count;
-	int shared_subscription_count;
-	int retained_count;
+#ifdef WITH_SYS_ವೃಕ್ಷ
+	ಪೂರ್ಣಾಙ್ಕ subscription_ಎಣಿಕೆ;
+	ಪೂರ್ಣಾಙ್ಕ shared_subscription_ಎಣಿಕೆ;
+	ಪೂರ್ಣಾಙ್ಕ retained_ಎಣಿಕೆ;
 #endif
-	int persistence_changes;
-	struct mosquitto *ll_for_free;
+	ಪೂರ್ಣಾಙ್ಕ persistence_changes;
+	ಸಂರಚನಾ mosquitto *ll_for_free;
 #ifdef WITH_EPOLL
-	int epollfd;
+	ಪೂರ್ಣಾಙ್ಕ epollfd;
 #endif
 #ifdef WITH_KQUEUE
-	int kqueuefd;
+	ಪೂರ್ಣಾಙ್ಕ kqueuefd;
 #endif
-	struct mosquitto__message_v5 *plugin_msgs;
+	ಸಂರಚನಾ mosquitto__message_v5 *plugin_msgs;
 #ifdef WITH_TLS
 	/* tls_keylog can't be in the config struct because it is used
 	   before the config is allocated. Config probably
 	   shouldn't be separately allocated. */
-	char *tls_keylog;
+	ವರ್ಣ *tls_keylog;
 #endif
 	bool shutdown;
 };
 
-enum mosquitto__bridge_direction {
+ಗಣನಾ mosquitto__bridge_direction {
 	bd_out = 0,
 	bd_in = 1,
 	bd_both = 2,
 };
 
-enum mosquitto_bridge_start_type {
+ಗಣನಾ mosquitto_bridge_start_type {
 	bst_automatic = 0,
 	bst_lazy = 1,
 	bst_manual = 2,
 	bst_once = 3,
 };
 
-enum mosquitto_bridge_reload_type {
+ಗಣನಾ mosquitto_bridge_reload_type {
 	brt_lazy = 0,
 	brt_immediate = 1,
 };
 
-struct mosquitto__bridge_topic {
-	struct mosquitto__bridge_topic *next;
-	char *topic;
-	char *local_prefix;
-	char *remote_prefix;
-	char *local_topic; /* topic prefixed with local_prefix */
-	char *remote_topic; /* topic prefixed with remote_prefix */
-	enum mosquitto__bridge_direction direction;
+ಸಂರಚನಾ mosquitto__bridge_topic {
+	ಸಂರಚನಾ mosquitto__bridge_topic *next;
+	ವರ್ಣ *topic;
+	ವರ್ಣ *local_prefix;
+	ವರ್ಣ *remote_prefix;
+	ವರ್ಣ *local_topic; /* topic prefixed with local_prefix */
+	ವರ್ಣ *remote_topic; /* topic prefixed with remote_prefix */
+	ಗಣನಾ mosquitto__bridge_direction direction;
 	uint8_t qos;
 };
 
-struct bridge_address {
-	char *address;
+ಸಂರಚನಾ bridge_address {
+	ವರ್ಣ *address;
 	uint16_t port;
 };
 
-struct mosquitto__bridge {
-	char *name;
-	struct bridge_address *addresses;
-	int cur_address;
-	int address_count;
+ಸಂರಚನಾ mosquitto__bridge {
+	ವರ್ಣ *name;
+	ಸಂರಚನಾ bridge_address *addresses;
+	ಪೂರ್ಣಾಙ್ಕ cur_address;
+	ಪೂರ್ಣಾಙ್ಕ address_ಎಣಿಕೆ;
 	time_t primary_retry;
 	mosq_sock_t primary_retry_sock;
 	bool round_robin;
@@ -559,35 +559,35 @@ struct mosquitto__bridge {
 	bool clean_start;
 	int8_t clean_start_local;
 	uint16_t keepalive;
-	unsigned int tcp_keepalive_idle;
-	unsigned int tcp_keepalive_interval;
-	unsigned int tcp_keepalive_counter;
+	unsigned ಪೂರ್ಣಾಙ್ಕ tcp_keepalive_idle;
+	unsigned ಪೂರ್ಣಾಙ್ಕ tcp_keepalive_interval;
+	unsigned ಪೂರ್ಣಾಙ್ಕ tcp_keepalive_counter;
 #ifdef WITH_TCP_USER_TIMEOUT
-	int tcp_user_timeout;
+	ಪೂರ್ಣಾಙ್ಕ tcp_user_timeout;
 #endif
-	struct mosquitto__bridge_topic *topics;
-	int topic_count;
+	ಸಂರಚನಾ mosquitto__bridge_topic *topics;
+	ಪೂರ್ಣಾಙ್ಕ topic_ಎಣಿಕೆ;
 	bool topic_remapping;
-	enum mosquitto__protocol protocol_version;
+	ಗಣನಾ mosquitto__protocol protocol_version;
 	time_t restart_t;
 	time_t connected_at;
-	char *remote_clientid;
-	char *remote_username;
-	char *remote_password;
-	char *local_clientid;
-	char *local_username;
-	char *local_password;
-	char *notification_topic;
-	char *bind_address;
+	ವರ್ಣ *remote_clientid;
+	ವರ್ಣ *remote_username;
+	ವರ್ಣ *remote_password;
+	ವರ್ಣ *local_clientid;
+	ವರ್ಣ *local_username;
+	ವರ್ಣ *local_password;
+	ವರ್ಣ *notification_topic;
+	ವರ್ಣ *bind_address;
 	bool notifications;
 	bool notifications_local_only;
-	enum mosquitto_bridge_start_type start_type;
-	int idle_timeout;
-	int restart_timeout;
-	int backoff_base;
-	int backoff_cap;
-	int stable_connection_period;
-	int threshold;
+	ಗಣನಾ mosquitto_bridge_start_type start_type;
+	ಪೂರ್ಣಾಙ್ಕ idle_timeout;
+	ಪೂರ್ಣಾಙ್ಕ restart_timeout;
+	ಪೂರ್ಣಾಙ್ಕ backoff_base;
+	ಪೂರ್ಣಾಙ್ಕ backoff_cap;
+	ಪೂರ್ಣಾಙ್ಕ stable_connection_period;
+	ಪೂರ್ಣಾಙ್ಕ threshold;
 	uint32_t maximum_packet_size;
 	uint32_t session_expiry_interval;
 	uint16_t receive_maximum;
@@ -595,421 +595,421 @@ struct mosquitto__bridge {
 	bool attempt_unsubscribe;
 	bool initial_notification_done;
 	bool outgoing_retain;
-	enum mosquitto_bridge_reload_type reload_type;
+	ಗಣನಾ mosquitto_bridge_reload_type reload_type;
 	uint16_t max_topic_alias;
 #ifdef WITH_TLS
 	bool tls_insecure;
 	bool tls_ocsp_required;
 	bool tls_use_os_certs;
-	char *tls_cafile;
-	char *tls_capath;
-	char *tls_certfile;
-	char *tls_keyfile;
-	char *tls_version;
-	char *tls_alpn;
-	char *tls_ciphers;
-	char *tls_13_ciphers;
+	ವರ್ಣ *tls_cafile;
+	ವರ್ಣ *tls_capath;
+	ವರ್ಣ *tls_certfile;
+	ವರ್ಣ *tls_keyfile;
+	ವರ್ಣ *tls_version;
+	ವರ್ಣ *tls_alpn;
+	ವರ್ಣ *tls_ciphers;
+	ವರ್ಣ *tls_13_ciphers;
 #  ifdef FINAL_WITH_TLS_PSK
-	char *tls_psk_identity;
-	char *tls_psk;
+	ವರ್ಣ *tls_psk_identity;
+	ವರ್ಣ *tls_psk;
 #  endif
 #endif
 };
 
-#if defined(WITH_WEBSOCKETS) && WITH_WEBSOCKETS == WS_IS_LWS
-struct libws_mqtt_hack {
-	char *http_dir;
-	struct mosquitto__listener *listener;
+#ಯದಿ defined(WITH_WEBSOCKETS) && WITH_WEBSOCKETS == WS_IS_LWS
+ಸಂರಚನಾ libws_mqtt_hack {
+	ವರ್ಣ *http_dir;
+	ಸಂರಚನಾ mosquitto__listener *listener;
 };
 
-struct libws_mqtt_data {
-	struct mosquitto *mosq;
+ಸಂರಚನಾ libws_mqtt_data {
+	ಸಂರಚನಾ mosquitto *mosq;
 };
 #endif
 
-#include <net_mosq.h>
+#ಅನ್ತರ್ಭಾವ <net_mosq.h>
 
 
-struct control_endpoint {
-	struct control_endpoint *next, *prev;
-	char topic[];
+ಸಂರಚನಾ control_endpoint {
+	ಸಂರಚನಾ control_endpoint *next, *prev;
+	ವರ್ಣ topic[];
 };
 
-extern struct mosquitto_db db;
+ಬಾಹ್ಯ ಸಂರಚನಾ mosquitto_db db;
 
 /* ============================================================
  * Main functions
  * ============================================================ */
-int mosquitto_main_loop(struct mosquitto__listener_sock *listensock, int listensock_count);
-void loop__update_next_event(time_t new_ms);
+ಪೂರ್ಣಾಙ್ಕ mosquitto_main_loop(ಸಂರಚನಾ mosquitto__listener_sock *listensock, ಪೂರ್ಣಾಙ್ಕ listensock_ಎಣಿಕೆ);
+ಶೂನ್ಯ loop__update_next_event(time_t new_ms);
 
 /* ============================================================
  * Config functions
  * ============================================================ */
 /* Initialise config struct to default values. */
-void config__init(struct mosquitto__config *config);
+ಶೂನ್ಯ config__init(ಸಂರಚನಾ mosquitto__config *config);
 #ifdef WITH_BRIDGE
-void config__bridge_cleanup(struct mosquitto__bridge *bridge);
+ಶೂನ್ಯ config__bridge_cleanup(ಸಂರಚನಾ mosquitto__bridge *bridge);
 #endif
 /* Parse command line options into config. */
-int config__parse_args(struct mosquitto__config *config, int argc, char *argv[]);
+ಪೂರ್ಣಾಙ್ಕ config__parse_args(ಸಂರಚನಾ mosquitto__config *config, ಪೂರ್ಣಾಙ್ಕ argc, ವರ್ಣ *argv[]);
 /* Read configuration data from config->config_file into config.
  * If reload is true, don't process config options that shouldn't be reloaded (listeners etc)
  * Returns 0 on success, 1 if there is a configuration error or if a file cannot be opened.
  */
-int config__read(struct mosquitto__config *config, bool reload);
+ಪೂರ್ಣಾಙ್ಕ config__read(ಸಂರಚನಾ mosquitto__config *config, bool reload);
 /* Free all config data. */
-void config__cleanup(struct mosquitto__config *config);
-int config__get_dir_files(const char *include_dir, char ***files, int *file_count);
+ಶೂನ್ಯ config__cleanup(ಸಂರಚನಾ mosquitto__config *config);
+ಪೂರ್ಣಾಙ್ಕ config__get_dir_files(ಧ್ರುವ ವರ್ಣ *include_dir, ವರ್ಣ ***files, ಪೂರ್ಣಾಙ್ಕ *file_ಎಣಿಕೆ);
 
 /* ============================================================
  * Server send functions
  * ============================================================ */
-int send__connack(struct mosquitto *context, uint8_t ack, uint8_t reason_code, const mosquitto_property *properties);
-int send__suback(struct mosquitto *context, uint16_t mid, uint32_t payloadlen, const void *payload);
-int send__unsuback(struct mosquitto *context, uint16_t mid, int reason_code_count, uint8_t *reason_codes, const mosquitto_property *properties);
-int send__auth(struct mosquitto *context, uint8_t reason_code, const void *auth_data, uint16_t auth_data_len);
+ಪೂರ್ಣಾಙ್ಕ send__connack(ಸಂರಚನಾ mosquitto *context, uint8_t ack, uint8_t reason_code, ಧ್ರುವ mosquitto_property *properties);
+ಪೂರ್ಣಾಙ್ಕ send__suback(ಸಂರಚನಾ mosquitto *context, uint16_t mid, uint32_t payloadlen, ಧ್ರುವ ಶೂನ್ಯ *payload);
+ಪೂರ್ಣಾಙ್ಕ send__unsuback(ಸಂರಚನಾ mosquitto *context, uint16_t mid, ಪೂರ್ಣಾಙ್ಕ reason_code_ಎಣಿಕೆ, uint8_t *reason_codes, ಧ್ರುವ mosquitto_property *properties);
+ಪೂರ್ಣಾಙ್ಕ send__auth(ಸಂರಚನಾ mosquitto *context, uint8_t reason_code, ಧ್ರುವ ಶೂನ್ಯ *auth_data, uint16_t auth_data_len);
 
 /* ============================================================
  * Network functions
  * ============================================================ */
-void net__broker_init(void);
-void net__broker_cleanup(void);
-struct mosquitto *net__socket_accept(struct mosquitto__listener_sock *listensock);
-int net__socket_listen(struct mosquitto__listener *listener);
-int net__socket_get_address(mosq_sock_t sock, char *buf, size_t len, uint16_t *remote_address);
-int net__tls_load_verify(struct mosquitto__listener *listener);
-int net__tls_server_ctx(struct mosquitto__listener *listener);
-int net__load_certificates(struct mosquitto__listener *listener);
+ಶೂನ್ಯ net__broker_init(ಶೂನ್ಯ);
+ಶೂನ್ಯ net__broker_cleanup(ಶೂನ್ಯ);
+ಸಂರಚನಾ mosquitto *net__socket_accept(ಸಂರಚನಾ mosquitto__listener_sock *listensock);
+ಪೂರ್ಣಾಙ್ಕ net__socket_listen(ಸಂರಚನಾ mosquitto__listener *listener);
+ಪೂರ್ಣಾಙ್ಕ net__socket_get_address(mosq_sock_t sock, ವರ್ಣ *buf, size_t len, uint16_t *remote_address);
+ಪೂರ್ಣಾಙ್ಕ net__tls_load_verify(ಸಂರಚನಾ mosquitto__listener *listener);
+ಪೂರ್ಣಾಙ್ಕ net__tls_server_ctx(ಸಂರಚನಾ mosquitto__listener *listener);
+ಪೂರ್ಣಾಙ್ಕ net__load_certificates(ಸಂರಚನಾ mosquitto__listener *listener);
 
 /* ============================================================
  * Read handling functions
  * ============================================================ */
-int handle__packet(struct mosquitto *context);
-int handle__connack(struct mosquitto *context);
-int handle__connect(struct mosquitto *context);
-int handle__disconnect(struct mosquitto *context);
-int handle__publish(struct mosquitto *context);
-int handle__subscribe(struct mosquitto *context);
-int handle__unsubscribe(struct mosquitto *context);
-int handle__auth(struct mosquitto *context);
+ಪೂರ್ಣಾಙ್ಕ handle__packet(ಸಂರಚನಾ mosquitto *context);
+ಪೂರ್ಣಾಙ್ಕ handle__connack(ಸಂರಚನಾ mosquitto *context);
+ಪೂರ್ಣಾಙ್ಕ handle__connect(ಸಂರಚನಾ mosquitto *context);
+ಪೂರ್ಣಾಙ್ಕ handle__disconnect(ಸಂರಚನಾ mosquitto *context);
+ಪೂರ್ಣಾಙ್ಕ handle__publish(ಸಂರಚನಾ mosquitto *context);
+ಪೂರ್ಣಾಙ್ಕ handle__subscribe(ಸಂರಚನಾ mosquitto *context);
+ಪೂರ್ಣಾಙ್ಕ handle__unsubscribe(ಸಂರಚನಾ mosquitto *context);
+ಪೂರ್ಣಾಙ್ಕ handle__auth(ಸಂರಚನಾ mosquitto *context);
 
 /* ============================================================
  * Database handling
  * ============================================================ */
-int db__open(struct mosquitto__config *config);
-int db__close(void);
+ಪೂರ್ಣಾಙ್ಕ db__open(ಸಂರಚನಾ mosquitto__config *config);
+ಪೂರ್ಣಾಙ್ಕ db__close(ಶೂನ್ಯ);
 #ifdef WITH_PERSISTENCE
-int persist__backup(bool shutdown);
-int persist__restore(void);
+ಪೂರ್ಣಾಙ್ಕ persist__backup(bool shutdown);
+ಪೂರ್ಣಾಙ್ಕ persist__restore(ಶೂನ್ಯ);
 #endif
 /* Return the number of in-flight messages in count. */
-int db__message_count(int *count);
-int db__message_delete_outgoing(struct mosquitto *context, uint16_t mid, enum mosquitto_msg_state expect_state, int qos);
-int db__message_insert_outgoing(struct mosquitto *context, uint64_t cmsg_id, uint16_t mid, uint8_t qos, bool retain, struct mosquitto__base_msg *base_msg, uint32_t subscription_identifier, bool update, bool persist);
-int db__message_insert_incoming(struct mosquitto *context, uint64_t cmsg_id, struct mosquitto__base_msg *base_msg, bool persist);
-int db__message_remove_incoming(struct mosquitto *context, uint16_t mid);
-int db__message_release_incoming(struct mosquitto *context, uint16_t mid);
-int db__message_update_outgoing(struct mosquitto *context, uint16_t mid, enum mosquitto_msg_state state, int qos, bool persist);
-void db__message_dequeue_first(struct mosquitto *context, struct mosquitto_msg_data *msg_data);
-int db__messages_delete(struct mosquitto *context, bool force_free);
-int db__messages_delete_incoming(struct mosquitto *context);
-int db__messages_delete_outgoing(struct mosquitto *context);
-int db__messages_easy_queue(struct mosquitto *context, const char *topic, uint8_t qos, uint32_t payloadlen, const void *payload, int retain, uint32_t message_expiry_interval, mosquitto_property **properties);
-int db__message_store(const struct mosquitto *source, struct mosquitto__base_msg *base_msg, uint32_t *message_expiry_interval, enum mosquitto_msg_origin origin);
-int db__message_store_find(struct mosquitto *context, uint16_t mid, struct mosquitto__client_msg **client_msg);
-int db__msg_store_add(struct mosquitto__base_msg *base_msg);
-void db__msg_store_remove(struct mosquitto__base_msg *base_msg, bool notify);
-void db__msg_store_ref_inc(struct mosquitto__base_msg *base_msg);
-void db__msg_store_ref_dec(struct mosquitto__base_msg **base_msg);
-void db__msg_store_clean(void);
-void db__msg_store_compact(void);
-void db__msg_store_free(struct mosquitto__base_msg *base_msg);
-int db__message_reconnect_reset(struct mosquitto *context);
-bool db__ready_for_flight(struct mosquitto *context, enum mosquitto_msg_direction dir, int qos);
-bool db__ready_for_queue(struct mosquitto *context, int qos, struct mosquitto_msg_data *msg_data);
-void sys_tree__init(void);
-void sys_tree__update(bool force);
-int db__message_write_inflight_out_all(struct mosquitto *context);
-int db__message_write_inflight_out_latest(struct mosquitto *context);
-int db__message_write_queued_out(struct mosquitto *context);
-int db__message_write_queued_in(struct mosquitto *context);
-void db__msg_add_to_inflight_stats(struct mosquitto_msg_data *msg_data, struct mosquitto__client_msg *msg);
-void db__msg_add_to_queued_stats(struct mosquitto_msg_data *msg_data, struct mosquitto__client_msg *msg);
-uint64_t db__new_msg_id(void);
-void db__expire_all_messages(struct mosquitto *context);
-void db__check_acl_of_all_messages(struct mosquitto *context);
+ಪೂರ್ಣಾಙ್ಕ db_message_ಎಣಿಕೆ(ಪೂರ್ಣಾಙ್ಕ *ಎಣಿಕೆ);
+ಪೂರ್ಣಾಙ್ಕ db__message_delete_outgoing(ಸಂರಚನಾ mosquitto *context, uint16_t mid, ಗಣನಾ mosquitto_ಸಂದೇಶ_state expect_state, ಪೂರ್ಣಾಙ್ಕ qos);
+ಪೂರ್ಣಾಙ್ಕ db_message_ಸೇರಿಸು_outgoing(ಸಂರಚನಾ mosquitto *context, uint64_t cmsg_id, uint16_t mid, uint8_t qos, bool retain, ಸಂರಚನಾ mosquitto_base_ಸಂದೇಶ *base_ಸಂದೇಶ, uint32_t subscription_identifier, bool update, bool persist);
+ಪೂರ್ಣಾಙ್ಕ db_message_ಸೇರಿಸು_incoming(ಸಂರಚನಾ mosquitto *context, uint64_t cmsg_id, ಸಂರಚನಾ mosquitto_base_ಸಂದೇಶ *base_ಸಂದೇಶ, bool persist);
+ಪೂರ್ಣಾಙ್ಕ db__message_remove_incoming(ಸಂರಚನಾ mosquitto *context, uint16_t mid);
+ಪೂರ್ಣಾಙ್ಕ db__message_release_incoming(ಸಂರಚನಾ mosquitto *context, uint16_t mid);
+ಪೂರ್ಣಾಙ್ಕ db__message_update_outgoing(ಸಂರಚನಾ mosquitto *context, uint16_t mid, ಗಣನಾ mosquitto_ಸಂದೇಶ_state state, ಪೂರ್ಣಾಙ್ಕ qos, bool persist);
+ಶೂನ್ಯ db__message_dequeue_first(ಸಂರಚನಾ mosquitto *context, ಸಂರಚನಾ mosquitto_ಸಂದೇಶ_data *ಸಂದೇಶ_data);
+ಪೂರ್ಣಾಙ್ಕ db__messages_delete(ಸಂರಚನಾ mosquitto *context, bool force_free);
+ಪೂರ್ಣಾಙ್ಕ db__messages_delete_incoming(ಸಂರಚನಾ mosquitto *context);
+ಪೂರ್ಣಾಙ್ಕ db__messages_delete_outgoing(ಸಂರಚನಾ mosquitto *context);
+ಪೂರ್ಣಾಙ್ಕ db__messages_easy_queue(ಸಂರಚನಾ mosquitto *context, ಧ್ರುವ ವರ್ಣ *topic, uint8_t qos, uint32_t payloadlen, ಧ್ರುವ ಶೂನ್ಯ *payload, ಪೂರ್ಣಾಙ್ಕ retain, uint32_t message_expiry_interval, mosquitto_property **properties);
+ಪೂರ್ಣಾಙ್ಕ db__message_store(ಧ್ರುವ ಸಂರಚನಾ mosquitto *source, ಸಂರಚನಾ mosquitto_base_ಸಂದೇಶ *base_ಸಂದೇಶ, uint32_t *message_expiry_interval, ಗಣನಾ mosquitto_ಸಂದೇಶ_origin origin);
+ಪೂರ್ಣಾಙ್ಕ db__message_store_find(ಸಂರಚನಾ mosquitto *context, uint16_t mid, ಸಂರಚನಾ mosquitto_client_ಸಂದೇಶ **client_ಸಂದೇಶ);
+ಪೂರ್ಣಾಙ್ಕ db_ಸಂದೇಶ_store_add(ಸಂರಚನಾ mosquitto_base_ಸಂದೇಶ *base_ಸಂದೇಶ);
+ಶೂನ್ಯ db_ಸಂದೇಶ_store_remove(ಸಂರಚನಾ mosquitto_base_ಸಂದೇಶ *base_ಸಂದೇಶ, bool notify);
+ಶೂನ್ಯ db_ಸಂದೇಶ_store_ref_inc(ಸಂರಚನಾ mosquitto_base_ಸಂದೇಶ *base_ಸಂದೇಶ);
+ಶೂನ್ಯ db_ಸಂದೇಶ_store_ref_dec(ಸಂರಚನಾ mosquitto_base_ಸಂದೇಶ **base_ಸಂದೇಶ);
+ಶೂನ್ಯ db_ಸಂದೇಶ_store_clean(ಶೂನ್ಯ);
+ಶೂನ್ಯ db_ಸಂದೇಶ_store_compact(ಶೂನ್ಯ);
+ಶೂನ್ಯ db_ಸಂದೇಶ_store_free(ಸಂರಚನಾ mosquitto_base_ಸಂದೇಶ *base_ಸಂದೇಶ);
+ಪೂರ್ಣಾಙ್ಕ db__message_reconnect_reset(ಸಂರಚನಾ mosquitto *context);
+bool db__ready_for_flight(ಸಂರಚನಾ mosquitto *context, ಗಣನಾ mosquitto_ಸಂದೇಶ_direction dir, ಪೂರ್ಣಾಙ್ಕ qos);
+bool db__ready_for_queue(ಸಂರಚನಾ mosquitto *context, ಪೂರ್ಣಾಙ್ಕ qos, ಸಂರಚನಾ mosquitto_ಸಂದೇಶ_data *ಸಂದೇಶ_data);
+ಶೂನ್ಯ sys_ವೃಕ್ಷ_init(ಶೂನ್ಯ);
+ಶೂನ್ಯ sys_ವೃಕ್ಷ_update(bool force);
+ಪೂರ್ಣಾಙ್ಕ db__message_write_inflight_out_all(ಸಂರಚನಾ mosquitto *context);
+ಪೂರ್ಣಾಙ್ಕ db__message_write_inflight_out_latest(ಸಂರಚನಾ mosquitto *context);
+ಪೂರ್ಣಾಙ್ಕ db__message_write_queued_out(ಸಂರಚನಾ mosquitto *context);
+ಪೂರ್ಣಾಙ್ಕ db__message_write_queued_in(ಸಂರಚನಾ mosquitto *context);
+ಶೂನ್ಯ db_ಸಂದೇಶ_add_to_inflight_stats(ಸಂರಚನಾ mosquitto_ಸಂದೇಶ_data *ಸಂದೇಶ_data, ಸಂರಚನಾ mosquitto_client_ಸಂದೇಶ *ಸಂದೇಶ);
+ಶೂನ್ಯ db_ಸಂದೇಶ_add_to_queued_stats(ಸಂರಚನಾ mosquitto_ಸಂದೇಶ_data *ಸಂದೇಶ_data, ಸಂರಚನಾ mosquitto_client_ಸಂದೇಶ *ಸಂದೇಶ);
+uint64_t db_new_ಸಂದೇಶ_id(ಶೂನ್ಯ);
+ಶೂನ್ಯ db__expire_all_messages(ಸಂರಚನಾ mosquitto *context);
+ಶೂನ್ಯ db__check_acl_of_all_messages(ಸಂರಚನಾ mosquitto *context);
 
 /* ============================================================
  * Subscription functions
  * ============================================================ */
-int sub__init(void);
-int sub__add(struct mosquitto *context, const struct mosquitto_subscription *sub);
-int sub__remove(struct mosquitto *context, const char *sub, uint8_t *reason);
-void sub__tree_print(struct mosquitto__subhier *root, int level);
-int sub__clean_session(struct mosquitto *context);
-int sub__messages_queue(const char *source_id, uint8_t qos, struct mosquitto__base_msg **base_msg);
-int sub__topic_tokenise(const char *subtopic, char **local_sub, char ***topics, const char **sharename);
-void sub__topic_tokens_free(struct sub__token *tokens);
+ಪೂರ್ಣಾಙ್ಕ sub__init(ಶೂನ್ಯ);
+ಪೂರ್ಣಾಙ್ಕ sub__add(ಸಂರಚನಾ mosquitto *context, ಧ್ರುವ ಸಂರಚನಾ mosquitto_subscription *sub);
+ಪೂರ್ಣಾಙ್ಕ sub__remove(ಸಂರಚನಾ mosquitto *context, ಧ್ರುವ ವರ್ಣ *sub, uint8_t *reason);
+ಶೂನ್ಯ sub_ವೃಕ್ಷ_print(ಸಂರಚನಾ mosquitto__subhier *ಬೇರು, ಪೂರ್ಣಾಙ್ಕ level);
+ಪೂರ್ಣಾಙ್ಕ sub__clean_session(ಸಂರಚನಾ mosquitto *context);
+ಪೂರ್ಣಾಙ್ಕ sub__messages_queue(ಧ್ರುವ ವರ್ಣ *source_id, uint8_t qos, ಸಂರಚನಾ mosquitto_base_ಸಂದೇಶ **base_ಸಂದೇಶ);
+ಪೂರ್ಣಾಙ್ಕ sub__topic_tokenise(ಧ್ರುವ ವರ್ಣ *subtopic, ವರ್ಣ **local_sub, ವರ್ಣ ***topics, ಧ್ರುವ ವರ್ಣ **sharename);
+ಶೂನ್ಯ sub__topic_tokens_free(ಸಂರಚನಾ sub__token *tokens);
 
 /* ============================================================
  * Context functions
  * ============================================================ */
-struct mosquitto *context__init(void);
-int context__init_sock(struct mosquitto *context, mosq_sock_t sock, bool get_address);
-void context__cleanup(struct mosquitto *context, bool force_free);
-void context__disconnect(struct mosquitto *context, int reason);
-void context__add_to_disused(struct mosquitto *context);
-void context__free_disused(void);
-void context__send_will(struct mosquitto *context);
-void context__add_to_by_id(struct mosquitto *context);
-void context__remove_from_by_id(struct mosquitto *context);
+ಸಂರಚನಾ mosquitto *context__init(ಶೂನ್ಯ);
+ಪೂರ್ಣಾಙ್ಕ context__init_sock(ಸಂರಚನಾ mosquitto *context, mosq_sock_t sock, bool get_address);
+ಶೂನ್ಯ context__cleanup(ಸಂರಚನಾ mosquitto *context, bool force_free);
+ಶೂನ್ಯ context__disconnect(ಸಂರಚನಾ mosquitto *context, ಪೂರ್ಣಾಙ್ಕ reason);
+ಶೂನ್ಯ context__add_to_disused(ಸಂರಚನಾ mosquitto *context);
+ಶೂನ್ಯ context__free_disused(ಶೂನ್ಯ);
+ಶೂನ್ಯ context__send_will(ಸಂರಚನಾ mosquitto *context);
+ಶೂನ್ಯ context__add_to_by_id(ಸಂರಚನಾ mosquitto *context);
+ಶೂನ್ಯ context__remove_from_by_id(ಸಂರಚನಾ mosquitto *context);
 
-int connect__on_authorised(struct mosquitto *context, void *auth_data_out, uint16_t auth_data_out_len);
+ಪೂರ್ಣಾಙ್ಕ connect__on_authorised(ಸಂರಚನಾ mosquitto *context, ಶೂನ್ಯ *auth_data_out, uint16_t auth_data_out_len);
 
 
 /* ============================================================
  * Control functions
  * ============================================================ */
 #ifdef WITH_CONTROL
-int control__process(struct mosquitto *context, struct mosquitto__base_msg *base_msg);
-void control__cleanup(void);
+ಪೂರ್ಣಾಙ್ಕ control__process(ಸಂರಚನಾ mosquitto *context, ಸಂರಚನಾ mosquitto_base_ಸಂದೇಶ *base_ಸಂದೇಶ);
+ಶೂನ್ಯ control__cleanup(ಶೂನ್ಯ);
 #endif
-int control__register_callback(mosquitto_plugin_id_t *pid, MOSQ_FUNC_generic_callback cb_func, const char *topic, void *userdata);
-int control__unregister_callback(mosquitto_plugin_id_t *pid, MOSQ_FUNC_generic_callback cb_func, const char *topic);
-void control__unregister_all_callbacks(mosquitto_plugin_id_t *identifier);
+ಪೂರ್ಣಾಙ್ಕ control__register_callback(mosquitto_plugin_id_t *pid, MOSQ_FUNC_generic_callback cb_func, ಧ್ರುವ ವರ್ಣ *topic, ಶೂನ್ಯ *userdata);
+ಪೂರ್ಣಾಙ್ಕ control__unregister_callback(mosquitto_plugin_id_t *pid, MOSQ_FUNC_generic_callback cb_func, ಧ್ರುವ ವರ್ಣ *topic);
+ಶೂನ್ಯ control__unregister_all_callbacks(mosquitto_plugin_id_t *identifier);
 
 
 /* ============================================================
  * Logging functions
  * ============================================================ */
-int log__init(struct mosquitto__config *config);
-int log__close(struct mosquitto__config *config);
-void log__internal(const char *fmt, ...) __attribute__((format(printf, 1, 2)));
+ಪೂರ್ಣಾಙ್ಕ log__init(ಸಂರಚನಾ mosquitto__config *config);
+ಪೂರ್ಣಾಙ್ಕ log__close(ಸಂರಚನಾ mosquitto__config *config);
+ಶೂನ್ಯ log__internal(ಧ್ರುವ ವರ್ಣ *fmt, ...) __attribute__((format(printf, 1, 2)));
 
 /* ============================================================
  * Bridge functions
  * ============================================================ */
 #ifdef WITH_BRIDGE
-void bridge__start_all(void);
-void bridge__reload(void);
-void bridge__db_cleanup(void);
-void bridge__cleanup(struct mosquitto *context);
-int bridge__connect(struct mosquitto *context);
-#if defined(__GLIBC__) && defined(WITH_ADNS)
-int bridge__connect_step3(struct mosquitto *context);
+ಶೂನ್ಯ bridge__start_all(ಶೂನ್ಯ);
+ಶೂನ್ಯ bridge__reload(ಶೂನ್ಯ);
+ಶೂನ್ಯ bridge__db_cleanup(ಶೂನ್ಯ);
+ಶೂನ್ಯ bridge__cleanup(ಸಂರಚನಾ mosquitto *context);
+ಪೂರ್ಣಾಙ್ಕ bridge__connect(ಸಂರಚನಾ mosquitto *context);
+#ಯದಿ defined(__GLIBC__) && defined(WITH_ADNS)
+ಪೂರ್ಣಾಙ್ಕ bridge__connect_step3(ಸಂರಚನಾ mosquitto *context);
 #endif
-int bridge__on_connect(struct mosquitto *context);
-void bridge_check(void);
-int bridge__register_local_connections(void);
-int bridge__add_topic(struct mosquitto__bridge *bridge, const char *topic, enum mosquitto__bridge_direction direction, uint8_t qos, const char *local_prefix, const char *remote_prefix);
-void bridge__cleanup_topics(struct mosquitto__bridge *bridge);
-int bridge__remap_topic_in(struct mosquitto *context, char **topic);
+ಪೂರ್ಣಾಙ್ಕ bridge__on_connect(ಸಂರಚನಾ mosquitto *context);
+ಶೂನ್ಯ bridge_check(ಶೂನ್ಯ);
+ಪೂರ್ಣಾಙ್ಕ bridge__register_local_connections(ಶೂನ್ಯ);
+ಪೂರ್ಣಾಙ್ಕ bridge__add_topic(ಸಂರಚನಾ mosquitto__bridge *bridge, ಧ್ರುವ ವರ್ಣ *topic, ಗಣನಾ mosquitto__bridge_direction direction, uint8_t qos, ಧ್ರುವ ವರ್ಣ *local_prefix, ಧ್ರುವ ವರ್ಣ *remote_prefix);
+ಶೂನ್ಯ bridge__cleanup_topics(ಸಂರಚನಾ mosquitto__bridge *bridge);
+ಪೂರ್ಣಾಙ್ಕ bridge__remap_topic_in(ಸಂರಚನಾ mosquitto *context, ವರ್ಣ **topic);
 #endif
 
 /* ============================================================
  * IO multiplex related functions
  * ============================================================ */
-int mux__init(void);
-int mux__add_listeners(struct mosquitto__listener_sock *listensock, int listensock_count);
-int mux__delete_listeners(struct mosquitto__listener_sock *listensock, int listensock_count);
-int mux__loop_prepare(void);
-int mux__new(struct mosquitto *context);
-int mux__add_out(struct mosquitto *context);
-int mux__remove_out(struct mosquitto *context);
-int mux__delete(struct mosquitto *context);
-int mux__wait(void);
-int mux__handle(struct mosquitto__listener_sock *listensock, int listensock_count);
-int mux__cleanup(void);
+ಪೂರ್ಣಾಙ್ಕ mux__init(ಶೂನ್ಯ);
+ಪೂರ್ಣಾಙ್ಕ mux__add_listeners(ಸಂರಚನಾ mosquitto__listener_sock *listensock, ಪೂರ್ಣಾಙ್ಕ listensock_ಎಣಿಕೆ);
+ಪೂರ್ಣಾಙ್ಕ mux__delete_listeners(ಸಂರಚನಾ mosquitto__listener_sock *listensock, ಪೂರ್ಣಾಙ್ಕ listensock_ಎಣಿಕೆ);
+ಪೂರ್ಣಾಙ್ಕ mux__loop_prepare(ಶೂನ್ಯ);
+ಪೂರ್ಣಾಙ್ಕ mux__new(ಸಂರಚನಾ mosquitto *context);
+ಪೂರ್ಣಾಙ್ಕ mux__add_out(ಸಂರಚನಾ mosquitto *context);
+ಪೂರ್ಣಾಙ್ಕ mux__remove_out(ಸಂರಚನಾ mosquitto *context);
+ಪೂರ್ಣಾಙ್ಕ mux__delete(ಸಂರಚನಾ mosquitto *context);
+ಪೂರ್ಣಾಙ್ಕ mux__wait(ಶೂನ್ಯ);
+ಪೂರ್ಣಾಙ್ಕ mux__handle(ಸಂರಚನಾ mosquitto__listener_sock *listensock, ಪೂರ್ಣಾಙ್ಕ listensock_ಎಣಿಕೆ);
+ಪೂರ್ಣಾಙ್ಕ mux__cleanup(ಶೂನ್ಯ);
 
 /* ============================================================
  * Listener related functions
  * ============================================================ */
-extern struct mosquitto__listener_sock *g_listensock;
-extern int g_listensock_count;
+ಬಾಹ್ಯ ಸಂರಚನಾ mosquitto__listener_sock *g_listensock;
+ಬಾಹ್ಯ ಪೂರ್ಣಾಙ್ಕ g_listensock_ಎಣಿಕೆ;
 
-void listener__set_defaults(struct mosquitto__listener *listener);
-void listeners__reload_all_certificates(void);
-#if defined(WITH_WEBSOCKETS) && WITH_WEBSOCKETS == WS_IS_LWS
-void listeners__add_websockets(struct lws_context *ws_context, mosq_sock_t fd);
+ಶೂನ್ಯ listener__set_defaults(ಸಂರಚನಾ mosquitto__listener *listener);
+ಶೂನ್ಯ listeners__reload_all_certificates(ಶೂನ್ಯ);
+#ಯದಿ defined(WITH_WEBSOCKETS) && WITH_WEBSOCKETS == WS_IS_LWS
+ಶೂನ್ಯ listeners__add_websockets(ಸಂರಚನಾ lws_context *ws_context, mosq_sock_t fd);
 #endif
-int listeners__start(void);
-void listeners__stop(void);
+ಪೂರ್ಣಾಙ್ಕ listeners__start(ಶೂನ್ಯ);
+ಶೂನ್ಯ listeners__stop(ಶೂನ್ಯ);
 
 /* ============================================================
  * Plugin related functions
  * ============================================================ */
-int plugin__load_v5(mosquitto_plugin_id_t *plugin, void *lib);
-int plugin__load_v4(mosquitto_plugin_id_t *plugin, void *lib);
-int plugin__load_v3(mosquitto_plugin_id_t *plugin, void *lib);
-int plugin__load_v2(mosquitto_plugin_id_t *plugin, void *lib);
-int acl__pre_check(mosquitto_plugin_id_t *plugin, struct mosquitto *context, int access);
+ಪೂರ್ಣಾಙ್ಕ plugin__load_v5(mosquitto_plugin_id_t *plugin, ಶೂನ್ಯ *lib);
+ಪೂರ್ಣಾಙ್ಕ plugin__load_v4(mosquitto_plugin_id_t *plugin, ಶೂನ್ಯ *lib);
+ಪೂರ್ಣಾಙ್ಕ plugin__load_v3(mosquitto_plugin_id_t *plugin, ಶೂನ್ಯ *lib);
+ಪೂರ್ಣಾಙ್ಕ plugin__load_v2(mosquitto_plugin_id_t *plugin, ಶೂನ್ಯ *lib);
+ಪೂರ್ಣಾಙ್ಕ acl__pre_check(mosquitto_plugin_id_t *plugin, ಸಂರಚನಾ mosquitto *context, ಪೂರ್ಣಾಙ್ಕ access);
 
-void LIB_ERROR(void);
-void plugin__handle_connect(struct mosquitto *context);
-void plugin__handle_disconnect(struct mosquitto *context, int reason);
-void plugin__handle_client_offline(struct mosquitto *context, int reason);
-int plugin__handle_message_in(struct mosquitto *context, struct mosquitto_base_msg *base_msg);
-int plugin__handle_message_out(struct mosquitto *context, struct mosquitto_base_msg *base_msg);
-int plugin__handle_subscribe(struct mosquitto *context, struct mosquitto_subscription *sub);
-int plugin__handle_unsubscribe(struct mosquitto *context, struct mosquitto_subscription *sub);
-int plugin__handle_reload(void);
-void plugin__handle_tick(void);
-int plugin__callback_unregister_all(mosquitto_plugin_id_t *identifier);
-void plugin_persist__handle_restore(void);
-void plugin_persist__handle_client_add(struct mosquitto *context);
-void plugin_persist__handle_client_delete(struct mosquitto *context);
-void plugin_persist__handle_client_update(struct mosquitto *context);
-void plugin_persist__handle_subscription_add(struct mosquitto *context, const struct mosquitto_subscription *sub);
-void plugin_persist__handle_subscription_delete(struct mosquitto *context, char *sub);
-void plugin_persist__handle_client_msg_add(struct mosquitto *context, const struct mosquitto__client_msg *cmsg);
-void plugin_persist__handle_client_msg_delete(struct mosquitto *context, const struct mosquitto__client_msg *cmsg);
-void plugin_persist__handle_client_msg_update(struct mosquitto *context, const struct mosquitto__client_msg *cmsg);
-void plugin_persist__handle_base_msg_add(struct mosquitto__base_msg *base_msg);
-void plugin_persist__handle_base_msg_delete(struct mosquitto__base_msg *base_msg);
-void plugin_persist__handle_retain_msg_set(struct mosquitto__base_msg *base_msg);
-void plugin_persist__handle_retain_msg_delete(struct mosquitto__base_msg *base_msg);
-void plugin_persist__handle_will_add(struct mosquitto *context);
-void plugin_persist__handle_will_delete(struct mosquitto *context);
-
-/* ============================================================
- * Property related functions
- * ============================================================ */
-int keepalive__init(void);
-void keepalive__cleanup(void);
-int keepalive__add(struct mosquitto *context);
-void keepalive__check(void);
-int keepalive__remove(struct mosquitto *context);
-int keepalive__update(struct mosquitto *context);
+ಶೂನ್ಯ LIB_ERROR(ಶೂನ್ಯ);
+ಶೂನ್ಯ plugin__handle_connect(ಸಂರಚನಾ mosquitto *context);
+ಶೂನ್ಯ plugin__handle_disconnect(ಸಂರಚನಾ mosquitto *context, ಪೂರ್ಣಾಙ್ಕ reason);
+ಶೂನ್ಯ plugin__handle_client_offline(ಸಂರಚನಾ mosquitto *context, ಪೂರ್ಣಾಙ್ಕ reason);
+ಪೂರ್ಣಾಙ್ಕ plugin__handle_message_in(ಸಂರಚನಾ mosquitto *context, ಸಂರಚನಾ mosquitto_base_ಸಂದೇಶ_2 *base_ಸಂದೇಶ);
+ಪೂರ್ಣಾಙ್ಕ plugin__handle_message_out(ಸಂರಚನಾ mosquitto *context, ಸಂರಚನಾ mosquitto_base_ಸಂದೇಶ_2 *base_ಸಂದೇಶ);
+ಪೂರ್ಣಾಙ್ಕ plugin__handle_subscribe(ಸಂರಚನಾ mosquitto *context, ಸಂರಚನಾ mosquitto_subscription *sub);
+ಪೂರ್ಣಾಙ್ಕ plugin__handle_unsubscribe(ಸಂರಚನಾ mosquitto *context, ಸಂರಚನಾ mosquitto_subscription *sub);
+ಪೂರ್ಣಾಙ್ಕ plugin__handle_reload(ಶೂನ್ಯ);
+ಶೂನ್ಯ plugin__handle_tick(ಶೂನ್ಯ);
+ಪೂರ್ಣಾಙ್ಕ plugin__callback_unregister_all(mosquitto_plugin_id_t *identifier);
+ಶೂನ್ಯ plugin_persist__handle_restore(ಶೂನ್ಯ);
+ಶೂನ್ಯ plugin_persist__handle_client_add(ಸಂರಚನಾ mosquitto *context);
+ಶೂನ್ಯ plugin_persist__handle_client_delete(ಸಂರಚನಾ mosquitto *context);
+ಶೂನ್ಯ plugin_persist__handle_client_update(ಸಂರಚನಾ mosquitto *context);
+ಶೂನ್ಯ plugin_persist__handle_subscription_add(ಸಂರಚನಾ mosquitto *context, ಧ್ರುವ ಸಂರಚನಾ mosquitto_subscription *sub);
+ಶೂನ್ಯ plugin_persist__handle_subscription_delete(ಸಂರಚನಾ mosquitto *context, ವರ್ಣ *sub);
+ಶೂನ್ಯ plugin_persist_handle_client_ಸಂದೇಶ_add(ಸಂರಚನಾ mosquitto *context, ಧ್ರುವ ಸಂರಚನಾ mosquitto_client_ಸಂದೇಶ *cmsg);
+ಶೂನ್ಯ plugin_persist_handle_client_ಸಂದೇಶ_delete(ಸಂರಚನಾ mosquitto *context, ಧ್ರುವ ಸಂರಚನಾ mosquitto_client_ಸಂದೇಶ *cmsg);
+ಶೂನ್ಯ plugin_persist_handle_client_ಸಂದೇಶ_update(ಸಂರಚನಾ mosquitto *context, ಧ್ರುವ ಸಂರಚನಾ mosquitto_client_ಸಂದೇಶ *cmsg);
+ಶೂನ್ಯ plugin_persist_handle_base_ಸಂದೇಶ_add(ಸಂರಚನಾ mosquitto_base_ಸಂದೇಶ *base_ಸಂದೇಶ);
+ಶೂನ್ಯ plugin_persist_handle_base_ಸಂದೇಶ_delete(ಸಂರಚನಾ mosquitto_base_ಸಂದೇಶ *base_ಸಂದೇಶ);
+ಶೂನ್ಯ plugin_persist_handle_retain_ಸಂದೇಶ_set(ಸಂರಚನಾ mosquitto_base_ಸಂದೇಶ *base_ಸಂದೇಶ);
+ಶೂನ್ಯ plugin_persist_handle_retain_ಸಂದೇಶ_delete(ಸಂರಚನಾ mosquitto_base_ಸಂದೇಶ *base_ಸಂದೇಶ);
+ಶೂನ್ಯ plugin_persist__handle_will_add(ಸಂರಚನಾ mosquitto *context);
+ಶೂನ್ಯ plugin_persist__handle_will_delete(ಸಂರಚನಾ mosquitto *context);
 
 /* ============================================================
  * Property related functions
  * ============================================================ */
-int property__process_connect(struct mosquitto *context, mosquitto_property **props);
-int property__process_will(struct mosquitto *context, struct mosquitto_message_all *msg, mosquitto_property **props);
-int property__process_publish(struct mosquitto__base_msg *base_msg, mosquitto_property **props, int *topic_alias, uint32_t *message_expiry_interval, bool is_bridge);
-int property__process_disconnect(struct mosquitto *context, mosquitto_property **props);
+ಪೂರ್ಣಾಙ್ಕ keepalive__init(ಶೂನ್ಯ);
+ಶೂನ್ಯ keepalive__cleanup(ಶೂನ್ಯ);
+ಪೂರ್ಣಾಙ್ಕ keepalive__add(ಸಂರಚನಾ mosquitto *context);
+ಶೂನ್ಯ keepalive__check(ಶೂನ್ಯ);
+ಪೂರ್ಣಾಙ್ಕ keepalive__remove(ಸಂರಚನಾ mosquitto *context);
+ಪೂರ್ಣಾಙ್ಕ keepalive__update(ಸಂರಚನಾ mosquitto *context);
+
+/* ============================================================
+ * Property related functions
+ * ============================================================ */
+ಪೂರ್ಣಾಙ್ಕ property__process_connect(ಸಂರಚನಾ mosquitto *context, mosquitto_property **props);
+ಪೂರ್ಣಾಙ್ಕ property__process_will(ಸಂರಚನಾ mosquitto *context, ಸಂರಚನಾ mosquitto_message_all *ಸಂದೇಶ, mosquitto_property **props);
+ಪೂರ್ಣಾಙ್ಕ property__process_publish(ಸಂರಚನಾ mosquitto_base_ಸಂದೇಶ *base_ಸಂದೇಶ, mosquitto_property **props, ಪೂರ್ಣಾಙ್ಕ *topic_alias, uint32_t *message_expiry_interval, bool is_bridge);
+ಪೂರ್ಣಾಙ್ಕ property__process_disconnect(ಸಂರಚನಾ mosquitto *context, mosquitto_property **props);
 
 /* ============================================================
  * Retain tree related functions
  * ============================================================ */
-int retain__init(void);
-void retain__clean(struct mosquitto__retainhier **retainhier);
-int retain__queue(struct mosquitto *context, const struct mosquitto_subscription *sub);
-int retain__store(const char *topic, struct mosquitto__base_msg *base_msg, char **split_topics, bool persist);
-void retain__expiry_check(void);
-void retain__expire(struct mosquitto__retainhier **retainhier);
+ಪೂರ್ಣಾಙ್ಕ retain__init(ಶೂನ್ಯ);
+ಶೂನ್ಯ retain__clean(ಸಂರಚನಾ mosquitto__retainhier **retainhier);
+ಪೂರ್ಣಾಙ್ಕ retain__queue(ಸಂರಚನಾ mosquitto *context, ಧ್ರುವ ಸಂರಚನಾ mosquitto_subscription *sub);
+ಪೂರ್ಣಾಙ್ಕ retain__store(ಧ್ರುವ ವರ್ಣ *topic, ಸಂರಚನಾ mosquitto_base_ಸಂದೇಶ *base_ಸಂದೇಶ, ವರ್ಣ **split_topics, bool persist);
+ಶೂನ್ಯ retain__expiry_check(ಶೂನ್ಯ);
+ಶೂನ್ಯ retain__expire(ಸಂರಚನಾ mosquitto__retainhier **retainhier);
 
 /* ============================================================
  * Security related functions
  * ============================================================ */
-int acl__find_acls(struct mosquitto *context);
-int plugin__load_all(void);
-int plugin__unload_all(void);
-int config__plugin_add_secopt(mosquitto_plugin_id_t *plugin, struct mosquitto__security_options *security_options);
+ಪೂರ್ಣಾಙ್ಕ acl__find_acls(ಸಂರಚನಾ mosquitto *context);
+ಪೂರ್ಣಾಙ್ಕ plugin__load_all(ಶೂನ್ಯ);
+ಪೂರ್ಣಾಙ್ಕ plugin__unload_all(ಶೂನ್ಯ);
+ಪೂರ್ಣಾಙ್ಕ config__plugin_add_secopt(mosquitto_plugin_id_t *plugin, ಸಂರಚನಾ mosquitto__security_options *security_options);
 
-int mosquitto_security_init(bool reload);
-int mosquitto_security_cleanup(bool reload);
-int mosquitto_acl_check(struct mosquitto *context, const char *topic, uint32_t payloadlen, void *payload, uint8_t qos, bool retain, mosquitto_property *properties, int access);
-int mosquitto_basic_auth(struct mosquitto *context);
-int mosquitto_psk_key_get(struct mosquitto *context, const char *hint, const char *identity, char *key, int max_key_len);
+ಪೂರ್ಣಾಙ್ಕ mosquitto_security_init(bool reload);
+ಪೂರ್ಣಾಙ್ಕ mosquitto_security_cleanup(bool reload);
+ಪೂರ್ಣಾಙ್ಕ mosquitto_acl_check(ಸಂರಚನಾ mosquitto *context, ಧ್ರುವ ವರ್ಣ *topic, uint32_t payloadlen, ಶೂನ್ಯ *payload, uint8_t qos, bool retain, mosquitto_property *properties, ಪೂರ್ಣಾಙ್ಕ access);
+ಪೂರ್ಣಾಙ್ಕ mosquitto_basic_auth(ಸಂರಚನಾ mosquitto *context);
+ಪೂರ್ಣಾಙ್ಕ mosquitto_psk_ಕೀಲಿ_get(ಸಂರಚನಾ mosquitto *context, ಧ್ರುವ ವರ್ಣ *hint, ಧ್ರುವ ವರ್ಣ *identity, ವರ್ಣ *ಕೀಲಿ, ಪೂರ್ಣಾಙ್ಕ max_ಕೀಲಿ_len);
 
-int mosquitto_security_init_default(void);
-int mosquitto_security_apply_default(void);
-int mosquitto_security_cleanup_default(void);
-int mosquitto_psk_key_get_default(struct mosquitto *context, const char *hint, const char *identity, char *key, int max_key_len);
-int broker_acl_file__init(void);
-void broker_acl_file__cleanup(void);
-int broker_password_file__init(void);
-void broker_password_file__cleanup(void);
-int psk_file__init(void);
-int psk_file__cleanup(void);
+ಪೂರ್ಣಾಙ್ಕ mosquitto_security_init_default(ಶೂನ್ಯ);
+ಪೂರ್ಣಾಙ್ಕ mosquitto_security_apply_default(ಶೂನ್ಯ);
+ಪೂರ್ಣಾಙ್ಕ mosquitto_security_cleanup_default(ಶೂನ್ಯ);
+ಪೂರ್ಣಾಙ್ಕ mosquitto_psk_ಕೀಲಿ_get_default(ಸಂರಚನಾ mosquitto *context, ಧ್ರುವ ವರ್ಣ *hint, ಧ್ರುವ ವರ್ಣ *identity, ವರ್ಣ *ಕೀಲಿ, ಪೂರ್ಣಾಙ್ಕ max_ಕೀಲಿ_len);
+ಪೂರ್ಣಾಙ್ಕ broker_acl_file__init(ಶೂನ್ಯ);
+ಶೂನ್ಯ broker_acl_file__cleanup(ಶೂನ್ಯ);
+ಪೂರ್ಣಾಙ್ಕ broker_password_file__init(ಶೂನ್ಯ);
+ಶೂನ್ಯ broker_password_file__cleanup(ಶೂನ್ಯ);
+ಪೂರ್ಣಾಙ್ಕ psk_file__init(ಶೂನ್ಯ);
+ಪೂರ್ಣಾಙ್ಕ psk_file__cleanup(ಶೂನ್ಯ);
 
-int mosquitto_security_auth_start(struct mosquitto *context, bool reauth, const void *data_in, uint16_t data_in_len, void **data_out, uint16_t *data_out_len);
-int mosquitto_security_auth_continue(struct mosquitto *context, const void *data_in, uint16_t data_len, void **data_out, uint16_t *data_out_len);
+ಪೂರ್ಣಾಙ್ಕ mosquitto_security_auth_start(ಸಂರಚನಾ mosquitto *context, bool reauth, ಧ್ರುವ ಶೂನ್ಯ *data_in, uint16_t data_in_len, ಶೂನ್ಯ **data_out, uint16_t *data_out_len);
+ಪೂರ್ಣಾಙ್ಕ mosquitto_security_auth_continue(ಸಂರಚನಾ mosquitto *context, ಧ್ರುವ ಶೂನ್ಯ *data_in, uint16_t data_len, ಶೂನ್ಯ **data_out, uint16_t *data_out_len);
 
-void unpwd__free_item(struct mosquitto__unpwd **unpwd, struct mosquitto__unpwd *item);
+ಶೂನ್ಯ unpwd__free_item(ಸಂರಚನಾ mosquitto__unpwd **unpwd, ಸಂರಚನಾ mosquitto__unpwd *item);
 
 /* ============================================================
  * Session expiry
  * ============================================================ */
-int session_expiry__add(struct mosquitto *context);
-int session_expiry__add_from_persistence(struct mosquitto *context, time_t expiry_time);
-void session_expiry__add_on_shutdown(void);
-void session_expiry__remove(struct mosquitto *context);
-void session_expiry__remove_all(void);
-void session_expiry__check(void);
-void session_expiry__send_all(void);
+ಪೂರ್ಣಾಙ್ಕ session_expiry__add(ಸಂರಚನಾ mosquitto *context);
+ಪೂರ್ಣಾಙ್ಕ session_expiry__add_from_persistence(ಸಂರಚನಾ mosquitto *context, time_t expiry_time);
+ಶೂನ್ಯ session_expiry__add_on_shutdown(ಶೂನ್ಯ);
+ಶೂನ್ಯ session_expiry__remove(ಸಂರಚನಾ mosquitto *context);
+ಶೂನ್ಯ session_expiry__remove_all(ಶೂನ್ಯ);
+ಶೂನ್ಯ session_expiry__check(ಶೂನ್ಯ);
+ಶೂನ್ಯ session_expiry__send_all(ಶೂನ್ಯ);
 
 /* ============================================================
  * Signals
  * ============================================================ */
-void signal__setup(void);
-int signal__flag_check(void);
+ಶೂನ್ಯ signal__setup(ಶೂನ್ಯ);
+ಪೂರ್ಣಾಙ್ಕ signal__flag_check(ಶೂನ್ಯ);
 
 /* ============================================================
  * Window service and signal related functions
  * ============================================================ */
-#if defined(WIN32) || defined(__CYGWIN__)
-void service_install(char *name);
-void service_uninstall(char *name);
-void service_run(char *name);
+#ಯದಿ defined(WIN32) || defined(__CYGWIN__)
+ಶೂನ್ಯ service_install(ವರ್ಣ *name);
+ಶೂನ್ಯ service_uninstall(ವರ್ಣ *name);
+ಶೂನ್ಯ service_run(ವರ್ಣ *name);
 
 #ifdef WIN32
-DWORD WINAPI SigThreadProc(void *data);
+DWORD WINAPI SigThreadProc(ಶೂನ್ಯ *data);
 #endif
 #endif
 
 /* ============================================================
  * Watchdog
  * ============================================================ */
-void watchdog__init(void);
-void watchdog__check(void);
+ಶೂನ್ಯ watchdog__init(ಶೂನ್ಯ);
+ಶೂನ್ಯ watchdog__check(ಶೂನ್ಯ);
 
 /* ============================================================
  * Websockets related functions
  * ============================================================ */
 #ifdef WITH_WEBSOCKETS
-#  if WITH_WEBSOCKETS == WS_IS_LWS
-void mosq_websockets_init(struct mosquitto__listener *listener, const struct mosquitto__config *conf);
+#  ಯದಿ WITH_WEBSOCKETS == WS_IS_LWS
+ಶೂನ್ಯ mosq_websockets_init(ಸಂರಚನಾ mosquitto__listener *listener, ಧ್ರುವ ಸಂರಚನಾ mosquitto__config *conf);
 #  endif
-int http__context_init(struct mosquitto *context);
-int http__context_cleanup(struct mosquitto *context);
-int http__read(struct mosquitto *context);
+ಪೂರ್ಣಾಙ್ಕ http__context_init(ಸಂರಚನಾ mosquitto *context);
+ಪೂರ್ಣಾಙ್ಕ http__context_cleanup(ಸಂರಚನಾ mosquitto *context);
+ಪೂರ್ಣಾಙ್ಕ http__read(ಸಂರಚನಾ mosquitto *context);
 #endif
-void do_disconnect(struct mosquitto *context, int reason);
+ಶೂನ್ಯ do_disconnect(ಸಂರಚನಾ mosquitto *context, ಪೂರ್ಣಾಙ್ಕ reason);
 
 /* ============================================================
  * PROXY related functions
  * ============================================================ */
-int proxy_v2__read(struct mosquitto *context);
-int proxy_v1__read(struct mosquitto *context);
+ಪೂರ್ಣಾಙ್ಕ proxy_v2__read(ಸಂರಚನಾ mosquitto *context);
+ಪೂರ್ಣಾಙ್ಕ proxy_v1__read(ಸಂರಚನಾ mosquitto *context);
 
 /* ============================================================
  * Will delay
  * ============================================================ */
-int will_delay__add(struct mosquitto *context);
-void will_delay__check(void);
-void will_delay__send_all(void);
-void will_delay__remove(struct mosquitto *mosq);
+ಪೂರ್ಣಾಙ್ಕ will_delay__add(ಸಂರಚನಾ mosquitto *context);
+ಶೂನ್ಯ will_delay__check(ಶೂನ್ಯ);
+ಶೂನ್ಯ will_delay__send_all(ಶೂನ್ಯ);
+ಶೂನ್ಯ will_delay__remove(ಸಂರಚನಾ mosquitto *mosq);
 
 /* ============================================================
  * HTTP Info
  * ============================================================ */
-int http_api__start_local(struct mosquitto__listener *listener);
-int http_api__start(struct mosquitto__listener *listener);
-void http_api__stop(struct mosquitto__listener *listener);
+ಪೂರ್ಣಾಙ್ಕ http_api__start_local(ಸಂರಚನಾ mosquitto__listener *listener);
+ಪೂರ್ಣಾಙ್ಕ http_api__start(ಸಂರಚನಾ mosquitto__listener *listener);
+ಶೂನ್ಯ http_api__stop(ಸಂರಚನಾ mosquitto__listener *listener);
 
 
 /* ============================================================
  * Other
  * ============================================================ */
 #ifdef WITH_XTREPORT
-void xtreport(void);
+ಶೂನ್ಯ xtreport(ಶೂನ್ಯ);
 #endif
 
-void broker_control__init(void);
-void broker_control__cleanup(void);
-void broker_control__reload(void);
+ಶೂನ್ಯ broker_control__init(ಶೂನ್ಯ);
+ಶೂನ್ಯ broker_control__cleanup(ಶೂನ್ಯ);
+ಶೂನ್ಯ broker_control__reload(ಶೂನ್ಯ);
 
 #endif

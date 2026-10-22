@@ -16,43 +16,43 @@ Contributors:
    Roger Light - initial implementation and documentation.
 */
 
-#include "config.h"
+#ಅನ್ತರ್ಭಾವ "config.h"
 
-#include <assert.h>
+#ಅನ್ತರ್ಭಾವ <assert.h>
 
-#include "mosquitto_broker_internal.h"
-#include "mosquitto/mqtt_protocol.h"
-#include "packet_mosq.h"
-#include "property_mosq.h"
-#include "sys_tree.h"
+#ಅನ್ತರ್ಭಾವ "mosquitto_broker_internal.h"
+#ಅನ್ತರ್ಭಾವ "mosquitto/mqtt_protocol.h"
+#ಅನ್ತರ್ಭಾವ "packet_mosq.h"
+#ಅನ್ತರ್ಭಾವ "property_mosq.h"
+#ಅನ್ತರ್ಭಾವ "sys_tree.h"
 
 
-int send__unsuback(struct mosquitto *mosq, uint16_t mid, int reason_code_count, uint8_t *reason_codes, const mosquitto_property *properties)
+ಪೂರ್ಣಾಙ್ಕ send__unsuback(ಸಂರಚನಾ mosquitto *mosq, uint16_t mid, ಪೂರ್ಣಾಙ್ಕ reason_code_ಎಣಿಕೆ, uint8_t *reason_codes, ಧ್ರುವ mosquitto_property *properties)
 {
-	struct mosquitto__packet *packet = NULL;
-	int rc;
+	ಸಂರಚನಾ mosquitto__packet *packet = ರಿಕ್ತ;
+	ಪೂರ್ಣಾಙ್ಕ rc;
 	uint32_t remaining_length;
 
-	assert(mosq);
+	ಪ್ರತಿಜ್ಞಾ(mosq);
 
 	remaining_length = 2;
-	if(mosq->protocol == mosq_p_mqtt5){
+	ಯದಿ(mosq->protocol == mosq_p_mqtt5){
 		remaining_length += mosquitto_property_get_remaining_length(properties);
-		remaining_length += (uint32_t)reason_code_count;
+		remaining_length += (uint32_t)reason_code_ಎಣಿಕೆ;
 	}
 
 	rc = packet__alloc(&packet, CMD_UNSUBACK, remaining_length);
-	if(rc){
-		return rc;
+	ಯದಿ(rc){
+		ಪ್ರತ್ಯಾಗಮ rc;
 	}
 
 	packet__write_uint16(packet, mid);
 
-	if(mosq->protocol == mosq_p_mqtt5){
+	ಯದಿ(mosq->protocol == mosq_p_mqtt5){
 		property__write_all(packet, properties, true);
-		packet__write_bytes(packet, reason_codes, (uint32_t)reason_code_count);
+		packet__write_bytes(packet, reason_codes, (uint32_t)reason_code_ಎಣಿಕೆ);
 	}
 
 	metrics__int_inc(mosq_counter_mqtt_unsuback_sent, 1);
-	return packet__queue(mosq, packet);
+	ಪ್ರತ್ಯಾಗಮ packet__queue(mosq, packet);
 }

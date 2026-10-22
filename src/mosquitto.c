@@ -16,7 +16,7 @@ Contributors:
    Roger Light - initial implementation and documentation.
 */
 
-#include "config.h"
+#ಅನ್ತರ್ಭಾವ "config.h"
 
 #ifndef WIN32
 /* For initgroups() */
@@ -28,110 +28,110 @@ Contributors:
 #endif
 
 #ifndef WIN32
-#include <pwd.h>
-#else
-#include <process.h>
-#include <winsock2.h>
-#include <ws2tcpip.h>
+#ಅನ್ತರ್ಭಾವ <pwd.h>
+#ಅನ್ಯಥಾ
+#ಅನ್ತರ್ಭಾವ <process.h>
+#ಅನ್ತರ್ಭಾವ <winsock2.h>
+#ಅನ್ತರ್ಭಾವ <ws2tcpip.h>
 #endif
 
 #ifndef WIN32
 #  include <sys/time.h>
 #endif
 
-#include <errno.h>
-#include <limits.h>
-#include <signal.h>
-#include <stdio.h>
-#include <string.h>
+#ಅನ್ತರ್ಭಾವ <errno.h>
+#ಅನ್ತರ್ಭಾವ <limits.h>
+#ಅನ್ತರ್ಭಾವ <signal.h>
+#ಅನ್ತರ್ಭಾವ <stdio.h>
+#ಅನ್ತರ್ಭಾವ <string.h>
 #ifdef WITH_SYSTEMD
 #  include <systemd/sd-daemon.h>
 #endif
 #ifdef WITH_WRAP
-#include <tcpd.h>
+#ಅನ್ತರ್ಭಾವ <tcpd.h>
 #endif
 
-#include "mosquitto_broker_internal.h"
-#include "util_mosq.h"
+#ಅನ್ತರ್ಭಾವ "mosquitto_broker_internal.h"
+#ಅನ್ತರ್ಭಾವ "util_mosq.h"
 
-struct mosquitto_db db;
+ಸಂರಚನಾ mosquitto_db db;
 
-struct mosquitto__listener_sock *g_listensock = NULL;
-int g_listensock_count = 0;
+ಸಂರಚನಾ mosquitto__listener_sock *g_listensock = ರಿಕ್ತ;
+ಪೂರ್ಣಾಙ್ಕ g_listensock_ಎಣಿಕೆ = 0;
 
-int g_run = 0;
+ಪೂರ್ಣಾಙ್ಕ g_run = 0;
 #ifdef WITH_WRAP
-#include <syslog.h>
-int allow_severity = LOG_INFO;
-int deny_severity = LOG_INFO;
+#ಅನ್ತರ್ಭಾವ <syslog.h>
+ಪೂರ್ಣಾಙ್ಕ allow_severity = LOG_INFO;
+ಪೂರ್ಣಾಙ್ಕ deny_severity = LOG_INFO;
 #endif
 
 
-static int set_umask(void)
+ಸ್ಥಿರ ಪೂರ್ಣಾಙ್ಕ set_umask(ಶೂನ್ಯ)
 {
-#if !defined(__CYGWIN__) && !defined(WIN32)
+#ಯದಿ !defined(__CYGWIN__) && !defined(WIN32)
 	/* This affects files that are written to, apart from those that are
 	 * created using mosquitto_fopen(..., restrict_read=true), which sets a
 	 * umask of 077. */
-	const char *mask_s;
-	char *endptr = NULL;
+	ಧ್ರುವ ವರ್ಣ *mask_s;
+	ವರ್ಣ *endptr = ರಿಕ್ತ;
 	long mask;
 
 
 	mask_s = getenv("UMASK_SET");
-	if(mask_s){
+	ಯದಿ(mask_s){
 		errno = 0;
 		mask = strtol(mask_s, &endptr, 8);
-		if(errno || endptr == mask_s || *endptr != '\0'){
-			log__printf(NULL, MOSQ_LOG_ERR, "Error: UMASK_SET environment variable not a valid octal number.");
-			return MOSQ_ERR_INVAL;
+		ಯದಿ(errno || endptr == mask_s || *endptr != '\0'){
+			log__printf(ರಿಕ್ತ, MOSQ_LOG_ERR, "Error: UMASK_SET environment variable not a valid octal number.");
+			ಪ್ರತ್ಯಾಗಮ MOSQ_ERR_INVAL;
 		}
-		if(mask < 000 || mask > 0777){
-			log__printf(NULL, MOSQ_LOG_ERR, "Error: UMASK_SET environment variable out of range.");
-			return MOSQ_ERR_INVAL;
+		ಯದಿ(mask < 000 || mask > 0777){
+			log__printf(ರಿಕ್ತ, MOSQ_LOG_ERR, "Error: UMASK_SET environment variable out of range.");
+			ಪ್ರತ್ಯಾಗಮ MOSQ_ERR_INVAL;
 		}
 		umask((mode_t)mask);
 	}
 #endif
-	return MOSQ_ERR_SUCCESS;
+	ಪ್ರತ್ಯಾಗಮ MOSQ_ERR_SUCCESS;
 }
 
 
 /* coverity[ +tainted_string_sanitize_content : arg-0 ] */
-static int check_uid(const char *s, const char *name)
+ಸ್ಥಿರ ಪೂರ್ಣಾಙ್ಕ check_uid(ಧ್ರುವ ವರ್ಣ *s, ಧ್ರುವ ವರ್ಣ *name)
 {
-	char *endptr = NULL;
+	ವರ್ಣ *endptr = ರಿಕ್ತ;
 	long id;
 
 	errno = 0;
 	id = strtol(s, &endptr, 10);
-	if(errno || endptr == s || *endptr != '\0'){
-		log__printf(NULL, MOSQ_LOG_ERR, "Error: %s not a valid ID '%s'", name, s);
-		return -1;
+	ಯದಿ(errno || endptr == s || *endptr != '\0'){
+		log__printf(ರಿಕ್ತ, MOSQ_LOG_ERR, "Error: %s not a valid ID '%s'", name, s);
+		ಪ್ರತ್ಯಾಗಮ -1;
 	}
-	if(id < 0){
-		log__printf(NULL, MOSQ_LOG_ERR, "Error: %s must not be negative", name);
-		return -1;
+	ಯದಿ(id < 0){
+		log__printf(ರಿಕ್ತ, MOSQ_LOG_ERR, "Error: %s must not be negative", name);
+		ಪ್ರತ್ಯಾಗಮ -1;
 	}
-	if(id > INT_MAX){
-		log__printf(NULL, MOSQ_LOG_ERR, "Error: %s must not be less than %d", name, INT_MAX);
-		return -1;
+	ಯದಿ(id > INT_MAX){
+		log__printf(ರಿಕ್ತ, MOSQ_LOG_ERR, "Error: %s must not be less than %d", name, INT_MAX);
+		ಪ್ರತ್ಯಾಗಮ -1;
 	}
-	return (int)id;
+	ಪ್ರತ್ಯಾಗಮ (ಪೂರ್ಣಾಙ್ಕ)id;
 }
 
 
 /* Prints the name of the process user from its user id if not found
  * it simply prints out the user id
  */
-static void print_pwname(void)
+ಸ್ಥಿರ ಶೂನ್ಯ print_pwname(ಶೂನ್ಯ)
 {
 #ifndef WIN32
-	struct passwd *pwd = getpwuid(geteuid());
-	if(!pwd){
-		log__printf(NULL, MOSQ_LOG_INFO, "Info: running mosquitto as user id: %i.", geteuid());
-	}else{
-		log__printf(NULL, MOSQ_LOG_INFO, "Info: running mosquitto as user: %s.", pwd->pw_name);
+	ಸಂರಚನಾ passwd *pwd = getpwuid(geteuid());
+	ಯದಿ(!pwd){
+		log__printf(ರಿಕ್ತ, MOSQ_LOG_INFO, "Info: running mosquitto as user id: %i.", geteuid());
+	}ಅನ್ಯಥಾ{
+		log__printf(ರಿಕ್ತ, MOSQ_LOG_INFO, "Info: running mosquitto as user: %s.", pwd->pw_name);
 	}
 #endif
 }
@@ -147,195 +147,195 @@ static void print_pwname(void)
  */
 
 
-static int drop_privileges(struct mosquitto__config *config)
+ಸ್ಥಿರ ಪೂರ್ಣಾಙ್ಕ drop_privileges(ಸಂರಚನಾ mosquitto__config *config)
 {
-#if !defined(__CYGWIN__) && !defined(WIN32)
-	struct passwd *pwd;
-	char *err;
-	int rc;
-	const char *puid_s, *pgid_s;
-	int puid;
-	int pgid;
+#ಯದಿ !defined(__CYGWIN__) && !defined(WIN32)
+	ಸಂರಚನಾ passwd *pwd;
+	ವರ್ಣ *err;
+	ಪೂರ್ಣಾಙ್ಕ rc;
+	ಧ್ರುವ ವರ್ಣ *puid_s, *pgid_s;
+	ಪೂರ್ಣಾಙ್ಕ puid;
+	ಪೂರ್ಣಾಙ್ಕ pgid;
 
-	const char *snap = getenv("SNAP_NAME");
-	if(snap && !strcmp(snap, "mosquitto")){
+	ಧ್ರುವ ವರ್ಣ *snap = getenv("SNAP_NAME");
+	ಯದಿ(snap && !strcmp(snap, "mosquitto")){
 		/* Don't attempt to drop privileges if running as a snap */
-		return MOSQ_ERR_SUCCESS;
+		ಪ್ರತ್ಯಾಗಮ MOSQ_ERR_SUCCESS;
 	}
 
 	/* PUID and PGID are docker custom user mappings */
 	puid_s = getenv("PUID");
 	pgid_s = getenv("PGID");
 
-	if(geteuid() == 0){
-		if(puid_s || pgid_s){
-			if(pgid_s){
+	ಯದಿ(geteuid() == 0){
+		ಯದಿ(puid_s || pgid_s){
+			ಯದಿ(pgid_s){
 				pgid = check_uid(pgid_s, "PGID");
-				if(pgid < 0){
-					return MOSQ_ERR_INVAL;
-				}else if(pgid > 0){
+				ಯದಿ(pgid < 0){
+					ಪ್ರತ್ಯಾಗಮ MOSQ_ERR_INVAL;
+				}ಅನ್ಯಥಾ ಯದಿ(pgid > 0){
 					rc = setgid((gid_t)pgid);
-					if(rc == -1){
+					ಯದಿ(rc == -1){
 						err = strerror(errno);
-						log__printf(NULL, MOSQ_LOG_ERR, "Error setting gid whilst dropping privileges: %s.", err);
-						return MOSQ_ERR_ERRNO;
+						log__printf(ರಿಕ್ತ, MOSQ_LOG_ERR, "Error setting gid whilst dropping privileges: %s.", err);
+						ಪ್ರತ್ಯಾಗಮ MOSQ_ERR_ERRNO;
 					}
 				}
 			}
-			if(puid_s){
+			ಯದಿ(puid_s){
 				puid = check_uid(puid_s, "PUID");
-				if(puid < 0){
-					return MOSQ_ERR_INVAL;
-				}else if(puid > 0){
+				ಯದಿ(puid < 0){
+					ಪ್ರತ್ಯಾಗಮ MOSQ_ERR_INVAL;
+				}ಅನ್ಯಥಾ ಯದಿ(puid > 0){
 					rc = setuid((uid_t)puid);
-					if(rc == -1){
+					ಯದಿ(rc == -1){
 						err = strerror(errno);
-						log__printf(NULL, MOSQ_LOG_ERR, "Error setting uid whilst dropping privileges: %s.", err);
-						return MOSQ_ERR_ERRNO;
+						log__printf(ರಿಕ್ತ, MOSQ_LOG_ERR, "Error setting uid whilst dropping privileges: %s.", err);
+						ಪ್ರತ್ಯಾಗಮ MOSQ_ERR_ERRNO;
 					}
 				}
 			}
-		}else if(config->user && strcmp(config->user, "root")){
+		}ಅನ್ಯಥಾ ಯದಿ(config->user && strcmp(config->user, "root")){
 			pwd = getpwnam(config->user);
-			if(!pwd){
-				if(strcmp(config->user, "mosquitto")){
-					log__printf(NULL, MOSQ_LOG_ERR, "Error: Unable to drop privileges to '%s' because this user does not exist.", config->user);
-					return MOSQ_ERR_INVAL;
-				}else{
-					log__printf(NULL, MOSQ_LOG_ERR, "Warning: Unable to drop privileges to '%s' because this user does not exist. Trying 'nobody' instead.", config->user);
+			ಯದಿ(!pwd){
+				ಯದಿ(strcmp(config->user, "mosquitto")){
+					log__printf(ರಿಕ್ತ, MOSQ_LOG_ERR, "Error: Unable to drop privileges to '%s' because this user does not exist.", config->user);
+					ಪ್ರತ್ಯಾಗಮ MOSQ_ERR_INVAL;
+				}ಅನ್ಯಥಾ{
+					log__printf(ರಿಕ್ತ, MOSQ_LOG_ERR, "Warning: Unable to drop privileges to '%s' because this user does not exist. Trying 'nobody' instead.", config->user);
 					pwd = getpwnam("nobody");
-					if(!pwd){
-						log__printf(NULL, MOSQ_LOG_ERR, "Error: Unable to drop privileges to 'nobody'.");
-						return MOSQ_ERR_ERRNO;
+					ಯದಿ(!pwd){
+						log__printf(ರಿಕ್ತ, MOSQ_LOG_ERR, "Error: Unable to drop privileges to 'nobody'.");
+						ಪ್ರತ್ಯಾಗಮ MOSQ_ERR_ERRNO;
 					}
 				}
 			}
-			if(initgroups(config->user, pwd->pw_gid) == -1){
+			ಯದಿ(initgroups(config->user, pwd->pw_gid) == -1){
 				err = strerror(errno);
-				log__printf(NULL, MOSQ_LOG_ERR, "Error setting groups whilst dropping privileges: %s.", err);
-				return MOSQ_ERR_ERRNO;
+				log__printf(ರಿಕ್ತ, MOSQ_LOG_ERR, "Error setting groups whilst dropping privileges: %s.", err);
+				ಪ್ರತ್ಯಾಗಮ MOSQ_ERR_ERRNO;
 			}
 			rc = setgid(pwd->pw_gid);
-			if(rc == -1){
+			ಯದಿ(rc == -1){
 				err = strerror(errno);
-				log__printf(NULL, MOSQ_LOG_ERR, "Error setting gid whilst dropping privileges: %s.", err);
-				return MOSQ_ERR_ERRNO;
+				log__printf(ರಿಕ್ತ, MOSQ_LOG_ERR, "Error setting gid whilst dropping privileges: %s.", err);
+				ಪ್ರತ್ಯಾಗಮ MOSQ_ERR_ERRNO;
 			}
 			rc = setuid(pwd->pw_uid);
-			if(rc == -1){
+			ಯದಿ(rc == -1){
 				err = strerror(errno);
-				log__printf(NULL, MOSQ_LOG_ERR, "Error setting uid whilst dropping privileges: %s.", err);
-				return MOSQ_ERR_ERRNO;
+				log__printf(ರಿಕ್ತ, MOSQ_LOG_ERR, "Error setting uid whilst dropping privileges: %s.", err);
+				ಪ್ರತ್ಯಾಗಮ MOSQ_ERR_ERRNO;
 			}
 		}
 		print_pwname();
-		if(geteuid() == 0 || getegid() == 0){
-			log__printf(NULL, MOSQ_LOG_WARNING, "Warning: Mosquitto should not be run as root/administrator.");
+		ಯದಿ(geteuid() == 0 || getegid() == 0){
+			log__printf(ರಿಕ್ತ, MOSQ_LOG_WARNING, "Warning: Mosquitto should not be run as root/administrator.");
 		}
-	}else{
+	}ಅನ್ಯಥಾ{
 		print_pwname();
 	}
 
-#else
+#ಅನ್ಯಥಾ
 	UNUSED(config);
 #endif
-	return MOSQ_ERR_SUCCESS;
+	ಪ್ರತ್ಯಾಗಮ MOSQ_ERR_SUCCESS;
 }
 
 
-static void mosquitto__daemonise(void)
+ಸ್ಥಿರ ಶೂನ್ಯ mosquitto__daemonise(ಶೂನ್ಯ)
 {
 #ifndef WIN32
-	char *err;
+	ವರ್ಣ *err;
 	pid_t pid;
 
 	pid = fork();
-	if(pid < 0){
+	ಯದಿ(pid < 0){
 		err = strerror(errno);
-		log__printf(NULL, MOSQ_LOG_ERR, "Error in fork: %s", err);
+		log__printf(ರಿಕ್ತ, MOSQ_LOG_ERR, "Error in fork: %s", err);
 		exit(1);
 	}
-	if(pid > 0){
+	ಯದಿ(pid > 0){
 		exit(0);
 	}
-	if(setsid() < 0){
+	ಯದಿ(setsid() < 0){
 		err = strerror(errno);
-		log__printf(NULL, MOSQ_LOG_ERR, "Error in setsid: %s", err);
+		log__printf(ರಿಕ್ತ, MOSQ_LOG_ERR, "Error in setsid: %s", err);
 		exit(1);
 	}
 
-	if(!freopen("/dev/null", "r", stdin)){
-		log__printf(NULL, MOSQ_LOG_ERR, "Error whilst daemonising (%s): %s", "stdin", strerror(errno));
+	ಯದಿ(!freopen("/dev/null", "r", stdin)){
+		log__printf(ರಿಕ್ತ, MOSQ_LOG_ERR, "Error whilst daemonising (%s): %s", "stdin", strerror(errno));
 		exit(1);
 	}
-	if(!freopen("/dev/null", "w", stdout)){
-		log__printf(NULL, MOSQ_LOG_ERR, "Error whilst daemonising (%s): %s", "stdout", strerror(errno));
+	ಯದಿ(!freopen("/dev/null", "w", stdout)){
+		log__printf(ರಿಕ್ತ, MOSQ_LOG_ERR, "Error whilst daemonising (%s): %s", "stdout", strerror(errno));
 		exit(1);
 	}
-	if(!freopen("/dev/null", "w", stderr)){
-		log__printf(NULL, MOSQ_LOG_ERR, "Error whilst daemonising (%s): %s", "stderr", strerror(errno));
+	ಯದಿ(!freopen("/dev/null", "w", stderr)){
+		log__printf(ರಿಕ್ತ, MOSQ_LOG_ERR, "Error whilst daemonising (%s): %s", "stderr", strerror(errno));
 		exit(1);
 	}
-#else
-	log__printf(NULL, MOSQ_LOG_WARNING, "Warning: Can't start in daemon mode in Windows.");
+#ಅನ್ಯಥಾ
+	log__printf(ರಿಕ್ತ, MOSQ_LOG_WARNING, "Warning: Can't start in daemon mode in Windows.");
 #endif
 }
 
 
-static int pid__write(void)
+ಸ್ಥಿರ ಪೂರ್ಣಾಙ್ಕ pid__write(ಶೂನ್ಯ)
 {
 	FILE *pid;
 
-	if(db.config->pid_file){
+	ಯದಿ(db.config->pid_file){
 		pid = mosquitto_fopen(db.config->pid_file, "wt", false);
-		if(pid){
+		ಯದಿ(pid){
 			fprintf(pid, "%d", getpid());
 			fclose(pid);
-		}else{
-			log__printf(NULL, MOSQ_LOG_ERR, "Error: Unable to write pid file.");
-			return MOSQ_ERR_ERRNO;
+		}ಅನ್ಯಥಾ{
+			log__printf(ರಿಕ್ತ, MOSQ_LOG_ERR, "Error: Unable to write pid file.");
+			ಪ್ರತ್ಯಾಗಮ MOSQ_ERR_ERRNO;
 		}
 	}
-	return MOSQ_ERR_SUCCESS;
+	ಪ್ರತ್ಯಾಗಮ MOSQ_ERR_SUCCESS;
 }
 
 
-static void report_features(void)
+ಸ್ಥಿರ ಶೂನ್ಯ report_features(ಶೂನ್ಯ)
 {
 #ifdef WITH_BRIDGE
-	log__printf(NULL, MOSQ_LOG_INFO, "Bridge support available.");
-#else
-	log__printf(NULL, MOSQ_LOG_INFO, "Bridge support NOT available.");
+	log__printf(ರಿಕ್ತ, MOSQ_LOG_INFO, "Bridge support available.");
+#ಅನ್ಯಥಾ
+	log__printf(ರಿಕ್ತ, MOSQ_LOG_INFO, "Bridge support NOT available.");
 #endif
 #ifdef WITH_PERSISTENCE
-	log__printf(NULL, MOSQ_LOG_INFO, "Persistence support available.");
-#else
-	log__printf(NULL, MOSQ_LOG_INFO, "Persistence support NOT available.");
+	log__printf(ರಿಕ್ತ, MOSQ_LOG_INFO, "Persistence support available.");
+#ಅನ್ಯಥಾ
+	log__printf(ರಿಕ್ತ, MOSQ_LOG_INFO, "Persistence support NOT available.");
 #endif
 #ifdef WITH_TLS
-	log__printf(NULL, MOSQ_LOG_INFO, "TLS support available.");
-#else
-	log__printf(NULL, MOSQ_LOG_INFO, "TLS support NOT available.");
+	log__printf(ರಿಕ್ತ, MOSQ_LOG_INFO, "TLS support available.");
+#ಅನ್ಯಥಾ
+	log__printf(ರಿಕ್ತ, MOSQ_LOG_INFO, "TLS support NOT available.");
 #endif
 #ifdef FINAL_WITH_TLS_PSK
-	log__printf(NULL, MOSQ_LOG_INFO, "TLS-PSK support available.");
-#else
-	log__printf(NULL, MOSQ_LOG_INFO, "TLS-PSK support NOT available.");
+	log__printf(ರಿಕ್ತ, MOSQ_LOG_INFO, "TLS-PSK support available.");
+#ಅನ್ಯಥಾ
+	log__printf(ರಿಕ್ತ, MOSQ_LOG_INFO, "TLS-PSK support NOT available.");
 #endif
 #ifdef WITH_WEBSOCKETS
-	log__printf(NULL, MOSQ_LOG_INFO, "Websockets support available.");
-#else
-	log__printf(NULL, MOSQ_LOG_INFO, "Websockets support NOT available.");
+	log__printf(ರಿಕ್ತ, MOSQ_LOG_INFO, "Websockets support available.");
+#ಅನ್ಯಥಾ
+	log__printf(ರಿಕ್ತ, MOSQ_LOG_INFO, "Websockets support NOT available.");
 #endif
-	if(getenv("MOSQUITTO_UNSAFE_ALLOW_SYMLINKS")){
-		log__printf(NULL, MOSQ_LOG_NOTICE, "MOSQUITTO_UNSAFE_ALLOW_SYMLINKS is set, loading of sensitive files through symbolic links is allowed.");
+	ಯದಿ(getenv("MOSQUITTO_UNSAFE_ALLOW_SYMLINKS")){
+		log__printf(ರಿಕ್ತ, MOSQ_LOG_NOTICE, "MOSQUITTO_UNSAFE_ALLOW_SYMLINKS is set, loading of sensitive files through symbolic links is allowed.");
 	}
 }
 
 
-static void post_shutdown_cleanup(void)
+ಸ್ಥಿರ ಶೂನ್ಯ post_shutdown_cleanup(ಶೂನ್ಯ)
 {
-	struct mosquitto *ctxt, *ctxt_tmp;
+	ಸಂರಚನಾ mosquitto *ctxt, *ctxt_tmp;
 
 	/* FIXME - this isn't quite right, all wills with will delay zero should be
 	 * sent now, but those with positive will delay should be persisted and
@@ -348,7 +348,7 @@ static void post_shutdown_cleanup(void)
 
 	/* Set to true only after persistence events have been processed */
 	db.shutdown = true;
-	log__printf(NULL, MOSQ_LOG_INFO, "mosquitto version %s terminating", VERSION);
+	log__printf(ರಿಕ್ತ, MOSQ_LOG_INFO, "mosquitto version %s terminating", VERSION);
 
 	broker_control__cleanup();
 
@@ -360,8 +360,8 @@ static void post_shutdown_cleanup(void)
 	listeners__stop();
 
 	HASH_ITER(hh_id, db.contexts_by_id, ctxt, ctxt_tmp){
-#if defined(WITH_WEBSOCKETS) && WITH_WEBSOCKETS == WS_IS_LWS
-		if(!ctxt->wsi)
+#ಯದಿ defined(WITH_WEBSOCKETS) && WITH_WEBSOCKETS == WS_IS_LWS
+		ಯದಿ(!ctxt->wsi)
 #endif
 		{
 			ctxt->is_persisted = false; /* prevent persistence removal */
@@ -386,8 +386,8 @@ static void post_shutdown_cleanup(void)
 	plugin__unload_all();
 	mosquitto_security_cleanup(false);
 
-	if(db.config->pid_file){
-		(void)remove(db.config->pid_file);
+	ಯದಿ(db.config->pid_file){
+		(ಶೂನ್ಯ)remove(db.config->pid_file);
 	}
 
 	mux__cleanup();
@@ -398,7 +398,7 @@ static void post_shutdown_cleanup(void)
 }
 
 
-static void cjson_init(void)
+ಸ್ಥಿರ ಶೂನ್ಯ cjson_init(ಶೂನ್ಯ)
 {
 	cJSON_Hooks hooks = {mosquitto_malloc, mosquitto_free};
 	cJSON_InitHooks(&hooks);
@@ -407,78 +407,78 @@ static void cjson_init(void)
 #ifdef WITH_FUZZING
 
 
-int mosquitto_fuzz_main(int argc, char *argv[])
-#else
+ಪೂರ್ಣಾಙ್ಕ mosquitto_fuzz_main(ಪೂರ್ಣಾಙ್ಕ argc, ವರ್ಣ *argv[])
+#ಅನ್ಯಥಾ
 
 
-int main(int argc, char *argv[])
+ಪೂರ್ಣಾಙ್ಕ main(ಪೂರ್ಣಾಙ್ಕ argc, ವರ್ಣ *argv[])
 #endif
 {
-	struct mosquitto__config config;
-	int rc;
+	ಸಂರಚನಾ mosquitto__config config;
+	ಪೂರ್ಣಾಙ್ಕ rc;
 
 	mosquitto_time_init();
 	cjson_init();
 
-#if defined(WIN32) || defined(__CYGWIN__)
-	if(argc == 2){
-		if(!strcmp(argv[1], "run")){
+#ಯದಿ defined(WIN32) || defined(__CYGWIN__)
+	ಯದಿ(argc == 2){
+		ಯದಿ(!strcmp(argv[1], "run")){
 			service_run(argv[0]);
-			return 0;
-		}else if(!strcmp(argv[1], "install")){
+			ಪ್ರತ್ಯಾಗಮ 0;
+		}ಅನ್ಯಥಾ ಯದಿ(!strcmp(argv[1], "install")){
 			service_install(argv[0]);
-			return 0;
-		}else if(!strcmp(argv[1], "uninstall")){
+			ಪ್ರತ್ಯಾಗಮ 0;
+		}ಅನ್ಯಥಾ ಯದಿ(!strcmp(argv[1], "uninstall")){
 			service_uninstall(argv[0]);
-			return 0;
+			ಪ್ರತ್ಯಾಗಮ 0;
 		}
 	}
 #endif
 
 
 #ifdef WIN32
-	if(_setmaxstdio(8192) != 8192){
+	ಯದಿ(_setmaxstdio(8192) != 8192){
 		/* Old limit was 2048 */
-		if(_setmaxstdio(2048) != 2048){
-			log__printf(NULL, MOSQ_LOG_WARNING, "Warning: Unable to increase maximum allowed connections. This session may be limited to 512 connections.");
+		ಯದಿ(_setmaxstdio(2048) != 2048){
+			log__printf(ರಿಕ್ತ, MOSQ_LOG_WARNING, "Warning: Unable to increase maximum allowed connections. This session may be limited to 512 connections.");
 		}
 	}
 #endif
 
-	memset(&db, 0, sizeof(struct mosquitto_db));
+	memset(&db, 0, ಪರಿಮಾಣ(ಸಂರಚನಾ mosquitto_db));
 	db.now_s = mosquitto_time();
-	db.now_real_s = time(NULL);
-	mosquitto_broker_node_id_set(0);
+	db.now_real_s = time(ರಿಕ್ತ);
+	mosquitto_broker_ಗಂಟು_id_set(0);
 
 	net__broker_init();
 
 	db.config = &config;
 	config__init(&config);
 	rc = config__parse_args(&config, argc, argv);
-	if(rc == MOSQ_ERR_UNKNOWN){
+	ಯದಿ(rc == MOSQ_ERR_UNKNOWN){
 		post_shutdown_cleanup();
-		return MOSQ_ERR_SUCCESS;
-	}else if(rc != MOSQ_ERR_SUCCESS){
+		ಪ್ರತ್ಯಾಗಮ MOSQ_ERR_SUCCESS;
+	}ಅನ್ಯಥಾ ಯದಿ(rc != MOSQ_ERR_SUCCESS){
 		post_shutdown_cleanup();
-		return rc;
+		ಪ್ರತ್ಯಾಗಮ rc;
 	}
 
-	if(config.test_configuration){
-		if(!db.config_file){
-			log__printf(NULL, MOSQ_LOG_ERR, "Please provide a configuration file to test.");
+	ಯದಿ(config.test_configuration){
+		ಯದಿ(!db.config_file){
+			log__printf(ರಿಕ್ತ, MOSQ_LOG_ERR, "Please provide a configuration file to test.");
 			post_shutdown_cleanup();
-			return MOSQ_ERR_INVAL;
-		}else{
-			log__printf(NULL, MOSQ_LOG_INFO, "Configuration file is OK.");
+			ಪ್ರತ್ಯಾಗಮ MOSQ_ERR_INVAL;
+		}ಅನ್ಯಥಾ{
+			log__printf(ರಿಕ್ತ, MOSQ_LOG_INFO, "Configuration file is OK.");
 			post_shutdown_cleanup();
-			return MOSQ_ERR_SUCCESS;
+			ಪ್ರತ್ಯಾಗಮ MOSQ_ERR_SUCCESS;
 		}
 	}
 
 	rc = keepalive__init();
-	if(rc){
+	ಯದಿ(rc){
 		post_shutdown_cleanup();
-		return rc;
+		ಪ್ರತ್ಯಾಗಮ rc;
 	}
 
 	/* Drop privileges permanently immediately after the config is loaded.
@@ -486,80 +486,80 @@ int main(int argc, char *argv[])
 	 * etc. are accessible my the `mosquitto` or other unprivileged user.
 	 */
 	rc = drop_privileges(&config);
-	if(rc){
+	ಯದಿ(rc){
 		post_shutdown_cleanup();
-		return rc;
+		ಪ್ರತ್ಯಾಗಮ rc;
 	}
 	/* Set umask based on environment variable */
 	rc = set_umask();
-	if(rc){
+	ಯದಿ(rc){
 		post_shutdown_cleanup();
-		return rc;
+		ಪ್ರತ್ಯಾಗಮ rc;
 	}
 
 
-	if(config.daemon){
+	ಯದಿ(config.daemon){
 		mosquitto__daemonise();
 	}
 
 	rc = pid__write();
-	if(rc){
+	ಯದಿ(rc){
 		post_shutdown_cleanup();
-		return rc;
+		ಪ್ರತ್ಯಾಗಮ rc;
 	}
 
 	rc = db__open(&config);
-	if(rc != MOSQ_ERR_SUCCESS){
-		log__printf(NULL, MOSQ_LOG_ERR, "Error: Couldn't open database.");
+	ಯದಿ(rc != MOSQ_ERR_SUCCESS){
+		log__printf(ರಿಕ್ತ, MOSQ_LOG_ERR, "Error: Couldn't open database.");
 		post_shutdown_cleanup();
-		return rc;
+		ಪ್ರತ್ಯಾಗಮ rc;
 	}
 
 	/* Initialise logging only after initialising the database in case we're
 	 * logging to topics */
 	rc = log__init(&config);
-	if(rc){
+	ಯದಿ(rc){
 		post_shutdown_cleanup();
-		return rc;
+		ಪ್ರತ್ಯಾಗಮ rc;
 	}
-	log__printf(NULL, MOSQ_LOG_INFO, "mosquitto version %s starting", VERSION);
-	if(db.config_file){
-		log__printf(NULL, MOSQ_LOG_INFO, "Config loaded from %s.", db.config_file);
-	}else{
-		log__printf(NULL, MOSQ_LOG_INFO, "Using default config.");
+	log__printf(ರಿಕ್ತ, MOSQ_LOG_INFO, "mosquitto version %s starting", VERSION);
+	ಯದಿ(db.config_file){
+		log__printf(ರಿಕ್ತ, MOSQ_LOG_INFO, "Config loaded from %s.", db.config_file);
+	}ಅನ್ಯಥಾ{
+		log__printf(ರಿಕ್ತ, MOSQ_LOG_INFO, "Using default config.");
 	}
 	report_features();
 
 	rc = plugin__load_all();
-	if(rc){
+	ಯದಿ(rc){
 		post_shutdown_cleanup();
-		return rc;
+		ಪ್ರತ್ಯಾಗಮ rc;
 	}
 	rc = mosquitto_security_init(false);
-	if(rc){
+	ಯದಿ(rc){
 		post_shutdown_cleanup();
-		return rc;
+		ಪ್ರತ್ಯಾಗಮ rc;
 	}
 
 	plugin_persist__handle_restore();
 	session_expiry__check();
 	retain__expire(&db.retains);
-	db__msg_store_compact();
+	db_ಸಂದೇಶ_store_compact();
 
-#ifdef WITH_SYS_TREE
-	sys_tree__init();
+#ifdef WITH_SYS_ವೃಕ್ಷ
+	sys_ವೃಕ್ಷ_init();
 #endif
 
 	rc = mux__init();
-	if(rc){
+	ಯದಿ(rc){
 		post_shutdown_cleanup();
-		return rc;
+		ಪ್ರತ್ಯಾಗಮ rc;
 	}
 
 	rc = listeners__start();
-	if(rc){
+	ಯದಿ(rc){
 		post_shutdown_cleanup();
-		return rc;
+		ಪ್ರತ್ಯಾಗಮ rc;
 	}
 
 
@@ -572,48 +572,48 @@ int main(int argc, char *argv[])
 	g_run = 1;
 	signal__setup();
 
-	log__printf(NULL, MOSQ_LOG_INFO, "mosquitto version %s running", VERSION);
+	log__printf(ರಿಕ್ತ, MOSQ_LOG_INFO, "mosquitto version %s running", VERSION);
 #ifdef WITH_SYSTEMD
 	sd_notify(0, "READY=1");
 #endif
 
-	rc = mosquitto_main_loop(g_listensock, g_listensock_count);
+	rc = mosquitto_main_loop(g_listensock, g_listensock_ಎಣಿಕೆ);
 
 	post_shutdown_cleanup();
 
-	return rc;
+	ಪ್ರತ್ಯಾಗಮ rc;
 }
 
 #ifdef WIN32
 
 
-int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nCmdShow)
+ಪೂರ್ಣಾಙ್ಕ WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lp_Cmd_ಸಾಲು, ಪೂರ್ಣಾಙ್ಕ nCmdShow)
 {
-	char **argv;
-	int argc = 1;
-	char *token;
-	char *saveptr = NULL;
-	int rc;
+	ವರ್ಣ **argv;
+	ಪೂರ್ಣಾಙ್ಕ argc = 1;
+	ವರ್ಣ *token;
+	ವರ್ಣ *saveptr = ರಿಕ್ತ;
+	ಪೂರ್ಣಾಙ್ಕ rc;
 
 	UNUSED(hInstance);
 	UNUSED(hPrevInstance);
 	UNUSED(nCmdShow);
 
-	argv = mosquitto_malloc(sizeof(char *)*1);
+	argv = mosquitto_malloc(ಪರಿಮಾಣ(ವರ್ಣ *)*1);
 	argv[0] = "mosquitto";
-	token = strtok_r(lpCmdLine, " ", &saveptr);
-	while(token){
+	token = strtok_r(lp_Cmd_ಸಾಲು, " ", &saveptr);
+	ಯಾವತ್(token){
 		argc++;
-		argv = mosquitto_realloc(argv, sizeof(char *)*argc);
-		if(!argv){
+		argv = mosquitto_realloc(argv, ಪರಿಮಾಣ(ವರ್ಣ *)*argc);
+		ಯದಿ(!argv){
 			fprintf(stderr, "Error: Out of memory.\n");
-			return MOSQ_ERR_NOMEM;
+			ಪ್ರತ್ಯಾಗಮ MOSQ_ERR_NOMEM;
 		}
 		argv[argc-1] = token;
-		token = strtok_r(NULL, " ", &saveptr);
+		token = strtok_r(ರಿಕ್ತ, " ", &saveptr);
 	}
 	rc = main(argc, argv);
 	mosquitto_FREE(argv);
-	return rc;
+	ಪ್ರತ್ಯಾಗಮ rc;
 }
 #endif

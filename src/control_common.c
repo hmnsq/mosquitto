@@ -1,151 +1,151 @@
-#include "config.h"
+#ಅನ್ತರ್ಭಾವ "config.h"
 
-#include <mosquitto/mqtt_protocol.h>
-#include <mosquitto/broker.h>
-#include <mosquitto/broker_control.h>
+#ಅನ್ತರ್ಭಾವ <mosquitto/mqtt_protocol.h>
+#ಅನ್ತರ್ಭಾವ <mosquitto/broker.h>
+#ಅನ್ತರ್ಭಾವ <mosquitto/broker_control.h>
 
-#include <stdlib.h>
-#include <string.h>
+#ಅನ್ತರ್ಭಾವ <stdlib.h>
+#ಅನ್ತರ್ಭಾವ <string.h>
 
-#include <cjson/cJSON.h>
+#ಅನ್ತರ್ಭಾವ <cjson/cJSON.h>
 #define CJSON_VERSION_FULL (CJSON_VERSION_MAJOR*1000000+CJSON_VERSION_MINOR*1000+CJSON_VERSION_PATCH)
 
 
-void mosquitto_control_command_reply(struct mosquitto_control_cmd *cmd, const char *error)
+ಶೂನ್ಯ mosquitto_control_command_reply(ಸಂರಚನಾ mosquitto_control_cmd *cmd, ಧ್ರುವ ವರ್ಣ *error)
 {
 	cJSON *j_response;
 
 	j_response = cJSON_CreateObject();
-	if(j_response == NULL){
-		return;
+	ಯದಿ(j_response == ರಿಕ್ತ){
+		ಪ್ರತ್ಯಾಗಮ;
 	}
 
-	if(cJSON_AddStringToObject(j_response, "command", cmd->command_name) == NULL
-			|| (error && cJSON_AddStringToObject(j_response, "error", error) == NULL)
-			|| (cmd->correlation_data && cJSON_AddStringToObject(j_response, "correlationData", cmd->correlation_data) == NULL)
+	ಯದಿ(cJSON_AddStringToObject(j_response, "command", cmd->command_name) == ರಿಕ್ತ
+			|| (error && cJSON_AddStringToObject(j_response, "error", error) == ರಿಕ್ತ)
+			|| (cmd->correlation_data && cJSON_AddStringToObject(j_response, "correlationData", cmd->correlation_data) == ರಿಕ್ತ)
 			){
 
 		cJSON_Delete(j_response);
-		return;
+		ಪ್ರತ್ಯಾಗಮ;
 	}
 
 	cJSON_AddItemToArray(cmd->j_responses, j_response);
 }
 
 
-void mosquitto_control_send_response(cJSON *tree, const char *topic)
+ಶೂನ್ಯ mosquitto_control_send_response(cJSON *ವೃಕ್ಷ, ಧ್ರುವ ವರ್ಣ *topic)
 {
-	char *payload;
+	ವರ್ಣ *payload;
 	size_t payload_len;
 
-	payload = cJSON_PrintUnformatted(tree);
-	cJSON_Delete(tree);
-	if(payload == NULL){
-		return;
+	payload = cJSON_PrintUnformatted(ವೃಕ್ಷ);
+	cJSON_Delete(ವೃಕ್ಷ);
+	ಯದಿ(payload == ರಿಕ್ತ){
+		ಪ್ರತ್ಯಾಗಮ;
 	}
 
 	payload_len = strlen(payload);
-	if(payload_len > MQTT_MAX_PAYLOAD){
-		free(payload);
-		return;
+	ಯದಿ(payload_len > MQTT_MAX_PAYLOAD){
+		ಮುಕ್ತ(payload);
+		ಪ್ರತ್ಯಾಗಮ;
 	}
-	mosquitto_broker_publish(NULL, topic, (int)payload_len, payload, 0, 0, NULL);
+	mosquitto_broker_publish(ರಿಕ್ತ, topic, (ಪೂರ್ಣಾಙ್ಕ)payload_len, payload, 0, 0, ರಿಕ್ತ);
 }
 
 
-static int control__generic_handle_commands(struct mosquitto_control_cmd *cmd, cJSON *commands, void *userdata, int (*cmd_cb)(struct mosquitto_control_cmd *cmd, void *userdata))
+ಸ್ಥಿರ ಪೂರ್ಣಾಙ್ಕ control__generic_handle_commands(ಸಂರಚನಾ mosquitto_control_cmd *cmd, cJSON *commands, ಶೂನ್ಯ *userdata, ಪೂರ್ಣಾಙ್ಕ (*cmd_cb)(ಸಂರಚನಾ mosquitto_control_cmd *cmd, ಶೂನ್ಯ *userdata))
 {
 	cJSON *aiter;
 
 	cJSON_ArrayForEach(aiter, commands){
 		cmd->command_name = "Unknown command";
-		if(cJSON_IsObject(aiter)){
+		ಯದಿ(cJSON_IsObject(aiter)){
 			cJSON *j_tmp = cJSON_GetObjectItem(aiter, "command");
-			const char *command = cJSON_GetStringValue(j_tmp);
-			if(command){
+			ಧ್ರುವ ವರ್ಣ *command = c_JSON_Get_String_ಮೌಲ್ಯ(j_tmp);
+			ಯದಿ(command){
 				cmd->j_command = aiter;
-				cmd->correlation_data = NULL;
+				cmd->correlation_data = ರಿಕ್ತ;
 				cmd->command_name = command;
 
 				j_tmp = cJSON_GetObjectItem(aiter, "correlationData");
-				if(j_tmp){
-					if(cJSON_IsString(j_tmp)){
-						cmd->correlation_data = cJSON_GetStringValue(j_tmp);
-					}else{
+				ಯದಿ(j_tmp){
+					ಯದಿ(cJSON_IsString(j_tmp)){
+						cmd->correlation_data = c_JSON_Get_String_ಮೌಲ್ಯ(j_tmp);
+					}ಅನ್ಯಥಾ{
 						mosquitto_control_command_reply(cmd, "Invalid correlationData data type.");
-						return MOSQ_ERR_INVAL;
+						ಪ್ರತ್ಯಾಗಮ MOSQ_ERR_INVAL;
 					}
 				}
 
 				cmd_cb(cmd, userdata);
-			}else{
+			}ಅನ್ಯಥಾ{
 				mosquitto_control_command_reply(cmd, "Missing command");
-				return MOSQ_ERR_INVAL;
+				ಪ್ರತ್ಯಾಗಮ MOSQ_ERR_INVAL;
 			}
-		}else{
+		}ಅನ್ಯಥಾ{
 			mosquitto_control_command_reply(cmd, "Command not an object");
-			return MOSQ_ERR_INVAL;
+			ಪ್ರತ್ಯಾಗಮ MOSQ_ERR_INVAL;
 		}
 	}
-	return MOSQ_ERR_SUCCESS;
+	ಪ್ರತ್ಯಾಗಮ MOSQ_ERR_SUCCESS;
 }
 
 
-int mosquitto_control_generic_callback(struct mosquitto_evt_control *event_data, const char *response_topic, void *userdata,
-		int (*cmd_cb)(struct mosquitto_control_cmd *cmd, void *userdata))
+ಪೂರ್ಣಾಙ್ಕ mosquitto_control_generic_callback(ಸಂರಚನಾ mosquitto_evt_control *event_data, ಧ್ರುವ ವರ್ಣ *response_topic, ಶೂನ್ಯ *userdata,
+		ಪೂರ್ಣಾಙ್ಕ (*cmd_cb)(ಸಂರಚನಾ mosquitto_control_cmd *cmd, ಶೂನ್ಯ *userdata))
 
 {
-	struct mosquitto_evt_control *ed = event_data;
-	struct mosquitto_control_cmd cmd;
-	cJSON *tree, *commands;
-	cJSON *j_response_tree;
+	ಸಂರಚನಾ mosquitto_evt_control *ed = event_data;
+	ಸಂರಚನಾ mosquitto_control_cmd cmd;
+	cJSON *ವೃಕ್ಷ, *commands;
+	cJSON *j_response_ವೃಕ್ಷ;
 
-	if(!event_data || !cmd_cb){
-		return MOSQ_ERR_INVAL;
+	ಯದಿ(!event_data || !cmd_cb){
+		ಪ್ರತ್ಯಾಗಮ MOSQ_ERR_INVAL;
 	}
 
-	memset(&cmd, 0, sizeof(cmd));
+	memset(&cmd, 0, ಪರಿಮಾಣ(cmd));
 	cmd.command_name = "Unknown command";
 	cmd.client = ed->client;
 
 	/* Create object for responses */
-	j_response_tree = cJSON_CreateObject();
-	if(j_response_tree == NULL){
-		return MOSQ_ERR_NOMEM;
+	j_response_ವೃಕ್ಷ = cJSON_CreateObject();
+	ಯದಿ(j_response_ವೃಕ್ಷ == ರಿಕ್ತ){
+		ಪ್ರತ್ಯಾಗಮ MOSQ_ERR_NOMEM;
 	}
-	cmd.j_responses = cJSON_AddArrayToObject(j_response_tree, "responses");
-	if(cmd.j_responses == NULL){
-		cJSON_Delete(j_response_tree);
-		return MOSQ_ERR_NOMEM;
+	cmd.j_responses = cJSON_AddArrayToObject(j_response_ವೃಕ್ಷ, "responses");
+	ಯದಿ(cmd.j_responses == ರಿಕ್ತ){
+		cJSON_Delete(j_response_ವೃಕ್ಷ);
+		ಪ್ರತ್ಯಾಗಮ MOSQ_ERR_NOMEM;
 	}
 
 	/* Parse cJSON tree.
 	 * Using cJSON_ParseWithLength() is the best choice here, but Mosquitto
 	 * always adds an extra 0 to the end of the payload memory, so using
 	 * cJSON_Parse() on its own will still not overrun. */
-#if CJSON_VERSION_FULL < 1007013
-	tree = cJSON_Parse(ed->payload);
-#else
-	tree = cJSON_ParseWithLength(ed->payload, ed->payloadlen);
+#ಯದಿ CJSON_VERSION_FULL < 1007013
+	ವೃಕ್ಷ = cJSON_Parse(ed->payload);
+#ಅನ್ಯಥಾ
+	ವೃಕ್ಷ = cJSON_ParseWithLength(ed->payload, ed->payloadlen);
 #endif
-	if(tree == NULL){
+	ಯದಿ(ವೃಕ್ಷ == ರಿಕ್ತ){
 		mosquitto_control_command_reply(&cmd, "Payload not valid JSON");
-		mosquitto_control_send_response(j_response_tree, response_topic);
-		return MOSQ_ERR_SUCCESS;
+		mosquitto_control_send_response(j_response_ವೃಕ್ಷ, response_topic);
+		ಪ್ರತ್ಯಾಗಮ MOSQ_ERR_SUCCESS;
 	}
-	commands = cJSON_GetObjectItem(tree, "commands");
-	if(commands == NULL || !cJSON_IsArray(commands)){
-		cJSON_Delete(tree);
+	commands = cJSON_GetObjectItem(ವೃಕ್ಷ, "commands");
+	ಯದಿ(commands == ರಿಕ್ತ || !cJSON_IsArray(commands)){
+		cJSON_Delete(ವೃಕ್ಷ);
 		mosquitto_control_command_reply(&cmd, "Invalid/missing commands");
-		mosquitto_control_send_response(j_response_tree, response_topic);
-		return MOSQ_ERR_SUCCESS;
+		mosquitto_control_send_response(j_response_ವೃಕ್ಷ, response_topic);
+		ಪ್ರತ್ಯಾಗಮ MOSQ_ERR_SUCCESS;
 	}
 
 	/* Handle commands */
 	control__generic_handle_commands(&cmd, commands, userdata, cmd_cb);
-	cJSON_Delete(tree);
+	cJSON_Delete(ವೃಕ್ಷ);
 
-	mosquitto_control_send_response(j_response_tree, response_topic);
+	mosquitto_control_send_response(j_response_ವೃಕ್ಷ, response_topic);
 
-	return MOSQ_ERR_SUCCESS;
+	ಪ್ರತ್ಯಾಗಮ MOSQ_ERR_SUCCESS;
 }

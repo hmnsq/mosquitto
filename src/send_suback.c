@@ -16,44 +16,44 @@ Contributors:
    Roger Light - initial implementation and documentation.
 */
 
-#include "config.h"
+#ಅನ್ತರ್ಭಾವ "config.h"
 
-#include "mosquitto_broker_internal.h"
-#include "mosquitto/mqtt_protocol.h"
-#include "packet_mosq.h"
-#include "property_mosq.h"
-#include "sys_tree.h"
-#include "util_mosq.h"
+#ಅನ್ತರ್ಭಾವ "mosquitto_broker_internal.h"
+#ಅನ್ತರ್ಭಾವ "mosquitto/mqtt_protocol.h"
+#ಅನ್ತರ್ಭಾವ "packet_mosq.h"
+#ಅನ್ತರ್ಭಾವ "property_mosq.h"
+#ಅನ್ತರ್ಭಾವ "sys_tree.h"
+#ಅನ್ತರ್ಭಾವ "util_mosq.h"
 
 
-int send__suback(struct mosquitto *context, uint16_t mid, uint32_t payloadlen, const void *payload)
+ಪೂರ್ಣಾಙ್ಕ send__suback(ಸಂರಚನಾ mosquitto *context, uint16_t mid, uint32_t payloadlen, ಧ್ರುವ ಶೂನ್ಯ *payload)
 {
-	struct mosquitto__packet *packet = NULL;
-	int rc;
-	mosquitto_property *properties = NULL;
+	ಸಂರಚನಾ mosquitto__packet *packet = ರಿಕ್ತ;
+	ಪೂರ್ಣಾಙ್ಕ rc;
+	mosquitto_property *properties = ರಿಕ್ತ;
 	uint32_t remaining_length;
 
-	log__printf(NULL, MOSQ_LOG_DEBUG, "Sending SUBACK to %s", context->id);
+	log__printf(ರಿಕ್ತ, MOSQ_LOG_DEBUG, "Sending SUBACK to %s", context->id);
 
 	remaining_length = 2+payloadlen;
-	if(context->protocol == mosq_p_mqtt5){
+	ಯದಿ(context->protocol == mosq_p_mqtt5){
 		remaining_length += mosquitto_property_get_remaining_length(properties);
 	}
 	rc = packet__alloc(&packet, CMD_SUBACK, remaining_length);
-	if(rc){
-		return rc;
+	ಯದಿ(rc){
+		ಪ್ರತ್ಯಾಗಮ rc;
 	}
 	packet__write_uint16(packet, mid);
 
-	if(context->protocol == mosq_p_mqtt5){
+	ಯದಿ(context->protocol == mosq_p_mqtt5){
 		/* We don't use Reason String or User Property yet. */
 		property__write_all(packet, properties, true);
 	}
 
-	if(payloadlen){
+	ಯದಿ(payloadlen){
 		packet__write_bytes(packet, payload, payloadlen);
 	}
 
 	metrics__int_inc(mosq_counter_mqtt_suback_sent, 1);
-	return packet__queue(context, packet);
+	ಪ್ರತ್ಯಾಗಮ packet__queue(context, packet);
 }

@@ -22,40 +22,40 @@ Contributors:
  * compatible output file. It is for debugging purposes only and is most likely
  * of no interest to end users.
  */
-#include "config.h"
+#ಅನ್ತರ್ಭಾವ "config.h"
 
-#include <inttypes.h>
-#include <stdint.h>
-#include <stdio.h>
-#include <uthash.h>
+#ಅನ್ತರ್ಭಾವ <inttypes.h>
+#ಅನ್ತರ್ಭಾವ <stdint.h>
+#ಅನ್ತರ್ಭಾವ <stdio.h>
+#ಅನ್ತರ್ಭಾವ <uthash.h>
 
-#include "mosquitto_broker_internal.h"
-#include "mosquitto_internal.h"
-#include "net_mosq.h"
+#ಅನ್ತರ್ಭಾವ "mosquitto_broker_internal.h"
+#ಅನ್ತರ್ಭಾವ "mosquitto_internal.h"
+#ಅನ್ತರ್ಭಾವ "net_mosq.h"
 
 
-static void client_cost(FILE *fptr, struct mosquitto *context, int fn_index)
+ಸ್ಥಿರ ಶೂನ್ಯ client_cost(FILE *fptr, ಸಂರಚನಾ mosquitto *context, ಪೂರ್ಣಾಙ್ಕ fn_index)
 {
-	long pkt_count, pkt_bytes;
-	long cmsg_count;
+	long pkt_ಎಣಿಕೆ, pkt_bytes;
+	long cmsg_ಎಣಿಕೆ;
 	long cmsg_bytes;
 	long tBytes;
 
-	pkt_count = 1;
+	pkt_ಎಣಿಕೆ = 1;
 	pkt_bytes = context->in_packet.packet_length + context->out_packet_bytes;
 
-	cmsg_count = context->msgs_in.inflight_count + context->msgs_in.queued_count;
+	cmsg_ಎಣಿಕೆ = context->msgs_in.inflight_ಎಣಿಕೆ + context->msgs_in.queued_ಎಣಿಕೆ;
 	cmsg_bytes = context->msgs_in.inflight_bytes + context->msgs_in.queued_bytes;
-	cmsg_count += context->msgs_out.inflight_count + context->msgs_out.queued_count;
+	cmsg_ಎಣಿಕೆ += context->msgs_out.inflight_ಎಣಿಕೆ + context->msgs_out.queued_ಎಣಿಕೆ;
 	cmsg_bytes += context->msgs_out.inflight_bytes + context->msgs_out.queued_bytes;
 
 	tBytes = pkt_bytes + cmsg_bytes;
-	if(context->id){
+	ಯದಿ(context->id){
 		tBytes += (long)strlen(context->id);
 	}
 	fprintf(fptr, "%d %ld %lu %lu %lu %lu %d 0 0 %" PRIu64 " %" PRIu64 " %" PRIu64 "\n", fn_index,
 			tBytes,
-			pkt_count, cmsg_count,
+			pkt_ಎಣಿಕೆ, cmsg_ಎಣಿಕೆ,
 			pkt_bytes, cmsg_bytes,
 			context->sock == INVALID_SOCKET?0:context->sock,
 			context->stats.messages_sent,
@@ -65,36 +65,36 @@ static void client_cost(FILE *fptr, struct mosquitto *context, int fn_index)
 }
 
 
-static void report_subscriptions(FILE *fptr, struct mosquitto *context, int *fn_index_max)
+ಸ್ಥಿರ ಶೂನ್ಯ report_subscriptions(FILE *fptr, ಸಂರಚನಾ mosquitto *context, ಪೂರ್ಣಾಙ್ಕ *fn_index_max)
 {
-	for(int i=0; i<context->subs_count; i++){
-		if(context->subs && context->subs[i]){
-			struct mosquitto__subhier *subhier = context->subs[i]->hier;
-			int topic_count = 0;
-			char *topics[100];
+	ಪ್ರತಿ(ಪೂರ್ಣಾಙ್ಕ i=0; i<context->subs_ಎಣಿಕೆ; i++){
+		ಯದಿ(context->subs && context->subs[i]){
+			ಸಂರಚನಾ mosquitto__subhier *subhier = context->subs[i]->hier;
+			ಪೂರ್ಣಾಙ್ಕ topic_ಎಣಿಕೆ = 0;
+			ವರ್ಣ *topics[100];
 
-			do{
-				topics[topic_count] = subhier->topic;
+			ಕುರು{
+				topics[topic_ಎಣಿಕೆ] = subhier->topic;
 				subhier = subhier->parent;
-				topic_count++;
-				if(topic_count == 100){
-					break;
+				topic_ಎಣಿಕೆ++;
+				ಯದಿ(topic_ಎಣಿಕೆ == 100){
+					ಭಙ್ಗ;
 				}
-			}while(subhier);
-			if(topic_count == 100){
-				continue;
+			}ಯಾವತ್(subhier);
+			ಯದಿ(topic_ಎಣಿಕೆ == 100){
+				ಅನುವರ್ತ;
 			}
 
 			fprintf(fptr, "cfn=(%d) ", *fn_index_max);
-			if(topics[topic_count-2] && topics[topic_count-2][0] == '\0'){
-				topic_count--;
+			ಯದಿ(topics[topic_ಎಣಿಕೆ-2] && topics[topic_ಎಣಿಕೆ-2][0] == '\0'){
+				topic_ಎಣಿಕೆ--;
 			}
-			for(int j=topic_count-2; j>0; j--){
-				if(topics[j]){
+			ಪ್ರತಿ(ಪೂರ್ಣಾಙ್ಕ j=topic_ಎಣಿಕೆ-2; j>0; j--){
+				ಯದಿ(topics[j]){
 					fprintf(fptr, "%s/", topics[j]);
 				}
 			}
-			if(topics[0]){
+			ಯದಿ(topics[0]){
 				fprintf(fptr, "%s\n", topics[0]);
 			}
 
@@ -106,21 +106,21 @@ static void report_subscriptions(FILE *fptr, struct mosquitto *context, int *fn_
 }
 
 
-void xtreport(void)
+ಶೂನ್ಯ xtreport(ಶೂನ್ಯ)
 {
 	pid_t pid;
-	char filename[40];
+	ವರ್ಣ filename[40];
 	FILE *fptr;
-	struct mosquitto *context, *ctxt_tmp;
-	int fn_index = 2, fn_index_max;
-	static int iter = 1;
+	ಸಂರಚನಾ mosquitto *context, *ctxt_tmp;
+	ಪೂರ್ಣಾಙ್ಕ fn_index = 2, fn_index_max;
+	ಸ್ಥಿರ ಪೂರ್ಣಾಙ್ಕ iter = 1;
 
 	pid = getpid();
 	snprintf(filename, 40, "/tmp/xtmosquitto.kcg.%d.%d", pid, iter);
 	iter++;
 	fptr = fopen(filename, "wt");
-	if(fptr == NULL){
-		return;
+	ಯದಿ(fptr == ರಿಕ್ತ){
+		ಪ್ರತ್ಯಾಗಮ;
 	}
 
 	fprintf(fptr, "# callgrind format\n");
@@ -148,9 +148,9 @@ void xtreport(void)
 
 	fn_index = 2;
 	HASH_ITER(hh_id, db.contexts_by_id, context, ctxt_tmp){
-		if(context->id){
+		ಯದಿ(context->id){
 			fprintf(fptr, "cfn=(%d) %s\n", fn_index, context->id);
-		}else{
+		}ಅನ್ಯಥಾ{
 			fprintf(fptr, "cfn=(%d) unknown\n", fn_index);
 		}
 		fprintf(fptr, "calls=1 %d\n", fn_index);
@@ -171,13 +171,13 @@ void xtreport(void)
 	fprintf(fptr, "\nfn=(%d) messages\n", fn_index_max);
 	fprintf(fptr, "1 0 0 0 0 0 0 0 0 0 0 0\n");
 
-	struct mosquitto__base_msg *base_msg, *base_msg_tmp;
+	ಸಂರಚನಾ mosquitto_base_ಸಂದೇಶ *base_ಸಂದೇಶ, *base_ಸಂದೇಶ_tmp;
 
-	HASH_ITER(hh, db.msg_store, base_msg, base_msg_tmp){
-		if(base_msg->ref_count > 1){
-			fprintf(fptr, "cfn=(%d) %" PRIu64 "\n", fn_index_max, base_msg->data.store_id);
-			fprintf(fptr, "calls=%d %d\n", base_msg->ref_count, fn_index_max);
-			fprintf(fptr, "%d 0 0 0 0 0 0 0 %d 0 0 0\n", fn_index_max, base_msg->ref_count);
+	HASH_ITER(hh, db.ಸಂದೇಶ_store, base_ಸಂದೇಶ, base_ಸಂದೇಶ_tmp){
+		ಯದಿ(base_ಸಂದೇಶ->ref_ಎಣಿಕೆ > 1){
+			fprintf(fptr, "cfn=(%d) %" PRIu64 "\n", fn_index_max, base_ಸಂದೇಶ->data.store_id);
+			fprintf(fptr, "calls=%d %d\n", base_ಸಂದೇಶ->ref_ಎಣಿಕೆ, fn_index_max);
+			fprintf(fptr, "%d 0 0 0 0 0 0 0 %d 0 0 0\n", fn_index_max, base_ಸಂದೇಶ->ref_ಎಣಿಕೆ);
 			fn_index_max++;
 		}
 	}

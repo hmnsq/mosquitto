@@ -16,215 +16,215 @@ Contributors:
    Roger Light - initial implementation and documentation.
 */
 
-#include "config.h"
+#ಅನ್ತರ್ಭಾವ "config.h"
 
-#include <stdio.h>
-#include <string.h>
+#ಅನ್ತರ್ಭಾವ <stdio.h>
+#ಅನ್ತರ್ಭಾವ <string.h>
 
-#include "mosquitto_broker_internal.h"
-#include "mosquitto/mqtt_protocol.h"
-#include "property_mosq.h"
-#include "property_common.h"
+#ಅನ್ತರ್ಭಾವ "mosquitto_broker_internal.h"
+#ಅನ್ತರ್ಭಾವ "mosquitto/mqtt_protocol.h"
+#ಅನ್ತರ್ಭಾವ "property_mosq.h"
+#ಅನ್ತರ್ಭಾವ "property_common.h"
 
 
 /* Process the incoming properties, we should be able to assume that only valid
  * properties for CONNECT are present here. */
-int property__process_connect(struct mosquitto *context, mosquitto_property **props)
+ಪೂರ್ಣಾಙ್ಕ property__process_connect(ಸಂರಚನಾ mosquitto *context, mosquitto_property **props)
 {
 	mosquitto_property *p;
 
 	p = *props;
 
-	while(p){
-		switch(mosquitto_property_identifier(p)){
-			case MQTT_PROP_SESSION_EXPIRY_INTERVAL:
-				context->session_expiry_interval = mosquitto_property_int32_value(p);
-				break;
+	ಯಾವತ್(p){
+		ವಿಕಲ್ಪ(mosquitto_property_identifier(p)){
+			ಪಕ್ಷ MQTT_PROP_SESSION_EXPIRY_INTERVAL:
+				context->session_expiry_interval = mosquitto_property_int32_ಮೌಲ್ಯ(p);
+				ಭಙ್ಗ;
 
-			case MQTT_PROP_RECEIVE_MAXIMUM:
-				context->msgs_out.inflight_maximum = mosquitto_property_int16_value(p);
-				if(context->msgs_out.inflight_maximum == 0){
-					log__printf(NULL, MOSQ_LOG_INFO, "Protocol error from %s: CONNECT packet with receive-maximum = 0.", context->id);
-					return MOSQ_ERR_PROTOCOL;
+			ಪಕ್ಷ MQTT_PROP_RECEIVE_MAXIMUM:
+				context->msgs_out.inflight_maximum = mosquitto_property_int16_ಮೌಲ್ಯ(p);
+				ಯದಿ(context->msgs_out.inflight_maximum == 0){
+					log__printf(ರಿಕ್ತ, MOSQ_LOG_INFO, "Protocol error from %s: CONNECT packet with receive-maximum = 0.", context->id);
+					ಪ್ರತ್ಯಾಗಮ MOSQ_ERR_PROTOCOL;
 				}
 				context->msgs_out.inflight_quota = context->msgs_out.inflight_maximum;
-				break;
+				ಭಙ್ಗ;
 
-			case MQTT_PROP_MAXIMUM_PACKET_SIZE:
-				context->maximum_packet_size = mosquitto_property_int32_value(p);
-				if(context->maximum_packet_size == 0){
-					log__printf(NULL, MOSQ_LOG_INFO, "Protocol error from %s: CONNECT packet with maximum-packet-size = 0.", context->id);
-					return MOSQ_ERR_PROTOCOL;
+			ಪಕ್ಷ MQTT_PROP_MAXIMUM_PACKET_SIZE:
+				context->maximum_packet_size = mosquitto_property_int32_ಮೌಲ್ಯ(p);
+				ಯದಿ(context->maximum_packet_size == 0){
+					log__printf(ರಿಕ್ತ, MOSQ_LOG_INFO, "Protocol error from %s: CONNECT packet with maximum-packet-size = 0.", context->id);
+					ಪ್ರತ್ಯಾಗಮ MOSQ_ERR_PROTOCOL;
 				}
-				break;
+				ಭಙ್ಗ;
 
-			case MQTT_PROP_TOPIC_ALIAS_MAXIMUM:
-				context->alias_max_l2r = mosquitto_property_int16_value(p);
-				if(context->alias_max_l2r > context->listener->max_topic_alias_broker){
+			ಪಕ್ಷ MQTT_PROP_TOPIC_ALIAS_MAXIMUM:
+				context->alias_max_l2r = mosquitto_property_int16_ಮೌಲ್ಯ(p);
+				ಯದಿ(context->alias_max_l2r > context->listener->max_topic_alias_broker){
 					context->alias_max_l2r = context->listener->max_topic_alias_broker;
 				}
-				break;
+				ಭಙ್ಗ;
 
-			default:
-				break;
+			ಸ್ವಭಾವ:
+				ಭಙ್ಗ;
 		}
 		p = mosquitto_property_next(p);
 	}
 
-	return MOSQ_ERR_SUCCESS;
+	ಪ್ರತ್ಯಾಗಮ MOSQ_ERR_SUCCESS;
 }
 
 
-int property__process_will(struct mosquitto *context, struct mosquitto_message_all *msg, mosquitto_property **props)
+ಪೂರ್ಣಾಙ್ಕ property__process_will(ಸಂರಚನಾ mosquitto *context, ಸಂರಚನಾ mosquitto_message_all *ಸಂದೇಶ, mosquitto_property **props)
 {
 	mosquitto_property *p, *p_prev;
-	mosquitto_property *msg_properties, *msg_properties_last;
+	mosquitto_property *ಸಂದೇಶ_properties, *ಸಂದೇಶ_properties_last;
 
 	p = *props;
-	p_prev = NULL;
-	msg_properties = NULL;
-	msg_properties_last = NULL;
-	msg->expiry_interval = MSG_EXPIRY_INFINITE;
-	while(p){
-		switch(mosquitto_property_identifier(p)){
-			case MQTT_PROP_CONTENT_TYPE:
-			case MQTT_PROP_CORRELATION_DATA:
-			case MQTT_PROP_PAYLOAD_FORMAT_INDICATOR:
-			case MQTT_PROP_RESPONSE_TOPIC:
-			case MQTT_PROP_USER_PROPERTY:
+	p_prev = ರಿಕ್ತ;
+	ಸಂದೇಶ_properties = ರಿಕ್ತ;
+	ಸಂದೇಶ_properties_last = ರಿಕ್ತ;
+	ಸಂದೇಶ->expiry_interval = ಸಂದೇಶ_EXPIRY_INFINITE;
+	ಯಾವತ್(p){
+		ವಿಕಲ್ಪ(mosquitto_property_identifier(p)){
+			ಪಕ್ಷ MQTT_PROP_CONTENT_TYPE:
+			ಪಕ್ಷ MQTT_PROP_CORRELATION_DATA:
+			ಪಕ್ಷ MQTT_PROP_PAYLOAD_FORMAT_INDICATOR:
+			ಪಕ್ಷ MQTT_PROP_RESPONSE_TOPIC:
+			ಪಕ್ಷ MQTT_PROP_USER_PROPERTY:
 				/* We save these properties for transmission with the PUBLISH */
 
 				/* Add this property to the end of the list */
-				if(msg_properties){
-					msg_properties_last->next = p;
-					msg_properties_last = p;
-				}else{
-					msg_properties = p;
-					msg_properties_last = p;
+				ಯದಿ(ಸಂದೇಶ_properties){
+					ಸಂದೇಶ_properties_last->next = p;
+					ಸಂದೇಶ_properties_last = p;
+				}ಅನ್ಯಥಾ{
+					ಸಂದೇಶ_properties = p;
+					ಸಂದೇಶ_properties_last = p;
 				}
 
 				/* And remove it from *props */
-				if(p_prev){
+				ಯದಿ(p_prev){
 					p_prev->next = mosquitto_property_next(p);
 					p = mosquitto_property_next(p_prev);
-				}else{
+				}ಅನ್ಯಥಾ{
 					*props = mosquitto_property_next(p);
 					p = *props;
 				}
-				msg_properties_last->next = NULL;
-				break;
+				ಸಂದೇಶ_properties_last->next = ರಿಕ್ತ;
+				ಭಙ್ಗ;
 
-			case MQTT_PROP_WILL_DELAY_INTERVAL:
+			ಪಕ್ಷ MQTT_PROP_WILL_DELAY_INTERVAL:
 				/* Leave this in *props, to be freed */
-				context->will_delay_interval = mosquitto_property_int32_value(p);
+				context->will_delay_interval = mosquitto_property_int32_ಮೌಲ್ಯ(p);
 				p_prev = p;
 				p = mosquitto_property_next(p);
-				break;
+				ಭಙ್ಗ;
 
-			case MQTT_PROP_MESSAGE_EXPIRY_INTERVAL:
+			ಪಕ್ಷ MQTT_PROP_MESSAGE_EXPIRY_INTERVAL:
 				/* Leave this in *props, to be freed */
-				msg->expiry_interval = mosquitto_property_int32_value(p);
+				ಸಂದೇಶ->expiry_interval = mosquitto_property_int32_ಮೌಲ್ಯ(p);
 				p_prev = p;
 				p = mosquitto_property_next(p);
-				break;
+				ಭಙ್ಗ;
 
-			default:
-				msg->properties = msg_properties;
-				log__printf(NULL, MOSQ_LOG_INFO, "Protocol error from %s: CONNECT packet invalid property (%d).", context->id, p->identifier);
-				return MOSQ_ERR_PROTOCOL;
-				break;
+			ಸ್ವಭಾವ:
+				ಸಂದೇಶ->properties = ಸಂದೇಶ_properties;
+				log__printf(ರಿಕ್ತ, MOSQ_LOG_INFO, "Protocol error from %s: CONNECT packet invalid property (%d).", context->id, p->identifier);
+				ಪ್ರತ್ಯಾಗಮ MOSQ_ERR_PROTOCOL;
+				ಭಙ್ಗ;
 		}
 	}
 
-	msg->properties = msg_properties;
-	return MOSQ_ERR_SUCCESS;
+	ಸಂದೇಶ->properties = ಸಂದೇಶ_properties;
+	ಪ್ರತ್ಯಾಗಮ MOSQ_ERR_SUCCESS;
 }
 
 
-int property__process_publish(struct mosquitto__base_msg *base_msg, mosquitto_property **props, int *topic_alias, uint32_t *message_expiry_interval, bool is_bridge)
+ಪೂರ್ಣಾಙ್ಕ property__process_publish(ಸಂರಚನಾ mosquitto_base_ಸಂದೇಶ *base_ಸಂದೇಶ, mosquitto_property **props, ಪೂರ್ಣಾಙ್ಕ *topic_alias, uint32_t *message_expiry_interval, bool is_bridge)
 {
 	mosquitto_property *p, *p_prev;
-	mosquitto_property *msg_properties_last;
+	mosquitto_property *ಸಂದೇಶ_properties_last;
 
 	p = *props;
-	p_prev = NULL;
-	base_msg->data.properties = NULL;
-	msg_properties_last = NULL;
-	while(p){
-		switch(mosquitto_property_identifier(p)){
-			case MQTT_PROP_CONTENT_TYPE:
-			case MQTT_PROP_CORRELATION_DATA:
-			case MQTT_PROP_PAYLOAD_FORMAT_INDICATOR:
-			case MQTT_PROP_RESPONSE_TOPIC:
-			case MQTT_PROP_USER_PROPERTY:
-				if(base_msg->data.properties){
-					msg_properties_last->next = p;
-					msg_properties_last = p;
-				}else{
-					base_msg->data.properties = p;
-					msg_properties_last = p;
+	p_prev = ರಿಕ್ತ;
+	base_ಸಂದೇಶ->data.properties = ರಿಕ್ತ;
+	ಸಂದೇಶ_properties_last = ರಿಕ್ತ;
+	ಯಾವತ್(p){
+		ವಿಕಲ್ಪ(mosquitto_property_identifier(p)){
+			ಪಕ್ಷ MQTT_PROP_CONTENT_TYPE:
+			ಪಕ್ಷ MQTT_PROP_CORRELATION_DATA:
+			ಪಕ್ಷ MQTT_PROP_PAYLOAD_FORMAT_INDICATOR:
+			ಪಕ್ಷ MQTT_PROP_RESPONSE_TOPIC:
+			ಪಕ್ಷ MQTT_PROP_USER_PROPERTY:
+				ಯದಿ(base_ಸಂದೇಶ->data.properties){
+					ಸಂದೇಶ_properties_last->next = p;
+					ಸಂದೇಶ_properties_last = p;
+				}ಅನ್ಯಥಾ{
+					base_ಸಂದೇಶ->data.properties = p;
+					ಸಂದೇಶ_properties_last = p;
 				}
-				if(p_prev){
+				ಯದಿ(p_prev){
 					p_prev->next = mosquitto_property_next(p);
 					p = mosquitto_property_next(p_prev);
-				}else{
+				}ಅನ್ಯಥಾ{
 					*props = mosquitto_property_next(p);
 					p = *props;
 				}
-				msg_properties_last->next = NULL;
-				break;
+				ಸಂದೇಶ_properties_last->next = ರಿಕ್ತ;
+				ಭಙ್ಗ;
 
-			case MQTT_PROP_TOPIC_ALIAS:
-				*topic_alias = mosquitto_property_int16_value(p);
+			ಪಕ್ಷ MQTT_PROP_TOPIC_ALIAS:
+				*topic_alias = mosquitto_property_int16_ಮೌಲ್ಯ(p);
 				p_prev = p;
 				p = mosquitto_property_next(p);
-				break;
+				ಭಙ್ಗ;
 
-			case MQTT_PROP_MESSAGE_EXPIRY_INTERVAL:
-				*message_expiry_interval = mosquitto_property_int32_value(p);
+			ಪಕ್ಷ MQTT_PROP_MESSAGE_EXPIRY_INTERVAL:
+				*message_expiry_interval = mosquitto_property_int32_ಮೌಲ್ಯ(p);
 				p_prev = p;
 				p = mosquitto_property_next(p);
-				break;
+				ಭಙ್ಗ;
 
-			case MQTT_PROP_SUBSCRIPTION_IDENTIFIER:
-				if(!is_bridge || mosquitto_property_varint_value(p) == 0){
-					return MOSQ_ERR_PROTOCOL;
+			ಪಕ್ಷ MQTT_PROP_SUBSCRIPTION_IDENTIFIER:
+				ಯದಿ(!is_bridge || mosquitto_property_varint_ಮೌಲ್ಯ(p) == 0){
+					ಪ್ರತ್ಯಾಗಮ MOSQ_ERR_PROTOCOL;
 				}
 				p_prev = p;
 				p = mosquitto_property_next(p);
-				break;
+				ಭಙ್ಗ;
 
-			default:
+			ಸ್ವಭಾವ:
 				p = mosquitto_property_next(p);
-				break;
+				ಭಙ್ಗ;
 		}
 	}
 
-	return MOSQ_ERR_SUCCESS;
+	ಪ್ರತ್ಯಾಗಮ MOSQ_ERR_SUCCESS;
 }
 
 
 /* Process the incoming properties, we should be able to assume that only valid
  * properties for DISCONNECT are present here. */
-int property__process_disconnect(struct mosquitto *context, mosquitto_property **props)
+ಪೂರ್ಣಾಙ್ಕ property__process_disconnect(ಸಂರಚನಾ mosquitto *context, mosquitto_property **props)
 {
 	mosquitto_property *p;
 
 	p = *props;
 
-	while(p){
-		if(mosquitto_property_identifier(p) == MQTT_PROP_SESSION_EXPIRY_INTERVAL){
-			uint32_t session_expiry_interval = mosquitto_property_int32_value(p);
-			if(context->session_expiry_interval == MQTT_SESSION_EXPIRY_IMMEDIATE
+	ಯಾವತ್(p){
+		ಯದಿ(mosquitto_property_identifier(p) == MQTT_PROP_SESSION_EXPIRY_INTERVAL){
+			uint32_t session_expiry_interval = mosquitto_property_int32_ಮೌಲ್ಯ(p);
+			ಯದಿ(context->session_expiry_interval == MQTT_SESSION_EXPIRY_IMMEDIATE
 					&& session_expiry_interval != MQTT_SESSION_EXPIRY_IMMEDIATE){
 
-				log__printf(NULL, MOSQ_LOG_INFO, "Protocol error from %s: DISCONNECT packet with mismatched session-expiry-interval (%d:%d).",
-						context->id, context->session_expiry_interval, p->value.i32);
-				return MOSQ_ERR_PROTOCOL;
+				log__printf(ರಿಕ್ತ, MOSQ_LOG_INFO, "Protocol error from %s: DISCONNECT packet with mismatched session-expiry-interval (%d:%d).",
+						context->id, context->session_expiry_interval, p->ಮೌಲ್ಯ.i32);
+				ಪ್ರತ್ಯಾಗಮ MOSQ_ERR_PROTOCOL;
 			}
 			context->session_expiry_interval = session_expiry_interval;
 		}
 		p = mosquitto_property_next(p);
 	}
-	return MOSQ_ERR_SUCCESS;
+	ಪ್ರತ್ಯಾಗಮ MOSQ_ERR_SUCCESS;
 }
