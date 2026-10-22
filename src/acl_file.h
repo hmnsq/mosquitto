@@ -15,38 +15,38 @@ SPDX-License-Identifier: EPL-2.0 OR BSD-3-Clause
 Contributors:
    Roger Light - initial implementation and documentation.
 */
-#ifndef ACL_FILE_H
-#define ACL_FILE_H
+#यदि_अपरिभाषितम् ACL_FILE_H
+#परिभाषय ACL_FILE_H
 
-#include <uthash.h>
+#अन्तर्भाव <uthash.h>
 
-struct acl__entry {
-	struct acl__entry *next, *prev;
-	char *topic;
-	int access;
-	int ucount;
-	int ccount;
+संरचना acl_प्रविष्टिः {
+	संरचना acl_प्रविष्टिः *अग्र, *पूर्व;
+	वर्ण *topic;
+	पूर्णाङ्क access;
+	पूर्णाङ्क ucount;
+	पूर्णाङ्क ccount;
 };
 
 
-struct acl__user {
+संरचना acl__user {
 	UT_hash_handle hh;
-	char *username;
-	struct acl__entry *acl;
+	वर्ण *username;
+	संरचना acl_प्रविष्टिः *acl;
 };
 
 
-struct acl_file_data {
-	char *acl_file;
-	struct acl__user *acl_users;
-	struct acl__user acl_anon;
-	struct acl__entry *acl_patterns;
+संरचना acl_file_दत्त {
+	वर्ण *acl_file;
+	संरचना acl__user *acl_users;
+	संरचना acl__user acl_anon;
+	संरचना acl_प्रविष्टिः *acl_patterns;
 };
 
 
-int acl_file__parse(struct acl_file_data *data);
-int acl_file__check(int event, void *event_data, void *userdata);
-int acl_file__reload(int event, void *event_data, void *userdata);
-void acl_file__cleanup(struct acl_file_data *data);
+पूर्णाङ्क acl_file__parse(संरचना acl_file_दत्त *दत्त);
+पूर्णाङ्क acl_file__check(पूर्णाङ्क event, शून्य *event_दत्त, शून्य *userdata);
+पूर्णाङ्क acl_file__reload(पूर्णाङ्क event, शून्य *event_दत्त, शून्य *userdata);
+शून्य acl_file__cleanup(संरचना acl_file_दत्त *दत्त);
 
-#endif
+#यदि_अन्तः

@@ -16,43 +16,43 @@ Contributors:
    Roger Light - initial implementation and documentation.
 */
 
-#include "config.h"
+#अन्तर्भाव "config.h"
 
-#include <assert.h>
+#अन्तर्भाव <assert.h>
 
-#include "mosquitto_broker_internal.h"
-#include "mosquitto/mqtt_protocol.h"
-#include "packet_mosq.h"
-#include "property_mosq.h"
-#include "sys_tree.h"
+#अन्तर्भाव "mosquitto_broker_internal.h"
+#अन्तर्भाव "mosquitto/mqtt_protocol.h"
+#अन्तर्भाव "packet_mosq.h"
+#अन्तर्भाव "property_mosq.h"
+#अन्तर्भाव "sys_tree.h"
 
 
-int send__unsuback(struct mosquitto *mosq, uint16_t mid, int reason_code_count, uint8_t *reason_codes, const mosquitto_property *properties)
+पूर्णाङ्क send__unsuback(संरचना mosquitto *mosq, uint16_t mid, पूर्णाङ्क reason_संहिता_गणनम्, uint8_t *reason_codes, ध्रुव mosquitto_property *properties)
 {
-	struct mosquitto__packet *packet = NULL;
-	int rc;
-	uint32_t remaining_length;
+	संरचना mosquitto__packet *packet = रिक्त;
+	पूर्णाङ्क rc;
+	uint32_t remaining_दीर्घता;
 
-	assert(mosq);
+	प्रतिज्ञा(mosq);
 
-	remaining_length = 2;
-	if(mosq->protocol == mosq_p_mqtt5){
-		remaining_length += mosquitto_property_get_remaining_length(properties);
-		remaining_length += (uint32_t)reason_code_count;
+	remaining_दीर्घता = 2;
+	यदि(mosq->protocol == mosq_p_mqtt5){
+		remaining_दीर्घता += mosquitto_property_get_remaining_दीर्घता(properties);
+		remaining_दीर्घता += (uint32_t)reason_संहिता_गणनम्;
 	}
 
-	rc = packet__alloc(&packet, CMD_UNSUBACK, remaining_length);
-	if(rc){
-		return rc;
+	rc = packet__alloc(&packet, CMD_UNSUBACK, remaining_दीर्घता);
+	यदि(rc){
+		प्रत्यागम rc;
 	}
 
 	packet__write_uint16(packet, mid);
 
-	if(mosq->protocol == mosq_p_mqtt5){
+	यदि(mosq->protocol == mosq_p_mqtt5){
 		property__write_all(packet, properties, true);
-		packet__write_bytes(packet, reason_codes, (uint32_t)reason_code_count);
+		packet_write_अष्टकानि(packet, reason_codes, (uint32_t)reason_संहिता_गणनम्);
 	}
 
-	metrics__int_inc(mosq_counter_mqtt_unsuback_sent, 1);
-	return packet__queue(mosq, packet);
+	metrics__int_inc(mosq_गणक_mqtt_unsuback_प्रेषितम्, 1);
+	प्रत्यागम packet__queue(mosq, packet);
 }

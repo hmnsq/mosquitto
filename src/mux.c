@@ -17,116 +17,116 @@ Contributors:
    Tatsuzo Osawa - Add epoll.
 */
 
-#include "mux.h"
+#अन्तर्भाव "mux.h"
 
 
-int mux__init(void)
+पूर्णाङ्क mux__init(शून्य)
 {
-#ifdef WITH_EPOLL
-	return mux_epoll__init();
-#elif defined(WITH_KQUEUE)
-	return mux_kqueue__init();
-#else
-	return mux_poll__init();
-#endif
+#यदि_परिभाषितम् WITH_EPOLL
+	प्रत्यागम mux_epoll__init();
+#नोचेद्यदि defined(WITH_KQUEUE)
+	प्रत्यागम mux_kqueue__init();
+#अन्यथा
+	प्रत्यागम mux_poll__init();
+#यदि_अन्तः
 }
 
 
-int mux__add_listeners(struct mosquitto__listener_sock *listensock, int listensock_count)
+पूर्णाङ्क mux_सङ्कलय_listeners(संरचना mosquitto__listener_sock *listensock, पूर्णाङ्क listensock_गणनम्)
 {
-#ifdef WITH_EPOLL
-	return mux_epoll__add_listeners(listensock, listensock_count);
-#elif defined(WITH_KQUEUE)
-	return mux_kqueue__add_listeners(listensock, listensock_count);
-#else
-	return mux_poll__add_listeners(listensock, listensock_count);
-#endif
+#यदि_परिभाषितम् WITH_EPOLL
+	प्रत्यागम mux_epoll_सङ्कलय_listeners(listensock, listensock_गणनम्);
+#नोचेद्यदि defined(WITH_KQUEUE)
+	प्रत्यागम mux_kqueue_सङ्कलय_listeners(listensock, listensock_गणनम्);
+#अन्यथा
+	प्रत्यागम mux_poll_सङ्कलय_listeners(listensock, listensock_गणनम्);
+#यदि_अन्तः
 }
 
 
-int mux__delete_listeners(struct mosquitto__listener_sock *listensock, int listensock_count)
+पूर्णाङ्क mux__delete_listeners(संरचना mosquitto__listener_sock *listensock, पूर्णाङ्क listensock_गणनम्)
 {
-#ifdef WITH_EPOLL
-	return mux_epoll__delete_listeners(listensock, listensock_count);
-#elif defined(WITH_KQUEUE)
-	return mux_kqueue__delete_listeners(listensock, listensock_count);
-#else
-	return mux_poll__delete_listeners(listensock, listensock_count);
-#endif
+#यदि_परिभाषितम् WITH_EPOLL
+	प्रत्यागम mux_epoll__delete_listeners(listensock, listensock_गणनम्);
+#नोचेद्यदि defined(WITH_KQUEUE)
+	प्रत्यागम mux_kqueue__delete_listeners(listensock, listensock_गणनम्);
+#अन्यथा
+	प्रत्यागम mux_poll__delete_listeners(listensock, listensock_गणनम्);
+#यदि_अन्तः
 }
 
 
-int mux__add_out(struct mosquitto *context)
+पूर्णाङ्क mux_सङ्कलय_बहिर्गमनम्(संरचना mosquitto *context)
 {
-#ifdef WITH_EPOLL
-	return mux_epoll__add_out(context);
-#elif defined(WITH_KQUEUE)
-	return mux_kqueue__add_out(context);
-#else
-	return mux_poll__add_out(context);
-#endif
+#यदि_परिभाषितम् WITH_EPOLL
+	प्रत्यागम mux_epoll_सङ्कलय_बहिर्गमनम्(context);
+#नोचेद्यदि defined(WITH_KQUEUE)
+	प्रत्यागम mux_kqueue_सङ्कलय_बहिर्गमनम्(context);
+#अन्यथा
+	प्रत्यागम mux_poll_सङ्कलय_बहिर्गमनम्(context);
+#यदि_अन्तः
 }
 
 
-int mux__remove_out(struct mosquitto *context)
+पूर्णाङ्क mux_remove_बहिर्गमनम्(संरचना mosquitto *context)
 {
-#ifdef WITH_EPOLL
-	return mux_epoll__remove_out(context);
-#elif defined(WITH_KQUEUE)
-	return mux_kqueue__remove_out(context);
-#else
-	return mux_poll__remove_out(context);
-#endif
+#यदि_परिभाषितम् WITH_EPOLL
+	प्रत्यागम mux_epoll_remove_बहिर्गमनम्(context);
+#नोचेद्यदि defined(WITH_KQUEUE)
+	प्रत्यागम mux_kqueue_remove_बहिर्गमनम्(context);
+#अन्यथा
+	प्रत्यागम mux_poll_remove_बहिर्गमनम्(context);
+#यदि_अन्तः
 }
 
 
-int mux__new(struct mosquitto *context)
+पूर्णाङ्क mux__new(संरचना mosquitto *context)
 {
-#ifdef WITH_EPOLL
-	return mux_epoll__new(context);
-#elif defined(WITH_KQUEUE)
-	return mux_kqueue__new(context);
-#else
-	return mux_poll__new(context);
-#endif
+#यदि_परिभाषितम् WITH_EPOLL
+	प्रत्यागम mux_epoll__new(context);
+#नोचेद्यदि defined(WITH_KQUEUE)
+	प्रत्यागम mux_kqueue__new(context);
+#अन्यथा
+	प्रत्यागम mux_poll__new(context);
+#यदि_अन्तः
 }
 
 
-int mux__delete(struct mosquitto *context)
+पूर्णाङ्क mux__delete(संरचना mosquitto *context)
 {
-#ifdef WITH_EPOLL
-	return mux_epoll__delete(context);
-#elif defined(WITH_KQUEUE)
-	return mux_kqueue__delete(context);
-#else
-	return mux_poll__delete(context);
-#endif
+#यदि_परिभाषितम् WITH_EPOLL
+	प्रत्यागम mux_epoll__delete(context);
+#नोचेद्यदि defined(WITH_KQUEUE)
+	प्रत्यागम mux_kqueue__delete(context);
+#अन्यथा
+	प्रत्यागम mux_poll__delete(context);
+#यदि_अन्तः
 }
 
 
-int mux__handle(struct mosquitto__listener_sock *listensock, int listensock_count)
+पूर्णाङ्क mux__handle(संरचना mosquitto__listener_sock *listensock, पूर्णाङ्क listensock_गणनम्)
 {
-#ifdef WITH_EPOLL
-	UNUSED(listensock);
-	UNUSED(listensock_count);
-	return mux_epoll__handle();
-#elif defined(WITH_KQUEUE)
-	UNUSED(listensock);
-	UNUSED(listensock_count);
-	return mux_kqueue__handle();
-#else
-	return mux_poll__handle(listensock, listensock_count);
-#endif
+#यदि_परिभाषितम् WITH_EPOLL
+	अप्रयुक्तम्(listensock);
+	अप्रयुक्तम्(listensock_गणनम्);
+	प्रत्यागम mux_epoll__handle();
+#नोचेद्यदि defined(WITH_KQUEUE)
+	अप्रयुक्तम्(listensock);
+	अप्रयुक्तम्(listensock_गणनम्);
+	प्रत्यागम mux_kqueue__handle();
+#अन्यथा
+	प्रत्यागम mux_poll__handle(listensock, listensock_गणनम्);
+#यदि_अन्तः
 }
 
 
-int mux__cleanup(void)
+पूर्णाङ्क mux__cleanup(शून्य)
 {
-#ifdef WITH_EPOLL
-	return mux_epoll__cleanup();
-#elif defined(WITH_KQUEUE)
-	return mux_kqueue__cleanup();
-#else
-	return mux_poll__cleanup();
-#endif
+#यदि_परिभाषितम् WITH_EPOLL
+	प्रत्यागम mux_epoll__cleanup();
+#नोचेद्यदि defined(WITH_KQUEUE)
+	प्रत्यागम mux_kqueue__cleanup();
+#अन्यथा
+	प्रत्यागम mux_poll__cleanup();
+#यदि_अन्तः
 }

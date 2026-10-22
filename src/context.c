@@ -16,133 +16,133 @@ Contributors:
    Roger Light - initial implementation and documentation.
 */
 
-#include "config.h"
+#अन्तर्भाव "config.h"
 
-#include <time.h>
-#if defined(__APPLE__) || defined(_AIX)
-#include <sys/socket.h>
-#endif
+#अन्तर्भाव <time.h>
+#यदि defined(__APPLE__) || defined(_AIX)
+#अन्तर्भाव <sys/socket.h>
+#यदि_अन्तः
 
-#include "mosquitto_broker_internal.h"
-#include "alias_mosq.h"
-#include "packet_mosq.h"
-#include "property_mosq.h"
-#include "sys_tree.h"
-#include "util_mosq.h"
-#include "will_mosq.h"
+#अन्तर्भाव "mosquitto_broker_internal.h"
+#अन्तर्भाव "alias_mosq.h"
+#अन्तर्भाव "packet_mosq.h"
+#अन्तर्भाव "property_mosq.h"
+#अन्तर्भाव "sys_tree.h"
+#अन्तर्भाव "util_mosq.h"
+#अन्तर्भाव "will_mosq.h"
 
-#include "uthash.h"
+#अन्तर्भाव "uthash.h"
 
 
-int context__init_sock(struct mosquitto *context, mosq_sock_t sock, bool get_address)
+पूर्णाङ्क context__init_sock(संरचना mosquitto *context, mosq_sock_t sock, bool get_स्थानाङ्कः)
 {
 	context->sock = sock;
 
-	if((int)context->sock >= 0){
-		if(get_address){
-			char address[1024];
+	यदि((पूर्णाङ्क)context->sock >= 0){
+		यदि(get_स्थानाङ्कः){
+			वर्ण स्थानाङ्कः[1024];
 
-			if(!net__socket_get_address(context->sock,
-					address, sizeof(address),
-					&context->remote_port)){
+			यदि(!net_socket_get_स्थानाङ्कः(context->sock,
+					स्थानाङ्कः, परिमाण(स्थानाङ्कः),
+					&context->remote_पत्तनम्)){
 
-				context->address = mosquitto_strdup(address);
+				context->स्थानाङ्कः = mosquitto_strdup(स्थानाङ्कः);
 			}
-			if(!context->address){
+			यदि(!context->स्थानाङ्कः){
 				/* getpeername and inet_ntop failed and not a bridge */
-				return MOSQ_ERR_NOMEM;
+				प्रत्यागम MOSQ_ERR_NOMEM;
 			}
 		}
-		HASH_ADD(hh_sock, db.contexts_by_sock, sock, sizeof(context->sock), context);
+		HASH_सङ्कलय(hh_sock, db.contexts_by_sock, sock, परिमाण(context->sock), context);
 	}
-	return MOSQ_ERR_SUCCESS;
+	प्रत्यागम MOSQ_ERR_SUCCESS;
 }
 
-struct mosquitto *context__init(void)
+संरचना mosquitto *context__init(शून्य)
 {
-	struct mosquitto *context;
+	संरचना mosquitto *context;
 
-	context = mosquitto_calloc(1, sizeof(struct mosquitto));
-	if(!context){
-		return NULL;
+	context = mosquitto_calloc(1, परिमाण(संरचना mosquitto));
+	यदि(!context){
+		प्रत्यागम रिक्त;
 	}
 
-	context->in_packet.packet_buffer_size = db.config->packet_buffer_size;
-	context->in_packet.packet_buffer = mosquitto_calloc(1, context->in_packet.packet_buffer_size);
-	if(!context->in_packet.packet_buffer){
+	context->अन्तर्_packet.packet_बफर_आकार = db.config->packet_बफर_आकार;
+	context->अन्तर्_packet.packet_बफर = mosquitto_calloc(1, context->अन्तर्_packet.packet_बफर_आकार);
+	यदि(!context->अन्तर्_packet.packet_बफर){
 		mosquitto_FREE(context);
-		return NULL;
+		प्रत्यागम रिक्त;
 	}
 
-#if defined(WITH_EPOLL) || defined(WITH_KQUEUE)
+#यदि defined(WITH_EPOLL) || defined(WITH_KQUEUE)
 	context->ident = id_client;
-#else
-	context->pollfd_index = -1;
-#endif
-	mosquitto__set_state(context, mosq_cs_new);
+#अन्यथा
+	context->pollfd_सूचकांक = -1;
+#यदि_अन्तः
+	mosquitto_समुच्चयः_state(context, mosq_cs_new);
 	context->sock = INVALID_SOCKET;
-	context->last_msg_in = db.now_s;
-	context->next_msg_out = db.now_s + 20;
+	context->चरमः_सन्देशः_अन्तर् = db.now_s;
+	context->अग्र_सन्देशः_बहिर्गमनम् = db.now_s + 20;
 	context->keepalive = 20; /* Default to 20s */
 	context->clean_start = true;
-	context->id = NULL;
-	context->last_mid = 0;
-	context->will = NULL;
-	context->username = NULL;
-	context->password = NULL;
-	context->listener = NULL;
-	context->acl_list = NULL;
-	context->retain_available = true;
-#if defined(WITH_WEBSOCKETS) && WITH_WEBSOCKETS == WS_IS_BUILTIN
-	memset(&context->wsd, 0, sizeof(context->wsd));
+	context->id = रिक्त;
+	context->चरमः_mid = 0;
+	context->will = रिक्त;
+	context->username = रिक्त;
+	context->password = रिक्त;
+	context->listener = रिक्त;
+	context->acl_list = रिक्त;
+	context->retain_उपलब्धम् = true;
+#यदि defined(WITH_WEBSOCKETS) && WITH_WEBSOCKETS == WS_IS_BUILTIN
+	स्मृतिं_पूरय(&context->wsd, 0, परिमाण(context->wsd));
 	context->wsd.opcode = UINT8_MAX;
-	context->wsd.mask = UINT8_MAX;
+	context->wsd.आवरणम् = UINT8_MAX;
 	context->wsd.disconnect_reason = 0xE8;
-#endif
+#यदि_अन्तः
 
 	/* is_bridge records whether this client is a bridge or not. This could be
 	 * done by looking at context->bridge for bridges that we create ourself,
 	 * but incoming bridges need some other way of being recorded. */
 	context->is_bridge = false;
 
-	context->in_packet.payload = NULL;
-	packet__cleanup(&context->in_packet);
-	context->out_packet = NULL;
-	context->out_packet_count = 0;
-	context->out_packet_bytes = 0;
+	context->अन्तर्_packet.payload = रिक्त;
+	packet__cleanup(&context->अन्तर्_packet);
+	context->बहिर्गमनम्_packet = रिक्त;
+	context->बहिर्गमनम्_packet_गणनम् = 0;
+	context->बहिर्गमनम्_packet_अष्टकानि = 0;
 
-	context->address = NULL;
-	context->bridge = NULL;
-	context->msgs_in.inflight_maximum = db.config->max_inflight_messages;
-	context->msgs_in.inflight_quota = db.config->max_inflight_messages;
-	context->msgs_out.inflight_maximum = db.config->max_inflight_messages;
-	context->msgs_out.inflight_quota = db.config->max_inflight_messages;
+	context->स्थानाङ्कः = रिक्त;
+	context->bridge = रिक्त;
+	context->msgs_अन्तर्.inflight_अधिकतमम् = db.config->max_inflight_messages;
+	context->msgs_अन्तर्.inflight_quota = db.config->max_inflight_messages;
+	context->msgs_बहिर्गमनम्.inflight_अधिकतमम् = db.config->max_inflight_messages;
+	context->msgs_बहिर्गमनम्.inflight_quota = db.config->max_inflight_messages;
 	context->max_qos = 2;
-#ifdef WITH_TLS
-	context->ssl = NULL;
-#endif
+#यदि_परिभाषितम् WITH_TLS
+	context->ssl = रिक्त;
+#यदि_अन्तः
 
-	return context;
+	प्रत्यागम context;
 }
 
 
-static void context__cleanup_out_packets(struct mosquitto *context)
+स्थिर शून्य context_cleanup_बहिर्गमनम्_packets(संरचना mosquitto *context)
 {
-	struct mosquitto__packet *packet;
+	संरचना mosquitto__packet *packet;
 
-	if(!context){
-		return;
+	यदि(!context){
+		प्रत्यागम;
 	}
 
-	while(context->out_packet){
-		packet = context->out_packet;
-		context->out_packet = context->out_packet->next;
+	यावत्(context->बहिर्गमनम्_packet){
+		packet = context->बहिर्गमनम्_packet;
+		context->बहिर्गमनम्_packet = context->बहिर्गमनम्_packet->अग्र;
 		mosquitto_free(packet);
 	}
-	metrics__int_dec(mosq_gauge_out_packets, context->out_packet_count);
-	metrics__int_dec(mosq_gauge_out_packet_bytes, context->out_packet_bytes);
-	context->out_packet_count = 0;
-	context->out_packet_bytes = 0;
+	metrics__int_dec(mosq_gauge_बहिर्गमनम्_packets, context->बहिर्गमनम्_packet_गणनम्);
+	metrics__int_dec(mosq_gauge_बहिर्गमनम्_packet_अष्टकानि, context->बहिर्गमनम्_packet_अष्टकानि);
+	context->बहिर्गमनम्_packet_गणनम् = 0;
+	context->बहिर्गमनम्_packet_अष्टकानि = 0;
 }
 
 
@@ -152,91 +152,91 @@ static void context__cleanup_out_packets(struct mosquitto *context)
  * but it will mean that CONNACK messages will never get sent for bad protocol
  * versions for example.
  */
-void context__cleanup(struct mosquitto *context, bool force_free)
+शून्य context__cleanup(संरचना mosquitto *context, bool force_free)
 {
-	if(!context){
-		return;
+	यदि(!context){
+		प्रत्यागम;
 	}
 
-	if(force_free){
+	यदि(force_free){
 		context->clean_start = true;
 	}
 
-#ifdef WITH_BRIDGE
-	if(context->bridge){
+#यदि_परिभाषितम् WITH_BRIDGE
+	यदि(context->bridge){
 		bridge__cleanup(context);
 	}
-#endif
-	mosquitto_FREE(context->in_packet.packet_buffer);
-	context->in_packet.packet_buffer_size = 0;
+#यदि_अन्तः
+	mosquitto_FREE(context->अन्तर्_packet.packet_बफर);
+	context->अन्तर्_packet.packet_बफर_आकार = 0;
 
 	alias__free_all(context);
 	keepalive__remove(context);
-	context__cleanup_out_packets(context);
+	context_cleanup_बहिर्गमनम्_packets(context);
 
-	mosquitto_FREE(context->auth_method);
+	mosquitto_FREE(context->auth_विधानम्);
 	mosquitto_FREE(context->username);
 	mosquitto_FREE(context->password);
 
 	net__socket_close(context);
-	if(force_free){
+	यदि(force_free){
 		sub__clean_session(context);
 	}
 	db__messages_delete(context, force_free);
 
-	mosquitto_FREE(context->address);
+	mosquitto_FREE(context->स्थानाङ्कः);
 
 	context__send_will(context);
 
-	if(context->id){
+	यदि(context->id){
 		context__remove_from_by_id(context);
 		mosquitto_FREE(context->id);
 	}
-	packet__cleanup(&(context->in_packet));
-	context__cleanup_out_packets(context);
-#if defined(WITH_BROKER) && defined(__GLIBC__) && defined(WITH_ADNS)
-	if(context->adns){
+	packet__cleanup(&(context->अन्तर्_packet));
+	context_cleanup_बहिर्गमनम्_packets(context);
+#यदि defined(WITH_BROKER) && defined(__GLIBC__) && defined(WITH_ADNS)
+	यदि(context->adns){
 		gai_cancel(context->adns);
-		struct addrinfo *ar_request = (struct addrinfo *)context->adns->ar_request;
+		संरचना addrinfo *ar_request = (संरचना addrinfo *)context->adns->ar_request;
 		mosquitto_FREE(ar_request);
 		mosquitto_FREE(context->adns);
 	}
-#endif
+#यदि_अन्तः
 
-#if defined(WITH_WEBSOCKETS) && WITH_WEBSOCKETS == WS_IS_BUILTIN
+#यदि defined(WITH_WEBSOCKETS) && WITH_WEBSOCKETS == WS_IS_BUILTIN
 	mosquitto_FREE(context->http_request);
-#endif
+#यदि_अन्तः
 	mosquitto_FREE(context->proxy.buf);
-	if(force_free){
+	यदि(force_free){
 		mosquitto_FREE(context);
 	}
 }
 
 
-void context__send_will(struct mosquitto *ctxt)
+शून्य context__send_will(संरचना mosquitto *ctxt)
 {
-	if(ctxt->state != mosq_cs_disconnecting && ctxt->will){
-		if(ctxt->session_expiry_interval > 0 && ctxt->will_delay_interval > 0){
-			will_delay__add(ctxt);
-			return;
+	यदि(ctxt->state != mosq_cs_disconnecting && ctxt->will){
+		यदि(ctxt->session_expiry_interval > 0 && ctxt->will_delay_interval > 0){
+			will_delay_सङ्कलय(ctxt);
+			प्रत्यागम;
 		}
 
-		if(mosquitto_acl_check(ctxt,
-				ctxt->will->msg.topic,
-				(uint32_t)ctxt->will->msg.payloadlen,
-				ctxt->will->msg.payload,
-				(uint8_t)ctxt->will->msg.qos,
-				ctxt->will->msg.retain,
+		यदि(mosquitto_acl_check(ctxt,
+				ctxt->will->सन्देशः.topic,
+				(uint32_t)ctxt->will->सन्देशः.payloadlen,
+				ctxt->will->सन्देशः.payload,
+				(uint8_t)ctxt->will->सन्देशः.qos,
+				ctxt->will->सन्देशः.retain,
 				ctxt->will->properties,
 				MOSQ_ACL_WRITE) == MOSQ_ERR_SUCCESS){
 
 			/* Unexpected disconnect, queue the client will. */
 			db__messages_easy_queue(ctxt,
-					ctxt->will->msg.topic,
-					(uint8_t)ctxt->will->msg.qos,
-					(uint32_t)ctxt->will->msg.payloadlen,
-					ctxt->will->msg.payload,
-					ctxt->will->msg.retain,
+					ctxt->will->सन्देशः.topic,
+					(uint8_t)ctxt->will->सन्देशः.qos,
+					(uint32_t)ctxt->will->सन्देशः.payloadlen,
+					ctxt->will->सन्देशः.payload,
+					ctxt->will->सन्देशः.retain,
 					ctxt->will->expiry_interval,
 					&ctxt->will->properties);
 		}
@@ -245,140 +245,140 @@ void context__send_will(struct mosquitto *ctxt)
 }
 
 
-void context__disconnect(struct mosquitto *context, int reason)
+शून्य context__disconnect(संरचना mosquitto *context, पूर्णाङ्क reason)
 {
-	if(mosquitto__get_state(context) == mosq_cs_disconnected){
-		return;
+	यदि(mosquitto__get_state(context) == mosq_cs_disconnected){
+		प्रत्यागम;
 	}
 
-#if defined(WITH_WEBSOCKETS) && WITH_WEBSOCKETS == WS_IS_BUILTIN
-	if(context->transport == mosq_t_ws){
+#यदि defined(WITH_WEBSOCKETS) && WITH_WEBSOCKETS == WS_IS_BUILTIN
+	यदि(context->transport == mosq_t_ws){
 		uint8_t buf[4] = {0x88, 0x02, 0x03, context->wsd.disconnect_reason};
 		/* Send the disconnect reason, but don't care if it fails */
-		if(send(context->sock, buf, 4, 0)){
+		यदि(send(context->sock, buf, 4, 0)){
 		}
 	}
-#endif
-	if(context->id){
-		struct mosquitto *context_found;
-		HASH_FIND(hh_id, db.contexts_by_id_delayed_auth, context->id, strlen(context->id), context_found);
-		if(context_found == context){
+#यदि_अन्तः
+	यदि(context->id){
+		संरचना mosquitto *context_प्राप्तम्;
+		HASH_FIND(hh_id, db.contexts_by_id_delayed_auth, context->id, वाक्यदैर्घ्यम्(context->id), context_प्राप्तम्);
+		यदि(context_प्राप्तम् == context){
 			net__socket_close(context);
-			context__add_to_disused(context);
-			return;
+			context_सङ्कलय_गन्तव्यम्_disused(context);
+			प्रत्यागम;
 		}
 	}
 
 	context__send_will(context);
 
-	if(context->session_expiry_interval == MQTT_SESSION_EXPIRY_IMMEDIATE){
+	यदि(context->session_expiry_interval == MQTT_SESSION_EXPIRY_तात्कालिकम्){
 		plugin__handle_disconnect(context, reason);
-	}else{
+	}अन्यथा{
 		plugin__handle_client_offline(context, reason);
 	}
 
 	net__socket_close(context);
-#ifdef WITH_BRIDGE
-	if(context->bridge == NULL)
+#यदि_परिभाषितम् WITH_BRIDGE
+	यदि(context->bridge == रिक्त)
 	/* Outgoing bridge connection never expire */
-#endif
+#यदि_अन्तः
 	{
-		if(context->session_expiry_interval == MQTT_SESSION_EXPIRY_IMMEDIATE){
+		यदि(context->session_expiry_interval == MQTT_SESSION_EXPIRY_तात्कालिकम्){
 			plugin_persist__handle_client_delete(context);
 			/* Client session is due to be expired now */
-			if(context->will_delay_interval == 0){
+			यदि(context->will_delay_interval == 0){
 				/* This will be done later, after the will is published for delay>0. */
-				context__add_to_disused(context);
+				context_सङ्कलय_गन्तव्यम्_disused(context);
 			}
-		}else{
-			session_expiry__add(context);
+		}अन्यथा{
+			session_expiry_सङ्कलय(context);
 		}
 	}
 	keepalive__remove(context);
-	mosquitto__set_state(context, mosq_cs_disconnected);
+	mosquitto_समुच्चयः_state(context, mosq_cs_disconnected);
 	alias__free_all(context);
-	context__cleanup_out_packets(context);
+	context_cleanup_बहिर्गमनम्_packets(context);
 }
 
 
-void context__add_to_disused(struct mosquitto *context)
+शून्य context_सङ्कलय_गन्तव्यम्_disused(संरचना mosquitto *context)
 {
-	if(context->state == mosq_cs_disused){
-		return;
+	यदि(context->state == mosq_cs_disused){
+		प्रत्यागम;
 	}
 
-	mosquitto__set_state(context, mosq_cs_disused);
+	mosquitto_समुच्चयः_state(context, mosq_cs_disused);
 
 	context__remove_from_by_id(context);
 
-	context->for_free_next = db.ll_for_free;
+	context->for_free_अग्र = db.ll_for_free;
 	db.ll_for_free = context;
 }
 
 
-void context__free_disused(void)
+शून्य context__free_disused(शून्य)
 {
-	struct mosquitto *context, *next;
-#if defined(WITH_WEBSOCKETS) && WITH_WEBSOCKETS == WS_IS_LWS
-	struct mosquitto *last = NULL;
-#endif
+	संरचना mosquitto *context, *अग्र;
+#यदि defined(WITH_WEBSOCKETS) && WITH_WEBSOCKETS == WS_IS_LWS
+	संरचना mosquitto *चरमः = रिक्त;
+#यदि_अन्तः
 
 	context = db.ll_for_free;
-	db.ll_for_free = NULL;
-	while(context){
-#if defined(WITH_WEBSOCKETS) && WITH_WEBSOCKETS == WS_IS_LWS
-		if(context->wsi){
+	db.ll_for_free = रिक्त;
+	यावत्(context){
+#यदि defined(WITH_WEBSOCKETS) && WITH_WEBSOCKETS == WS_IS_LWS
+		यदि(context->wsi){
 			/* Don't delete yet, lws hasn't finished with it */
-			if(last){
-				last->for_free_next = context;
-			}else{
+			यदि(चरमः){
+				चरमः->for_free_अग्र = context;
+			}अन्यथा{
 				db.ll_for_free = context;
 			}
-			next = context->for_free_next;
-			context->for_free_next = NULL;
-			last = context;
-			context = next;
-		}else
-#endif
+			अग्र = context->for_free_अग्र;
+			context->for_free_अग्र = रिक्त;
+			चरमः = context;
+			context = अग्र;
+		}अन्यथा
+#यदि_अन्तः
 		{
-			next = context->for_free_next;
+			अग्र = context->for_free_अग्र;
 			context__cleanup(context, true);
-			context = next;
+			context = अग्र;
 		}
 	}
 }
 
 
-void context__add_to_by_id(struct mosquitto *context)
+शून्य context_सङ्कलय_गन्तव्यम्_by_id(संरचना mosquitto *context)
 {
-	if(context->in_by_id == false){
-		context->in_by_id = true;
-		HASH_VALUE(context->id, strlen(context->id), context->id_hashv);
-		HASH_ADD_KEYPTR_BYHASHVALUE(hh_id, db.contexts_by_id, context->id, strlen(context->id), context->id_hashv, context);
+	यदि(context->अन्तर्_by_id == false){
+		context->अन्तर्_by_id = true;
+		HASH_मानम्(context->id, वाक्यदैर्घ्यम्(context->id), context->id_hashv);
+		HASH_सङ्कलय_KEYPTR_BYHASHVALUE(hh_id, db.contexts_by_id, context->id, वाक्यदैर्घ्यम्(context->id), context->id_hashv, context);
 	}
 }
 
 
-void context__remove_from_by_id(struct mosquitto *context)
+शून्य context__remove_from_by_id(संरचना mosquitto *context)
 {
-	struct mosquitto *context_found;
+	संरचना mosquitto *context_प्राप्तम्;
 
-	if(!context->id){
-		return;
+	यदि(!context->id){
+		प्रत्यागम;
 	}
 
-	if(context->in_by_id){
-		HASH_FIND(hh_id, db.contexts_by_id, context->id, strlen(context->id), context_found);
-		if(context_found == context){
-			HASH_DELETE(hh_id, db.contexts_by_id, context_found);
+	यदि(context->अन्तर्_by_id){
+		HASH_FIND(hh_id, db.contexts_by_id, context->id, वाक्यदैर्घ्यम्(context->id), context_प्राप्तम्);
+		यदि(context_प्राप्तम् == context){
+			HASH_DELETE(hh_id, db.contexts_by_id, context_प्राप्तम्);
 		}
 		context->id_hashv = 0;
-		context->in_by_id = false;
-		return;
+		context->अन्तर्_by_id = false;
+		प्रत्यागम;
 	}
 
-	HASH_FIND(hh_id, db.contexts_by_id_delayed_auth, context->id, strlen(context->id), context_found);
-	if(context_found == context){
-		HASH_DELETE(hh_id, db.contexts_by_id_delayed_auth, context_found);
+	HASH_FIND(hh_id, db.contexts_by_id_delayed_auth, context->id, वाक्यदैर्घ्यम्(context->id), context_प्राप्तम्);
+	यदि(context_प्राप्तम् == context){
+		HASH_DELETE(hh_id, db.contexts_by_id_delayed_auth, context_प्राप्तम्);
 	}
 }
