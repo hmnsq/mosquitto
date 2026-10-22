@@ -16,22 +16,22 @@ Contributors:
    Roger Light - initial implementation and documentation.
 */
 
-#include "config.h"
+#अन्तर्भाव "config.h"
 
-#include <stdio.h>
-#include <string.h>
+#अन्तर्भाव <stdio.h>
+#अन्तर्भाव <string.h>
 
-#include "mosquitto_broker_internal.h"
-#include "mosquitto/mqtt_protocol.h"
-#include "packet_mosq.h"
-#include "send_mosq.h"
-#include "util_mosq.h"
+#अन्तर्भाव "mosquitto_broker_internal.h"
+#अन्तर्भाव "mosquitto/mqtt_protocol.h"
+#अन्तर्भाव "packet_mosq.h"
+#अन्तर्भाव "send_mosq.h"
+#अन्तर्भाव "util_mosq.h"
 
 
-static int handle__connack_properties(struct mosquitto *context)
+स्थिर पूर्णाङ्क handle__connack_properties(संरचना mosquitto *context)
 {
-	int rc;
-	mosquitto_property *properties = NULL;
+	पूर्णाङ्क rc;
+	mosquitto_property *properties = रिक्त;
 	uint16_t inflight_maximum;
 	uint8_t max_qos = 255;
 	uint32_t maximum_packet_size;
@@ -40,22 +40,22 @@ static int handle__connack_properties(struct mosquitto *context)
 	uint8_t retain_available;
 
 	rc = property__read_all(CMD_CONNACK, &context->in_packet, &properties);
-	if(rc){
-		return rc;
+	सचे(rc){
+		पटिनिवत्त rc;
 	}
 
 	/* maximum-qos */
 	mosquitto_property_read_byte(properties, MQTT_PROP_MAXIMUM_QOS,
 			&max_qos, false);
-	if(max_qos != 255){
+	सचे(max_qos != 255){
 		context->max_qos = max_qos;
 	}
 
 	/* maximum-packet-size */
-	if(mosquitto_property_read_int32(properties, MQTT_PROP_MAXIMUM_PACKET_SIZE,
+	सचे(mosquitto_property_read_int32(properties, MQTT_PROP_MAXIMUM_PACKET_SIZE,
 			&maximum_packet_size, false)){
 
-		if(context->maximum_packet_size == 0 || context->maximum_packet_size > maximum_packet_size){
+		सचे(context->maximum_packet_size == 0 || context->maximum_packet_size > maximum_packet_size){
 			context->maximum_packet_size = maximum_packet_size;
 		}
 	}
@@ -63,148 +63,148 @@ static int handle__connack_properties(struct mosquitto *context)
 	/* receive-maximum */
 	inflight_maximum = context->msgs_out.inflight_maximum;
 	mosquitto_property_read_int16(properties, MQTT_PROP_RECEIVE_MAXIMUM, &inflight_maximum, false);
-	if(context->msgs_out.inflight_maximum != inflight_maximum){
+	सचे(context->msgs_out.inflight_maximum != inflight_maximum){
 		context->msgs_out.inflight_maximum = inflight_maximum;
 		db__message_reconnect_reset(context);
 	}
 
 	/* retain-available */
-	if(mosquitto_property_read_byte(properties, MQTT_PROP_RETAIN_AVAILABLE,
+	सचे(mosquitto_property_read_byte(properties, MQTT_PROP_RETAIN_AVAILABLE,
 			&retain_available, false)){
 
 		/* Only use broker provided value if the local config is set to available==true */
-		if(context->retain_available){
+		सचे(context->retain_available){
 			context->retain_available = retain_available;
 		}
 	}
 
 	/* server-keepalive */
-	if(mosquitto_property_read_int16(properties, MQTT_PROP_SERVER_KEEP_ALIVE,
+	सचे(mosquitto_property_read_int16(properties, MQTT_PROP_SERVER_KEEP_ALIVE,
 			&server_keepalive, false)){
 
 		context->keepalive = server_keepalive;
 	}
 
 	/* topic-alias-maximum */
-	if(mosquitto_property_read_int16(properties, MQTT_PROP_TOPIC_ALIAS_MAXIMUM,
+	सचे(mosquitto_property_read_int16(properties, MQTT_PROP_TOPIC_ALIAS_MAXIMUM,
 			&max_topic_alias, false)){
 
-		if(max_topic_alias < context->bridge->max_topic_alias){
+		सचे(max_topic_alias < context->bridge->max_topic_alias){
 			context->alias_max_l2r = max_topic_alias;
-		}else{
+		}अञ्ञथा{
 			context->alias_max_l2r = context->bridge->max_topic_alias;
 		}
 	}
 
 	mosquitto_property_free_all(&properties);
 
-	return MOSQ_ERR_SUCCESS;
+	पटिनिवत्त MOSQ_ERR_SUCCESS;
 }
 
 
-int handle__connack(struct mosquitto *context)
+पूर्णाङ्क handle__connack(संरचना mosquitto *context)
 {
-	int rc;
+	पूर्णाङ्क rc;
 	uint8_t connect_acknowledge;
 	uint8_t reason_code;
 
-	if(context == NULL){
-		return MOSQ_ERR_INVAL;
+	सचे(context == रिक्त){
+		पटिनिवत्त MOSQ_ERR_INVAL;
 	}
-	if(context->bridge == NULL){
-		log__printf(NULL, MOSQ_LOG_INFO, "Protocol error from %s: CONNACK when not a bridge.", context->id);
-		return MOSQ_ERR_PROTOCOL;
+	सचे(context->bridge == रिक्त){
+		log__printf(रिक्त, MOSQ_LOG_INFO, "Protocol error from %s: CONNACK when not a bridge.", context->id);
+		पटिनिवत्त MOSQ_ERR_PROTOCOL;
 	}
-	if(context->in_packet.command != CMD_CONNACK){
-		return MOSQ_ERR_MALFORMED_PACKET;
+	सचे(context->in_packet.command != CMD_CONNACK){
+		पटिनिवत्त MOSQ_ERR_MALFORMED_PACKET;
 	}
-	log__printf(NULL, MOSQ_LOG_DEBUG, "Received CONNACK on connection %s.", context->id);
-	if(packet__read_byte(&context->in_packet, &connect_acknowledge)){
-		return MOSQ_ERR_MALFORMED_PACKET;
+	log__printf(रिक्त, MOSQ_LOG_DEBUG, "Received CONNACK on connection %s.", context->id);
+	सचे(packet__read_byte(&context->in_packet, &connect_acknowledge)){
+		पटिनिवत्त MOSQ_ERR_MALFORMED_PACKET;
 	}
-	if(packet__read_byte(&context->in_packet, &reason_code)){
-		return MOSQ_ERR_MALFORMED_PACKET;
+	सचे(packet__read_byte(&context->in_packet, &reason_code)){
+		पटिनिवत्त MOSQ_ERR_MALFORMED_PACKET;
 	}
 
-	if(context->protocol == mosq_p_mqtt5){
-		if(context->in_packet.remaining_length == 2 && reason_code == CONNACK_REFUSED_PROTOCOL_VERSION){
+	सचे(context->protocol == mosq_p_mqtt5){
+		सचे(context->in_packet.remaining_length == 2 && reason_code == CONNACK_REFUSED_PROTOCOL_VERSION){
 			/* We have connected to a MQTT v3.x broker that doesn't support MQTT v5.0
 			 * It has correctly replied with a CONNACK code of a bad protocol version.
 			 */
-			log__printf(NULL, MOSQ_LOG_NOTICE,
+			log__printf(रिक्त, MOSQ_LOG_NOTICE,
 					"Warning: Remote bridge %s does not support MQTT v5.0, reconnecting using MQTT v3.1.1.",
 					context->bridge->name);
 
 			context->protocol = mosq_p_mqtt311;
 			context->bridge->protocol_version = mosq_p_mqtt311;
-			return MOSQ_ERR_PROTOCOL;
+			पटिनिवत्त MOSQ_ERR_PROTOCOL;
 		}
 
 		rc = handle__connack_properties(context);
-		if(rc){
-			return rc;
+		सचे(rc){
+			पटिनिवत्त rc;
 		}
 	}
 
-	if(reason_code == MQTT_RC_SUCCESS){
+	सचे(reason_code == MQTT_RC_SUCCESS){
 #ifdef WITH_BRIDGE
-		if(context->bridge){
+		सचे(context->bridge){
 			rc = bridge__on_connect(context);
-			if(rc){
-				return rc;
+			सचे(rc){
+				पटिनिवत्त rc;
 			}
 		}
 #endif
 		mosquitto__set_state(context, mosq_cs_active);
 		rc = db__message_write_queued_out(context);
-		if(rc){
-			return rc;
+		सचे(rc){
+			पटिनिवत्त rc;
 		}
 		rc = db__message_write_inflight_out_all(context);
-		return rc;
-	}else{
-		if(context->protocol == mosq_p_mqtt5){
-			switch(reason_code){
-				case MQTT_RC_RETAIN_NOT_SUPPORTED:
+		पटिनिवत्त rc;
+	}अञ्ञथा{
+		सचे(context->protocol == mosq_p_mqtt5){
+			विकल्प(reason_code){
+				पक्ष MQTT_RC_RETAIN_NOT_SUPPORTED:
 					context->retain_available = 0;
-					log__printf(NULL, MOSQ_LOG_ERR, "Connection Refused: retain not available (will retry)");
-					return MOSQ_ERR_CONN_LOST;
-				case MQTT_RC_QOS_NOT_SUPPORTED:
-					if(context->max_qos != 0){
+					log__printf(रिक्त, MOSQ_LOG_ERR, "Connection Refused: retain not available (will retry)");
+					पटिनिवत्त MOSQ_ERR_CONN_LOST;
+				पक्ष MQTT_RC_QOS_NOT_SUPPORTED:
+					सचे(context->max_qos != 0){
 						context->max_qos--;
 					}
-					log__printf(NULL, MOSQ_LOG_ERR, "Connection Refused: QoS not supported (will retry)");
-					return MOSQ_ERR_CONN_LOST;
-				default:
-					log__printf(NULL, MOSQ_LOG_ERR, "Connection Refused: %s", mosquitto_reason_string(reason_code));
-					return MOSQ_ERR_CONN_LOST;
+					log__printf(रिक्त, MOSQ_LOG_ERR, "Connection Refused: QoS not supported (will retry)");
+					पटिनिवत्त MOSQ_ERR_CONN_LOST;
+				स्वभाव:
+					log__printf(रिक्त, MOSQ_LOG_ERR, "Connection Refused: %s", mosquitto_reason_string(reason_code));
+					पटिनिवत्त MOSQ_ERR_CONN_LOST;
 			}
-		}else{
-			switch(reason_code){
-				case CONNACK_REFUSED_PROTOCOL_VERSION:
-					if(context->bridge){
+		}अञ्ञथा{
+			विकल्प(reason_code){
+				पक्ष CONNACK_REFUSED_PROTOCOL_VERSION:
+					सचे(context->bridge){
 						context->bridge->try_private_accepted = false;
 					}
-					log__printf(NULL, MOSQ_LOG_ERR, "Connection Refused: unacceptable protocol version");
-					return MOSQ_ERR_CONN_LOST;
-				case CONNACK_REFUSED_IDENTIFIER_REJECTED:
-					log__printf(NULL, MOSQ_LOG_ERR, "Connection Refused: identifier rejected");
-					return MOSQ_ERR_CONN_LOST;
-				case CONNACK_REFUSED_SERVER_UNAVAILABLE:
-					log__printf(NULL, MOSQ_LOG_ERR, "Connection Refused: broker unavailable");
-					return MOSQ_ERR_CONN_LOST;
-				case CONNACK_REFUSED_BAD_USERNAME_PASSWORD:
-					log__printf(NULL, MOSQ_LOG_ERR, "Connection Refused: bad user name or password");
-					return MOSQ_ERR_CONN_LOST;
-				case CONNACK_REFUSED_NOT_AUTHORIZED:
-					log__printf(NULL, MOSQ_LOG_ERR, "Connection Refused: not authorised");
-					return MOSQ_ERR_CONN_LOST;
-				default:
-					log__printf(NULL, MOSQ_LOG_ERR, "Connection Refused: unknown reason");
-					return MOSQ_ERR_CONN_LOST;
+					log__printf(रिक्त, MOSQ_LOG_ERR, "Connection Refused: unacceptable protocol version");
+					पटिनिवत्त MOSQ_ERR_CONN_LOST;
+				पक्ष CONNACK_REFUSED_IDENTIFIER_REJECTED:
+					log__printf(रिक्त, MOSQ_LOG_ERR, "Connection Refused: identifier rejected");
+					पटिनिवत्त MOSQ_ERR_CONN_LOST;
+				पक्ष CONNACK_REFUSED_SERVER_UNAVAILABLE:
+					log__printf(रिक्त, MOSQ_LOG_ERR, "Connection Refused: broker unavailable");
+					पटिनिवत्त MOSQ_ERR_CONN_LOST;
+				पक्ष CONNACK_REFUSED_BAD_USERNAME_PASSWORD:
+					log__printf(रिक्त, MOSQ_LOG_ERR, "Connection Refused: bad user name or password");
+					पटिनिवत्त MOSQ_ERR_CONN_LOST;
+				पक्ष CONNACK_REFUSED_NOT_AUTHORIZED:
+					log__printf(रिक्त, MOSQ_LOG_ERR, "Connection Refused: not authorised");
+					पटिनिवत्त MOSQ_ERR_CONN_LOST;
+				स्वभाव:
+					log__printf(रिक्त, MOSQ_LOG_ERR, "Connection Refused: unknown reason");
+					पटिनिवत्त MOSQ_ERR_CONN_LOST;
 			}
 		}
 	}
-	return MOSQ_ERR_CONN_LOST;
+	पटिनिवत्त MOSQ_ERR_CONN_LOST;
 }
 

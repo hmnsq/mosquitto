@@ -16,87 +16,87 @@ Contributors:
    Roger Light - initial implementation and documentation.
 */
 
-#include "config.h"
+#अन्तर्भाव "config.h"
 
-#include "mosquitto_broker_internal.h"
-#include "mosquitto/mqtt_protocol.h"
-#include "packet_mosq.h"
-#include "property_mosq.h"
-#include "sys_tree.h"
-#include "util_mosq.h"
+#अन्तर्भाव "mosquitto_broker_internal.h"
+#अन्तर्भाव "mosquitto/mqtt_protocol.h"
+#अन्तर्भाव "packet_mosq.h"
+#अन्तर्भाव "property_mosq.h"
+#अन्तर्भाव "sys_tree.h"
+#अन्तर्भाव "util_mosq.h"
 
 
-int send__connack(struct mosquitto *context, uint8_t ack, uint8_t reason_code, const mosquitto_property *properties)
+पूर्णाङ्क send__connack(संरचना mosquitto *context, uint8_t ack, uint8_t reason_code, ध्रुव mosquitto_property *properties)
 {
-	struct mosquitto__packet *packet = NULL;
-	int rc;
-	mosquitto_property *connack_props = NULL;
+	संरचना mosquitto__packet *packet = रिक्त;
+	पूर्णाङ्क rc;
+	mosquitto_property *connack_props = रिक्त;
 	uint32_t remaining_length;
 
 	rc = mosquitto_property_copy_all(&connack_props, properties);
-	if(rc){
-		return rc;
+	सचे(rc){
+		पटिनिवत्त rc;
 	}
 
-	if(context->id){
-		log__printf(NULL, MOSQ_LOG_DEBUG, "Sending CONNACK to %s (%d, %d)", context->id, ack, reason_code);
-	}else{
-		log__printf(NULL, MOSQ_LOG_DEBUG, "Sending CONNACK to %s (%d, %d)", context->address, ack, reason_code);
+	सचे(context->id){
+		log__printf(रिक्त, MOSQ_LOG_DEBUG, "Sending CONNACK to %s (%d, %d)", context->id, ack, reason_code);
+	}अञ्ञथा{
+		log__printf(रिक्त, MOSQ_LOG_DEBUG, "Sending CONNACK to %s (%d, %d)", context->address, ack, reason_code);
 	}
 
 	remaining_length = 2;
 
-	if(context->protocol == mosq_p_mqtt5){
-		if(reason_code < 128 && db.config->retain_available == false){
+	सचे(context->protocol == mosq_p_mqtt5){
+		सचे(reason_code < 128 && db.config->retain_available == false){
 			rc = mosquitto_property_add_byte(&connack_props, MQTT_PROP_RETAIN_AVAILABLE, 0);
-			if(rc){
+			सचे(rc){
 				mosquitto_property_free_all(&connack_props);
-				return rc;
+				पटिनिवत्त rc;
 			}
 		}
-		if(reason_code < 128 && db.config->max_packet_size > 0){
+		सचे(reason_code < 128 && db.config->max_packet_size > 0){
 			rc = mosquitto_property_add_int32(&connack_props, MQTT_PROP_MAXIMUM_PACKET_SIZE, db.config->max_packet_size);
-			if(rc){
+			सचे(rc){
 				mosquitto_property_free_all(&connack_props);
-				return rc;
+				पटिनिवत्त rc;
 			}
 		}
-		if(reason_code < 128 && db.config->max_inflight_messages > 0){
+		सचे(reason_code < 128 && db.config->max_inflight_messages > 0){
 			rc = mosquitto_property_add_int16(&connack_props, MQTT_PROP_RECEIVE_MAXIMUM, db.config->max_inflight_messages);
-			if(rc){
+			सचे(rc){
 				mosquitto_property_free_all(&connack_props);
-				return rc;
+				पटिनिवत्त rc;
 			}
 		}
-		if(context->listener->max_qos != 2){
+		सचे(context->listener->max_qos != 2){
 			rc = mosquitto_property_add_byte(&connack_props, MQTT_PROP_MAXIMUM_QOS, context->listener->max_qos);
-			if(rc){
+			सचे(rc){
 				mosquitto_property_free_all(&connack_props);
-				return rc;
+				पटिनिवत्त rc;
 			}
 		}
 
 		remaining_length += mosquitto_property_get_remaining_length(connack_props);
 	}
 
-	if(packet__check_oversize(context, remaining_length)){
+	सचे(packet__check_oversize(context, remaining_length)){
 		mosquitto_property_free_all(&connack_props);
-		return MOSQ_ERR_OVERSIZE_PACKET;
+		पटिनिवत्त MOSQ_ERR_OVERSIZE_PACKET;
 	}
 
 	rc = packet__alloc(&packet, CMD_CONNACK, remaining_length);
-	if(rc){
+	सचे(rc){
 		mosquitto_property_free_all(&connack_props);
-		return rc;
+		पटिनिवत्त rc;
 	}
 	packet__write_byte(packet, ack);
 	packet__write_byte(packet, reason_code);
-	if(context->protocol == mosq_p_mqtt5){
+	सचे(context->protocol == mosq_p_mqtt5){
 		property__write_all(packet, connack_props, true);
 	}
 	mosquitto_property_free_all(&connack_props);
 
 	metrics__int_inc(mosq_counter_mqtt_connack_sent, 1);
-	return packet__queue(context, packet);
+	पटिनिवत्त packet__queue(context, packet);
 }
 

@@ -16,110 +16,110 @@ Contributors:
    Roger Light - initial implementation and documentation.
 */
 
-#include "config.h"
+#अन्तर्भाव "config.h"
 
-#include <stdio.h>
-#include <string.h>
+#अन्तर्भाव <stdio.h>
+#अन्तर्भाव <string.h>
 
-#include "mosquitto/broker.h"
-#include "mosquitto_broker_internal.h"
-#include "mosquitto/broker_plugin.h"
-#include "lib_load.h"
-#include "utlist.h"
+#अन्तर्भाव "mosquitto/broker.h"
+#अन्तर्भाव "mosquitto_broker_internal.h"
+#अन्तर्भाव "mosquitto/broker_plugin.h"
+#अन्तर्भाव "lib_load.h"
+#अन्तर्भाव "utlist.h"
 
 
-int acl__pre_check(mosquitto_plugin_id_t *plugin, struct mosquitto *context, int access)
+पूर्णाङ्क acl__pre_check(mosquitto_plugin_id_t *plugin, संरचना mosquitto *context, पूर्णाङ्क access)
 {
-	const char *username;
+	ध्रुव वर्ण *username;
 
 	username = mosquitto_client_username(context);
-	if(plugin->config.deny_special_chars == true){
+	सचे(plugin->config.deny_special_chars == true){
 		/* Check whether the client id or username contains a +, # or / and if
 		* so deny access.
 		*
 		* Do this check for every message regardless, we have to protect the
 		* plugins against possible pattern based attacks.
 		*/
-		if(username && strpbrk(username, "+#/")){
-			log__printf(NULL, MOSQ_LOG_NOTICE, "ACL denying access to client with dangerous username \"%s\"", username);
-			return MOSQ_ERR_ACL_DENIED;
+		सचे(username && strpbrk(username, "+#/")){
+			log__printf(रिक्त, MOSQ_LOG_NOTICE, "ACL denying access to client with dangerous username \"%s\"", username);
+			पटिनिवत्त MOSQ_ERR_ACL_DENIED;
 		}
-		if(context->id && strpbrk(context->id, "+#/")){
-			log__printf(NULL, MOSQ_LOG_NOTICE, "ACL denying access to client with dangerous client id \"%s\"", context->id);
-			return MOSQ_ERR_ACL_DENIED;
+		सचे(context->id && strpbrk(context->id, "+#/")){
+			log__printf(रिक्त, MOSQ_LOG_NOTICE, "ACL denying access to client with dangerous client id \"%s\"", context->id);
+			पटिनिवत्त MOSQ_ERR_ACL_DENIED;
 		}
 	}
 
-	if(plugin->lib.version == 4){
-		if(access == MOSQ_ACL_UNSUBSCRIBE){
-			return MOSQ_ERR_SUCCESS;
+	सचे(plugin->lib.version == 4){
+		सचे(access == MOSQ_ACL_UNSUBSCRIBE){
+			पटिनिवत्त MOSQ_ERR_SUCCESS;
 		}
-	}else if(plugin->lib.version == 3){
-		if(access == MOSQ_ACL_UNSUBSCRIBE){
-			return MOSQ_ERR_SUCCESS;
+	}अञ्ञथा सचे(plugin->lib.version == 3){
+		सचे(access == MOSQ_ACL_UNSUBSCRIBE){
+			पटिनिवत्त MOSQ_ERR_SUCCESS;
 		}
-	}else if(plugin->lib.version == 2){
-		if(access == MOSQ_ACL_SUBSCRIBE || access == MOSQ_ACL_UNSUBSCRIBE){
-			return MOSQ_ERR_SUCCESS;
+	}अञ्ञथा सचे(plugin->lib.version == 2){
+		सचे(access == MOSQ_ACL_SUBSCRIBE || access == MOSQ_ACL_UNSUBSCRIBE){
+			पटिनिवत्त MOSQ_ERR_SUCCESS;
 		}
 	}
-	return MOSQ_ERR_PLUGIN_DEFER;
+	पटिनिवत्त MOSQ_ERR_PLUGIN_DEFER;
 }
 
 
-static int acl__check_dollar(const char *topic, int access)
+स्थिर पूर्णाङ्क acl__check_dollar(ध्रुव वर्ण *topic, पूर्णाङ्क access)
 {
-	int rc;
+	पूर्णाङ्क rc;
 	bool match = false;
 
-	if(topic[0] != '$'){
-		return MOSQ_ERR_SUCCESS;
+	सचे(topic[0] != '$'){
+		पटिनिवत्त MOSQ_ERR_SUCCESS;
 	}
 
-	if(!strncmp(topic, "$SYS", 4)){
-		if(access == MOSQ_ACL_WRITE){
+	सचे(!strncmp(topic, "$SYS", 4)){
+		सचे(access == MOSQ_ACL_WRITE){
 			/* Potentially allow write access for bridge status, otherwise explicitly deny. */
 			rc = mosquitto_topic_matches_sub("$SYS/broker/connection/+/state", topic, &match);
-			if(rc == MOSQ_ERR_SUCCESS && match == true){
-				return MOSQ_ERR_SUCCESS;
-			}else{
-				return MOSQ_ERR_ACL_DENIED;
+			सचे(rc == MOSQ_ERR_SUCCESS && match == true){
+				पटिनिवत्त MOSQ_ERR_SUCCESS;
+			}अञ्ञथा{
+				पटिनिवत्त MOSQ_ERR_ACL_DENIED;
 			}
-		}else{
-			return MOSQ_ERR_SUCCESS;
+		}अञ्ञथा{
+			पटिनिवत्त MOSQ_ERR_SUCCESS;
 		}
-	}else if(!strncmp(topic, "$share", 6)){
+	}अञ्ञथा सचे(!strncmp(topic, "$share", 6)){
 		/* Only allow sub/unsub to shared subscriptions */
-		if(access == MOSQ_ACL_SUBSCRIBE || access == MOSQ_ACL_UNSUBSCRIBE){
-			return MOSQ_ERR_SUCCESS;
-		}else{
-			return MOSQ_ERR_ACL_DENIED;
+		सचे(access == MOSQ_ACL_SUBSCRIBE || access == MOSQ_ACL_UNSUBSCRIBE){
+			पटिनिवत्त MOSQ_ERR_SUCCESS;
+		}अञ्ञथा{
+			पटिनिवत्त MOSQ_ERR_ACL_DENIED;
 		}
-	}else{
+	}अञ्ञथा{
 		/* This is an unknown $ topic, for the moment just defer to actual tests. */
-		return MOSQ_ERR_SUCCESS;
+		पटिनिवत्त MOSQ_ERR_SUCCESS;
 	}
 }
 
 
-static int plugin__acl_check(struct mosquitto__security_options *opts, struct mosquitto *context, const char *topic, uint32_t payloadlen, void *payload, uint8_t qos, bool retain, mosquitto_property *properties, int access)
+स्थिर पूर्णाङ्क plugin__acl_check(संरचना mosquitto__security_options *opts, संरचना mosquitto *context, ध्रुव वर्ण *topic, uint32_t payloadlen, शून्य *payload, uint8_t qos, bool retain, mosquitto_property *properties, पूर्णाङ्क access)
 {
-	int rc = MOSQ_ERR_PLUGIN_DEFER;
-	struct mosquitto_acl_msg msg;
-	struct mosquitto__callback *cb_base, *cb_next;
-	struct mosquitto_evt_acl_check event_data;
+	पूर्णाङ्क rc = MOSQ_ERR_PLUGIN_DEFER;
+	संरचना mosquitto_acl_सन्देशः सन्देशः;
+	संरचना mosquitto__callback *cb_base, *cb_next;
+	संरचना mosquitto_evt_acl_check event_data;
 
-	memset(&msg, 0, sizeof(msg));
-	msg.topic = topic;
-	msg.payloadlen = payloadlen;
-	msg.payload = payload;
-	msg.qos = qos;
-	msg.retain = retain;
+	memset(&सन्देशः, 0, परिमाण(सन्देशः));
+	सन्देशः.topic = topic;
+	सन्देशः.payloadlen = payloadlen;
+	सन्देशः.payload = payload;
+	सन्देशः.qos = qos;
+	सन्देशः.retain = retain;
 
 	DL_FOREACH_SAFE(opts->plugin_callbacks.acl_check, cb_base, cb_next){
 		/* FIXME - username deny special chars */
 
-		memset(&event_data, 0, sizeof(event_data));
+		memset(&event_data, 0, परिमाण(event_data));
 		event_data.client = context;
 		event_data.access = access;
 		event_data.topic = topic;
@@ -129,30 +129,30 @@ static int plugin__acl_check(struct mosquitto__security_options *opts, struct mo
 		event_data.retain = retain;
 		event_data.properties = properties;
 		rc = cb_base->cb(MOSQ_EVT_ACL_CHECK, &event_data, cb_base->userdata);
-		if(rc != MOSQ_ERR_PLUGIN_DEFER && rc != MOSQ_ERR_PLUGIN_IGNORE){
-			return rc;
+		सचे(rc != MOSQ_ERR_PLUGIN_DEFER && rc != MOSQ_ERR_PLUGIN_IGNORE){
+			पटिनिवत्त rc;
 		}
 	}
 
-	return rc;
+	पटिनिवत्त rc;
 }
 
 
-int mosquitto_acl_check(struct mosquitto *context, const char *topic, uint32_t payloadlen, void *payload, uint8_t qos, bool retain, mosquitto_property *properties, int access)
+पूर्णाङ्क mosquitto_acl_check(संरचना mosquitto *context, ध्रुव वर्ण *topic, uint32_t payloadlen, शून्य *payload, uint8_t qos, bool retain, mosquitto_property *properties, पूर्णाङ्क access)
 {
-	int rc;
-	int rc_final;
+	पूर्णाङ्क rc;
+	पूर्णाङ्क rc_final;
 
-	if(!context->id){
-		return MOSQ_ERR_ACL_DENIED;
+	सचे(!context->id){
+		पटिनिवत्त MOSQ_ERR_ACL_DENIED;
 	}
-	if(context->bridge){
-		return MOSQ_ERR_SUCCESS;
+	सचे(context->bridge){
+		पटिनिवत्त MOSQ_ERR_SUCCESS;
 	}
 
 	rc = acl__check_dollar(topic, access);
-	if(rc){
-		return rc;
+	सचे(rc){
+		पटिनिवत्त rc;
 	}
 
 	/*
@@ -160,42 +160,42 @@ int mosquitto_acl_check(struct mosquitto *context, const char *topic, uint32_t p
 	 */
 	rc_final = MOSQ_ERR_SUCCESS;
 
-	if(db.config->security_options.plugin_callbacks.acl_check){
+	सचे(db.config->security_options.plugin_callbacks.acl_check){
 		rc = plugin__acl_check(&db.config->security_options, context, topic, payloadlen,
 				payload, qos, retain, properties, access);
 
-		if(rc == MOSQ_ERR_PLUGIN_IGNORE){
+		सचे(rc == MOSQ_ERR_PLUGIN_IGNORE){
 			/* Do nothing, this is as if the plugin doesn't exist */
-		}else if(rc == MOSQ_ERR_PLUGIN_DEFER){
+		}अञ्ञथा सचे(rc == MOSQ_ERR_PLUGIN_DEFER){
 			rc_final = MOSQ_ERR_PLUGIN_DEFER;
-		}else{
-			return rc;
+		}अञ्ञथा{
+			पटिनिवत्त rc;
 		}
 	}
 
-	if(context->listener){
-		if(context->listener->security_options->plugin_callbacks.acl_check){
+	सचे(context->listener){
+		सचे(context->listener->security_options->plugin_callbacks.acl_check){
 			rc = plugin__acl_check(context->listener->security_options, context, topic, payloadlen,
 					payload, qos, retain, properties, access);
 
-			if(rc == MOSQ_ERR_PLUGIN_IGNORE){
+			सचे(rc == MOSQ_ERR_PLUGIN_IGNORE){
 				/* Do nothing, this is as if the plugin doesn't exist */
-			}else if(rc == MOSQ_ERR_PLUGIN_DEFER){
+			}अञ्ञथा सचे(rc == MOSQ_ERR_PLUGIN_DEFER){
 				rc_final = MOSQ_ERR_PLUGIN_DEFER;
-			}else{
-				return rc;
+			}अञ्ञथा{
+				पटिनिवत्त rc;
 			}
 		}
-	}else{
-		if(db.config->per_listener_settings){
-			return MOSQ_ERR_ACL_DENIED;
+	}अञ्ञथा{
+		सचे(db.config->per_listener_settings){
+			पटिनिवत्त MOSQ_ERR_ACL_DENIED;
 		}
 	}
 
 	/* If all plugins deferred, this is a denial. If rc == MOSQ_ERR_SUCCESS
 	 * here, then no plugins were configured, or all plugins ignored. */
-	if(rc_final == MOSQ_ERR_PLUGIN_DEFER){
+	सचे(rc_final == MOSQ_ERR_PLUGIN_DEFER){
 		rc_final = MOSQ_ERR_ACL_DENIED;
 	}
-	return rc_final;
+	पटिनिवत्त rc_final;
 }
