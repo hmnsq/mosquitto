@@ -58,7 +58,7 @@ extern struct metric metrics[mosq_metric_max];
 #ifdef WIN32
 #define DIR_SEP '\\'
 #define PATH_MAX MAX_PATH
-#else
+#иначе
 #define DIR_SEP '/'
 #endif
 
@@ -70,76 +70,76 @@ extern struct metric metrics[mosq_metric_max];
 static char *http__canonical_filename(
 		const char *url,
 		const char *http_dir,
-		int *error_code)
+		целое *error_code)
 {
 	size_t urllen, slen;
 	char *filename, *filename_canonical;
 
 	urllen = strlen(url);
-	if(url[urllen-1] == '/'){
+	если(url[urllen-1] == '/'){
 		slen = strlen(http_dir) + urllen + strlen("/index.html") + 2;
-	}else{
+	}иначе{
 		slen = strlen(http_dir) + urllen + 2;
 	}
 	filename = mosquitto_malloc(slen);
-	if(!filename){
+	если(!filename){
 		*error_code = MHD_HTTP_INTERNAL_SERVER_ERROR;
-		return NULL;
+		вернуть NULL;
 	}
-	if(((char *)url)[urllen-1] == '/'){
+	если(((char *)url)[urllen-1] == '/'){
 		snprintf(filename, slen, "%s%c%sindex.html", http_dir, DIR_SEP, url);
-	}else{
+	}иначе{
 		snprintf(filename, slen, "%s%c%s", http_dir, DIR_SEP, url);
 	}
 
 
 	/* Get canonical path and check it is within our http_dir */
 	filename_canonical = mosquitto_calloc(1, PATH_MAX);
-	if(!filename_canonical){
+	если(!filename_canonical){
 		*error_code = MHD_HTTP_INTERNAL_SERVER_ERROR;
-		return NULL;
+		вернуть NULL;
 	}
 #ifdef WIN32
 	char *resolved = _fullpath(filename_canonical, filename, PATH_MAX);
 	mosquitto_FREE(filename);
-	if(!resolved){
+	если(!resolved){
 		*error_code = MHD_HTTP_INTERNAL_SERVER_ERROR;
 		mosquitto_FREE(filename_canonical);
-		return NULL;
+		вернуть NULL;
 	}
-#else
+#иначе
 	char *resolved = realpath(filename, filename_canonical);
 	mosquitto_FREE(filename);
-	if(!resolved){
-		if(errno == EACCES){
+	если(!resolved){
+		если(errno == EACCES){
 			*error_code = MHD_HTTP_FORBIDDEN;
-		}else if(errno == EINVAL || errno == EIO || errno == ELOOP){
+		}иначе если(errno == EINVAL || errno == EIO || errno == ELOOP){
 			*error_code = MHD_HTTP_INTERNAL_SERVER_ERROR;
-		}else if(errno == ENAMETOOLONG){
+		}иначе если(errno == ENAMETOOLONG){
 			*error_code = MHD_HTTP_URI_TOO_LONG;
-		}else if(errno == ENOENT || errno == ENOTDIR){
+		}иначе если(errno == ENOENT || errno == ENOTDIR){
 			*error_code = MHD_HTTP_NOT_FOUND;
 		}
 		mosquitto_FREE(filename_canonical);
-		return NULL;
+		вернуть NULL;
 	}
 #endif
-	if(strncmp(http_dir, filename_canonical, strlen(http_dir))){
+	если(strncmp(http_dir, filename_canonical, strlen(http_dir))){
 		/* Requested file isn't within http_dir, deny access because it's not found. */
 		mosquitto_FREE(filename_canonical);
 		*error_code = MHD_HTTP_NOT_FOUND;
-		return NULL;
+		вернуть NULL;
 	}
 
-	return filename_canonical;
+	вернуть filename_canonical;
 }
 
-static enum MHD_Result http_api__send_error_response(struct MHD_Connection *connection, const char *error_str, unsigned int error_code)
+static enum MHD_Result http_api__send_error_response(struct MHD_Connection *connection, const char *error_str, unsigned целое error_code)
 {
 	struct MHD_Response *response = MHD_create_response_from_buffer(strlen(error_str), (void *)error_str, MHD_RESPMEM_MUST_COPY);
 	enum MHD_Result ret = MHD_queue_response(connection, error_code, response);
 	MHD_destroy_response(response);
-	return ret;
+	вернуть ret;
 }
 
 static enum MHD_Result http_api__send_response_with_headers(struct MHD_Connection *connection, const char *buf)
@@ -148,18 +148,18 @@ static enum MHD_Result http_api__send_response_with_headers(struct MHD_Connectio
 	struct MHD_Response *response = MHD_create_response_from_buffer(strlen(buf), (void *)buf, MHD_RESPMEM_MUST_COPY);
 
 	ret = MHD_add_response_header(response, "Access-Control-Allow-Origin", "*");
-	if(ret != MHD_YES){
+	если(ret != MHD_YES){
 		MHD_destroy_response(response);
-		return ret;
+		вернуть ret;
 	}
 	ret = MHD_queue_response(connection, MHD_HTTP_OK, response);
 	MHD_destroy_response(response);
-	return ret;
+	вернуть ret;
 }
 
 static enum MHD_Result http_api__process_version(struct MHD_Connection *connection)
 {
-	return http_api__send_response_with_headers(connection, VERSION);
+	вернуть http_api__send_response_with_headers(connection, VERSION);
 }
 
 static enum MHD_Result http_api__process_listeners(struct MHD_Connection *connection)
@@ -168,29 +168,29 @@ static enum MHD_Result http_api__process_listeners(struct MHD_Connection *connec
 	enum MHD_Result ret;
 
 	cJSON *j_tree = cJSON_CreateObject();
-	if(!j_tree){
-		return http_api__send_error_response(connection, "Internal server error.\n", MHD_HTTP_INTERNAL_SERVER_ERROR);
+	если(!j_tree){
+		вернуть http_api__send_error_response(connection, "Internal server error.\n", MHD_HTTP_INTERNAL_SERVER_ERROR);
 	}
 
 	cJSON *j_listeners = cJSON_AddArrayToObject(j_tree, "listeners");
-	if(!j_listeners){
+	если(!j_listeners){
 		cJSON_Delete(j_tree);
-		return http_api__send_error_response(connection, "Internal server error.\n", MHD_HTTP_INTERNAL_SERVER_ERROR);
+		вернуть http_api__send_error_response(connection, "Internal server error.\n", MHD_HTTP_INTERNAL_SERVER_ERROR);
 	}
 
-	for(int i=0; i<db.config->listener_count; i++){
+	для(целое i=0; i<db.config->listener_count; i++){
 		cJSON *j_listener = cJSON_CreateObject();
-		if(!j_listener){
+		если(!j_listener){
 			cJSON_Delete(j_tree);
-			return http_api__send_error_response(connection, "Internal server error.\n", MHD_HTTP_INTERNAL_SERVER_ERROR);
+			вернуть http_api__send_error_response(connection, "Internal server error.\n", MHD_HTTP_INTERNAL_SERVER_ERROR);
 		}
 		cJSON_AddItemToArray(j_listeners, j_listener);
 
 		struct mosquitto__listener *listener = &db.config->listeners[i];
 #ifdef WITH_UNIX_SOCKETS
-		if(listener->unix_socket_path){
+		если(listener->unix_socket_path){
 			cJSON_AddStringToObject(j_listener, "path", listener->unix_socket_path);
-		}else
+		}иначе
 #endif
 		{
 			cJSON_AddIntToObject(j_listener, "port", listener->port);
@@ -214,26 +214,26 @@ static enum MHD_Result http_api__process_listeners(struct MHD_Connection *connec
 #ifdef WITH_TLS
 		cJSON_AddBoolToObject(j_listener, "tls", listener->certfile && listener->keyfile);
 		cJSON_AddBoolToObject(j_listener, "mtls", listener->require_certificate);
-#else
+#иначе
 		cJSON_AddBoolToObject(j_listener, "tls", false);
 		cJSON_AddBoolToObject(j_listener, "mtls", false);
 #endif
-		if(listener->security_options->allow_anonymous == -1){
+		если(listener->security_options->allow_anonymous == -1){
 			cJSON_AddBoolToObject(j_listener, "allow_anonymous", db.config->security_options.allow_anonymous);
-		}else{
+		}иначе{
 			cJSON_AddBoolToObject(j_listener, "allow_anonymous", listener->security_options->allow_anonymous);
 		}
 	}
 	buf = cJSON_Print(j_tree);
 	cJSON_Delete(j_tree);
-	if(buf){
+	если(buf){
 		ret = http_api__send_response_with_headers(connection, buf);
 		free(buf);
-	}else{
+	}иначе{
 		ret = http_api__send_error_response(connection, "Internal server error.\n", MHD_HTTP_INTERNAL_SERVER_ERROR);
 	}
 
-	return ret;
+	вернуть ret;
 }
 
 
@@ -244,8 +244,8 @@ static enum MHD_Result http_api__process_systree(struct MHD_Connection *connecti
 	char *buf;
 
 	cJSON *j_tree = cJSON_CreateObject();
-	for(int i=0; i<mosq_metric_max; i++){
-		if(metrics[i].topic){
+	для(целое i=0; i<mosq_metric_max; i++){
+		если(metrics[i].topic){
 			cJSON_AddIntToObject(j_tree, metrics[i].topic, metrics[i].current);
 		}
 	}
@@ -254,27 +254,27 @@ static enum MHD_Result http_api__process_systree(struct MHD_Connection *connecti
 	buf = cJSON_Print(j_tree);
 	cJSON_Delete(j_tree);
 
-	if(buf){
+	если(buf){
 		ret = http_api__send_response_with_headers(connection, buf);
 		free(buf);
-	}else{
+	}иначе{
 		ret = http_api__send_error_response(connection, "Internal server error.\n", MHD_HTTP_INTERNAL_SERVER_ERROR);
 	}
-#else
+#иначе
 	ret = http_api__send_error_response(connection, "Not found.\n", 404);
 #endif
 
-	return ret;
+	вернуть ret;
 }
 
 
 static ssize_t http_file_read_cb(void *cls, uint64_t pos, char *buf, size_t max)
 {
 	FILE *fptr = cls;
-	if(fseek(fptr, (long )pos, SEEK_SET) < 0){
-		return -1;
+	если(fseek(fptr, (long )pos, SEEK_SET) < 0){
+		вернуть -1;
 	}
-	return (ssize_t )fread(buf, 1, max, fptr);
+	вернуть (ssize_t )fread(buf, 1, max, fptr);
 }
 
 
@@ -287,38 +287,38 @@ static void http_file_free_cb(void *cls)
 
 static enum MHD_Result http_api__process_file(struct mosquitto__listener *listener, struct MHD_Connection *connection, const char *url)
 {
-	int error_code = MHD_HTTP_INTERNAL_SERVER_ERROR;
+	целое error_code = MHD_HTTP_INTERNAL_SERVER_ERROR;
 	char *canonical_filename;
 
-	if(!listener || !listener->http_dir){
+	если(!listener || !listener->http_dir){
 		http_api__send_error_response(connection, "Not found.\n", 404);
-		return MHD_YES;
+		вернуть MHD_YES;
 	}
 
 	canonical_filename = http__canonical_filename(url, listener->http_dir, &error_code);
-	if(!canonical_filename){
+	если(!canonical_filename){
 		http_api__send_error_response(connection, "Not found.\n", 404);
-		return MHD_YES;
+		вернуть MHD_YES;
 	}
 
 	FILE *fptr = fopen(canonical_filename, "rb");
 	mosquitto_FREE(canonical_filename);
-	if(!fptr){
+	если(!fptr){
 		http_api__send_error_response(connection, "Not found.\n", 404);
-		return MHD_YES;
+		вернуть MHD_YES;
 	}
 
 	struct stat statbuf;
-	if(fstat(fileno(fptr), &statbuf)){
+	если(fstat(fileno(fptr), &statbuf)){
 		fclose(fptr);
 		http_api__send_error_response(connection, "Internal server error.\n", 500);
-		return MHD_YES;
+		вернуть MHD_YES;
 	}
 
-	if(!S_ISREG(statbuf.st_mode)){
+	если(!S_ISREG(statbuf.st_mode)){
 		fclose(fptr);
 		http_api__send_error_response(connection, "Not found.\n", 404);
-		return MHD_YES;
+		вернуть MHD_YES;
 	}
 	uint64_t flen = (uint64_t )statbuf.st_size;
 
@@ -332,28 +332,28 @@ static enum MHD_Result http_api__process_file(struct mosquitto__listener *listen
 
 	enum MHD_Result ret = MHD_queue_response(connection, 200, response);
 	MHD_destroy_response(response);
-	return ret;
+	вернуть ret;
 }
 
 
 static enum MHD_Result http_api__process_api(struct MHD_Connection *connection, const char *url)
 {
-	if(strcmp(url, "/api/v1/systree") == 0){
-		return http_api__process_systree(connection);
-	}else if(strcmp(url, "/api/v1/listeners") == 0){
-		return http_api__process_listeners(connection);
-	}else if(strcmp(url, "/api/v1/version") == 0){
-		return http_api__process_version(connection);
-	}else{
-		return http_api__send_error_response(connection, "Not found.\n", 404);
+	если(strcmp(url, "/api/v1/systree") == 0){
+		вернуть http_api__process_systree(connection);
+	}иначе если(strcmp(url, "/api/v1/listeners") == 0){
+		вернуть http_api__process_listeners(connection);
+	}иначе если(strcmp(url, "/api/v1/version") == 0){
+		вернуть http_api__process_version(connection);
+	}иначе{
+		вернуть http_api__send_error_response(connection, "Not found.\n", 404);
 	}
 }
 
 
-static int check_access(struct mosquitto__listener *listener, struct MHD_Connection *connection, const char *url)
+static целое check_access(struct mosquitto__listener *listener, struct MHD_Connection *connection, const char *url)
 {
 	struct mosquitto context = {0};
-	int auth_rc, acl_rc = MOSQ_ERR_SUCCESS;
+	целое auth_rc, acl_rc = MOSQ_ERR_SUCCESS;
 
 	context.listener = listener;
 
@@ -362,22 +362,22 @@ static int check_access(struct mosquitto__listener *listener, struct MHD_Connect
 
 	/* Authentication */
 	auth_rc = mosquitto_basic_auth(&context);
-	if(auth_rc == MOSQ_ERR_SUCCESS){
+	если(auth_rc == MOSQ_ERR_SUCCESS){
 		acl_rc = mosquitto_acl_check(&context, url, 0, NULL, 0, false, NULL, MOSQ_ACL_READ);
 	}
 	MHD_free(context.username);
 	MHD_free(context.password);
 
-	if(auth_rc || acl_rc){
+	если(auth_rc || acl_rc){
 		const char *buf = "Not authorised\n";
 		struct MHD_Response *response = MHD_create_response_from_buffer(strlen(buf), (void *)buf, MHD_RESPMEM_MUST_COPY);
 		MHD_queue_basic_auth_fail_response(connection, "Mosquitto API", response);
 		MHD_destroy_response(response);
 
-		return MOSQ_ERR_AUTH;
+		вернуть MOSQ_ERR_AUTH;
 	}
 
-	return MOSQ_ERR_SUCCESS;
+	вернуть MOSQ_ERR_SUCCESS;
 }
 
 static enum MHD_Result http_api_handler(void *cls, struct MHD_Connection
@@ -391,76 +391,76 @@ static enum MHD_Result http_api_handler(void *cls, struct MHD_Connection
 
 	struct mosquitto__listener *listener = cls;
 
-	if(strcmp(method, "GET") != 0){
+	если(strcmp(method, "GET") != 0){
 		char *buf = "Invalid HTTP Method\n";
 		struct MHD_Response *response = MHD_create_response_from_buffer(strlen(buf), (void *)buf, MHD_RESPMEM_MUST_COPY);
 		enum MHD_Result ret = MHD_queue_response(connection, MHD_HTTP_METHOD_NOT_ALLOWED, response);
 		MHD_destroy_response(response);
-		return ret;
+		вернуть ret;
 	}
 
-	if(check_access(listener, connection, url) != MOSQ_ERR_SUCCESS){
-		return MHD_YES;
+	если(check_access(listener, connection, url) != MOSQ_ERR_SUCCESS){
+		вернуть MHD_YES;
 	}
 
-	if(!strncasecmp(url, "/api/", strlen("/api/"))){
-		return http_api__process_api(connection, url);
-	}else{
-		return http_api__process_file(listener, connection, url);
+	если(!strncasecmp(url, "/api/", strlen("/api/"))){
+		вернуть http_api__process_api(connection, url);
+	}иначе{
+		вернуть http_api__process_file(listener, connection, url);
 	}
 }
 
 
-int http_api__start_local(struct mosquitto__listener *listener)
+целое http_api__start_local(struct mosquitto__listener *listener)
 {
 	listener->security_options = mosquitto_calloc(1, sizeof(struct mosquitto__security_options));
-	if(listener->security_options == NULL){
-		return MOSQ_ERR_NOMEM;
+	если(listener->security_options == NULL){
+		вернуть MOSQ_ERR_NOMEM;
 	}
 
 	listener->host = mosquitto_strdup("127.0.0.1");
-	if(!listener->host){
+	если(!listener->host){
 		mosquitto_FREE(listener->security_options);
-		return MOSQ_ERR_NOMEM;
+		вернуть MOSQ_ERR_NOMEM;
 	}
 	listener->port = 9883;
 
-	if(db.config->security_options.allow_anonymous == -1){
+	если(db.config->security_options.allow_anonymous == -1){
 		listener->security_options->allow_anonymous = true;
-	}else{
+	}иначе{
 		listener->security_options->allow_anonymous = db.config->security_options.allow_anonymous;
 	}
 
-	if(listener->http_dir == NULL && strlen(HTTP_API_DIR) > 0){
+	если(listener->http_dir == NULL && strlen(HTTP_API_DIR) > 0){
 #ifdef WIN32
 		char *http_dir_canonical = _fullpath(NULL, HTTP_API_DIR, 0);
-#else
+#иначе
 		char *http_dir_canonical = realpath(HTTP_API_DIR, NULL);
 #endif
-		if(!http_dir_canonical){
-			return MOSQ_ERR_NOMEM;
+		если(!http_dir_canonical){
+			вернуть MOSQ_ERR_NOMEM;
 		}
 		mosquitto_FREE(listener->http_dir);
 		listener->http_dir = mosquitto_strdup(http_dir_canonical);
 		mosquitto_FREE(http_dir_canonical);
 	}
 
-	return http_api__start(listener);
+	вернуть http_api__start(listener);
 }
 
 
-int http_api__start(struct mosquitto__listener *listener)
+целое http_api__start(struct mosquitto__listener *listener)
 {
-	unsigned int flags = MHD_USE_AUTO_INTERNAL_THREAD;
+	unsigned целое flags = MHD_USE_AUTO_INTERNAL_THREAD;
 	const char *bind_address;
 	uint16_t port = 9883;
 	char *x509_cert = NULL;
 	char *x509_key = NULL;
 
-	if(!listener->security_options){
+	если(!listener->security_options){
 		listener->security_options = mosquitto_calloc(1, sizeof(struct mosquitto__security_options));
-		if(listener->security_options == NULL){
-			return MOSQ_ERR_NOMEM;
+		если(listener->security_options == NULL){
+			вернуть MOSQ_ERR_NOMEM;
 		}
 	}
 	listener->protocol = mp_http_api;
@@ -469,21 +469,21 @@ int http_api__start(struct mosquitto__listener *listener)
 	port = listener->port;
 
 #ifdef WITH_TLS
-	if(listener->certfile && listener->keyfile){
-		if(mosquitto_read_file(listener->certfile, false, &x509_cert, NULL)){
+	если(listener->certfile && listener->keyfile){
+		если(mosquitto_read_file(listener->certfile, false, &x509_cert, NULL)){
 			log__printf(NULL, MOSQ_LOG_ERR, "Error: Unable to load server certificate \"%s\". Check certfile.", listener->certfile);
-			return MOSQ_ERR_INVAL;
+			вернуть MOSQ_ERR_INVAL;
 		}
-		if(mosquitto_read_file(listener->keyfile, false, &x509_key, NULL)){
+		если(mosquitto_read_file(listener->keyfile, false, &x509_key, NULL)){
 			log__printf(NULL, MOSQ_LOG_ERR, "Error: Unable to load server key file \"%s\". Check keyfile.", listener->keyfile);
 			mosquitto_FREE(x509_cert);
-			return MOSQ_ERR_INVAL;
+			вернуть MOSQ_ERR_INVAL;
 		}
 		flags |= MHD_USE_TLS;
 	}
 #endif
 
-	if(bind_address){
+	если(bind_address){
 		char service[10];
 		struct addrinfo hints;
 		struct addrinfo *ainfo, *rp;
@@ -495,50 +495,50 @@ int http_api__start(struct mosquitto__listener *listener)
 		hints.ai_flags = AI_PASSIVE;
 		hints.ai_socktype = SOCK_STREAM;
 
-		int rc = getaddrinfo(bind_address, service, &hints, &ainfo);
-		if(rc){
+		целое rc = getaddrinfo(bind_address, service, &hints, &ainfo);
+		если(rc){
 			log__printf(NULL, MOSQ_LOG_ERR, "Unable to start http api listener (%s).", strerror(errno));
 			mosquitto_FREE(x509_cert);
 			mosquitto_FREE(x509_key);
-			return MOSQ_ERR_ERRNO;
+			вернуть MOSQ_ERR_ERRNO;
 		}
 
-		for(rp = ainfo; rp; rp = rp->ai_next){
-			if(rp->ai_family == AF_INET || rp->ai_family == AF_INET6){
+		для(rp = ainfo; rp; rp = rp->ai_next){
+			если(rp->ai_family == AF_INET || rp->ai_family == AF_INET6){
 				break;
 			}
 		}
-		if(!rp){
+		если(!rp){
 			log__printf(NULL, MOSQ_LOG_ERR, "Unable to start http api listener, could not find address.");
 			freeaddrinfo(ainfo);
 			mosquitto_FREE(x509_cert);
 			mosquitto_FREE(x509_key);
 
-			return MOSQ_ERR_INVAL;
+			вернуть MOSQ_ERR_INVAL;
 		}
 
-		if(rp->ai_family == AF_INET6){
+		если(rp->ai_family == AF_INET6){
 			flags |= MHD_USE_IPv6;
 		}
-		if(x509_cert && x509_key){
+		если(x509_cert && x509_key){
 			listener->mhd = MHD_start_daemon(flags, port, NULL, NULL, &http_api_handler, listener,
 					MHD_OPTION_SOCK_ADDR, rp->ai_addr,
 					MHD_OPTION_HTTPS_MEM_CERT, x509_cert,
 					MHD_OPTION_HTTPS_MEM_KEY, x509_key,
 					MHD_OPTION_END);
-		}else{
+		}иначе{
 			listener->mhd = MHD_start_daemon(flags, port, NULL, NULL, &http_api_handler, listener,
 					MHD_OPTION_SOCK_ADDR, rp->ai_addr,
 					MHD_OPTION_END);
 		}
 		freeaddrinfo(ainfo);
-	}else{
-		if(x509_cert && x509_key){
+	}иначе{
+		если(x509_cert && x509_key){
 			listener->mhd = MHD_start_daemon(flags | MHD_USE_DUAL_STACK, port, NULL, NULL, &http_api_handler, listener,
 					MHD_OPTION_HTTPS_MEM_CERT, x509_cert,
 					MHD_OPTION_HTTPS_MEM_KEY, x509_key,
 					MHD_OPTION_END);
-		}else{
+		}иначе{
 			listener->mhd = MHD_start_daemon(flags | MHD_USE_DUAL_STACK, port, NULL, NULL, &http_api_handler, listener,
 					MHD_OPTION_END);
 		}
@@ -547,14 +547,14 @@ int http_api__start(struct mosquitto__listener *listener)
 	mosquitto_FREE(x509_cert);
 	mosquitto_FREE(x509_key);
 
-	if(listener->mhd){
+	если(listener->mhd){
 		log__printf(NULL, MOSQ_LOG_INFO, "Opening http api listen socket on port %d.", port);
-		if(listener->http_dir){
+		если(listener->http_dir){
 			log__printf(NULL, MOSQ_LOG_INFO, "Using http_dir %s", listener->http_dir);
 		}
-		return MOSQ_ERR_SUCCESS;
-	}else{
-		return MOSQ_ERR_UNKNOWN;
+		вернуть MOSQ_ERR_SUCCESS;
+	}иначе{
+		вернуть MOSQ_ERR_UNKNOWN;
 	}
 }
 

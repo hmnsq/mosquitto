@@ -23,11 +23,11 @@ Contributors:
 #include "utlist.h"
 
 
-static int plugin__handle_subscribe_single(struct mosquitto__security_options *opts, struct mosquitto *context, struct mosquitto_subscription *sub)
+static целое plugin__handle_subscribe_single(struct mosquitto__security_options *opts, struct mosquitto *context, struct mosquitto_subscription *sub)
 {
 	struct mosquitto_evt_subscribe event_data;
 	struct mosquitto__callback *cb_base, *cb_next;
-	int rc = MOSQ_ERR_SUCCESS;
+	целое rc = MOSQ_ERR_SUCCESS;
 
 	memset(&event_data, 0, sizeof(event_data));
 	event_data.client = context;
@@ -38,34 +38,34 @@ static int plugin__handle_subscribe_single(struct mosquitto__security_options *o
 
 	DL_FOREACH_SAFE(opts->plugin_callbacks.subscribe, cb_base, cb_next){
 		rc = cb_base->cb(MOSQ_EVT_SUBSCRIBE, &event_data, cb_base->userdata);
-		if(rc != MOSQ_ERR_SUCCESS){
+		если(rc != MOSQ_ERR_SUCCESS){
 			break;
 		}
 
-		if(sub->topic_filter != event_data.data.topic_filter){
+		если(sub->topic_filter != event_data.data.topic_filter){
 			mosquitto_free(sub->topic_filter);
 			sub->topic_filter = event_data.data.topic_filter;
 		}
 	}
 	sub->options = event_data.data.options;
 
-	return rc;
+	вернуть rc;
 }
 
 
-int plugin__handle_subscribe(struct mosquitto *context, struct mosquitto_subscription *sub)
+целое plugin__handle_subscribe(struct mosquitto *context, struct mosquitto_subscription *sub)
 {
-	int rc = MOSQ_ERR_SUCCESS;
+	целое rc = MOSQ_ERR_SUCCESS;
 
 	/* Global plugins */
 	rc = plugin__handle_subscribe_single(&db.config->security_options, context, sub);
-	if(rc){
-		return rc;
+	если(rc){
+		вернуть rc;
 	}
 
-	if(context->listener){
+	если(context->listener){
 		rc = plugin__handle_subscribe_single(context->listener->security_options, context, sub);
 	}
 
-	return rc;
+	вернуть rc;
 }

@@ -29,20 +29,20 @@ Contributors:
 #include "util_mosq.h"
 
 
-int broker_acl_file__init(void)
+целое broker_acl_file__init(void)
 {
-	int rc;
+	целое rc;
 
 	/* Load acl data if required. */
-	if(db.config->per_listener_settings){
-		for(int i=0; i<db.config->listener_count; i++){
-			if(db.config->listeners[i].security_options->acl_data.acl_file){
+	если(db.config->per_listener_settings){
+		для(целое i=0; i<db.config->listener_count; i++){
+			если(db.config->listeners[i].security_options->acl_data.acl_file){
 				rc = acl_file__parse(&db.config->listeners[i].security_options->acl_data);
-				if(rc){
+				если(rc){
 					log__printf(NULL, MOSQ_LOG_ERR, "Error opening acl file \"%s\".", db.config->listeners[i].security_options->acl_data.acl_file);
-					return rc;
+					вернуть rc;
 				}
-				if(db.config->listeners[i].security_options->plugin_count == 0){
+				если(db.config->listeners[i].security_options->plugin_count == 0){
 					config__plugin_add_secopt(db.config->listeners[i].security_options->pid, db.config->listeners[i].security_options);
 				}
 
@@ -50,14 +50,14 @@ int broker_acl_file__init(void)
 						MOSQ_EVT_ACL_CHECK, acl_file__check, NULL, &db.config->listeners[i].security_options->acl_data);
 			}
 		}
-	}else{
-		if(db.config->security_options.acl_data.acl_file){
+	}иначе{
+		если(db.config->security_options.acl_data.acl_file){
 			rc = acl_file__parse(&db.config->security_options.acl_data);
-			if(rc){
+			если(rc){
 				log__printf(NULL, MOSQ_LOG_ERR, "Error opening acl file \"%s\".", db.config->security_options.acl_data.acl_file);
-				return rc;
+				вернуть rc;
 			}
-			if(db.config->security_options.plugin_count == 0){
+			если(db.config->security_options.plugin_count == 0){
 				config__plugin_add_secopt(db.config->security_options.pid, &db.config->security_options);
 			}
 
@@ -66,23 +66,23 @@ int broker_acl_file__init(void)
 		}
 	}
 
-	return MOSQ_ERR_SUCCESS;
+	вернуть MOSQ_ERR_SUCCESS;
 }
 
 
 void broker_acl_file__cleanup(void)
 {
-	if(db.config->per_listener_settings){
-		for(int i=0; i<db.config->listener_count; i++){
-			if(db.config->listeners[i].security_options->pid){
+	если(db.config->per_listener_settings){
+		для(целое i=0; i<db.config->listener_count; i++){
+			если(db.config->listeners[i].security_options->pid){
 				mosquitto_callback_unregister(db.config->listeners[i].security_options->pid,
 						MOSQ_EVT_ACL_CHECK, acl_file__check, NULL);
 
 				acl_file__cleanup(&db.config->listeners[i].security_options->acl_data);
 			}
 		}
-	}else{
-		if(db.config->security_options.pid){
+	}иначе{
+		если(db.config->security_options.pid){
 			mosquitto_callback_unregister(db.config->security_options.pid,
 					MOSQ_EVT_ACL_CHECK, acl_file__check, NULL);
 

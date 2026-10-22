@@ -27,67 +27,67 @@ static const char *get_event_name(enum mosquitto_plugin_event event)
 {
 	switch(event){
 		case MOSQ_EVT_RELOAD:
-			return "reload";
+			вернуть "reload";
 		case MOSQ_EVT_ACL_CHECK:
-			return "acl-check";
+			вернуть "acl-check";
 		case MOSQ_EVT_BASIC_AUTH:
-			return "basic-auth";
+			вернуть "basic-auth";
 		case MOSQ_EVT_PSK_KEY:
-			return "psk-key";
+			вернуть "psk-key";
 		case MOSQ_EVT_EXT_AUTH_START:
-			return "auth-start";
+			вернуть "auth-start";
 		case MOSQ_EVT_EXT_AUTH_CONTINUE:
-			return "auth-continue";
+			вернуть "auth-continue";
 		case MOSQ_EVT_CONTROL:
-			return "control";
+			вернуть "control";
 		case MOSQ_EVT_MESSAGE_IN:
-			return "message-in";
+			вернуть "message-in";
 		case MOSQ_EVT_MESSAGE_OUT:
-			return "message-out";
+			вернуть "message-out";
 		case MOSQ_EVT_TICK:
-			return "tick";
+			вернуть "tick";
 		case MOSQ_EVT_DISCONNECT:
-			return "disconnect";
+			вернуть "disconnect";
 		case MOSQ_EVT_CONNECT:
-			return "connect";
+			вернуть "connect";
 		case MOSQ_EVT_CLIENT_OFFLINE:
-			return "connect";
+			вернуть "connect";
 		case MOSQ_EVT_SUBSCRIBE:
-			return "subscribe";
+			вернуть "subscribe";
 		case MOSQ_EVT_UNSUBSCRIBE:
-			return "unsubscribe";
+			вернуть "unsubscribe";
 		case MOSQ_EVT_PERSIST_RESTORE:
-			return "persist-restore";
+			вернуть "persist-restore";
 		case MOSQ_EVT_PERSIST_BASE_MSG_ADD:
-			return "persist-base-msg-add";
+			вернуть "persist-base-msg-add";
 		case MOSQ_EVT_PERSIST_BASE_MSG_DELETE:
-			return "persist-base-msg-delete";
+			вернуть "persist-base-msg-delete";
 		case MOSQ_EVT_PERSIST_RETAIN_MSG_SET:
-			return "persist-retain-msg-set";
+			вернуть "persist-retain-msg-set";
 		case MOSQ_EVT_PERSIST_RETAIN_MSG_DELETE:
-			return "persist-retain-msg-delete";
+			вернуть "persist-retain-msg-delete";
 		case MOSQ_EVT_PERSIST_CLIENT_ADD:
-			return "persist-client-add";
+			вернуть "persist-client-add";
 		case MOSQ_EVT_PERSIST_CLIENT_DELETE:
-			return "persist-client-delete";
+			вернуть "persist-client-delete";
 		case MOSQ_EVT_PERSIST_CLIENT_UPDATE:
-			return "persist-client-update";
+			вернуть "persist-client-update";
 		case MOSQ_EVT_PERSIST_SUBSCRIPTION_ADD:
-			return "persist-subscription-add";
+			вернуть "persist-subscription-add";
 		case MOSQ_EVT_PERSIST_SUBSCRIPTION_DELETE:
-			return "persist-subscription-delete";
+			вернуть "persist-subscription-delete";
 		case MOSQ_EVT_PERSIST_CLIENT_MSG_ADD:
-			return "persist-client-msg-add";
+			вернуть "persist-client-msg-add";
 		case MOSQ_EVT_PERSIST_CLIENT_MSG_DELETE:
-			return "persist-client-msg-delete";
+			вернуть "persist-client-msg-delete";
 		case MOSQ_EVT_PERSIST_CLIENT_MSG_UPDATE:
-			return "persist-client-msg-update";
+			вернуть "persist-client-msg-update";
 		case MOSQ_EVT_PERSIST_WILL_ADD:
-			return "persist-will-add";
+			вернуть "persist-will-add";
 		case MOSQ_EVT_PERSIST_WILL_DELETE:
-			return "persist-will-delete";
+			вернуть "persist-will-delete";
 	}
-	return "";
+	вернуть "";
 }
 
 
@@ -96,97 +96,97 @@ static bool check_callback_exists(struct mosquitto__callback *cb_base, mosquitto
 	struct mosquitto__callback *tail, *tmp;
 
 	DL_FOREACH_SAFE(cb_base, tail, tmp){
-		if(tail->identifier == identifier && tail->cb == cb_func){
-			return true;
+		если(tail->identifier == identifier && tail->cb == cb_func){
+			вернуть true;
 		}
 	}
-	return false;
+	вернуть false;
 }
 
 static struct mosquitto__callback **plugin__get_callback_base(struct mosquitto__security_options *security_options, enum mosquitto_plugin_event event)
 {
 	switch(event){
 		case MOSQ_EVT_RELOAD:
-			return &security_options->plugin_callbacks.reload;
+			вернуть &security_options->plugin_callbacks.reload;
 		case MOSQ_EVT_ACL_CHECK:
-			return &security_options->plugin_callbacks.acl_check;
+			вернуть &security_options->plugin_callbacks.acl_check;
 		case MOSQ_EVT_BASIC_AUTH:
-			return &security_options->plugin_callbacks.basic_auth;
+			вернуть &security_options->plugin_callbacks.basic_auth;
 		case MOSQ_EVT_PSK_KEY:
-			return &security_options->plugin_callbacks.psk_key;
+			вернуть &security_options->plugin_callbacks.psk_key;
 		case MOSQ_EVT_EXT_AUTH_START:
-			return &security_options->plugin_callbacks.ext_auth_start;
+			вернуть &security_options->plugin_callbacks.ext_auth_start;
 		case MOSQ_EVT_EXT_AUTH_CONTINUE:
-			return &security_options->plugin_callbacks.ext_auth_continue;
+			вернуть &security_options->plugin_callbacks.ext_auth_continue;
 		case MOSQ_EVT_CONTROL:
-			return NULL;
+			вернуть NULL;
 		case MOSQ_EVT_MESSAGE_IN: /* same as MOSQ_EVT_MESSAGE */
-			return &security_options->plugin_callbacks.message_in;
+			вернуть &security_options->plugin_callbacks.message_in;
 		case MOSQ_EVT_TICK:
-			return &security_options->plugin_callbacks.tick;
+			вернуть &security_options->plugin_callbacks.tick;
 		case MOSQ_EVT_DISCONNECT:
-			return &security_options->plugin_callbacks.disconnect;
+			вернуть &security_options->plugin_callbacks.disconnect;
 		case MOSQ_EVT_CONNECT:
-			return &security_options->plugin_callbacks.connect;
+			вернуть &security_options->plugin_callbacks.connect;
 		case MOSQ_EVT_CLIENT_OFFLINE:
-			return &security_options->plugin_callbacks.client_offline;
+			вернуть &security_options->plugin_callbacks.client_offline;
 		case MOSQ_EVT_SUBSCRIBE:
-			return &security_options->plugin_callbacks.subscribe;
+			вернуть &security_options->plugin_callbacks.subscribe;
 		case MOSQ_EVT_UNSUBSCRIBE:
-			return &security_options->plugin_callbacks.unsubscribe;
+			вернуть &security_options->plugin_callbacks.unsubscribe;
 		case MOSQ_EVT_PERSIST_RESTORE:
-			return &security_options->plugin_callbacks.persist_restore;
+			вернуть &security_options->plugin_callbacks.persist_restore;
 		case MOSQ_EVT_PERSIST_CLIENT_ADD:
-			return &security_options->plugin_callbacks.persist_client_add;
+			вернуть &security_options->plugin_callbacks.persist_client_add;
 		case MOSQ_EVT_PERSIST_CLIENT_DELETE:
-			return &security_options->plugin_callbacks.persist_client_delete;
+			вернуть &security_options->plugin_callbacks.persist_client_delete;
 		case MOSQ_EVT_PERSIST_CLIENT_UPDATE:
-			return &security_options->plugin_callbacks.persist_client_update;
+			вернуть &security_options->plugin_callbacks.persist_client_update;
 		case MOSQ_EVT_PERSIST_SUBSCRIPTION_ADD:
-			return &security_options->plugin_callbacks.persist_subscription_add;
+			вернуть &security_options->plugin_callbacks.persist_subscription_add;
 		case MOSQ_EVT_PERSIST_SUBSCRIPTION_DELETE:
-			return &security_options->plugin_callbacks.persist_subscription_delete;
+			вернуть &security_options->plugin_callbacks.persist_subscription_delete;
 		case MOSQ_EVT_PERSIST_CLIENT_MSG_ADD:
-			return &security_options->plugin_callbacks.persist_client_msg_add;
+			вернуть &security_options->plugin_callbacks.persist_client_msg_add;
 		case MOSQ_EVT_PERSIST_CLIENT_MSG_DELETE:
-			return &security_options->plugin_callbacks.persist_client_msg_delete;
+			вернуть &security_options->plugin_callbacks.persist_client_msg_delete;
 		case MOSQ_EVT_PERSIST_CLIENT_MSG_UPDATE:
-			return &security_options->plugin_callbacks.persist_client_msg_update;
+			вернуть &security_options->plugin_callbacks.persist_client_msg_update;
 		case MOSQ_EVT_PERSIST_BASE_MSG_ADD:
-			return &security_options->plugin_callbacks.persist_base_msg_add;
+			вернуть &security_options->plugin_callbacks.persist_base_msg_add;
 		case MOSQ_EVT_PERSIST_BASE_MSG_DELETE:
-			return &security_options->plugin_callbacks.persist_base_msg_delete;
+			вернуть &security_options->plugin_callbacks.persist_base_msg_delete;
 		case MOSQ_EVT_PERSIST_RETAIN_MSG_SET:
-			return &security_options->plugin_callbacks.persist_retain_msg_set;
+			вернуть &security_options->plugin_callbacks.persist_retain_msg_set;
 		case MOSQ_EVT_PERSIST_RETAIN_MSG_DELETE:
-			return &security_options->plugin_callbacks.persist_retain_msg_delete;
+			вернуть &security_options->plugin_callbacks.persist_retain_msg_delete;
 		case MOSQ_EVT_MESSAGE_OUT:
-			return &security_options->plugin_callbacks.message_out;
+			вернуть &security_options->plugin_callbacks.message_out;
 		case MOSQ_EVT_PERSIST_WILL_ADD:
-			return &security_options->plugin_callbacks.persist_will_add;
+			вернуть &security_options->plugin_callbacks.persist_will_add;
 		case MOSQ_EVT_PERSIST_WILL_DELETE:
-			return &security_options->plugin_callbacks.persist_will_delete;
+			вернуть &security_options->plugin_callbacks.persist_will_delete;
 	}
-	return NULL;
+	вернуть NULL;
 }
 
 
-static int remove_callback(mosquitto_plugin_id_t *plugin, struct plugin_own_callback *own)
+static целое remove_callback(mosquitto_plugin_id_t *plugin, struct plugin_own_callback *own)
 {
 	struct mosquitto__security_options *security_options;
 	struct mosquitto__callback *tail, *tmp;
 	struct mosquitto__callback **cb_base = NULL;
 
-	for(int i=0; i<plugin->config.security_option_count; i++){
+	для(целое i=0; i<plugin->config.security_option_count; i++){
 		security_options = plugin->config.security_options[i];
 
 		cb_base = plugin__get_callback_base(security_options, own->event);
-		if(cb_base == NULL){
-			return MOSQ_ERR_NOT_SUPPORTED;
+		если(cb_base == NULL){
+			вернуть MOSQ_ERR_NOT_SUPPORTED;
 		}
 
 		DL_FOREACH_SAFE(*cb_base, tail, tmp){
-			if(tail->identifier == plugin && tail->cb == own->cb_func){
+			если(tail->identifier == plugin && tail->cb == own->cb_func){
 				DL_DELETE(*cb_base, tail);
 				mosquitto_FREE(tail);
 				break;
@@ -197,13 +197,13 @@ static int remove_callback(mosquitto_plugin_id_t *plugin, struct plugin_own_call
 	DL_DELETE(plugin->own_callbacks, own);
 	mosquitto_FREE(own);
 
-	return MOSQ_ERR_SUCCESS;
+	вернуть MOSQ_ERR_SUCCESS;
 }
 
 
-BROKER_EXPORT int mosquitto_callback_register(
+BROKER_EXPORT целое mosquitto_callback_register(
 		mosquitto_plugin_id_t *identifier,
-		int event,
+		целое event,
 		MOSQ_FUNC_generic_callback cb_func,
 		const void *event_data,
 		void *userdata)
@@ -212,11 +212,11 @@ BROKER_EXPORT int mosquitto_callback_register(
 	struct mosquitto__security_options *security_options;
 	struct plugin_own_callback *own_callback;
 
-	if(cb_func == NULL){
-		return MOSQ_ERR_INVAL;
+	если(cb_func == NULL){
+		вернуть MOSQ_ERR_INVAL;
 	}
 
-	if(db.config->persistence && (event == MOSQ_EVT_PERSIST_RESTORE
+	если(db.config->persistence && (event == MOSQ_EVT_PERSIST_RESTORE
 			|| event == MOSQ_EVT_PERSIST_BASE_MSG_ADD
 			|| event == MOSQ_EVT_PERSIST_BASE_MSG_DELETE
 			|| event == MOSQ_EVT_PERSIST_RETAIN_MSG_SET
@@ -233,44 +233,44 @@ BROKER_EXPORT int mosquitto_callback_register(
 			|| event == MOSQ_EVT_PERSIST_WILL_DELETE
 			)){
 		log__printf(NULL, MOSQ_LOG_ERR, "Error: `persistence true` cannot be used with a persistence plugin.");
-		return MOSQ_ERR_INVAL;
+		вернуть MOSQ_ERR_INVAL;
 	}
 
-	if(event == MOSQ_EVT_CONTROL){
-		return control__register_callback(identifier, cb_func, event_data, userdata);
+	если(event == MOSQ_EVT_CONTROL){
+		вернуть control__register_callback(identifier, cb_func, event_data, userdata);
 	}
 
 	own_callback = mosquitto_calloc(1, sizeof(struct plugin_own_callback));
-	if(own_callback == NULL){
-		return MOSQ_ERR_NOMEM;
+	если(own_callback == NULL){
+		вернуть MOSQ_ERR_NOMEM;
 	}
 	own_callback->event = (enum mosquitto_plugin_event)event;
 	own_callback->cb_func = cb_func;
 	DL_APPEND(identifier->own_callbacks, own_callback);
 
-	if(identifier->config.security_option_count == 0){
+	если(identifier->config.security_option_count == 0){
 		log__printf(NULL, MOSQ_LOG_WARNING, "Plugin could not register callback '%s'",
 				get_event_name((enum mosquitto_plugin_event)event));
-		return MOSQ_ERR_INVAL;
+		вернуть MOSQ_ERR_INVAL;
 	}
 
-	for(int i=0; i<identifier->config.security_option_count; i++){
+	для(целое i=0; i<identifier->config.security_option_count; i++){
 		security_options = identifier->config.security_options[i];
 
 		cb_base = plugin__get_callback_base(security_options, (enum mosquitto_plugin_event)event);
-		if(cb_base == NULL){
-			return MOSQ_ERR_NOT_SUPPORTED;
+		если(cb_base == NULL){
+			вернуть MOSQ_ERR_NOT_SUPPORTED;
 		}
 
-		if(check_callback_exists(*cb_base, identifier, cb_func)){
-			return MOSQ_ERR_ALREADY_EXISTS;
+		если(check_callback_exists(*cb_base, identifier, cb_func)){
+			вернуть MOSQ_ERR_ALREADY_EXISTS;
 		}
 
 		cb_new = mosquitto_calloc(1, sizeof(struct mosquitto__callback));
-		if(cb_new == NULL){
+		если(cb_new == NULL){
 			DL_DELETE(identifier->own_callbacks, own_callback);
 			mosquitto_FREE(own_callback);
-			return MOSQ_ERR_NOMEM;
+			вернуть MOSQ_ERR_NOMEM;
 		}
 
 		DL_APPEND(*cb_base, cb_new);
@@ -279,24 +279,24 @@ BROKER_EXPORT int mosquitto_callback_register(
 		cb_new->userdata = userdata;
 	}
 
-	if(identifier->plugin_name){
+	если(identifier->plugin_name){
 		log__printf(NULL, MOSQ_LOG_INFO, "Plugin %s has registered to receive '%s' events.",
 				identifier->plugin_name, get_event_name((enum mosquitto_plugin_event)event));
-	}else{
+	}иначе{
 		log__printf(NULL, MOSQ_LOG_INFO, "Plugin has registered to receive '%s' events.",
 				get_event_name((enum mosquitto_plugin_event)event));
 	}
 
-	return MOSQ_ERR_SUCCESS;
+	вернуть MOSQ_ERR_SUCCESS;
 }
 
 
-int plugin__callback_unregister_all(mosquitto_plugin_id_t *plugin)
+целое plugin__callback_unregister_all(mosquitto_plugin_id_t *plugin)
 {
 	struct plugin_own_callback *own, *own_tmp;
 
-	if(plugin == NULL){
-		return MOSQ_ERR_INVAL;
+	если(plugin == NULL){
+		вернуть MOSQ_ERR_INVAL;
 	}
 
 	control__unregister_all_callbacks(plugin);
@@ -304,31 +304,31 @@ int plugin__callback_unregister_all(mosquitto_plugin_id_t *plugin)
 	DL_FOREACH_SAFE(plugin->own_callbacks, own, own_tmp){
 		remove_callback(plugin, own);
 	}
-	return MOSQ_ERR_SUCCESS;
+	вернуть MOSQ_ERR_SUCCESS;
 }
 
 
-BROKER_EXPORT int mosquitto_callback_unregister(
+BROKER_EXPORT целое mosquitto_callback_unregister(
 		mosquitto_plugin_id_t *identifier,
-		int event,
+		целое event,
 		MOSQ_FUNC_generic_callback cb_func,
 		const void *event_data)
 {
 	struct plugin_own_callback *own, *own_tmp;
 
-	if(identifier == NULL || cb_func == NULL){
-		return MOSQ_ERR_INVAL;
+	если(identifier == NULL || cb_func == NULL){
+		вернуть MOSQ_ERR_INVAL;
 	}
 
-	if(event == MOSQ_EVT_CONTROL){
-		return control__unregister_callback(identifier, cb_func, event_data);
+	если(event == MOSQ_EVT_CONTROL){
+		вернуть control__unregister_callback(identifier, cb_func, event_data);
 	}
 
 	DL_FOREACH_SAFE(identifier->own_callbacks, own, own_tmp){
-		if(own->event == (enum mosquitto_plugin_event)event && own->cb_func == cb_func){
-			return remove_callback(identifier, own);
+		если(own->event == (enum mosquitto_plugin_event)event && own->cb_func == cb_func){
+			вернуть remove_callback(identifier, own);
 		}
 	}
 
-	return MOSQ_ERR_NOT_FOUND;
+	вернуть MOSQ_ERR_NOT_FOUND;
 }

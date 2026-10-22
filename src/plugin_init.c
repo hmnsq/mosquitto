@@ -27,8 +27,8 @@ Contributors:
 #include "lib_load.h"
 #include "utlist.h"
 
-typedef int (*FUNC_auth_plugin_version)(void);
-typedef int (*FUNC_plugin_version)(int, const int *);
+typedef целое (*FUNC_auth_plugin_version)(void);
+typedef целое (*FUNC_plugin_version)(целое, const целое *);
 
 
 void LIB_ERROR(void)
@@ -39,24 +39,24 @@ void LIB_ERROR(void)
 			NULL, GetLastError(), LANG_NEUTRAL, (LPTSTR)&buf, 0, NULL);
 	log__printf(NULL, MOSQ_LOG_ERR, "Load error: %s", buf);
 	LocalFree(buf);
-#else
+#иначе
 	log__printf(NULL, MOSQ_LOG_ERR, "Load error: %s", dlerror());
 #endif
 }
 
 
-static int plugin__load_single(mosquitto_plugin_id_t *plugin)
+static целое plugin__load_single(mosquitto_plugin_id_t *plugin)
 {
 	void *lib;
-	int (*plugin_version)(int, const int *) = NULL;
-	int (*plugin_auth_version)(void) = NULL;
-	int version;
-	int rc;
-	const int plugin_versions[] = {5, 4, 3, 2};
-	int plugin_version_count = sizeof(plugin_versions)/sizeof(int);
+	целое (*plugin_version)(целое, const целое *) = NULL;
+	целое (*plugin_auth_version)(void) = NULL;
+	целое version;
+	целое rc;
+	const целое plugin_versions[] = {5, 4, 3, 2};
+	целое plugin_version_count = sizeof(plugin_versions)/sizeof(целое);
 
-	if(plugin->config.security_option_count == 0){
-		return MOSQ_ERR_SUCCESS;
+	если(plugin->config.security_option_count == 0){
+		вернуть MOSQ_ERR_SUCCESS;
 	}
 
 	memset(&plugin->lib, 0, sizeof(struct mosquitto__plugin_lib));
@@ -64,118 +64,118 @@ static int plugin__load_single(mosquitto_plugin_id_t *plugin)
 	log__printf(NULL, MOSQ_LOG_INFO, "Loading plugin: %s", plugin->config.path);
 
 	lib = LIB_LOAD(plugin->config.path);
-	if(!lib){
+	если(!lib){
 		log__printf(NULL, MOSQ_LOG_ERR,
 				"Error: Unable to load plugin \"%s\".", plugin->config.path);
 		LIB_ERROR();
-		return MOSQ_ERR_UNKNOWN;
+		вернуть MOSQ_ERR_UNKNOWN;
 	}
 
 	plugin->lib.lib = NULL;
-	if((plugin_version = (FUNC_plugin_version)LIB_SYM(lib, "mosquitto_plugin_version"))){
+	если((plugin_version = (FUNC_plugin_version)LIB_SYM(lib, "mosquitto_plugin_version"))){
 		version = plugin_version(plugin_version_count, plugin_versions);
-	}else if((plugin_auth_version = (FUNC_auth_plugin_version)LIB_SYM(lib, "mosquitto_auth_plugin_version"))){
+	}иначе если((plugin_auth_version = (FUNC_auth_plugin_version)LIB_SYM(lib, "mosquitto_auth_plugin_version"))){
 		version = plugin_auth_version();
-	}else{
+	}иначе{
 		log__printf(NULL, MOSQ_LOG_ERR,
 				"Error: Unable to load auth plugin function mosquitto_auth_plugin_version() or mosquitto_plugin_version().");
 		LIB_ERROR();
 		LIB_CLOSE(lib);
-		return MOSQ_ERR_UNKNOWN;
+		вернуть MOSQ_ERR_UNKNOWN;
 	}
 
 	plugin->lib.version = version;
-	if(version == 5){
+	если(version == 5){
 		rc = plugin__load_v5(plugin, lib);
-		if(rc){
-			return rc;
+		если(rc){
+			вернуть rc;
 		}
-	}else if(version == 4){
+	}иначе если(version == 4){
 		rc = plugin__load_v4(plugin, lib);
-		if(rc){
-			return rc;
+		если(rc){
+			вернуть rc;
 		}
-	}else if(version == 3){
+	}иначе если(version == 3){
 		rc = plugin__load_v3(plugin, lib);
-		if(rc){
-			return rc;
+		если(rc){
+			вернуть rc;
 		}
-	}else if(version == 2){
+	}иначе если(version == 2){
 		rc = plugin__load_v2(plugin, lib);
-		if(rc){
-			return rc;
+		если(rc){
+			вернуть rc;
 		}
-	}else{
+	}иначе{
 		log__printf(NULL, MOSQ_LOG_ERR,
 				"Error: Unsupported auth plugin version (got %d, expected %d).",
 				version, MOSQ_PLUGIN_VERSION);
 		LIB_ERROR();
 
 		LIB_CLOSE(lib);
-		return MOSQ_ERR_UNKNOWN;
+		вернуть MOSQ_ERR_UNKNOWN;
 	}
-	return MOSQ_ERR_SUCCESS;
+	вернуть MOSQ_ERR_SUCCESS;
 }
 
 
-int plugin__load_all(void)
+целое plugin__load_all(void)
 {
-	int rc = MOSQ_ERR_SUCCESS;
+	целое rc = MOSQ_ERR_SUCCESS;
 
-	for(int i=0; i<db.plugin_count; i++){
+	для(целое i=0; i<db.plugin_count; i++){
 		rc = plugin__load_single(db.plugins[i]);
-		if(rc){
-			return rc;
+		если(rc){
+			вернуть rc;
 		}
 	}
-	return MOSQ_ERR_SUCCESS;
+	вернуть MOSQ_ERR_SUCCESS;
 }
 
 
-static int plugin__security_init_single(mosquitto_plugin_id_t *plugin, bool reload)
+static целое plugin__security_init_single(mosquitto_plugin_id_t *plugin, bool reload)
 {
-	int rc;
+	целое rc;
 
-	if(plugin->lib.version == 5){
+	если(plugin->lib.version == 5){
 		rc = MOSQ_ERR_SUCCESS;
-	}else if(plugin->lib.version == 4){
+	}иначе если(plugin->lib.version == 4){
 		rc = plugin->lib.security_init_v4(
 				plugin->lib.user_data,
 				plugin->config.options,
 				plugin->config.option_count,
 				reload);
 
-	}else if(plugin->lib.version == 3){
+	}иначе если(plugin->lib.version == 3){
 		rc = plugin->lib.security_init_v3(
 				plugin->lib.user_data,
 				plugin->config.options,
 				plugin->config.option_count,
 				reload);
 
-	}else if(plugin->lib.version == 2){
+	}иначе если(plugin->lib.version == 2){
 		rc = plugin->lib.security_init_v2(
 				plugin->lib.user_data,
 				(struct mosquitto_auth_opt *)plugin->config.options,
 				plugin->config.option_count,
 				reload);
-	}else{
+	}иначе{
 		rc = MOSQ_ERR_INVAL;
 	}
 
-	return rc;
+	вернуть rc;
 }
 
 
-int mosquitto_security_init(bool reload)
+целое mosquitto_security_init(bool reload)
 {
-	int rc;
+	целое rc;
 
-	for(int i=0; i<db.plugin_count; i++){
+	для(целое i=0; i<db.plugin_count; i++){
 		rc = plugin__security_init_single(db.plugins[i], reload);
-		if(rc != MOSQ_ERR_SUCCESS){
-			return rc;
+		если(rc != MOSQ_ERR_SUCCESS){
+			вернуть rc;
 		}
 	}
 	rc = mosquitto_security_init_default();
-	return rc;
+	вернуть rc;
 }

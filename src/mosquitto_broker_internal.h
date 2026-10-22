@@ -23,9 +23,9 @@ Contributors:
 #include "config.h"
 #include <stdio.h>
 
-#if defined(WITH_WEBSOCKETS) && WITH_WEBSOCKETS == WS_IS_LWS
+#если defined(WITH_WEBSOCKETS) && WITH_WEBSOCKETS == WS_IS_LWS
 #  include <libwebsockets.h>
-#  if LWS_LIBRARY_VERSION_NUMBER >= 3002000 && !defined(LWS_WITH_EXTERNAL_POLL)
+#  если LWS_LIBRARY_VERSION_NUMBER >= 3002000 && !defined(LWS_WITH_EXTERNAL_POLL)
 #    warning "libwebsockets is not compiled with LWS_WITH_EXTERNAL_POLL support. Websocket performance will be unusable."
 #  endif
 #endif
@@ -69,34 +69,34 @@ Contributors:
 
 typedef uint64_t dbid_t;
 
-typedef int (*FUNC_plugin_init_v5)(mosquitto_plugin_id_t *, void **, struct mosquitto_opt *, int);
-typedef int (*FUNC_plugin_cleanup_v5)(void *, struct mosquitto_opt *, int);
+typedef целое (*FUNC_plugin_init_v5)(mosquitto_plugin_id_t *, void **, struct mosquitto_opt *, целое);
+typedef целое (*FUNC_plugin_cleanup_v5)(void *, struct mosquitto_opt *, целое);
 
-typedef int (*FUNC_auth_plugin_init_v4)(void **, struct mosquitto_opt *, int);
-typedef int (*FUNC_auth_plugin_cleanup_v4)(void *, struct mosquitto_opt *, int);
-typedef int (*FUNC_auth_plugin_security_init_v4)(void *, struct mosquitto_opt *, int, bool);
-typedef int (*FUNC_auth_plugin_security_cleanup_v4)(void *, struct mosquitto_opt *, int, bool);
-typedef int (*FUNC_auth_plugin_acl_check_v4)(void *, int, struct mosquitto *, struct mosquitto_acl_msg *);
-typedef int (*FUNC_auth_plugin_unpwd_check_v4)(void *, struct mosquitto *, const char *, const char *);
-typedef int (*FUNC_auth_plugin_psk_key_get_v4)(void *, struct mosquitto *, const char *, const char *, char *, int);
-typedef int (*FUNC_auth_plugin_auth_start_v4)(void *, struct mosquitto *, const char *, bool, const void *, uint16_t, void **, uint16_t *);
-typedef int (*FUNC_auth_plugin_auth_continue_v4)(void *, struct mosquitto *, const char *, const void *, uint16_t, void **, uint16_t *);
+typedef целое (*FUNC_auth_plugin_init_v4)(void **, struct mosquitto_opt *, целое);
+typedef целое (*FUNC_auth_plugin_cleanup_v4)(void *, struct mosquitto_opt *, целое);
+typedef целое (*FUNC_auth_plugin_security_init_v4)(void *, struct mosquitto_opt *, целое, bool);
+typedef целое (*FUNC_auth_plugin_security_cleanup_v4)(void *, struct mosquitto_opt *, целое, bool);
+typedef целое (*FUNC_auth_plugin_acl_check_v4)(void *, целое, struct mosquitto *, struct mosquitto_acl_msg *);
+typedef целое (*FUNC_auth_plugin_unpwd_check_v4)(void *, struct mosquitto *, const char *, const char *);
+typedef целое (*FUNC_auth_plugin_psk_key_get_v4)(void *, struct mosquitto *, const char *, const char *, char *, целое);
+typedef целое (*FUNC_auth_plugin_auth_start_v4)(void *, struct mosquitto *, const char *, bool, const void *, uint16_t, void **, uint16_t *);
+typedef целое (*FUNC_auth_plugin_auth_continue_v4)(void *, struct mosquitto *, const char *, const void *, uint16_t, void **, uint16_t *);
 
-typedef int (*FUNC_auth_plugin_init_v3)(void **, struct mosquitto_opt *, int);
-typedef int (*FUNC_auth_plugin_cleanup_v3)(void *, struct mosquitto_opt *, int);
-typedef int (*FUNC_auth_plugin_security_init_v3)(void *, struct mosquitto_opt *, int, bool);
-typedef int (*FUNC_auth_plugin_security_cleanup_v3)(void *, struct mosquitto_opt *, int, bool);
-typedef int (*FUNC_auth_plugin_acl_check_v3)(void *, int, const struct mosquitto *, struct mosquitto_acl_msg *);
-typedef int (*FUNC_auth_plugin_unpwd_check_v3)(void *, const struct mosquitto *, const char *, const char *);
-typedef int (*FUNC_auth_plugin_psk_key_get_v3)(void *, const struct mosquitto *, const char *, const char *, char *, int);
+typedef целое (*FUNC_auth_plugin_init_v3)(void **, struct mosquitto_opt *, целое);
+typedef целое (*FUNC_auth_plugin_cleanup_v3)(void *, struct mosquitto_opt *, целое);
+typedef целое (*FUNC_auth_plugin_security_init_v3)(void *, struct mosquitto_opt *, целое, bool);
+typedef целое (*FUNC_auth_plugin_security_cleanup_v3)(void *, struct mosquitto_opt *, целое, bool);
+typedef целое (*FUNC_auth_plugin_acl_check_v3)(void *, целое, const struct mosquitto *, struct mosquitto_acl_msg *);
+typedef целое (*FUNC_auth_plugin_unpwd_check_v3)(void *, const struct mosquitto *, const char *, const char *);
+typedef целое (*FUNC_auth_plugin_psk_key_get_v3)(void *, const struct mosquitto *, const char *, const char *, char *, целое);
 
-typedef int (*FUNC_auth_plugin_init_v2)(void **, struct mosquitto_auth_opt *, int);
-typedef int (*FUNC_auth_plugin_cleanup_v2)(void *, struct mosquitto_auth_opt *, int);
-typedef int (*FUNC_auth_plugin_security_init_v2)(void *, struct mosquitto_auth_opt *, int, bool);
-typedef int (*FUNC_auth_plugin_security_cleanup_v2)(void *, struct mosquitto_auth_opt *, int, bool);
-typedef int (*FUNC_auth_plugin_acl_check_v2)(void *, const char *, const char *, const char *, int);
-typedef int (*FUNC_auth_plugin_unpwd_check_v2)(void *, const char *, const char *);
-typedef int (*FUNC_auth_plugin_psk_key_get_v2)(void *, const char *, const char *, char *, int);
+typedef целое (*FUNC_auth_plugin_init_v2)(void **, struct mosquitto_auth_opt *, целое);
+typedef целое (*FUNC_auth_plugin_cleanup_v2)(void *, struct mosquitto_auth_opt *, целое);
+typedef целое (*FUNC_auth_plugin_security_init_v2)(void *, struct mosquitto_auth_opt *, целое, bool);
+typedef целое (*FUNC_auth_plugin_security_cleanup_v2)(void *, struct mosquitto_auth_opt *, целое, bool);
+typedef целое (*FUNC_auth_plugin_acl_check_v2)(void *, const char *, const char *, const char *, целое);
+typedef целое (*FUNC_auth_plugin_unpwd_check_v2)(void *, const char *, const char *);
+typedef целое (*FUNC_auth_plugin_psk_key_get_v2)(void *, const char *, const char *, char *, целое);
 
 
 enum mosquitto_msg_origin {
@@ -107,7 +107,7 @@ enum mosquitto_msg_origin {
 struct mosquitto__plugin_lib {
 	void *lib;
 	void *user_data;
-	int (*plugin_version)(void);
+	целое (*plugin_version)(void);
 	struct mosquitto_plugin_id_t *identifier;
 
 	FUNC_plugin_init_v5 plugin_init_v5;
@@ -138,7 +138,7 @@ struct mosquitto__plugin_lib {
 	FUNC_auth_plugin_acl_check_v2 acl_check_v2;
 	FUNC_auth_plugin_unpwd_check_v2 unpwd_check_v2;
 	FUNC_auth_plugin_psk_key_get_v2 psk_key_get_v2;
-	int version;
+	целое version;
 };
 
 struct mosquitto__plugin_config {
@@ -146,8 +146,8 @@ struct mosquitto__plugin_config {
 	char *name;
 	struct mosquitto_opt *options;
 	struct mosquitto__security_options **security_options;
-	int option_count;
-	int security_option_count;
+	целое option_count;
+	целое security_option_count;
 	bool deny_special_chars;
 };
 
@@ -209,7 +209,7 @@ struct mosquitto__security_options {
 	struct password_file_data password_data;
 	char *psk_file;
 	mosquitto_plugin_id_t **plugins;
-	int plugin_count;
+	целое plugin_count;
 	int8_t allow_anonymous;
 	bool allow_zero_length_clientid;
 	char *auto_id_prefix;
@@ -218,7 +218,7 @@ struct mosquitto__security_options {
 	mosquitto_plugin_id_t *pid; /* For registering as a "plugin" */
 };
 
-#if defined(WITH_EPOLL) || defined(WITH_KQUEUE)
+#если defined(WITH_EPOLL) || defined(WITH_KQUEUE)
 enum struct_ident {
 	id_invalid = 0,
 	id_listener = 1,
@@ -231,13 +231,13 @@ struct mosquitto__listener {
 	uint16_t port;
 	char *host;
 	char *bind_interface;
-	int max_connections;
+	целое max_connections;
 	char *mount_point;
 	mosq_sock_t *socks;
-	int sock_count;
-	int client_count;
+	целое sock_count;
+	целое client_count;
 	enum mosquitto_protocol protocol;
-	int socket_domain;
+	целое socket_domain;
 	bool use_username_as_clientid;
 	uint8_t max_qos;
 	uint16_t max_topic_alias;
@@ -262,15 +262,15 @@ struct mosquitto__listener {
 	enum mosquitto__keyform tls_keyform;
 #endif
 #ifdef WITH_WEBSOCKETS
-#  if WITH_WEBSOCKETS == WS_IS_LWS
+#  если WITH_WEBSOCKETS == WS_IS_LWS
 	struct lws_context *ws_context;
 	bool ws_in_init;
 	struct lws_protocols *ws_protocol;
 #  endif
 	char **ws_origins;
-	int ws_origin_count;
+	целое ws_origin_count;
 #endif
-#if defined(WITH_WEBSOCKETS) || defined(WITH_HTTP_API)
+#если defined(WITH_WEBSOCKETS) || defined(WITH_HTTP_API)
 	char *http_dir;
 #endif
 	struct mosquitto__security_options *security_options;
@@ -280,7 +280,7 @@ struct mosquitto__listener {
 	bool disable_protocol_v3;
 	bool disable_protocol_v4;
 	bool disable_protocol_v5;
-	int enable_proxy_protocol;
+	целое enable_proxy_protocol;
 	bool proxy_protocol_v2_require_tls;
 #ifdef WITH_HTTP_API
 	struct MHD_Daemon *mhd;
@@ -289,9 +289,9 @@ struct mosquitto__listener {
 
 
 struct mosquitto__listener_sock {
-#if defined(WITH_EPOLL) || defined(WITH_KQUEUE)
+#если defined(WITH_EPOLL) || defined(WITH_KQUEUE)
 	/* This *must* be the first element in the struct. */
-	int ident;
+	целое ident;
 #endif
 	mosq_sock_t sock;
 	struct mosquitto__listener *listener;
@@ -320,32 +320,32 @@ struct mosquitto_plugin_id_t {
 
 struct mosquitto__config {
 	bool allow_duplicate_messages;
-	int autosave_interval;
+	целое autosave_interval;
 	bool autosave_on_changes;
 	bool check_retain_source;
 	char *clientid_prefixes;
 	bool connection_messages;
 	uint16_t cmd_port[CMD_PORT_LIMIT];
-	int cmd_port_count;
+	целое cmd_port_count;
 	bool daemon;
 	bool test_configuration;
 	bool enable_control_api;
-	int global_max_clients;
-	int global_max_connections;
+	целое global_max_clients;
+	целое global_max_connections;
 	struct mosquitto__listener *default_listener; /* Points to one of `listeners` */
 	struct mosquitto__listener *listeners;
-	int listener_count;
+	целое listener_count;
 	bool local_only;
-	unsigned int log_dest;
-	int log_facility;
-	unsigned int log_type;
+	unsigned целое log_dest;
+	целое log_facility;
+	unsigned целое log_type;
 	bool log_timestamp;
 	char *log_timestamp_format;
 	char *log_file;
 	FILE *log_fptr;
 	size_t max_inflight_bytes;
 	size_t max_queued_bytes;
-	int max_queued_messages;
+	целое max_queued_messages;
 	uint32_t max_packet_size;
 	uint32_t message_size_limit;
 	uint16_t max_inflight_messages;
@@ -364,18 +364,18 @@ struct mosquitto__config {
 	bool queue_qos0_messages;
 	bool per_listener_settings;
 	bool retain_available;
-	int retain_expiry_interval;
+	целое retain_expiry_interval;
 	bool set_tcp_nodelay;
-	int sys_interval;
+	целое sys_interval;
 	bool upgrade_outgoing_qos;
 	char *user;
-#if defined(WITH_WEBSOCKETS) && WITH_WEBSOCKETS == WS_IS_LWS
-	int websockets_log_level;
+#если defined(WITH_WEBSOCKETS) && WITH_WEBSOCKETS == WS_IS_LWS
+	целое websockets_log_level;
 #endif
 	uint16_t packet_buffer_size;
 #ifdef WITH_BRIDGE
 	struct mosquitto__bridge **bridges;
-	int bridge_count;
+	целое bridge_count;
 #endif
 	struct mosquitto__security_options security_options;
 };
@@ -428,8 +428,8 @@ struct mosquitto__base_msg {
 	struct mosquitto_base_msg data;
 	struct mosquitto__listener *source_listener;
 	char **dest_ids;
-	int dest_id_count;
-	int ref_count;
+	целое dest_id_count;
+	целое ref_count;
 	enum mosquitto_msg_origin origin;
 	bool stored;
 };
@@ -456,8 +456,8 @@ struct mosquitto__message_v5 {
 	/* clientid is used only by mosquitto_broker_publish*() to indicate
 	   this message is for a specific client. */
 	char *clientid;
-	int payloadlen;
-	int qos;
+	целое payloadlen;
+	целое qos;
 	bool retain;
 };
 
@@ -472,10 +472,10 @@ struct mosquitto_db {
 	struct mosquitto *contexts_by_id_delayed_auth;
 	struct mosquitto *contexts_for_free;
 	mosquitto_plugin_id_t **plugins;
-	int plugin_count;
+	целое plugin_count;
 #ifdef WITH_BRIDGE
 	struct mosquitto **bridges;
-	int bridge_count;
+	целое bridge_count;
 #endif
 	struct clientid__index_hash *clientid_index_hash;
 	struct mosquitto__base_msg *msg_store;
@@ -483,24 +483,24 @@ struct mosquitto_db {
 	time_t now_real_s; /* Read clock, for measuring session/message expiry */
 	uint64_t node_id; /* for unique db ids */
 	time_t next_event_ms; /* for mux timeout */
-	int msg_store_count;
+	целое msg_store_count;
 	unsigned long msg_store_bytes;
 	char *config_file;
 	struct mosquitto__config *config;
 	bool quiet;
 	bool verbose;
 #ifdef WITH_SYS_TREE
-	int subscription_count;
-	int shared_subscription_count;
-	int retained_count;
+	целое subscription_count;
+	целое shared_subscription_count;
+	целое retained_count;
 #endif
-	int persistence_changes;
+	целое persistence_changes;
 	struct mosquitto *ll_for_free;
 #ifdef WITH_EPOLL
-	int epollfd;
+	целое epollfd;
 #endif
 #ifdef WITH_KQUEUE
-	int kqueuefd;
+	целое kqueuefd;
 #endif
 	struct mosquitto__message_v5 *plugin_msgs;
 #ifdef WITH_TLS
@@ -549,8 +549,8 @@ struct bridge_address {
 struct mosquitto__bridge {
 	char *name;
 	struct bridge_address *addresses;
-	int cur_address;
-	int address_count;
+	целое cur_address;
+	целое address_count;
 	time_t primary_retry;
 	mosq_sock_t primary_retry_sock;
 	bool round_robin;
@@ -559,14 +559,14 @@ struct mosquitto__bridge {
 	bool clean_start;
 	int8_t clean_start_local;
 	uint16_t keepalive;
-	unsigned int tcp_keepalive_idle;
-	unsigned int tcp_keepalive_interval;
-	unsigned int tcp_keepalive_counter;
+	unsigned целое tcp_keepalive_idle;
+	unsigned целое tcp_keepalive_interval;
+	unsigned целое tcp_keepalive_counter;
 #ifdef WITH_TCP_USER_TIMEOUT
-	int tcp_user_timeout;
+	целое tcp_user_timeout;
 #endif
 	struct mosquitto__bridge_topic *topics;
-	int topic_count;
+	целое topic_count;
 	bool topic_remapping;
 	enum mosquitto__protocol protocol_version;
 	time_t restart_t;
@@ -582,12 +582,12 @@ struct mosquitto__bridge {
 	bool notifications;
 	bool notifications_local_only;
 	enum mosquitto_bridge_start_type start_type;
-	int idle_timeout;
-	int restart_timeout;
-	int backoff_base;
-	int backoff_cap;
-	int stable_connection_period;
-	int threshold;
+	целое idle_timeout;
+	целое restart_timeout;
+	целое backoff_base;
+	целое backoff_cap;
+	целое stable_connection_period;
+	целое threshold;
 	uint32_t maximum_packet_size;
 	uint32_t session_expiry_interval;
 	uint16_t receive_maximum;
@@ -616,7 +616,7 @@ struct mosquitto__bridge {
 #endif
 };
 
-#if defined(WITH_WEBSOCKETS) && WITH_WEBSOCKETS == WS_IS_LWS
+#если defined(WITH_WEBSOCKETS) && WITH_WEBSOCKETS == WS_IS_LWS
 struct libws_mqtt_hack {
 	char *http_dir;
 	struct mosquitto__listener *listener;
@@ -640,7 +640,7 @@ extern struct mosquitto_db db;
 /* ============================================================
  * Main functions
  * ============================================================ */
-int mosquitto_main_loop(struct mosquitto__listener_sock *listensock, int listensock_count);
+целое mosquitto_main_loop(struct mosquitto__listener_sock *listensock, целое listensock_count);
 void loop__update_next_event(time_t new_ms);
 
 /* ============================================================
@@ -652,23 +652,23 @@ void config__init(struct mosquitto__config *config);
 void config__bridge_cleanup(struct mosquitto__bridge *bridge);
 #endif
 /* Parse command line options into config. */
-int config__parse_args(struct mosquitto__config *config, int argc, char *argv[]);
+целое config__parse_args(struct mosquitto__config *config, целое argc, char *argv[]);
 /* Read configuration data from config->config_file into config.
  * If reload is true, don't process config options that shouldn't be reloaded (listeners etc)
  * Returns 0 on success, 1 if there is a configuration error or if a file cannot be opened.
  */
-int config__read(struct mosquitto__config *config, bool reload);
+целое config__read(struct mosquitto__config *config, bool reload);
 /* Free all config data. */
 void config__cleanup(struct mosquitto__config *config);
-int config__get_dir_files(const char *include_dir, char ***files, int *file_count);
+целое config__get_dir_files(const char *include_dir, char ***files, целое *file_count);
 
 /* ============================================================
  * Server send functions
  * ============================================================ */
-int send__connack(struct mosquitto *context, uint8_t ack, uint8_t reason_code, const mosquitto_property *properties);
-int send__suback(struct mosquitto *context, uint16_t mid, uint32_t payloadlen, const void *payload);
-int send__unsuback(struct mosquitto *context, uint16_t mid, int reason_code_count, uint8_t *reason_codes, const mosquitto_property *properties);
-int send__auth(struct mosquitto *context, uint8_t reason_code, const void *auth_data, uint16_t auth_data_len);
+целое send__connack(struct mosquitto *context, uint8_t ack, uint8_t reason_code, const mosquitto_property *properties);
+целое send__suback(struct mosquitto *context, uint16_t mid, uint32_t payloadlen, const void *payload);
+целое send__unsuback(struct mosquitto *context, uint16_t mid, целое reason_code_count, uint8_t *reason_codes, const mosquitto_property *properties);
+целое send__auth(struct mosquitto *context, uint8_t reason_code, const void *auth_data, uint16_t auth_data_len);
 
 /* ============================================================
  * Network functions
@@ -676,64 +676,64 @@ int send__auth(struct mosquitto *context, uint8_t reason_code, const void *auth_
 void net__broker_init(void);
 void net__broker_cleanup(void);
 struct mosquitto *net__socket_accept(struct mosquitto__listener_sock *listensock);
-int net__socket_listen(struct mosquitto__listener *listener);
-int net__socket_get_address(mosq_sock_t sock, char *buf, size_t len, uint16_t *remote_address);
-int net__tls_load_verify(struct mosquitto__listener *listener);
-int net__tls_server_ctx(struct mosquitto__listener *listener);
-int net__load_certificates(struct mosquitto__listener *listener);
+целое net__socket_listen(struct mosquitto__listener *listener);
+целое net__socket_get_address(mosq_sock_t sock, char *buf, size_t len, uint16_t *remote_address);
+целое net__tls_load_verify(struct mosquitto__listener *listener);
+целое net__tls_server_ctx(struct mosquitto__listener *listener);
+целое net__load_certificates(struct mosquitto__listener *listener);
 
 /* ============================================================
  * Read handling functions
  * ============================================================ */
-int handle__packet(struct mosquitto *context);
-int handle__connack(struct mosquitto *context);
-int handle__connect(struct mosquitto *context);
-int handle__disconnect(struct mosquitto *context);
-int handle__publish(struct mosquitto *context);
-int handle__subscribe(struct mosquitto *context);
-int handle__unsubscribe(struct mosquitto *context);
-int handle__auth(struct mosquitto *context);
+целое handle__packet(struct mosquitto *context);
+целое handle__connack(struct mosquitto *context);
+целое handle__connect(struct mosquitto *context);
+целое handle__disconnect(struct mosquitto *context);
+целое handle__publish(struct mosquitto *context);
+целое handle__subscribe(struct mosquitto *context);
+целое handle__unsubscribe(struct mosquitto *context);
+целое handle__auth(struct mosquitto *context);
 
 /* ============================================================
  * Database handling
  * ============================================================ */
-int db__open(struct mosquitto__config *config);
-int db__close(void);
+целое db__open(struct mosquitto__config *config);
+целое db__close(void);
 #ifdef WITH_PERSISTENCE
-int persist__backup(bool shutdown);
-int persist__restore(void);
+целое persist__backup(bool shutdown);
+целое persist__restore(void);
 #endif
 /* Return the number of in-flight messages in count. */
-int db__message_count(int *count);
-int db__message_delete_outgoing(struct mosquitto *context, uint16_t mid, enum mosquitto_msg_state expect_state, int qos);
-int db__message_insert_outgoing(struct mosquitto *context, uint64_t cmsg_id, uint16_t mid, uint8_t qos, bool retain, struct mosquitto__base_msg *base_msg, uint32_t subscription_identifier, bool update, bool persist);
-int db__message_insert_incoming(struct mosquitto *context, uint64_t cmsg_id, struct mosquitto__base_msg *base_msg, bool persist);
-int db__message_remove_incoming(struct mosquitto *context, uint16_t mid);
-int db__message_release_incoming(struct mosquitto *context, uint16_t mid);
-int db__message_update_outgoing(struct mosquitto *context, uint16_t mid, enum mosquitto_msg_state state, int qos, bool persist);
+целое db__message_count(целое *count);
+целое db__message_delete_outgoing(struct mosquitto *context, uint16_t mid, enum mosquitto_msg_state expect_state, целое qos);
+целое db__message_insert_outgoing(struct mosquitto *context, uint64_t cmsg_id, uint16_t mid, uint8_t qos, bool retain, struct mosquitto__base_msg *base_msg, uint32_t subscription_identifier, bool update, bool persist);
+целое db__message_insert_incoming(struct mosquitto *context, uint64_t cmsg_id, struct mosquitto__base_msg *base_msg, bool persist);
+целое db__message_remove_incoming(struct mosquitto *context, uint16_t mid);
+целое db__message_release_incoming(struct mosquitto *context, uint16_t mid);
+целое db__message_update_outgoing(struct mosquitto *context, uint16_t mid, enum mosquitto_msg_state state, целое qos, bool persist);
 void db__message_dequeue_first(struct mosquitto *context, struct mosquitto_msg_data *msg_data);
-int db__messages_delete(struct mosquitto *context, bool force_free);
-int db__messages_delete_incoming(struct mosquitto *context);
-int db__messages_delete_outgoing(struct mosquitto *context);
-int db__messages_easy_queue(struct mosquitto *context, const char *topic, uint8_t qos, uint32_t payloadlen, const void *payload, int retain, uint32_t message_expiry_interval, mosquitto_property **properties);
-int db__message_store(const struct mosquitto *source, struct mosquitto__base_msg *base_msg, uint32_t *message_expiry_interval, enum mosquitto_msg_origin origin);
-int db__message_store_find(struct mosquitto *context, uint16_t mid, struct mosquitto__client_msg **client_msg);
-int db__msg_store_add(struct mosquitto__base_msg *base_msg);
+целое db__messages_delete(struct mosquitto *context, bool force_free);
+целое db__messages_delete_incoming(struct mosquitto *context);
+целое db__messages_delete_outgoing(struct mosquitto *context);
+целое db__messages_easy_queue(struct mosquitto *context, const char *topic, uint8_t qos, uint32_t payloadlen, const void *payload, целое retain, uint32_t message_expiry_interval, mosquitto_property **properties);
+целое db__message_store(const struct mosquitto *source, struct mosquitto__base_msg *base_msg, uint32_t *message_expiry_interval, enum mosquitto_msg_origin origin);
+целое db__message_store_find(struct mosquitto *context, uint16_t mid, struct mosquitto__client_msg **client_msg);
+целое db__msg_store_add(struct mosquitto__base_msg *base_msg);
 void db__msg_store_remove(struct mosquitto__base_msg *base_msg, bool notify);
 void db__msg_store_ref_inc(struct mosquitto__base_msg *base_msg);
 void db__msg_store_ref_dec(struct mosquitto__base_msg **base_msg);
 void db__msg_store_clean(void);
 void db__msg_store_compact(void);
 void db__msg_store_free(struct mosquitto__base_msg *base_msg);
-int db__message_reconnect_reset(struct mosquitto *context);
-bool db__ready_for_flight(struct mosquitto *context, enum mosquitto_msg_direction dir, int qos);
-bool db__ready_for_queue(struct mosquitto *context, int qos, struct mosquitto_msg_data *msg_data);
+целое db__message_reconnect_reset(struct mosquitto *context);
+bool db__ready_for_flight(struct mosquitto *context, enum mosquitto_msg_direction dir, целое qos);
+bool db__ready_for_queue(struct mosquitto *context, целое qos, struct mosquitto_msg_data *msg_data);
 void sys_tree__init(void);
 void sys_tree__update(bool force);
-int db__message_write_inflight_out_all(struct mosquitto *context);
-int db__message_write_inflight_out_latest(struct mosquitto *context);
-int db__message_write_queued_out(struct mosquitto *context);
-int db__message_write_queued_in(struct mosquitto *context);
+целое db__message_write_inflight_out_all(struct mosquitto *context);
+целое db__message_write_inflight_out_latest(struct mosquitto *context);
+целое db__message_write_queued_out(struct mosquitto *context);
+целое db__message_write_queued_in(struct mosquitto *context);
 void db__msg_add_to_inflight_stats(struct mosquitto_msg_data *msg_data, struct mosquitto__client_msg *msg);
 void db__msg_add_to_queued_stats(struct mosquitto_msg_data *msg_data, struct mosquitto__client_msg *msg);
 uint64_t db__new_msg_id(void);
@@ -743,48 +743,48 @@ void db__check_acl_of_all_messages(struct mosquitto *context);
 /* ============================================================
  * Subscription functions
  * ============================================================ */
-int sub__init(void);
-int sub__add(struct mosquitto *context, const struct mosquitto_subscription *sub);
-int sub__remove(struct mosquitto *context, const char *sub, uint8_t *reason);
-void sub__tree_print(struct mosquitto__subhier *root, int level);
-int sub__clean_session(struct mosquitto *context);
-int sub__messages_queue(const char *source_id, uint8_t qos, struct mosquitto__base_msg **base_msg);
-int sub__topic_tokenise(const char *subtopic, char **local_sub, char ***topics, const char **sharename);
+целое sub__init(void);
+целое sub__add(struct mosquitto *context, const struct mosquitto_subscription *sub);
+целое sub__remove(struct mosquitto *context, const char *sub, uint8_t *reason);
+void sub__tree_print(struct mosquitto__subhier *root, целое level);
+целое sub__clean_session(struct mosquitto *context);
+целое sub__messages_queue(const char *source_id, uint8_t qos, struct mosquitto__base_msg **base_msg);
+целое sub__topic_tokenise(const char *subtopic, char **local_sub, char ***topics, const char **sharename);
 void sub__topic_tokens_free(struct sub__token *tokens);
 
 /* ============================================================
  * Context functions
  * ============================================================ */
 struct mosquitto *context__init(void);
-int context__init_sock(struct mosquitto *context, mosq_sock_t sock, bool get_address);
+целое context__init_sock(struct mosquitto *context, mosq_sock_t sock, bool get_address);
 void context__cleanup(struct mosquitto *context, bool force_free);
-void context__disconnect(struct mosquitto *context, int reason);
+void context__disconnect(struct mosquitto *context, целое reason);
 void context__add_to_disused(struct mosquitto *context);
 void context__free_disused(void);
 void context__send_will(struct mosquitto *context);
 void context__add_to_by_id(struct mosquitto *context);
 void context__remove_from_by_id(struct mosquitto *context);
 
-int connect__on_authorised(struct mosquitto *context, void *auth_data_out, uint16_t auth_data_out_len);
+целое connect__on_authorised(struct mosquitto *context, void *auth_data_out, uint16_t auth_data_out_len);
 
 
 /* ============================================================
  * Control functions
  * ============================================================ */
 #ifdef WITH_CONTROL
-int control__process(struct mosquitto *context, struct mosquitto__base_msg *base_msg);
+целое control__process(struct mosquitto *context, struct mosquitto__base_msg *base_msg);
 void control__cleanup(void);
 #endif
-int control__register_callback(mosquitto_plugin_id_t *pid, MOSQ_FUNC_generic_callback cb_func, const char *topic, void *userdata);
-int control__unregister_callback(mosquitto_plugin_id_t *pid, MOSQ_FUNC_generic_callback cb_func, const char *topic);
+целое control__register_callback(mosquitto_plugin_id_t *pid, MOSQ_FUNC_generic_callback cb_func, const char *topic, void *userdata);
+целое control__unregister_callback(mosquitto_plugin_id_t *pid, MOSQ_FUNC_generic_callback cb_func, const char *topic);
 void control__unregister_all_callbacks(mosquitto_plugin_id_t *identifier);
 
 
 /* ============================================================
  * Logging functions
  * ============================================================ */
-int log__init(struct mosquitto__config *config);
-int log__close(struct mosquitto__config *config);
+целое log__init(struct mosquitto__config *config);
+целое log__close(struct mosquitto__config *config);
 void log__internal(const char *fmt, ...) __attribute__((format(printf, 1, 2)));
 
 /* ============================================================
@@ -795,67 +795,67 @@ void bridge__start_all(void);
 void bridge__reload(void);
 void bridge__db_cleanup(void);
 void bridge__cleanup(struct mosquitto *context);
-int bridge__connect(struct mosquitto *context);
-#if defined(__GLIBC__) && defined(WITH_ADNS)
-int bridge__connect_step3(struct mosquitto *context);
+целое bridge__connect(struct mosquitto *context);
+#если defined(__GLIBC__) && defined(WITH_ADNS)
+целое bridge__connect_step3(struct mosquitto *context);
 #endif
-int bridge__on_connect(struct mosquitto *context);
+целое bridge__on_connect(struct mosquitto *context);
 void bridge_check(void);
-int bridge__register_local_connections(void);
-int bridge__add_topic(struct mosquitto__bridge *bridge, const char *topic, enum mosquitto__bridge_direction direction, uint8_t qos, const char *local_prefix, const char *remote_prefix);
+целое bridge__register_local_connections(void);
+целое bridge__add_topic(struct mosquitto__bridge *bridge, const char *topic, enum mosquitto__bridge_direction direction, uint8_t qos, const char *local_prefix, const char *remote_prefix);
 void bridge__cleanup_topics(struct mosquitto__bridge *bridge);
-int bridge__remap_topic_in(struct mosquitto *context, char **topic);
+целое bridge__remap_topic_in(struct mosquitto *context, char **topic);
 #endif
 
 /* ============================================================
  * IO multiplex related functions
  * ============================================================ */
-int mux__init(void);
-int mux__add_listeners(struct mosquitto__listener_sock *listensock, int listensock_count);
-int mux__delete_listeners(struct mosquitto__listener_sock *listensock, int listensock_count);
-int mux__loop_prepare(void);
-int mux__new(struct mosquitto *context);
-int mux__add_out(struct mosquitto *context);
-int mux__remove_out(struct mosquitto *context);
-int mux__delete(struct mosquitto *context);
-int mux__wait(void);
-int mux__handle(struct mosquitto__listener_sock *listensock, int listensock_count);
-int mux__cleanup(void);
+целое mux__init(void);
+целое mux__add_listeners(struct mosquitto__listener_sock *listensock, целое listensock_count);
+целое mux__delete_listeners(struct mosquitto__listener_sock *listensock, целое listensock_count);
+целое mux__loop_prepare(void);
+целое mux__new(struct mosquitto *context);
+целое mux__add_out(struct mosquitto *context);
+целое mux__remove_out(struct mosquitto *context);
+целое mux__delete(struct mosquitto *context);
+целое mux__wait(void);
+целое mux__handle(struct mosquitto__listener_sock *listensock, целое listensock_count);
+целое mux__cleanup(void);
 
 /* ============================================================
  * Listener related functions
  * ============================================================ */
 extern struct mosquitto__listener_sock *g_listensock;
-extern int g_listensock_count;
+extern целое g_listensock_count;
 
 void listener__set_defaults(struct mosquitto__listener *listener);
 void listeners__reload_all_certificates(void);
-#if defined(WITH_WEBSOCKETS) && WITH_WEBSOCKETS == WS_IS_LWS
+#если defined(WITH_WEBSOCKETS) && WITH_WEBSOCKETS == WS_IS_LWS
 void listeners__add_websockets(struct lws_context *ws_context, mosq_sock_t fd);
 #endif
-int listeners__start(void);
+целое listeners__start(void);
 void listeners__stop(void);
 
 /* ============================================================
  * Plugin related functions
  * ============================================================ */
-int plugin__load_v5(mosquitto_plugin_id_t *plugin, void *lib);
-int plugin__load_v4(mosquitto_plugin_id_t *plugin, void *lib);
-int plugin__load_v3(mosquitto_plugin_id_t *plugin, void *lib);
-int plugin__load_v2(mosquitto_plugin_id_t *plugin, void *lib);
-int acl__pre_check(mosquitto_plugin_id_t *plugin, struct mosquitto *context, int access);
+целое plugin__load_v5(mosquitto_plugin_id_t *plugin, void *lib);
+целое plugin__load_v4(mosquitto_plugin_id_t *plugin, void *lib);
+целое plugin__load_v3(mosquitto_plugin_id_t *plugin, void *lib);
+целое plugin__load_v2(mosquitto_plugin_id_t *plugin, void *lib);
+целое acl__pre_check(mosquitto_plugin_id_t *plugin, struct mosquitto *context, целое access);
 
 void LIB_ERROR(void);
 void plugin__handle_connect(struct mosquitto *context);
-void plugin__handle_disconnect(struct mosquitto *context, int reason);
-void plugin__handle_client_offline(struct mosquitto *context, int reason);
-int plugin__handle_message_in(struct mosquitto *context, struct mosquitto_base_msg *base_msg);
-int plugin__handle_message_out(struct mosquitto *context, struct mosquitto_base_msg *base_msg);
-int plugin__handle_subscribe(struct mosquitto *context, struct mosquitto_subscription *sub);
-int plugin__handle_unsubscribe(struct mosquitto *context, struct mosquitto_subscription *sub);
-int plugin__handle_reload(void);
+void plugin__handle_disconnect(struct mosquitto *context, целое reason);
+void plugin__handle_client_offline(struct mosquitto *context, целое reason);
+целое plugin__handle_message_in(struct mosquitto *context, struct mosquitto_base_msg *base_msg);
+целое plugin__handle_message_out(struct mosquitto *context, struct mosquitto_base_msg *base_msg);
+целое plugin__handle_subscribe(struct mosquitto *context, struct mosquitto_subscription *sub);
+целое plugin__handle_unsubscribe(struct mosquitto *context, struct mosquitto_subscription *sub);
+целое plugin__handle_reload(void);
 void plugin__handle_tick(void);
-int plugin__callback_unregister_all(mosquitto_plugin_id_t *identifier);
+целое plugin__callback_unregister_all(mosquitto_plugin_id_t *identifier);
 void plugin_persist__handle_restore(void);
 void plugin_persist__handle_client_add(struct mosquitto *context);
 void plugin_persist__handle_client_delete(struct mosquitto *context);
@@ -875,66 +875,66 @@ void plugin_persist__handle_will_delete(struct mosquitto *context);
 /* ============================================================
  * Property related functions
  * ============================================================ */
-int keepalive__init(void);
+целое keepalive__init(void);
 void keepalive__cleanup(void);
-int keepalive__add(struct mosquitto *context);
+целое keepalive__add(struct mosquitto *context);
 void keepalive__check(void);
-int keepalive__remove(struct mosquitto *context);
-int keepalive__update(struct mosquitto *context);
+целое keepalive__remove(struct mosquitto *context);
+целое keepalive__update(struct mosquitto *context);
 
 /* ============================================================
  * Property related functions
  * ============================================================ */
-int property__process_connect(struct mosquitto *context, mosquitto_property **props);
-int property__process_will(struct mosquitto *context, struct mosquitto_message_all *msg, mosquitto_property **props);
-int property__process_publish(struct mosquitto__base_msg *base_msg, mosquitto_property **props, int *topic_alias, uint32_t *message_expiry_interval, bool is_bridge);
-int property__process_disconnect(struct mosquitto *context, mosquitto_property **props);
+целое property__process_connect(struct mosquitto *context, mosquitto_property **props);
+целое property__process_will(struct mosquitto *context, struct mosquitto_message_all *msg, mosquitto_property **props);
+целое property__process_publish(struct mosquitto__base_msg *base_msg, mosquitto_property **props, целое *topic_alias, uint32_t *message_expiry_interval, bool is_bridge);
+целое property__process_disconnect(struct mosquitto *context, mosquitto_property **props);
 
 /* ============================================================
  * Retain tree related functions
  * ============================================================ */
-int retain__init(void);
+целое retain__init(void);
 void retain__clean(struct mosquitto__retainhier **retainhier);
-int retain__queue(struct mosquitto *context, const struct mosquitto_subscription *sub);
-int retain__store(const char *topic, struct mosquitto__base_msg *base_msg, char **split_topics, bool persist);
+целое retain__queue(struct mosquitto *context, const struct mosquitto_subscription *sub);
+целое retain__store(const char *topic, struct mosquitto__base_msg *base_msg, char **split_topics, bool persist);
 void retain__expiry_check(void);
 void retain__expire(struct mosquitto__retainhier **retainhier);
 
 /* ============================================================
  * Security related functions
  * ============================================================ */
-int acl__find_acls(struct mosquitto *context);
-int plugin__load_all(void);
-int plugin__unload_all(void);
-int config__plugin_add_secopt(mosquitto_plugin_id_t *plugin, struct mosquitto__security_options *security_options);
+целое acl__find_acls(struct mosquitto *context);
+целое plugin__load_all(void);
+целое plugin__unload_all(void);
+целое config__plugin_add_secopt(mosquitto_plugin_id_t *plugin, struct mosquitto__security_options *security_options);
 
-int mosquitto_security_init(bool reload);
-int mosquitto_security_cleanup(bool reload);
-int mosquitto_acl_check(struct mosquitto *context, const char *topic, uint32_t payloadlen, void *payload, uint8_t qos, bool retain, mosquitto_property *properties, int access);
-int mosquitto_basic_auth(struct mosquitto *context);
-int mosquitto_psk_key_get(struct mosquitto *context, const char *hint, const char *identity, char *key, int max_key_len);
+целое mosquitto_security_init(bool reload);
+целое mosquitto_security_cleanup(bool reload);
+целое mosquitto_acl_check(struct mosquitto *context, const char *topic, uint32_t payloadlen, void *payload, uint8_t qos, bool retain, mosquitto_property *properties, целое access);
+целое mosquitto_basic_auth(struct mosquitto *context);
+целое mosquitto_psk_key_get(struct mosquitto *context, const char *hint, const char *identity, char *key, целое max_key_len);
 
-int mosquitto_security_init_default(void);
-int mosquitto_security_apply_default(void);
-int mosquitto_security_cleanup_default(void);
-int mosquitto_psk_key_get_default(struct mosquitto *context, const char *hint, const char *identity, char *key, int max_key_len);
-int broker_acl_file__init(void);
+целое mosquitto_security_init_default(void);
+целое mosquitto_security_apply_default(void);
+целое mosquitto_security_cleanup_default(void);
+целое mosquitto_psk_key_get_default(struct mosquitto *context, const char *hint, const char *identity, char *key, целое max_key_len);
+целое broker_acl_file__init(void);
 void broker_acl_file__cleanup(void);
-int broker_password_file__init(void);
+целое broker_password_file__init(void);
 void broker_password_file__cleanup(void);
-int psk_file__init(void);
-int psk_file__cleanup(void);
+целое psk_file__init(void);
+целое psk_file__cleanup(void);
 
-int mosquitto_security_auth_start(struct mosquitto *context, bool reauth, const void *data_in, uint16_t data_in_len, void **data_out, uint16_t *data_out_len);
-int mosquitto_security_auth_continue(struct mosquitto *context, const void *data_in, uint16_t data_len, void **data_out, uint16_t *data_out_len);
+целое mosquitto_security_auth_start(struct mosquitto *context, bool reauth, const void *data_in, uint16_t data_in_len, void **data_out, uint16_t *data_out_len);
+целое mosquitto_security_auth_continue(struct mosquitto *context, const void *data_in, uint16_t data_len, void **data_out, uint16_t *data_out_len);
 
 void unpwd__free_item(struct mosquitto__unpwd **unpwd, struct mosquitto__unpwd *item);
 
 /* ============================================================
  * Session expiry
  * ============================================================ */
-int session_expiry__add(struct mosquitto *context);
-int session_expiry__add_from_persistence(struct mosquitto *context, time_t expiry_time);
+целое session_expiry__add(struct mosquitto *context);
+целое session_expiry__add_from_persistence(struct mosquitto *context, time_t expiry_time);
 void session_expiry__add_on_shutdown(void);
 void session_expiry__remove(struct mosquitto *context);
 void session_expiry__remove_all(void);
@@ -945,12 +945,12 @@ void session_expiry__send_all(void);
  * Signals
  * ============================================================ */
 void signal__setup(void);
-int signal__flag_check(void);
+целое signal__flag_check(void);
 
 /* ============================================================
  * Window service and signal related functions
  * ============================================================ */
-#if defined(WIN32) || defined(__CYGWIN__)
+#если defined(WIN32) || defined(__CYGWIN__)
 void service_install(char *name);
 void service_uninstall(char *name);
 void service_run(char *name);
@@ -970,25 +970,25 @@ void watchdog__check(void);
  * Websockets related functions
  * ============================================================ */
 #ifdef WITH_WEBSOCKETS
-#  if WITH_WEBSOCKETS == WS_IS_LWS
+#  если WITH_WEBSOCKETS == WS_IS_LWS
 void mosq_websockets_init(struct mosquitto__listener *listener, const struct mosquitto__config *conf);
 #  endif
-int http__context_init(struct mosquitto *context);
-int http__context_cleanup(struct mosquitto *context);
-int http__read(struct mosquitto *context);
+целое http__context_init(struct mosquitto *context);
+целое http__context_cleanup(struct mosquitto *context);
+целое http__read(struct mosquitto *context);
 #endif
-void do_disconnect(struct mosquitto *context, int reason);
+void do_disconnect(struct mosquitto *context, целое reason);
 
 /* ============================================================
  * PROXY related functions
  * ============================================================ */
-int proxy_v2__read(struct mosquitto *context);
-int proxy_v1__read(struct mosquitto *context);
+целое proxy_v2__read(struct mosquitto *context);
+целое proxy_v1__read(struct mosquitto *context);
 
 /* ============================================================
  * Will delay
  * ============================================================ */
-int will_delay__add(struct mosquitto *context);
+целое will_delay__add(struct mosquitto *context);
 void will_delay__check(void);
 void will_delay__send_all(void);
 void will_delay__remove(struct mosquitto *mosq);
@@ -996,8 +996,8 @@ void will_delay__remove(struct mosquitto *mosq);
 /* ============================================================
  * HTTP Info
  * ============================================================ */
-int http_api__start_local(struct mosquitto__listener *listener);
-int http_api__start(struct mosquitto__listener *listener);
+целое http_api__start_local(struct mosquitto__listener *listener);
+целое http_api__start(struct mosquitto__listener *listener);
 void http_api__stop(struct mosquitto__listener *listener);
 
 
