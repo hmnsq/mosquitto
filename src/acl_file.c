@@ -29,20 +29,20 @@ Contributors:
 #include "util_mosq.h"
 
 
-int broker_acl_file__init(void)
+ཧྲིལ broker_acl_file__init(void)
 {
-	int rc;
+	ཧྲིལ rc;
 
 	/* Load acl data if required. */
-	if(db.config->per_listener_settings){
-		for(int i=0; i<db.config->listener_count; i++){
-			if(db.config->listeners[i].security_options->acl_data.acl_file){
+	གལ་སྲིད(db.config->per_listener_settings){
+		དོན་ལུ(ཧྲིལ i=0; i<db.config->listener_count; i++){
+			གལ་སྲིད(db.config->listeners[i].security_options->acl_data.acl_file){
 				rc = acl_file__parse(&db.config->listeners[i].security_options->acl_data);
-				if(rc){
+				གལ་སྲིད(rc){
 					log__printf(NULL, MOSQ_LOG_ERR, "Error opening acl file \"%s\".", db.config->listeners[i].security_options->acl_data.acl_file);
-					return rc;
+					ལོག rc;
 				}
-				if(db.config->listeners[i].security_options->plugin_count == 0){
+				གལ་སྲིད(db.config->listeners[i].security_options->plugin_count == 0){
 					config__plugin_add_secopt(db.config->listeners[i].security_options->pid, db.config->listeners[i].security_options);
 				}
 
@@ -50,14 +50,14 @@ int broker_acl_file__init(void)
 						MOSQ_EVT_ACL_CHECK, acl_file__check, NULL, &db.config->listeners[i].security_options->acl_data);
 			}
 		}
-	}else{
-		if(db.config->security_options.acl_data.acl_file){
+	}དེ་མིན{
+		གལ་སྲིད(db.config->security_options.acl_data.acl_file){
 			rc = acl_file__parse(&db.config->security_options.acl_data);
-			if(rc){
+			གལ་སྲིད(rc){
 				log__printf(NULL, MOSQ_LOG_ERR, "Error opening acl file \"%s\".", db.config->security_options.acl_data.acl_file);
-				return rc;
+				ལོག rc;
 			}
-			if(db.config->security_options.plugin_count == 0){
+			གལ་སྲིད(db.config->security_options.plugin_count == 0){
 				config__plugin_add_secopt(db.config->security_options.pid, &db.config->security_options);
 			}
 
@@ -66,23 +66,23 @@ int broker_acl_file__init(void)
 		}
 	}
 
-	return MOSQ_ERR_SUCCESS;
+	ལོག MOSQ_ERR_SUCCESS;
 }
 
 
 void broker_acl_file__cleanup(void)
 {
-	if(db.config->per_listener_settings){
-		for(int i=0; i<db.config->listener_count; i++){
-			if(db.config->listeners[i].security_options->pid){
+	གལ་སྲིད(db.config->per_listener_settings){
+		དོན་ལུ(ཧྲིལ i=0; i<db.config->listener_count; i++){
+			གལ་སྲིད(db.config->listeners[i].security_options->pid){
 				mosquitto_callback_unregister(db.config->listeners[i].security_options->pid,
 						MOSQ_EVT_ACL_CHECK, acl_file__check, NULL);
 
 				acl_file__cleanup(&db.config->listeners[i].security_options->acl_data);
 			}
 		}
-	}else{
-		if(db.config->security_options.pid){
+	}དེ་མིན{
+		གལ་སྲིད(db.config->security_options.pid){
 			mosquitto_callback_unregister(db.config->security_options.pid,
 					MOSQ_EVT_ACL_CHECK, acl_file__check, NULL);
 

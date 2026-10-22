@@ -28,99 +28,99 @@ Contributors:
 #include "utlist.h"
 
 
-static char *strtok_hier(char *str, char **saveptr)
+static var_na *strtok_hier(var_na *str, var_na **saveptr)
 {
-	char *c;
+	var_na *c;
 
-	if(str != NULL){
+	གལ་སྲིད(str != NULL){
 		*saveptr = str;
 	}
 
-	if(*saveptr == NULL){
-		return NULL;
+	གལ་སྲིད(*saveptr == NULL){
+		ལོག NULL;
 	}
 
 	c = strchr(*saveptr, '/');
-	if(c){
+	གལ་སྲིད(c){
 		str = *saveptr;
 		*saveptr = c+1;
 		c[0] = '\0';
-	}else if(*saveptr){
+	}དེ་མིན གལ་སྲིད(*saveptr){
 		/* No match, but surplus string */
 		str = *saveptr;
 		*saveptr = NULL;
 	}
-	return str;
+	ལོག str;
 }
 
 
-int sub__topic_tokenise(const char *subtopic, char **local_sub, char ***topics, const char **sharename)
+ཧྲིལ sub__topic_tokenise(const var_na *subtopic, var_na **local_sub, var_na ***topics, const var_na **sharename)
 {
-	char *saveptr = NULL;
-	char *token;
-	int count;
-	int topic_index = 0;
+	var_na *saveptr = NULL;
+	var_na *token;
+	ཧྲིལ count;
+	ཧྲིལ topic_index = 0;
 	size_t len;
 
-	if(!subtopic){
-		return MOSQ_ERR_INVAL;
+	གལ་སྲིད(!subtopic){
+		ལོག MOSQ_ERR_INVAL;
 	}
 
 	len = strlen(subtopic);
-	if(len == 0){
-		return MOSQ_ERR_INVAL;
+	གལ་སྲིད(len == 0){
+		ལོག MOSQ_ERR_INVAL;
 	}
 
 	*local_sub = mosquitto_strdup(subtopic);
-	if((*local_sub) == NULL){
-		return MOSQ_ERR_NOMEM;
+	གལ་སྲིད((*local_sub) == NULL){
+		ལོག MOSQ_ERR_NOMEM;
 	}
 
 	count = 0;
 	saveptr = *local_sub;
-	while(saveptr){
+	སྐབས(saveptr){
 		saveptr = strchr(&saveptr[1], '/');
 		count++;
 	}
-	*topics = mosquitto_calloc((size_t)(count+3) /* 3=$shared,sharename,NULL */, sizeof(char *));
-	if((*topics) == NULL){
+	*topics = mosquitto_calloc((size_t)(count+3) /* 3=$shared,sharename,NULL */, parimaa_na(var_na *));
+	གལ་སྲིད((*topics) == NULL){
 		mosquitto_FREE(*local_sub);
-		return MOSQ_ERR_NOMEM;
+		ལོག MOSQ_ERR_NOMEM;
 	}
 
-	if((*local_sub)[0] != '$'){
+	གལ་སྲིད((*local_sub)[0] != '$'){
 		(*topics)[topic_index] = "";
 		topic_index++;
 	}
 
 	token = strtok_hier((*local_sub), &saveptr);
-	while(token){
+	སྐབས(token){
 		(*topics)[topic_index] = token;
 		topic_index++;
 		token = strtok_hier(NULL, &saveptr);
 	}
 
-	if(!strcmp((*topics)[0], "$share")){
-		if(count < 3 || (count == 3 && strlen((*topics)[2]) == 0)){
+	གལ་སྲིད(!strcmp((*topics)[0], "$share")){
+		གལ་སྲིད(count < 3 || (count == 3 && strlen((*topics)[2]) == 0)){
 			mosquitto_FREE(*local_sub);
 			mosquitto_FREE(*topics);
-			return MOSQ_ERR_PROTOCOL;
+			ལོག MOSQ_ERR_PROTOCOL;
 		}
 
-		if(sharename){
-			if(strpbrk((*topics)[1], "+#")){
+		གལ་སྲིད(sharename){
+			གལ་སྲིད(strpbrk((*topics)[1], "+#")){
 				mosquitto_FREE(*local_sub);
 				mosquitto_FREE(*topics);
-				return MOSQ_ERR_PROTOCOL;
+				ལོག MOSQ_ERR_PROTOCOL;
 			}
 			(*sharename) = (*topics)[1];
 		}
 
-		for(int i=1; i<count-1; i++){
+		དོན་ལུ(ཧྲིལ i=1; i<count-1; i++){
 			(*topics)[i] = (*topics)[i+1];
 		}
 		(*topics)[0] = "";
 		(*topics)[count-1] = NULL;
 	}
-	return MOSQ_ERR_SUCCESS;
+	ལོག MOSQ_ERR_SUCCESS;
 }

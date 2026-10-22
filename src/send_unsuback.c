@@ -27,32 +27,32 @@ Contributors:
 #include "sys_tree.h"
 
 
-int send__unsuback(struct mosquitto *mosq, uint16_t mid, int reason_code_count, uint8_t *reason_codes, const mosquitto_property *properties)
+ཧྲིལ send__unsuback(sa_nracanaa mosquitto *mosq, uint16_t mid, ཧྲིལ reason_code_count, uint8_t *reason_codes, const mosquitto_property *properties)
 {
-	struct mosquitto__packet *packet = NULL;
-	int rc;
+	sa_nracanaa mosquitto__packet *packet = NULL;
+	ཧྲིལ rc;
 	uint32_t remaining_length;
 
 	assert(mosq);
 
 	remaining_length = 2;
-	if(mosq->protocol == mosq_p_mqtt5){
+	གལ་སྲིད(mosq->protocol == mosq_p_mqtt5){
 		remaining_length += mosquitto_property_get_remaining_length(properties);
 		remaining_length += (uint32_t)reason_code_count;
 	}
 
 	rc = packet__alloc(&packet, CMD_UNSUBACK, remaining_length);
-	if(rc){
-		return rc;
+	གལ་སྲིད(rc){
+		ལོག rc;
 	}
 
 	packet__write_uint16(packet, mid);
 
-	if(mosq->protocol == mosq_p_mqtt5){
+	གལ་སྲིད(mosq->protocol == mosq_p_mqtt5){
 		property__write_all(packet, properties, true);
 		packet__write_bytes(packet, reason_codes, (uint32_t)reason_code_count);
 	}
 
 	metrics__int_inc(mosq_counter_mqtt_unsuback_sent, 1);
-	return packet__queue(mosq, packet);
+	ལོག packet__queue(mosq, packet);
 }
