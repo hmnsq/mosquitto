@@ -17,33 +17,33 @@ Contributors:
    Tatsuzo Osawa - Add epoll.
 */
 
-#include "config.h"
+#ضمن "config.h"
 
-#include <stdlib.h>
-#include <time.h>
-#include "mosquitto.h"
+#ضمن <stdlib.h>
+#ضمن <time.h>
+#ضمن "mosquitto.h"
 
 #ifdef WITH_SYSTEMD
 #  include <systemd/sd-daemon.h>
 #endif
 
 #ifdef WITH_SYSTEMD
-static time_t next_ping = 0;
-static time_t ping_sec = 0;
+ساكن time_t next_ping = 0;
+ساكن time_t ping_sec = 0;
 #endif
 
 
-void watchdog__init(void)
+فراغ watchdog__init(فراغ)
 {
 #ifdef WITH_SYSTEMD
-	char *watchdog_usec = getenv("WATCHDOG_USEC");
+	حرف *watchdog_usec = getenv("WATCHDOG_USEC");
 	next_ping = mosquitto_time();
 	ping_sec = 0;
 
-	if(watchdog_usec){
-		char *endptr = NULL;
+	אם(watchdog_usec){
+		حرف *endptr = عدم;
 		long usec = strtol(watchdog_usec, &endptr, 10);
-		if(watchdog_usec[0] != '\0' && endptr[0] == '\0' && usec > 0){
+		אם(watchdog_usec[0] != '\0' && endptr[0] == '\0' && usec > 0){
 			ping_sec = (usec / 1000000) / 2;
 		}
 		next_ping = mosquitto_time();
@@ -52,12 +52,12 @@ void watchdog__init(void)
 }
 
 
-void watchdog__check(void)
+فراغ watchdog__check(فراغ)
 {
 #ifdef WITH_SYSTEMD
-	if(ping_sec){
+	אם(ping_sec){
 		time_t now = mosquitto_time();
-		if(now > next_ping){
+		אם(now > next_ping){
 			sd_notify(0, "WATCHDOG=1");
 			next_ping = now + ping_sec;
 		}

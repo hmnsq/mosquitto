@@ -17,116 +17,116 @@ Contributors:
    Tatsuzo Osawa - Add epoll.
 */
 
-#include "mux.h"
+#ضمن "mux.h"
 
 
-int mux__init(void)
+صحيح mux__init(فراغ)
 {
 #ifdef WITH_EPOLL
-	return mux_epoll__init();
-#elif defined(WITH_KQUEUE)
-	return mux_kqueue__init();
-#else
-	return mux_poll__init();
+	החזר mux_epoll__init();
+#وإلاإذا defined(WITH_KQUEUE)
+	החזר mux_kqueue__init();
+#אחרת
+	החזר mux_poll__init();
 #endif
 }
 
 
-int mux__add_listeners(struct mosquitto__listener_sock *listensock, int listensock_count)
+صحيح mux__add_listeners(بنية mosquitto__listener_sock *listensock, صحيح listensock_count)
 {
 #ifdef WITH_EPOLL
-	return mux_epoll__add_listeners(listensock, listensock_count);
-#elif defined(WITH_KQUEUE)
-	return mux_kqueue__add_listeners(listensock, listensock_count);
-#else
-	return mux_poll__add_listeners(listensock, listensock_count);
+	החזר mux_epoll__add_listeners(listensock, listensock_count);
+#وإلاإذا defined(WITH_KQUEUE)
+	החזר mux_kqueue__add_listeners(listensock, listensock_count);
+#אחרת
+	החזר mux_poll__add_listeners(listensock, listensock_count);
 #endif
 }
 
 
-int mux__delete_listeners(struct mosquitto__listener_sock *listensock, int listensock_count)
+صحيح mux__delete_listeners(بنية mosquitto__listener_sock *listensock, صحيح listensock_count)
 {
 #ifdef WITH_EPOLL
-	return mux_epoll__delete_listeners(listensock, listensock_count);
-#elif defined(WITH_KQUEUE)
-	return mux_kqueue__delete_listeners(listensock, listensock_count);
-#else
-	return mux_poll__delete_listeners(listensock, listensock_count);
+	החזר mux_epoll__delete_listeners(listensock, listensock_count);
+#وإلاإذا defined(WITH_KQUEUE)
+	החזר mux_kqueue__delete_listeners(listensock, listensock_count);
+#אחרת
+	החזר mux_poll__delete_listeners(listensock, listensock_count);
 #endif
 }
 
 
-int mux__add_out(struct mosquitto *context)
+صحيح mux__add_out(بنية mosquitto *context)
 {
 #ifdef WITH_EPOLL
-	return mux_epoll__add_out(context);
-#elif defined(WITH_KQUEUE)
-	return mux_kqueue__add_out(context);
-#else
-	return mux_poll__add_out(context);
+	החזר mux_epoll__add_out(context);
+#وإلاإذا defined(WITH_KQUEUE)
+	החזר mux_kqueue__add_out(context);
+#אחרת
+	החזר mux_poll__add_out(context);
 #endif
 }
 
 
-int mux__remove_out(struct mosquitto *context)
+صحيح mux__remove_out(بنية mosquitto *context)
 {
 #ifdef WITH_EPOLL
-	return mux_epoll__remove_out(context);
-#elif defined(WITH_KQUEUE)
-	return mux_kqueue__remove_out(context);
-#else
-	return mux_poll__remove_out(context);
+	החזר mux_epoll__remove_out(context);
+#وإلاإذا defined(WITH_KQUEUE)
+	החזר mux_kqueue__remove_out(context);
+#אחרת
+	החזר mux_poll__remove_out(context);
 #endif
 }
 
 
-int mux__new(struct mosquitto *context)
+صحيح mux__new(بنية mosquitto *context)
 {
 #ifdef WITH_EPOLL
-	return mux_epoll__new(context);
-#elif defined(WITH_KQUEUE)
-	return mux_kqueue__new(context);
-#else
-	return mux_poll__new(context);
+	החזר mux_epoll__new(context);
+#وإلاإذا defined(WITH_KQUEUE)
+	החזר mux_kqueue__new(context);
+#אחרת
+	החזר mux_poll__new(context);
 #endif
 }
 
 
-int mux__delete(struct mosquitto *context)
+صحيح mux__delete(بنية mosquitto *context)
 {
 #ifdef WITH_EPOLL
-	return mux_epoll__delete(context);
-#elif defined(WITH_KQUEUE)
-	return mux_kqueue__delete(context);
-#else
-	return mux_poll__delete(context);
+	החזר mux_epoll__delete(context);
+#وإلاإذا defined(WITH_KQUEUE)
+	החזר mux_kqueue__delete(context);
+#אחרת
+	החזר mux_poll__delete(context);
 #endif
 }
 
 
-int mux__handle(struct mosquitto__listener_sock *listensock, int listensock_count)
+صحيح mux__handle(بنية mosquitto__listener_sock *listensock, صحيح listensock_count)
 {
 #ifdef WITH_EPOLL
 	UNUSED(listensock);
 	UNUSED(listensock_count);
-	return mux_epoll__handle();
-#elif defined(WITH_KQUEUE)
+	החזר mux_epoll__handle();
+#وإلاإذا defined(WITH_KQUEUE)
 	UNUSED(listensock);
 	UNUSED(listensock_count);
-	return mux_kqueue__handle();
-#else
-	return mux_poll__handle(listensock, listensock_count);
+	החזר mux_kqueue__handle();
+#אחרת
+	החזר mux_poll__handle(listensock, listensock_count);
 #endif
 }
 
 
-int mux__cleanup(void)
+صحيح mux__cleanup(فراغ)
 {
 #ifdef WITH_EPOLL
-	return mux_epoll__cleanup();
-#elif defined(WITH_KQUEUE)
-	return mux_kqueue__cleanup();
-#else
-	return mux_poll__cleanup();
+	החזר mux_epoll__cleanup();
+#وإلاإذا defined(WITH_KQUEUE)
+	החזר mux_kqueue__cleanup();
+#אחרת
+	החזר mux_poll__cleanup();
 #endif
 }

@@ -17,7 +17,7 @@ Contributors:
    Tatsuzo Osawa - Add epoll.
 */
 
-#include "config.h"
+#ضمن "config.h"
 
 #ifdef WITH_EPOLL
 
@@ -30,276 +30,276 @@ Contributors:
 #  define MAX_EVENTS 1000
 #endif
 
-#include <errno.h>
-#include <signal.h>
+#ضمن <errno.h>
+#ضمن <signal.h>
 
-#include "mosquitto_broker_internal.h"
-#include "mux.h"
-#include "packet_mosq.h"
-#include "util_mosq.h"
+#ضمن "mosquitto_broker_internal.h"
+#ضمن "mux.h"
+#ضمن "packet_mosq.h"
+#ضمن "util_mosq.h"
 
-static void loop_handle_reads_writes(struct mosquitto *context, uint32_t events);
+ساكن فراغ loop_handle_reads_writes(بنية mosquitto *context, uint32_t events);
 
-static struct epoll_event ep_events[MAX_EVENTS];
+ساكن بنية epoll_event ep_events[MAX_EVENTS];
 
 
-int mux_epoll__init(void)
+صحيح mux_epoll__init(فراغ)
 {
-	memset(&ep_events, 0, sizeof(struct epoll_event)*MAX_EVENTS);
+	memset(&ep_events, 0, حجم(بنية epoll_event)*MAX_EVENTS);
 
 	db.epollfd = 0;
-	if((db.epollfd = epoll_create(MAX_EVENTS)) == -1){
-		log__printf(NULL, MOSQ_LOG_ERR, "Error in epoll creating: %s", strerror(errno));
-		return MOSQ_ERR_UNKNOWN;
+	אם((db.epollfd = epoll_create(MAX_EVENTS)) == -1){
+		log__printf(عدم, MOSQ_LOG_ERR, "Error in epoll creating: %s", strerror(errno));
+		החזר MOSQ_ERR_UNKNOWN;
 	}
 
-	return MOSQ_ERR_SUCCESS;
+	החזר MOSQ_ERR_SUCCESS;
 }
 
 
-int mux_epoll__add_listeners(struct mosquitto__listener_sock *listensock, int listensock_count)
+صحيح mux_epoll__add_listeners(بنية mosquitto__listener_sock *listensock, صحيح listensock_count)
 {
-	for(int i=0; i<listensock_count; i++){
-		struct epoll_event ev;
+	עבור(صحيح i=0; i<listensock_count; i++){
+		بنية epoll_event ev;
 
-		memset(&ev, 0, sizeof(struct epoll_event));
+		memset(&ev, 0, حجم(بنية epoll_event));
 		ev.data.ptr = &listensock[i];
 		ev.events = EPOLLIN;
-		if(epoll_ctl(db.epollfd, EPOLL_CTL_ADD, listensock[i].sock, &ev) == -1){
-			log__printf(NULL, MOSQ_LOG_ERR, "Error in epoll initial registering: %s", strerror(errno));
-			return MOSQ_ERR_UNKNOWN;
+		אם(epoll_ctl(db.epollfd, EPOLL_CTL_ADD, listensock[i].sock, &ev) == -1){
+			log__printf(عدم, MOSQ_LOG_ERR, "Error in epoll initial registering: %s", strerror(errno));
+			החזר MOSQ_ERR_UNKNOWN;
 		}
 	}
 
-	return MOSQ_ERR_SUCCESS;
+	החזר MOSQ_ERR_SUCCESS;
 }
 
 
-int mux_epoll__delete_listeners(struct mosquitto__listener_sock *listensock, int listensock_count)
+صحيح mux_epoll__delete_listeners(بنية mosquitto__listener_sock *listensock, صحيح listensock_count)
 {
-	for(int i=0; i<listensock_count; i++){
-		if(epoll_ctl(db.epollfd, EPOLL_CTL_DEL, listensock[i].sock, NULL) == -1){
-			return MOSQ_ERR_UNKNOWN;
+	עבור(صحيح i=0; i<listensock_count; i++){
+		אם(epoll_ctl(db.epollfd, EPOLL_CTL_DEL, listensock[i].sock, عدم) == -1){
+			החזר MOSQ_ERR_UNKNOWN;
 		}
 	}
 
-	return MOSQ_ERR_SUCCESS;
+	החזר MOSQ_ERR_SUCCESS;
 }
 
 
-int mux_epoll__add_out(struct mosquitto *context)
+صحيح mux_epoll__add_out(بنية mosquitto *context)
 {
-	if(!(context->events & EPOLLOUT)){
-		struct epoll_event ev;
+	אם(!(context->events & EPOLLOUT)){
+		بنية epoll_event ev;
 
-		memset(&ev, 0, sizeof(struct epoll_event));
+		memset(&ev, 0, حجم(بنية epoll_event));
 		ev.data.ptr = context;
 		ev.events = EPOLLIN | EPOLLOUT;
-		if(epoll_ctl(db.epollfd, EPOLL_CTL_MOD, context->sock, &ev) == -1){
-			if((errno != ENOENT)||(epoll_ctl(db.epollfd, EPOLL_CTL_ADD, context->sock, &ev) == -1)){
-				log__printf(NULL, MOSQ_LOG_DEBUG, "Error in epoll re-registering to EPOLLOUT: %s", strerror(errno));
+		אם(epoll_ctl(db.epollfd, EPOLL_CTL_MOD, context->sock, &ev) == -1){
+			אם((errno != ENOENT)||(epoll_ctl(db.epollfd, EPOLL_CTL_ADD, context->sock, &ev) == -1)){
+				log__printf(عدم, MOSQ_LOG_DEBUG, "Error in epoll re-registering to EPOLLOUT: %s", strerror(errno));
 			}
 		}
 		context->events = EPOLLIN | EPOLLOUT;
 	}
-	return MOSQ_ERR_SUCCESS;
+	החזר MOSQ_ERR_SUCCESS;
 }
 
 
-int mux_epoll__remove_out(struct mosquitto *context)
+صحيح mux_epoll__remove_out(بنية mosquitto *context)
 {
-	if(context->events & EPOLLOUT){
-		struct epoll_event ev;
+	אם(context->events & EPOLLOUT){
+		بنية epoll_event ev;
 
-		memset(&ev, 0, sizeof(struct epoll_event));
+		memset(&ev, 0, حجم(بنية epoll_event));
 		ev.data.ptr = context;
 		ev.events = EPOLLIN;
-		if(epoll_ctl(db.epollfd, EPOLL_CTL_MOD, context->sock, &ev) == -1){
-			if((errno != ENOENT)||(epoll_ctl(db.epollfd, EPOLL_CTL_ADD, context->sock, &ev) == -1)){
-				log__printf(NULL, MOSQ_LOG_DEBUG, "Error in epoll re-registering to EPOLLIN: %s", strerror(errno));
+		אם(epoll_ctl(db.epollfd, EPOLL_CTL_MOD, context->sock, &ev) == -1){
+			אם((errno != ENOENT)||(epoll_ctl(db.epollfd, EPOLL_CTL_ADD, context->sock, &ev) == -1)){
+				log__printf(عدم, MOSQ_LOG_DEBUG, "Error in epoll re-registering to EPOLLIN: %s", strerror(errno));
 			}
 		}
 		context->events = EPOLLIN;
 	}
-	return MOSQ_ERR_SUCCESS;
+	החזר MOSQ_ERR_SUCCESS;
 }
 
 
-int mux_epoll__new(struct mosquitto *context)
+صحيح mux_epoll__new(بنية mosquitto *context)
 {
-	struct epoll_event ev;
+	بنية epoll_event ev;
 
-	memset(&ev, 0, sizeof(struct epoll_event));
+	memset(&ev, 0, حجم(بنية epoll_event));
 	ev.events = EPOLLIN;
 	ev.data.ptr = context;
-	if(epoll_ctl(db.epollfd, EPOLL_CTL_ADD, context->sock, &ev) == -1){
-		if(errno != EEXIST){
-			log__printf(NULL, MOSQ_LOG_ERR, "Error in epoll accepting: %s", strerror(errno));
+	אם(epoll_ctl(db.epollfd, EPOLL_CTL_ADD, context->sock, &ev) == -1){
+		אם(errno != EEXIST){
+			log__printf(عدم, MOSQ_LOG_ERR, "Error in epoll accepting: %s", strerror(errno));
 		}
 	}
 	context->events = EPOLLIN;
-	return MOSQ_ERR_SUCCESS;
+	החזר MOSQ_ERR_SUCCESS;
 }
 
 
-int mux_epoll__delete(struct mosquitto *context)
+صحيح mux_epoll__delete(بنية mosquitto *context)
 {
-	if(context->sock != INVALID_SOCKET){
-		if(epoll_ctl(db.epollfd, EPOLL_CTL_DEL, context->sock, NULL) == -1){
-			return 1;
+	אם(context->sock != INVALID_SOCKET){
+		אם(epoll_ctl(db.epollfd, EPOLL_CTL_DEL, context->sock, عدم) == -1){
+			החזר 1;
 		}
 	}
-	return 0;
+	החזר 0;
 }
 
 
-int mux_epoll__handle(void)
+صحيح mux_epoll__handle(فراغ)
 {
-	struct epoll_event ev;
-	struct mosquitto *context;
-	struct mosquitto__listener_sock *listensock;
-	int event_count;
+	بنية epoll_event ev;
+	بنية mosquitto *context;
+	بنية mosquitto__listener_sock *listensock;
+	صحيح event_count;
 
-	memset(&ev, 0, sizeof(struct epoll_event));
-#if defined(WITH_WEBSOCKETS)
+	memset(&ev, 0, حجم(بنية epoll_event));
+#אם defined(WITH_WEBSOCKETS)
 	event_count = epoll_wait(db.epollfd, ep_events, MAX_EVENTS, 100);
-#else
+#אחרת
 	event_count = epoll_wait(db.epollfd, ep_events, MAX_EVENTS, db.next_event_ms);
 #endif
 
 	db.now_s = mosquitto_time();
-	db.now_real_s = time(NULL);
+	db.now_real_s = time(عدم);
 
-	switch(event_count){
-		case -1:
-			if(errno != EINTR){
-				log__printf(NULL, MOSQ_LOG_ERR, "Error in epoll waiting: %s.", strerror(errno));
+	بدل(event_count){
+		حالة -1:
+			אם(errno != EINTR){
+				log__printf(عدم, MOSQ_LOG_ERR, "Error in epoll waiting: %s.", strerror(errno));
 			}
-			break;
-		case 0:
-			break;
-		default:
-			for(int i=0; i<event_count; i++){
+			اكسر;
+		حالة 0:
+			اكسر;
+		افتراضي:
+			עבור(صحيح i=0; i<event_count; i++){
 				context = ep_events[i].data.ptr;
-				if(context->ident == id_client){
+				אם(context->ident == id_client){
 					loop_handle_reads_writes(context, ep_events[i].events);
-				}else if(context->ident == id_listener){
+				}אחרת אם(context->ident == id_listener){
 					listensock = ep_events[i].data.ptr;
 
-					if(ep_events[i].events & (EPOLLIN | EPOLLPRI)){
-						while((context = net__socket_accept(listensock)) != NULL){
+					אם(ep_events[i].events & (EPOLLIN | EPOLLPRI)){
+						כלעוד((context = net__socket_accept(listensock)) != عدم){
 						}
 					}
-#if defined(WITH_WEBSOCKETS) && WITH_WEBSOCKETS == WS_IS_LWS
-				}else if(context->ident == id_listener_ws){
+#אם defined(WITH_WEBSOCKETS) && WITH_WEBSOCKETS == WS_IS_LWS
+				}אחרת אם(context->ident == id_listener_ws){
 					/* Nothing needs to happen here, because we always call lws_service in the loop.
 					 * The important point is we've been woken up for this listener. */
 #endif
 				}
 			}
 	}
-	return MOSQ_ERR_SUCCESS;
+	החזר MOSQ_ERR_SUCCESS;
 }
 
 
-int mux_epoll__cleanup(void)
+صحيح mux_epoll__cleanup(فراغ)
 {
-	(void)close(db.epollfd);
+	(فراغ)close(db.epollfd);
 	db.epollfd = 0;
-	return MOSQ_ERR_SUCCESS;
+	החזר MOSQ_ERR_SUCCESS;
 }
 
 
-static void loop_handle_reads_writes(struct mosquitto *context, uint32_t events)
+ساكن فراغ loop_handle_reads_writes(بنية mosquitto *context, uint32_t events)
 {
-	int err;
+	صحيح err;
 	socklen_t len;
-	int rc;
+	صحيح rc;
 
-	if(context->sock == INVALID_SOCKET){
-		return;
+	אם(context->sock == INVALID_SOCKET){
+		החזר;
 	}
 
-#if defined(WITH_WEBSOCKETS) && WITH_WEBSOCKETS == WS_IS_LWS
-	if(context->wsi){
-		struct lws_pollfd wspoll;
+#אם defined(WITH_WEBSOCKETS) && WITH_WEBSOCKETS == WS_IS_LWS
+	אם(context->wsi){
+		بنية lws_pollfd wspoll;
 		wspoll.fd = context->sock;
 		wspoll.events = (int16_t)context->events;
 		wspoll.revents = (int16_t)events;
 		lws_service_fd(lws_get_context(context->wsi), &wspoll);
-		return;
+		החזר;
 	}
 #endif
 
-	if(events & EPOLLOUT
+	אם(events & EPOLLOUT
 #ifdef WITH_TLS
 			|| context->want_write
 			|| (context->ssl && context->state == mosq_cs_new)
 #endif
 			){
 
-		if(context->state == mosq_cs_connect_pending){
-			len = sizeof(int);
-			if(!getsockopt(context->sock, SOL_SOCKET, SO_ERROR, (char *)&err, &len)){
-				if(err == 0){
+		אם(context->state == mosq_cs_connect_pending){
+			len = حجم(صحيح);
+			אם(!getsockopt(context->sock, SOL_SOCKET, SO_ERROR, (حرف *)&err, &len)){
+				אם(err == 0){
 					mosquitto__set_state(context, mosq_cs_new);
-#if defined(WITH_ADNS) && defined(WITH_BRIDGE)
-					if(context->bridge){
+#אם defined(WITH_ADNS) && defined(WITH_BRIDGE)
+					אם(context->bridge){
 						bridge__connect_step3(context);
 					}
 #endif
 				}
-			}else{
+			}אחרת{
 				do_disconnect(context, MOSQ_ERR_CONN_LOST);
-				return;
+				החזר;
 			}
 		}
 		rc = packet__write(context);
-		if(rc){
+		אם(rc){
 			do_disconnect(context, rc);
-			return;
+			החזר;
 		}
 	}
 
-	if(events & EPOLLIN
+	אם(events & EPOLLIN
 #ifdef WITH_TLS
 			|| (context->ssl && context->state == mosq_cs_new)
 #endif
 			){
 
-		do{
-			switch(context->transport){
-				case mosq_t_tcp:
-				case mosq_t_ws:
+		עשה{
+			بدل(context->transport){
+				حالة mosq_t_tcp:
+				حالة mosq_t_ws:
 					rc = packet__read(context);
-					break;
-#if defined(WITH_WEBSOCKETS) && WITH_WEBSOCKETS == WS_IS_BUILTIN
-				case mosq_t_http:
+					اكسر;
+#אם defined(WITH_WEBSOCKETS) && WITH_WEBSOCKETS == WS_IS_BUILTIN
+				حالة mosq_t_http:
 					rc = http__read(context);
-					break;
+					اكسر;
 #endif
-#if !defined(WITH_WEBSOCKETS) || WITH_WEBSOCKETS == WS_IS_BUILTIN
+#אם !defined(WITH_WEBSOCKETS) || WITH_WEBSOCKETS == WS_IS_BUILTIN
 				/* Not supported with LWS */
-				case mosq_t_proxy_v2:
+				حالة mosq_t_proxy_v2:
 					rc = proxy_v2__read(context);
-					break;
-				case mosq_t_proxy_v1:
+					اكسر;
+				حالة mosq_t_proxy_v1:
 					rc = proxy_v1__read(context);
-					break;
+					اكسر;
 #endif
-				default:
+				افتراضي:
 					rc = MOSQ_ERR_INVAL;
-					break;
+					اكسر;
 			}
-			if(rc){
+			אם(rc){
 				do_disconnect(context, rc);
-				return;
+				החזר;
 			}
-		}while(SSL_DATA_PENDING(context));
-	}else{
-		if(events & (EPOLLERR | EPOLLHUP)){
+		}כלעוד(SSL_DATA_PENDING(context));
+	}אחרת{
+		אם(events & (EPOLLERR | EPOLLHUP)){
 			do_disconnect(context, MOSQ_ERR_CONN_LOST);
-			return;
+			החזר;
 		}
 	}
 }
