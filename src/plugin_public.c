@@ -16,240 +16,240 @@ Contributors:
    Roger Light - initial implementation and documentation.
 */
 
-#include "config.h"
+#ضمن "config.h"
 
-#include "mosquitto_broker_internal.h"
-#include "mosquitto/mqtt_protocol.h"
-#include "send_mosq.h"
-#include "util_mosq.h"
-#include "will_mosq.h"
-#include "utlist.h"
-#include "will_mosq.h"
+#ضمن "mosquitto_broker_internal.h"
+#ضمن "mosquitto/mqtt_protocol.h"
+#ضمن "send_mosq.h"
+#ضمن "util_mosq.h"
+#ضمن "will_mosq.h"
+#ضمن "utlist.h"
+#ضمن "will_mosq.h"
 
 #ifdef WITH_TLS
 #  include <openssl/ssl.h>
 #endif
 
 
-BROKER_EXPORT int mosquitto_plugin_set_info(mosquitto_plugin_id_t *identifier,
-		const char *plugin_name,
-		const char *plugin_version)
+BROKER_EXPORT صحيح mosquitto_plugin_set_info(mosquitto_plugin_id_t *identifier,
+		ثابت حرف *plugin_name,
+		ثابت حرف *plugin_version)
 {
-	if(identifier == NULL || plugin_name == NULL){
-		return MOSQ_ERR_INVAL;
+	𐤀𐤌(identifier == عدم || plugin_name == عدم){
+		أرجع MOSQ_ERR_INVAL;
 	}
 
 	identifier->plugin_name = mosquitto_strdup(plugin_name);
-	if(plugin_version){
+	𐤀𐤌(plugin_version){
 		identifier->plugin_version = mosquitto_strdup(plugin_version);
-	}else{
-		identifier->plugin_version = NULL;
+	}وإلا{
+		identifier->plugin_version = عدم;
 	}
 
-	return MOSQ_ERR_SUCCESS;
+	أرجع MOSQ_ERR_SUCCESS;
 }
 
 
-BROKER_EXPORT const char *mosquitto_client_address(const struct mosquitto *client)
+BROKER_EXPORT ثابت حرف *mosquitto_client_address(ثابت بنية mosquitto *client)
 {
-	if(client){
-		return client->address;
-	}else{
-		return NULL;
+	𐤀𐤌(client){
+		أرجع client->address;
+	}وإلا{
+		أرجع عدم;
 	}
 }
 
 
-BROKER_EXPORT struct mosquitto *mosquitto_client(const char *clientid)
+BROKER_EXPORT بنية mosquitto *mosquitto_client(ثابت حرف *clientid)
 {
 	size_t len;
-	struct mosquitto *context;
+	بنية mosquitto *context;
 
-	if(!clientid){
-		return NULL;
+	𐤀𐤌(!clientid){
+		أرجع عدم;
 	}
 	len = strlen(clientid);
-	if(len == 0){
-		return NULL;
+	𐤀𐤌(len == 0){
+		أرجع عدم;
 	}
 
 	HASH_FIND(hh_id, db.contexts_by_id, clientid, strlen(clientid), context);
 
-	return context;
+	أرجع context;
 }
 
 
-BROKER_EXPORT int mosquitto_client_port(const struct mosquitto *client)
+BROKER_EXPORT صحيح mosquitto_client_port(ثابت بنية mosquitto *client)
 {
-	if(client && client->listener){
-		return client->listener->port;
-	}else{
-		return 0;
+	𐤀𐤌(client && client->listener){
+		أرجع client->listener->port;
+	}وإلا{
+		أرجع 0;
 	}
 }
 
 
-BROKER_EXPORT bool mosquitto_client_clean_session(const struct mosquitto *client)
+BROKER_EXPORT bool mosquitto_client_clean_session(ثابت بنية mosquitto *client)
 {
-	if(client){
-		return client->clean_start;
-	}else{
-		return true;
+	𐤀𐤌(client){
+		أرجع client->clean_start;
+	}وإلا{
+		أرجع true;
 	}
 }
 
 
-BROKER_EXPORT const char *mosquitto_client_id(const struct mosquitto *client)
+BROKER_EXPORT ثابت حرف *mosquitto_client_id(ثابت بنية mosquitto *client)
 {
-	if(client){
-		return client->id;
-	}else{
-		return NULL;
+	𐤀𐤌(client){
+		أرجع client->id;
+	}وإلا{
+		أرجع عدم;
 	}
 }
 
 
-BROKER_EXPORT unsigned mosquitto_client_id_hashv(const struct mosquitto *client)
+BROKER_EXPORT unsigned mosquitto_client_id_hashv(ثابت بنية mosquitto *client)
 {
-	if(client){
-		return client->id_hashv;
-	}else{
-		return 0;
+	𐤀𐤌(client){
+		أرجع client->id_hashv;
+	}وإلا{
+		أرجع 0;
 	}
 }
 
 
-BROKER_EXPORT int mosquitto_client_keepalive(const struct mosquitto *client)
+BROKER_EXPORT صحيح mosquitto_client_keepalive(ثابت بنية mosquitto *client)
 {
-	if(client){
-		return client->keepalive;
-	}else{
-		return -1;
+	𐤀𐤌(client){
+		أرجع client->keepalive;
+	}وإلا{
+		أرجع -1;
 	}
 }
 
 
-BROKER_EXPORT void *mosquitto_client_certificate(const struct mosquitto *client)
+BROKER_EXPORT فراغ *mosquitto_client_certificate(ثابت بنية mosquitto *client)
 {
 #ifdef WITH_TLS
-	if(client && client->ssl){
-		return SSL_get_peer_certificate(client->ssl);
-	}else{
-		return NULL;
+	𐤀𐤌(client && client->ssl){
+		أرجع SSL_get_peer_certificate(client->ssl);
+	}وإلا{
+		أرجع عدم;
 	}
-#else
+#وإلا
 	UNUSED(client);
 
-	return NULL;
+	أرجع عدم;
 #endif
 }
 
 
-BROKER_EXPORT int mosquitto_client_protocol(const struct mosquitto *client)
+BROKER_EXPORT صحيح mosquitto_client_protocol(ثابت بنية mosquitto *client)
 {
-#if defined(WITH_WEBSOCKETS) && WITH_WEBSOCKETS == WS_IS_LWS
-	if(client && client->wsi){
-		return mp_websockets;
-	}else
-#elif defined(WITH_WEBSOCKETS) && WITH_WEBSOCKETS == WS_IS_BUILTIN
-	if(client && client->transport == mosq_t_ws){
-		return mp_websockets;
-	}else
-#else
+#𐤀𐤌 defined(WITH_WEBSOCKETS) && WITH_WEBSOCKETS == WS_IS_LWS
+	𐤀𐤌(client && client->wsi){
+		أرجع mp_websockets;
+	}وإلا
+#وإلاإذا defined(WITH_WEBSOCKETS) && WITH_WEBSOCKETS == WS_IS_BUILTIN
+	𐤀𐤌(client && client->transport == mosq_t_ws){
+		أرجع mp_websockets;
+	}وإلا
+#وإلا
 	UNUSED(client);
 #endif
 	{
-		return mp_mqtt;
+		أرجع mp_mqtt;
 	}
 }
 
 
-BROKER_EXPORT int mosquitto_client_protocol_version(const struct mosquitto *client)
+BROKER_EXPORT صحيح mosquitto_client_protocol_version(ثابت بنية mosquitto *client)
 {
-	if(client){
-		switch(client->protocol){
-			case mosq_p_mqtt31:
-				return 3;
-			case mosq_p_mqtt311:
-				return 4;
-			case mosq_p_mqtt5:
-				return 5;
-			default:
-				return 0;
+	𐤀𐤌(client){
+		بدل(client->protocol){
+			حالة mosq_p_mqtt31:
+				أرجع 3;
+			حالة mosq_p_mqtt311:
+				أرجع 4;
+			حالة mosq_p_mqtt5:
+				أرجع 5;
+			افتراضي:
+				أرجع 0;
 		}
-	}else{
-		return 0;
+	}وإلا{
+		أرجع 0;
 	}
 }
 
 
-BROKER_EXPORT int mosquitto_client_sub_count(const struct mosquitto *client)
+BROKER_EXPORT صحيح mosquitto_client_sub_count(ثابت بنية mosquitto *client)
 {
-	if(client){
-		return client->subs_count;
-	}else{
-		return 0;
+	𐤀𐤌(client){
+		أرجع client->subs_count;
+	}وإلا{
+		أرجع 0;
 	}
 }
 
 
-BROKER_EXPORT const char *mosquitto_client_username(const struct mosquitto *client)
+BROKER_EXPORT ثابت حرف *mosquitto_client_username(ثابت بنية mosquitto *client)
 {
-	if(client){
+	𐤀𐤌(client){
 #ifdef WITH_BRIDGE
-		if(client->bridge){
-			return client->bridge->local_username;
-		}else
+		𐤀𐤌(client->bridge){
+			أرجع client->bridge->local_username;
+		}وإلا
 #endif
 		{
-			return client->username;
+			أرجع client->username;
 		}
-	}else{
-		return NULL;
+	}وإلا{
+		أرجع عدم;
 	}
 }
 
 
-BROKER_EXPORT int mosquitto_broker_publish(
-		const char *clientid,
-		const char *topic,
-		int payloadlen,
-		void *payload,
-		int qos,
+BROKER_EXPORT صحيح mosquitto_broker_publish(
+		ثابت حرف *clientid,
+		ثابت حرف *topic,
+		صحيح payloadlen,
+		فراغ *payload,
+		صحيح qos,
 		bool retain,
 		mosquitto_property *properties)
 {
-	struct mosquitto__message_v5 *msg;
+	بنية mosquitto__message_v5 *msg;
 
-	if(topic == NULL
+	𐤀𐤌(topic == عدم
 			|| payloadlen < 0
-			|| (payloadlen > 0 && payload == NULL)
+			|| (payloadlen > 0 && payload == عدم)
 			|| qos < 0 || qos > 2){
 
-		return MOSQ_ERR_INVAL;
+		أرجع MOSQ_ERR_INVAL;
 	}
 
-	msg = mosquitto_malloc(sizeof(struct mosquitto__message_v5));
-	if(msg == NULL){
-		return MOSQ_ERR_NOMEM;
+	msg = mosquitto_malloc(حجم(بنية mosquitto__message_v5));
+	𐤀𐤌(msg == عدم){
+		أرجع MOSQ_ERR_NOMEM;
 	}
 
-	msg->next = NULL;
-	msg->prev = NULL;
-	if(clientid){
+	msg->next = عدم;
+	msg->prev = عدم;
+	𐤀𐤌(clientid){
 		msg->clientid = mosquitto_strdup(clientid);
-		if(msg->clientid == NULL){
+		𐤀𐤌(msg->clientid == عدم){
 			mosquitto_FREE(msg);
-			return MOSQ_ERR_NOMEM;
+			أرجع MOSQ_ERR_NOMEM;
 		}
-	}else{
-		msg->clientid = NULL;
+	}وإلا{
+		msg->clientid = عدم;
 	}
 	msg->topic = mosquitto_strdup(topic);
-	if(msg->topic == NULL){
+	𐤀𐤌(msg->topic == عدم){
 		mosquitto_FREE(msg->clientid);
 		mosquitto_FREE(msg);
-		return MOSQ_ERR_NOMEM;
+		أرجع MOSQ_ERR_NOMEM;
 	}
 	msg->payloadlen = payloadlen;
 	msg->payload = payload;
@@ -260,33 +260,33 @@ BROKER_EXPORT int mosquitto_broker_publish(
 	DL_APPEND(db.plugin_msgs, msg);
 
 	loop__update_next_event(1);
-	return MOSQ_ERR_SUCCESS;
+	أرجع MOSQ_ERR_SUCCESS;
 }
 
 
-BROKER_EXPORT int mosquitto_broker_publish_copy(
-		const char *clientid,
-		const char *topic,
-		int payloadlen,
-		const void *payload,
-		int qos,
+BROKER_EXPORT صحيح mosquitto_broker_publish_copy(
+		ثابت حرف *clientid,
+		ثابت حرف *topic,
+		صحيح payloadlen,
+		ثابت فراغ *payload,
+		صحيح qos,
 		bool retain,
 		mosquitto_property *properties)
 {
-	void *payload_out;
-	int rc;
+	فراغ *payload_out;
+	صحيح rc;
 
-	if(topic == NULL
+	𐤀𐤌(topic == عدم
 			|| payloadlen < 0
-			|| (payloadlen > 0 && payload == NULL)
+			|| (payloadlen > 0 && payload == عدم)
 			|| qos < 0 || qos > 2){
 
-		return MOSQ_ERR_INVAL;
+		أرجع MOSQ_ERR_INVAL;
 	}
 
 	payload_out = mosquitto_calloc(1, (size_t)(payloadlen+1));
-	if(payload_out == NULL){
-		return MOSQ_ERR_NOMEM;
+	𐤀𐤌(payload_out == عدم){
+		أرجع MOSQ_ERR_NOMEM;
 	}
 	memcpy(payload_out, payload, (size_t)payloadlen);
 
@@ -299,51 +299,51 @@ BROKER_EXPORT int mosquitto_broker_publish_copy(
 			retain,
 			properties);
 
-	if(rc){
+	𐤀𐤌(rc){
 		mosquitto_FREE(payload_out);
 	}
-	return rc;
+	أرجع rc;
 }
 
 
-BROKER_EXPORT int mosquitto_set_username(struct mosquitto *client, const char *username)
+BROKER_EXPORT صحيح mosquitto_set_username(بنية mosquitto *client, ثابت حرف *username)
 {
-	char *u_dup;
-	char *old;
+	حرف *u_dup;
+	حرف *old;
 
-	if(!client){
-		return MOSQ_ERR_INVAL;
+	𐤀𐤌(!client){
+		أرجع MOSQ_ERR_INVAL;
 	}
 
-	if(username){
-		if(mosquitto_validate_utf8(username, (int)strlen(username))){
-			return MOSQ_ERR_MALFORMED_UTF8;
+	𐤀𐤌(username){
+		𐤀𐤌(mosquitto_validate_utf8(username, (صحيح)strlen(username))){
+			أرجع MOSQ_ERR_MALFORMED_UTF8;
 		}
 		u_dup = mosquitto_strdup(username);
-		if(!u_dup){
-			return MOSQ_ERR_NOMEM;
+		𐤀𐤌(!u_dup){
+			أرجع MOSQ_ERR_NOMEM;
 		}
-	}else{
-		u_dup = NULL;
+	}وإلا{
+		u_dup = عدم;
 	}
 
 	old = client->username;
 	client->username = u_dup;
 
 	mosquitto_FREE(old);
-	return MOSQ_ERR_SUCCESS;
+	أرجع MOSQ_ERR_SUCCESS;
 }
 
 
-BROKER_EXPORT int mosquitto_set_clientid(struct mosquitto *client, const char *clientid)
+BROKER_EXPORT صحيح mosquitto_set_clientid(بنية mosquitto *client, ثابت حرف *clientid)
 {
-	struct mosquitto *found_client;
-	char *id_dup;
+	بنية mosquitto *found_client;
+	حرف *id_dup;
 	bool in_by_id;
-	int clientid_len;
+	صحيح clientid_len;
 
-	if(!client || !clientid){
-		return MOSQ_ERR_INVAL;
+	𐤀𐤌(!client || !clientid){
+		أرجع MOSQ_ERR_INVAL;
 	}
 
 	in_by_id = client->in_by_id;
@@ -356,167 +356,167 @@ BROKER_EXPORT int mosquitto_set_clientid(struct mosquitto *client, const char *c
 	 * because it will be checked after authentication.
 	 */
 
-	if(in_by_id){
+	𐤀𐤌(in_by_id){
 		HASH_FIND(hh_id, db.contexts_by_id, clientid, strlen(clientid), found_client);
-		if(found_client){
-			return MOSQ_ERR_ALREADY_EXISTS;
+		𐤀𐤌(found_client){
+			أرجع MOSQ_ERR_ALREADY_EXISTS;
 		}
 	}
 
-	clientid_len = (int)strlen(clientid);
-	if(mosquitto_validate_utf8(clientid, clientid_len)){
-		return MOSQ_ERR_INVAL;
+	clientid_len = (صحيح)strlen(clientid);
+	𐤀𐤌(mosquitto_validate_utf8(clientid, clientid_len)){
+		أرجع MOSQ_ERR_INVAL;
 	}
 
 	id_dup = mosquitto_strdup(clientid);
-	if(!id_dup){
-		return MOSQ_ERR_NOMEM;
+	𐤀𐤌(!id_dup){
+		أرجع MOSQ_ERR_NOMEM;
 	}
 
-	if(in_by_id){
+	𐤀𐤌(in_by_id){
 		context__remove_from_by_id(client);
 	}
 	mosquitto_free(client->id);
 	client->id = id_dup;
-	if(in_by_id){
+	𐤀𐤌(in_by_id){
 		context__add_to_by_id(client);
 	}
 
-	return MOSQ_ERR_SUCCESS;
+	أرجع MOSQ_ERR_SUCCESS;
 }
 
 
 /* Check to see whether durable clients still have rights to their subscriptions. */
-static void check_subscription_acls(struct mosquitto *context)
+ساكن فراغ check_subscription_acls(بنية mosquitto *context)
 {
-	int rc;
+	صحيح rc;
 	uint8_t reason;
 
-	for(int i=0; i<context->subs_capacity; i++){
-		if(context->subs[i] == NULL){
-			continue;
+	لكل(صحيح i=0; i<context->subs_capacity; i++){
+		𐤀𐤌(context->subs[i] == عدم){
+			استمر;
 		}
 		rc = mosquitto_acl_check(context,
 				context->subs[i]->topic_filter,
 				0,
-				NULL,
+				عدم,
 				0, /* FIXME */
 				false,
-				NULL,
+				عدم,
 				MOSQ_ACL_SUBSCRIBE);
 
-		if(rc != MOSQ_ERR_SUCCESS){
+		𐤀𐤌(rc != MOSQ_ERR_SUCCESS){
 			sub__remove(context, context->subs[i]->topic_filter, &reason);
 		}
 	}
 }
 
 
-static void disconnect_client(struct mosquitto *context, bool with_will)
+ساكن فراغ disconnect_client(بنية mosquitto *context, bool with_will)
 {
-	if(context->protocol == mosq_p_mqtt5){
-		send__disconnect(context, MQTT_RC_ADMINISTRATIVE_ACTION, NULL);
+	𐤀𐤌(context->protocol == mosq_p_mqtt5){
+		send__disconnect(context, MQTT_RC_ADMINISTRATIVE_ACTION, عدم);
 	}
-	if(with_will == false){
+	𐤀𐤌(with_will == false){
 		mosquitto__set_state(context, mosq_cs_disconnecting);
 	}
-	if(context->session_expiry_interval != MQTT_SESSION_EXPIRY_IMMEDIATE){
+	𐤀𐤌(context->session_expiry_interval != MQTT_SESSION_EXPIRY_IMMEDIATE){
 		check_subscription_acls(context);
 	}
 	do_disconnect(context, MOSQ_ERR_ADMINISTRATIVE_ACTION);
 }
 
 
-BROKER_EXPORT int mosquitto_kick_client_by_clientid(const char *clientid, bool with_will)
+BROKER_EXPORT صحيح mosquitto_kick_client_by_clientid(ثابت حرف *clientid, bool with_will)
 {
-	struct mosquitto *ctxt, *ctxt_tmp;
+	بنية mosquitto *ctxt, *ctxt_tmp;
 
-	if(clientid == NULL){
+	𐤀𐤌(clientid == عدم){
 		HASH_ITER(hh_sock, db.contexts_by_sock, ctxt, ctxt_tmp){
 			disconnect_client(ctxt, with_will);
 		}
-		return MOSQ_ERR_SUCCESS;
-	}else{
+		أرجع MOSQ_ERR_SUCCESS;
+	}وإلا{
 		HASH_FIND(hh_id, db.contexts_by_id, clientid, strlen(clientid), ctxt);
-		if(ctxt){
+		𐤀𐤌(ctxt){
 			disconnect_client(ctxt, with_will);
-			return MOSQ_ERR_SUCCESS;
-		}else{
-			return MOSQ_ERR_NOT_FOUND;
+			أرجع MOSQ_ERR_SUCCESS;
+		}وإلا{
+			أرجع MOSQ_ERR_NOT_FOUND;
 		}
 	}
 }
 
 
-BROKER_EXPORT int mosquitto_kick_client_by_username(const char *username, bool with_will)
+BROKER_EXPORT صحيح mosquitto_kick_client_by_username(ثابت حرف *username, bool with_will)
 {
-	struct mosquitto *ctxt, *ctxt_tmp;
+	بنية mosquitto *ctxt, *ctxt_tmp;
 
-	if(username == NULL){
+	𐤀𐤌(username == عدم){
 		HASH_ITER(hh_sock, db.contexts_by_sock, ctxt, ctxt_tmp){
-			if(ctxt->username == NULL){
+			𐤀𐤌(ctxt->username == عدم){
 				disconnect_client(ctxt, with_will);
 			}
 		}
-	}else{
+	}وإلا{
 		HASH_ITER(hh_sock, db.contexts_by_sock, ctxt, ctxt_tmp){
-			if(ctxt->username != NULL && !strcmp(ctxt->username, username)){
+			𐤀𐤌(ctxt->username != عدم && !strcmp(ctxt->username, username)){
 				disconnect_client(ctxt, with_will);
 			}
 		}
 	}
-	return MOSQ_ERR_SUCCESS;
+	أرجع MOSQ_ERR_SUCCESS;
 }
 
 
-BROKER_EXPORT int mosquitto_apply_on_all_clients(int (*FUNC_client_functor)(const struct mosquitto *, void *), void *functor_context)
+BROKER_EXPORT صحيح mosquitto_apply_on_all_clients(صحيح (*FUNC_client_functor)(ثابت بنية mosquitto *, فراغ *), فراغ *functor_context)
 {
-	int rc = MOSQ_ERR_SUCCESS;
-	struct mosquitto *ctxt, *ctxt_tmp;
+	صحيح rc = MOSQ_ERR_SUCCESS;
+	بنية mosquitto *ctxt, *ctxt_tmp;
 
 	HASH_ITER(hh_id, db.contexts_by_id, ctxt, ctxt_tmp){
 		rc = (*FUNC_client_functor)(ctxt, functor_context);
-		if(rc != MOSQ_ERR_SUCCESS){
-			break;
+		𐤀𐤌(rc != MOSQ_ERR_SUCCESS){
+			اكسر;
 		}
 	}
 
-	return rc;
+	أرجع rc;
 }
 
 
-BROKER_EXPORT int mosquitto_persist_client_add(struct mosquitto_client *client)
+BROKER_EXPORT صحيح mosquitto_persist_client_add(بنية mosquitto_client *client)
 {
-	struct mosquitto *context;
-	int rc;
+	بنية mosquitto *context;
+	صحيح rc;
 
-	if(client == NULL){
-		return MOSQ_ERR_INVAL;
+	𐤀𐤌(client == عدم){
+		أرجع MOSQ_ERR_INVAL;
 	}
-	if(client->clientid == NULL){
+	𐤀𐤌(client->clientid == عدم){
 		rc = MOSQ_ERR_INVAL;
-		goto error;
+		اذهب error;
 	}
 
-	context = NULL;
+	context = عدم;
 	HASH_FIND(hh_id, db.contexts_by_id, client->clientid, strlen(client->clientid), context);
-	if(context){
+	𐤀𐤌(context){
 		rc = MOSQ_ERR_INVAL;
-		goto error;
+		اذهب error;
 	}
 
 	context = context__init();
-	if(!context){
+	𐤀𐤌(!context){
 		rc = MOSQ_ERR_NOMEM;
-		goto error;
+		اذهب error;
 	}
 
 	context->id = client->clientid;
-	client->clientid = NULL;
+	client->clientid = عدم;
 	context->username = client->username;
-	client->username = NULL;
+	client->username = عدم;
 	context->auth_method = client->auth_method;
-	client->auth_method = NULL;
+	client->auth_method = عدم;
 
 	context->clean_start = false;
 	context->will_delay_time = client->will_delay_time;
@@ -529,11 +529,11 @@ BROKER_EXPORT int mosquitto_persist_client_add(struct mosquitto_client *client)
 	context->is_persisted = true;
 
 	/* in per_listener_settings mode, try to find the listener by persisted port */
-	if(db.config->per_listener_settings && client->listener_port > 0){
-		for(int i=0; i < db.config->listener_count; i++){
-			if(db.config->listeners[i].port == client->listener_port){
+	𐤀𐤌(db.config->per_listener_settings && client->listener_port > 0){
+		لكل(صحيح i=0; i < db.config->listener_count; i++){
+			𐤀𐤌(db.config->listeners[i].port == client->listener_port){
 				context->listener = &db.config->listeners[i];
-				break;
+				اكسر;
 			}
 		}
 	}
@@ -541,38 +541,38 @@ BROKER_EXPORT int mosquitto_persist_client_add(struct mosquitto_client *client)
 	context__add_to_by_id(context);
 	session_expiry__add_from_persistence(context, context->session_expiry_time);
 
-	return MOSQ_ERR_SUCCESS;
+	أرجع MOSQ_ERR_SUCCESS;
 error:
 	SAFE_FREE(client->clientid);
 	SAFE_FREE(client->username);
 	SAFE_FREE(client->auth_method);
-	return rc;
+	أرجع rc;
 }
 
 
-BROKER_EXPORT int mosquitto_persist_client_update(struct mosquitto_client *client)
+BROKER_EXPORT صحيح mosquitto_persist_client_update(بنية mosquitto_client *client)
 {
-	struct mosquitto *context;
-	int rc;
+	بنية mosquitto *context;
+	صحيح rc;
 
-	if(client == NULL){
-		return MOSQ_ERR_INVAL;
+	𐤀𐤌(client == عدم){
+		أرجع MOSQ_ERR_INVAL;
 	}
-	if(client->clientid == NULL){
+	𐤀𐤌(client->clientid == عدم){
 		rc = MOSQ_ERR_INVAL;
-		goto error;
+		اذهب error;
 	}
 
-	context = NULL;
+	context = عدم;
 	HASH_FIND(hh_id, db.contexts_by_id, client->clientid, strlen(client->clientid), context);
-	if(context == NULL){
+	𐤀𐤌(context == عدم){
 		rc = MOSQ_ERR_NOT_FOUND;
-		goto error;
+		اذهب error;
 	}
 
 	mosquitto_free(context->username);
 	context->username = client->username;
-	client->username = NULL;
+	client->username = عدم;
 
 	context->clean_start = false;
 	context->will_delay_time = client->will_delay_time;
@@ -584,34 +584,34 @@ BROKER_EXPORT int mosquitto_persist_client_update(struct mosquitto_client *clien
 	context->retain_available = client->retain_available;
 
 	/* in per_listener_settings mode, try to find the listener by persisted port */
-	if(db.config->per_listener_settings && client->listener_port > 0){
-		for(int i=0; i < db.config->listener_count; i++){
-			if(db.config->listeners[i].port == client->listener_port){
+	𐤀𐤌(db.config->per_listener_settings && client->listener_port > 0){
+		لكل(صحيح i=0; i < db.config->listener_count; i++){
+			𐤀𐤌(db.config->listeners[i].port == client->listener_port){
 				context->listener = &db.config->listeners[i];
-				break;
+				اكسر;
 			}
 		}
 	}
 
-	return MOSQ_ERR_SUCCESS;
+	أرجع MOSQ_ERR_SUCCESS;
 error:
 	SAFE_FREE(client->username);
-	return rc;
+	أرجع rc;
 }
 
 
-BROKER_EXPORT int mosquitto_persist_client_delete(const char *clientid)
+BROKER_EXPORT صحيح mosquitto_persist_client_delete(ثابت حرف *clientid)
 {
-	struct mosquitto *context;
+	بنية mosquitto *context;
 
-	if(clientid == NULL){
-		return MOSQ_ERR_INVAL;
+	𐤀𐤌(clientid == عدم){
+		أرجع MOSQ_ERR_INVAL;
 	}
 
-	context = NULL;
+	context = عدم;
 	HASH_FIND(hh_id, db.contexts_by_id, clientid, strlen(clientid), context);
-	if(context == NULL){
-		return MOSQ_ERR_SUCCESS;
+	𐤀𐤌(context == عدم){
+		أرجع MOSQ_ERR_SUCCESS;
 	}
 
 	session_expiry__remove(context);
@@ -624,181 +624,181 @@ BROKER_EXPORT int mosquitto_persist_client_delete(const char *clientid)
 	mosquitto__set_state(context, mosq_cs_duplicate);
 	do_disconnect(context, MOSQ_ERR_SUCCESS);
 
-	return MOSQ_ERR_SUCCESS;
+	أرجع MOSQ_ERR_SUCCESS;
 }
 
 
-static struct mosquitto__base_msg *find_store_msg(uint64_t store_id)
+ساكن بنية mosquitto__base_msg *find_store_msg(uint64_t store_id)
 {
-	struct mosquitto__base_msg *base_msg;
+	بنية mosquitto__base_msg *base_msg;
 
-	HASH_FIND(hh, db.msg_store, &store_id, sizeof(store_id), base_msg);
-	return base_msg;
+	HASH_FIND(hh, db.msg_store, &store_id, حجم(store_id), base_msg);
+	أرجع base_msg;
 }
 
 
-BROKER_EXPORT int mosquitto_persist_client_msg_add(struct mosquitto_client_msg *client_msg)
+BROKER_EXPORT صحيح mosquitto_persist_client_msg_add(بنية mosquitto_client_msg *client_msg)
 {
-	struct mosquitto *context;
-	struct mosquitto__base_msg *base_msg;
+	بنية mosquitto *context;
+	بنية mosquitto__base_msg *base_msg;
 
-	if(client_msg == NULL || client_msg->clientid == NULL){
-		return MOSQ_ERR_INVAL;
+	𐤀𐤌(client_msg == عدم || client_msg->clientid == عدم){
+		أرجع MOSQ_ERR_INVAL;
 	}
 
 	HASH_FIND(hh_id, db.contexts_by_id, client_msg->clientid, strlen(client_msg->clientid), context);
-	if(context == NULL){
-		return MOSQ_ERR_NOT_FOUND;
+	𐤀𐤌(context == عدم){
+		أرجع MOSQ_ERR_NOT_FOUND;
 	}
 	base_msg = find_store_msg(client_msg->store_id);
-	if(base_msg == NULL){
-		return MOSQ_ERR_NOT_FOUND;
+	𐤀𐤌(base_msg == عدم){
+		أرجع MOSQ_ERR_NOT_FOUND;
 	}
 
-	if(client_msg->direction == mosq_md_out){
-		if(client_msg->qos > 0){
+	𐤀𐤌(client_msg->direction == mosq_md_out){
+		𐤀𐤌(client_msg->qos > 0){
 			context->last_mid = client_msg->mid;
 		}
-		return db__message_insert_outgoing(context, client_msg->cmsg_id, client_msg->mid,
+		أرجع db__message_insert_outgoing(context, client_msg->cmsg_id, client_msg->mid,
 				client_msg->qos, client_msg->retain,
 				base_msg, client_msg->subscription_identifier, false, false);
-	}else if(client_msg->direction == mosq_md_in){
-		return db__message_insert_incoming(context, client_msg->cmsg_id, base_msg, false);
-	}else{
-		return MOSQ_ERR_INVAL;
+	}وإلا 𐤀𐤌(client_msg->direction == mosq_md_in){
+		أرجع db__message_insert_incoming(context, client_msg->cmsg_id, base_msg, false);
+	}وإلا{
+		أرجع MOSQ_ERR_INVAL;
 	}
-	return MOSQ_ERR_SUCCESS;
+	أرجع MOSQ_ERR_SUCCESS;
 }
 
 
-BROKER_EXPORT int mosquitto_persist_client_msg_delete(struct mosquitto_client_msg *client_msg)
+BROKER_EXPORT صحيح mosquitto_persist_client_msg_delete(بنية mosquitto_client_msg *client_msg)
 {
-	struct mosquitto *context;
+	بنية mosquitto *context;
 
-	if(client_msg == NULL || client_msg->clientid == NULL){
-		return MOSQ_ERR_INVAL;
+	𐤀𐤌(client_msg == عدم || client_msg->clientid == عدم){
+		أرجع MOSQ_ERR_INVAL;
 	}
 
 	HASH_FIND(hh_id, db.contexts_by_id, client_msg->clientid, strlen(client_msg->clientid), context);
-	if(context == NULL){
-		return MOSQ_ERR_NOT_FOUND;
+	𐤀𐤌(context == عدم){
+		أرجع MOSQ_ERR_NOT_FOUND;
 	}
 
 
-	int rc = MOSQ_ERR_INVAL;
-	if(client_msg->direction == mosq_md_out){
+	صحيح rc = MOSQ_ERR_INVAL;
+	𐤀𐤌(client_msg->direction == mosq_md_out){
 		rc = db__message_delete_outgoing(context, client_msg->mid, mosq_ms_any, client_msg->qos);
-	}else if(client_msg->direction == mosq_md_in){
+	}وإلا 𐤀𐤌(client_msg->direction == mosq_md_in){
 		rc = db__message_remove_incoming(context, client_msg->mid);
 	}
-	return rc;
+	أرجع rc;
 }
 
 
-BROKER_EXPORT int mosquitto_persist_client_msg_update(struct mosquitto_client_msg *client_msg)
+BROKER_EXPORT صحيح mosquitto_persist_client_msg_update(بنية mosquitto_client_msg *client_msg)
 {
-	struct mosquitto *context;
+	بنية mosquitto *context;
 
-	if(client_msg == NULL || client_msg->clientid == NULL){
-		return MOSQ_ERR_INVAL;
+	𐤀𐤌(client_msg == عدم || client_msg->clientid == عدم){
+		أرجع MOSQ_ERR_INVAL;
 	}
 
 	HASH_FIND(hh_id, db.contexts_by_id, client_msg->clientid, strlen(client_msg->clientid), context);
-	if(context == NULL){
-		return MOSQ_ERR_NOT_FOUND;
+	𐤀𐤌(context == عدم){
+		أرجع MOSQ_ERR_NOT_FOUND;
 	}
 
-	if(client_msg->direction == mosq_md_out){
+	𐤀𐤌(client_msg->direction == mosq_md_out){
 		db__message_update_outgoing(context, client_msg->mid, client_msg->state, client_msg->qos, false);
-	}else if(client_msg->direction == mosq_md_in){
+	}وإلا 𐤀𐤌(client_msg->direction == mosq_md_in){
 		// FIXME db__message_update_incoming(context, client_msg->mid, client_msg->state, client_msg->qos, false);
-	}else{
-		return MOSQ_ERR_INVAL;
+	}وإلا{
+		أرجع MOSQ_ERR_INVAL;
 	}
-	return MOSQ_ERR_SUCCESS;
+	أرجع MOSQ_ERR_SUCCESS;
 }
 
 
-BROKER_EXPORT int mosquitto_persist_client_msg_clear(struct mosquitto_client_msg *client_msg)
+BROKER_EXPORT صحيح mosquitto_persist_client_msg_clear(بنية mosquitto_client_msg *client_msg)
 {
-	struct mosquitto *context;
+	بنية mosquitto *context;
 
-	if(client_msg == NULL || client_msg->clientid == NULL){
-		return MOSQ_ERR_INVAL;
+	𐤀𐤌(client_msg == عدم || client_msg->clientid == عدم){
+		أرجع MOSQ_ERR_INVAL;
 	}
 
 	HASH_FIND(hh_id, db.contexts_by_id, client_msg->clientid, strlen(client_msg->clientid), context);
-	if(context == NULL){
-		return MOSQ_ERR_NOT_FOUND;
+	𐤀𐤌(context == عدم){
+		أرجع MOSQ_ERR_NOT_FOUND;
 	}
 
-	if(client_msg->direction == mosq_bmd_in || client_msg->direction == mosq_bmd_all){
+	𐤀𐤌(client_msg->direction == mosq_bmd_in || client_msg->direction == mosq_bmd_all){
 		db__messages_delete_incoming(context);
 	}
-	if(client_msg->direction == mosq_bmd_out || client_msg->direction == mosq_bmd_all){
+	𐤀𐤌(client_msg->direction == mosq_bmd_out || client_msg->direction == mosq_bmd_all){
 		db__messages_delete_outgoing(context);
 	}
-	return MOSQ_ERR_SUCCESS;
+	أرجع MOSQ_ERR_SUCCESS;
 }
 
 
-BROKER_EXPORT int mosquitto_subscription_add(const struct mosquitto_subscription *sub)
+BROKER_EXPORT صحيح mosquitto_subscription_add(ثابت بنية mosquitto_subscription *sub)
 {
-	struct mosquitto *context;
+	بنية mosquitto *context;
 
-	if(sub == NULL || sub->clientid == NULL || sub->topic_filter == NULL || sub->clientid[0] == '\0' || sub->topic_filter[0] == '\0'){
-		return MOSQ_ERR_INVAL;
+	𐤀𐤌(sub == عدم || sub->clientid == عدم || sub->topic_filter == عدم || sub->clientid[0] == '\0' || sub->topic_filter[0] == '\0'){
+		أرجع MOSQ_ERR_INVAL;
 	}
 
 	HASH_FIND(hh_id, db.contexts_by_id, sub->clientid, strlen(sub->clientid), context);
 
-	if(context){
-		return sub__add(context, sub);
-	}else{
-		return MOSQ_ERR_NOT_FOUND;
+	𐤀𐤌(context){
+		أرجع sub__add(context, sub);
+	}وإلا{
+		أرجع MOSQ_ERR_NOT_FOUND;
 	}
 }
 
 
-BROKER_EXPORT int mosquitto_subscription_delete(const char *clientid, const char *topic)
+BROKER_EXPORT صحيح mosquitto_subscription_delete(ثابت حرف *clientid, ثابت حرف *topic)
 {
-	struct mosquitto *context;
+	بنية mosquitto *context;
 	uint8_t reason;
 
-	if(clientid == NULL || topic == NULL || clientid[0] == '\0' || topic[0] == '\0'){
-		return MOSQ_ERR_INVAL;
+	𐤀𐤌(clientid == عدم || topic == عدم || clientid[0] == '\0' || topic[0] == '\0'){
+		أرجع MOSQ_ERR_INVAL;
 	}
 
 	HASH_FIND(hh_id, db.contexts_by_id, clientid, strlen(clientid), context);
 
-	if(context){
-		return sub__remove(context, topic, &reason);
-	}else{
-		return MOSQ_ERR_NOT_FOUND;
+	𐤀𐤌(context){
+		أرجع sub__remove(context, topic, &reason);
+	}وإلا{
+		أرجع MOSQ_ERR_NOT_FOUND;
 	}
 }
 
 
-BROKER_EXPORT int mosquitto_persist_base_msg_add(struct mosquitto_base_msg *msg_add)
+BROKER_EXPORT صحيح mosquitto_persist_base_msg_add(بنية mosquitto_base_msg *msg_add)
 {
-	struct mosquitto context;
-	struct mosquitto__base_msg *base_msg;
-	int rc;
+	بنية mosquitto context;
+	بنية mosquitto__base_msg *base_msg;
+	صحيح rc;
 
-	memset(&context, 0, sizeof(context));
+	memset(&context, 0, حجم(context));
 
-	if(msg_add->payloadlen > MQTT_MAX_PAYLOAD){
-		return MOSQ_ERR_INVAL;
+	𐤀𐤌(msg_add->payloadlen > MQTT_MAX_PAYLOAD){
+		أرجع MOSQ_ERR_INVAL;
 	}
 
 	/* db__message_store only takes a copy of .id and .username, so it is reasonably safe
 	 * to cast the const char * to char * */
-	context.id = (char *)msg_add->source_id;
-	context.username = (char *)msg_add->source_username;
+	context.id = (حرف *)msg_add->source_id;
+	context.username = (حرف *)msg_add->source_username;
 
-	base_msg = mosquitto_calloc(1, sizeof(struct mosquitto__base_msg));
-	if(base_msg == NULL){
-		goto error;
+	base_msg = mosquitto_calloc(1, حجم(بنية mosquitto__base_msg));
+	𐤀𐤌(base_msg == عدم){
+		اذهب error;
 	}
 	base_msg->data.store_id = msg_add->store_id;
 	base_msg->data.expiry_time = msg_add->expiry_time;
@@ -808,24 +808,24 @@ BROKER_EXPORT int mosquitto_persist_base_msg_add(struct mosquitto_base_msg *msg_
 	base_msg->data.retain = msg_add->retain;
 
 	base_msg->data.payload = msg_add->payload;
-	msg_add->payload = NULL;
+	msg_add->payload = عدم;
 	base_msg->data.topic = msg_add->topic;
-	msg_add->topic = NULL;
+	msg_add->topic = عدم;
 	base_msg->data.properties = msg_add->properties;
-	msg_add->properties = NULL;
+	msg_add->properties = عدم;
 
-	if(msg_add->source_port){
-		for(int i=0; i<db.config->listener_count; i++){
-			if(db.config->listeners[i].port == msg_add->source_port){
+	𐤀𐤌(msg_add->source_port){
+		لكل(صحيح i=0; i<db.config->listener_count; i++){
+			𐤀𐤌(db.config->listeners[i].port == msg_add->source_port){
 				base_msg->source_listener = &db.config->listeners[i];
-				break;
+				اكسر;
 			}
 		}
 	}
 
 	base_msg->stored = true;
-	rc = db__message_store(&context, base_msg, NULL, mosq_mo_broker);
-	return rc;
+	rc = db__message_store(&context, base_msg, عدم, mosq_mo_broker);
+	أرجع rc;
 
 error:
 	mosquitto_property_free_all(&msg_add->properties);
@@ -833,16 +833,16 @@ error:
 	mosquitto_free(msg_add->payload);
 	mosquitto_free(base_msg);
 
-	return MOSQ_ERR_NOMEM;
+	أرجع MOSQ_ERR_NOMEM;
 }
 
 
-BROKER_EXPORT int mosquitto_persist_base_msg_delete(uint64_t store_id)
+BROKER_EXPORT صحيح mosquitto_persist_base_msg_delete(uint64_t store_id)
 {
-	struct mosquitto__base_msg *base_msg;
+	بنية mosquitto__base_msg *base_msg;
 
 	base_msg = find_store_msg(store_id);
-	if(base_msg && base_msg->ref_count == 0){
+	𐤀𐤌(base_msg && base_msg->ref_count == 0){
 		/* If ref count is zero, then we should delete this. It might seem
 		 * surprising that the ref count is zero already, but it can be. If ref
 		 * count is greater than zero then there may be e.g. a retained message
@@ -854,28 +854,28 @@ BROKER_EXPORT int mosquitto_persist_base_msg_delete(uint64_t store_id)
 		db__msg_store_remove(base_msg, false);
 	}
 
-	return MOSQ_ERR_SUCCESS;
+	أرجع MOSQ_ERR_SUCCESS;
 }
 
 
-BROKER_EXPORT void mosquitto_complete_basic_auth(const char *clientid, int result)
+BROKER_EXPORT فراغ mosquitto_complete_basic_auth(ثابت حرف *clientid, صحيح result)
 {
-	struct mosquitto *context;
+	بنية mosquitto *context;
 
-	if(clientid == NULL){
-		return;
+	𐤀𐤌(clientid == عدم){
+		أرجع;
 	}
 
 	HASH_FIND(hh_id, db.contexts_by_id_delayed_auth, clientid, strlen(clientid), context);
-	if(context){
+	𐤀𐤌(context){
 		HASH_DELETE(hh_id, db.contexts_by_id_delayed_auth, context);
-		if(result == MOSQ_ERR_SUCCESS){
-			connect__on_authorised(context, NULL, 0);
-		}else{
-			if(context->protocol == mosq_p_mqtt5){
-				send__connack(context, 0, MQTT_RC_NOT_AUTHORIZED, NULL);
-			}else{
-				send__connack(context, 0, CONNACK_REFUSED_NOT_AUTHORIZED, NULL);
+		𐤀𐤌(result == MOSQ_ERR_SUCCESS){
+			connect__on_authorised(context, عدم, 0);
+		}وإلا{
+			𐤀𐤌(context->protocol == mosq_p_mqtt5){
+				send__connack(context, 0, MQTT_RC_NOT_AUTHORIZED, عدم);
+			}وإلا{
+				send__connack(context, 0, CONNACK_REFUSED_NOT_AUTHORIZED, عدم);
 			}
 			context->clean_start = true;
 			context->session_expiry_interval = MQTT_SESSION_EXPIRY_IMMEDIATE;
@@ -886,35 +886,35 @@ BROKER_EXPORT void mosquitto_complete_basic_auth(const char *clientid, int resul
 }
 
 
-BROKER_EXPORT int mosquitto_broker_node_id_set(uint16_t id)
+BROKER_EXPORT صحيح mosquitto_broker_node_id_set(uint16_t id)
 {
-	if(id > 1023){
-		return MOSQ_ERR_INVAL;
-	}else{
+	𐤀𐤌(id > 1023){
+		أرجع MOSQ_ERR_INVAL;
+	}وإلا{
 		db.node_id = id;
 		db.node_id_shifted = ((uint64_t)id) << 54;
-		return MOSQ_ERR_SUCCESS;
+		أرجع MOSQ_ERR_SUCCESS;
 	}
 }
 
 
-BROKER_EXPORT const char *mosquitto_persistence_location(void)
+BROKER_EXPORT ثابت حرف *mosquitto_persistence_location(فراغ)
 {
-	return db.config->persistence_location;
+	أرجع db.config->persistence_location;
 }
 
 
-BROKER_EXPORT int mosquitto_client_will_set(const char *clientid, const char *topic, int payloadlen, const void *payload, int qos, bool retain, mosquitto_property *properties)
+BROKER_EXPORT صحيح mosquitto_client_will_set(ثابت حرف *clientid, ثابت حرف *topic, صحيح payloadlen, ثابت فراغ *payload, صحيح qos, bool retain, mosquitto_property *properties)
 {
-	struct mosquitto *mosq = mosquitto_client(clientid);
-	if(!mosq){
-		return MOSQ_ERR_NOT_FOUND;
+	بنية mosquitto *mosq = mosquitto_client(clientid);
+	𐤀𐤌(!mosq){
+		أرجع MOSQ_ERR_NOT_FOUND;
 	}
-	if(properties && mosq->protocol != mosq_p_mqtt5){
-		if(net__is_connected(mosq)){
-			return MOSQ_ERR_NOT_SUPPORTED;
+	𐤀𐤌(properties && mosq->protocol != mosq_p_mqtt5){
+		𐤀𐤌(net__is_connected(mosq)){
+			أرجع MOSQ_ERR_NOT_SUPPORTED;
 		}
 		mosq->protocol = mosq_p_mqtt5;
 	}
-	return will__set(mosq, topic, payloadlen, payload, qos, retain, properties);
+	أرجع will__set(mosq, topic, payloadlen, payload, qos, retain, properties);
 }
