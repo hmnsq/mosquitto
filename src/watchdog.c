@@ -17,50 +17,50 @@ Contributors:
    Tatsuzo Osawa - Add epoll.
 */
 
-#include "config.h"
+#شامل "config.h"
 
-#include <stdlib.h>
-#include <time.h>
-#include "mosquitto.h"
+#شامل <stdlib.h>
+#شامل <time.h>
+#شامل "mosquitto.h"
 
-#ifdef WITH_SYSTEMD
+#اگر_تعریف_شدہ WITH_SYSTEMD
 #  include <systemd/sd-daemon.h>
-#endif
+#اگر_ختم
 
-#ifdef WITH_SYSTEMD
-static time_t next_ping = 0;
-static time_t ping_sec = 0;
-#endif
+#اگر_تعریف_شدہ WITH_SYSTEMD
+ساکن time_t اگلا_ping = 0;
+ساکن time_t ping_sec = 0;
+#اگر_ختم
 
 
-void watchdog__init(void)
+خالی watchdog__init(خالی)
 {
-#ifdef WITH_SYSTEMD
-	char *watchdog_usec = getenv("WATCHDOG_USEC");
-	next_ping = mosquitto_time();
+#اگر_تعریف_شدہ WITH_SYSTEMD
+	حرف *watchdog_usec = getenv("WATCHDOG_USEC");
+	اگلا_ping = mosquitto_وقت();
 	ping_sec = 0;
 
-	if(watchdog_usec){
-		char *endptr = NULL;
-		long usec = strtol(watchdog_usec, &endptr, 10);
-		if(watchdog_usec[0] != '\0' && endptr[0] == '\0' && usec > 0){
+	اگر(watchdog_usec){
+		حرف *endptr = تہی;
+		طویل usec = strtol(watchdog_usec, &endptr, 10);
+		اگر(watchdog_usec[0] != '\0' && endptr[0] == '\0' && usec > 0){
 			ping_sec = (usec / 1000000) / 2;
 		}
-		next_ping = mosquitto_time();
+		اگلا_ping = mosquitto_وقت();
 	}
-#endif
+#اگر_ختم
 }
 
 
-void watchdog__check(void)
+خالی watchdog__check(خالی)
 {
-#ifdef WITH_SYSTEMD
-	if(ping_sec){
-		time_t now = mosquitto_time();
-		if(now > next_ping){
+#اگر_تعریف_شدہ WITH_SYSTEMD
+	اگر(ping_sec){
+		time_t now = mosquitto_وقت();
+		اگر(now > اگلا_ping){
 			sd_notify(0, "WATCHDOG=1");
-			next_ping = now + ping_sec;
+			اگلا_ping = now + ping_sec;
 		}
 	}
-#endif
+#اگر_ختم
 }

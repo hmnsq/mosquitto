@@ -16,101 +16,101 @@ Contributors:
    Roger Light - initial implementation and documentation.
 */
 
-#include "config.h"
+#شامل "config.h"
 
-#include <math.h>
-#include <stdio.h>
-#include <utlist.h>
+#شامل <math.h>
+#شامل <stdio.h>
+#شامل <utlist.h>
 
-#include "mosquitto_broker_internal.h"
+#شامل "mosquitto_broker_internal.h"
 
-static struct will_delay_list *delay_list = NULL;
-static time_t last_check = 0;
+ساکن ساخت will_delay_list *delay_list = تہی;
+ساکن time_t آخری_check = 0;
 
 
-static int will_delay__cmp(struct will_delay_list *i1, struct will_delay_list *i2)
+ساکن صحیح will_delay__cmp(ساخت will_delay_list *i1, ساخت will_delay_list *i2)
 {
-	return (int)(i1->context->will_delay_interval - i2->context->will_delay_interval);
+	واپس (صحیح)(i1->context->will_delay_interval - i2->context->will_delay_interval);
 }
 
 
-int will_delay__add(struct mosquitto *context)
+صحیح will_delay_جوڑو(ساخت mosquitto *context)
 {
-	struct will_delay_list *item;
+	ساخت will_delay_list *شے;
 
-	if(context->will_delay_entry){
-		return MOSQ_ERR_SUCCESS;
+	اگر(context->will_delay_اندراج){
+		واپس MOSQ_ERR_SUCCESS;
 	}
 
-	item = mosquitto_calloc(1, sizeof(struct will_delay_list));
-	if(!item){
-		return MOSQ_ERR_NOMEM;
+	شے = mosquitto_calloc(1, حجم(ساخت will_delay_list));
+	اگر(!شے){
+		واپس MOSQ_ERR_NOMEM;
 	}
 
-	item->context = context;
-	context->will_delay_entry = item;
-	item->context->will_delay_time = db.now_real_s + item->context->will_delay_interval;
+	شے->context = context;
+	context->will_delay_اندراج = شے;
+	شے->context->will_delay_وقت = db.now_real_s + شے->context->will_delay_interval;
 
-	DL_INSERT_INORDER(delay_list, item, will_delay__cmp);
+	DL_داخل_کرو_درمیانی_ترتیب(delay_list, شے, will_delay__cmp);
 
-	loop__update_next_event(item->context->will_delay_interval*1000);
+	loop_update_اگلا_event(شے->context->will_delay_interval*1000);
 	plugin_persist__handle_client_update(context);
 
-	return MOSQ_ERR_SUCCESS;
+	واپس MOSQ_ERR_SUCCESS;
 }
 
 
 /* Call on broker shutdown only */
-void will_delay__send_all(void)
+خالی will_delay__send_all(خالی)
 {
-	struct will_delay_list *item, *tmp;
+	ساخت will_delay_list *شے, *tmp;
 
-	DL_FOREACH_SAFE(delay_list, item, tmp){
-		DL_DELETE(delay_list, item);
-		item->context->will_delay_interval = 0;
-		item->context->will_delay_entry = NULL;
-		context__send_will(item->context);
-		mosquitto_FREE(item);
+	DL_FOREACH_محفوظ(delay_list, شے, tmp){
+		DL_DELETE(delay_list, شے);
+		شے->context->will_delay_interval = 0;
+		شے->context->will_delay_اندراج = تہی;
+		context__send_will(شے->context);
+		mosquitto_FREE(شے);
 	}
 }
 
 
-void will_delay__check(void)
+خالی will_delay__check(خالی)
 {
-	struct will_delay_list *item, *tmp;
+	ساخت will_delay_list *شے, *tmp;
 
-	if(db.now_real_s <= last_check){
-		if(delay_list){
-			loop__update_next_event(1000);
+	اگر(db.now_real_s <= آخری_check){
+		اگر(delay_list){
+			loop_update_اگلا_event(1000);
 		}
-		return;
+		واپس;
 	}
 
-	last_check = db.now_real_s;
+	آخری_check = db.now_real_s;
 
-	DL_FOREACH_SAFE(delay_list, item, tmp){
-		if(item->context->will_delay_time <= db.now_real_s){
-			DL_DELETE(delay_list, item);
-			item->context->will_delay_interval = 0;
-			item->context->will_delay_entry = NULL;
-			context__send_will(item->context);
-			if(item->context->session_expiry_interval == MQTT_SESSION_EXPIRY_IMMEDIATE){
-				context__add_to_disused(item->context);
+	DL_FOREACH_محفوظ(delay_list, شے, tmp){
+		اگر(شے->context->will_delay_وقت <= db.now_real_s){
+			DL_DELETE(delay_list, شے);
+			شے->context->will_delay_interval = 0;
+			شے->context->will_delay_اندراج = تہی;
+			context__send_will(شے->context);
+			اگر(شے->context->session_expiry_interval == MQTT_SESSION_EXPIRY_فوری){
+				context_جوڑو_مقصد_disused(شے->context);
 			}
-			mosquitto_FREE(item);
-		}else{
-			loop__update_next_event((item->context->will_delay_time - db.now_real_s)*1000);
-			return;
+			mosquitto_FREE(شے);
+		}ورنہ{
+			loop_update_اگلا_event((شے->context->will_delay_وقت - db.now_real_s)*1000);
+			واپس;
 		}
 	}
 }
 
 
-void will_delay__remove(struct mosquitto *mosq)
+خالی will_delay__remove(ساخت mosquitto *mosq)
 {
-	if(mosq->will_delay_entry != NULL){
-		DL_DELETE(delay_list, mosq->will_delay_entry);
-		mosquitto_FREE(mosq->will_delay_entry);
+	اگر(mosq->will_delay_اندراج != تہی){
+		DL_DELETE(delay_list, mosq->will_delay_اندراج);
+		mosquitto_FREE(mosq->will_delay_اندراج);
 	}
 }
 

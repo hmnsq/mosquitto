@@ -16,44 +16,44 @@ Contributors:
    Roger Light - initial implementation and documentation.
 */
 
-#include "config.h"
+#شامل "config.h"
 
-#include "mosquitto_broker_internal.h"
-#include "mosquitto/mqtt_protocol.h"
-#include "packet_mosq.h"
-#include "property_mosq.h"
-#include "sys_tree.h"
-#include "util_mosq.h"
+#شامل "mosquitto_broker_internal.h"
+#شامل "mosquitto/mqtt_protocol.h"
+#شامل "packet_mosq.h"
+#شامل "property_mosq.h"
+#شامل "sys_tree.h"
+#شامل "util_mosq.h"
 
 
-int send__suback(struct mosquitto *context, uint16_t mid, uint32_t payloadlen, const void *payload)
+صحیح send__suback(ساخت mosquitto *context, uint16_t mid, uint32_t payloadlen, ثابت خالی *payload)
 {
-	struct mosquitto__packet *packet = NULL;
-	int rc;
-	mosquitto_property *properties = NULL;
-	uint32_t remaining_length;
+	ساخت mosquitto__packet *packet = تہی;
+	صحیح rc;
+	mosquitto_property *properties = تہی;
+	uint32_t بقایا_لمبائی;
 
-	log__printf(NULL, MOSQ_LOG_DEBUG, "Sending SUBACK to %s", context->id);
+	log__printf(تہی, MOSQ_LOG_DEBUG, "Sending SUBACK to %s", context->id);
 
-	remaining_length = 2+payloadlen;
-	if(context->protocol == mosq_p_mqtt5){
-		remaining_length += mosquitto_property_get_remaining_length(properties);
+	بقایا_لمبائی = 2+payloadlen;
+	اگر(context->protocol == mosq_p_mqtt5){
+		بقایا_لمبائی += mosquitto_property_get_بقایا_لمبائی(properties);
 	}
-	rc = packet__alloc(&packet, CMD_SUBACK, remaining_length);
-	if(rc){
-		return rc;
+	rc = packet__alloc(&packet, CMD_SUBACK, بقایا_لمبائی);
+	اگر(rc){
+		واپس rc;
 	}
 	packet__write_uint16(packet, mid);
 
-	if(context->protocol == mosq_p_mqtt5){
+	اگر(context->protocol == mosq_p_mqtt5){
 		/* We don't use Reason String or User Property yet. */
 		property__write_all(packet, properties, true);
 	}
 
-	if(payloadlen){
-		packet__write_bytes(packet, payload, payloadlen);
+	اگر(payloadlen){
+		packet_write_بائٹیں(packet, payload, payloadlen);
 	}
 
-	metrics__int_inc(mosq_counter_mqtt_suback_sent, 1);
-	return packet__queue(context, packet);
+	metrics__int_inc(mosq_شمار_mqtt_suback_بھیجا, 1);
+	واپس packet_قطار(context, packet);
 }

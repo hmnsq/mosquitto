@@ -16,79 +16,79 @@ Contributors:
    Roger Light - initial implementation and documentation.
 */
 
-#include "config.h"
+#شامل "config.h"
 
-#include <assert.h>
-#include <errno.h>
-#include <stdio.h>
-#include <string.h>
+#شامل <assert.h>
+#شامل <errno.h>
+#شامل <stdio.h>
+#شامل <string.h>
 
-#ifndef WIN32
-#include <netdb.h>
-#include <sys/socket.h>
-#include <netinet/in.h>
-#include <netinet/tcp.h>
-#else
-#include <winsock2.h>
-#include <ws2tcpip.h>
-#endif
+#اگر_غیر_تعریف_شدہ WIN32
+#شامل <netdb.h>
+#شامل <sys/socket.h>
+#شامل <netinet/in.h>
+#شامل <netinet/tcp.h>
+#ورنہ
+#شامل <winsock2.h>
+#شامل <ws2tcpip.h>
+#اگر_ختم
 
-#ifndef WIN32
-#include <unistd.h>
-#else
-#include <process.h>
-#include <winsock2.h>
-#include <ws2tcpip.h>
-#endif
+#اگر_غیر_تعریف_شدہ WIN32
+#شامل <unistd.h>
+#ورنہ
+#شامل <process.h>
+#شامل <winsock2.h>
+#شامل <ws2tcpip.h>
+#اگر_ختم
 
-#include "mosquitto.h"
-#include "mosquitto_broker_internal.h"
-#include "mosquitto_internal.h"
-#include "net_mosq.h"
-#include "packet_mosq.h"
-#include "property_common.h"
-#include "send_mosq.h"
-#include "sys_tree.h"
-#include "tls_mosq.h"
-#include "util_mosq.h"
-#include "will_mosq.h"
-#include "utlist.h"
+#شامل "mosquitto.h"
+#شامل "mosquitto_broker_internal.h"
+#شامل "mosquitto_internal.h"
+#شامل "net_mosq.h"
+#شامل "packet_mosq.h"
+#شامل "property_common.h"
+#شامل "send_mosq.h"
+#شامل "sys_tree.h"
+#شامل "tls_mosq.h"
+#شامل "util_mosq.h"
+#شامل "will_mosq.h"
+#شامل "utlist.h"
 
-#ifdef WITH_BRIDGE
+#اگر_تعریف_شدہ WITH_BRIDGE
 
-static void bridge__update_backoff(struct mosquitto__bridge *bridge);
-#if defined(__GLIBC__) && defined(WITH_ADNS)
-static int bridge__connect_step1(struct mosquitto *context);
-static int bridge__connect_step2(struct mosquitto *context);
-#endif
-static void bridge__packet_cleanup(struct mosquitto *context);
+ساکن خالی bridge__update_backoff(ساخت mosquitto__bridge *bridge);
+#اگر defined(__GLIBC__) && defined(WITH_ADNS)
+ساکن صحیح bridge__connect_step1(ساخت mosquitto *context);
+ساکن صحیح bridge__connect_step2(ساخت mosquitto *context);
+#اگر_ختم
+ساکن خالی bridge__packet_cleanup(ساخت mosquitto *context);
 
-static struct mosquitto *bridge__new(struct mosquitto__bridge *bridge)
+ساکن ساخت mosquitto *bridge__new(ساخت mosquitto__bridge *bridge)
 {
-	struct mosquitto *new_context = NULL;
-	struct mosquitto **bridges;
-	char *local_id;
+	ساخت mosquitto *new_context = تہی;
+	ساخت mosquitto **bridges;
+	حرف *local_id;
 
-	assert(bridge);
+	أكد(bridge);
 
 	local_id = mosquitto_strdup(bridge->local_clientid);
-	if(!local_id){
-		return NULL;
+	اگر(!local_id){
+		واپس تہی;
 	}
 
-	HASH_FIND(hh_id, db.contexts_by_id, local_id, strlen(local_id), new_context);
-	if(new_context){
+	HASH_ڈھونڈو(hh_id, db.contexts_by_id, local_id, لڑی_لمبائی(local_id), new_context);
+	اگر(new_context){
 		/* (possible from persistent db) */
 		mosquitto_FREE(local_id);
-	}else{
+	}ورنہ{
 		/* id wasn't found, so generate a new context */
 		new_context = context__init();
-		if(!new_context){
+		اگر(!new_context){
 			mosquitto_FREE(local_id);
-			return NULL;
+			واپس تہی;
 		}
 		new_context->id = local_id;
-		context__add_to_by_id(new_context);
+		context_جوڑو_مقصد_by_id(new_context);
 	}
 	new_context->transport = mosq_t_tcp;
 	new_context->bridge = bridge;
@@ -97,182 +97,182 @@ static struct mosquitto *bridge__new(struct mosquitto__bridge *bridge)
 	new_context->username = bridge->remote_username;
 	new_context->password = bridge->remote_password;
 
-#ifdef WITH_TLS
+#اگر_تعریف_شدہ WITH_TLS
 	new_context->tls_cafile = bridge->tls_cafile;
 	new_context->tls_capath = bridge->tls_capath;
 	new_context->tls_certfile = bridge->tls_certfile;
 	new_context->tls_keyfile = bridge->tls_keyfile;
 	new_context->tls_cert_reqs = SSL_VERIFY_PEER;
 	new_context->tls_ocsp_required = bridge->tls_ocsp_required;
-	new_context->tls_version = bridge->tls_version;
+	new_context->tls_نسخہ = bridge->tls_نسخہ;
 	new_context->tls_insecure = bridge->tls_insecure;
 	new_context->tls_alpn = bridge->tls_alpn;
 	new_context->tls_ciphers = bridge->tls_ciphers;
 	new_context->tls_13_ciphers = bridge->tls_13_ciphers;
-	new_context->tls_engine = NULL;
+	new_context->tls_engine = تہی;
 	new_context->tls_keyform = mosq_k_pem;
 	new_context->tls_use_os_certs = bridge->tls_use_os_certs;
 	new_context->ssl_ctx_defaults = true;
-#ifdef FINAL_WITH_TLS_PSK
-	new_context->tls_psk_identity = bridge->tls_psk_identity;
+#اگر_تعریف_شدہ FINAL_WITH_TLS_PSK
+	new_context->tls_psk_شناختی_عنصر = bridge->tls_psk_شناختی_عنصر;
 	new_context->tls_psk = bridge->tls_psk;
-#endif
-#endif
+#اگر_ختم
+#اگر_ختم
 
-	bridge->try_private_accepted = true;
-	if(bridge->clean_start_local == -1){
+	bridge->try_نجی_accepted = true;
+	اگر(bridge->clean_آغاز_local == -1){
 		/* default to "regular" clean start setting */
-		bridge->clean_start_local = bridge->clean_start;
+		bridge->clean_آغاز_local = bridge->clean_آغاز;
 	}
-	new_context->retain_available = bridge->outgoing_retain;
-	new_context->protocol = bridge->protocol_version;
-	if(!bridge->clean_start_local){
+	new_context->retain_دستیاب = bridge->outgoing_retain;
+	new_context->protocol = bridge->protocol_نسخہ;
+	اگر(!bridge->clean_آغاز_local){
 		new_context->session_expiry_interval = MQTT_SESSION_EXPIRY_NEVER;
-		plugin_persist__handle_client_add(new_context);
-		if(new_context->expiry_list_item){
+		plugin_persist_handle_client_جوڑو(new_context);
+		اگر(new_context->expiry_list_شے){
 			/* We've restored from persistence and been added to the session
 			 * expiry list, even though we should never be expired */
 			session_expiry__remove(new_context);
 		}
 	}
 
-	bridges = mosquitto_realloc(db.bridges, (size_t)(db.bridge_count+1)*sizeof(struct mosquitto *));
-	if(bridges){
+	bridges = mosquitto_realloc(db.bridges, (size_t)(db.bridge_گنتی+1)*حجم(ساخت mosquitto *));
+	اگر(bridges){
 		db.bridges = bridges;
-		db.bridge_count++;
-		db.bridges[db.bridge_count-1] = new_context;
-	}else{
-		return NULL;
+		db.bridge_گنتی++;
+		db.bridges[db.bridge_گنتی-1] = new_context;
+	}ورنہ{
+		واپس تہی;
 	}
 
-	return new_context;
+	واپس new_context;
 }
 
 
-static void bridge__destroy(struct mosquitto *context)
+ساکن خالی bridge__destroy(ساخت mosquitto *context)
 {
-	send__disconnect(context, MQTT_RC_SUCCESS, NULL);
+	send__disconnect(context, MQTT_RC_SUCCESS, تہی);
 	context__cleanup(context, true);
 }
 
 
-void bridge__start_all(void)
+خالی bridge_آغاز_all(خالی)
 {
-	for(int i=0; i<db.config->bridge_count; i++){
-		struct mosquitto *context;
-		int ret;
+	برائے(صحیح i=0; i<db.config->bridge_گنتی; i++){
+		ساخت mosquitto *context;
+		صحیح ret;
 
 		context = bridge__new(db.config->bridges[i]);
-		if(!context){
-			log__printf(NULL, MOSQ_LOG_ERR, "Error: Out of memory.");
-			return;
+		اگر(!context){
+			log__printf(تہی, MOSQ_LOG_ERR, "Error: Out of memory.");
+			واپس;
 		}
-		assert(context);
+		أكد(context);
 
-#if defined(__GLIBC__) && defined(WITH_ADNS)
+#اگر defined(__GLIBC__) && defined(WITH_ADNS)
 		context->bridge->restart_t = 1; /* force quick restart of bridge */
-		loop__update_next_event(1000);
+		loop_update_اگلا_event(1000);
 		ret = bridge__connect_step1(context);
-#else
+#ورنہ
 		ret = bridge__connect(context);
-#endif
+#اگر_ختم
 
-		if(ret && ret != MOSQ_ERR_CONN_PENDING){
-			log__printf(NULL, MOSQ_LOG_WARNING, "Warning: Unable to connect bridge %s.",
+		اگر(ret && ret != MOSQ_ERR_CONN_PENDING){
+			log__printf(تہی, MOSQ_LOG_WARNING, "Warning: Unable to connect bridge %s.",
 					context->bridge->name);
 		}
 
-		db.config->bridges[i] = NULL;
+		db.config->bridges[i] = تہی;
 	}
 }
 
 
-static int bridge__set_tcp_keepalive(struct mosquitto *context)
+ساکن صحیح bridge_سیٹ_tcp_keepalive(ساخت mosquitto *context)
 {
-	unsigned int enabled = 1;
+	غیرعلامتی صحیح enabled = 1;
 	bool ret;
 
-	if(context->bridge->tcp_keepalive_idle == 0
+	اگر(context->bridge->tcp_keepalive_idle == 0
 			|| context->bridge->tcp_keepalive_interval == 0
-			|| context->bridge->tcp_keepalive_counter == 0){
+			|| context->bridge->tcp_keepalive_شمار == 0){
 
-		return MOSQ_ERR_SUCCESS;
+		واپس MOSQ_ERR_SUCCESS;
 	}
 
-#ifdef WIN32
-#  define SETSOCKOPT_TYPE char *
-#else
-#  define SETSOCKOPT_TYPE const void *
-#endif
+#اگر_تعریف_شدہ WIN32
+#  define SETSOCKOPT_TYPE حرف *
+#ورنہ
+#  define SETSOCKOPT_TYPE ثابت خالی *
+#اگر_ختم
 
-	ret = setsockopt(context->sock, SOL_SOCKET, SO_KEEPALIVE, (SETSOCKOPT_TYPE)&enabled, sizeof(enabled));
+	ret = setsockopt(context->sock, SOL_SOCKET, SO_KEEPALIVE, (SETSOCKOPT_TYPE)&enabled, حجم(enabled));
 
-#ifdef TCP_KEEPIDLE
+#اگر_تعریف_شدہ TCP_KEEPIDLE
 	ret = ret || setsockopt(context->sock, IPPROTO_TCP, TCP_KEEPIDLE,
-			(SETSOCKOPT_TYPE)&context->bridge->tcp_keepalive_idle, sizeof(context->bridge->tcp_keepalive_idle));
-#endif
-#ifdef TCP_KEEPINTVL
+			(SETSOCKOPT_TYPE)&context->bridge->tcp_keepalive_idle, حجم(context->bridge->tcp_keepalive_idle));
+#اگر_ختم
+#اگر_تعریف_شدہ TCP_KEEPINTVL
 	ret = ret || setsockopt(context->sock, IPPROTO_TCP, TCP_KEEPINTVL,
-			(SETSOCKOPT_TYPE)&context->bridge->tcp_keepalive_interval, sizeof(context->bridge->tcp_keepalive_interval));
-#endif
-#ifdef TCP_KEEPCNT
+			(SETSOCKOPT_TYPE)&context->bridge->tcp_keepalive_interval, حجم(context->bridge->tcp_keepalive_interval));
+#اگر_ختم
+#اگر_تعریف_شدہ TCP_KEEPCNT
 	ret = ret || setsockopt(context->sock, IPPROTO_TCP, TCP_KEEPCNT,
-			(SETSOCKOPT_TYPE)&context->bridge->tcp_keepalive_counter, sizeof(context->bridge->tcp_keepalive_counter));
-#endif
+			(SETSOCKOPT_TYPE)&context->bridge->tcp_keepalive_شمار, حجم(context->bridge->tcp_keepalive_شمار));
+#اگر_ختم
 
-#undef SETSOCKOPT_TYPE
+#تعریف_منسوخ SETSOCKOPT_TYPE
 
-	if(ret){
-		return MOSQ_ERR_UNKNOWN;
+	اگر(ret){
+		واپس MOSQ_ERR_UNKNOWN;
 	}
 
-	return MOSQ_ERR_SUCCESS;
+	واپس MOSQ_ERR_SUCCESS;
 }
 
-#ifdef WITH_TCP_USER_TIMEOUT
+#اگر_تعریف_شدہ WITH_TCP_USER_TIMEOUT
 
 
-static int bridge__set_tcp_user_timeout(struct mosquitto *context)
+ساکن صحیح bridge_سیٹ_tcp_user_timeout(ساخت mosquitto *context)
 {
-	int timeout = context->bridge->tcp_user_timeout;
-	if(timeout >= 0){
-		if(setsockopt(context->sock, IPPROTO_TCP, TCP_USER_TIMEOUT, (char *)&timeout, sizeof(timeout))){
-			return MOSQ_ERR_UNKNOWN;
+	صحیح timeout = context->bridge->tcp_user_timeout;
+	اگر(timeout >= 0){
+		اگر(setsockopt(context->sock, IPPROTO_TCP, TCP_USER_TIMEOUT, (حرف *)&timeout, حجم(timeout))){
+			واپس MOSQ_ERR_UNKNOWN;
 		}
 	}
 
-	return MOSQ_ERR_SUCCESS;
+	واپس MOSQ_ERR_SUCCESS;
 }
-#endif
+#اگر_ختم
 
-#if defined(__GLIBC__) && defined(WITH_ADNS)
+#اگر defined(__GLIBC__) && defined(WITH_ADNS)
 
 
-static int bridge__connect_step1(struct mosquitto *context)
+ساکن صحیح bridge__connect_step1(ساخت mosquitto *context)
 {
-	int rc;
-	char *notification_topic;
+	صحیح rc;
+	حرف *notification_topic;
 	size_t notification_topic_len;
 	uint8_t notification_payload;
-	struct mosquitto__bridge_topic *cur_topic;
+	ساخت mosquitto__bridge_topic *cur_topic;
 	uint8_t qos;
 
-	if(!context || !context->bridge){
-		return MOSQ_ERR_INVAL;
+	اگر(!context || !context->bridge){
+		واپس MOSQ_ERR_INVAL;
 	}
 
-	mosquitto__set_state(context, mosq_cs_new);
+	mosquitto_سیٹ_state(context, mosq_cs_new);
 	context->sock = INVALID_SOCKET;
-	context->last_msg_in = db.now_s;
-	context->next_msg_out = db.now_s + context->bridge->keepalive;
+	context->آخری_پیغام_اندر = db.now_s;
+	context->اگلا_پیغام_برآمد = db.now_s + context->bridge->keepalive;
 	context->keepalive = context->bridge->keepalive;
-	context->clean_start = context->bridge->clean_start;
-	context->in_packet.payload = NULL;
+	context->clean_آغاز = context->bridge->clean_آغاز;
+	context->اندر_packet.payload = تہی;
 	context->ping_t = 0;
 	context->bridge->lazy_reconnect = false;
-	context->maximum_packet_size = context->bridge->maximum_packet_size;
+	context->زیادہ_سے_زیادہ_packet_سائز = context->bridge->زیادہ_سے_زیادہ_packet_سائز;
 	bridge__packet_cleanup(context);
-	db__message_reconnect_reset(context);
+	db_پیغام_reconnect_reset(context);
 
 	db__messages_delete(context, false);
 
@@ -283,234 +283,234 @@ static int bridge__connect_step1(struct mosquitto *context)
 	sub__clean_session(context);
 
 	LL_FOREACH(context->bridge->topics, cur_topic){
-		if(cur_topic->direction == bd_out || cur_topic->direction == bd_both){
-			log__printf(NULL, MOSQ_LOG_DEBUG, "Bridge %s doing local SUBSCRIBE on topic %s", context->id, cur_topic->local_topic);
-			if(cur_topic->qos > context->max_qos){
+		اگر(cur_topic->direction == bd_برآمد || cur_topic->direction == bd_both){
+			log__printf(تہی, MOSQ_LOG_DEBUG, "Bridge %s doing local SUBSCRIBE on topic %s", context->id, cur_topic->local_topic);
+			اگر(cur_topic->qos > context->max_qos){
 				qos = context->max_qos;
-			}else{
+			}ورنہ{
 				qos = cur_topic->qos;
 			}
-			struct mosquitto_subscription sub;
+			ساخت mosquitto_subscription sub;
 			sub.topic_filter = cur_topic->local_topic;
 			sub.identifier = 0;
 			sub.options = MQTT_SUB_OPT_NO_LOCAL | MQTT_SUB_OPT_RETAIN_AS_PUBLISHED | qos;
-			if(sub__add(context, &sub) > 0){
-				return 1;
+			اگر(sub_جوڑو(context, &sub) > 0){
+				واپس 1;
 			}
-			retain__queue(context, &sub);
+			retain_قطار(context, &sub);
 		}
 	}
 
-	if(context->bridge->notifications){
-		if(context->max_qos == 0){
+	اگر(context->bridge->notifications){
+		اگر(context->max_qos == 0){
 			qos = 0;
-		}else{
+		}ورنہ{
 			qos = 1;
 		}
-		if(context->bridge->notification_topic){
-			if(!context->bridge->initial_notification_done){
+		اگر(context->bridge->notification_topic){
+			اگر(!context->bridge->initial_notification_مکمل){
 				notification_payload = '0';
-				db__messages_easy_queue(context, context->bridge->notification_topic, qos, 1, &notification_payload, 1, MSG_EXPIRY_INFINITE, NULL);
-				context->bridge->initial_notification_done = true;
+				db_messages_easy_قطار(context, context->bridge->notification_topic, qos, 1, &notification_payload, 1, پیغام_EXPIRY_INFINITE, تہی);
+				context->bridge->initial_notification_مکمل = true;
 			}
 			notification_payload = '0';
-			rc = will__set(context, context->bridge->notification_topic, 1, &notification_payload, qos, true, NULL);
-			if(rc != MOSQ_ERR_SUCCESS){
-				return rc;
+			rc = will_سیٹ(context, context->bridge->notification_topic, 1, &notification_payload, qos, true, تہی);
+			اگر(rc != MOSQ_ERR_SUCCESS){
+				واپس rc;
 			}
-		}else{
-			notification_topic_len = strlen(context->bridge->remote_clientid)+strlen("$SYS/broker/connection//state");
-			notification_topic = mosquitto_malloc(sizeof(char)*(notification_topic_len+1));
-			if(!notification_topic){
-				return MOSQ_ERR_NOMEM;
+		}ورنہ{
+			notification_topic_len = لڑی_لمبائی(context->bridge->remote_clientid)+لڑی_لمبائی("$SYS/broker/connection//state");
+			notification_topic = mosquitto_malloc(حجم(حرف)*(notification_topic_len+1));
+			اگر(!notification_topic){
+				واپس MOSQ_ERR_NOMEM;
 			}
 
 			snprintf(notification_topic, notification_topic_len+1, "$SYS/broker/connection/%s/state", context->bridge->remote_clientid);
 
-			if(!context->bridge->initial_notification_done){
+			اگر(!context->bridge->initial_notification_مکمل){
 				notification_payload = '0';
-				db__messages_easy_queue(context, notification_topic, qos, 1, &notification_payload, 1, MSG_EXPIRY_INFINITE, NULL);
-				context->bridge->initial_notification_done = true;
+				db_messages_easy_قطار(context, notification_topic, qos, 1, &notification_payload, 1, پیغام_EXPIRY_INFINITE, تہی);
+				context->bridge->initial_notification_مکمل = true;
 			}
 
 			notification_payload = '0';
-			rc = will__set(context, notification_topic, 1, &notification_payload, qos, true, NULL);
+			rc = will_سیٹ(context, notification_topic, 1, &notification_payload, qos, true, تہی);
 			mosquitto_FREE(notification_topic);
-			if(rc != MOSQ_ERR_SUCCESS){
-				return rc;
+			اگر(rc != MOSQ_ERR_SUCCESS){
+				واپس rc;
 			}
 		}
 	}
 
-	log__printf(NULL, MOSQ_LOG_NOTICE, "Connecting bridge (step 1) %s (%s:%d)", context->bridge->name, context->bridge->addresses[context->bridge->cur_address].address, context->bridge->addresses[context->bridge->cur_address].port);
-	rc = net__try_connect_step1(context, context->bridge->addresses[context->bridge->cur_address].address);
-	if(rc > 0){
-		if(rc == MOSQ_ERR_TLS){
+	log__printf(تہی, MOSQ_LOG_NOTICE, "Connecting bridge (step 1) %s (%s:%d)", context->bridge->name, context->bridge->پتے[context->bridge->cur_پتہ].پتہ, context->bridge->پتے[context->bridge->cur_پتہ].پورٹ);
+	rc = net__try_connect_step1(context, context->bridge->پتے[context->bridge->cur_پتہ].پتہ);
+	اگر(rc > 0){
+		اگر(rc == MOSQ_ERR_TLS){
 			mux__delete(context);
 			net__socket_close(context);
-			return rc; /* Error already printed */
-		}else if(rc == MOSQ_ERR_ERRNO){
-			log__printf(NULL, MOSQ_LOG_ERR, "Error creating bridge: %s.", strerror(errno));
-		}else if(rc == MOSQ_ERR_EAI){
-			log__printf(NULL, MOSQ_LOG_ERR, "Error creating bridge: %s.", gai_strerror(errno));
+			واپس rc; /* Error already printed */
+		}ورنہ اگر(rc == MOSQ_ERR_ERRNO){
+			log__printf(تہی, MOSQ_LOG_ERR, "Error creating bridge: %s.", strerror(errno));
+		}ورنہ اگر(rc == MOSQ_ERR_EAI){
+			log__printf(تہی, MOSQ_LOG_ERR, "Error creating bridge: %s.", gai_strerror(errno));
 		}
 
-		return rc;
+		واپس rc;
 	}
 
-	return MOSQ_ERR_SUCCESS;
+	واپس MOSQ_ERR_SUCCESS;
 }
 
 
-static int bridge__connect_step2(struct mosquitto *context)
+ساکن صحیح bridge__connect_step2(ساخت mosquitto *context)
 {
-	int rc;
+	صحیح rc;
 
-	if(!context || !context->bridge){
-		return MOSQ_ERR_INVAL;
+	اگر(!context || !context->bridge){
+		واپس MOSQ_ERR_INVAL;
 	}
 
-	log__printf(NULL, MOSQ_LOG_NOTICE, "Connecting bridge (step 2) %s (%s:%d)", context->bridge->name, context->bridge->addresses[context->bridge->cur_address].address, context->bridge->addresses[context->bridge->cur_address].port);
-	rc = net__try_connect_step2(context, context->bridge->addresses[context->bridge->cur_address].port, &context->sock);
-	if(rc > 0){
-		if(rc == MOSQ_ERR_TLS){
+	log__printf(تہی, MOSQ_LOG_NOTICE, "Connecting bridge (step 2) %s (%s:%d)", context->bridge->name, context->bridge->پتے[context->bridge->cur_پتہ].پتہ, context->bridge->پتے[context->bridge->cur_پتہ].پورٹ);
+	rc = net__try_connect_step2(context, context->bridge->پتے[context->bridge->cur_پتہ].پورٹ, &context->sock);
+	اگر(rc > 0){
+		اگر(rc == MOSQ_ERR_TLS){
 			mux__delete(context);
 			net__socket_close(context);
-			return rc; /* Error already printed */
-		}else if(rc == MOSQ_ERR_ERRNO){
-			log__printf(NULL, MOSQ_LOG_ERR, "Error creating bridge: %s.", strerror(errno));
-		}else if(rc == MOSQ_ERR_EAI){
-			log__printf(NULL, MOSQ_LOG_ERR, "Error creating bridge: %s.", gai_strerror(errno));
+			واپس rc; /* Error already printed */
+		}ورنہ اگر(rc == MOSQ_ERR_ERRNO){
+			log__printf(تہی, MOSQ_LOG_ERR, "Error creating bridge: %s.", strerror(errno));
+		}ورنہ اگر(rc == MOSQ_ERR_EAI){
+			log__printf(تہی, MOSQ_LOG_ERR, "Error creating bridge: %s.", gai_strerror(errno));
 		}
 
-		return rc;
+		واپس rc;
 	}
 
-	HASH_ADD(hh_sock, db.contexts_by_sock, sock, sizeof(context->sock), context);
+	HASH_جوڑو(hh_sock, db.contexts_by_sock, sock, حجم(context->sock), context);
 
-	if(rc == MOSQ_ERR_CONN_PENDING){
-		mosquitto__set_state(context, mosq_cs_connect_pending);
-		mux__add_out(context);
+	اگر(rc == MOSQ_ERR_CONN_PENDING){
+		mosquitto_سیٹ_state(context, mosq_cs_connect_pending);
+		mux_جوڑو_برآمد(context);
 	}
-	return rc;
+	واپس rc;
 }
 
 
-int bridge__connect_step3(struct mosquitto *context)
+صحیح bridge__connect_step3(ساخت mosquitto *context)
 {
-	int rc;
-	mosquitto_property receive_maximum;
+	صحیح rc;
+	mosquitto_property receive_زیادہ_سے_زیادہ;
 	mosquitto_property session_expiry_interval;
 	mosquitto_property topic_alias_max;
-	mosquitto_property *properties = NULL;
+	mosquitto_property *properties = تہی;
 
-	rc = net__socket_connect_step3(context, context->bridge->addresses[context->bridge->cur_address].address);
-	if(rc > 0){
-		if(rc == MOSQ_ERR_TLS){
+	rc = net__socket_connect_step3(context, context->bridge->پتے[context->bridge->cur_پتہ].پتہ);
+	اگر(rc > 0){
+		اگر(rc == MOSQ_ERR_TLS){
 			mux__delete(context);
 			net__socket_close(context);
-			return rc; /* Error already printed */
-		}else if(rc == MOSQ_ERR_ERRNO){
-			log__printf(NULL, MOSQ_LOG_ERR, "Error creating bridge: %s.", strerror(errno));
-		}else if(rc == MOSQ_ERR_EAI){
-			log__printf(NULL, MOSQ_LOG_ERR, "Error creating bridge: %s.", gai_strerror(errno));
+			واپس rc; /* Error already printed */
+		}ورنہ اگر(rc == MOSQ_ERR_ERRNO){
+			log__printf(تہی, MOSQ_LOG_ERR, "Error creating bridge: %s.", strerror(errno));
+		}ورنہ اگر(rc == MOSQ_ERR_EAI){
+			log__printf(تہی, MOSQ_LOG_ERR, "Error creating bridge: %s.", gai_strerror(errno));
 		}
 
-		return rc;
+		واپس rc;
 	}
 
-	if(context->bridge->round_robin == false && context->bridge->cur_address != 0){
+	اگر(context->bridge->باری_robin == false && context->bridge->cur_پتہ != 0){
 		context->bridge->primary_retry = db.now_s + 5;
-		loop__update_next_event(5000);
+		loop_update_اگلا_event(5000);
 	}
 
-	if(bridge__set_tcp_keepalive(context) != MOSQ_ERR_SUCCESS){
-		return MOSQ_ERR_UNKNOWN;
+	اگر(bridge_سیٹ_tcp_keepalive(context) != MOSQ_ERR_SUCCESS){
+		واپس MOSQ_ERR_UNKNOWN;
 	}
-#ifdef WITH_TCP_USER_TIMEOUT
-	if(bridge__set_tcp_user_timeout(context)){
-		return MOSQ_ERR_UNKNOWN;
+#اگر_تعریف_شدہ WITH_TCP_USER_TIMEOUT
+	اگر(bridge_سیٹ_tcp_user_timeout(context)){
+		واپس MOSQ_ERR_UNKNOWN;
 	}
-#endif
+#اگر_ختم
 
-	if(context->bridge->receive_maximum != 0){
-		receive_maximum.value.i16 = context->bridge->receive_maximum;
-		receive_maximum.identifier = MQTT_PROP_RECEIVE_MAXIMUM;
-		receive_maximum.property_type = MQTT_PROP_TYPE_INT16;
-		receive_maximum.client_generated = false;
-		receive_maximum.next = properties;
-		properties = &receive_maximum;
+	اگر(context->bridge->receive_زیادہ_سے_زیادہ != 0){
+		receive_زیادہ_سے_زیادہ.قدر.i16 = context->bridge->receive_زیادہ_سے_زیادہ;
+		receive_زیادہ_سے_زیادہ.identifier = MQTT_PROP_RECEIVE_زیادہ_سے_زیادہ;
+		receive_زیادہ_سے_زیادہ.property_type = MQTT_PROP_TYPE_INT16;
+		receive_زیادہ_سے_زیادہ.client_generated = false;
+		receive_زیادہ_سے_زیادہ.اگلا = properties;
+		properties = &receive_زیادہ_سے_زیادہ;
 	}
-	if(context->bridge->session_expiry_interval != MQTT_SESSION_EXPIRY_IMMEDIATE){
-		session_expiry_interval.value.i32 = context->bridge->session_expiry_interval;
+	اگر(context->bridge->session_expiry_interval != MQTT_SESSION_EXPIRY_فوری){
+		session_expiry_interval.قدر.i32 = context->bridge->session_expiry_interval;
 		session_expiry_interval.identifier = MQTT_PROP_SESSION_EXPIRY_INTERVAL;
 		session_expiry_interval.property_type = MQTT_PROP_TYPE_INT32;
 		session_expiry_interval.client_generated = false;
-		session_expiry_interval.next = properties;
+		session_expiry_interval.اگلا = properties;
 		properties = &session_expiry_interval;
 	}
-	if(context->bridge->max_topic_alias != 0){
-		topic_alias_max.value.i16 = context->bridge->max_topic_alias;
-		topic_alias_max.identifier = MQTT_PROP_TOPIC_ALIAS_MAXIMUM;
+	اگر(context->bridge->max_topic_alias != 0){
+		topic_alias_max.قدر.i16 = context->bridge->max_topic_alias;
+		topic_alias_max.identifier = MQTT_PROP_TOPIC_ALIAS_زیادہ_سے_زیادہ;
 		topic_alias_max.property_type = MQTT_PROP_TYPE_INT16;
 		topic_alias_max.client_generated = false;
-		topic_alias_max.next = properties;
+		topic_alias_max.اگلا = properties;
 		properties = &topic_alias_max;
 	}
 
-	rc = send__connect(context, context->keepalive, context->clean_start, properties);
-	if(rc == MOSQ_ERR_SUCCESS){
-		return MOSQ_ERR_SUCCESS;
-	}else if(rc == MOSQ_ERR_ERRNO && errno == ENOTCONN){
-		return MOSQ_ERR_SUCCESS;
-	}else{
-		if(rc == MOSQ_ERR_TLS){
-			return rc; /* Error already printed */
-		}else if(rc == MOSQ_ERR_ERRNO){
-			log__printf(NULL, MOSQ_LOG_ERR, "Error creating bridge: %s.", strerror(errno));
-		}else if(rc == MOSQ_ERR_EAI){
-			log__printf(NULL, MOSQ_LOG_ERR, "Error creating bridge: %s.", gai_strerror(errno));
+	rc = send__connect(context, context->keepalive, context->clean_آغاز, properties);
+	اگر(rc == MOSQ_ERR_SUCCESS){
+		واپس MOSQ_ERR_SUCCESS;
+	}ورنہ اگر(rc == MOSQ_ERR_ERRNO && errno == ENOTCONN){
+		واپس MOSQ_ERR_SUCCESS;
+	}ورنہ{
+		اگر(rc == MOSQ_ERR_TLS){
+			واپس rc; /* Error already printed */
+		}ورنہ اگر(rc == MOSQ_ERR_ERRNO){
+			log__printf(تہی, MOSQ_LOG_ERR, "Error creating bridge: %s.", strerror(errno));
+		}ورنہ اگر(rc == MOSQ_ERR_EAI){
+			log__printf(تہی, MOSQ_LOG_ERR, "Error creating bridge: %s.", gai_strerror(errno));
 		}
 		mux__delete(context);
 		net__socket_close(context);
-		return rc;
+		واپس rc;
 	}
 }
-#else
+#ورنہ
 
 
-int bridge__connect(struct mosquitto *context)
+صحیح bridge__connect(ساخت mosquitto *context)
 {
-	int rc, rc2;
-	char *notification_topic = NULL;
+	صحیح rc, rc2;
+	حرف *notification_topic = تہی;
 	size_t notification_topic_len;
 	uint8_t notification_payload;
-	struct mosquitto__bridge_topic *cur_topic;
+	ساخت mosquitto__bridge_topic *cur_topic;
 	uint8_t qos;
 
-	mosquitto_property receive_maximum;
+	mosquitto_property receive_زیادہ_سے_زیادہ;
 	mosquitto_property session_expiry_interval;
 	mosquitto_property topic_alias_max;
-	mosquitto_property *properties = NULL;
+	mosquitto_property *properties = تہی;
 
-	if(!context || !context->bridge){
-		return MOSQ_ERR_INVAL;
+	اگر(!context || !context->bridge){
+		واپس MOSQ_ERR_INVAL;
 	}
 
-	mosquitto__set_state(context, mosq_cs_new);
+	mosquitto_سیٹ_state(context, mosq_cs_new);
 	context->sock = INVALID_SOCKET;
 	/* coverity[missing_lock] - broker is single threaded, so no lock required */
-	context->last_msg_in = db.now_s;
+	context->آخری_پیغام_اندر = db.now_s;
 	/* coverity[missing_lock] - broker is single threaded, so no lock required */
-	context->next_msg_out = db.now_s + context->bridge->keepalive;
+	context->اگلا_پیغام_برآمد = db.now_s + context->bridge->keepalive;
 	context->keepalive = context->bridge->keepalive;
-	context->clean_start = context->bridge->clean_start;
-	context->in_packet.payload = NULL;
+	context->clean_آغاز = context->bridge->clean_آغاز;
+	context->اندر_packet.payload = تہی;
 	context->ping_t = 0;
 	context->bridge->lazy_reconnect = false;
-	context->maximum_packet_size = context->bridge->maximum_packet_size;
+	context->زیادہ_سے_زیادہ_packet_سائز = context->bridge->زیادہ_سے_زیادہ_packet_سائز;
 	bridge__packet_cleanup(context);
-	db__message_reconnect_reset(context);
+	db_پیغام_reconnect_reset(context);
 
 	db__messages_delete(context, false);
 
@@ -521,317 +521,317 @@ int bridge__connect(struct mosquitto *context)
 	sub__clean_session(context);
 
 	LL_FOREACH(context->bridge->topics, cur_topic){
-		if(cur_topic->direction == bd_out || cur_topic->direction == bd_both){
-			log__printf(NULL, MOSQ_LOG_DEBUG, "Bridge %s doing local SUBSCRIBE on topic %s", context->id, cur_topic->local_topic);
-			if(cur_topic->qos > context->max_qos){
+		اگر(cur_topic->direction == bd_برآمد || cur_topic->direction == bd_both){
+			log__printf(تہی, MOSQ_LOG_DEBUG, "Bridge %s doing local SUBSCRIBE on topic %s", context->id, cur_topic->local_topic);
+			اگر(cur_topic->qos > context->max_qos){
 				qos = context->max_qos;
-			}else{
+			}ورنہ{
 				qos = cur_topic->qos;
 			}
-			struct mosquitto_subscription sub;
+			ساخت mosquitto_subscription sub;
 			sub.topic_filter = cur_topic->local_topic;
 			sub.identifier = 0;
 			sub.options = MQTT_SUB_OPT_NO_LOCAL | MQTT_SUB_OPT_RETAIN_AS_PUBLISHED | qos;
-			if(sub__add(context, &sub) > 0){
-				return 1;
+			اگر(sub_جوڑو(context, &sub) > 0){
+				واپس 1;
 			}
 		}
 	}
 
-	if(context->bridge->notifications){
-		if(context->max_qos == 0){
+	اگر(context->bridge->notifications){
+		اگر(context->max_qos == 0){
 			qos = 0;
-		}else{
+		}ورنہ{
 			qos = 1;
 		}
-		if(context->bridge->notification_topic){
-			if(!context->bridge->initial_notification_done){
+		اگر(context->bridge->notification_topic){
+			اگر(!context->bridge->initial_notification_مکمل){
 				notification_payload = '0';
-				db__messages_easy_queue(context, context->bridge->notification_topic, qos, 1, &notification_payload, 1, MSG_EXPIRY_INFINITE, NULL);
-				context->bridge->initial_notification_done = true;
+				db_messages_easy_قطار(context, context->bridge->notification_topic, qos, 1, &notification_payload, 1, پیغام_EXPIRY_INFINITE, تہی);
+				context->bridge->initial_notification_مکمل = true;
 			}
 
 			notification_payload = '0';
-			rc = will__set(context, context->bridge->notification_topic, 1, &notification_payload, qos, true, NULL);
-			if(rc != MOSQ_ERR_SUCCESS){
-				return rc;
+			rc = will_سیٹ(context, context->bridge->notification_topic, 1, &notification_payload, qos, true, تہی);
+			اگر(rc != MOSQ_ERR_SUCCESS){
+				واپس rc;
 			}
-		}else{
-			notification_topic_len = strlen(context->bridge->remote_clientid)+strlen("$SYS/broker/connection//state");
-			notification_topic = mosquitto_malloc(sizeof(char)*(notification_topic_len+1));
-			if(!notification_topic){
-				return MOSQ_ERR_NOMEM;
+		}ورنہ{
+			notification_topic_len = لڑی_لمبائی(context->bridge->remote_clientid)+لڑی_لمبائی("$SYS/broker/connection//state");
+			notification_topic = mosquitto_malloc(حجم(حرف)*(notification_topic_len+1));
+			اگر(!notification_topic){
+				واپس MOSQ_ERR_NOMEM;
 			}
 
 			snprintf(notification_topic, notification_topic_len+1, "$SYS/broker/connection/%s/state", context->bridge->remote_clientid);
 
-			if(!context->bridge->initial_notification_done){
+			اگر(!context->bridge->initial_notification_مکمل){
 				notification_payload = '0';
-				db__messages_easy_queue(context, notification_topic, qos, 1, &notification_payload, 1, MSG_EXPIRY_INFINITE, NULL);
-				context->bridge->initial_notification_done = true;
+				db_messages_easy_قطار(context, notification_topic, qos, 1, &notification_payload, 1, پیغام_EXPIRY_INFINITE, تہی);
+				context->bridge->initial_notification_مکمل = true;
 			}
 
 			notification_payload = '0';
-			rc = will__set(context, notification_topic, 1, &notification_payload, qos, true, NULL);
-			if(rc != MOSQ_ERR_SUCCESS){
+			rc = will_سیٹ(context, notification_topic, 1, &notification_payload, qos, true, تہی);
+			اگر(rc != MOSQ_ERR_SUCCESS){
 				mosquitto_FREE(notification_topic);
-				return rc;
+				واپس rc;
 			}
 			mosquitto_FREE(notification_topic);
 		}
 	}
 
-	log__printf(NULL, MOSQ_LOG_NOTICE, "Connecting bridge %s (%s:%d)", context->bridge->name, context->bridge->addresses[context->bridge->cur_address].address, context->bridge->addresses[context->bridge->cur_address].port);
+	log__printf(تہی, MOSQ_LOG_NOTICE, "Connecting bridge %s (%s:%d)", context->bridge->name, context->bridge->پتے[context->bridge->cur_پتہ].پتہ, context->bridge->پتے[context->bridge->cur_پتہ].پورٹ);
 	rc = net__socket_connect(context,
-			context->bridge->addresses[context->bridge->cur_address].address,
-			context->bridge->addresses[context->bridge->cur_address].port,
-			context->bridge->bind_address,
+			context->bridge->پتے[context->bridge->cur_پتہ].پتہ,
+			context->bridge->پتے[context->bridge->cur_پتہ].پورٹ,
+			context->bridge->bind_پتہ,
 			false);
 
-	if(rc > 0){
-		if(rc == MOSQ_ERR_TLS){
+	اگر(rc > 0){
+		اگر(rc == MOSQ_ERR_TLS){
 			mux__delete(context);
 			net__socket_close(context);
-			return rc; /* Error already printed */
-		}else if(rc == MOSQ_ERR_ERRNO){
-			log__printf(NULL, MOSQ_LOG_ERR, "Error creating bridge: %s.", strerror(errno));
-		}else if(rc == MOSQ_ERR_EAI){
-			log__printf(NULL, MOSQ_LOG_ERR, "Error creating bridge: %s.", gai_strerror(errno));
+			واپس rc; /* Error already printed */
+		}ورنہ اگر(rc == MOSQ_ERR_ERRNO){
+			log__printf(تہی, MOSQ_LOG_ERR, "Error creating bridge: %s.", strerror(errno));
+		}ورنہ اگر(rc == MOSQ_ERR_EAI){
+			log__printf(تہی, MOSQ_LOG_ERR, "Error creating bridge: %s.", gai_strerror(errno));
 		}
 
-		return rc;
-	}else if(rc == MOSQ_ERR_CONN_PENDING){
-		mosquitto__set_state(context, mosq_cs_connect_pending);
-		mux__add_out(context);
+		واپس rc;
+	}ورنہ اگر(rc == MOSQ_ERR_CONN_PENDING){
+		mosquitto_سیٹ_state(context, mosq_cs_connect_pending);
+		mux_جوڑو_برآمد(context);
 	}
 
-	HASH_ADD(hh_sock, db.contexts_by_sock, sock, sizeof(context->sock), context);
+	HASH_جوڑو(hh_sock, db.contexts_by_sock, sock, حجم(context->sock), context);
 
-	if(bridge__set_tcp_keepalive(context) != MOSQ_ERR_SUCCESS){
-		return MOSQ_ERR_UNKNOWN;
+	اگر(bridge_سیٹ_tcp_keepalive(context) != MOSQ_ERR_SUCCESS){
+		واپس MOSQ_ERR_UNKNOWN;
 	}
-#ifdef WITH_TCP_USER_TIMEOUT
-	if(bridge__set_tcp_user_timeout(context)){
-		return MOSQ_ERR_UNKNOWN;
+#اگر_تعریف_شدہ WITH_TCP_USER_TIMEOUT
+	اگر(bridge_سیٹ_tcp_user_timeout(context)){
+		واپس MOSQ_ERR_UNKNOWN;
 	}
-#endif
+#اگر_ختم
 
-	if(context->bridge->receive_maximum != 0){
-		receive_maximum.value.i16 = context->bridge->receive_maximum;
-		receive_maximum.identifier = MQTT_PROP_RECEIVE_MAXIMUM;
-		receive_maximum.property_type = MQTT_PROP_TYPE_INT16;
-		receive_maximum.client_generated = false;
-		receive_maximum.next = properties;
-		properties = &receive_maximum;
+	اگر(context->bridge->receive_زیادہ_سے_زیادہ != 0){
+		receive_زیادہ_سے_زیادہ.قدر.i16 = context->bridge->receive_زیادہ_سے_زیادہ;
+		receive_زیادہ_سے_زیادہ.identifier = MQTT_PROP_RECEIVE_زیادہ_سے_زیادہ;
+		receive_زیادہ_سے_زیادہ.property_type = MQTT_PROP_TYPE_INT16;
+		receive_زیادہ_سے_زیادہ.client_generated = false;
+		receive_زیادہ_سے_زیادہ.اگلا = properties;
+		properties = &receive_زیادہ_سے_زیادہ;
 	}
-	if(context->bridge->session_expiry_interval != MQTT_SESSION_EXPIRY_IMMEDIATE){
-		session_expiry_interval.value.i32 = context->bridge->session_expiry_interval;
+	اگر(context->bridge->session_expiry_interval != MQTT_SESSION_EXPIRY_فوری){
+		session_expiry_interval.قدر.i32 = context->bridge->session_expiry_interval;
 		session_expiry_interval.identifier = MQTT_PROP_SESSION_EXPIRY_INTERVAL;
 		session_expiry_interval.property_type = MQTT_PROP_TYPE_INT32;
 		session_expiry_interval.client_generated = false;
-		session_expiry_interval.next = properties;
+		session_expiry_interval.اگلا = properties;
 		properties = &session_expiry_interval;
 	}
-	if(context->bridge->max_topic_alias != 0){
-		topic_alias_max.value.i16 = context->bridge->max_topic_alias;
-		topic_alias_max.identifier = MQTT_PROP_TOPIC_ALIAS_MAXIMUM;
+	اگر(context->bridge->max_topic_alias != 0){
+		topic_alias_max.قدر.i16 = context->bridge->max_topic_alias;
+		topic_alias_max.identifier = MQTT_PROP_TOPIC_ALIAS_زیادہ_سے_زیادہ;
 		topic_alias_max.property_type = MQTT_PROP_TYPE_INT16;
 		topic_alias_max.client_generated = false;
-		topic_alias_max.next = properties;
+		topic_alias_max.اگلا = properties;
 		properties = &topic_alias_max;
 	}
 
-	rc2 = send__connect(context, context->keepalive, context->clean_start, properties);
-	if(rc2 == MOSQ_ERR_SUCCESS){
-		return rc;
-	}else if(rc2 == MOSQ_ERR_ERRNO && errno == ENOTCONN){
-		return MOSQ_ERR_SUCCESS;
-	}else{
-		if(rc2 == MOSQ_ERR_TLS){
-			return rc2; /* Error already printed */
-		}else if(rc2 == MOSQ_ERR_ERRNO){
-			log__printf(NULL, MOSQ_LOG_ERR, "Error creating bridge: %s.", strerror(errno));
-		}else if(rc2 == MOSQ_ERR_EAI){
-			log__printf(NULL, MOSQ_LOG_ERR, "Error creating bridge: %s.", gai_strerror(errno));
+	rc2 = send__connect(context, context->keepalive, context->clean_آغاز, properties);
+	اگر(rc2 == MOSQ_ERR_SUCCESS){
+		واپس rc;
+	}ورنہ اگر(rc2 == MOSQ_ERR_ERRNO && errno == ENOTCONN){
+		واپس MOSQ_ERR_SUCCESS;
+	}ورنہ{
+		اگر(rc2 == MOSQ_ERR_TLS){
+			واپس rc2; /* Error already printed */
+		}ورنہ اگر(rc2 == MOSQ_ERR_ERRNO){
+			log__printf(تہی, MOSQ_LOG_ERR, "Error creating bridge: %s.", strerror(errno));
+		}ورنہ اگر(rc2 == MOSQ_ERR_EAI){
+			log__printf(تہی, MOSQ_LOG_ERR, "Error creating bridge: %s.", gai_strerror(errno));
 		}
 		mux__delete(context);
 		net__socket_close(context);
-		return rc2;
+		واپس rc2;
 	}
 }
-#endif
+#اگر_ختم
 
 
-int bridge__on_connect(struct mosquitto *context)
+صحیح bridge__on_connect(ساخت mosquitto *context)
 {
-	char *notification_topic;
+	حرف *notification_topic;
 	size_t notification_topic_len;
-	struct mosquitto__bridge_topic *cur_topic;
-	int sub_opts;
+	ساخت mosquitto__bridge_topic *cur_topic;
+	صحیح sub_opts;
 	bool retain = true;
 	uint8_t qos;
 
-	if(context->bridge->notifications){
-		if(context->max_qos == 0){
+	اگر(context->bridge->notifications){
+		اگر(context->max_qos == 0){
 			qos = 0;
-		}else{
+		}ورنہ{
 			qos = 1;
 		}
-		if(!context->retain_available){
+		اگر(!context->retain_دستیاب){
 			retain = false;
 		}
-		char notification_payload = '1';
-		if(context->bridge->notification_topic){
-			if(!context->bridge->notifications_local_only){
-				if(send__real_publish(context, mosquitto__mid_generate(context),
-						context->bridge->notification_topic, 1, &notification_payload, qos, retain, 0, 0, NULL, 0)){
+		حرف notification_payload = '1';
+		اگر(context->bridge->notification_topic){
+			اگر(!context->bridge->notifications_local_only){
+				اگر(send__real_publish(context, mosquitto__mid_generate(context),
+						context->bridge->notification_topic, 1, &notification_payload, qos, retain, 0, 0, تہی, 0)){
 
-					return 1;
+					واپس 1;
 				}
 			}
-			db__messages_easy_queue(context, context->bridge->notification_topic, qos, 1, &notification_payload, 1, MSG_EXPIRY_INFINITE, NULL);
-		}else{
-			notification_topic_len = strlen(context->bridge->remote_clientid)+strlen("$SYS/broker/connection//state");
-			notification_topic = mosquitto_malloc(sizeof(char)*(notification_topic_len+1));
-			if(!notification_topic){
-				return MOSQ_ERR_NOMEM;
+			db_messages_easy_قطار(context, context->bridge->notification_topic, qos, 1, &notification_payload, 1, پیغام_EXPIRY_INFINITE, تہی);
+		}ورنہ{
+			notification_topic_len = لڑی_لمبائی(context->bridge->remote_clientid)+لڑی_لمبائی("$SYS/broker/connection//state");
+			notification_topic = mosquitto_malloc(حجم(حرف)*(notification_topic_len+1));
+			اگر(!notification_topic){
+				واپس MOSQ_ERR_NOMEM;
 			}
 
 			snprintf(notification_topic, notification_topic_len+1, "$SYS/broker/connection/%s/state", context->bridge->remote_clientid);
 			notification_payload = '1';
-			if(!context->bridge->notifications_local_only){
-				if(send__real_publish(context, mosquitto__mid_generate(context),
-						notification_topic, 1, &notification_payload, qos, retain, 0, 0, NULL, 0)){
+			اگر(!context->bridge->notifications_local_only){
+				اگر(send__real_publish(context, mosquitto__mid_generate(context),
+						notification_topic, 1, &notification_payload, qos, retain, 0, 0, تہی, 0)){
 
 					mosquitto_FREE(notification_topic);
-					return 1;
+					واپس 1;
 				}
 			}
-			db__messages_easy_queue(context, notification_topic, qos, 1, &notification_payload, 1, MSG_EXPIRY_INFINITE, NULL);
+			db_messages_easy_قطار(context, notification_topic, qos, 1, &notification_payload, 1, پیغام_EXPIRY_INFINITE, تہی);
 			mosquitto_FREE(notification_topic);
 		}
 	}
 
 	LL_FOREACH(context->bridge->topics, cur_topic){
-		if(cur_topic->direction == bd_in || cur_topic->direction == bd_both){
-			if(cur_topic->qos > context->max_qos){
+		اگر(cur_topic->direction == bd_اندر || cur_topic->direction == bd_both){
+			اگر(cur_topic->qos > context->max_qos){
 				sub_opts = context->max_qos;
-			}else{
+			}ورنہ{
 				sub_opts = cur_topic->qos;
 			}
-			if(context->bridge->protocol_version == mosq_p_mqtt5){
+			اگر(context->bridge->protocol_نسخہ == mosq_p_mqtt5){
 				sub_opts = sub_opts
 						| MQTT_SUB_OPT_NO_LOCAL
 						| MQTT_SUB_OPT_RETAIN_AS_PUBLISHED
 						| MQTT_SUB_OPT_SEND_RETAIN_ALWAYS;
 			}
-			if(send__subscribe(context, NULL, 1, &cur_topic->remote_topic, sub_opts, NULL)){
-				return 1;
+			اگر(send__subscribe(context, تہی, 1, &cur_topic->remote_topic, sub_opts, تہی)){
+				واپس 1;
 			}
-		}else{
-			if(context->bridge->attempt_unsubscribe){
-				if(send__unsubscribe(context, NULL, 1, &cur_topic->remote_topic, NULL)){
+		}ورنہ{
+			اگر(context->bridge->attempt_unsubscribe){
+				اگر(send__unsubscribe(context, تہی, 1, &cur_topic->remote_topic, تہی)){
 					/* direction = inwards only. This means we should not be subscribed
 					* to the topic. It is possible that we used to be subscribed to
 					* this topic so unsubscribe. */
-					return 1;
+					واپس 1;
 				}
 			}
 		}
 	}
-	struct mosquitto_subscription sub;
-	memset(&sub, 0, sizeof(sub));
+	ساخت mosquitto_subscription sub;
+	memset(&sub, 0, حجم(sub));
 	LL_FOREACH(context->bridge->topics, cur_topic){
 		sub.topic_filter = cur_topic->local_topic;
-		if(cur_topic->direction == bd_out || cur_topic->direction == bd_both){
-			if(cur_topic->qos > context->max_qos){
+		اگر(cur_topic->direction == bd_برآمد || cur_topic->direction == bd_both){
+			اگر(cur_topic->qos > context->max_qos){
 				sub.options = context->max_qos;
-			}else{
+			}ورنہ{
 				sub.options = cur_topic->qos;
 			}
-			retain__queue(context, &sub);
+			retain_قطار(context, &sub);
 		}
 	}
 
 	context->bridge->connected_at = db.now_s;
 
-	return MOSQ_ERR_SUCCESS;
+	واپس MOSQ_ERR_SUCCESS;
 }
 
 
-int bridge__register_local_connections(void)
+صحیح bridge_رجسٹر_local_connections(خالی)
 {
-	struct mosquitto *context, *ctxt_tmp = NULL;
+	ساخت mosquitto *context, *ctxt_tmp = تہی;
 
 	HASH_ITER(hh_sock, db.contexts_by_sock, context, ctxt_tmp){
-		if(context->bridge){
-			if(mux__new(context)){
-				log__printf(NULL, MOSQ_LOG_ERR, "Error in initial bridge registration: %s", strerror(errno));
-				return MOSQ_ERR_UNKNOWN;
+		اگر(context->bridge){
+			اگر(mux__new(context)){
+				log__printf(تہی, MOSQ_LOG_ERR, "Error in initial bridge registration: %s", strerror(errno));
+				واپس MOSQ_ERR_UNKNOWN;
 			}
-			mux__add_out(context);
+			mux_جوڑو_برآمد(context);
 		}
 	}
-	return MOSQ_ERR_SUCCESS;
+	واپس MOSQ_ERR_SUCCESS;
 }
 
 
-void bridge__reload(void)
+خالی bridge__reload(خالی)
 {
-	int i;
-	int j;
+	صحیح i;
+	صحیح j;
 
 	// destroy old bridges that dissappeared
-	for(i=0; i<db.bridge_count; i++){
-		for(j=0; j<db.config->bridge_count; j++){
-			if(!strcmp(db.bridges[i]->bridge->name, db.config->bridges[j]->name)){
-				break;
+	برائے(i=0; i<db.bridge_گنتی; i++){
+		برائے(j=0; j<db.config->bridge_گنتی; j++){
+			اگر(!strcmp(db.bridges[i]->bridge->name, db.config->bridges[j]->name)){
+				توڑو;
 			}
 		}
 
-		if(j==db.config->bridge_count){
+		اگر(j==db.config->bridge_گنتی){
 			bridge__destroy(db.bridges[i]);
 		}
 	}
 
-	for(i=0; i<db.config->bridge_count; i++){
-		for(j=0; j<db.bridge_count; j++){
-			if(!strcmp(db.config->bridges[i]->name, db.bridges[j]->bridge->name)){
-				break;
+	برائے(i=0; i<db.config->bridge_گنتی; i++){
+		برائے(j=0; j<db.bridge_گنتی; j++){
+			اگر(!strcmp(db.config->bridges[i]->name, db.bridges[j]->bridge->name)){
+				توڑو;
 			}
 		}
 
-		if(j==db.bridge_count){
+		اگر(j==db.bridge_گنتی){
 			// a new bridge was found, create it
 			bridge__new(db.config->bridges[i]);
-			db.config->bridges[i] = NULL;
-			continue;
+			db.config->bridges[i] = تہی;
+			جاری;
 		}
 
-		if(db.config->bridges[i]->reload_type == brt_immediate){
+		اگر(db.config->bridges[i]->reload_type == brt_فوری){
 			// in this case, an existing bridge should match
-			for(j=0; j<db.bridge_count; j++){
-				if(!strcmp(db.config->bridges[i]->name, db.bridges[j]->bridge->name)){
-					break;
+			برائے(j=0; j<db.bridge_گنتی; j++){
+				اگر(!strcmp(db.config->bridges[i]->name, db.bridges[j]->bridge->name)){
+					توڑو;
 				}
 			}
 
-			assert(j<db.bridge_count);
+			أكد(j<db.bridge_گنتی);
 			db.bridges[j]->will_delay_interval = 0;
 			bridge__destroy(db.bridges[j]);
 			bridge__new(db.config->bridges[i]);
-			db.config->bridges[i] = NULL;
+			db.config->bridges[i] = تہی;
 		}
 	}
 }
 
 
-void bridge__db_cleanup(void)
+خالی bridge__db_cleanup(خالی)
 {
-	int i;
+	صحیح i;
 
-	for(i=0; i<db.bridge_count; i++){
-		if(db.bridges[i]){
+	برائے(i=0; i<db.bridge_گنتی; i++){
+		اگر(db.bridges[i]){
 			context__cleanup(db.bridges[i], true);
 		}
 	}
@@ -839,343 +839,343 @@ void bridge__db_cleanup(void)
 }
 
 
-void bridge__cleanup(struct mosquitto *context)
+خالی bridge__cleanup(ساخت mosquitto *context)
 {
-	int i;
+	صحیح i;
 
-	assert(db.bridge_count > 0);
+	أكد(db.bridge_گنتی > 0);
 
-	for(i=0; i<db.bridge_count; i++){
-		if(db.bridges[i] == context){
-			db.bridges[i] = db.bridges[db.bridge_count-1];
-			break;
+	برائے(i=0; i<db.bridge_گنتی; i++){
+		اگر(db.bridges[i] == context){
+			db.bridges[i] = db.bridges[db.bridge_گنتی-1];
+			توڑو;
 		}
 	}
 
-	db.bridge_count--;
-	if(db.bridge_count == 0){
+	db.bridge_گنتی--;
+	اگر(db.bridge_گنتی == 0){
 		mosquitto_FREE(db.bridges);
-	}else{
-		db.bridges = mosquitto_realloc(db.bridges, (unsigned)db.bridge_count * sizeof(db.bridges[0]));
+	}ورنہ{
+		db.bridges = mosquitto_realloc(db.bridges, (غیرعلامتی)db.bridge_گنتی * حجم(db.bridges[0]));
 	}
 
 	mosquitto_FREE(context->bridge->name);
 	mosquitto_FREE(context->bridge->local_clientid);
 	mosquitto_FREE(context->bridge->local_username);
 	mosquitto_FREE(context->bridge->local_password);
-#ifdef WITH_TLS
+#اگر_تعریف_شدہ WITH_TLS
 	mosquitto_FREE(context->bridge->tls_certfile);
 	mosquitto_FREE(context->bridge->tls_keyfile);
-#endif
+#اگر_ختم
 
-	if(context->bridge->remote_clientid != context->id){
+	اگر(context->bridge->remote_clientid != context->id){
 		mosquitto_FREE(context->bridge->remote_clientid);
 	}
-	context->bridge->remote_clientid = NULL;
+	context->bridge->remote_clientid = تہی;
 
-	if(context->bridge->remote_username != context->username){
+	اگر(context->bridge->remote_username != context->username){
 		mosquitto_FREE(context->bridge->remote_username);
 	}
-	context->bridge->remote_username = NULL;
+	context->bridge->remote_username = تہی;
 
-	if(context->bridge->remote_password != context->password){
+	اگر(context->bridge->remote_password != context->password){
 		mosquitto_FREE(context->bridge->remote_password);
 	}
-	context->bridge->remote_password = NULL;
-#ifdef WITH_TLS
-	if(context->ssl_ctx){
+	context->bridge->remote_password = تہی;
+#اگر_تعریف_شدہ WITH_TLS
+	اگر(context->ssl_ctx){
 		SSL_CTX_free(context->ssl_ctx);
-		context->ssl_ctx = NULL;
+		context->ssl_ctx = تہی;
 	}
-#endif
+#اگر_ختم
 
-	for(i=0; i<context->bridge->address_count; i++){
-		mosquitto_FREE(context->bridge->addresses[i].address);
+	برائے(i=0; i<context->bridge->پتہ_گنتی; i++){
+		mosquitto_FREE(context->bridge->پتے[i].پتہ);
 	}
 
-	mosquitto_FREE(context->bridge->addresses);
+	mosquitto_FREE(context->bridge->پتے);
 
 	config__bridge_cleanup(context->bridge);
-	context->bridge = NULL;
+	context->bridge = تہی;
 }
 
 
-static void bridge__packet_cleanup(struct mosquitto *context)
+ساکن خالی bridge__packet_cleanup(ساخت mosquitto *context)
 {
-	struct mosquitto__packet *packet;
-	if(!context){
-		return;
+	ساخت mosquitto__packet *packet;
+	اگر(!context){
+		واپس;
 	}
 
-	while(context->out_packet){
-		packet = context->out_packet;
-		context->out_packet = context->out_packet->next;
+	جب(context->برآمد_packet){
+		packet = context->برآمد_packet;
+		context->برآمد_packet = context->برآمد_packet->اگلا;
 		mosquitto_FREE(packet);
 	}
-	context->out_packet = NULL;
-	context->out_packet_last = NULL;
-	metrics__int_dec(mosq_gauge_out_packets, context->out_packet_count);
-	metrics__int_dec(mosq_gauge_out_packet_bytes, context->out_packet_bytes);
-	context->out_packet_count = 0;
-	context->out_packet_bytes = 0;
+	context->برآمد_packet = تہی;
+	context->برآمد_packet_آخری = تہی;
+	metrics__int_dec(mosq_gauge_برآمد_packets, context->برآمد_packet_گنتی);
+	metrics__int_dec(mosq_gauge_برآمد_packet_بائٹیں, context->برآمد_packet_بائٹیں);
+	context->برآمد_packet_گنتی = 0;
+	context->برآمد_packet_بائٹیں = 0;
 
-	packet__cleanup(&(context->in_packet));
+	packet__cleanup(&(context->اندر_packet));
 }
 
 
-static int rand_between(int low, int high)
+ساکن صحیح rand_between(صحیح کم, صحیح بلند)
 {
-	int r;
-	mosquitto_getrandom(&r, sizeof(int));
-	return (abs(r) % (high - low)) + low;
+	صحیح r;
+	mosquitto_getrandom(&r, حجم(صحیح));
+	واپس (مطلق_قدر(r) % (بلند - کم)) + کم;
 }
 
 
-static void bridge__backoff_step(struct mosquitto__bridge *bridge)
+ساکن خالی bridge_backoff_قدم(ساخت mosquitto__bridge *bridge)
 {
 	/*
 		“Decorrelated Jitter” calculation, according to:
 			https://aws.amazon.com/blogs/architecture/exponential-backoff-and-jitter/
 	*/
 
-	bridge->restart_timeout = rand_between(bridge->backoff_base, bridge->restart_timeout * 3);
-	if(bridge->restart_timeout > bridge->backoff_cap){
+	bridge->restart_timeout = rand_between(bridge->backoff_بنیاد, bridge->restart_timeout * 3);
+	اگر(bridge->restart_timeout > bridge->backoff_cap){
 		bridge->restart_timeout = bridge->backoff_cap;
 	}
 }
 
 
-static void bridge__backoff_reset(struct mosquitto__bridge *bridge)
+ساکن خالی bridge__backoff_reset(ساخت mosquitto__bridge *bridge)
 {
-	bridge->restart_timeout = bridge->backoff_base;
+	bridge->restart_timeout = bridge->backoff_بنیاد;
 }
 
 
-static void bridge__update_backoff(struct mosquitto__bridge *bridge)
+ساکن خالی bridge__update_backoff(ساخت mosquitto__bridge *bridge)
 {
-	if(!bridge){
-		return;
+	اگر(!bridge){
+		واپس;
 	}
-	if(!bridge->backoff_cap){
+	اگر(!bridge->backoff_cap){
 		/* skip if not using jitter */
-		return;
+		واپس;
 
 	}
-	if(bridge->connected_at && db.now_s - bridge->connected_at >= bridge->stable_connection_period){
-		log__printf(NULL, MOSQ_LOG_INFO, "Bridge %s connection was stable enough, resetting backoff", bridge->name);
+	اگر(bridge->connected_at && db.now_s - bridge->connected_at >= bridge->stable_connection_period){
+		log__printf(تہی, MOSQ_LOG_INFO, "Bridge %s connection was stable enough, resetting backoff", bridge->name);
 		bridge__backoff_reset(bridge);
-	}else{
-		bridge__backoff_step(bridge);
+	}ورنہ{
+		bridge_backoff_قدم(bridge);
 	}
 
 	bridge->connected_at = 0;
 
-	log__printf(NULL, MOSQ_LOG_INFO, "Bridge %s next backoff will be %d ms", bridge->name, bridge->restart_timeout);
+	log__printf(تہی, MOSQ_LOG_INFO, "Bridge %s next backoff will be %d ms", bridge->name, bridge->restart_timeout);
 }
 
 
-static void bridge_check_pending(struct mosquitto *context)
+ساکن خالی bridge_check_pending(ساخت mosquitto *context)
 {
-	int err;
+	صحیح err;
 	socklen_t len;
 
-	if(context->state == mosq_cs_connect_pending){
-		len = sizeof(int);
-		if(!getsockopt(context->sock, SOL_SOCKET, SO_ERROR, (char *)&err, &len)){
-			if(err == 0){
-				mosquitto__set_state(context, mosq_cs_new);
-#if defined(WITH_ADNS) && defined(WITH_BRIDGE)
-				if(context->bridge){
+	اگر(context->state == mosq_cs_connect_pending){
+		len = حجم(صحیح);
+		اگر(!getsockopt(context->sock, SOL_SOCKET, SO_ERROR, (حرف *)&err, &len)){
+			اگر(err == 0){
+				mosquitto_سیٹ_state(context, mosq_cs_new);
+#اگر defined(WITH_ADNS) && defined(WITH_BRIDGE)
+				اگر(context->bridge){
 					bridge__connect_step3(context);
 				}
-#endif
-			}else if(err == ECONNREFUSED){
-				do_disconnect(context, MOSQ_ERR_CONN_LOST);
-				return;
+#اگر_ختم
+			}ورنہ اگر(err == ECONNREFUSED){
+				do_disconnect(context, MOSQ_ERR_CONN_گمشدہ);
+				واپس;
 			}
-		}else{
-			do_disconnect(context, MOSQ_ERR_CONN_LOST);
-			return;
+		}ورنہ{
+			do_disconnect(context, MOSQ_ERR_CONN_گمشدہ);
+			واپس;
 		}
 	}
 }
 
 
-static bool reload_if_needed(struct mosquitto *context)
+ساکن bool reload_if_needed(ساخت mosquitto *context)
 {
-	int i;
+	صحیح i;
 
-	for(i=0; i<db.config->bridge_count; i++){
-		if(db.config->bridges[i] && !strcmp(context->bridge->name, db.config->bridges[i]->name)){
+	برائے(i=0; i<db.config->bridge_گنتی; i++){
+		اگر(db.config->bridges[i] && !strcmp(context->bridge->name, db.config->bridges[i]->name)){
 			bridge__destroy(context);
 			bridge__new(db.config->bridges[i]);
-			db.config->bridges[i] = NULL;
-			loop__update_next_event(100);
-			return true;
+			db.config->bridges[i] = تہی;
+			loop_update_اگلا_event(100);
+			واپس true;
 		}
 	}
 
-	return false;
+	واپس false;
 }
 
 
-void bridge_check(void)
+خالی bridge_check(خالی)
 {
-	static time_t last_check = 0;
-	struct mosquitto *context = NULL;
+	ساکن time_t آخری_check = 0;
+	ساخت mosquitto *context = تہی;
 	socklen_t len;
-	int i;
-	int rc;
-	int err;
+	صحیح i;
+	صحیح rc;
+	صحیح err;
 
-	if(db.now_s <= last_check){
-		return;
+	اگر(db.now_s <= آخری_check){
+		واپس;
 	}
 
-	for(i=0; i<db.bridge_count; i++){
-		if(!db.bridges[i]){
-			continue;
+	برائے(i=0; i<db.bridge_گنتی; i++){
+		اگر(!db.bridges[i]){
+			جاری;
 		}
 
 		context = db.bridges[i];
 
-		if(net__is_connected(context)){
+		اگر(net__is_connected(context)){
 			mosquitto__check_keepalive(context);
 			bridge_check_pending(context);
 
 			/* Check for bridges that are not round robin and not currently
 			 * connected to their primary broker. */
-			if(context->bridge->round_robin == false
-					&& context->bridge->cur_address != 0
+			اگر(context->bridge->باری_robin == false
+					&& context->bridge->cur_پتہ != 0
 					&& context->bridge->primary_retry
 					&& db.now_s >= context->bridge->primary_retry){
 
-				if(context->bridge->primary_retry_sock == INVALID_SOCKET){
-					rc = net__try_connect(context->bridge->addresses[0].address,
-							context->bridge->addresses[0].port,
+				اگر(context->bridge->primary_retry_sock == INVALID_SOCKET){
+					rc = net__try_connect(context->bridge->پتے[0].پتہ,
+							context->bridge->پتے[0].پورٹ,
 							&context->bridge->primary_retry_sock,
-							context->bridge->bind_address, false);
+							context->bridge->bind_پتہ, false);
 
-					if(rc == 0){
+					اگر(rc == 0){
 						COMPAT_CLOSE(context->bridge->primary_retry_sock);
 						context->bridge->primary_retry_sock = INVALID_SOCKET;
 						context->bridge->primary_retry = 0;
 						mux__delete(context);
 						net__socket_close(context);
-						context->bridge->cur_address = 0;
+						context->bridge->cur_پتہ = 0;
 					}
-				}else{
-					len = sizeof(int);
-					if(!getsockopt(context->bridge->primary_retry_sock, SOL_SOCKET, SO_ERROR, (char *)&err, &len)){
-						if(err == 0){
+				}ورنہ{
+					len = حجم(صحیح);
+					اگر(!getsockopt(context->bridge->primary_retry_sock, SOL_SOCKET, SO_ERROR, (حرف *)&err, &len)){
+						اگر(err == 0){
 							COMPAT_CLOSE(context->bridge->primary_retry_sock);
 							context->bridge->primary_retry_sock = INVALID_SOCKET;
 							context->bridge->primary_retry = 0;
 							mux__delete(context);
 							net__socket_close(context);
-							context->bridge->cur_address = context->bridge->address_count-1;
-						}else{
+							context->bridge->cur_پتہ = context->bridge->پتہ_گنتی-1;
+						}ورنہ{
 							COMPAT_CLOSE(context->bridge->primary_retry_sock);
 							context->bridge->primary_retry_sock = INVALID_SOCKET;
 							context->bridge->primary_retry = db.now_s+5;
-							loop__update_next_event(5000);
+							loop_update_اگلا_event(5000);
 						}
-					}else{
+					}ورنہ{
 						COMPAT_CLOSE(context->bridge->primary_retry_sock);
 						context->bridge->primary_retry_sock = INVALID_SOCKET;
 						context->bridge->primary_retry = db.now_s+5;
-						loop__update_next_event(5000);
+						loop_update_اگلا_event(5000);
 					}
 				}
 			}
-		}else{
-			if(reload_if_needed(context)){
-				continue;
+		}ورنہ{
+			اگر(reload_if_needed(context)){
+				جاری;
 			}
 
 			/* Want to try to restart the bridge connection */
-			if(!context->bridge->restart_t){
+			اگر(!context->bridge->restart_t){
 				bridge__update_backoff(context->bridge);
 				context->bridge->restart_t = 1000*db.now_s+context->bridge->restart_timeout;
-				context->bridge->cur_address++;
-				if(context->bridge->cur_address == context->bridge->address_count){
-					context->bridge->cur_address = 0;
+				context->bridge->cur_پتہ++;
+				اگر(context->bridge->cur_پتہ == context->bridge->پتہ_گنتی){
+					context->bridge->cur_پتہ = 0;
 				}
-				loop__update_next_event(context->bridge->restart_timeout);
-			}else{
-				if((context->bridge->start_type == bst_lazy && context->bridge->lazy_reconnect)
-						|| (context->bridge->start_type == bst_automatic && 1000*db.now_s >= context->bridge->restart_t)){
+				loop_update_اگلا_event(context->bridge->restart_timeout);
+			}ورنہ{
+				اگر((context->bridge->آغاز_type == bst_lazy && context->bridge->lazy_reconnect)
+						|| (context->bridge->آغاز_type == bst_automatic && 1000*db.now_s >= context->bridge->restart_t)){
 
-#if defined(__GLIBC__) && defined(WITH_ADNS)
-					if(context->adns){
+#اگر defined(__GLIBC__) && defined(WITH_ADNS)
+					اگر(context->adns){
 						/* Connection attempted, waiting on DNS lookup */
 						rc = gai_error(context->adns);
-						if(rc == EAI_INPROGRESS){
+						اگر(rc == EAI_INPROGRESS){
 							/* Just keep on waiting */
-						}else if(rc == 0){
+						}ورنہ اگر(rc == 0){
 							rc = bridge__connect_step2(context);
-							if(rc == MOSQ_ERR_SUCCESS){
+							اگر(rc == MOSQ_ERR_SUCCESS){
 								mux__new(context);
-								if(context->out_packet){
-									mux__add_out(context);
+								اگر(context->برآمد_packet){
+									mux_جوڑو_برآمد(context);
 								}
-							}else if(rc == MOSQ_ERR_CONN_PENDING){
+							}ورنہ اگر(rc == MOSQ_ERR_CONN_PENDING){
 								mux__new(context);
-								mux__add_out(context);
+								mux_جوڑو_برآمد(context);
 								context->bridge->restart_t = 0;
-							}else{
-								context->bridge->cur_address++;
-								if(context->bridge->cur_address == context->bridge->address_count){
-									context->bridge->cur_address = 0;
+							}ورنہ{
+								context->bridge->cur_پتہ++;
+								اگر(context->bridge->cur_پتہ == context->bridge->پتہ_گنتی){
+									context->bridge->cur_پتہ = 0;
 								}
 								context->bridge->restart_t = 0;
 							}
-						}else{
+						}ورنہ{
 							/* Need to retry */
-							if(context->adns->ar_result){
-								freeaddrinfo(context->adns->ar_result);
+							اگر(context->adns->ar_نتیجہ){
+								freeaddrinfo(context->adns->ar_نتیجہ);
 							}
 							mosquitto_FREE(context->adns);
 							context->bridge->restart_t = 0;
 						}
-					}else{
+					}ورنہ{
 						rc = bridge__connect_step1(context);
-						if(rc){
-							context->bridge->cur_address++;
-							if(context->bridge->cur_address == context->bridge->address_count){
-								context->bridge->cur_address = 0;
+						اگر(rc){
+							context->bridge->cur_پتہ++;
+							اگر(context->bridge->cur_پتہ == context->bridge->پتہ_گنتی){
+								context->bridge->cur_پتہ = 0;
 							}
-						}else{
+						}ورنہ{
 							/* Short wait for ADNS lookup */
 							context->bridge->restart_t = 1;
-							loop__update_next_event(1000);
+							loop_update_اگلا_event(1000);
 						}
 					}
-#else
+#ورنہ
 					{
 						rc = bridge__connect(context);
 						context->bridge->restart_t = 0;
-						if(rc == MOSQ_ERR_SUCCESS || rc == MOSQ_ERR_CONN_PENDING){
-							if(context->bridge->round_robin == false && context->bridge->cur_address != 0){
+						اگر(rc == MOSQ_ERR_SUCCESS || rc == MOSQ_ERR_CONN_PENDING){
+							اگر(context->bridge->باری_robin == false && context->bridge->cur_پتہ != 0){
 								context->bridge->primary_retry = db.now_s + 5;
-								loop__update_next_event(5000);
+								loop_update_اگلا_event(5000);
 							}
 							mux__new(context);
-							if(context->out_packet){
-								mux__add_out(context);
+							اگر(context->برآمد_packet){
+								mux_جوڑو_برآمد(context);
 							}
-						}else{
-							context->bridge->cur_address++;
-							if(context->bridge->cur_address == context->bridge->address_count){
-								context->bridge->cur_address = 0;
+						}ورنہ{
+							context->bridge->cur_پتہ++;
+							اگر(context->bridge->cur_پتہ == context->bridge->پتہ_گنتی){
+								context->bridge->cur_پتہ = 0;
 							}
 						}
 					}
-#endif
+#اگر_ختم
 				}
 			}
 		}
 	}
 }
 
-#endif
+#اگر_ختم

@@ -17,55 +17,55 @@ Contributors:
    Roger Light - initial implementation and documentation.
 */
 
-#include "config.h"
+#شامل "config.h"
 
-#include "mosquitto_broker_internal.h"
-#include "utlist.h"
+#شامل "mosquitto_broker_internal.h"
+#شامل "utlist.h"
 
 
-static int plugin__handle_subscribe_single(struct mosquitto__security_options *opts, struct mosquitto *context, struct mosquitto_subscription *sub)
+ساکن صحیح plugin__handle_subscribe_single(ساخت mosquitto__security_options *opts, ساخت mosquitto *context, ساخت mosquitto_subscription *sub)
 {
-	struct mosquitto_evt_subscribe event_data;
-	struct mosquitto__callback *cb_base, *cb_next;
-	int rc = MOSQ_ERR_SUCCESS;
+	ساخت mosquitto_evt_subscribe event_ڈیٹا;
+	ساخت mosquitto__callback *cb_بنیاد, *cb_اگلا;
+	صحیح rc = MOSQ_ERR_SUCCESS;
 
-	memset(&event_data, 0, sizeof(event_data));
-	event_data.client = context;
-	event_data.data.topic_filter = sub->topic_filter;
-	event_data.data.options = sub->options;
-	event_data.data.identifier = sub->identifier;
-	event_data.data.properties = sub->properties;
+	memset(&event_ڈیٹا, 0, حجم(event_ڈیٹا));
+	event_ڈیٹا.client = context;
+	event_ڈیٹا.ڈیٹا.topic_filter = sub->topic_filter;
+	event_ڈیٹا.ڈیٹا.options = sub->options;
+	event_ڈیٹا.ڈیٹا.identifier = sub->identifier;
+	event_ڈیٹا.ڈیٹا.properties = sub->properties;
 
-	DL_FOREACH_SAFE(opts->plugin_callbacks.subscribe, cb_base, cb_next){
-		rc = cb_base->cb(MOSQ_EVT_SUBSCRIBE, &event_data, cb_base->userdata);
-		if(rc != MOSQ_ERR_SUCCESS){
-			break;
+	DL_FOREACH_محفوظ(opts->plugin_callbacks.subscribe, cb_بنیاد, cb_اگلا){
+		rc = cb_بنیاد->cb(MOSQ_EVT_SUBSCRIBE, &event_ڈیٹا, cb_بنیاد->userdata);
+		اگر(rc != MOSQ_ERR_SUCCESS){
+			توڑو;
 		}
 
-		if(sub->topic_filter != event_data.data.topic_filter){
+		اگر(sub->topic_filter != event_ڈیٹا.ڈیٹا.topic_filter){
 			mosquitto_free(sub->topic_filter);
-			sub->topic_filter = event_data.data.topic_filter;
+			sub->topic_filter = event_ڈیٹا.ڈیٹا.topic_filter;
 		}
 	}
-	sub->options = event_data.data.options;
+	sub->options = event_ڈیٹا.ڈیٹا.options;
 
-	return rc;
+	واپس rc;
 }
 
 
-int plugin__handle_subscribe(struct mosquitto *context, struct mosquitto_subscription *sub)
+صحیح plugin__handle_subscribe(ساخت mosquitto *context, ساخت mosquitto_subscription *sub)
 {
-	int rc = MOSQ_ERR_SUCCESS;
+	صحیح rc = MOSQ_ERR_SUCCESS;
 
 	/* Global plugins */
 	rc = plugin__handle_subscribe_single(&db.config->security_options, context, sub);
-	if(rc){
-		return rc;
+	اگر(rc){
+		واپس rc;
 	}
 
-	if(context->listener){
+	اگر(context->listener){
 		rc = plugin__handle_subscribe_single(context->listener->security_options, context, sub);
 	}
 
-	return rc;
+	واپس rc;
 }

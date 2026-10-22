@@ -16,33 +16,33 @@ Contributors:
    Roger Light - initial implementation and documentation.
 */
 
-#include "config.h"
+#شامل "config.h"
 
-#include "mosquitto_broker_internal.h"
-#include "mosquitto_internal.h"
-#include "utlist.h"
+#شامل "mosquitto_broker_internal.h"
+#شامل "mosquitto_internal.h"
+#شامل "utlist.h"
 
 
-static void plugin__handle_connect_single(struct mosquitto__security_options *opts, struct mosquitto *context)
+ساکن خالی plugin__handle_connect_single(ساخت mosquitto__security_options *opts, ساخت mosquitto *context)
 {
-	struct mosquitto_evt_connect event_data;
-	struct mosquitto__callback *cb_base, *cb_next;
+	ساخت mosquitto_evt_connect event_ڈیٹا;
+	ساخت mosquitto__callback *cb_بنیاد, *cb_اگلا;
 
-	memset(&event_data, 0, sizeof(event_data));
-	event_data.client = context;
-	DL_FOREACH_SAFE(opts->plugin_callbacks.connect, cb_base, cb_next){
-		cb_base->cb(MOSQ_EVT_CONNECT, &event_data, cb_base->userdata);
+	memset(&event_ڈیٹا, 0, حجم(event_ڈیٹا));
+	event_ڈیٹا.client = context;
+	DL_FOREACH_محفوظ(opts->plugin_callbacks.connect, cb_بنیاد, cb_اگلا){
+		cb_بنیاد->cb(MOSQ_EVT_CONNECT, &event_ڈیٹا, cb_بنیاد->userdata);
 	}
 }
 
 
-void plugin__handle_connect(struct mosquitto *context)
+خالی plugin__handle_connect(ساخت mosquitto *context)
 {
 	/* Global plugins */
 	plugin__handle_connect_single(&db.config->security_options, context);
 
 	/* Per listener plugins */
-	if(context->listener){
+	اگر(context->listener){
 		plugin__handle_connect_single(context->listener->security_options, context);
 	}
 }

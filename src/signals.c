@@ -16,139 +16,139 @@ Contributors:
    Roger Light - initial implementation and documentation.
    Dmitry Kaukov - windows named events implementation.
 */
-#ifdef WIN32
-#  ifndef WIN32_LEAN_AND_MEAN
-#    define WIN32_LEAN_AND_MEAN
+#اگر_تعریف_شدہ WIN32
+#  ifndef WIN32_LEAN_AND_اوسط
+#    define WIN32_LEAN_AND_اوسط
 #  endif
 #  include <windows.h>
-#endif
+#اگر_ختم
 
-#include "config.h"
+#شامل "config.h"
 
-#include <stdio.h>
-#include <stdbool.h>
-#include <signal.h>
+#شامل <stdio.h>
+#شامل <stdbool.h>
+#شامل <signal.h>
 
-#include "mosquitto_broker_internal.h"
+#شامل "mosquitto_broker_internal.h"
 
-extern int g_run;
+خارجی صحیح g_تسلسل;
 
-static bool flag_reload = false;
-static bool flag_log_rotate = false;
-#ifdef WITH_PERSISTENCE
-static bool flag_db_backup = false;
-#endif
-static bool flag_tree_print = false;
-static bool flag_xtreport = false;
+ساکن bool flag_reload = false;
+ساکن bool flag_log_rotate = false;
+#اگر_تعریف_شدہ WITH_PERSISTENCE
+ساکن bool flag_db_backup = false;
+#اگر_ختم
+ساکن bool flag_درخت_print = false;
+ساکن bool flag_xtreport = false;
 
 
-static void handle_signal(int signal)
+ساکن خالی handle_signal(صحیح اشارہ)
 {
-	UNUSED(signal);
+	غیر_مستعمل(اشارہ);
 
-	if(signal == SIGINT || signal == SIGTERM){
-		g_run = 0;
-#ifdef SIGHUP
-	}else if(signal == SIGHUP){
+	اگر(اشارہ == SIGINT || اشارہ == SIGTERM){
+		g_تسلسل = 0;
+#اگر_تعریف_شدہ SIGHUP
+	}ورنہ اگر(اشارہ == SIGHUP){
 		flag_reload = true;
-#endif
-#ifdef SIGUSR1
-	}else if(signal == SIGUSR1){
-#ifdef WITH_PERSISTENCE
+#اگر_ختم
+#اگر_تعریف_شدہ SIGUSR1
+	}ورنہ اگر(اشارہ == SIGUSR1){
+#اگر_تعریف_شدہ WITH_PERSISTENCE
 		flag_db_backup = true;
-#endif
-#endif
-#ifdef SIGUSR2
-	}else if(signal == SIGUSR2){
-		flag_tree_print = true;
+#اگر_ختم
+#اگر_ختم
+#اگر_تعریف_شدہ SIGUSR2
+	}ورنہ اگر(اشارہ == SIGUSR2){
+		flag_درخت_print = true;
 		flag_xtreport = true;
-#endif
-#ifdef SIGRTMIN
-	}else if(signal == SIGRTMIN){
+#اگر_ختم
+#اگر_تعریف_شدہ SIGRTMIN
+	}ورنہ اگر(اشارہ == SIGRTMIN){
 		flag_log_rotate = true;
-#endif
+#اگر_ختم
 	}
 }
 
 
-void signal__setup(void)
+خالی signal_تیاری(خالی)
 {
-	signal(SIGINT, handle_signal);
-	signal(SIGTERM, handle_signal);
-#ifdef SIGHUP
-	signal(SIGHUP, handle_signal);
-#endif
-#ifndef WIN32
-	signal(SIGUSR1, handle_signal);
-	signal(SIGUSR2, handle_signal);
-	signal(SIGPIPE, SIG_IGN);
-#endif
-#ifdef SIGRTMIN
-	signal(SIGRTMIN, handle_signal);
-#endif
-#ifdef WIN32
-	CreateThread(NULL, 0, SigThreadProc, NULL, 0, NULL);
-#endif
+	اشارہ(SIGINT, handle_signal);
+	اشارہ(SIGTERM, handle_signal);
+#اگر_تعریف_شدہ SIGHUP
+	اشارہ(SIGHUP, handle_signal);
+#اگر_ختم
+#اگر_غیر_تعریف_شدہ WIN32
+	اشارہ(SIGUSR1, handle_signal);
+	اشارہ(SIGUSR2, handle_signal);
+	اشارہ(SIGPIPE, SIG_IGN);
+#اگر_ختم
+#اگر_تعریف_شدہ SIGRTMIN
+	اشارہ(SIGRTMIN, handle_signal);
+#اگر_ختم
+#اگر_تعریف_شدہ WIN32
+	CreateThread(تہی, 0, SigThreadProc, تہی, 0, تہی);
+#اگر_ختم
 }
 
 
-int signal__flag_check(void)
+صحیح signal__flag_check(خالی)
 {
-#ifdef WITH_PERSISTENCE
-	if(flag_db_backup){
+#اگر_تعریف_شدہ WITH_PERSISTENCE
+	اگر(flag_db_backup){
 		persist__backup(false);
 		flag_db_backup = false;
 	}
-#endif
-	if(flag_log_rotate){
+#اگر_ختم
+	اگر(flag_log_rotate){
 		log__close(db.config);
 		log__init(db.config);
 		flag_log_rotate = false;
 	}
-	if(flag_reload){
-		int rc;
-		log__printf(NULL, MOSQ_LOG_INFO, "Reloading config.");
+	اگر(flag_reload){
+		صحیح rc;
+		log__printf(تہی, MOSQ_LOG_INFO, "Reloading config.");
 		config__read(db.config, true);
 		listeners__reload_all_certificates();
 		rc = plugin__handle_reload();
-		if(rc){
-			return rc;
+		اگر(rc){
+			واپس rc;
 		}
 		mosquitto_security_cleanup(true);
 		rc = mosquitto_security_init(true);
-		if(rc){
-			return rc;
+		اگر(rc){
+			واپس rc;
 		}
 		rc = mosquitto_security_apply_default();
-		if(rc){
-			return rc;
+		اگر(rc){
+			واپس rc;
 		}
 		log__close(db.config);
 		log__init(db.config);
 		keepalive__cleanup();
 		rc = keepalive__init();
-		if(rc){
-			return rc;
+		اگر(rc){
+			واپس rc;
 		}
 		broker_control__reload();
-#ifdef WITH_BRIDGE
+#اگر_تعریف_شدہ WITH_BRIDGE
 		bridge__reload();
-#endif
+#اگر_ختم
 		flag_reload = false;
 	}
-	if(flag_tree_print){
-		sub__tree_print(db.normal_subs, 0);
-		sub__tree_print(db.shared_subs, 0);
-		flag_tree_print = false;
+	اگر(flag_درخت_print){
+		sub_درخت_print(db.معمول_subs, 0);
+		sub_درخت_print(db.shared_subs, 0);
+		flag_درخت_print = false;
 	}
-#ifdef WITH_XTREPORT
-	if(flag_xtreport){
+#اگر_تعریف_شدہ WITH_XTREPORT
+	اگر(flag_xtreport){
 		xtreport();
 		flag_xtreport = false;
 	}
-#endif
+#اگر_ختم
 
-	return MOSQ_ERR_SUCCESS;
+	واپس MOSQ_ERR_SUCCESS;
 }
 
 /*
@@ -167,17 +167,17 @@ int signal__flag_check(void)
  *
  * (where PID is the PID of the mosquitto process).
  */
-#ifdef WIN32
+#اگر_تعریف_شدہ WIN32
 
-#define MOSQ_MAX_EVTS 6
+#تعریف_کرو MOSQ_MAX_EVTS 6
 
 
-DWORD WINAPI SigThreadProc(void *data)
+DWORD WINAPI SigThreadProc(خالی *ڈیٹا)
 {
-	TCHAR evt_name[MAX_PATH];
-	static HANDLE evt[MOSQ_MAX_EVTS];
-	int pid = GetCurrentProcessId();
-	const char *evt_names[MOSQ_MAX_EVTS] = {
+	TCHAR evt_name[MAX_راستہ];
+	ساکن HANDLE evt[MOSQ_MAX_EVTS];
+	صحیح pid = GetCurrentProcessId();
+	ثابت حرف *evt_نام[MOSQ_MAX_EVTS] = {
 		"shutdown",
 		"reload",
 		"backup",
@@ -186,45 +186,45 @@ DWORD WINAPI SigThreadProc(void *data)
 		"xtreport"
 	};
 
-	UNUSED(data);
+	غیر_مستعمل(ڈیٹا);
 
-	for(int i=0; i<MOSQ_MAX_EVTS; i++){
-		sprintf_s(evt_name, MAX_PATH, "mosq%d_%s", pid, evt_names[i]);
-		evt[i] = CreateEvent(NULL, FALSE, FALSE, evt_name);
+	برائے(صحیح i=0; i<MOSQ_MAX_EVTS; i++){
+		sprintf_s(evt_name, MAX_راستہ, "mosq%d_%s", pid, evt_نام[i]);
+		evt[i] = CreateEvent(تہی, FALSE, FALSE, evt_name);
 	}
 
-	while(g_run){
-		int wr = WaitForMultipleObjects(MOSQ_MAX_EVTS, evt, FALSE, INFINITE);
-		switch(wr){
-			case WAIT_OBJECT_0 + 0:
+	جب(g_تسلسل){
+		صحیح wr = Wait_For_مضرب_Objects(MOSQ_MAX_EVTS, evt, FALSE, INFINITE);
+		انتخاب(wr){
+			حالت WAIT_OBJECT_0 + 0:
 				handle_signal(SIGINT);
-				break;
-			case WAIT_OBJECT_0 + 1:
+				توڑو;
+			حالت WAIT_OBJECT_0 + 1:
 				flag_reload = true;
-				continue;
-			case WAIT_OBJECT_0 + 2:
-#ifdef WITH_PERSISTENCE
+				جاری;
+			حالت WAIT_OBJECT_0 + 2:
+#اگر_تعریف_شدہ WITH_PERSISTENCE
 				flag_db_backup = true;
-#endif
-				continue;
-				break;
-			case WAIT_OBJECT_0 + 3:
+#اگر_ختم
+				جاری;
+				توڑو;
+			حالت WAIT_OBJECT_0 + 3:
 				flag_log_rotate = true;
-				continue;
-			case WAIT_OBJECT_0 + 4:
-				flag_tree_print = true;
-				continue;
-			case WAIT_OBJECT_0 + 5:
+				جاری;
+			حالت WAIT_OBJECT_0 + 4:
+				flag_درخت_print = true;
+				جاری;
+			حالت WAIT_OBJECT_0 + 5:
 				flag_xtreport = true;
-				continue;
+				جاری;
 		}
 	}
-	for(int i=0; i<MOSQ_MAX_EVTS; i++){
-		if(evt[i]){
+	برائے(صحیح i=0; i<MOSQ_MAX_EVTS; i++){
+		اگر(evt[i]){
 			CloseHandle(evt[i]);
 		}
 	}
-	return 0;
+	واپس 0;
 }
-#undef MOSQ_MAX_EVTS
-#endif
+#تعریف_منسوخ MOSQ_MAX_EVTS
+#اگر_ختم

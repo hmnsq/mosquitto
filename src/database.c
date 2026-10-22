@@ -16,16 +16,16 @@ Contributors:
    Roger Light - initial implementation and documentation.
 */
 
-#include "config.h"
+#شامل "config.h"
 
-#include <assert.h>
-#include <stdio.h>
-#include <utlist.h>
+#شامل <assert.h>
+#شامل <stdio.h>
+#شامل <utlist.h>
 
-#include "mosquitto_broker_internal.h"
-#include "send_mosq.h"
-#include "sys_tree.h"
-#include "util_mosq.h"
+#شامل "mosquitto_broker_internal.h"
+#شامل "send_mosq.h"
+#شامل "sys_tree.h"
+#شامل "util_mosq.h"
 
 
 /**
@@ -34,57 +34,57 @@ Contributors:
  * @param qos qos for the packet of interest
  * @return true if more in flight are allowed.
  */
-bool db__ready_for_flight(struct mosquitto *context, enum mosquitto_msg_direction dir, int qos)
+bool db__ready_for_flight(ساخت mosquitto *context, شمار mosquitto_پیغام_direction dir, صحیح qos)
 {
-	struct mosquitto_msg_data *msgs;
-	bool valid_bytes;
-	bool valid_count;
+	ساخت mosquitto_پیغام_ڈیٹا *msgs;
+	bool valid_بائٹیں;
+	bool valid_گنتی;
 
-	if(dir == mosq_md_out){
-		msgs = &context->msgs_out;
-	}else{
-		msgs = &context->msgs_in;
+	اگر(dir == mosq_md_برآمد){
+		msgs = &context->msgs_برآمد;
+	}ورنہ{
+		msgs = &context->msgs_اندر;
 	}
 
-	if(msgs->inflight_maximum == 0 && db.config->max_inflight_bytes == 0){
-		return true;
+	اگر(msgs->inflight_زیادہ_سے_زیادہ == 0 && db.config->max_inflight_بائٹیں == 0){
+		واپس true;
 	}
 
-	if(qos == 0){
+	اگر(qos == 0){
 		/* Deliver QoS 0 messages unless the queue is already full.
 		 * For QoS 0 messages the choice is either "inflight" or dropped.
 		 * There is no queueing option, unless the client is offline and
 		 * queue_qos0_messages is enabled.
 		 */
-		if(db.config->max_queued_messages == 0 && db.config->max_inflight_bytes == 0){
-			return true;
+		اگر(db.config->max_queued_messages == 0 && db.config->max_inflight_بائٹیں == 0){
+			واپس true;
 		}
-		valid_bytes = ((msgs->inflight_bytes - (ssize_t)db.config->max_inflight_bytes) < (ssize_t)db.config->max_queued_bytes);
-		if(dir == mosq_md_out){
-			valid_count = context->out_packet_count < db.config->max_queued_messages;
-		}else{
-			valid_count = msgs->inflight_count - msgs->inflight_maximum < db.config->max_queued_messages;
+		valid_بائٹیں = ((msgs->inflight_بائٹیں - (ssize_t)db.config->max_inflight_بائٹیں) < (ssize_t)db.config->max_queued_بائٹیں);
+		اگر(dir == mosq_md_برآمد){
+			valid_گنتی = context->برآمد_packet_گنتی < db.config->max_queued_messages;
+		}ورنہ{
+			valid_گنتی = msgs->inflight_گنتی - msgs->inflight_زیادہ_سے_زیادہ < db.config->max_queued_messages;
 		}
 
-		if(db.config->max_queued_messages == 0){
-			return valid_bytes;
+		اگر(db.config->max_queued_messages == 0){
+			واپس valid_بائٹیں;
 		}
-		if(db.config->max_queued_bytes == 0){
-			return valid_count;
+		اگر(db.config->max_queued_بائٹیں == 0){
+			واپس valid_گنتی;
 		}
-	}else{
-		valid_bytes = (ssize_t)msgs->inflight_bytes12 < (ssize_t)db.config->max_inflight_bytes;
-		valid_count = msgs->inflight_quota > 0;
+	}ورنہ{
+		valid_بائٹیں = (ssize_t)msgs->inflight_bytes12 < (ssize_t)db.config->max_inflight_بائٹیں;
+		valid_گنتی = msgs->inflight_quota > 0;
 
-		if(msgs->inflight_maximum == 0){
-			return valid_bytes;
+		اگر(msgs->inflight_زیادہ_سے_زیادہ == 0){
+			واپس valid_بائٹیں;
 		}
-		if(db.config->max_inflight_bytes == 0){
-			return valid_count;
+		اگر(db.config->max_inflight_بائٹیں == 0){
+			واپس valid_گنتی;
 		}
 	}
 
-	return valid_bytes && valid_count;
+	واپس valid_بائٹیں && valid_گنتی;
 }
 
 
@@ -96,137 +96,137 @@ bool db__ready_for_flight(struct mosquitto *context, enum mosquitto_msg_directio
  * @param qos destination qos for the packet of interest
  * @return true if queuing is allowed, false if should be dropped
  */
-bool db__ready_for_queue(struct mosquitto *context, int qos, struct mosquitto_msg_data *msg_data)
+bool db_ready_for_قطار(ساخت mosquitto *context, صحیح qos, ساخت mosquitto_پیغام_ڈیٹا *پیغام_ڈیٹا)
 {
-	int source_count;
-	int adjust_count;
-	long source_bytes;
-	ssize_t adjust_bytes = (ssize_t)db.config->max_inflight_bytes;
-	bool valid_bytes;
-	bool valid_count;
+	صحیح ماخذ_گنتی;
+	صحیح adjust_گنتی;
+	طویل ماخذ_بائٹیں;
+	ssize_t adjust_بائٹیں = (ssize_t)db.config->max_inflight_بائٹیں;
+	bool valid_بائٹیں;
+	bool valid_گنتی;
 
-	if(db.config->max_queued_messages == 0 && db.config->max_queued_bytes == 0){
-		return true;
+	اگر(db.config->max_queued_messages == 0 && db.config->max_queued_بائٹیں == 0){
+		واپس true;
 	}
 
-	if(qos == 0 && db.config->queue_qos0_messages == false){
-		return false; /* This case is handled in db__ready_for_flight() */
-	}else{
-		source_bytes = (ssize_t)msg_data->queued_bytes12;
-		source_count = msg_data->queued_count12;
+	اگر(qos == 0 && db.config->قطار_qos0_messages == false){
+		واپس false; /* This case is handled in db__ready_for_flight() */
+	}ورنہ{
+		ماخذ_بائٹیں = (ssize_t)پیغام_ڈیٹا->queued_bytes12;
+		ماخذ_گنتی = پیغام_ڈیٹا->queued_count12;
 	}
-	adjust_count = msg_data->inflight_maximum;
+	adjust_گنتی = پیغام_ڈیٹا->inflight_زیادہ_سے_زیادہ;
 
 	/* nothing in flight for offline clients */
-	if(!net__is_connected(context)){
-		adjust_bytes = 0;
-		adjust_count = 0;
+	اگر(!net__is_connected(context)){
+		adjust_بائٹیں = 0;
+		adjust_گنتی = 0;
 	}
 
-	valid_bytes = (source_bytes - (ssize_t)adjust_bytes) < (ssize_t)db.config->max_queued_bytes;
-	valid_count = source_count - adjust_count < db.config->max_queued_messages;
+	valid_بائٹیں = (ماخذ_بائٹیں - (ssize_t)adjust_بائٹیں) < (ssize_t)db.config->max_queued_بائٹیں;
+	valid_گنتی = ماخذ_گنتی - adjust_گنتی < db.config->max_queued_messages;
 
-	if(db.config->max_queued_bytes == 0){
-		return valid_count;
+	اگر(db.config->max_queued_بائٹیں == 0){
+		واپس valid_گنتی;
 	}
-	if(db.config->max_queued_messages == 0){
-		return valid_bytes;
+	اگر(db.config->max_queued_messages == 0){
+		واپس valid_بائٹیں;
 	}
 
-	return valid_bytes && valid_count;
+	واپس valid_بائٹیں && valid_گنتی;
 }
 
 
-void db__msg_add_to_inflight_stats(struct mosquitto_msg_data *msg_data, struct mosquitto__client_msg *client_msg)
+خالی db_پیغام_جوڑو_مقصد_inflight_stats(ساخت mosquitto_پیغام_ڈیٹا *پیغام_ڈیٹا, ساخت mosquitto_client_پیغام *client_پیغام)
 {
-	msg_data->inflight_count++;
-	msg_data->inflight_bytes += client_msg->base_msg->data.payloadlen;
-	if(client_msg->data.qos != 0){
-		msg_data->inflight_count12++;
-		msg_data->inflight_bytes12 += client_msg->base_msg->data.payloadlen;
-	}
-}
-
-
-static void db__msg_remove_from_inflight_stats(struct mosquitto_msg_data *msg_data, struct mosquitto__client_msg *client_msg)
-{
-	msg_data->inflight_count--;
-	msg_data->inflight_bytes -= client_msg->base_msg->data.payloadlen;
-	if(client_msg->data.qos != 0){
-		msg_data->inflight_count12--;
-		msg_data->inflight_bytes12 -= client_msg->base_msg->data.payloadlen;
+	پیغام_ڈیٹا->inflight_گنتی++;
+	پیغام_ڈیٹا->inflight_بائٹیں += client_پیغام->بنیاد_پیغام->ڈیٹا.payloadlen;
+	اگر(client_پیغام->ڈیٹا.qos != 0){
+		پیغام_ڈیٹا->inflight_count12++;
+		پیغام_ڈیٹا->inflight_bytes12 += client_پیغام->بنیاد_پیغام->ڈیٹا.payloadlen;
 	}
 }
 
 
-void db__msg_add_to_queued_stats(struct mosquitto_msg_data *msg_data, struct mosquitto__client_msg *client_msg)
+ساکن خالی db_پیغام_remove_from_inflight_stats(ساخت mosquitto_پیغام_ڈیٹا *پیغام_ڈیٹا, ساخت mosquitto_client_پیغام *client_پیغام)
 {
-	msg_data->queued_count++;
-	msg_data->queued_bytes += client_msg->base_msg->data.payloadlen;
-	if(client_msg->data.qos != 0){
-		msg_data->queued_count12++;
-		msg_data->queued_bytes12 += client_msg->base_msg->data.payloadlen;
+	پیغام_ڈیٹا->inflight_گنتی--;
+	پیغام_ڈیٹا->inflight_بائٹیں -= client_پیغام->بنیاد_پیغام->ڈیٹا.payloadlen;
+	اگر(client_پیغام->ڈیٹا.qos != 0){
+		پیغام_ڈیٹا->inflight_count12--;
+		پیغام_ڈیٹا->inflight_bytes12 -= client_پیغام->بنیاد_پیغام->ڈیٹا.payloadlen;
 	}
 }
 
 
-static void db__msg_remove_from_queued_stats(struct mosquitto_msg_data *msg_data, struct mosquitto__client_msg *client_msg)
+خالی db_پیغام_جوڑو_مقصد_queued_stats(ساخت mosquitto_پیغام_ڈیٹا *پیغام_ڈیٹا, ساخت mosquitto_client_پیغام *client_پیغام)
 {
-	msg_data->queued_count--;
-	msg_data->queued_bytes -= client_msg->base_msg->data.payloadlen;
-	if(client_msg->data.qos != 0){
-		msg_data->queued_count12--;
-		msg_data->queued_bytes12 -= client_msg->base_msg->data.payloadlen;
+	پیغام_ڈیٹا->queued_گنتی++;
+	پیغام_ڈیٹا->queued_بائٹیں += client_پیغام->بنیاد_پیغام->ڈیٹا.payloadlen;
+	اگر(client_پیغام->ڈیٹا.qos != 0){
+		پیغام_ڈیٹا->queued_count12++;
+		پیغام_ڈیٹا->queued_bytes12 += client_پیغام->بنیاد_پیغام->ڈیٹا.payloadlen;
 	}
 }
 
 
-int db__open(struct mosquitto__config *config)
+ساکن خالی db_پیغام_remove_from_queued_stats(ساخت mosquitto_پیغام_ڈیٹا *پیغام_ڈیٹا, ساخت mosquitto_client_پیغام *client_پیغام)
 {
-	if(!config){
-		return MOSQ_ERR_INVAL;
+	پیغام_ڈیٹا->queued_گنتی--;
+	پیغام_ڈیٹا->queued_بائٹیں -= client_پیغام->بنیاد_پیغام->ڈیٹا.payloadlen;
+	اگر(client_پیغام->ڈیٹا.qos != 0){
+		پیغام_ڈیٹا->queued_count12--;
+		پیغام_ڈیٹا->queued_bytes12 -= client_پیغام->بنیاد_پیغام->ڈیٹا.payloadlen;
+	}
+}
+
+
+صحیح db__open(ساخت mosquitto__config *config)
+{
+	اگر(!config){
+		واپس MOSQ_ERR_INVAL;
 	}
 
-	db.contexts_by_id = NULL;
-	db.contexts_by_sock = NULL;
-	db.contexts_for_free = NULL;
-#ifdef WITH_BRIDGE
-	db.bridges = NULL;
-	db.bridge_count = 0;
-#endif
+	db.contexts_by_id = تہی;
+	db.contexts_by_sock = تہی;
+	db.contexts_for_free = تہی;
+#اگر_تعریف_شدہ WITH_BRIDGE
+	db.bridges = تہی;
+	db.bridge_گنتی = 0;
+#اگر_ختم
 
 	/* Initialize the hashtable */
-	db.clientid_index_hash = NULL;
+	db.clientid_اشاریہ_hash = تہی;
 
-	db.normal_subs = NULL;
-	db.shared_subs = NULL;
+	db.معمول_subs = تہی;
+	db.shared_subs = تہی;
 
 	sub__init();
 	retain__init();
 
-	db.config->security_options.unpwd = NULL;
+	db.config->security_options.unpwd = تہی;
 
-#ifdef WITH_PERSISTENCE
-	if(persist__restore()){
-		return 1;
+#اگر_تعریف_شدہ WITH_PERSISTENCE
+	اگر(persist__restore()){
+		واپس 1;
 	}
-#endif
+#اگر_ختم
 
-	return MOSQ_ERR_SUCCESS;
+	واپس MOSQ_ERR_SUCCESS;
 }
 
 
-static void subhier_clean(struct mosquitto__subhier **subhier)
+ساکن خالی subhier_clean(ساخت mosquitto__subhier **subhier)
 {
-	struct mosquitto__subhier *peer, *subhier_tmp;
-	struct mosquitto__subleaf *leaf, *nextleaf;
+	ساخت mosquitto__subhier *peer, *subhier_tmp;
+	ساخت mosquitto__subleaf *برگ, *nextleaf;
 
 	HASH_ITER(hh, *subhier, peer, subhier_tmp){
-		leaf = peer->subs;
-		while(leaf){
-			nextleaf = leaf->next;
-			mosquitto_FREE(leaf);
-			leaf = nextleaf;
+		برگ = peer->subs;
+		جب(برگ){
+			nextleaf = برگ->اگلا;
+			mosquitto_FREE(برگ);
+			برگ = nextleaf;
 		}
 		subhier_clean(&peer->children);
 
@@ -236,345 +236,345 @@ static void subhier_clean(struct mosquitto__subhier **subhier)
 }
 
 
-int db__close(void)
+صحیح db__close(خالی)
 {
-	subhier_clean(&db.normal_subs);
+	subhier_clean(&db.معمول_subs);
 	subhier_clean(&db.shared_subs);
 	retain__clean(&db.retains);
-	db__msg_store_clean();
+	db_پیغام_store_clean();
 
-	return MOSQ_ERR_SUCCESS;
+	واپس MOSQ_ERR_SUCCESS;
 }
 
 
-int db__msg_store_add(struct mosquitto__base_msg *base_msg)
+صحیح db_پیغام_store_جوڑو(ساخت mosquitto_بنیاد_پیغام *بنیاد_پیغام)
 {
-	struct mosquitto__base_msg *found;
-	unsigned hashv;
+	ساخت mosquitto_بنیاد_پیغام *ملا;
+	غیرعلامتی hashv;
 
-	HASH_VALUE(&base_msg->data.store_id, sizeof(base_msg->data.store_id), hashv);
-	HASH_FIND_BYHASHVALUE(hh, db.msg_store, &base_msg->data.store_id, sizeof(base_msg->data.store_id), hashv, found);
-	if(found == NULL){
-		HASH_ADD_KEYPTR_BYHASHVALUE(hh, db.msg_store, &base_msg->data.store_id, sizeof(base_msg->data.store_id), hashv, base_msg);
-		return MOSQ_ERR_SUCCESS;
-	}else{
-		return MOSQ_ERR_ALREADY_EXISTS;
+	HASH_قدر(&بنیاد_پیغام->ڈیٹا.store_id, حجم(بنیاد_پیغام->ڈیٹا.store_id), hashv);
+	HASH_ڈھونڈو_BYHASHVALUE(hh, db.پیغام_store, &بنیاد_پیغام->ڈیٹا.store_id, حجم(بنیاد_پیغام->ڈیٹا.store_id), hashv, ملا);
+	اگر(ملا == تہی){
+		HASH_جوڑو_KEYPTR_BYHASHVALUE(hh, db.پیغام_store, &بنیاد_پیغام->ڈیٹا.store_id, حجم(بنیاد_پیغام->ڈیٹا.store_id), hashv, بنیاد_پیغام);
+		واپس MOSQ_ERR_SUCCESS;
+	}ورنہ{
+		واپس MOSQ_ERR_ALREADY_EXISTS;
 	}
 }
 
 
-void db__msg_store_free(struct mosquitto__base_msg *base_msg)
+خالی db_پیغام_store_free(ساخت mosquitto_بنیاد_پیغام *بنیاد_پیغام)
 {
-	mosquitto_FREE(base_msg->data.source_id);
-	mosquitto_FREE(base_msg->data.source_username);
-	if(base_msg->dest_ids){
-		for(int i=0; i<base_msg->dest_id_count; i++){
-			mosquitto_FREE(base_msg->dest_ids[i]);
+	mosquitto_FREE(بنیاد_پیغام->ڈیٹا.ماخذ_id);
+	mosquitto_FREE(بنیاد_پیغام->ڈیٹا.ماخذ_username);
+	اگر(بنیاد_پیغام->dest_ids){
+		برائے(صحیح i=0; i<بنیاد_پیغام->dest_id_گنتی; i++){
+			mosquitto_FREE(بنیاد_پیغام->dest_ids[i]);
 		}
-		mosquitto_FREE(base_msg->dest_ids);
+		mosquitto_FREE(بنیاد_پیغام->dest_ids);
 	}
-	mosquitto_FREE(base_msg->data.topic);
-	mosquitto_property_free_all(&base_msg->data.properties);
-	mosquitto_FREE(base_msg->data.payload);
-	mosquitto_FREE(base_msg);
+	mosquitto_FREE(بنیاد_پیغام->ڈیٹا.topic);
+	mosquitto_property_free_all(&بنیاد_پیغام->ڈیٹا.properties);
+	mosquitto_FREE(بنیاد_پیغام->ڈیٹا.payload);
+	mosquitto_FREE(بنیاد_پیغام);
 }
 
 
-void db__msg_store_remove(struct mosquitto__base_msg *base_msg, bool notify)
+خالی db_پیغام_store_remove(ساخت mosquitto_بنیاد_پیغام *بنیاد_پیغام, bool notify)
 {
-	if(base_msg == NULL){
-		return;
+	اگر(بنیاد_پیغام == تہی){
+		واپس;
 	}
-	HASH_DELETE(hh, db.msg_store, base_msg);
-	db.msg_store_count--;
-	db.msg_store_bytes -= base_msg->data.payloadlen;
-	if(notify == true){
-		plugin_persist__handle_base_msg_delete(base_msg);
+	HASH_DELETE(hh, db.پیغام_store, بنیاد_پیغام);
+	db.پیغام_store_گنتی--;
+	db.پیغام_store_بائٹیں -= بنیاد_پیغام->ڈیٹا.payloadlen;
+	اگر(notify == true){
+		plugin_persist_handle_بنیاد_پیغام_delete(بنیاد_پیغام);
 	}
-	db__msg_store_free(base_msg);
+	db_پیغام_store_free(بنیاد_پیغام);
 }
 
 
-void db__msg_store_clean(void)
+خالی db_پیغام_store_clean(خالی)
 {
-	struct mosquitto__base_msg *base_msg, *base_msg_tmp;
+	ساخت mosquitto_بنیاد_پیغام *بنیاد_پیغام, *بنیاد_پیغام_tmp;
 
-	HASH_ITER(hh, db.msg_store, base_msg, base_msg_tmp){
-		db__msg_store_remove(base_msg, false);
-	}
-}
-
-
-void db__msg_store_ref_inc(struct mosquitto__base_msg *base_msg)
-{
-	base_msg->ref_count++;
-}
-
-
-void db__msg_store_ref_dec(struct mosquitto__base_msg **base_msg)
-{
-	(*base_msg)->ref_count--;
-	if((*base_msg)->ref_count == 0){
-		db__msg_store_remove(*base_msg, true);
-		*base_msg = NULL;
+	HASH_ITER(hh, db.پیغام_store, بنیاد_پیغام, بنیاد_پیغام_tmp){
+		db_پیغام_store_remove(بنیاد_پیغام, false);
 	}
 }
 
 
-void db__msg_store_compact(void)
+خالی db_پیغام_store_ref_inc(ساخت mosquitto_بنیاد_پیغام *بنیاد_پیغام)
 {
-	struct mosquitto__base_msg *base_msg, *base_msg_tmp;
+	بنیاد_پیغام->ref_گنتی++;
+}
 
-	HASH_ITER(hh, db.msg_store, base_msg, base_msg_tmp){
-		if(base_msg->ref_count < 1){
-			db__msg_store_remove(base_msg, true);
+
+خالی db_پیغام_store_ref_dec(ساخت mosquitto_بنیاد_پیغام **بنیاد_پیغام)
+{
+	(*بنیاد_پیغام)->ref_گنتی--;
+	اگر((*بنیاد_پیغام)->ref_گنتی == 0){
+		db_پیغام_store_remove(*بنیاد_پیغام, true);
+		*بنیاد_پیغام = تہی;
+	}
+}
+
+
+خالی db_پیغام_store_compact(خالی)
+{
+	ساخت mosquitto_بنیاد_پیغام *بنیاد_پیغام, *بنیاد_پیغام_tmp;
+
+	HASH_ITER(hh, db.پیغام_store, بنیاد_پیغام, بنیاد_پیغام_tmp){
+		اگر(بنیاد_پیغام->ref_گنتی < 1){
+			db_پیغام_store_remove(بنیاد_پیغام, true);
 		}
 	}
 }
 
 
-static void db__message_remove_inflight(struct mosquitto *context, struct mosquitto_msg_data *msg_data, struct mosquitto__client_msg *item)
+ساکن خالی db_پیغام_remove_inflight(ساخت mosquitto *context, ساخت mosquitto_پیغام_ڈیٹا *پیغام_ڈیٹا, ساخت mosquitto_client_پیغام *شے)
 {
-	if(!context || !msg_data || !item){
-		return;
+	اگر(!context || !پیغام_ڈیٹا || !شے){
+		واپس;
 	}
 
-	plugin_persist__handle_client_msg_delete(context, item);
+	plugin_persist_handle_client_پیغام_delete(context, شے);
 
-	DL_DELETE(msg_data->inflight, item);
-	if(item->base_msg){
-		db__msg_remove_from_inflight_stats(msg_data, item);
-		db__msg_store_ref_dec(&item->base_msg);
+	DL_DELETE(پیغام_ڈیٹا->inflight, شے);
+	اگر(شے->بنیاد_پیغام){
+		db_پیغام_remove_from_inflight_stats(پیغام_ڈیٹا, شے);
+		db_پیغام_store_ref_dec(&شے->بنیاد_پیغام);
 	}
 
-	mosquitto_FREE(item);
+	mosquitto_FREE(شے);
 }
 
 
-static void db__message_remove_queued(struct mosquitto *context, struct mosquitto_msg_data *msg_data, struct mosquitto__client_msg *item)
+ساکن خالی db_پیغام_remove_queued(ساخت mosquitto *context, ساخت mosquitto_پیغام_ڈیٹا *پیغام_ڈیٹا, ساخت mosquitto_client_پیغام *شے)
 {
-	if(!context || !msg_data || !item){
-		return;
+	اگر(!context || !پیغام_ڈیٹا || !شے){
+		واپس;
 	}
 
-	plugin_persist__handle_client_msg_delete(context, item);
+	plugin_persist_handle_client_پیغام_delete(context, شے);
 
-	DL_DELETE(msg_data->queued, item);
-	if(item->base_msg){
-		db__msg_remove_from_queued_stats(msg_data, item);
-		db__msg_store_ref_dec(&item->base_msg);
+	DL_DELETE(پیغام_ڈیٹا->queued, شے);
+	اگر(شے->بنیاد_پیغام){
+		db_پیغام_remove_from_queued_stats(پیغام_ڈیٹا, شے);
+		db_پیغام_store_ref_dec(&شے->بنیاد_پیغام);
 	}
 
-	mosquitto_FREE(item);
+	mosquitto_FREE(شے);
 }
 
 
-static void db__fill_inflight_out_from_queue(struct mosquitto *context)
+ساکن خالی db_fill_inflight_برآمد_from_قطار(ساخت mosquitto *context)
 {
-	struct mosquitto__client_msg *client_msg, *tmp;
+	ساخت mosquitto_client_پیغام *client_پیغام, *tmp;
 
-	DL_FOREACH_SAFE(context->msgs_out.queued, client_msg, tmp){
-		if(!db__ready_for_flight(context, mosq_md_out, client_msg->data.qos)){
-			return;
+	DL_FOREACH_محفوظ(context->msgs_برآمد.queued, client_پیغام, tmp){
+		اگر(!db__ready_for_flight(context, mosq_md_برآمد, client_پیغام->ڈیٹا.qos)){
+			واپس;
 		}
-		switch(client_msg->data.qos){
-			case 0:
-				client_msg->data.state = mosq_ms_publish_qos0;
-				break;
-			case 1:
-				client_msg->data.state = mosq_ms_publish_qos1;
-				break;
-			case 2:
-				client_msg->data.state = mosq_ms_publish_qos2;
-				break;
+		انتخاب(client_پیغام->ڈیٹا.qos){
+			حالت 0:
+				client_پیغام->ڈیٹا.state = mosq_ms_publish_qos0;
+				توڑو;
+			حالت 1:
+				client_پیغام->ڈیٹا.state = mosq_ms_publish_qos1;
+				توڑو;
+			حالت 2:
+				client_پیغام->ڈیٹا.state = mosq_ms_publish_qos2;
+				توڑو;
 		}
-		if(client_msg->base_msg->data.expiry_time && db.now_real_s > client_msg->base_msg->data.expiry_time){
-			db__message_remove_queued(context, &context->msgs_out, client_msg);
-			continue;
+		اگر(client_پیغام->بنیاد_پیغام->ڈیٹا.expiry_وقت && db.now_real_s > client_پیغام->بنیاد_پیغام->ڈیٹا.expiry_وقت){
+			db_پیغام_remove_queued(context, &context->msgs_برآمد, client_پیغام);
+			جاری;
 		}
-		plugin_persist__handle_client_msg_update(context, client_msg);
-		db__message_dequeue_first(context, &context->msgs_out);
+		plugin_persist_handle_client_پیغام_update(context, client_پیغام);
+		db_پیغام_قطار_سے_نکالو_پہلا(context, &context->msgs_برآمد);
 	}
 }
 
 
-void db__message_dequeue_first(struct mosquitto *context, struct mosquitto_msg_data *msg_data)
+خالی db_پیغام_قطار_سے_نکالو_پہلا(ساخت mosquitto *context, ساخت mosquitto_پیغام_ڈیٹا *پیغام_ڈیٹا)
 {
-	struct mosquitto__client_msg *client_msg;
+	ساخت mosquitto_client_پیغام *client_پیغام;
 
-	UNUSED(context);
+	غیر_مستعمل(context);
 
-	client_msg = msg_data->queued;
-	DL_DELETE(msg_data->queued, client_msg);
-	DL_APPEND(msg_data->inflight, client_msg);
-	if(msg_data->inflight_quota > 0){
-		msg_data->inflight_quota--;
+	client_پیغام = پیغام_ڈیٹا->queued;
+	DL_DELETE(پیغام_ڈیٹا->queued, client_پیغام);
+	DL_APPEND(پیغام_ڈیٹا->inflight, client_پیغام);
+	اگر(پیغام_ڈیٹا->inflight_quota > 0){
+		پیغام_ڈیٹا->inflight_quota--;
 	}
 
-	db__msg_remove_from_queued_stats(msg_data, client_msg);
-	db__msg_add_to_inflight_stats(msg_data, client_msg);
+	db_پیغام_remove_from_queued_stats(پیغام_ڈیٹا, client_پیغام);
+	db_پیغام_جوڑو_مقصد_inflight_stats(پیغام_ڈیٹا, client_پیغام);
 }
 
 
-int db__message_delete_outgoing(struct mosquitto *context, uint16_t mid, enum mosquitto_msg_state expect_state, int qos)
+صحیح db_پیغام_delete_outgoing(ساخت mosquitto *context, uint16_t mid, شمار mosquitto_پیغام_state expect_state, صحیح qos)
 {
-	struct mosquitto__client_msg *client_msg, *tmp;
+	ساخت mosquitto_client_پیغام *client_پیغام, *tmp;
 	bool deleted = false;
 
-	if(!context){
-		return MOSQ_ERR_INVAL;
+	اگر(!context){
+		واپس MOSQ_ERR_INVAL;
 	}
 
-	DL_FOREACH_SAFE(context->msgs_out.inflight, client_msg, tmp){
-		if(client_msg->data.mid == mid){
-			if(client_msg->data.qos != qos){
-				log__printf(NULL, MOSQ_LOG_INFO, "Protocol error from %s: Mismatched QoS (%d:%d) when deleting outgoing message.",
-						context->id, client_msg->data.qos, qos);
-				return MOSQ_ERR_PROTOCOL;
-			}else if(qos == 2 && client_msg->data.state != expect_state && expect_state != mosq_ms_any){
-				log__printf(NULL, MOSQ_LOG_INFO, "Protocol error from %s: Mismatched state (%d:%d) when deleting outgoing message.",
-						context->id, client_msg->data.state, expect_state);
-				return MOSQ_ERR_PROTOCOL;
+	DL_FOREACH_محفوظ(context->msgs_برآمد.inflight, client_پیغام, tmp){
+		اگر(client_پیغام->ڈیٹا.mid == mid){
+			اگر(client_پیغام->ڈیٹا.qos != qos){
+				log__printf(تہی, MOSQ_LOG_INFO, "Protocol error from %s: Mismatched QoS (%d:%d) when deleting outgoing message.",
+						context->id, client_پیغام->ڈیٹا.qos, qos);
+				واپس MOSQ_ERR_PROTOCOL;
+			}ورنہ اگر(qos == 2 && client_پیغام->ڈیٹا.state != expect_state && expect_state != mosq_ms_any){
+				log__printf(تہی, MOSQ_LOG_INFO, "Protocol error from %s: Mismatched state (%d:%d) when deleting outgoing message.",
+						context->id, client_پیغام->ڈیٹا.state, expect_state);
+				واپس MOSQ_ERR_PROTOCOL;
 			}
-			db__message_remove_inflight(context, &context->msgs_out, client_msg);
+			db_پیغام_remove_inflight(context, &context->msgs_برآمد, client_پیغام);
 			deleted = true;
-			break;
+			توڑو;
 		}
 	}
 
-	if(deleted == false){
-		DL_FOREACH_SAFE(context->msgs_out.queued, client_msg, tmp){
-			if(client_msg->data.mid == mid){
-				if(client_msg->data.qos != qos){
-					return MOSQ_ERR_PROTOCOL;
-				}else if(qos == 2 && client_msg->data.state != expect_state && expect_state != mosq_ms_any){
-					return MOSQ_ERR_PROTOCOL;
+	اگر(deleted == false){
+		DL_FOREACH_محفوظ(context->msgs_برآمد.queued, client_پیغام, tmp){
+			اگر(client_پیغام->ڈیٹا.mid == mid){
+				اگر(client_پیغام->ڈیٹا.qos != qos){
+					واپس MOSQ_ERR_PROTOCOL;
+				}ورنہ اگر(qos == 2 && client_پیغام->ڈیٹا.state != expect_state && expect_state != mosq_ms_any){
+					واپس MOSQ_ERR_PROTOCOL;
 				}
-				db__message_remove_queued(context, &context->msgs_out, client_msg);
-				break;
+				db_پیغام_remove_queued(context, &context->msgs_برآمد, client_پیغام);
+				توڑو;
 			}
 		}
 	}
-	db__fill_inflight_out_from_queue(context);
-#ifdef WITH_PERSISTENCE
+	db_fill_inflight_برآمد_from_قطار(context);
+#اگر_تعریف_شدہ WITH_PERSISTENCE
 	db.persistence_changes++;
-#endif
+#اگر_ختم
 
-	return db__message_write_inflight_out_latest(context);
+	واپس db_پیغام_write_inflight_برآمد_latest(context);
 }
 
 
 /* Only for QoS 2 messages */
-int db__message_insert_incoming(struct mosquitto *context, uint64_t cmsg_id, struct mosquitto__base_msg *base_msg, bool persist)
+صحیح db_پیغام_داخل_کرو_incoming(ساخت mosquitto *context, uint64_t cmsg_id, ساخت mosquitto_بنیاد_پیغام *بنیاد_پیغام, bool persist)
 {
-	struct mosquitto__client_msg *client_msg;
-	struct mosquitto_msg_data *msg_data;
-	enum mosquitto_msg_state state = mosq_ms_invalid;
-	int rc = 0;
+	ساخت mosquitto_client_پیغام *client_پیغام;
+	ساخت mosquitto_پیغام_ڈیٹا *پیغام_ڈیٹا;
+	شمار mosquitto_پیغام_state state = mosq_ms_invalid;
+	صحیح rc = 0;
 
-	assert(base_msg);
-	if(!context){
-		return MOSQ_ERR_INVAL;
+	أكد(بنیاد_پیغام);
+	اگر(!context){
+		واپس MOSQ_ERR_INVAL;
 	}
-	if(!context->id){
+	اگر(!context->id){
 		/* Protect against unlikely "client is disconnected but not entirely freed" scenario */
-		return MOSQ_ERR_SUCCESS;
+		واپس MOSQ_ERR_SUCCESS;
 
 	}
-	msg_data = &context->msgs_in;
+	پیغام_ڈیٹا = &context->msgs_اندر;
 
-	if(db__ready_for_flight(context, mosq_md_in, base_msg->data.qos)){
+	اگر(db__ready_for_flight(context, mosq_md_اندر, بنیاد_پیغام->ڈیٹا.qos)){
 		state = mosq_ms_wait_for_pubrel;
-	}else if(base_msg->data.qos != 0 && db__ready_for_queue(context, base_msg->data.qos, msg_data)){
+	}ورنہ اگر(بنیاد_پیغام->ڈیٹا.qos != 0 && db_ready_for_قطار(context, بنیاد_پیغام->ڈیٹا.qos, پیغام_ڈیٹا)){
 		state = mosq_ms_queued;
 		rc = 2;
-	}else{
+	}ورنہ{
 		/* Dropping message due to full queue. */
-		if(context->is_dropping == false){
+		اگر(context->is_dropping == false){
 			context->is_dropping = true;
-			log__printf(NULL, MOSQ_LOG_NOTICE,
+			log__printf(تہی, MOSQ_LOG_NOTICE,
 					"Outgoing messages are being dropped for client %s.",
 					context->id);
 		}
-		metrics__int_inc(mosq_counter_mqtt_publish_dropped, 1);
+		metrics__int_inc(mosq_شمار_mqtt_publish_dropped, 1);
 		context->stats.messages_dropped++;
 
-		return 2;
+		واپس 2;
 	}
 
-	assert(state != mosq_ms_invalid);
+	أكد(state != mosq_ms_invalid);
 
-#ifdef WITH_PERSISTENCE
-	if(state == mosq_ms_queued){
+#اگر_تعریف_شدہ WITH_PERSISTENCE
+	اگر(state == mosq_ms_queued){
 		db.persistence_changes++;
 	}
-#endif
+#اگر_ختم
 
-	client_msg = mosquitto_malloc(sizeof(struct mosquitto__client_msg));
-	if(!client_msg){
-		return MOSQ_ERR_NOMEM;
+	client_پیغام = mosquitto_malloc(حجم(ساخت mosquitto_client_پیغام));
+	اگر(!client_پیغام){
+		واپس MOSQ_ERR_NOMEM;
 	}
-	client_msg->prev = NULL;
-	client_msg->next = NULL;
-	if(cmsg_id){
-		client_msg->data.cmsg_id = cmsg_id;
-	}else{
-		client_msg->data.cmsg_id = ++context->last_cmsg_id;
+	client_پیغام->پچھلا = تہی;
+	client_پیغام->اگلا = تہی;
+	اگر(cmsg_id){
+		client_پیغام->ڈیٹا.cmsg_id = cmsg_id;
+	}ورنہ{
+		client_پیغام->ڈیٹا.cmsg_id = ++context->آخری_cmsg_id;
 	}
-	client_msg->base_msg = base_msg;
-	db__msg_store_ref_inc(client_msg->base_msg);
-	client_msg->data.mid = base_msg->data.source_mid;
-	client_msg->data.direction = mosq_md_in;
-	client_msg->data.state = (uint8_t)state;
-	client_msg->data.dup = false;
-	if(base_msg->data.qos > context->max_qos){
-		client_msg->data.qos = context->max_qos;
-	}else{
-		client_msg->data.qos = base_msg->data.qos;
+	client_پیغام->بنیاد_پیغام = بنیاد_پیغام;
+	db_پیغام_store_ref_inc(client_پیغام->بنیاد_پیغام);
+	client_پیغام->ڈیٹا.mid = بنیاد_پیغام->ڈیٹا.ماخذ_mid;
+	client_پیغام->ڈیٹا.direction = mosq_md_اندر;
+	client_پیغام->ڈیٹا.state = (uint8_t)state;
+	client_پیغام->ڈیٹا.dup = false;
+	اگر(بنیاد_پیغام->ڈیٹا.qos > context->max_qos){
+		client_پیغام->ڈیٹا.qos = context->max_qos;
+	}ورنہ{
+		client_پیغام->ڈیٹا.qos = بنیاد_پیغام->ڈیٹا.qos;
 	}
-	client_msg->data.retain = base_msg->data.retain;
-	client_msg->data.subscription_identifier = 0;
+	client_پیغام->ڈیٹا.retain = بنیاد_پیغام->ڈیٹا.retain;
+	client_پیغام->ڈیٹا.subscription_identifier = 0;
 
-	if(state == mosq_ms_queued){
-		DL_APPEND(msg_data->queued, client_msg);
-		db__msg_add_to_queued_stats(msg_data, client_msg);
-	}else{
-		DL_APPEND(msg_data->inflight, client_msg);
-		db__msg_add_to_inflight_stats(msg_data, client_msg);
-	}
-
-	if(persist && context->is_persisted){
-		plugin_persist__handle_base_msg_add(client_msg->base_msg);
-		plugin_persist__handle_client_msg_add(context, client_msg);
+	اگر(state == mosq_ms_queued){
+		DL_APPEND(پیغام_ڈیٹا->queued, client_پیغام);
+		db_پیغام_جوڑو_مقصد_queued_stats(پیغام_ڈیٹا, client_پیغام);
+	}ورنہ{
+		DL_APPEND(پیغام_ڈیٹا->inflight, client_پیغام);
+		db_پیغام_جوڑو_مقصد_inflight_stats(پیغام_ڈیٹا, client_پیغام);
 	}
 
-	if(client_msg->base_msg->data.qos > 0){
+	اگر(persist && context->is_persisted){
+		plugin_persist_handle_بنیاد_پیغام_جوڑو(client_پیغام->بنیاد_پیغام);
+		plugin_persist_handle_client_پیغام_جوڑو(context, client_پیغام);
+	}
+
+	اگر(client_پیغام->بنیاد_پیغام->ڈیٹا.qos > 0){
 		util__decrement_receive_quota(context);
 	}
-	return rc;
+	واپس rc;
 }
 
 
-int db__message_insert_outgoing(struct mosquitto *context, uint64_t cmsg_id, uint16_t mid, uint8_t qos, bool retain, struct mosquitto__base_msg *base_msg, uint32_t subscription_identifier, bool update, bool persist)
+صحیح db_پیغام_داخل_کرو_outgoing(ساخت mosquitto *context, uint64_t cmsg_id, uint16_t mid, uint8_t qos, bool retain, ساخت mosquitto_بنیاد_پیغام *بنیاد_پیغام, uint32_t subscription_identifier, bool update, bool persist)
 {
-	struct mosquitto__client_msg *client_msg;
-	struct mosquitto_msg_data *msg_data;
-	enum mosquitto_msg_state state = mosq_ms_invalid;
-	int rc = 0;
-	char **dest_ids;
+	ساخت mosquitto_client_پیغام *client_پیغام;
+	ساخت mosquitto_پیغام_ڈیٹا *پیغام_ڈیٹا;
+	شمار mosquitto_پیغام_state state = mosq_ms_invalid;
+	صحیح rc = 0;
+	حرف **dest_ids;
 
-	assert(base_msg);
-	if(!context){
-		return MOSQ_ERR_INVAL;
+	أكد(بنیاد_پیغام);
+	اگر(!context){
+		واپس MOSQ_ERR_INVAL;
 	}
-	if(!context->id){
+	اگر(!context->id){
 		/* Protect against unlikely "client is disconnected but not entirely freed" scenario */
-		return MOSQ_ERR_SUCCESS;
+		واپس MOSQ_ERR_SUCCESS;
 
 	}
-	context->stats.messages_sent++;
+	context->stats.messages_بھیجا++;
 
-	msg_data = &context->msgs_out;
+	پیغام_ڈیٹا = &context->msgs_برآمد;
 
 	/* Check whether we've already sent this message to this client
 	 * for outgoing messages only.
@@ -583,121 +583,121 @@ int db__message_insert_outgoing(struct mosquitto *context, uint64_t cmsg_id, uin
 	 * multiple times for overlapping subscriptions, although this is only the
 	 * case for SUBSCRIPTION with multiple subs in so is a minor concern.
 	 */
-	if(context->protocol != mosq_p_mqtt5
+	اگر(context->protocol != mosq_p_mqtt5
 			&& db.config->allow_duplicate_messages == false
-			&& retain == false && base_msg->dest_ids){
+			&& retain == false && بنیاد_پیغام->dest_ids){
 
-		for(int i=0; i<base_msg->dest_id_count; i++){
-			if(base_msg->dest_ids[i] && !strcmp(base_msg->dest_ids[i], context->id)){
+		برائے(صحیح i=0; i<بنیاد_پیغام->dest_id_گنتی; i++){
+			اگر(بنیاد_پیغام->dest_ids[i] && !strcmp(بنیاد_پیغام->dest_ids[i], context->id)){
 				/* We have already sent this message to this client. */
-				return MOSQ_ERR_SUCCESS;
+				واپس MOSQ_ERR_SUCCESS;
 			}
 		}
 	}
-	if(!net__is_connected(context)){
+	اگر(!net__is_connected(context)){
 		/* Client is not connected only queue messages with QoS>0. */
-		if(qos == 0 && !db.config->queue_qos0_messages){
-			if(!context->bridge){
-				return 2;
-			}else{
-				if(context->bridge->start_type != bst_lazy){
-					return 2;
+		اگر(qos == 0 && !db.config->قطار_qos0_messages){
+			اگر(!context->bridge){
+				واپس 2;
+			}ورنہ{
+				اگر(context->bridge->آغاز_type != bst_lazy){
+					واپس 2;
 				}
 			}
 		}
-		if(context->bridge && context->bridge->clean_start_local == true){
-			return 2;
+		اگر(context->bridge && context->bridge->clean_آغاز_local == true){
+			واپس 2;
 		}
 	}
 
-	if(net__is_connected(context)){
-		if(db__ready_for_flight(context, mosq_md_out, qos)){
-			switch(qos){
-				case 0:
+	اگر(net__is_connected(context)){
+		اگر(db__ready_for_flight(context, mosq_md_برآمد, qos)){
+			انتخاب(qos){
+				حالت 0:
 					state = mosq_ms_publish_qos0;
-					break;
-				case 1:
+					توڑو;
+				حالت 1:
 					state = mosq_ms_publish_qos1;
-					break;
-				case 2:
+					توڑو;
+				حالت 2:
 					state = mosq_ms_publish_qos2;
-					break;
+					توڑو;
 			}
-		}else if(qos != 0 && db__ready_for_queue(context, qos, msg_data)){
+		}ورنہ اگر(qos != 0 && db_ready_for_قطار(context, qos, پیغام_ڈیٹا)){
 			state = mosq_ms_queued;
 			rc = 2;
-		}else{
+		}ورنہ{
 			/* Dropping message due to full queue. */
-			if(context->is_dropping == false){
+			اگر(context->is_dropping == false){
 				context->is_dropping = true;
-				log__printf(NULL, MOSQ_LOG_NOTICE,
+				log__printf(تہی, MOSQ_LOG_NOTICE,
 						"Outgoing messages are being dropped for client %s.",
 						context->id);
 			}
-			metrics__int_inc(mosq_counter_mqtt_publish_dropped, 1);
-			return 2;
+			metrics__int_inc(mosq_شمار_mqtt_publish_dropped, 1);
+			واپس 2;
 		}
-	}else{
-		if(db__ready_for_queue(context, qos, msg_data)){
+	}ورنہ{
+		اگر(db_ready_for_قطار(context, qos, پیغام_ڈیٹا)){
 			state = mosq_ms_queued;
-		}else{
-			metrics__int_inc(mosq_counter_mqtt_publish_dropped, 1);
-			if(context->is_dropping == false){
+		}ورنہ{
+			metrics__int_inc(mosq_شمار_mqtt_publish_dropped, 1);
+			اگر(context->is_dropping == false){
 				context->is_dropping = true;
-				log__printf(NULL, MOSQ_LOG_NOTICE,
+				log__printf(تہی, MOSQ_LOG_NOTICE,
 						"Outgoing messages are being dropped for client %s.",
 						context->id);
 			}
-			return 2;
+			واپس 2;
 		}
 	}
-	assert(state != mosq_ms_invalid);
+	أكد(state != mosq_ms_invalid);
 
-#ifdef WITH_PERSISTENCE
-	if(state == mosq_ms_queued){
+#اگر_تعریف_شدہ WITH_PERSISTENCE
+	اگر(state == mosq_ms_queued){
 		db.persistence_changes++;
 	}
-#endif
+#اگر_ختم
 
-	client_msg = mosquitto_malloc(sizeof(struct mosquitto__client_msg));
-	if(!client_msg){
-		return MOSQ_ERR_NOMEM;
+	client_پیغام = mosquitto_malloc(حجم(ساخت mosquitto_client_پیغام));
+	اگر(!client_پیغام){
+		واپس MOSQ_ERR_NOMEM;
 	}
-	client_msg->prev = NULL;
-	client_msg->next = NULL;
-	if(cmsg_id){
-		client_msg->data.cmsg_id = cmsg_id;
-	}else{
-		client_msg->data.cmsg_id = ++context->last_cmsg_id;
+	client_پیغام->پچھلا = تہی;
+	client_پیغام->اگلا = تہی;
+	اگر(cmsg_id){
+		client_پیغام->ڈیٹا.cmsg_id = cmsg_id;
+	}ورنہ{
+		client_پیغام->ڈیٹا.cmsg_id = ++context->آخری_cmsg_id;
 	}
-	client_msg->base_msg = base_msg;
-	db__msg_store_ref_inc(client_msg->base_msg);
-	client_msg->data.mid = mid;
-	client_msg->data.direction = mosq_md_out;
-	client_msg->data.state = (uint8_t)state;
-	client_msg->data.dup = false;
-	if(qos > context->max_qos){
-		client_msg->data.qos = context->max_qos;
-	}else{
-		client_msg->data.qos = qos;
+	client_پیغام->بنیاد_پیغام = بنیاد_پیغام;
+	db_پیغام_store_ref_inc(client_پیغام->بنیاد_پیغام);
+	client_پیغام->ڈیٹا.mid = mid;
+	client_پیغام->ڈیٹا.direction = mosq_md_برآمد;
+	client_پیغام->ڈیٹا.state = (uint8_t)state;
+	client_پیغام->ڈیٹا.dup = false;
+	اگر(qos > context->max_qos){
+		client_پیغام->ڈیٹا.qos = context->max_qos;
+	}ورنہ{
+		client_پیغام->ڈیٹا.qos = qos;
 	}
-	client_msg->data.retain = retain;
-	client_msg->data.subscription_identifier = subscription_identifier;
+	client_پیغام->ڈیٹا.retain = retain;
+	client_پیغام->ڈیٹا.subscription_identifier = subscription_identifier;
 
-	if(state == mosq_ms_queued){
-		DL_APPEND(msg_data->queued, client_msg);
-		db__msg_add_to_queued_stats(msg_data, client_msg);
-	}else{
-		DL_APPEND(msg_data->inflight, client_msg);
-		db__msg_add_to_inflight_stats(msg_data, client_msg);
-	}
-
-	if(persist && context->is_persisted){
-		plugin_persist__handle_base_msg_add(client_msg->base_msg);
-		plugin_persist__handle_client_msg_add(context, client_msg);
+	اگر(state == mosq_ms_queued){
+		DL_APPEND(پیغام_ڈیٹا->queued, client_پیغام);
+		db_پیغام_جوڑو_مقصد_queued_stats(پیغام_ڈیٹا, client_پیغام);
+	}ورنہ{
+		DL_APPEND(پیغام_ڈیٹا->inflight, client_پیغام);
+		db_پیغام_جوڑو_مقصد_inflight_stats(پیغام_ڈیٹا, client_پیغام);
 	}
 
-	if(db.config->allow_duplicate_messages == false && retain == false){
+	اگر(persist && context->is_persisted){
+		plugin_persist_handle_بنیاد_پیغام_جوڑو(client_پیغام->بنیاد_پیغام);
+		plugin_persist_handle_client_پیغام_جوڑو(context, client_پیغام);
+	}
+
+	اگر(db.config->allow_duplicate_messages == false && retain == false){
 		/* Record which client ids this message has been sent to so we can avoid duplicates.
 		 * Outgoing messages only.
 		 * If retain==true then this is a stale retained message and so should be
@@ -705,220 +705,220 @@ int db__message_insert_outgoing(struct mosquitto *context, uint64_t cmsg_id, uin
 		 * multiple times for overlapping subscriptions, although this is only the
 		 * case for SUBSCRIPTION with multiple subs in so is a minor concern.
 		 */
-		dest_ids = mosquitto_realloc(base_msg->dest_ids, sizeof(char *)*(size_t)(base_msg->dest_id_count+1));
-		if(dest_ids){
-			base_msg->dest_ids = dest_ids;
-			base_msg->dest_id_count++;
-			base_msg->dest_ids[base_msg->dest_id_count-1] = mosquitto_strdup(context->id);
-			if(!base_msg->dest_ids[base_msg->dest_id_count-1]){
-				return MOSQ_ERR_NOMEM;
+		dest_ids = mosquitto_realloc(بنیاد_پیغام->dest_ids, حجم(حرف *)*(size_t)(بنیاد_پیغام->dest_id_گنتی+1));
+		اگر(dest_ids){
+			بنیاد_پیغام->dest_ids = dest_ids;
+			بنیاد_پیغام->dest_id_گنتی++;
+			بنیاد_پیغام->dest_ids[بنیاد_پیغام->dest_id_گنتی-1] = mosquitto_strdup(context->id);
+			اگر(!بنیاد_پیغام->dest_ids[بنیاد_پیغام->dest_id_گنتی-1]){
+				واپس MOSQ_ERR_NOMEM;
 			}
-		}else{
-			return MOSQ_ERR_NOMEM;
+		}ورنہ{
+			واپس MOSQ_ERR_NOMEM;
 		}
 	}
-#ifdef WITH_BRIDGE
-	if(context->bridge && context->bridge->start_type == bst_lazy
+#اگر_تعریف_شدہ WITH_BRIDGE
+	اگر(context->bridge && context->bridge->آغاز_type == bst_lazy
 			&& !net__is_connected(context)
-			&& context->msgs_out.inflight_count + context->msgs_out.queued_count >= context->bridge->threshold){
+			&& context->msgs_برآمد.inflight_گنتی + context->msgs_برآمد.queued_گنتی >= context->bridge->حد){
 
 		context->bridge->lazy_reconnect = true;
 	}
-#endif
+#اگر_ختم
 
-	if(client_msg->data.qos > 0 && state != mosq_ms_queued){
+	اگر(client_پیغام->ڈیٹا.qos > 0 && state != mosq_ms_queued){
 		util__decrement_send_quota(context);
 	}
 
-	if(update){
-		rc = db__message_write_inflight_out_latest(context);
-		if(rc){
-			return rc;
+	اگر(update){
+		rc = db_پیغام_write_inflight_برآمد_latest(context);
+		اگر(rc){
+			واپس rc;
 		}
-		rc = db__message_write_queued_out(context);
-		if(rc){
-			return rc;
+		rc = db_پیغام_write_queued_برآمد(context);
+		اگر(rc){
+			واپس rc;
 		}
 	}
 
-	return rc;
+	واپس rc;
 }
 
 
-static inline int db__message_update_outgoing_state(struct mosquitto *context, struct mosquitto__client_msg *head,
-		uint16_t mid, enum mosquitto_msg_state state, int qos, bool persist)
+ساکن اندرونی صحیح db_پیغام_update_outgoing_state(ساخت mosquitto *context, ساخت mosquitto_client_پیغام *سر,
+		uint16_t mid, شمار mosquitto_پیغام_state state, صحیح qos, bool persist)
 {
-	struct mosquitto__client_msg *client_msg;
+	ساخت mosquitto_client_پیغام *client_پیغام;
 
-	DL_FOREACH(head, client_msg){
-		if(client_msg->data.mid == mid){
-			if(client_msg->data.qos != qos){
-				log__printf(NULL, MOSQ_LOG_INFO, "Protocol error from %s: Mismatched QoS (%d:%d) when updating outgoing message.",
-						context->id, client_msg->data.qos, qos);
-				return MOSQ_ERR_PROTOCOL;
+	DL_FOREACH(سر, client_پیغام){
+		اگر(client_پیغام->ڈیٹا.mid == mid){
+			اگر(client_پیغام->ڈیٹا.qos != qos){
+				log__printf(تہی, MOSQ_LOG_INFO, "Protocol error from %s: Mismatched QoS (%d:%d) when updating outgoing message.",
+						context->id, client_پیغام->ڈیٹا.qos, qos);
+				واپس MOSQ_ERR_PROTOCOL;
 			}
-			client_msg->data.state = (uint8_t)state;
-			if(persist){
-				plugin_persist__handle_client_msg_update(context, client_msg);
+			client_پیغام->ڈیٹا.state = (uint8_t)state;
+			اگر(persist){
+				plugin_persist_handle_client_پیغام_update(context, client_پیغام);
 			}
-			return MOSQ_ERR_SUCCESS;
+			واپس MOSQ_ERR_SUCCESS;
 		}
 	}
-	return MOSQ_ERR_NOT_FOUND;
+	واپس MOSQ_ERR_NOT_ملا;
 }
 
 
-int db__message_update_outgoing(struct mosquitto *context, uint16_t mid, enum mosquitto_msg_state state, int qos, bool persist)
+صحیح db_پیغام_update_outgoing(ساخت mosquitto *context, uint16_t mid, شمار mosquitto_پیغام_state state, صحیح qos, bool persist)
 {
-	int rc;
+	صحیح rc;
 
-	rc = db__message_update_outgoing_state(context, context->msgs_out.inflight, mid, state, qos, persist);
-	if(!persist && rc == MOSQ_ERR_NOT_FOUND){
-		rc = db__message_update_outgoing_state(context, context->msgs_out.queued, mid, state, qos, persist);
+	rc = db_پیغام_update_outgoing_state(context, context->msgs_برآمد.inflight, mid, state, qos, persist);
+	اگر(!persist && rc == MOSQ_ERR_NOT_ملا){
+		rc = db_پیغام_update_outgoing_state(context, context->msgs_برآمد.queued, mid, state, qos, persist);
 	}
-	return rc;
+	واپس rc;
 }
 
 
-static void db__messages_delete_list(struct mosquitto__client_msg **head)
+ساکن خالی db__messages_delete_list(ساخت mosquitto_client_پیغام **سر)
 {
-	struct mosquitto__client_msg *client_msg, *tmp;
+	ساخت mosquitto_client_پیغام *client_پیغام, *tmp;
 
-	DL_FOREACH_SAFE(*head, client_msg, tmp){
-		DL_DELETE(*head, client_msg);
-		db__msg_store_ref_dec(&client_msg->base_msg);
-		mosquitto_FREE(client_msg);
+	DL_FOREACH_محفوظ(*سر, client_پیغام, tmp){
+		DL_DELETE(*سر, client_پیغام);
+		db_پیغام_store_ref_dec(&client_پیغام->بنیاد_پیغام);
+		mosquitto_FREE(client_پیغام);
 	}
-	*head = NULL;
+	*سر = تہی;
 }
 
 
-int db__messages_delete_incoming(struct mosquitto *context)
+صحیح db__messages_delete_incoming(ساخت mosquitto *context)
 {
-	if(!context){
-		return MOSQ_ERR_INVAL;
+	اگر(!context){
+		واپس MOSQ_ERR_INVAL;
 	}
 
-	db__messages_delete_list(&context->msgs_in.inflight);
-	db__messages_delete_list(&context->msgs_in.queued);
-	context->msgs_in.inflight_bytes = 0;
-	context->msgs_in.inflight_bytes12 = 0;
-	context->msgs_in.inflight_count = 0;
-	context->msgs_in.inflight_count12 = 0;
-	context->msgs_in.queued_bytes = 0;
-	context->msgs_in.queued_bytes12 = 0;
-	context->msgs_in.queued_count = 0;
-	context->msgs_in.queued_count12 = 0;
+	db__messages_delete_list(&context->msgs_اندر.inflight);
+	db__messages_delete_list(&context->msgs_اندر.queued);
+	context->msgs_اندر.inflight_بائٹیں = 0;
+	context->msgs_اندر.inflight_bytes12 = 0;
+	context->msgs_اندر.inflight_گنتی = 0;
+	context->msgs_اندر.inflight_count12 = 0;
+	context->msgs_اندر.queued_بائٹیں = 0;
+	context->msgs_اندر.queued_bytes12 = 0;
+	context->msgs_اندر.queued_گنتی = 0;
+	context->msgs_اندر.queued_count12 = 0;
 
-	return MOSQ_ERR_SUCCESS;
+	واپس MOSQ_ERR_SUCCESS;
 }
 
 
-int db__messages_delete_outgoing(struct mosquitto *context)
+صحیح db__messages_delete_outgoing(ساخت mosquitto *context)
 {
-	if(!context){
-		return MOSQ_ERR_INVAL;
+	اگر(!context){
+		واپس MOSQ_ERR_INVAL;
 	}
 
-	db__messages_delete_list(&context->msgs_out.inflight);
-	db__messages_delete_list(&context->msgs_out.queued);
-	context->msgs_out.inflight_bytes = 0;
-	context->msgs_out.inflight_bytes12 = 0;
-	context->msgs_out.inflight_count = 0;
-	context->msgs_out.inflight_count12 = 0;
-	context->msgs_out.queued_bytes = 0;
-	context->msgs_out.queued_bytes12 = 0;
-	context->msgs_out.queued_count = 0;
-	context->msgs_out.queued_count12 = 0;
+	db__messages_delete_list(&context->msgs_برآمد.inflight);
+	db__messages_delete_list(&context->msgs_برآمد.queued);
+	context->msgs_برآمد.inflight_بائٹیں = 0;
+	context->msgs_برآمد.inflight_bytes12 = 0;
+	context->msgs_برآمد.inflight_گنتی = 0;
+	context->msgs_برآمد.inflight_count12 = 0;
+	context->msgs_برآمد.queued_بائٹیں = 0;
+	context->msgs_برآمد.queued_bytes12 = 0;
+	context->msgs_برآمد.queued_گنتی = 0;
+	context->msgs_برآمد.queued_count12 = 0;
 
-	return MOSQ_ERR_SUCCESS;
+	واپس MOSQ_ERR_SUCCESS;
 }
 
 
-int db__messages_delete(struct mosquitto *context, bool force_free)
+صحیح db__messages_delete(ساخت mosquitto *context, bool force_free)
 {
-	if(!context){
-		return MOSQ_ERR_INVAL;
+	اگر(!context){
+		واپس MOSQ_ERR_INVAL;
 	}
 
-	if(force_free || context->clean_start || (context->bridge && context->bridge->clean_start)){
+	اگر(force_free || context->clean_آغاز || (context->bridge && context->bridge->clean_آغاز)){
 		db__messages_delete_incoming(context);
 	}
 
-	if(force_free || (context->bridge && context->bridge->clean_start_local)
-			|| (context->bridge == NULL && context->clean_start)){
+	اگر(force_free || (context->bridge && context->bridge->clean_آغاز_local)
+			|| (context->bridge == تہی && context->clean_آغاز)){
 
 		db__messages_delete_outgoing(context);
 	}
 
-	return MOSQ_ERR_SUCCESS;
+	واپس MOSQ_ERR_SUCCESS;
 }
 
 
-int db__messages_easy_queue(struct mosquitto *context, const char *topic, uint8_t qos, uint32_t payloadlen, const void *payload, int retain, uint32_t message_expiry_interval, mosquitto_property **properties)
+صحیح db_messages_easy_قطار(ساخت mosquitto *context, ثابت حرف *topic, uint8_t qos, uint32_t payloadlen, ثابت خالی *payload, صحیح retain, uint32_t پیغام_expiry_interval, mosquitto_property **properties)
 {
-	struct mosquitto__base_msg *base_msg;
-	const char *source_id;
-	enum mosquitto_msg_origin origin;
+	ساخت mosquitto_بنیاد_پیغام *بنیاد_پیغام;
+	ثابت حرف *ماخذ_id;
+	شمار mosquitto_پیغام_origin origin;
 
-	if(!topic){
-		return MOSQ_ERR_INVAL;
+	اگر(!topic){
+		واپس MOSQ_ERR_INVAL;
 	}
 
-	base_msg = mosquitto_calloc(1, sizeof(struct mosquitto__base_msg));
-	if(base_msg == NULL){
-		return MOSQ_ERR_NOMEM;
+	بنیاد_پیغام = mosquitto_calloc(1, حجم(ساخت mosquitto_بنیاد_پیغام));
+	اگر(بنیاد_پیغام == تہی){
+		واپس MOSQ_ERR_NOMEM;
 	}
 
-	base_msg->data.topic = mosquitto_strdup(topic);
-	if(base_msg->data.topic == NULL){
-		db__msg_store_free(base_msg);
-		return MOSQ_ERR_INVAL;
+	بنیاد_پیغام->ڈیٹا.topic = mosquitto_strdup(topic);
+	اگر(بنیاد_پیغام->ڈیٹا.topic == تہی){
+		db_پیغام_store_free(بنیاد_پیغام);
+		واپس MOSQ_ERR_INVAL;
 	}
 
-	base_msg->data.qos = qos;
-	if(db.config->retain_available == false){
-		base_msg->data.retain = 0;
-	}else{
-		base_msg->data.retain = retain;
+	بنیاد_پیغام->ڈیٹا.qos = qos;
+	اگر(db.config->retain_دستیاب == false){
+		بنیاد_پیغام->ڈیٹا.retain = 0;
+	}ورنہ{
+		بنیاد_پیغام->ڈیٹا.retain = retain;
 	}
 
-	base_msg->data.payloadlen = payloadlen;
-	if(payloadlen > 0){
-		base_msg->data.payload = mosquitto_malloc(base_msg->data.payloadlen+1);
-		if(base_msg->data.payload == NULL){
-			db__msg_store_free(base_msg);
-			return MOSQ_ERR_NOMEM;
+	بنیاد_پیغام->ڈیٹا.payloadlen = payloadlen;
+	اگر(payloadlen > 0){
+		بنیاد_پیغام->ڈیٹا.payload = mosquitto_malloc(بنیاد_پیغام->ڈیٹا.payloadlen+1);
+		اگر(بنیاد_پیغام->ڈیٹا.payload == تہی){
+			db_پیغام_store_free(بنیاد_پیغام);
+			واپس MOSQ_ERR_NOMEM;
 		}
 		/* Ensure payload is always zero terminated, this is the reason for the extra byte above */
-		((uint8_t *)base_msg->data.payload)[base_msg->data.payloadlen] = 0;
-		memcpy(base_msg->data.payload, payload, base_msg->data.payloadlen);
+		((uint8_t *)بنیاد_پیغام->ڈیٹا.payload)[بنیاد_پیغام->ڈیٹا.payloadlen] = 0;
+		حافظہ_نقل(بنیاد_پیغام->ڈیٹا.payload, payload, بنیاد_پیغام->ڈیٹا.payloadlen);
 	}
 
-	if(context && context->id){
-		source_id = context->id;
-	}else{
-		source_id = "";
+	اگر(context && context->id){
+		ماخذ_id = context->id;
+	}ورنہ{
+		ماخذ_id = "";
 	}
-	if(properties){
-		base_msg->data.properties = *properties;
-		*properties = NULL;
+	اگر(properties){
+		بنیاد_پیغام->ڈیٹا.properties = *properties;
+		*properties = تہی;
 	}
 
-	if(context){
+	اگر(context){
 		origin = mosq_mo_client;
-	}else{
+	}ورنہ{
 		origin = mosq_mo_broker;
 	}
-	if(db__message_store(context, base_msg, &message_expiry_interval, origin)){
-		return 1;
+	اگر(db_پیغام_store(context, بنیاد_پیغام, &پیغام_expiry_interval, origin)){
+		واپس 1;
 	}
 
-	return sub__messages_queue(source_id, base_msg->data.qos, &base_msg);
+	واپس sub_messages_قطار(ماخذ_id, بنیاد_پیغام->ڈیٹا.qos, &بنیاد_پیغام);
 }
 
 
-#define MOSQ_UUID_EPOCH 1637168273
+#تعریف_کرو MOSQ_UUID_EPOCH 1637168273
 
 
 /* db__new_msg_id() attempts to generate a new unique id on the broker, or a
@@ -941,169 +941,169 @@ int db__messages_easy_queue(struct mosquitto *context, const char *topic, uint8_
  * 23-bit fractional seconds gives a resolution of 120ns, or 8.4 million
  *    messages per second per broker.
  */
-uint64_t db__new_msg_id(void)
+uint64_t db_new_پیغام_id(خالی)
 {
-#ifdef WIN32
+#اگر_تعریف_شدہ WIN32
 	FILETIME ftime;
 	uint64_t ftime64;
-#else
-	struct timespec ts;
-#endif
+#ورنہ
+	ساخت timespec ts;
+#اگر_ختم
 	uint64_t id;
 	uint64_t tmp;
 	time_t sec;
-	long nsec;
+	طویل nsec;
 
-	id = db.node_id_shifted; /* Top 10-bits */
+	id = db.گرہ_id_shifted; /* Top 10-bits */
 
-#ifdef WIN32
-	GetSystemTimePreciseAsFileTime(&ftime);
-	ftime64 = (((uint64_t)ftime.dwHighDateTime)<<32) + ftime.dwLowDateTime;
+#اگر_تعریف_شدہ WIN32
+	Get_System_وقت_Precise_As_File_وقت(&ftime);
+	ftime64 = (((uint64_t)ftime.dw_بلند_Date_وقت)<<32) + ftime.dw_کم_Date_وقت;
 	tmp = ftime64 - 116444736000000000LL; /* Convert offset to unix epoch, still in counts of 100ns */
 	sec = tmp / 10000000; /* Convert to seconds */
-	nsec = (long)(tmp - sec)*100; /* Remove seconds, convert to counts of 1ns */
-#else
+	nsec = (طویل)(tmp - sec)*100; /* Remove seconds, convert to counts of 1ns */
+#ورنہ
 	clock_gettime(CLOCK_REALTIME, &ts);
 	sec = ts.tv_sec;
 	nsec = ts.tv_nsec;
-#endif
+#اگر_ختم
 	tmp = (sec - MOSQ_UUID_EPOCH) & 0x7FFFFFFF;
 	id = id | (tmp << 23); /* Seconds, 31-bits (68 years) */
 
 	tmp = (nsec & 0x7FFFFF80); /* top 23-bits of the bottom 30 bits (1 billion ns), ~100 ns resolution */
 	id = id | (tmp >> 7);
 
-	if(id <= db.last_db_id){
-		id = db.last_db_id + 1;
+	اگر(id <= db.آخری_db_id){
+		id = db.آخری_db_id + 1;
 	}
-	db.last_db_id = id;
+	db.آخری_db_id = id;
 
-	return id;
+	واپس id;
 }
 
 
 /* This function requires topic to be allocated on the heap. Once called, it owns topic and will free it on error. Likewise payload and properties. */
-int db__message_store(const struct mosquitto *source, struct mosquitto__base_msg *base_msg, uint32_t *message_expiry_interval, enum mosquitto_msg_origin origin)
+صحیح db_پیغام_store(ثابت ساخت mosquitto *ماخذ, ساخت mosquitto_بنیاد_پیغام *بنیاد_پیغام, uint32_t *پیغام_expiry_interval, شمار mosquitto_پیغام_origin origin)
 {
-	int rc;
+	صحیح rc;
 
-	assert(base_msg);
+	أكد(بنیاد_پیغام);
 
-	if(source && source->id){
-		base_msg->data.source_id = mosquitto_strdup(source->id);
-	}else{
-		base_msg->data.source_id = mosquitto_strdup("");
+	اگر(ماخذ && ماخذ->id){
+		بنیاد_پیغام->ڈیٹا.ماخذ_id = mosquitto_strdup(ماخذ->id);
+	}ورنہ{
+		بنیاد_پیغام->ڈیٹا.ماخذ_id = mosquitto_strdup("");
 	}
-	if(!base_msg->data.source_id){
-		log__printf(NULL, MOSQ_LOG_ERR, "Error: Out of memory.");
-		db__msg_store_free(base_msg);
-		return MOSQ_ERR_NOMEM;
+	اگر(!بنیاد_پیغام->ڈیٹا.ماخذ_id){
+		log__printf(تہی, MOSQ_LOG_ERR, "Error: Out of memory.");
+		db_پیغام_store_free(بنیاد_پیغام);
+		واپس MOSQ_ERR_NOMEM;
 	}
 
-	if(source && source->username){
-		base_msg->data.source_username = mosquitto_strdup(source->username);
-		if(!base_msg->data.source_username){
-			db__msg_store_free(base_msg);
-			return MOSQ_ERR_NOMEM;
+	اگر(ماخذ && ماخذ->username){
+		بنیاد_پیغام->ڈیٹا.ماخذ_username = mosquitto_strdup(ماخذ->username);
+		اگر(!بنیاد_پیغام->ڈیٹا.ماخذ_username){
+			db_پیغام_store_free(بنیاد_پیغام);
+			واپس MOSQ_ERR_NOMEM;
 		}
 	}
-	if(source){
-		base_msg->source_listener = source->listener;
+	اگر(ماخذ){
+		بنیاد_پیغام->ماخذ_listener = ماخذ->listener;
 	}
-	base_msg->origin = origin;
-	if(message_expiry_interval){
-		if(*message_expiry_interval > 0 && *message_expiry_interval != MSG_EXPIRY_INFINITE){
-			base_msg->data.expiry_time = db.now_real_s + *message_expiry_interval;
-		}else{
-			base_msg->data.expiry_time = 0;
+	بنیاد_پیغام->origin = origin;
+	اگر(پیغام_expiry_interval){
+		اگر(*پیغام_expiry_interval > 0 && *پیغام_expiry_interval != پیغام_EXPIRY_INFINITE){
+			بنیاد_پیغام->ڈیٹا.expiry_وقت = db.now_real_s + *پیغام_expiry_interval;
+		}ورنہ{
+			بنیاد_پیغام->ڈیٹا.expiry_وقت = 0;
 		}
 	}
 
-	base_msg->dest_ids = NULL;
-	base_msg->dest_id_count = 0;
-	db.msg_store_count++;
-	db.msg_store_bytes += base_msg->data.payloadlen;
+	بنیاد_پیغام->dest_ids = تہی;
+	بنیاد_پیغام->dest_id_گنتی = 0;
+	db.پیغام_store_گنتی++;
+	db.پیغام_store_بائٹیں += بنیاد_پیغام->ڈیٹا.payloadlen;
 
-	if(!base_msg->data.store_id){
-		base_msg->data.store_id = db__new_msg_id();
+	اگر(!بنیاد_پیغام->ڈیٹا.store_id){
+		بنیاد_پیغام->ڈیٹا.store_id = db_new_پیغام_id();
 	}
 
-	rc = db__msg_store_add(base_msg);
-	if(rc){
-		db__msg_store_free(base_msg);
-		return rc;
+	rc = db_پیغام_store_جوڑو(بنیاد_پیغام);
+	اگر(rc){
+		db_پیغام_store_free(بنیاد_پیغام);
+		واپس rc;
 	}
 
-	return MOSQ_ERR_SUCCESS;
+	واپس MOSQ_ERR_SUCCESS;
 }
 
 
-int db__message_store_find(struct mosquitto *context, uint16_t mid, struct mosquitto__client_msg **client_msg)
+صحیح db_پیغام_store_ڈھونڈو(ساخت mosquitto *context, uint16_t mid, ساخت mosquitto_client_پیغام **client_پیغام)
 {
-	struct mosquitto__client_msg *cmsg;
+	ساخت mosquitto_client_پیغام *cmsg;
 
-	*client_msg = NULL;
+	*client_پیغام = تہی;
 
-	if(!context){
-		return MOSQ_ERR_INVAL;
+	اگر(!context){
+		واپس MOSQ_ERR_INVAL;
 	}
 
-	DL_FOREACH(context->msgs_in.inflight, cmsg){
-		if(cmsg->base_msg->data.source_mid == mid){
-			*client_msg = cmsg;
-			return MOSQ_ERR_SUCCESS;
+	DL_FOREACH(context->msgs_اندر.inflight, cmsg){
+		اگر(cmsg->بنیاد_پیغام->ڈیٹا.ماخذ_mid == mid){
+			*client_پیغام = cmsg;
+			واپس MOSQ_ERR_SUCCESS;
 		}
 	}
 
-	DL_FOREACH(context->msgs_in.queued, cmsg){
-		if(cmsg->base_msg->data.source_mid == mid){
-			*client_msg = cmsg;
-			return MOSQ_ERR_SUCCESS;
+	DL_FOREACH(context->msgs_اندر.queued, cmsg){
+		اگر(cmsg->بنیاد_پیغام->ڈیٹا.ماخذ_mid == mid){
+			*client_پیغام = cmsg;
+			واپس MOSQ_ERR_SUCCESS;
 		}
 	}
 
-	return 1;
+	واپس 1;
 }
 
 
 /* Called on reconnect to set outgoing messages to a sensible state and force a
  * retry, and to set incoming messages to expect an appropriate retry. */
-static int db__message_reconnect_reset_outgoing(struct mosquitto *context)
+ساکن صحیح db_پیغام_reconnect_reset_outgoing(ساخت mosquitto *context)
 {
-	struct mosquitto__client_msg *client_msg, *tmp;
+	ساخت mosquitto_client_پیغام *client_پیغام, *tmp;
 
-	context->msgs_out.inflight_bytes = 0;
-	context->msgs_out.inflight_bytes12 = 0;
-	context->msgs_out.inflight_count = 0;
-	context->msgs_out.inflight_count12 = 0;
-	context->msgs_out.queued_bytes = 0;
-	context->msgs_out.queued_bytes12 = 0;
-	context->msgs_out.queued_count = 0;
-	context->msgs_out.queued_count12 = 0;
-	context->msgs_out.inflight_quota = context->msgs_out.inflight_maximum;
+	context->msgs_برآمد.inflight_بائٹیں = 0;
+	context->msgs_برآمد.inflight_bytes12 = 0;
+	context->msgs_برآمد.inflight_گنتی = 0;
+	context->msgs_برآمد.inflight_count12 = 0;
+	context->msgs_برآمد.queued_بائٹیں = 0;
+	context->msgs_برآمد.queued_bytes12 = 0;
+	context->msgs_برآمد.queued_گنتی = 0;
+	context->msgs_برآمد.queued_count12 = 0;
+	context->msgs_برآمد.inflight_quota = context->msgs_برآمد.inflight_زیادہ_سے_زیادہ;
 
-	DL_FOREACH_SAFE(context->msgs_out.inflight, client_msg, tmp){
-		db__msg_add_to_inflight_stats(&context->msgs_out, client_msg);
-		if(client_msg->data.qos > 0){
+	DL_FOREACH_محفوظ(context->msgs_برآمد.inflight, client_پیغام, tmp){
+		db_پیغام_جوڑو_مقصد_inflight_stats(&context->msgs_برآمد, client_پیغام);
+		اگر(client_پیغام->ڈیٹا.qos > 0){
 			util__decrement_send_quota(context);
 		}
 
-		switch(client_msg->data.qos){
-			case 0:
-				client_msg->data.state = mosq_ms_publish_qos0;
-				break;
-			case 1:
-				client_msg->data.state = mosq_ms_publish_qos1;
-				break;
-			case 2:
-				if(client_msg->data.state == mosq_ms_wait_for_pubcomp){
-					client_msg->data.state = mosq_ms_resend_pubrel;
-				}else{
-					client_msg->data.state = mosq_ms_publish_qos2;
+		انتخاب(client_پیغام->ڈیٹا.qos){
+			حالت 0:
+				client_پیغام->ڈیٹا.state = mosq_ms_publish_qos0;
+				توڑو;
+			حالت 1:
+				client_پیغام->ڈیٹا.state = mosq_ms_publish_qos1;
+				توڑو;
+			حالت 2:
+				اگر(client_پیغام->ڈیٹا.state == mosq_ms_wait_for_pubcomp){
+					client_پیغام->ڈیٹا.state = mosq_ms_resend_pubrel;
+				}ورنہ{
+					client_پیغام->ڈیٹا.state = mosq_ms_publish_qos2;
 				}
-				break;
+				توڑو;
 		}
-		plugin_persist__handle_client_msg_update(context, client_msg);
+		plugin_persist_handle_client_پیغام_update(context, client_پیغام);
 	}
 	/* Messages received when the client was disconnected are put
 	 * in the mosq_ms_queued state. If we don't change them to the
@@ -1111,44 +1111,44 @@ static int db__message_reconnect_reset_outgoing(struct mosquitto *context)
 	 * get sent until the client next receives a message - and they
 	 * will be sent out of order.
 	 */
-	DL_FOREACH_SAFE(context->msgs_out.queued, client_msg, tmp){
-		db__msg_add_to_queued_stats(&context->msgs_out, client_msg);
+	DL_FOREACH_محفوظ(context->msgs_برآمد.queued, client_پیغام, tmp){
+		db_پیغام_جوڑو_مقصد_queued_stats(&context->msgs_برآمد, client_پیغام);
 	}
-	db__fill_inflight_out_from_queue(context);
+	db_fill_inflight_برآمد_from_قطار(context);
 
-	return MOSQ_ERR_SUCCESS;
+	واپس MOSQ_ERR_SUCCESS;
 }
 
 
 /* Called on reconnect to set incoming messages to expect an appropriate retry. */
-static int db__message_reconnect_reset_incoming(struct mosquitto *context)
+ساکن صحیح db_پیغام_reconnect_reset_incoming(ساخت mosquitto *context)
 {
-	struct mosquitto__client_msg *client_msg, *tmp;
+	ساخت mosquitto_client_پیغام *client_پیغام, *tmp;
 
-	context->msgs_in.inflight_bytes = 0;
-	context->msgs_in.inflight_bytes12 = 0;
-	context->msgs_in.inflight_count = 0;
-	context->msgs_in.inflight_count12 = 0;
-	context->msgs_in.queued_bytes = 0;
-	context->msgs_in.queued_bytes12 = 0;
-	context->msgs_in.queued_count = 0;
-	context->msgs_in.queued_count12 = 0;
-	context->msgs_in.inflight_quota = context->msgs_in.inflight_maximum;
+	context->msgs_اندر.inflight_بائٹیں = 0;
+	context->msgs_اندر.inflight_bytes12 = 0;
+	context->msgs_اندر.inflight_گنتی = 0;
+	context->msgs_اندر.inflight_count12 = 0;
+	context->msgs_اندر.queued_بائٹیں = 0;
+	context->msgs_اندر.queued_bytes12 = 0;
+	context->msgs_اندر.queued_گنتی = 0;
+	context->msgs_اندر.queued_count12 = 0;
+	context->msgs_اندر.inflight_quota = context->msgs_اندر.inflight_زیادہ_سے_زیادہ;
 
-	DL_FOREACH_SAFE(context->msgs_in.inflight, client_msg, tmp){
-		db__msg_add_to_inflight_stats(&context->msgs_in, client_msg);
-		if(client_msg->data.qos > 0){
+	DL_FOREACH_محفوظ(context->msgs_اندر.inflight, client_پیغام, tmp){
+		db_پیغام_جوڑو_مقصد_inflight_stats(&context->msgs_اندر, client_پیغام);
+		اگر(client_پیغام->ڈیٹا.qos > 0){
 			util__decrement_receive_quota(context);
 		}
 
-		if(client_msg->data.qos != 2){
+		اگر(client_پیغام->ڈیٹا.qos != 2){
 			/* Anything <QoS 2 can be completely retried by the client at
 			 * no harm. */
-			db__message_remove_inflight(context, &context->msgs_in, client_msg);
-		}else{
+			db_پیغام_remove_inflight(context, &context->msgs_اندر, client_پیغام);
+		}ورنہ{
 			/* Message state can be preserved here because it should match
 			 * whatever the client has got. */
-			client_msg->data.dup = 0;
+			client_پیغام->ڈیٹا.dup = 0;
 		}
 	}
 
@@ -1158,402 +1158,402 @@ static int db__message_reconnect_reset_incoming(struct mosquitto *context)
 	 * get sent until the client next receives a message - and they
 	 * will be sent out of order.
 	 */
-	DL_FOREACH_SAFE(context->msgs_in.queued, client_msg, tmp){
-		client_msg->data.dup = 0;
-		db__msg_add_to_queued_stats(&context->msgs_in, client_msg);
-		if(db__ready_for_flight(context, mosq_md_in, client_msg->data.qos)){
-			switch(client_msg->data.qos){
-				case 0:
-					client_msg->data.state = mosq_ms_publish_qos0;
-					break;
-				case 1:
-					client_msg->data.state = mosq_ms_publish_qos1;
-					break;
-				case 2:
-					client_msg->data.state = mosq_ms_publish_qos2;
-					break;
+	DL_FOREACH_محفوظ(context->msgs_اندر.queued, client_پیغام, tmp){
+		client_پیغام->ڈیٹا.dup = 0;
+		db_پیغام_جوڑو_مقصد_queued_stats(&context->msgs_اندر, client_پیغام);
+		اگر(db__ready_for_flight(context, mosq_md_اندر, client_پیغام->ڈیٹا.qos)){
+			انتخاب(client_پیغام->ڈیٹا.qos){
+				حالت 0:
+					client_پیغام->ڈیٹا.state = mosq_ms_publish_qos0;
+					توڑو;
+				حالت 1:
+					client_پیغام->ڈیٹا.state = mosq_ms_publish_qos1;
+					توڑو;
+				حالت 2:
+					client_پیغام->ڈیٹا.state = mosq_ms_publish_qos2;
+					توڑو;
 			}
-			db__message_dequeue_first(context, &context->msgs_in);
-			plugin_persist__handle_client_msg_update(context, client_msg);
+			db_پیغام_قطار_سے_نکالو_پہلا(context, &context->msgs_اندر);
+			plugin_persist_handle_client_پیغام_update(context, client_پیغام);
 		}
 	}
 
-	return MOSQ_ERR_SUCCESS;
+	واپس MOSQ_ERR_SUCCESS;
 }
 
 
-int db__message_reconnect_reset(struct mosquitto *context)
+صحیح db_پیغام_reconnect_reset(ساخت mosquitto *context)
 {
-	int rc;
+	صحیح rc;
 
-	rc = db__message_reconnect_reset_outgoing(context);
-	if(rc){
-		return rc;
+	rc = db_پیغام_reconnect_reset_outgoing(context);
+	اگر(rc){
+		واپس rc;
 	}
-	return db__message_reconnect_reset_incoming(context);
+	واپس db_پیغام_reconnect_reset_incoming(context);
 }
 
 
-int db__message_remove_incoming(struct mosquitto *context, uint16_t mid)
+صحیح db_پیغام_remove_incoming(ساخت mosquitto *context, uint16_t mid)
 {
-	struct mosquitto__client_msg *client_msg, *tmp;
+	ساخت mosquitto_client_پیغام *client_پیغام, *tmp;
 
-	if(!context){
-		return MOSQ_ERR_INVAL;
+	اگر(!context){
+		واپس MOSQ_ERR_INVAL;
 	}
 
-	DL_FOREACH_SAFE(context->msgs_in.inflight, client_msg, tmp){
-		if(client_msg->data.mid == mid){
-			if(client_msg->base_msg->data.qos != 2){
-				log__printf(NULL, MOSQ_LOG_INFO, "Protocol error from %s: Incorrect QoS (%d) when deleting incoming message.",
-						context->id, client_msg->base_msg->data.qos);
-				return MOSQ_ERR_PROTOCOL;
+	DL_FOREACH_محفوظ(context->msgs_اندر.inflight, client_پیغام, tmp){
+		اگر(client_پیغام->ڈیٹا.mid == mid){
+			اگر(client_پیغام->بنیاد_پیغام->ڈیٹا.qos != 2){
+				log__printf(تہی, MOSQ_LOG_INFO, "Protocol error from %s: Incorrect QoS (%d) when deleting incoming message.",
+						context->id, client_پیغام->بنیاد_پیغام->ڈیٹا.qos);
+				واپس MOSQ_ERR_PROTOCOL;
 			}
-			db__message_remove_inflight(context, &context->msgs_in, client_msg);
-			return MOSQ_ERR_SUCCESS;
+			db_پیغام_remove_inflight(context, &context->msgs_اندر, client_پیغام);
+			واپس MOSQ_ERR_SUCCESS;
 		}
 	}
 
-	return MOSQ_ERR_NOT_FOUND;
+	واپس MOSQ_ERR_NOT_ملا;
 }
 
 
-int db__message_release_incoming(struct mosquitto *context, uint16_t mid)
+صحیح db_پیغام_release_incoming(ساخت mosquitto *context, uint16_t mid)
 {
-	struct mosquitto__client_msg *client_msg, *tmp;
+	ساخت mosquitto_client_پیغام *client_پیغام, *tmp;
 	bool deleted = false;
-	int rc;
+	صحیح rc;
 
-	if(!context){
-		return MOSQ_ERR_INVAL;
+	اگر(!context){
+		واپس MOSQ_ERR_INVAL;
 	}
 
-	DL_FOREACH_SAFE(context->msgs_in.inflight, client_msg, tmp){
-		if(client_msg->data.mid == mid){
-			if(client_msg->base_msg->data.qos != 2){
-				log__printf(NULL, MOSQ_LOG_INFO, "Protocol error from %s: Incorrect QoS (%d) when releasing incoming message.",
-						context->id, client_msg->base_msg->data.qos);
-				return MOSQ_ERR_PROTOCOL;
+	DL_FOREACH_محفوظ(context->msgs_اندر.inflight, client_پیغام, tmp){
+		اگر(client_پیغام->ڈیٹا.mid == mid){
+			اگر(client_پیغام->بنیاد_پیغام->ڈیٹا.qos != 2){
+				log__printf(تہی, MOSQ_LOG_INFO, "Protocol error from %s: Incorrect QoS (%d) when releasing incoming message.",
+						context->id, client_پیغام->بنیاد_پیغام->ڈیٹا.qos);
+				واپس MOSQ_ERR_PROTOCOL;
 			}
-			const char *topic = client_msg->base_msg->data.topic;
-			const char *source_id = client_msg->base_msg->data.source_id;
+			ثابت حرف *topic = client_پیغام->بنیاد_پیغام->ڈیٹا.topic;
+			ثابت حرف *ماخذ_id = client_پیغام->بنیاد_پیغام->ڈیٹا.ماخذ_id;
 
 			/* topic==NULL should be a QoS 2 message that was
 			 * denied/dropped and is being processed so the client doesn't
 			 * keep resending it. That means we don't send it to other
 			 * clients. */
-			if(topic == NULL){
-				db__message_remove_inflight(context, &context->msgs_in, client_msg);
+			اگر(topic == تہی){
+				db_پیغام_remove_inflight(context, &context->msgs_اندر, client_پیغام);
 				deleted = true;
-			}else{
-				rc = sub__messages_queue(source_id, 2, &client_msg->base_msg);
-				if(rc == MOSQ_ERR_SUCCESS || rc == MOSQ_ERR_NO_SUBSCRIBERS){
-					db__message_remove_inflight(context, &context->msgs_in, client_msg);
+			}ورنہ{
+				rc = sub_messages_قطار(ماخذ_id, 2, &client_پیغام->بنیاد_پیغام);
+				اگر(rc == MOSQ_ERR_SUCCESS || rc == MOSQ_ERR_NO_SUBSCRIBERS){
+					db_پیغام_remove_inflight(context, &context->msgs_اندر, client_پیغام);
 					deleted = true;
-				}else{
-					return 1;
+				}ورنہ{
+					واپس 1;
 				}
 			}
 		}
 	}
 
-	DL_FOREACH_SAFE(context->msgs_in.queued, client_msg, tmp){
-		if(db__ready_for_flight(context, mosq_md_in, client_msg->data.qos)){
-			break;
+	DL_FOREACH_محفوظ(context->msgs_اندر.queued, client_پیغام, tmp){
+		اگر(db__ready_for_flight(context, mosq_md_اندر, client_پیغام->ڈیٹا.qos)){
+			توڑو;
 		}
 
-		if(client_msg->data.qos == 2){
-			send__pubrec(context, client_msg->data.mid, 0, NULL);
-			client_msg->data.state = mosq_ms_wait_for_pubrel;
-			db__message_dequeue_first(context, &context->msgs_in);
-			plugin_persist__handle_client_msg_update(context, client_msg);
+		اگر(client_پیغام->ڈیٹا.qos == 2){
+			send__pubrec(context, client_پیغام->ڈیٹا.mid, 0, تہی);
+			client_پیغام->ڈیٹا.state = mosq_ms_wait_for_pubrel;
+			db_پیغام_قطار_سے_نکالو_پہلا(context, &context->msgs_اندر);
+			plugin_persist_handle_client_پیغام_update(context, client_پیغام);
 		}
 	}
-	if(deleted){
-		return MOSQ_ERR_SUCCESS;
-	}else{
-		return MOSQ_ERR_NOT_FOUND;
+	اگر(deleted){
+		واپس MOSQ_ERR_SUCCESS;
+	}ورنہ{
+		واپس MOSQ_ERR_NOT_ملا;
 	}
 }
 
 
-void db__expire_all_messages(struct mosquitto *context)
+خالی db__expire_all_messages(ساخت mosquitto *context)
 {
-	struct mosquitto__client_msg *client_msg, *tmp;
+	ساخت mosquitto_client_پیغام *client_پیغام, *tmp;
 
-	DL_FOREACH_SAFE(context->msgs_out.inflight, client_msg, tmp){
-		if(client_msg->base_msg->data.expiry_time && db.now_real_s > client_msg->base_msg->data.expiry_time){
-			if(client_msg->data.qos > 0){
+	DL_FOREACH_محفوظ(context->msgs_برآمد.inflight, client_پیغام, tmp){
+		اگر(client_پیغام->بنیاد_پیغام->ڈیٹا.expiry_وقت && db.now_real_s > client_پیغام->بنیاد_پیغام->ڈیٹا.expiry_وقت){
+			اگر(client_پیغام->ڈیٹا.qos > 0){
 				util__increment_send_quota(context);
 			}
-			db__message_remove_inflight(context, &context->msgs_out, client_msg);
+			db_پیغام_remove_inflight(context, &context->msgs_برآمد, client_پیغام);
 		}
 	}
-	db__fill_inflight_out_from_queue(context);
-	DL_FOREACH_SAFE(context->msgs_out.queued, client_msg, tmp){
-		if(client_msg->base_msg->data.expiry_time && db.now_real_s > client_msg->base_msg->data.expiry_time){
-			db__message_remove_queued(context, &context->msgs_out, client_msg);
+	db_fill_inflight_برآمد_from_قطار(context);
+	DL_FOREACH_محفوظ(context->msgs_برآمد.queued, client_پیغام, tmp){
+		اگر(client_پیغام->بنیاد_پیغام->ڈیٹا.expiry_وقت && db.now_real_s > client_پیغام->بنیاد_پیغام->ڈیٹا.expiry_وقت){
+			db_پیغام_remove_queued(context, &context->msgs_برآمد, client_پیغام);
 		}
 	}
-	DL_FOREACH_SAFE(context->msgs_in.inflight, client_msg, tmp){
-		if(client_msg->base_msg->data.expiry_time && db.now_real_s > client_msg->base_msg->data.expiry_time){
-			if(client_msg->data.qos > 0){
+	DL_FOREACH_محفوظ(context->msgs_اندر.inflight, client_پیغام, tmp){
+		اگر(client_پیغام->بنیاد_پیغام->ڈیٹا.expiry_وقت && db.now_real_s > client_پیغام->بنیاد_پیغام->ڈیٹا.expiry_وقت){
+			اگر(client_پیغام->ڈیٹا.qos > 0){
 				util__increment_receive_quota(context);
 			}
-			db__message_remove_inflight(context, &context->msgs_in, client_msg);
+			db_پیغام_remove_inflight(context, &context->msgs_اندر, client_پیغام);
 		}
 	}
-	DL_FOREACH_SAFE(context->msgs_in.queued, client_msg, tmp){
-		if(client_msg->base_msg->data.expiry_time && db.now_real_s > client_msg->base_msg->data.expiry_time){
-			db__message_remove_queued(context, &context->msgs_in, client_msg);
+	DL_FOREACH_محفوظ(context->msgs_اندر.queued, client_پیغام, tmp){
+		اگر(client_پیغام->بنیاد_پیغام->ڈیٹا.expiry_وقت && db.now_real_s > client_پیغام->بنیاد_پیغام->ڈیٹا.expiry_وقت){
+			db_پیغام_remove_queued(context, &context->msgs_اندر, client_پیغام);
 		}
 	}
 }
 
 
-static void db__client_messages_check_acl(struct mosquitto *context, struct mosquitto_msg_data *msg_data, struct mosquitto__client_msg **head,
-		void (*decrement_stats_fn)(struct mosquitto_msg_data *msg_data, struct mosquitto__client_msg *client_msg))
+ساکن خالی db__client_messages_check_acl(ساخت mosquitto *context, ساخت mosquitto_پیغام_ڈیٹا *پیغام_ڈیٹا, ساخت mosquitto_client_پیغام **سر,
+		خالی (*decrement_stats_fn)(ساخت mosquitto_پیغام_ڈیٹا *پیغام_ڈیٹا, ساخت mosquitto_client_پیغام *client_پیغام))
 {
-	struct mosquitto__client_msg *client_msg, *tmp;
-	struct mosquitto__base_msg *base_msg;
-	int access;
+	ساخت mosquitto_client_پیغام *client_پیغام, *tmp;
+	ساخت mosquitto_بنیاد_پیغام *بنیاد_پیغام;
+	صحیح access;
 
-	DL_FOREACH_SAFE((*head), client_msg, tmp){
-		base_msg = client_msg->base_msg;
-		if(client_msg->data.direction == mosq_md_out){
+	DL_FOREACH_محفوظ((*سر), client_پیغام, tmp){
+		بنیاد_پیغام = client_پیغام->بنیاد_پیغام;
+		اگر(client_پیغام->ڈیٹا.direction == mosq_md_برآمد){
 			access = MOSQ_ACL_READ;
-		}else{
+		}ورنہ{
 			access = MOSQ_ACL_WRITE;
 		}
-		if(mosquitto_acl_check(context, base_msg->data.topic,
-				base_msg->data.payloadlen, base_msg->data.payload,
-				base_msg->data.qos, base_msg->data.retain,
-				base_msg->data.properties, access) != MOSQ_ERR_SUCCESS){
+		اگر(mosquitto_acl_check(context, بنیاد_پیغام->ڈیٹا.topic,
+				بنیاد_پیغام->ڈیٹا.payloadlen, بنیاد_پیغام->ڈیٹا.payload,
+				بنیاد_پیغام->ڈیٹا.qos, بنیاد_پیغام->ڈیٹا.retain,
+				بنیاد_پیغام->ڈیٹا.properties, access) != MOSQ_ERR_SUCCESS){
 
-			DL_DELETE((*head), client_msg);
-			decrement_stats_fn(msg_data, client_msg);
-			plugin_persist__handle_client_msg_delete(context, client_msg);
-			db__msg_store_ref_dec(&client_msg->base_msg);
-			mosquitto_FREE(client_msg);
+			DL_DELETE((*سر), client_پیغام);
+			decrement_stats_fn(پیغام_ڈیٹا, client_پیغام);
+			plugin_persist_handle_client_پیغام_delete(context, client_پیغام);
+			db_پیغام_store_ref_dec(&client_پیغام->بنیاد_پیغام);
+			mosquitto_FREE(client_پیغام);
 		}
 	}
 }
 
 
-void db__check_acl_of_all_messages(struct mosquitto *context)
+خالی db_check_acl_کا_all_messages(ساخت mosquitto *context)
 {
-	db__client_messages_check_acl(context, &context->msgs_in, &context->msgs_in.inflight, &db__msg_remove_from_inflight_stats);
-	db__client_messages_check_acl(context, &context->msgs_in, &context->msgs_in.queued, &db__msg_remove_from_queued_stats);
-	db__client_messages_check_acl(context, &context->msgs_out, &context->msgs_out.inflight, &db__msg_remove_from_inflight_stats);
-	db__client_messages_check_acl(context, &context->msgs_out, &context->msgs_out.queued, &db__msg_remove_from_queued_stats);
+	db__client_messages_check_acl(context, &context->msgs_اندر, &context->msgs_اندر.inflight, &db_پیغام_remove_from_inflight_stats);
+	db__client_messages_check_acl(context, &context->msgs_اندر, &context->msgs_اندر.queued, &db_پیغام_remove_from_queued_stats);
+	db__client_messages_check_acl(context, &context->msgs_برآمد, &context->msgs_برآمد.inflight, &db_پیغام_remove_from_inflight_stats);
+	db__client_messages_check_acl(context, &context->msgs_برآمد, &context->msgs_برآمد.queued, &db_پیغام_remove_from_queued_stats);
 }
 
 
-static int db__message_write_inflight_out_single(struct mosquitto *context, struct mosquitto__client_msg *client_msg)
+ساکن صحیح db_پیغام_write_inflight_برآمد_single(ساخت mosquitto *context, ساخت mosquitto_client_پیغام *client_پیغام)
 {
-	struct mosquitto__base_msg *base_msg;
-	mosquitto_property *base_msg_props = NULL;
-	int rc;
+	ساخت mosquitto_بنیاد_پیغام *بنیاد_پیغام;
+	mosquitto_property *بنیاد_پیغام_props = تہی;
+	صحیح rc;
 	uint16_t mid;
-	int retries;
-	int retain;
-	const char *topic;
+	صحیح retries;
+	صحیح retain;
+	ثابت حرف *topic;
 	uint8_t qos;
 	uint32_t payloadlen;
-	const void *payload;
+	ثابت خالی *payload;
 	uint32_t expiry_interval;
 	uint32_t subscription_id;
 
-	base_msg = client_msg->base_msg;
+	بنیاد_پیغام = client_پیغام->بنیاد_پیغام;
 
 	expiry_interval = 0;
-	if(base_msg->data.expiry_time){
-		if(db.now_real_s > base_msg->data.expiry_time){
+	اگر(بنیاد_پیغام->ڈیٹا.expiry_وقت){
+		اگر(db.now_real_s > بنیاد_پیغام->ڈیٹا.expiry_وقت){
 			/* Message is expired, must not send. */
-			if(client_msg->data.direction == mosq_md_out && client_msg->data.qos > 0){
+			اگر(client_پیغام->ڈیٹا.direction == mosq_md_برآمد && client_پیغام->ڈیٹا.qos > 0){
 				util__increment_send_quota(context);
 			}
-			db__message_remove_inflight(context, &context->msgs_out, client_msg);
-			db__fill_inflight_out_from_queue(context);
-			return MOSQ_ERR_SUCCESS;
-		}else{
-			expiry_interval = (uint32_t)(base_msg->data.expiry_time - db.now_real_s);
+			db_پیغام_remove_inflight(context, &context->msgs_برآمد, client_پیغام);
+			db_fill_inflight_برآمد_from_قطار(context);
+			واپس MOSQ_ERR_SUCCESS;
+		}ورنہ{
+			expiry_interval = (uint32_t)(بنیاد_پیغام->ڈیٹا.expiry_وقت - db.now_real_s);
 		}
 	}
-	mid = client_msg->data.mid;
-	retries = client_msg->data.dup;
-	retain = client_msg->data.retain;
-	topic = base_msg->data.topic;
-	qos = (uint8_t)client_msg->data.qos;
-	payloadlen = base_msg->data.payloadlen;
-	payload = base_msg->data.payload;
-	subscription_id = client_msg->data.subscription_identifier;
-	base_msg_props = base_msg->data.properties;
+	mid = client_پیغام->ڈیٹا.mid;
+	retries = client_پیغام->ڈیٹا.dup;
+	retain = client_پیغام->ڈیٹا.retain;
+	topic = بنیاد_پیغام->ڈیٹا.topic;
+	qos = (uint8_t)client_پیغام->ڈیٹا.qos;
+	payloadlen = بنیاد_پیغام->ڈیٹا.payloadlen;
+	payload = بنیاد_پیغام->ڈیٹا.payload;
+	subscription_id = client_پیغام->ڈیٹا.subscription_identifier;
+	بنیاد_پیغام_props = بنیاد_پیغام->ڈیٹا.properties;
 
-	switch(client_msg->data.state){
-		case mosq_ms_publish_qos0:
-			rc = send__publish(context, mid, topic, payloadlen, payload, qos, retain, retries, subscription_id, base_msg_props, expiry_interval);
-			if(rc == MOSQ_ERR_SUCCESS || rc == MOSQ_ERR_OVERSIZE_PACKET){
-				db__message_remove_inflight(context, &context->msgs_out, client_msg);
-			}else{
-				return rc;
+	انتخاب(client_پیغام->ڈیٹا.state){
+		حالت mosq_ms_publish_qos0:
+			rc = send__publish(context, mid, topic, payloadlen, payload, qos, retain, retries, subscription_id, بنیاد_پیغام_props, expiry_interval);
+			اگر(rc == MOSQ_ERR_SUCCESS || rc == MOSQ_ERR_OVERSIZE_PACKET){
+				db_پیغام_remove_inflight(context, &context->msgs_برآمد, client_پیغام);
+			}ورنہ{
+				واپس rc;
 			}
-			break;
+			توڑو;
 
-		case mosq_ms_publish_qos1:
-			rc = send__publish(context, mid, topic, payloadlen, payload, qos, retain, retries, subscription_id, base_msg_props, expiry_interval);
-			if(rc == MOSQ_ERR_SUCCESS){
-				client_msg->data.dup = 1; /* Any retry attempts are a duplicate. */
-				client_msg->data.state = mosq_ms_wait_for_puback;
-				plugin_persist__handle_client_msg_update(context, client_msg);
-			}else if(rc == MOSQ_ERR_OVERSIZE_PACKET){
-				db__message_remove_inflight(context, &context->msgs_out, client_msg);
-			}else{
-				return rc;
+		حالت mosq_ms_publish_qos1:
+			rc = send__publish(context, mid, topic, payloadlen, payload, qos, retain, retries, subscription_id, بنیاد_پیغام_props, expiry_interval);
+			اگر(rc == MOSQ_ERR_SUCCESS){
+				client_پیغام->ڈیٹا.dup = 1; /* Any retry attempts are a duplicate. */
+				client_پیغام->ڈیٹا.state = mosq_ms_wait_for_puback;
+				plugin_persist_handle_client_پیغام_update(context, client_پیغام);
+			}ورنہ اگر(rc == MOSQ_ERR_OVERSIZE_PACKET){
+				db_پیغام_remove_inflight(context, &context->msgs_برآمد, client_پیغام);
+			}ورنہ{
+				واپس rc;
 			}
-			break;
+			توڑو;
 
-		case mosq_ms_publish_qos2:
-			rc = send__publish(context, mid, topic, payloadlen, payload, qos, retain, retries, subscription_id, base_msg_props, expiry_interval);
-			if(rc == MOSQ_ERR_SUCCESS){
-				client_msg->data.dup = 1; /* Any retry attempts are a duplicate. */
-				client_msg->data.state = mosq_ms_wait_for_pubrec;
-				plugin_persist__handle_client_msg_update(context, client_msg);
-			}else if(rc == MOSQ_ERR_OVERSIZE_PACKET){
-				db__message_remove_inflight(context, &context->msgs_out, client_msg);
-			}else{
-				return rc;
+		حالت mosq_ms_publish_qos2:
+			rc = send__publish(context, mid, topic, payloadlen, payload, qos, retain, retries, subscription_id, بنیاد_پیغام_props, expiry_interval);
+			اگر(rc == MOSQ_ERR_SUCCESS){
+				client_پیغام->ڈیٹا.dup = 1; /* Any retry attempts are a duplicate. */
+				client_پیغام->ڈیٹا.state = mosq_ms_wait_for_pubrec;
+				plugin_persist_handle_client_پیغام_update(context, client_پیغام);
+			}ورنہ اگر(rc == MOSQ_ERR_OVERSIZE_PACKET){
+				db_پیغام_remove_inflight(context, &context->msgs_برآمد, client_پیغام);
+			}ورنہ{
+				واپس rc;
 			}
-			break;
+			توڑو;
 
-		case mosq_ms_resend_pubrel:
-			rc = send__pubrel(context, mid, NULL);
-			if(!rc){
-				client_msg->data.state = mosq_ms_wait_for_pubcomp;
-				plugin_persist__handle_client_msg_update(context, client_msg);
-			}else{
-				return rc;
+		حالت mosq_ms_resend_pubrel:
+			rc = send__pubrel(context, mid, تہی);
+			اگر(!rc){
+				client_پیغام->ڈیٹا.state = mosq_ms_wait_for_pubcomp;
+				plugin_persist_handle_client_پیغام_update(context, client_پیغام);
+			}ورنہ{
+				واپس rc;
 			}
-			break;
+			توڑو;
 
-		case mosq_ms_invalid:
-		case mosq_ms_send_pubrec:
-		case mosq_ms_resend_pubcomp:
-		case mosq_ms_wait_for_puback:
-		case mosq_ms_wait_for_pubrec:
-		case mosq_ms_wait_for_pubrel:
-		case mosq_ms_wait_for_pubcomp:
-		case mosq_ms_queued:
-			break;
+		حالت mosq_ms_invalid:
+		حالت mosq_ms_send_pubrec:
+		حالت mosq_ms_resend_pubcomp:
+		حالت mosq_ms_wait_for_puback:
+		حالت mosq_ms_wait_for_pubrec:
+		حالت mosq_ms_wait_for_pubrel:
+		حالت mosq_ms_wait_for_pubcomp:
+		حالت mosq_ms_queued:
+			توڑو;
 	}
-	return MOSQ_ERR_SUCCESS;
+	واپس MOSQ_ERR_SUCCESS;
 }
 
 
-int db__message_write_inflight_out_all(struct mosquitto *context)
+صحیح db_پیغام_write_inflight_برآمد_all(ساخت mosquitto *context)
 {
-	struct mosquitto__client_msg *client_msg, *tmp;
-	int rc;
+	ساخت mosquitto_client_پیغام *client_پیغام, *tmp;
+	صحیح rc;
 
-	if(context->state != mosq_cs_active || !net__is_connected(context)){
-		return MOSQ_ERR_SUCCESS;
+	اگر(context->state != mosq_cs_فعال || !net__is_connected(context)){
+		واپس MOSQ_ERR_SUCCESS;
 	}
 
-	DL_FOREACH_SAFE(context->msgs_out.inflight, client_msg, tmp){
-		rc = db__message_write_inflight_out_single(context, client_msg);
-		if(rc){
-			return rc;
+	DL_FOREACH_محفوظ(context->msgs_برآمد.inflight, client_پیغام, tmp){
+		rc = db_پیغام_write_inflight_برآمد_single(context, client_پیغام);
+		اگر(rc){
+			واپس rc;
 		}
 	}
-	return MOSQ_ERR_SUCCESS;
+	واپس MOSQ_ERR_SUCCESS;
 }
 
 
-int db__message_write_inflight_out_latest(struct mosquitto *context)
+صحیح db_پیغام_write_inflight_برآمد_latest(ساخت mosquitto *context)
 {
-	struct mosquitto__client_msg *client_msg, *next;
-	int rc;
+	ساخت mosquitto_client_پیغام *client_پیغام, *اگلا;
+	صحیح rc;
 
-	if(context->state != mosq_cs_active
+	اگر(context->state != mosq_cs_فعال
 			|| !net__is_connected(context)
-			|| context->msgs_out.inflight == NULL){
+			|| context->msgs_برآمد.inflight == تہی){
 
-		return MOSQ_ERR_SUCCESS;
+		واپس MOSQ_ERR_SUCCESS;
 	}
 
-	if(context->msgs_out.inflight->prev == context->msgs_out.inflight){
+	اگر(context->msgs_برآمد.inflight->پچھلا == context->msgs_برآمد.inflight){
 		/* Only one message */
-		return db__message_write_inflight_out_single(context, context->msgs_out.inflight);
+		واپس db_پیغام_write_inflight_برآمد_single(context, context->msgs_برآمد.inflight);
 	}
 
 	/* Start at the end of the list and work backwards looking for the first
 	 * message in a non-publish state */
-	client_msg = context->msgs_out.inflight->prev;
-	while(client_msg != context->msgs_out.inflight &&
-			(client_msg->data.state == mosq_ms_publish_qos0
-			|| client_msg->data.state == mosq_ms_publish_qos1
-			|| client_msg->data.state == mosq_ms_publish_qos2)){
+	client_پیغام = context->msgs_برآمد.inflight->پچھلا;
+	جب(client_پیغام != context->msgs_برآمد.inflight &&
+			(client_پیغام->ڈیٹا.state == mosq_ms_publish_qos0
+			|| client_پیغام->ڈیٹا.state == mosq_ms_publish_qos1
+			|| client_پیغام->ڈیٹا.state == mosq_ms_publish_qos2)){
 
-		client_msg = client_msg->prev;
+		client_پیغام = client_پیغام->پچھلا;
 	}
 
 	/* Tail is now either the head of the list, if that message is waiting for
 	 * publish, or the oldest message not waiting for a publish. In the latter
 	 * case, any pending publishes should be next after this message. */
-	if(client_msg != context->msgs_out.inflight){
-		client_msg = client_msg->next;
+	اگر(client_پیغام != context->msgs_برآمد.inflight){
+		client_پیغام = client_پیغام->اگلا;
 	}
 
-	while(client_msg){
-		next = client_msg->next;
-		rc = db__message_write_inflight_out_single(context, client_msg);
-		if(rc){
-			return rc;
+	جب(client_پیغام){
+		اگلا = client_پیغام->اگلا;
+		rc = db_پیغام_write_inflight_برآمد_single(context, client_پیغام);
+		اگر(rc){
+			واپس rc;
 		}
-		client_msg = next;
+		client_پیغام = اگلا;
 	}
-	return MOSQ_ERR_SUCCESS;
+	واپس MOSQ_ERR_SUCCESS;
 }
 
 
-int db__message_write_queued_in(struct mosquitto *context)
+صحیح db_پیغام_write_queued_اندر(ساخت mosquitto *context)
 {
-	struct mosquitto__client_msg *client_msg, *tmp;
-	int rc;
+	ساخت mosquitto_client_پیغام *client_پیغام, *tmp;
+	صحیح rc;
 
-	if(context->state != mosq_cs_active){
-		return MOSQ_ERR_SUCCESS;
+	اگر(context->state != mosq_cs_فعال){
+		واپس MOSQ_ERR_SUCCESS;
 	}
 
-	DL_FOREACH_SAFE(context->msgs_in.queued, client_msg, tmp){
-		if(context->msgs_in.inflight_maximum != 0 && context->msgs_in.inflight_quota == 0){
-			break;
+	DL_FOREACH_محفوظ(context->msgs_اندر.queued, client_پیغام, tmp){
+		اگر(context->msgs_اندر.inflight_زیادہ_سے_زیادہ != 0 && context->msgs_اندر.inflight_quota == 0){
+			توڑو;
 		}
 
-		if(client_msg->data.qos == 2){
-			client_msg->data.state = mosq_ms_send_pubrec;
-			db__message_dequeue_first(context, &context->msgs_in);
-			rc = send__pubrec(context, client_msg->data.mid, 0, NULL);
-			if(!rc){
-				client_msg->data.state = mosq_ms_wait_for_pubrel;
-				plugin_persist__handle_client_msg_update(context, client_msg);
-			}else{
-				plugin_persist__handle_client_msg_update(context, client_msg);
-				return rc;
+		اگر(client_پیغام->ڈیٹا.qos == 2){
+			client_پیغام->ڈیٹا.state = mosq_ms_send_pubrec;
+			db_پیغام_قطار_سے_نکالو_پہلا(context, &context->msgs_اندر);
+			rc = send__pubrec(context, client_پیغام->ڈیٹا.mid, 0, تہی);
+			اگر(!rc){
+				client_پیغام->ڈیٹا.state = mosq_ms_wait_for_pubrel;
+				plugin_persist_handle_client_پیغام_update(context, client_پیغام);
+			}ورنہ{
+				plugin_persist_handle_client_پیغام_update(context, client_پیغام);
+				واپس rc;
 			}
 		}
 	}
-	return MOSQ_ERR_SUCCESS;
+	واپس MOSQ_ERR_SUCCESS;
 }
 
 
-int db__message_write_queued_out(struct mosquitto *context)
+صحیح db_پیغام_write_queued_برآمد(ساخت mosquitto *context)
 {
-	if(context->state != mosq_cs_active){
-		return MOSQ_ERR_SUCCESS;
+	اگر(context->state != mosq_cs_فعال){
+		واپس MOSQ_ERR_SUCCESS;
 	}
 
-	db__fill_inflight_out_from_queue(context);
+	db_fill_inflight_برآمد_from_قطار(context);
 
-	return MOSQ_ERR_SUCCESS;
+	واپس MOSQ_ERR_SUCCESS;
 }

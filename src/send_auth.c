@@ -16,66 +16,66 @@ Contributors:
    Roger Light - initial implementation and documentation.
 */
 
-#include "config.h"
+#شامل "config.h"
 
-#include "mosquitto_broker_internal.h"
-#include "mosquitto/mqtt_protocol.h"
-#include "packet_mosq.h"
-#include "property_mosq.h"
-#include "sys_tree.h"
-#include "util_mosq.h"
+#شامل "mosquitto_broker_internal.h"
+#شامل "mosquitto/mqtt_protocol.h"
+#شامل "packet_mosq.h"
+#شامل "property_mosq.h"
+#شامل "sys_tree.h"
+#شامل "util_mosq.h"
 
 
-int send__auth(struct mosquitto *context, uint8_t reason_code, const void *auth_data, uint16_t auth_data_len)
+صحیح send__auth(ساخت mosquitto *context, uint8_t reason_رمز, ثابت خالی *auth_ڈیٹا, uint16_t auth_ڈیٹا_len)
 {
-	struct mosquitto__packet *packet = NULL;
-	int rc;
-	mosquitto_property *properties = NULL;
-	uint32_t remaining_length;
+	ساخت mosquitto__packet *packet = تہی;
+	صحیح rc;
+	mosquitto_property *properties = تہی;
+	uint32_t بقایا_لمبائی;
 
-	if(context->auth_method == NULL){
-		return MOSQ_ERR_INVAL;
+	اگر(context->auth_طریقہ == تہی){
+		واپس MOSQ_ERR_INVAL;
 	}
-	if(context->protocol != mosq_p_mqtt5){
-		log__printf(NULL, MOSQ_LOG_INFO, "Protocol error from %s: Sending AUTH packet when session not MQTT v5.0.", context->id);
-		return MOSQ_ERR_PROTOCOL;
-	}
-
-	log__printf(NULL, MOSQ_LOG_DEBUG, "Sending AUTH to %s (rc%d, %s)", context->id, reason_code, context->auth_method);
-
-	remaining_length = 1;
-
-	rc = mosquitto_property_add_string(&properties, MQTT_PROP_AUTHENTICATION_METHOD, context->auth_method);
-	if(rc){
-		goto error;
+	اگر(context->protocol != mosq_p_mqtt5){
+		log__printf(تہی, MOSQ_LOG_INFO, "Protocol error from %s: Sending AUTH packet when session not MQTT v5.0.", context->id);
+		واپس MOSQ_ERR_PROTOCOL;
 	}
 
-	if(auth_data != NULL && auth_data_len > 0){
-		rc = mosquitto_property_add_binary(&properties, MQTT_PROP_AUTHENTICATION_DATA, auth_data, auth_data_len);
-		if(rc){
-			goto error;
+	log__printf(تہی, MOSQ_LOG_DEBUG, "Sending AUTH to %s (rc%d, %s)", context->id, reason_رمز, context->auth_طریقہ);
+
+	بقایا_لمبائی = 1;
+
+	rc = mosquitto_property_جوڑو_string(&properties, MQTT_PROP_AUTHENTICATION_طریقہ, context->auth_طریقہ);
+	اگر(rc){
+		جاؤ error;
+	}
+
+	اگر(auth_ڈیٹا != تہی && auth_ڈیٹا_len > 0){
+		rc = mosquitto_property_جوڑو_ثنائی(&properties, MQTT_PROP_AUTHENTICATION_ڈیٹا, auth_ڈیٹا, auth_ڈیٹا_len);
+		اگر(rc){
+			جاؤ error;
 		}
 	}
 
-	remaining_length += mosquitto_property_get_remaining_length(properties);
+	بقایا_لمبائی += mosquitto_property_get_بقایا_لمبائی(properties);
 
-	rc = packet__check_oversize(context, remaining_length);
-	if(rc){
-		goto error;
+	rc = packet__check_oversize(context, بقایا_لمبائی);
+	اگر(rc){
+		جاؤ error;
 	}
 
-	rc = packet__alloc(&packet, CMD_AUTH, remaining_length);
-	if(rc){
-		goto error;
+	rc = packet__alloc(&packet, CMD_AUTH, بقایا_لمبائی);
+	اگر(rc){
+		جاؤ error;
 	}
 
-	packet__write_byte(packet, reason_code);
+	packet__write_byte(packet, reason_رمز);
 	property__write_all(packet, properties, true);
 	mosquitto_property_free_all(&properties);
 
-	metrics__int_inc(mosq_counter_mqtt_auth_sent, 1);
-	return packet__queue(context, packet);
+	metrics__int_inc(mosq_شمار_mqtt_auth_بھیجا, 1);
+	واپس packet_قطار(context, packet);
 error:
 	mosquitto_property_free_all(&properties);
-	return rc;
+	واپس rc;
 }

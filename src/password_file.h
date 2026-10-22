@@ -15,26 +15,26 @@ SPDX-License-Identifier: EPL-2.0 OR BSD-3-Clause
 Contributors:
    Roger Light - initial implementation and documentation.
 */
-#ifndef PASSWORD_FILE_H
-#define PASSWORD_FILE_H
+#اگر_غیر_تعریف_شدہ PASSWORD_FILE_H
+#تعریف_کرو PASSWORD_FILE_H
 
-#include <uthash.h>
+#شامل <uthash.h>
 
-struct mosquitto__unpwd {
+ساخت mosquitto__unpwd {
 	UT_hash_handle hh;
-	char *username;
-	char *clientid;
-	struct mosquitto_pw *pw;
+	حرف *username;
+	حرف *clientid;
+	ساخت mosquitto_pw *pw;
 };
 
-struct password_file_data {
-	struct mosquitto__unpwd *unpwd;
-	char *password_file;
+ساخت password_file_ڈیٹا {
+	ساخت mosquitto__unpwd *unpwd;
+	حرف *password_file;
 };
 
-int password_file__parse(struct password_file_data *data);
-int password_file__check(int event, void *event_data, void *userdata);
-int password_file__reload(int event, void *event_data, void *userdata);
-void password_file__cleanup(struct password_file_data *data);
+صحیح password_file__parse(ساخت password_file_ڈیٹا *ڈیٹا);
+صحیح password_file__check(صحیح event, خالی *event_ڈیٹا, خالی *userdata);
+صحیح password_file__reload(صحیح event, خالی *event_ڈیٹا, خالی *userdata);
+خالی password_file__cleanup(ساخت password_file_ڈیٹا *ڈیٹا);
 
-#endif
+#اگر_ختم

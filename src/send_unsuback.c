@@ -16,43 +16,43 @@ Contributors:
    Roger Light - initial implementation and documentation.
 */
 
-#include "config.h"
+#شامل "config.h"
 
-#include <assert.h>
+#شامل <assert.h>
 
-#include "mosquitto_broker_internal.h"
-#include "mosquitto/mqtt_protocol.h"
-#include "packet_mosq.h"
-#include "property_mosq.h"
-#include "sys_tree.h"
+#شامل "mosquitto_broker_internal.h"
+#شامل "mosquitto/mqtt_protocol.h"
+#شامل "packet_mosq.h"
+#شامل "property_mosq.h"
+#شامل "sys_tree.h"
 
 
-int send__unsuback(struct mosquitto *mosq, uint16_t mid, int reason_code_count, uint8_t *reason_codes, const mosquitto_property *properties)
+صحیح send__unsuback(ساخت mosquitto *mosq, uint16_t mid, صحیح reason_رمز_گنتی, uint8_t *reason_codes, ثابت mosquitto_property *properties)
 {
-	struct mosquitto__packet *packet = NULL;
-	int rc;
-	uint32_t remaining_length;
+	ساخت mosquitto__packet *packet = تہی;
+	صحیح rc;
+	uint32_t بقایا_لمبائی;
 
-	assert(mosq);
+	أكد(mosq);
 
-	remaining_length = 2;
-	if(mosq->protocol == mosq_p_mqtt5){
-		remaining_length += mosquitto_property_get_remaining_length(properties);
-		remaining_length += (uint32_t)reason_code_count;
+	بقایا_لمبائی = 2;
+	اگر(mosq->protocol == mosq_p_mqtt5){
+		بقایا_لمبائی += mosquitto_property_get_بقایا_لمبائی(properties);
+		بقایا_لمبائی += (uint32_t)reason_رمز_گنتی;
 	}
 
-	rc = packet__alloc(&packet, CMD_UNSUBACK, remaining_length);
-	if(rc){
-		return rc;
+	rc = packet__alloc(&packet, CMD_UNSUBACK, بقایا_لمبائی);
+	اگر(rc){
+		واپس rc;
 	}
 
 	packet__write_uint16(packet, mid);
 
-	if(mosq->protocol == mosq_p_mqtt5){
+	اگر(mosq->protocol == mosq_p_mqtt5){
 		property__write_all(packet, properties, true);
-		packet__write_bytes(packet, reason_codes, (uint32_t)reason_code_count);
+		packet_write_بائٹیں(packet, reason_codes, (uint32_t)reason_رمز_گنتی);
 	}
 
-	metrics__int_inc(mosq_counter_mqtt_unsuback_sent, 1);
-	return packet__queue(mosq, packet);
+	metrics__int_inc(mosq_شمار_mqtt_unsuback_بھیجا, 1);
+	واپس packet_قطار(mosq, packet);
 }

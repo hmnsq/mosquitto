@@ -16,41 +16,41 @@ Contributors:
    Roger Light - initial implementation and documentation.
 */
 
-#if defined(WIN32) || defined(__CYGWIN__)
+#اگر defined(WIN32) || defined(__CYGWIN__)
 
-#include "config.h"
+#شامل "config.h"
 
-#include "mosquitto_broker_internal.h"
-#include <windows.h>
+#شامل "mosquitto_broker_internal.h"
+#شامل <windows.h>
 
-extern int g_run;
-SERVICE_STATUS_HANDLE service_handle = 0;
-static SERVICE_STATUS service_status;
-int main(int argc, char *argv[]);
+خارجی صحیح g_تسلسل;
+SERVICE_حالت_HANDLE service_handle = 0;
+ساکن SERVICE_حالت service_حالت;
+صحیح مین(صحیح argc, حرف *argv[]);
 
 
-static char *fix_name(char *name)
+ساکن حرف *fix_name(حرف *name)
 {
 	size_t len;
 
-	if(strrchr(name, '\\')){
+	اگر(strrchr(name, '\\')){
 		name = strrchr(name, '\\') + 1;
 	}
-	len = strlen(name);
-	if(!strcasecmp(&name[len-4], ".exe")){
+	len = لڑی_لمبائی(name);
+	اگر(!strcasecmp(&name[len-4], ".exe")){
 		name[len-4] = '\0';
 	}
 
-	return name;
+	واپس name;
 }
 
 
-static void print_error(void)
+ساکن خالی print_error(خالی)
 {
-	char *buf = NULL;
+	حرف *buf = تہی;
 
-	FormatMessage(FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM,
-			NULL, GetLastError(), LANG_NEUTRAL, (LPTSTR)&buf, 0, NULL);
+	Format_پیغام(FORMAT_پیغام_ALLOCATE_بفر | FORMAT_پیغام_FROM_SYSTEM,
+			تہی, Get_آخری_Error(), LANG_NEUTRAL, (LPTSTR)&buf, 0, تہی);
 
 	fprintf(stderr, "Error: %s\n", buf);
 	LocalFree(buf);
@@ -58,168 +58,168 @@ static void print_error(void)
 
 
 /* Service control callback */
-void __stdcall service_handler(DWORD fdwControl)
+خالی __stdcall service_handler(DWORD fdwControl)
 {
-	switch(fdwControl){
-		case SERVICE_CONTROL_CONTINUE:
+	انتخاب(fdwControl){
+		حالت SERVICE_CONTROL_CONTINUE:
 			/* Continue from Paused state. */
-			break;
-		case SERVICE_CONTROL_PAUSE:
+			توڑو;
+		حالت SERVICE_CONTROL_PAUSE:
 			/* Pause service. */
-			break;
-		case SERVICE_CONTROL_SHUTDOWN:
+			توڑو;
+		حالت SERVICE_CONTROL_SHUTDOWN:
 		/* System is shutting down. */
-		case SERVICE_CONTROL_STOP:
+		حالت SERVICE_CONTROL_STOP:
 			/* Service should stop. */
-			service_status.dwCurrentState = SERVICE_STOP_PENDING;
-			SetServiceStatus(service_handle, &service_status);
-			g_run = 0;
-			break;
+			service_حالت.dwCurrentState = SERVICE_STOP_PENDING;
+			سیٹ_Service_حالت(service_handle, &service_حالت);
+			g_تسلسل = 0;
+			توڑو;
 	}
 }
 
 
 /* Function called when started as a service. */
-void __stdcall service_main(DWORD dwArgc, LPTSTR *lpszArgv)
+خالی __stdcall service_main(DWORD dwArgc, LPTSTR *lpszArgv)
 {
-	char **argv;
-	int argc = 1;
-	char conf_path[MAX_PATH + 20];
-	int rc;
-	char *name;
-	char env_name[MAX_PATH];
+	حرف **argv;
+	صحیح argc = 1;
+	حرف conf_راستہ[MAX_راستہ + 20];
+	صحیح rc;
+	حرف *name;
+	حرف env_name[MAX_راستہ];
 
-	UNUSED(dwArgc);
+	غیر_مستعمل(dwArgc);
 
 	name = fix_name(lpszArgv[0]);
-	snprintf(env_name, sizeof(env_name), "%s_DIR", name);
-	for(int i=0; i<strlen(env_name); i++){
-		if(env_name[i]>='A' && env_name[i]<='Z'){
+	snprintf(env_name, حجم(env_name), "%s_DIR", name);
+	برائے(صحیح i=0; i<لڑی_لمبائی(env_name); i++){
+		اگر(env_name[i]>='A' && env_name[i]<='Z'){
 			/* Keep upper case letter */
-		}else if(env_name[i]>='0' && env_name[i]<='9'){
+		}ورنہ اگر(env_name[i]>='0' && env_name[i]<='9'){
 			/* Keep number */
-		}else if(env_name[i]>='a' && env_name[i]<='z'){
+		}ورنہ اگر(env_name[i]>='a' && env_name[i]<='z'){
 			/* Convert lower case to upper case */
 			env_name[i] -= 32;
-		}else{
+		}ورنہ{
 			env_name[i] = '_';
 		}
 	}
 
-	service_handle = RegisterServiceCtrlHandler(name, service_handler);
-	if(service_handle){
-		memset(conf_path, 0, sizeof(conf_path));
-		rc = GetEnvironmentVariable(env_name, conf_path, MAX_PATH);
-		if(!rc || rc == MAX_PATH){
-			service_status.dwCurrentState = SERVICE_STOPPED;
-			SetServiceStatus(service_handle, &service_status);
-			return;
+	service_handle = رجسٹر_Service_Ctrl_Handler(name, service_handler);
+	اگر(service_handle){
+		memset(conf_راستہ, 0, حجم(conf_راستہ));
+		rc = GetEnvironmentVariable(env_name, conf_راستہ, MAX_راستہ);
+		اگر(!rc || rc == MAX_راستہ){
+			service_حالت.dwCurrentState = SERVICE_STOPPED;
+			سیٹ_Service_حالت(service_handle, &service_حالت);
+			واپس;
 		}
-		strcat(conf_path, "\\mosquitto.conf");
+		strcat(conf_راستہ, "\\mosquitto.conf");
 
-		argv = mosquitto_malloc(sizeof(char *)*3);
+		argv = mosquitto_malloc(حجم(حرف *)*3);
 		argv[0] = name;
 		argv[1] = "-c";
-		argv[2] = conf_path;
+		argv[2] = conf_راستہ;
 		argc = 3;
 
-		service_status.dwServiceType = SERVICE_WIN32_OWN_PROCESS;
-		service_status.dwCurrentState = SERVICE_RUNNING;
-		service_status.dwControlsAccepted = SERVICE_ACCEPT_SHUTDOWN | SERVICE_ACCEPT_STOP;
-		service_status.dwWin32ExitCode = NO_ERROR;
-		service_status.dwCheckPoint = 0;
-		SetServiceStatus(service_handle, &service_status);
+		service_حالت.dwServiceType = SERVICE_WIN32_OWN_PROCESS;
+		service_حالت.dwCurrentState = SERVICE_RUNNING;
+		service_حالت.dwControlsAccepted = SERVICE_ACCEPT_SHUTDOWN | SERVICE_ACCEPT_STOP;
+		service_حالت.dw_Win32_Exit_رمز = NO_ERROR;
+		service_حالت.dw_Check_نقطہ = 0;
+		سیٹ_Service_حالت(service_handle, &service_حالت);
 
-		main(argc, argv);
+		مین(argc, argv);
 		mosquitto_FREE(argv);
 
-		service_status.dwCurrentState = SERVICE_STOPPED;
-		SetServiceStatus(service_handle, &service_status);
+		service_حالت.dwCurrentState = SERVICE_STOPPED;
+		سیٹ_Service_حالت(service_handle, &service_حالت);
 	}
 }
 
 
-void service_install(char *name)
+خالی service_install(حرف *name)
 {
 	SC_HANDLE sc_manager, svc_handle;
-	char service_string[MAX_PATH + 20];
-	char exe_path[MAX_PATH + 1];
-	char display_name[MAX_PATH+1];
+	حرف service_string[MAX_راستہ + 20];
+	حرف exe_راستہ[MAX_راستہ + 1];
+	حرف display_name[MAX_راستہ+1];
 	SERVICE_DESCRIPTION svc_desc;
 
-	memset(exe_path, 0, sizeof(exe_path));
-	if(GetModuleFileName(NULL, exe_path, MAX_PATH) == MAX_PATH){
+	memset(exe_راستہ, 0, حجم(exe_راستہ));
+	اگر(GetModuleFileName(تہی, exe_راستہ, MAX_راستہ) == MAX_راستہ){
 		fprintf(stderr, "Error: Path too long.\n");
-		return;
+		واپس;
 	}
-	snprintf(service_string, sizeof(service_string), "\"%s\" run", exe_path);
+	snprintf(service_string, حجم(service_string), "\"%s\" run", exe_راستہ);
 
 	name = fix_name(name);
 
-	sc_manager = OpenSCManager(NULL, NULL, SC_MANAGER_CREATE_SERVICE);
-	if(sc_manager){
-		if(!strcmp(name, "mosquitto")){
-			snprintf(display_name, sizeof(display_name), "Mosquitto Broker");
-		}else{
-			snprintf(display_name, sizeof(display_name), "Mosquitto Broker (%s.exe)", name);
+	sc_manager = OpenSCManager(تہی, تہی, SC_MANAGER_CREATE_SERVICE);
+	اگر(sc_manager){
+		اگر(!strcmp(name, "mosquitto")){
+			snprintf(display_name, حجم(display_name), "Mosquitto Broker");
+		}ورنہ{
+			snprintf(display_name, حجم(display_name), "Mosquitto Broker (%s.exe)", name);
 		}
 
 		svc_handle = CreateService(sc_manager, name, display_name,
-				SERVICE_START | SERVICE_STOP | SERVICE_CHANGE_CONFIG,
-				SERVICE_WIN32_OWN_PROCESS, SERVICE_AUTO_START, SERVICE_ERROR_NORMAL,
-				service_string, NULL, NULL, NULL, NULL, NULL);
+				SERVICE_آغاز | SERVICE_STOP | SERVICE_CHANGE_CONFIG,
+				SERVICE_WIN32_OWN_PROCESS, SERVICE_AUTO_آغاز, SERVICE_ERROR_معمول,
+				service_string, تہی, تہی, تہی, تہی, تہی);
 
-		if(svc_handle){
-			memset(&svc_desc, 0, sizeof(svc_desc));
+		اگر(svc_handle){
+			memset(&svc_desc, 0, حجم(svc_desc));
 			svc_desc.lpDescription = "Eclipse Mosquitto MQTT v5/v3.1.1 broker";
 			ChangeServiceConfig2(svc_handle, SERVICE_CONFIG_DESCRIPTION, &svc_desc);
 			CloseServiceHandle(svc_handle);
-		}else{
+		}ورنہ{
 			print_error();
 		}
 		CloseServiceHandle(sc_manager);
-	}else{
+	}ورنہ{
 		print_error();
 	}
 }
 
 
-void service_uninstall(char *name)
+خالی service_uninstall(حرف *name)
 {
 	SC_HANDLE sc_manager, svc_handle;
-	SERVICE_STATUS status;
+	SERVICE_حالت حالت_2;
 
 	name = fix_name(name);
 
-	sc_manager = OpenSCManager(NULL, SERVICES_ACTIVE_DATABASE, SC_MANAGER_CONNECT);
-	if(sc_manager){
-		svc_handle = OpenService(sc_manager, name, SERVICE_QUERY_STATUS | DELETE);
-		if(svc_handle){
-			if(QueryServiceStatus(svc_handle, &status)){
-				if(status.dwCurrentState == SERVICE_STOPPED){
+	sc_manager = OpenSCManager(تہی, SERVICES_فعال_DATABASE, SC_MANAGER_CONNECT);
+	اگر(sc_manager){
+		svc_handle = OpenService(sc_manager, name, SERVICE_QUERY_حالت | DELETE);
+		اگر(svc_handle){
+			اگر(Query_Service_حالت(svc_handle, &حالت_2)){
+				اگر(حالت_2.dwCurrentState == SERVICE_STOPPED){
 					DeleteService(svc_handle);
 				}
 			}
 			CloseServiceHandle(svc_handle);
-		}else{
+		}ورنہ{
 			print_error();
 		}
 		CloseServiceHandle(sc_manager);
-	}else{
+	}ورنہ{
 		print_error();
 	}
 }
 
 
-void service_run(char *name)
+خالی service_تسلسل(حرف *name)
 {
-	SERVICE_TABLE_ENTRY ste[] = {
+	SERVICE_جدول_اندراج ste[] = {
 		{ name, service_main },
-		{ NULL, NULL }
+		{ تہی, تہی }
 	};
 	name = fix_name(name);
 	ste[0].lpServiceName = name;
-	StartServiceCtrlDispatcher(ste);
+	آغاز_Service_Ctrl_Dispatcher(ste);
 }
 
-#endif
+#اگر_ختم

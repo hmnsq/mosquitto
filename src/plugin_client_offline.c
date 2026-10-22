@@ -17,37 +17,37 @@ Contributors:
    Roger Light - initial implementation and documentation.
 */
 
-#include "config.h"
+#شامل "config.h"
 
-#include "mosquitto_broker_internal.h"
-#include "utlist.h"
+#شامل "mosquitto_broker_internal.h"
+#شامل "utlist.h"
 
 
-static void plugin__handle_client_offline_single(struct mosquitto__security_options *opts, struct mosquitto *context, int reason)
+ساکن خالی plugin__handle_client_offline_single(ساخت mosquitto__security_options *opts, ساخت mosquitto *context, صحیح reason)
 {
-	struct mosquitto_evt_client_offline event_data;
-	struct mosquitto__callback *cb_base, *cb_next;
+	ساخت mosquitto_evt_client_offline event_ڈیٹا;
+	ساخت mosquitto__callback *cb_بنیاد, *cb_اگلا;
 
-	if(context->id == NULL){
-		return;
+	اگر(context->id == تہی){
+		واپس;
 	}
 
-	memset(&event_data, 0, sizeof(event_data));
-	event_data.client = context;
-	event_data.reason = reason;
-	DL_FOREACH_SAFE(opts->plugin_callbacks.client_offline, cb_base, cb_next){
-		cb_base->cb(MOSQ_EVT_CLIENT_OFFLINE, &event_data, cb_base->userdata);
+	memset(&event_ڈیٹا, 0, حجم(event_ڈیٹا));
+	event_ڈیٹا.client = context;
+	event_ڈیٹا.reason = reason;
+	DL_FOREACH_محفوظ(opts->plugin_callbacks.client_offline, cb_بنیاد, cb_اگلا){
+		cb_بنیاد->cb(MOSQ_EVT_CLIENT_OFFLINE, &event_ڈیٹا, cb_بنیاد->userdata);
 	}
 }
 
 
-void plugin__handle_client_offline(struct mosquitto *context, int reason)
+خالی plugin__handle_client_offline(ساخت mosquitto *context, صحیح reason)
 {
 	/* Global plugins */
 	plugin__handle_client_offline_single(&db.config->security_options, context, reason);
 
 	/* Per listener plugins */
-	if(context->listener){
+	اگر(context->listener){
 		plugin__handle_client_offline_single(context->listener->security_options, context, reason);
 	}
 }

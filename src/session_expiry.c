@@ -16,159 +16,159 @@ Contributors:
    Roger Light - initial implementation and documentation.
 */
 
-#include "config.h"
+#شامل "config.h"
 
-#include <math.h>
-#include <stdio.h>
-#include <utlist.h>
+#شامل <math.h>
+#شامل <stdio.h>
+#شامل <utlist.h>
 
-#include "mosquitto_broker_internal.h"
-#include "sys_tree.h"
+#شامل "mosquitto_broker_internal.h"
+#شامل "sys_tree.h"
 
-static struct session_expiry_list *expiry_list = NULL;
-static time_t last_check = 0;
+ساکن ساخت session_expiry_list *expiry_list = تہی;
+ساکن time_t آخری_check = 0;
 
 
-static int session_expiry__cmp(struct session_expiry_list *i1, struct session_expiry_list *i2)
+ساکن صحیح session_expiry__cmp(ساخت session_expiry_list *i1, ساخت session_expiry_list *i2)
 {
-	if(i1->context->session_expiry_time == i2->context->session_expiry_time){
-		return 0;
-	}else if(i1->context->session_expiry_time > i2->context->session_expiry_time){
-		return 1;
-	}else{
-		return -1;
+	اگر(i1->context->session_expiry_وقت == i2->context->session_expiry_وقت){
+		واپس 0;
+	}ورنہ اگر(i1->context->session_expiry_وقت > i2->context->session_expiry_وقت){
+		واپس 1;
+	}ورنہ{
+		واپس -1;
 	}
 }
 
 
-static void set_session_expiry_time(struct mosquitto *context)
+ساکن خالی سیٹ_session_expiry_وقت(ساخت mosquitto *context)
 {
-	context->session_expiry_time = db.now_real_s;
+	context->session_expiry_وقت = db.now_real_s;
 
-	if(db.config->persistent_client_expiration == 0){
+	اگر(db.config->persistent_client_expiration == 0){
 		/* No global expiry, so use the client expiration interval */
-		context->session_expiry_time += context->session_expiry_interval;
-	}else{
+		context->session_expiry_وقت += context->session_expiry_interval;
+	}ورنہ{
 		/* We have a global expiry interval */
-		if(db.config->persistent_client_expiration < context->session_expiry_interval){
+		اگر(db.config->persistent_client_expiration < context->session_expiry_interval){
 			/* The client expiry is longer than the global expiry, so use the global */
-			context->session_expiry_time += db.config->persistent_client_expiration;
-		}else{
+			context->session_expiry_وقت += db.config->persistent_client_expiration;
+		}ورنہ{
 			/* The global expiry is longer than the client expiry, so use the client */
-			context->session_expiry_time += context->session_expiry_interval;
+			context->session_expiry_وقت += context->session_expiry_interval;
 		}
 	}
 }
 
 
-int session_expiry__add(struct mosquitto *context)
+صحیح session_expiry_جوڑو(ساخت mosquitto *context)
 {
-	struct session_expiry_list *item;
+	ساخت session_expiry_list *شے;
 
-	if(context->expiry_list_item){
+	اگر(context->expiry_list_شے){
 		/* Already added, may happen in cases like a client disconnecting then
 		 * being kicked by a plugin. */
-		return MOSQ_ERR_SUCCESS;
+		واپس MOSQ_ERR_SUCCESS;
 	}
 
-	if(db.config->persistent_client_expiration == 0){
-		if(context->session_expiry_interval == MQTT_SESSION_EXPIRY_NEVER){
+	اگر(db.config->persistent_client_expiration == 0){
+		اگر(context->session_expiry_interval == MQTT_SESSION_EXPIRY_NEVER){
 			/* There isn't a global expiry set, and the client has asked to
 			 * never expire, so we don't add it to the list. */
-			return MOSQ_ERR_SUCCESS;
+			واپس MOSQ_ERR_SUCCESS;
 		}
 	}
 
-	item = mosquitto_calloc(1, sizeof(struct session_expiry_list));
-	if(!item){
-		return MOSQ_ERR_NOMEM;
+	شے = mosquitto_calloc(1, حجم(ساخت session_expiry_list));
+	اگر(!شے){
+		واپس MOSQ_ERR_NOMEM;
 	}
 
-	item->context = context;
-	set_session_expiry_time(item->context);
-	context->expiry_list_item = item;
+	شے->context = context;
+	سیٹ_session_expiry_وقت(شے->context);
+	context->expiry_list_شے = شے;
 
-	DL_INSERT_INORDER(expiry_list, item, session_expiry__cmp);
+	DL_داخل_کرو_درمیانی_ترتیب(expiry_list, شے, session_expiry__cmp);
 
 	plugin_persist__handle_client_update(context);
 
-	return MOSQ_ERR_SUCCESS;
+	واپس MOSQ_ERR_SUCCESS;
 }
 
 
-int session_expiry__add_from_persistence(struct mosquitto *context, time_t expiry_time)
+صحیح session_expiry_جوڑو_from_persistence(ساخت mosquitto *context, time_t expiry_وقت)
 {
-	struct session_expiry_list *item;
+	ساخت session_expiry_list *شے;
 
-	if(context->expiry_list_item){
+	اگر(context->expiry_list_شے){
 		/* Already added, may happen in cases like a client disconnecting then
 		 * being kicked by a plugin. */
-		return MOSQ_ERR_SUCCESS;
+		واپس MOSQ_ERR_SUCCESS;
 	}
 
-	if(db.config->persistent_client_expiration == 0){
-		if(context->session_expiry_interval == MQTT_SESSION_EXPIRY_NEVER){
+	اگر(db.config->persistent_client_expiration == 0){
+		اگر(context->session_expiry_interval == MQTT_SESSION_EXPIRY_NEVER){
 			/* There isn't a global expiry set, and the client has asked to
 			 * never expire, so we don't add it to the list. */
-			return MOSQ_ERR_SUCCESS;
+			واپس MOSQ_ERR_SUCCESS;
 		}
 	}
 
-	item = mosquitto_calloc(1, sizeof(struct session_expiry_list));
-	if(!item){
-		return MOSQ_ERR_NOMEM;
+	شے = mosquitto_calloc(1, حجم(ساخت session_expiry_list));
+	اگر(!شے){
+		واپس MOSQ_ERR_NOMEM;
 	}
 
-	item->context = context;
-	if(expiry_time){
-		item->context->session_expiry_time = expiry_time;
-	}else{
-		set_session_expiry_time(item->context);
+	شے->context = context;
+	اگر(expiry_وقت){
+		شے->context->session_expiry_وقت = expiry_وقت;
+	}ورنہ{
+		سیٹ_session_expiry_وقت(شے->context);
 
 	}
-	context->expiry_list_item = item;
+	context->expiry_list_شے = شے;
 
-	DL_INSERT_INORDER(expiry_list, item, session_expiry__cmp);
+	DL_داخل_کرو_درمیانی_ترتیب(expiry_list, شے, session_expiry__cmp);
 
-	return MOSQ_ERR_SUCCESS;
+	واپس MOSQ_ERR_SUCCESS;
 }
 
 
-void session_expiry__add_on_shutdown(void)
+خالی session_expiry_جوڑو_on_shutdown(خالی)
 {
-	struct mosquitto *ctxt, *ctxt_tmp;
+	ساخت mosquitto *ctxt, *ctxt_tmp;
 
 	HASH_ITER(hh_id, db.contexts_by_id, ctxt, ctxt_tmp){
-		if(ctxt->bridge == NULL
+		اگر(ctxt->bridge == تہی
 				&& ctxt->is_persisted
-				&& ctxt->session_expiry_interval != MQTT_SESSION_EXPIRY_IMMEDIATE
+				&& ctxt->session_expiry_interval != MQTT_SESSION_EXPIRY_فوری
 				){
 
-			session_expiry__add(ctxt);
+			session_expiry_جوڑو(ctxt);
 		}
 	}
 }
 
 
-void session_expiry__remove(struct mosquitto *context)
+خالی session_expiry__remove(ساخت mosquitto *context)
 {
-	if(context->expiry_list_item){
-		DL_DELETE(expiry_list, context->expiry_list_item);
-		mosquitto_FREE(context->expiry_list_item);
+	اگر(context->expiry_list_شے){
+		DL_DELETE(expiry_list, context->expiry_list_شے);
+		mosquitto_FREE(context->expiry_list_شے);
 	}
 }
 
 
 /* Call on broker shutdown only */
-void session_expiry__remove_all(void)
+خالی session_expiry__remove_all(خالی)
 {
-	struct session_expiry_list *item, *tmp;
-	struct mosquitto *context;
+	ساخت session_expiry_list *شے, *tmp;
+	ساخت mosquitto *context;
 
-	DL_FOREACH_SAFE(expiry_list, item, tmp){
-		context = item->context;
+	DL_FOREACH_محفوظ(expiry_list, شے, tmp){
+		context = شے->context;
 		session_expiry__remove(context);
-		context->session_expiry_interval = MQTT_SESSION_EXPIRY_IMMEDIATE;
+		context->session_expiry_interval = MQTT_SESSION_EXPIRY_فوری;
 		context->will_delay_interval = 0;
 		will_delay__remove(context);
 		context__disconnect(context, -1);
@@ -176,53 +176,53 @@ void session_expiry__remove_all(void)
 }
 
 
-void session_expiry__check(void)
+خالی session_expiry__check(خالی)
 {
-	struct session_expiry_list *item, *tmp;
-	struct mosquitto *context;
+	ساخت session_expiry_list *شے, *tmp;
+	ساخت mosquitto *context;
 	time_t timeout;
 
-	if(last_check != 0 && db.now_real_s <= last_check){
-		if(expiry_list){
+	اگر(آخری_check != 0 && db.now_real_s <= آخری_check){
+		اگر(expiry_list){
 			/* Next event is the first item of the list, we must set the timeout even if we aren't
 			 * checking the full list */
-			timeout = (expiry_list->context->session_expiry_time - db.now_real_s) * 1000;
-			if(timeout <= 0){
+			timeout = (expiry_list->context->session_expiry_وقت - db.now_real_s) * 1000;
+			اگر(timeout <= 0){
 				timeout = 100;
 			}
-			loop__update_next_event(timeout);
+			loop_update_اگلا_event(timeout);
 		}
-		return;
+		واپس;
 	}
 
-	last_check = db.now_real_s;
+	آخری_check = db.now_real_s;
 
-	DL_FOREACH_SAFE(expiry_list, item, tmp){
-		if(item->context->session_expiry_time < db.now_real_s){
+	DL_FOREACH_محفوظ(expiry_list, شے, tmp){
+		اگر(شے->context->session_expiry_وقت < db.now_real_s){
 
-			context = item->context;
+			context = شے->context;
 			session_expiry__remove(context);
 
-			if(context->id){
-				log__printf(NULL, MOSQ_LOG_NOTICE, "Expiring client %s due to timeout.", context->id);
+			اگر(context->id){
+				log__printf(تہی, MOSQ_LOG_NOTICE, "Expiring client %s due to timeout.", context->id);
 			}
-			metrics__int_inc(mosq_counter_clients_expired, 1);
+			metrics__int_inc(mosq_شمار_clients_expired, 1);
 
 			/* Session has now expired, so clear interval */
-			context->session_expiry_interval = MQTT_SESSION_EXPIRY_IMMEDIATE;
+			context->session_expiry_interval = MQTT_SESSION_EXPIRY_فوری;
 			/* Session has expired, so will delay should be cleared. */
 			context->will_delay_interval = 0;
 			will_delay__remove(context);
 			context__send_will(context);
 			plugin_persist__handle_client_delete(context);
-			context__add_to_disused(context);
-		}else{
-			timeout = (item->context->session_expiry_time - db.now_real_s + 1) * 1000;
-			if(timeout <= 0){
+			context_جوڑو_مقصد_disused(context);
+		}ورنہ{
+			timeout = (شے->context->session_expiry_وقت - db.now_real_s + 1) * 1000;
+			اگر(timeout <= 0){
 				timeout = 100;
 			}
-			loop__update_next_event(timeout);
-			return;
+			loop_update_اگلا_event(timeout);
+			واپس;
 		}
 	}
 }

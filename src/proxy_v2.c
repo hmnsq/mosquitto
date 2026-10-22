@@ -1,344 +1,344 @@
-#ifdef WIN32
+#اگر_تعریف_شدہ WIN32
 #  include <winsock2.h>
 #  include <ws2tcpip.h>
-#else
+#ورنہ
 #  include <arpa/inet.h>
 #  include <netinet/in.h>
-#endif
-#include <stdint.h>
-#include "mosquitto_broker_internal.h"
-#include "mosquitto_internal.h"
-#include "net_mosq.h"
+#اگر_ختم
+#شامل <stdint.h>
+#شامل "mosquitto_broker_internal.h"
+#شامل "mosquitto_internal.h"
+#شامل "net_mosq.h"
 
-#if !defined(WITH_WEBSOCKETS) || WITH_WEBSOCKETS == WS_IS_BUILTIN
+#اگر !defined(WITH_WEBSOCKETS) || WITH_WEBSOCKETS == WS_IS_BUILTIN
 
-#define PROXY_CMD_LOCAL 0x00
-#define PROXY_CMD_PROXY 0x01
+#تعریف_کرو PROXY_CMD_LOCAL 0x00
+#تعریف_کرو PROXY_CMD_PROXY 0x01
 
-#define PROXY_TCP_IPV4 0x11
-#define PROXY_TCP_IPV6 0x21
-#define PROXY_TCP_UNIX 0x31
+#تعریف_کرو PROXY_TCP_IPV4 0x11
+#تعریف_کرو PROXY_TCP_IPV6 0x21
+#تعریف_کرو PROXY_TCP_UNIX 0x31
 
-#define PP2_TYPE_ALPN           0x01
-#define PP2_TYPE_AUTHORITY      0x02
-#define PP2_TYPE_CRC32C         0x03
-#define PP2_TYPE_NOOP           0x04
-#define PP2_TYPE_UNIQUE_ID      0x05
-#define PP2_TYPE_SSL            0x20
-#define PP2_SUBTYPE_SSL_VERSION 0x21
-#define PP2_SUBTYPE_SSL_CN      0x22
-#define PP2_SUBTYPE_SSL_CIPHER  0x23
-#define PP2_SUBTYPE_SSL_SIG_ALG 0x24
-#define PP2_SUBTYPE_SSL_KEY_ALG 0x25
-#define PP2_TYPE_NETNS          0x30
+#تعریف_کرو PP2_TYPE_ALPN           0x01
+#تعریف_کرو PP2_TYPE_AUTHORITY      0x02
+#تعریف_کرو PP2_TYPE_چکری_جانچ_32_C         0x03
+#تعریف_کرو PP2_TYPE_NOOP           0x04
+#تعریف_کرو PP2_TYPE_UNIQUE_ID      0x05
+#تعریف_کرو PP2_TYPE_SSL            0x20
+#تعریف_کرو PP2_SUBTYPE_SSL_نسخہ 0x21
+#تعریف_کرو PP2_SUBTYPE_SSL_CN      0x22
+#تعریف_کرو PP2_SUBTYPE_SSL_CIPHER  0x23
+#تعریف_کرو PP2_SUBTYPE_SSL_SIG_ALG 0x24
+#تعریف_کرو PP2_SUBTYPE_SSL_کلید_ALG 0x25
+#تعریف_کرو PP2_TYPE_NETNS          0x30
 
-#define PP2_CLIENT_SSL           0x01
-#define PP2_CLIENT_CERT_CONN     0x02
-#define PP2_CLIENT_CERT_SESS     0x04
+#تعریف_کرو PP2_CLIENT_SSL           0x01
+#تعریف_کرو PP2_CLIENT_CERT_CONN     0x02
+#تعریف_کرو PP2_CLIENT_CERT_SESS     0x04
 
-#define PROXY_PACKET_LIMIT 500
+#تعریف_کرو PROXY_PACKET_حد_بندی 500
 
-struct proxy_hdr_v2 {
+ساخت proxy_hdr_v2 {
 	uint8_t sig[12]; /* hex 0D 0A 0D 0A 00 0D 0A 51 55 49 54 0A */
 	uint8_t ver_cmd; /* protocol version and command */
 	uint8_t fam; /* protocol family and address */
 	uint16_t len; /* number of following bytes part of the header */
 };
 
-union proxy_addr {
-	struct { /* for TCP/UDP over IPv4, len = 12 */
+اتحاد proxy_addr {
+	ساخت { /* for TCP/UDP over IPv4, len = 12 */
 		uint32_t src_addr;
 		uint32_t dst_addr;
-		uint16_t src_port;
-		uint16_t dst_port;
+		uint16_t src_پورٹ;
+		uint16_t dst_پورٹ;
 	} ipv4_addr;
-	struct { /* for TCP/UDP over IPv6, len = 36 */
+	ساخت { /* for TCP/UDP over IPv6, len = 36 */
 		uint8_t src_addr[16];
 		uint8_t dst_addr[16];
-		uint16_t src_port;
-		uint16_t dst_port;
+		uint16_t src_پورٹ;
+		uint16_t dst_پورٹ;
 	} ipv6_addr;
-	struct { /* for AF_UNIX sockets, len = 216 */
+	ساخت { /* for AF_UNIX sockets, len = 216 */
 		uint8_t src_addr[108];
 		uint8_t dst_addr[108];
 	} unix_addr;
 };
 
-struct pp2_tlv {
+ساخت pp2_tlv {
 	uint8_t type;
-	uint8_t length_h;
-	uint8_t length_l;
+	uint8_t لمبائی_h;
+	uint8_t لمبائی_l;
 };
 
-struct pp2_tlv_ssl {
+ساخت pp2_tlv_ssl {
 	uint8_t client;
 	uint32_t verify;
 };
 
-const uint8_t signature[12] = {0x0D, 0x0A, 0x0D, 0x0A, 0x00, 0x0D, 0x0A, 0x51, 0x55, 0x49, 0x54, 0x0A};
+ثابت uint8_t signature[12] = {0x0D, 0x0A, 0x0D, 0x0A, 0x00, 0x0D, 0x0A, 0x51, 0x55, 0x49, 0x54, 0x0A};
 
 
-static void proxy_cleanup(struct mosquitto *context)
+ساکن خالی proxy_cleanup(ساخت mosquitto *context)
 {
 	mosquitto_FREE(context->proxy.buf);
-	mosquitto_FREE(context->proxy.tls_version);
+	mosquitto_FREE(context->proxy.tls_نسخہ);
 	mosquitto_FREE(context->proxy.cipher);
 }
 
 
-static int read_tlv_ssl(struct mosquitto *context, uint16_t len, bool *have_certificate)
+ساکن صحیح read_tlv_ssl(ساخت mosquitto *context, uint16_t len, bool *have_certificate)
 {
-	struct pp2_tlv_ssl ssl = {0};
+	ساخت pp2_tlv_ssl ssl = {0};
 
-	if(len < sizeof(uint8_t) + sizeof(uint32_t)){
-		return MOSQ_ERR_INVAL;
+	اگر(len < حجم(uint8_t) + حجم(uint32_t)){
+		واپس MOSQ_ERR_INVAL;
 	}
 
 	ssl.client = context->proxy.buf[context->proxy.pos];
-	ssl.verify = ntohl(*(uint32_t *)(&context->proxy.buf[context->proxy.pos + sizeof(uint8_t)]));
-	context->proxy.pos = (uint16_t)(context->proxy.pos + sizeof(uint8_t) + sizeof(uint32_t));
-	len = (uint16_t)(len - (sizeof(uint8_t) + sizeof(uint32_t)));
+	ssl.verify = ntohl(*(uint32_t *)(&context->proxy.buf[context->proxy.pos + حجم(uint8_t)]));
+	context->proxy.pos = (uint16_t)(context->proxy.pos + حجم(uint8_t) + حجم(uint32_t));
+	len = (uint16_t)(len - (حجم(uint8_t) + حجم(uint32_t)));
 
-	if(ssl.client & PP2_CLIENT_SSL && ssl.client & PP2_CLIENT_CERT_SESS && !ssl.verify){
+	اگر(ssl.client & PP2_CLIENT_SSL && ssl.client & PP2_CLIENT_CERT_SESS && !ssl.verify){
 		*have_certificate = true;
 	}
 
-	while(len > 0){
-		if(context->proxy.len - context->proxy.pos < (int)sizeof(struct pp2_tlv)){
-			return MOSQ_ERR_INVAL;
+	جب(len > 0){
+		اگر(context->proxy.len - context->proxy.pos < (صحیح)حجم(ساخت pp2_tlv)){
+			واپس MOSQ_ERR_INVAL;
 		}
-		struct pp2_tlv *tlv = (struct pp2_tlv *)(&context->proxy.buf[context->proxy.pos]);
-		uint16_t tlv_len = (uint16_t)((tlv->length_h<<8) + tlv->length_l);
-		context->proxy.pos = (uint16_t)(context->proxy.pos + sizeof(struct pp2_tlv));
+		ساخت pp2_tlv *tlv = (ساخت pp2_tlv *)(&context->proxy.buf[context->proxy.pos]);
+		uint16_t tlv_len = (uint16_t)((tlv->لمبائی_h<<8) + tlv->لمبائی_l);
+		context->proxy.pos = (uint16_t)(context->proxy.pos + حجم(ساخت pp2_tlv));
 
-		if(tlv_len > context->proxy.len - context->proxy.pos){
-			return MOSQ_ERR_INVAL;
+		اگر(tlv_len > context->proxy.len - context->proxy.pos){
+			واپس MOSQ_ERR_INVAL;
 		}
 
-		switch(tlv->type){
-			case PP2_SUBTYPE_SSL_VERSION:
-#ifdef WITH_TLS
-				mosquitto_free(context->proxy.tls_version);
-				context->proxy.tls_version = mosquitto_strndup((const char *)&context->proxy.buf[context->proxy.pos], tlv_len);
-#else
-				return MOSQ_ERR_NOT_SUPPORTED;
-#endif
-				break;
+		انتخاب(tlv->type){
+			حالت PP2_SUBTYPE_SSL_نسخہ:
+#اگر_تعریف_شدہ WITH_TLS
+				mosquitto_free(context->proxy.tls_نسخہ);
+				context->proxy.tls_نسخہ = mosquitto_strndup((ثابت حرف *)&context->proxy.buf[context->proxy.pos], tlv_len);
+#ورنہ
+				واپس MOSQ_ERR_NOT_SUPPORTED;
+#اگر_ختم
+				توڑو;
 
-			case PP2_SUBTYPE_SSL_CIPHER:
-#ifdef WITH_TLS
+			حالت PP2_SUBTYPE_SSL_CIPHER:
+#اگر_تعریف_شدہ WITH_TLS
 				mosquitto_free(context->proxy.cipher);
-				context->proxy.cipher = mosquitto_strndup((const char *)&context->proxy.buf[context->proxy.pos], tlv_len);
-#else
-				return MOSQ_ERR_NOT_SUPPORTED;
-#endif
-				break;
+				context->proxy.cipher = mosquitto_strndup((ثابت حرف *)&context->proxy.buf[context->proxy.pos], tlv_len);
+#ورنہ
+				واپس MOSQ_ERR_NOT_SUPPORTED;
+#اگر_ختم
+				توڑو;
 
-			case PP2_SUBTYPE_SSL_CN:
-#ifdef WITH_TLS
-				if(context->listener->use_identity_as_username){
+			حالت PP2_SUBTYPE_SSL_CN:
+#اگر_تعریف_شدہ WITH_TLS
+				اگر(context->listener->use_شناختی_عنصر_as_username){
 					mosquitto_free(context->username);
-					context->username = mosquitto_strndup((const char *)&context->proxy.buf[context->proxy.pos], tlv_len);
-					if(!context->username){
-						return MOSQ_ERR_NOMEM;
+					context->username = mosquitto_strndup((ثابت حرف *)&context->proxy.buf[context->proxy.pos], tlv_len);
+					اگر(!context->username){
+						واپس MOSQ_ERR_NOMEM;
 					}
 				}
-#else
-				return MOSQ_ERR_NOT_SUPPORTED;
-#endif
-				break;
+#ورنہ
+				واپس MOSQ_ERR_NOT_SUPPORTED;
+#اگر_ختم
+				توڑو;
 		}
-		len = (uint16_t)(len - (sizeof(uint8_t) + sizeof(uint8_t) + sizeof(uint8_t) + tlv_len));
+		len = (uint16_t)(len - (حجم(uint8_t) + حجم(uint8_t) + حجم(uint8_t) + tlv_len));
 		context->proxy.pos = (uint16_t)(context->proxy.pos + tlv_len);
 	}
 	context->proxy.have_tls = true;
 
-	return MOSQ_ERR_SUCCESS;
+	واپس MOSQ_ERR_SUCCESS;
 }
 
 
-static int read_tlv(struct mosquitto *context, bool *have_certificate)
+ساکن صحیح read_tlv(ساخت mosquitto *context, bool *have_certificate)
 {
-	while(context->proxy.pos < context->proxy.len){
-		if(context->proxy.len - context->proxy.pos < (int)sizeof(struct pp2_tlv)){
-			return MOSQ_ERR_INVAL;
+	جب(context->proxy.pos < context->proxy.len){
+		اگر(context->proxy.len - context->proxy.pos < (صحیح)حجم(ساخت pp2_tlv)){
+			واپس MOSQ_ERR_INVAL;
 		}
-		struct pp2_tlv *tlv = (struct pp2_tlv *)(&context->proxy.buf[context->proxy.pos]);
-		uint16_t tlv_len = (uint16_t)((tlv->length_h<<8) + tlv->length_l);
-		context->proxy.pos = (uint16_t)(context->proxy.pos + sizeof(struct pp2_tlv));
+		ساخت pp2_tlv *tlv = (ساخت pp2_tlv *)(&context->proxy.buf[context->proxy.pos]);
+		uint16_t tlv_len = (uint16_t)((tlv->لمبائی_h<<8) + tlv->لمبائی_l);
+		context->proxy.pos = (uint16_t)(context->proxy.pos + حجم(ساخت pp2_tlv));
 
-		if(tlv_len > context->proxy.len - context->proxy.pos){
-			return MOSQ_ERR_INVAL;
+		اگر(tlv_len > context->proxy.len - context->proxy.pos){
+			واپس MOSQ_ERR_INVAL;
 		}
 
-		switch(tlv->type){
-			case PP2_TYPE_SSL:
+		انتخاب(tlv->type){
+			حالت PP2_TYPE_SSL:
 				{
-					int rc = read_tlv_ssl(context, tlv_len, have_certificate);
-					if(rc){
-						return rc;
+					صحیح rc = read_tlv_ssl(context, tlv_len, have_certificate);
+					اگر(rc){
+						واپس rc;
 					}
 				}
-				break;
-			default:
+				توڑو;
+			طےشدہ:
 				context->proxy.pos = (uint16_t)(context->proxy.pos + tlv_len);
-				break;
+				توڑو;
 		}
 	}
 
-	return MOSQ_ERR_SUCCESS;
+	واپس MOSQ_ERR_SUCCESS;
 }
 
 
-int proxy_v2__read(struct mosquitto *context)
+صحیح proxy_v2__read(ساخت mosquitto *context)
 {
-	struct proxy_hdr_v2 hdr;
+	ساخت proxy_hdr_v2 hdr;
 
-	if(context->proxy.cmd == -1){
-		context->proxy.buf = NULL;
-		if(net__read(context, &hdr, sizeof(hdr)) != sizeof(hdr)){
-			return MOSQ_ERR_CONN_LOST;
+	اگر(context->proxy.cmd == -1){
+		context->proxy.buf = تہی;
+		اگر(net__read(context, &hdr, حجم(hdr)) != حجم(hdr)){
+			واپس MOSQ_ERR_CONN_گمشدہ;
 		}
-		if(memcmp(hdr.sig, signature, sizeof(signature))){
-			return MOSQ_ERR_INVAL;
+		اگر(memcmp(hdr.sig, signature, حجم(signature))){
+			واپس MOSQ_ERR_INVAL;
 		}
-		if((hdr.ver_cmd & 0xF0) != 0x20){
-			return MOSQ_ERR_INVAL;
+		اگر((hdr.ver_cmd & 0xF0) != 0x20){
+			واپس MOSQ_ERR_INVAL;
 		}
 		context->proxy.cmd = hdr.ver_cmd & 0x0F;
-		if(context->proxy.cmd != 0x00 && context->proxy.cmd != 0x01){
-			return MOSQ_ERR_INVAL;
+		اگر(context->proxy.cmd != 0x00 && context->proxy.cmd != 0x01){
+			واپس MOSQ_ERR_INVAL;
 		}
 		context->proxy.fam = hdr.fam;
-		if((hdr.fam != 0x00 || context->proxy.cmd != PROXY_CMD_LOCAL)
+		اگر((hdr.fam != 0x00 || context->proxy.cmd != PROXY_CMD_LOCAL)
 				&& hdr.fam != PROXY_TCP_IPV4
 				&& hdr.fam != PROXY_TCP_IPV6
 				&& hdr.fam != PROXY_TCP_UNIX){
 
-			return 1;
+			واپس 1;
 		}
 		context->proxy.pos = 0;
 		context->proxy.len = ntohs(hdr.len);
-		if(context->proxy.len > 0){
+		اگر(context->proxy.len > 0){
 			/* PROXY_PACKET_LIMIT=500 bytes, arbitrary upper limit */
-			switch(context->proxy.fam){
-				case PROXY_TCP_IPV4:
-					if(context->proxy.len < 12 || context->proxy.len > PROXY_PACKET_LIMIT){
-						return MOSQ_ERR_INVAL;
+			انتخاب(context->proxy.fam){
+				حالت PROXY_TCP_IPV4:
+					اگر(context->proxy.len < 12 || context->proxy.len > PROXY_PACKET_حد_بندی){
+						واپس MOSQ_ERR_INVAL;
 					}
-					break;
-				case PROXY_TCP_IPV6:
-					if(context->proxy.len < 36 || context->proxy.len > PROXY_PACKET_LIMIT){
-						return MOSQ_ERR_INVAL;
+					توڑو;
+				حالت PROXY_TCP_IPV6:
+					اگر(context->proxy.len < 36 || context->proxy.len > PROXY_PACKET_حد_بندی){
+						واپس MOSQ_ERR_INVAL;
 					}
-					break;
-				case PROXY_TCP_UNIX:
-					if(context->proxy.len > PROXY_PACKET_LIMIT){
-						return MOSQ_ERR_INVAL;
+					توڑو;
+				حالت PROXY_TCP_UNIX:
+					اگر(context->proxy.len > PROXY_PACKET_حد_بندی){
+						واپس MOSQ_ERR_INVAL;
 					}
-					break;
+					توڑو;
 			}
 			context->proxy.buf = mosquitto_calloc(1, (size_t)(context->proxy.len+1));
-			if(!context->proxy.buf){
-				return MOSQ_ERR_NOMEM;
+			اگر(!context->proxy.buf){
+				واپس MOSQ_ERR_NOMEM;
 			}
-		}else{
-			if(context->proxy.cmd != PROXY_CMD_LOCAL || context->proxy.fam != 0x00){
-				return MOSQ_ERR_PROTOCOL;
+		}ورنہ{
+			اگر(context->proxy.cmd != PROXY_CMD_LOCAL || context->proxy.fam != 0x00){
+				واپس MOSQ_ERR_PROTOCOL;
 			}
 		}
 
 	}
 
-	if(context->proxy.pos < context->proxy.len){
+	اگر(context->proxy.pos < context->proxy.len){
 		ssize_t rc = net__read(context, context->proxy.buf, (size_t)(context->proxy.len - context->proxy.pos));
-		if(rc > 0){
+		اگر(rc > 0){
 			context->proxy.pos = (uint16_t)(context->proxy.pos + rc);
-		}else{
+		}ورنہ{
 			proxy_cleanup(context);
-			return MOSQ_ERR_CONN_LOST;
+			واپس MOSQ_ERR_CONN_گمشدہ;
 		}
 	}
-	if(context->proxy.pos == context->proxy.len){
-		if(context->proxy.fam == PROXY_TCP_IPV4){
-			char address[100];
-			union proxy_addr *addr = (union proxy_addr *)context->proxy.buf;
+	اگر(context->proxy.pos == context->proxy.len){
+		اگر(context->proxy.fam == PROXY_TCP_IPV4){
+			حرف پتہ[100];
+			اتحاد proxy_addr *addr = (اتحاد proxy_addr *)context->proxy.buf;
 
-			inet_ntop(AF_INET, &addr->ipv4_addr.src_addr, address, sizeof(address));
-			context->address = mosquitto_strdup(address);
-			context->remote_port = ntohs(addr->ipv4_addr.src_port);
+			inet_ntop(AF_INET, &addr->ipv4_addr.src_addr, پتہ, حجم(پتہ));
+			context->پتہ = mosquitto_strdup(پتہ);
+			context->remote_پورٹ = ntohs(addr->ipv4_addr.src_پورٹ);
 			context->proxy.pos = 4+4+2+2;
-		}else if(context->proxy.fam == PROXY_TCP_IPV6){
-			char address[100];
-			union proxy_addr *addr = (union proxy_addr *)context->proxy.buf;
+		}ورنہ اگر(context->proxy.fam == PROXY_TCP_IPV6){
+			حرف پتہ[100];
+			اتحاد proxy_addr *addr = (اتحاد proxy_addr *)context->proxy.buf;
 
-			inet_ntop(AF_INET6, addr->ipv6_addr.src_addr, address, sizeof(address));
-			context->address = mosquitto_strdup(address);
-			context->remote_port = ntohs(addr->ipv6_addr.src_port);
+			inet_ntop(AF_INET6, addr->ipv6_addr.src_addr, پتہ, حجم(پتہ));
+			context->پتہ = mosquitto_strdup(پتہ);
+			context->remote_پورٹ = ntohs(addr->ipv6_addr.src_پورٹ);
 			context->proxy.pos = 16+16+2+2;
-		}else if(context->proxy.fam == PROXY_TCP_UNIX){
-			union proxy_addr *addr = (union proxy_addr *)context->proxy.buf;
-			context->address = mosquitto_strndup((char *)addr->unix_addr.src_addr, sizeof(addr->unix_addr.src_addr));
-			context->remote_port = 0;
-			context->proxy.pos = (uint16_t)(sizeof(addr->unix_addr.src_addr) + 1);
-		}else{
+		}ورنہ اگر(context->proxy.fam == PROXY_TCP_UNIX){
+			اتحاد proxy_addr *addr = (اتحاد proxy_addr *)context->proxy.buf;
+			context->پتہ = mosquitto_strndup((حرف *)addr->unix_addr.src_addr, حجم(addr->unix_addr.src_addr));
+			context->remote_پورٹ = 0;
+			context->proxy.pos = (uint16_t)(حجم(addr->unix_addr.src_addr) + 1);
+		}ورنہ{
 			/* Must be LOCAL */
 			/* Ignore address */
-			context->address = NULL;
-			context->remote_port = 0;
+			context->پتہ = تہی;
+			context->remote_پورٹ = 0;
 			proxy_cleanup(context);
-			return MOSQ_ERR_PROXY;
+			واپس MOSQ_ERR_PROXY;
 		}
-		if(!context->address){
+		اگر(!context->پتہ){
 			proxy_cleanup(context);
-			return MOSQ_ERR_NOMEM;
+			واپس MOSQ_ERR_NOMEM;
 		}
 
 		bool have_certificate = false;
 
-		int rc = read_tlv(context, &have_certificate);
-		if(rc){
-			log__printf(NULL, MOSQ_LOG_NOTICE, "Connection from %s:%d rejected, corrupt PROXY header.",
-					context->address, context->remote_port);
+		صحیح rc = read_tlv(context, &have_certificate);
+		اگر(rc){
+			log__printf(تہی, MOSQ_LOG_NOTICE, "Connection from %s:%d rejected, corrupt PROXY header.",
+					context->پتہ, context->remote_پورٹ);
 			proxy_cleanup(context);
-			return MOSQ_ERR_PROXY;
+			واپس MOSQ_ERR_PROXY;
 		}
 		mosquitto_FREE(context->proxy.buf);
 
-		if(context->listener->proxy_protocol_v2_require_tls && !context->proxy.have_tls){
-			log__printf(NULL, MOSQ_LOG_NOTICE, "Connection from %s:%d rejected, client did not connect using TLS.",
-					context->address, context->remote_port);
+		اگر(context->listener->proxy_protocol_v2_require_tls && !context->proxy.have_tls){
+			log__printf(تہی, MOSQ_LOG_NOTICE, "Connection from %s:%d rejected, client did not connect using TLS.",
+					context->پتہ, context->remote_پورٹ);
 			proxy_cleanup(context);
-			return MOSQ_ERR_PROXY;
+			واپس MOSQ_ERR_PROXY;
 		}
 
-#ifdef WITH_TLS
-		if(context->listener->require_certificate){
-			if(!have_certificate){
-				log__printf(NULL, MOSQ_LOG_NOTICE, "Connection from %s:%d rejected, client did not provide a certificate.",
-						context->address, context->remote_port);
+#اگر_تعریف_شدہ WITH_TLS
+		اگر(context->listener->require_certificate){
+			اگر(!have_certificate){
+				log__printf(تہی, MOSQ_LOG_NOTICE, "Connection from %s:%d rejected, client did not provide a certificate.",
+						context->پتہ, context->remote_پورٹ);
 				proxy_cleanup(context);
-				return MOSQ_ERR_PROXY;
+				واپس MOSQ_ERR_PROXY;
 			}
 		}
 
-		if(context->proxy.tls_version && context->proxy.cipher){
-			log__printf(NULL, MOSQ_LOG_NOTICE, "Connection from %s:%d negotiated %s cipher %s",
-					context->address, context->remote_port, context->proxy.tls_version, context->proxy.cipher);
+		اگر(context->proxy.tls_نسخہ && context->proxy.cipher){
+			log__printf(تہی, MOSQ_LOG_NOTICE, "Connection from %s:%d negotiated %s cipher %s",
+					context->پتہ, context->remote_پورٹ, context->proxy.tls_نسخہ, context->proxy.cipher);
 		}
-#endif
+#اگر_ختم
 		proxy_cleanup(context);
 
-#if defined(WITH_WEBSOCKETS) && WITH_WEBSOCKETS == WS_IS_BUILTIN
-		if(context->listener->protocol == mp_websockets){
-			return http__context_init(context);
-		}else
-#endif
+#اگر defined(WITH_WEBSOCKETS) && WITH_WEBSOCKETS == WS_IS_BUILTIN
+		اگر(context->listener->protocol == mp_websockets){
+			واپس http__context_init(context);
+		}ورنہ
+#اگر_ختم
 		{
 			context->transport = mosq_t_tcp;
 		}
 	}
 
-	return MOSQ_ERR_SUCCESS;
+	واپس MOSQ_ERR_SUCCESS;
 }
-#endif
+#اگر_ختم

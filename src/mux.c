@@ -17,116 +17,116 @@ Contributors:
    Tatsuzo Osawa - Add epoll.
 */
 
-#include "mux.h"
+#شامل "mux.h"
 
 
-int mux__init(void)
+صحیح mux__init(خالی)
 {
-#ifdef WITH_EPOLL
-	return mux_epoll__init();
-#elif defined(WITH_KQUEUE)
-	return mux_kqueue__init();
-#else
-	return mux_poll__init();
-#endif
+#اگر_تعریف_شدہ WITH_EPOLL
+	واپس mux_epoll__init();
+#وگرنہ_اگر defined(WITH_KQUEUE)
+	واپس mux_kqueue__init();
+#ورنہ
+	واپس mux_poll__init();
+#اگر_ختم
 }
 
 
-int mux__add_listeners(struct mosquitto__listener_sock *listensock, int listensock_count)
+صحیح mux_جوڑو_listeners(ساخت mosquitto__listener_sock *listensock, صحیح listensock_گنتی)
 {
-#ifdef WITH_EPOLL
-	return mux_epoll__add_listeners(listensock, listensock_count);
-#elif defined(WITH_KQUEUE)
-	return mux_kqueue__add_listeners(listensock, listensock_count);
-#else
-	return mux_poll__add_listeners(listensock, listensock_count);
-#endif
+#اگر_تعریف_شدہ WITH_EPOLL
+	واپس mux_epoll_جوڑو_listeners(listensock, listensock_گنتی);
+#وگرنہ_اگر defined(WITH_KQUEUE)
+	واپس mux_kqueue_جوڑو_listeners(listensock, listensock_گنتی);
+#ورنہ
+	واپس mux_poll_جوڑو_listeners(listensock, listensock_گنتی);
+#اگر_ختم
 }
 
 
-int mux__delete_listeners(struct mosquitto__listener_sock *listensock, int listensock_count)
+صحیح mux__delete_listeners(ساخت mosquitto__listener_sock *listensock, صحیح listensock_گنتی)
 {
-#ifdef WITH_EPOLL
-	return mux_epoll__delete_listeners(listensock, listensock_count);
-#elif defined(WITH_KQUEUE)
-	return mux_kqueue__delete_listeners(listensock, listensock_count);
-#else
-	return mux_poll__delete_listeners(listensock, listensock_count);
-#endif
+#اگر_تعریف_شدہ WITH_EPOLL
+	واپس mux_epoll__delete_listeners(listensock, listensock_گنتی);
+#وگرنہ_اگر defined(WITH_KQUEUE)
+	واپس mux_kqueue__delete_listeners(listensock, listensock_گنتی);
+#ورنہ
+	واپس mux_poll__delete_listeners(listensock, listensock_گنتی);
+#اگر_ختم
 }
 
 
-int mux__add_out(struct mosquitto *context)
+صحیح mux_جوڑو_برآمد(ساخت mosquitto *context)
 {
-#ifdef WITH_EPOLL
-	return mux_epoll__add_out(context);
-#elif defined(WITH_KQUEUE)
-	return mux_kqueue__add_out(context);
-#else
-	return mux_poll__add_out(context);
-#endif
+#اگر_تعریف_شدہ WITH_EPOLL
+	واپس mux_epoll_جوڑو_برآمد(context);
+#وگرنہ_اگر defined(WITH_KQUEUE)
+	واپس mux_kqueue_جوڑو_برآمد(context);
+#ورنہ
+	واپس mux_poll_جوڑو_برآمد(context);
+#اگر_ختم
 }
 
 
-int mux__remove_out(struct mosquitto *context)
+صحیح mux_remove_برآمد(ساخت mosquitto *context)
 {
-#ifdef WITH_EPOLL
-	return mux_epoll__remove_out(context);
-#elif defined(WITH_KQUEUE)
-	return mux_kqueue__remove_out(context);
-#else
-	return mux_poll__remove_out(context);
-#endif
+#اگر_تعریف_شدہ WITH_EPOLL
+	واپس mux_epoll_remove_برآمد(context);
+#وگرنہ_اگر defined(WITH_KQUEUE)
+	واپس mux_kqueue_remove_برآمد(context);
+#ورنہ
+	واپس mux_poll_remove_برآمد(context);
+#اگر_ختم
 }
 
 
-int mux__new(struct mosquitto *context)
+صحیح mux__new(ساخت mosquitto *context)
 {
-#ifdef WITH_EPOLL
-	return mux_epoll__new(context);
-#elif defined(WITH_KQUEUE)
-	return mux_kqueue__new(context);
-#else
-	return mux_poll__new(context);
-#endif
+#اگر_تعریف_شدہ WITH_EPOLL
+	واپس mux_epoll__new(context);
+#وگرنہ_اگر defined(WITH_KQUEUE)
+	واپس mux_kqueue__new(context);
+#ورنہ
+	واپس mux_poll__new(context);
+#اگر_ختم
 }
 
 
-int mux__delete(struct mosquitto *context)
+صحیح mux__delete(ساخت mosquitto *context)
 {
-#ifdef WITH_EPOLL
-	return mux_epoll__delete(context);
-#elif defined(WITH_KQUEUE)
-	return mux_kqueue__delete(context);
-#else
-	return mux_poll__delete(context);
-#endif
+#اگر_تعریف_شدہ WITH_EPOLL
+	واپس mux_epoll__delete(context);
+#وگرنہ_اگر defined(WITH_KQUEUE)
+	واپس mux_kqueue__delete(context);
+#ورنہ
+	واپس mux_poll__delete(context);
+#اگر_ختم
 }
 
 
-int mux__handle(struct mosquitto__listener_sock *listensock, int listensock_count)
+صحیح mux__handle(ساخت mosquitto__listener_sock *listensock, صحیح listensock_گنتی)
 {
-#ifdef WITH_EPOLL
-	UNUSED(listensock);
-	UNUSED(listensock_count);
-	return mux_epoll__handle();
-#elif defined(WITH_KQUEUE)
-	UNUSED(listensock);
-	UNUSED(listensock_count);
-	return mux_kqueue__handle();
-#else
-	return mux_poll__handle(listensock, listensock_count);
-#endif
+#اگر_تعریف_شدہ WITH_EPOLL
+	غیر_مستعمل(listensock);
+	غیر_مستعمل(listensock_گنتی);
+	واپس mux_epoll__handle();
+#وگرنہ_اگر defined(WITH_KQUEUE)
+	غیر_مستعمل(listensock);
+	غیر_مستعمل(listensock_گنتی);
+	واپس mux_kqueue__handle();
+#ورنہ
+	واپس mux_poll__handle(listensock, listensock_گنتی);
+#اگر_ختم
 }
 
 
-int mux__cleanup(void)
+صحیح mux__cleanup(خالی)
 {
-#ifdef WITH_EPOLL
-	return mux_epoll__cleanup();
-#elif defined(WITH_KQUEUE)
-	return mux_kqueue__cleanup();
-#else
-	return mux_poll__cleanup();
-#endif
+#اگر_تعریف_شدہ WITH_EPOLL
+	واپس mux_epoll__cleanup();
+#وگرنہ_اگر defined(WITH_KQUEUE)
+	واپس mux_kqueue__cleanup();
+#ورنہ
+	واپس mux_poll__cleanup();
+#اگر_ختم
 }

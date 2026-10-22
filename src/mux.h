@@ -16,39 +16,39 @@ Contributors:
    Roger Light - initial implementation and documentation.
 */
 
-#ifndef MUX_H
-#define MUX_H
+#اگر_غیر_تعریف_شدہ MUX_H
+#تعریف_کرو MUX_H
 
-#include "mosquitto_broker_internal.h"
+#شامل "mosquitto_broker_internal.h"
 
-int mux_epoll__init(void);
-int mux_epoll__add_listeners(struct mosquitto__listener_sock *listensock, int listensock_count);
-int mux_epoll__delete_listeners(struct mosquitto__listener_sock *listensock, int listensock_count);
-int mux_epoll__new(struct mosquitto *context);
-int mux_epoll__add_out(struct mosquitto *context);
-int mux_epoll__remove_out(struct mosquitto *context);
-int mux_epoll__delete(struct mosquitto *context);
-int mux_epoll__handle(void);
-int mux_epoll__cleanup(void);
+صحیح mux_epoll__init(خالی);
+صحیح mux_epoll_جوڑو_listeners(ساخت mosquitto__listener_sock *listensock, صحیح listensock_گنتی);
+صحیح mux_epoll__delete_listeners(ساخت mosquitto__listener_sock *listensock, صحیح listensock_گنتی);
+صحیح mux_epoll__new(ساخت mosquitto *context);
+صحیح mux_epoll_جوڑو_برآمد(ساخت mosquitto *context);
+صحیح mux_epoll_remove_برآمد(ساخت mosquitto *context);
+صحیح mux_epoll__delete(ساخت mosquitto *context);
+صحیح mux_epoll__handle(خالی);
+صحیح mux_epoll__cleanup(خالی);
 
-int mux_kqueue__init(void);
-int mux_kqueue__add_listeners(struct mosquitto__listener_sock *listensock, int listensock_count);
-int mux_kqueue__delete_listeners(struct mosquitto__listener_sock *listensock, int listensock_count);
-int mux_kqueue__new(struct mosquitto *context);
-int mux_kqueue__add_out(struct mosquitto *context);
-int mux_kqueue__remove_out(struct mosquitto *context);
-int mux_kqueue__delete(struct mosquitto *context);
-int mux_kqueue__handle(void);
-int mux_kqueue__cleanup(void);
+صحیح mux_kqueue__init(خالی);
+صحیح mux_kqueue_جوڑو_listeners(ساخت mosquitto__listener_sock *listensock, صحیح listensock_گنتی);
+صحیح mux_kqueue__delete_listeners(ساخت mosquitto__listener_sock *listensock, صحیح listensock_گنتی);
+صحیح mux_kqueue__new(ساخت mosquitto *context);
+صحیح mux_kqueue_جوڑو_برآمد(ساخت mosquitto *context);
+صحیح mux_kqueue_remove_برآمد(ساخت mosquitto *context);
+صحیح mux_kqueue__delete(ساخت mosquitto *context);
+صحیح mux_kqueue__handle(خالی);
+صحیح mux_kqueue__cleanup(خالی);
 
-int mux_poll__init(void);
-int mux_poll__add_listeners(struct mosquitto__listener_sock *listensock, int listensock_count);
-int mux_poll__delete_listeners(struct mosquitto__listener_sock *listensock, int listensock_count);
-int mux_poll__new(struct mosquitto *context);
-int mux_poll__add_out(struct mosquitto *context);
-int mux_poll__remove_out(struct mosquitto *context);
-int mux_poll__delete(struct mosquitto *context);
-int mux_poll__handle(struct mosquitto__listener_sock *listensock, int listensock_count);
-int mux_poll__cleanup(void);
+صحیح mux_poll__init(خالی);
+صحیح mux_poll_جوڑو_listeners(ساخت mosquitto__listener_sock *listensock, صحیح listensock_گنتی);
+صحیح mux_poll__delete_listeners(ساخت mosquitto__listener_sock *listensock, صحیح listensock_گنتی);
+صحیح mux_poll__new(ساخت mosquitto *context);
+صحیح mux_poll_جوڑو_برآمد(ساخت mosquitto *context);
+صحیح mux_poll_remove_برآمد(ساخت mosquitto *context);
+صحیح mux_poll__delete(ساخت mosquitto *context);
+صحیح mux_poll__handle(ساخت mosquitto__listener_sock *listensock, صحیح listensock_گنتی);
+صحیح mux_poll__cleanup(خالی);
 
-#endif
+#اگر_ختم

@@ -16,390 +16,390 @@ Contributors:
    Roger Light - initial implementation and documentation.
 */
 
-#include "config.h"
+#شامل "config.h"
 
-#ifdef WITH_PERSISTENCE
+#اگر_تعریف_شدہ WITH_PERSISTENCE
 
-#ifndef WIN32
-#include <arpa/inet.h>
-#endif
-#include <assert.h>
-#include <errno.h>
-#include <fcntl.h>
-#include <stdio.h>
-#include <string.h>
-#include <sys/stat.h>
-#include <time.h>
+#اگر_غیر_تعریف_شدہ WIN32
+#شامل <arpa/inet.h>
+#اگر_ختم
+#شامل <assert.h>
+#شامل <errno.h>
+#شامل <fcntl.h>
+#شامل <stdio.h>
+#شامل <string.h>
+#شامل <sys/stat.h>
+#شامل <time.h>
 
-#include "mosquitto_broker_internal.h"
-#include "persist.h"
-#include "util_mosq.h"
+#شامل "mosquitto_broker_internal.h"
+#شامل "persist.h"
+#شامل "util_mosq.h"
 
 
-static int persist__client_messages_save(FILE *db_fptr, struct mosquitto *context, struct mosquitto__client_msg *queue)
+ساکن صحیح persist__client_messages_save(FILE *db_fptr, ساخت mosquitto *context, ساخت mosquitto_client_پیغام *قطار)
 {
-	struct P_client_msg chunk;
-	struct mosquitto__client_msg *cmsg;
-	int rc;
+	ساخت P_client_پیغام chunk;
+	ساخت mosquitto_client_پیغام *cmsg;
+	صحیح rc;
 
-	assert(db_fptr);
-	assert(context);
+	أكد(db_fptr);
+	أكد(context);
 
-	cmsg = queue;
-	while(cmsg){
-		if(!strncmp(cmsg->base_msg->data.topic, "$SYS", 4)
-				&& cmsg->base_msg->ref_count <= 1
-				&& cmsg->base_msg->dest_id_count == 0){
+	cmsg = قطار;
+	جب(cmsg){
+		اگر(!لڑی_موازنہ(cmsg->بنیاد_پیغام->ڈیٹا.topic, "$SYS", 4)
+				&& cmsg->بنیاد_پیغام->ref_گنتی <= 1
+				&& cmsg->بنیاد_پیغام->dest_id_گنتی == 0){
 
 			/* This $SYS message won't have been persisted, so we can't persist
 			 * this client message. */
-			cmsg = cmsg->next;
-			continue;
+			cmsg = cmsg->اگلا;
+			جاری;
 		}
 
-		memset(&chunk, 0, sizeof(struct P_client_msg));
+		memset(&chunk, 0, حجم(ساخت P_client_پیغام));
 
-		chunk.F.store_id = cmsg->base_msg->data.store_id;
-		chunk.F.mid = cmsg->data.mid;
-		chunk.F.id_len = (uint16_t)strlen(context->id);
-		chunk.F.qos = cmsg->data.qos;
-		chunk.F.retain_dup = (uint8_t)((cmsg->data.retain&0x0F)<<4 | (cmsg->data.dup&0x0F));
-		chunk.F.direction = (uint8_t)cmsg->data.direction;
-		chunk.F.state = (uint8_t)cmsg->data.state;
+		chunk.F.store_id = cmsg->بنیاد_پیغام->ڈیٹا.store_id;
+		chunk.F.mid = cmsg->ڈیٹا.mid;
+		chunk.F.id_len = (uint16_t)لڑی_لمبائی(context->id);
+		chunk.F.qos = cmsg->ڈیٹا.qos;
+		chunk.F.retain_dup = (uint8_t)((cmsg->ڈیٹا.retain&0x0F)<<4 | (cmsg->ڈیٹا.dup&0x0F));
+		chunk.F.direction = (uint8_t)cmsg->ڈیٹا.direction;
+		chunk.F.state = (uint8_t)cmsg->ڈیٹا.state;
 		chunk.clientid = context->id;
-		chunk.subscription_identifier = cmsg->data.subscription_identifier;
+		chunk.subscription_identifier = cmsg->ڈیٹا.subscription_identifier;
 
-		rc = persist__chunk_client_msg_write_v6(db_fptr, &chunk);
-		if(rc){
-			return rc;
+		rc = persist_chunk_client_پیغام_write_v6(db_fptr, &chunk);
+		اگر(rc){
+			واپس rc;
 		}
 
-		cmsg = cmsg->next;
+		cmsg = cmsg->اگلا;
 	}
 
-	return MOSQ_ERR_SUCCESS;
+	واپس MOSQ_ERR_SUCCESS;
 }
 
 
-static int persist__message_store_save(FILE *db_fptr)
+ساکن صحیح persist_پیغام_store_save(FILE *db_fptr)
 {
-	struct P_base_msg chunk;
-	struct mosquitto__base_msg *base_msg, *base_msg_tmp;
-	int rc;
+	ساخت P_بنیاد_پیغام chunk;
+	ساخت mosquitto_بنیاد_پیغام *بنیاد_پیغام, *بنیاد_پیغام_tmp;
+	صحیح rc;
 
-	assert(db_fptr);
+	أكد(db_fptr);
 
-	base_msg = db.msg_store;
-	HASH_ITER(hh, db.msg_store, base_msg, base_msg_tmp){
-		if(base_msg->ref_count < 1 || base_msg->data.topic == NULL){
-			continue;
+	بنیاد_پیغام = db.پیغام_store;
+	HASH_ITER(hh, db.پیغام_store, بنیاد_پیغام, بنیاد_پیغام_tmp){
+		اگر(بنیاد_پیغام->ref_گنتی < 1 || بنیاد_پیغام->ڈیٹا.topic == تہی){
+			جاری;
 		}
 
-		memset(&chunk, 0, sizeof(struct P_base_msg));
+		memset(&chunk, 0, حجم(ساخت P_بنیاد_پیغام));
 
-		if(!strncmp(base_msg->data.topic, "$SYS", 4)){
-			if(base_msg->ref_count <= 1 && base_msg->dest_id_count == 0){
+		اگر(!لڑی_موازنہ(بنیاد_پیغام->ڈیٹا.topic, "$SYS", 4)){
+			اگر(بنیاد_پیغام->ref_گنتی <= 1 && بنیاد_پیغام->dest_id_گنتی == 0){
 				/* $SYS messages that are only retained shouldn't be persisted. */
-				continue;
+				جاری;
 			}
 			/* Don't save $SYS messages as retained otherwise they can give
 			 * misleading information when reloaded. They should still be saved
 			 * because a disconnected durable client may have them in their
 			 * queue. */
 			chunk.F.retain = 0;
-		}else{
-			chunk.F.retain = (uint8_t)base_msg->data.retain;
+		}ورنہ{
+			chunk.F.retain = (uint8_t)بنیاد_پیغام->ڈیٹا.retain;
 		}
 
-		chunk.F.store_id = base_msg->data.store_id;
-		chunk.F.expiry_time = base_msg->data.expiry_time;
-		chunk.F.payloadlen = base_msg->data.payloadlen;
-		chunk.F.source_mid = base_msg->data.source_mid;
-		if(base_msg->data.source_id){
-			chunk.F.source_id_len = (uint16_t)strlen(base_msg->data.source_id);
-			chunk.source.id = base_msg->data.source_id;
-		}else{
-			chunk.F.source_id_len = 0;
-			chunk.source.id = NULL;
+		chunk.F.store_id = بنیاد_پیغام->ڈیٹا.store_id;
+		chunk.F.expiry_وقت = بنیاد_پیغام->ڈیٹا.expiry_وقت;
+		chunk.F.payloadlen = بنیاد_پیغام->ڈیٹا.payloadlen;
+		chunk.F.ماخذ_mid = بنیاد_پیغام->ڈیٹا.ماخذ_mid;
+		اگر(بنیاد_پیغام->ڈیٹا.ماخذ_id){
+			chunk.F.ماخذ_id_len = (uint16_t)لڑی_لمبائی(بنیاد_پیغام->ڈیٹا.ماخذ_id);
+			chunk.ماخذ.id = بنیاد_پیغام->ڈیٹا.ماخذ_id;
+		}ورنہ{
+			chunk.F.ماخذ_id_len = 0;
+			chunk.ماخذ.id = تہی;
 		}
-		if(base_msg->data.source_username){
-			chunk.F.source_username_len = (uint16_t)strlen(base_msg->data.source_username);
-			chunk.source.username = base_msg->data.source_username;
-		}else{
-			chunk.F.source_username_len = 0;
-			chunk.source.username = NULL;
+		اگر(بنیاد_پیغام->ڈیٹا.ماخذ_username){
+			chunk.F.ماخذ_username_len = (uint16_t)لڑی_لمبائی(بنیاد_پیغام->ڈیٹا.ماخذ_username);
+			chunk.ماخذ.username = بنیاد_پیغام->ڈیٹا.ماخذ_username;
+		}ورنہ{
+			chunk.F.ماخذ_username_len = 0;
+			chunk.ماخذ.username = تہی;
 		}
 
-		chunk.F.topic_len = (uint16_t)strlen(base_msg->data.topic);
-		chunk.topic = base_msg->data.topic;
+		chunk.F.topic_len = (uint16_t)لڑی_لمبائی(بنیاد_پیغام->ڈیٹا.topic);
+		chunk.topic = بنیاد_پیغام->ڈیٹا.topic;
 
-		if(base_msg->source_listener){
-			chunk.F.source_port = base_msg->source_listener->port;
-		}else{
-			chunk.F.source_port = 0;
+		اگر(بنیاد_پیغام->ماخذ_listener){
+			chunk.F.ماخذ_پورٹ = بنیاد_پیغام->ماخذ_listener->پورٹ;
+		}ورنہ{
+			chunk.F.ماخذ_پورٹ = 0;
 		}
-		chunk.F.qos = base_msg->data.qos;
-		chunk.payload = base_msg->data.payload;
-		chunk.properties = base_msg->data.properties;
+		chunk.F.qos = بنیاد_پیغام->ڈیٹا.qos;
+		chunk.payload = بنیاد_پیغام->ڈیٹا.payload;
+		chunk.properties = بنیاد_پیغام->ڈیٹا.properties;
 
-		rc = persist__chunk_message_store_write_v6(db_fptr, &chunk);
-		if(rc){
-			return rc;
+		rc = persist_chunk_پیغام_store_write_v6(db_fptr, &chunk);
+		اگر(rc){
+			واپس rc;
 		}
 	}
 
-	return MOSQ_ERR_SUCCESS;
+	واپس MOSQ_ERR_SUCCESS;
 }
 
 
-static int persist__client_save(FILE *db_fptr)
+ساکن صحیح persist__client_save(FILE *db_fptr)
 {
-	struct mosquitto *context, *ctxt_tmp;
-	struct P_client chunk;
-	int rc;
+	ساخت mosquitto *context, *ctxt_tmp;
+	ساخت P_client chunk;
+	صحیح rc;
 
-	assert(db_fptr);
+	أكد(db_fptr);
 
 	HASH_ITER(hh_id, db.contexts_by_id, context, ctxt_tmp){
-		memset(&chunk, 0, sizeof(struct P_client));
+		memset(&chunk, 0, حجم(ساخت P_client));
 
-		if(context &&
-				context->session_expiry_interval != MQTT_SESSION_EXPIRY_IMMEDIATE &&
-#ifdef WITH_BRIDGE
-				((!context->bridge && context->clean_start == false)
-				|| (context->bridge && context->bridge->clean_start_local == false))
-#else
-				context->clean_start == false
-#endif
+		اگر(context &&
+				context->session_expiry_interval != MQTT_SESSION_EXPIRY_فوری &&
+#اگر_تعریف_شدہ WITH_BRIDGE
+				((!context->bridge && context->clean_آغاز == false)
+				|| (context->bridge && context->bridge->clean_آغاز_local == false))
+#ورنہ
+				context->clean_آغاز == false
+#اگر_ختم
 				){
-			chunk.F.session_expiry_time = context->session_expiry_time;
-			if(context->session_expiry_interval != MQTT_SESSION_EXPIRY_NEVER
-					&& context->session_expiry_time == 0){
+			chunk.F.session_expiry_وقت = context->session_expiry_وقت;
+			اگر(context->session_expiry_interval != MQTT_SESSION_EXPIRY_NEVER
+					&& context->session_expiry_وقت == 0){
 
-				chunk.F.session_expiry_time = context->session_expiry_interval + db.now_real_s;
-			}else{
-				chunk.F.session_expiry_time = context->session_expiry_time;
+				chunk.F.session_expiry_وقت = context->session_expiry_interval + db.now_real_s;
+			}ورنہ{
+				chunk.F.session_expiry_وقت = context->session_expiry_وقت;
 			}
 			chunk.F.session_expiry_interval = context->session_expiry_interval;
-			chunk.F.last_mid = context->last_mid;
-			chunk.F.id_len = (uint16_t)strlen(context->id);
+			chunk.F.آخری_mid = context->آخری_mid;
+			chunk.F.id_len = (uint16_t)لڑی_لمبائی(context->id);
 			chunk.clientid = context->id;
-			if(context->username){
-				chunk.F.username_len = (uint16_t)strlen(context->username);
+			اگر(context->username){
+				chunk.F.username_len = (uint16_t)لڑی_لمبائی(context->username);
 				chunk.username = context->username;
 			}
-			if(context->listener){
-				chunk.F.listener_port = context->listener->port;
+			اگر(context->listener){
+				chunk.F.listener_پورٹ = context->listener->پورٹ;
 			}
 
-			if(chunk.F.id_len == 0){
+			اگر(chunk.F.id_len == 0){
 				/* This should never happen, but in case we have a client with
 				 * zero length ID, don't persist them. */
-				continue;
+				جاری;
 			}
 
 			rc = persist__chunk_client_write_v6(db_fptr, &chunk);
-			if(rc){
-				return rc;
+			اگر(rc){
+				واپس rc;
 			}
 
-			if(persist__client_messages_save(db_fptr, context, context->msgs_in.inflight)){
-				return 1;
+			اگر(persist__client_messages_save(db_fptr, context, context->msgs_اندر.inflight)){
+				واپس 1;
 			}
-			if(persist__client_messages_save(db_fptr, context, context->msgs_in.queued)){
-				return 1;
+			اگر(persist__client_messages_save(db_fptr, context, context->msgs_اندر.queued)){
+				واپس 1;
 			}
-			if(persist__client_messages_save(db_fptr, context, context->msgs_out.inflight)){
-				return 1;
+			اگر(persist__client_messages_save(db_fptr, context, context->msgs_برآمد.inflight)){
+				واپس 1;
 			}
-			if(persist__client_messages_save(db_fptr, context, context->msgs_out.queued)){
-				return 1;
+			اگر(persist__client_messages_save(db_fptr, context, context->msgs_برآمد.queued)){
+				واپس 1;
 			}
 		}
 	}
 
-	return MOSQ_ERR_SUCCESS;
+	واپس MOSQ_ERR_SUCCESS;
 }
 
 
-static int persist__subs_save(FILE *db_fptr, struct mosquitto__subhier *node, const char *topic, int level)
+ساکن صحیح persist__subs_save(FILE *db_fptr, ساخت mosquitto__subhier *گرہ, ثابت حرف *topic, صحیح level)
 {
-	struct mosquitto__subhier *subhier, *subhier_tmp;
-	struct mosquitto__subleaf *sub;
-	struct P_sub sub_chunk;
-	char *thistopic;
+	ساخت mosquitto__subhier *subhier, *subhier_tmp;
+	ساخت mosquitto__subleaf *sub;
+	ساخت P_sub sub_chunk;
+	حرف *thistopic;
 	size_t slen;
-	int rc;
+	صحیح rc;
 
-	slen = strlen(topic) + node->topic_len + 2;
-	thistopic = mosquitto_malloc(sizeof(char)*slen);
-	if(!thistopic){
-		return MOSQ_ERR_NOMEM;
+	slen = لڑی_لمبائی(topic) + گرہ->topic_len + 2;
+	thistopic = mosquitto_malloc(حجم(حرف)*slen);
+	اگر(!thistopic){
+		واپس MOSQ_ERR_NOMEM;
 	}
-	if(level > 1 || strlen(topic)){
-		snprintf(thistopic, slen, "%s/%s", topic, node->topic);
-	}else{
-		snprintf(thistopic, slen, "%s", node->topic);
+	اگر(level > 1 || لڑی_لمبائی(topic)){
+		snprintf(thistopic, slen, "%s/%s", topic, گرہ->topic);
+	}ورنہ{
+		snprintf(thistopic, slen, "%s", گرہ->topic);
 	}
 
-	sub = node->subs;
-	while(sub){
-		if(sub->context->session_expiry_interval != MQTT_SESSION_EXPIRY_IMMEDIATE
-				&& sub->context->clean_start == false
+	sub = گرہ->subs;
+	جب(sub){
+		اگر(sub->context->session_expiry_interval != MQTT_SESSION_EXPIRY_فوری
+				&& sub->context->clean_آغاز == false
 				&& sub->context->id){
 
-			memset(&sub_chunk, 0, sizeof(struct P_sub));
+			memset(&sub_chunk, 0, حجم(ساخت P_sub));
 
 			sub_chunk.F.identifier = sub->identifier;
-			sub_chunk.F.id_len = (uint16_t)strlen(sub->context->id);
-			sub_chunk.F.topic_len = (uint16_t)strlen(thistopic);
+			sub_chunk.F.id_len = (uint16_t)لڑی_لمبائی(sub->context->id);
+			sub_chunk.F.topic_len = (uint16_t)لڑی_لمبائی(thistopic);
 			sub_chunk.F.qos = MQTT_SUB_OPT_GET_QOS(sub->subscription_options);
 			sub_chunk.F.options = sub->subscription_options & 0xFC;
 			sub_chunk.clientid = sub->context->id;
 			sub_chunk.topic = thistopic;
 
 			rc = persist__chunk_sub_write_v6(db_fptr, &sub_chunk);
-			if(rc){
+			اگر(rc){
 				mosquitto_FREE(thistopic);
-				return rc;
+				واپس rc;
 			}
 		}
-		sub = sub->next;
+		sub = sub->اگلا;
 	}
 
-	HASH_ITER(hh, node->children, subhier, subhier_tmp){
+	HASH_ITER(hh, گرہ->children, subhier, subhier_tmp){
 		persist__subs_save(db_fptr, subhier, thistopic, level+1);
 	}
 	mosquitto_FREE(thistopic);
-	return MOSQ_ERR_SUCCESS;
+	واپس MOSQ_ERR_SUCCESS;
 }
 
 
-static int persist__subs_save_all(FILE *db_fptr)
+ساکن صحیح persist__subs_save_all(FILE *db_fptr)
 {
-	struct mosquitto__subhier *subhier, *subhier_tmp;
+	ساخت mosquitto__subhier *subhier, *subhier_tmp;
 
-	HASH_ITER(hh, db.normal_subs, subhier, subhier_tmp){
-		if(subhier->children){
+	HASH_ITER(hh, db.معمول_subs, subhier, subhier_tmp){
+		اگر(subhier->children){
 			persist__subs_save(db_fptr, subhier->children, "", 0);
 		}
 	}
 
 	HASH_ITER(hh, db.shared_subs, subhier, subhier_tmp){
-		if(subhier->children){
+		اگر(subhier->children){
 			persist__subs_save(db_fptr, subhier->children, "", 0);
 		}
 	}
 
-	return MOSQ_ERR_SUCCESS;
+	واپس MOSQ_ERR_SUCCESS;
 }
 
 
-static int persist__retain_save(FILE *db_fptr, struct mosquitto__retainhier *node, int level)
+ساکن صحیح persist__retain_save(FILE *db_fptr, ساخت mosquitto__retainhier *گرہ, صحیح level)
 {
-	struct mosquitto__retainhier *retainhier, *retainhier_tmp;
-	struct P_retain retain_chunk;
-	int rc;
+	ساخت mosquitto__retainhier *retainhier, *retainhier_tmp;
+	ساخت P_retain retain_chunk;
+	صحیح rc;
 
-	if(node->retained && strncmp(node->retained->data.topic, "$SYS", 4)){
-		memset(&retain_chunk, 0, sizeof(struct P_retain));
+	اگر(گرہ->retained && لڑی_موازنہ(گرہ->retained->ڈیٹا.topic, "$SYS", 4)){
+		memset(&retain_chunk, 0, حجم(ساخت P_retain));
 
 		/* Don't save $SYS messages. */
-		retain_chunk.F.store_id = node->retained->data.store_id;
+		retain_chunk.F.store_id = گرہ->retained->ڈیٹا.store_id;
 		rc = persist__chunk_retain_write_v6(db_fptr, &retain_chunk);
-		if(rc){
-			return rc;
+		اگر(rc){
+			واپس rc;
 		}
 	}
 
-	HASH_ITER(hh, node->children, retainhier, retainhier_tmp){
+	HASH_ITER(hh, گرہ->children, retainhier, retainhier_tmp){
 		persist__retain_save(db_fptr, retainhier, level+1);
 	}
-	return MOSQ_ERR_SUCCESS;
+	واپس MOSQ_ERR_SUCCESS;
 }
 
 
-static int persist__retain_save_all(FILE *db_fptr)
+ساکن صحیح persist__retain_save_all(FILE *db_fptr)
 {
-	struct mosquitto__retainhier *retainhier, *retainhier_tmp;
+	ساخت mosquitto__retainhier *retainhier, *retainhier_tmp;
 
 	HASH_ITER(hh, db.retains, retainhier, retainhier_tmp){
-		if(retainhier->children){
+		اگر(retainhier->children){
 			persist__retain_save(db_fptr, retainhier->children, 0);
 		}
 	}
 
-	return MOSQ_ERR_SUCCESS;
+	واپس MOSQ_ERR_SUCCESS;
 }
 
-static int persist__write_data(FILE *db_fptr, void *user_data);
+ساکن صحیح persist_write_ڈیٹا(FILE *db_fptr, خالی *user_ڈیٹا);
 
 
-static void persist__log_write_error(const char *msg)
+ساکن خالی persist__log_write_error(ثابت حرف *پیغام)
 {
-	log__printf(NULL, MOSQ_LOG_ERR, "Error saving in-memory database, %s", msg);
-}
-
-
-int persist__backup(bool shutdown)
-{
-	if(db.config == NULL){
-		return MOSQ_ERR_INVAL;
-	}
-	if(db.config->persistence == false){
-		return MOSQ_ERR_SUCCESS;
-	}
-	if(db.config->persistence_filepath == NULL){
-		return MOSQ_ERR_INVAL;
-	}
-
-	log__printf(NULL, MOSQ_LOG_INFO, "Saving in-memory database to %s.", db.config->persistence_filepath);
-
-	return mosquitto_write_file(db.config->persistence_filepath, true, &persist__write_data, &shutdown, &persist__log_write_error);
+	log__printf(تہی, MOSQ_LOG_ERR, "Error saving in-memory database, %s", پیغام);
 }
 
 
-static int persist__write_data(FILE *db_fptr, void *user_data)
+صحیح persist__backup(bool shutdown)
 {
-	bool shutdown = *(bool *)(user_data);
-	uint32_t db_version_w = htonl(MOSQ_DB_VERSION);
-	uint32_t crc = 0;
-	const char *err;
-	struct PF_cfg cfg_chunk;
-	int rc = MOSQ_ERR_UNKNOWN;
+	اگر(db.config == تہی){
+		واپس MOSQ_ERR_INVAL;
+	}
+	اگر(db.config->persistence == false){
+		واپس MOSQ_ERR_SUCCESS;
+	}
+	اگر(db.config->persistence_filepath == تہی){
+		واپس MOSQ_ERR_INVAL;
+	}
 
-	/* Header */
+	log__printf(تہی, MOSQ_LOG_INFO, "Saving in-memory database to %s.", db.config->persistence_filepath);
+
+	واپس mosquitto_write_file(db.config->persistence_filepath, true, &persist_write_ڈیٹا, &shutdown, &persist__log_write_error);
+}
+
+
+ساکن صحیح persist_write_ڈیٹا(FILE *db_fptr, خالی *user_ڈیٹا)
+{
+	bool shutdown = *(bool *)(user_ڈیٹا);
+	uint32_t db_نسخہ_w = htonl(MOSQ_DB_نسخہ);
+	uint32_t چکری_جانچ = 0;
+	ثابت حرف *err;
+	ساخت PF_cfg cfg_chunk;
+	صحیح rc = MOSQ_ERR_UNKNOWN;
+
+	/*سرخی*/
 	write_e(db_fptr, magic, 15);
-	write_e(db_fptr, &crc, sizeof(uint32_t));
-	write_e(db_fptr, &db_version_w, sizeof(uint32_t));
+	write_e(db_fptr, &چکری_جانچ, حجم(uint32_t));
+	write_e(db_fptr, &db_نسخہ_w, حجم(uint32_t));
 
-	memset(&cfg_chunk, 0, sizeof(struct PF_cfg));
-	cfg_chunk.last_db_id = db.last_db_id;
+	memset(&cfg_chunk, 0, حجم(ساخت PF_cfg));
+	cfg_chunk.آخری_db_id = db.آخری_db_id;
 	cfg_chunk.shutdown = shutdown;
-	cfg_chunk.dbid_size = sizeof(dbid_t);
-	if(persist__chunk_cfg_write_v6(db_fptr, &cfg_chunk)){
-		goto error;
+	cfg_chunk.dbid_سائز = حجم(dbid_t);
+	اگر(persist__chunk_cfg_write_v6(db_fptr, &cfg_chunk)){
+		جاؤ error;
 	}
 
-	if(persist__message_store_save(db_fptr)){
-		goto error;
+	اگر(persist_پیغام_store_save(db_fptr)){
+		جاؤ error;
 	}
 
-	if(persist__client_save(db_fptr)
+	اگر(persist__client_save(db_fptr)
 			|| persist__subs_save_all(db_fptr)
 			|| persist__retain_save_all(db_fptr)){
-		goto error;
+		جاؤ error;
 	}
-	return MOSQ_ERR_SUCCESS;
+	واپس MOSQ_ERR_SUCCESS;
 
 error:
 	err = strerror(errno);
-	log__printf(NULL, MOSQ_LOG_ERR, "Error during saving in-memory database %s: %s.", db.config->persistence_filepath, err);
-	if(db_fptr){
+	log__printf(تہی, MOSQ_LOG_ERR, "Error during saving in-memory database %s: %s.", db.config->persistence_filepath, err);
+	اگر(db_fptr){
 		fclose(db_fptr);
 	}
-	return rc;
+	واپس rc;
 }
 
 
-#endif
+#اگر_ختم
