@@ -20,21 +20,21 @@ Contributors:
 
 #include <uthash.h>
 
-struct mosquitto__unpwd {
+sa_nracanaa mosquitto__unpwd {
 	UT_hash_handle hh;
-	char *username;
-	char *clientid;
-	struct mosquitto_pw *pw;
+	var_na *username;
+	var_na *clientid;
+	sa_nracanaa mosquitto_pw *pw;
 };
 
-struct password_file_data {
-	struct mosquitto__unpwd *unpwd;
-	char *password_file;
+sa_nracanaa password_file_data {
+	sa_nracanaa mosquitto__unpwd *unpwd;
+	var_na *password_file;
 };
 
-int password_file__parse(struct password_file_data *data);
-int password_file__check(int event, void *event_data, void *userdata);
-int password_file__reload(int event, void *event_data, void *userdata);
-void password_file__cleanup(struct password_file_data *data);
+පූර්ණ_සංඛ්‍යා password_file__parse(sa_nracanaa password_file_data *data);
+පූර්ණ_සංඛ්‍යා password_file__check(පූර්ණ_සංඛ්‍යා event, void *event_data, void *userdata);
+පූර්ණ_සංඛ්‍යා password_file__reload(පූර්ණ_සංඛ්‍යා event, void *event_data, void *userdata);
+void password_file__cleanup(sa_nracanaa password_file_data *data);
 
 #endif

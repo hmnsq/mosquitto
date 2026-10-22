@@ -25,47 +25,47 @@ Contributors:
 #include "utlist.h"
 
 
-static int plugin__handle_reload_single(struct mosquitto__security_options *opts)
+static පූර්ණ_සංඛ්‍යා plugin__handle_reload_single(sa_nracanaa mosquitto__security_options *opts)
 {
-	struct mosquitto_evt_reload event_data;
-	struct mosquitto__callback *cb_base, *cb_next;
+	sa_nracanaa mosquitto_evt_reload event_data;
+	sa_nracanaa mosquitto__callback *cb_base, *cb_next;
 
-	memset(&event_data, 0, sizeof(event_data));
+	memset(&event_data, 0, parimaa_na(event_data));
 
 	// Using DL_FOREACH_SAFE here, as reload callbacks might unregister themself
 	DL_FOREACH_SAFE(opts->plugin_callbacks.reload, cb_base, cb_next){
-		int rc = cb_base->cb(MOSQ_EVT_RELOAD, &event_data, cb_base->userdata);
-		if(rc){
+		පූර්ණ_සංඛ්‍යා rc = cb_base->cb(MOSQ_EVT_RELOAD, &event_data, cb_base->userdata);
+		නම්(rc){
 			log__printf(NULL, MOSQ_LOG_ERR, "Error: Plugin %s produced error on reload: %s",
 					cb_base->identifier->plugin_name?cb_base->identifier->plugin_name:"",
 					mosquitto_strerror(rc));
 
-			return rc;
+			ආපසු rc;
 		}
 	}
-	return MOSQ_ERR_SUCCESS;
+	ආපසු MOSQ_ERR_SUCCESS;
 }
 
 
-int plugin__handle_reload(void)
+පූර්ණ_සංඛ්‍යා plugin__handle_reload(void)
 {
-	struct mosquitto__security_options *opts;
-	int rc;
+	sa_nracanaa mosquitto__security_options *opts;
+	පූර්ණ_සංඛ්‍යා rc;
 
 	/* Global plugins */
 	rc = plugin__handle_reload_single(&db.config->security_options);
-	if(rc){
-		return rc;
+	නම්(rc){
+		ආපසු rc;
 	}
 
-	for(int i=0; i<db.config->listener_count; i++){
+	සඳහා(පූර්ණ_සංඛ්‍යා i=0; i<db.config->listener_count; i++){
 		opts = db.config->listeners[i].security_options;
-		if(opts && opts->plugin_callbacks.reload){
+		නම්(opts && opts->plugin_callbacks.reload){
 			rc = plugin__handle_reload_single(opts);
-			if(rc){
-				return rc;
+			නම්(rc){
+				ආපසු rc;
 			}
 		}
 	}
-	return MOSQ_ERR_SUCCESS;
+	ආපසු MOSQ_ERR_SUCCESS;
 }

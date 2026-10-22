@@ -27,142 +27,142 @@ Contributors:
 #include "send_mosq.h"
 
 
-int handle__unsubscribe(struct mosquitto *context)
+පූර්ණ_සංඛ්‍යා handle__unsubscribe(sa_nracanaa mosquitto *context)
 {
 	uint16_t mid;
 	uint16_t slen;
-	int rc;
+	පූර්ණ_සංඛ්‍යා rc;
 	uint8_t reason = 0;
-	int reason_code_count = 0;
-	int reason_code_max;
+	පූර්ණ_සංඛ්‍යා reason_code_count = 0;
+	පූර්ණ_සංඛ්‍යා reason_code_max;
 	uint8_t *reason_codes = NULL, *reason_tmp;
 	mosquitto_property *properties = NULL;
 	bool allowed;
-	struct mosquitto_subscription sub;
+	sa_nracanaa mosquitto_subscription sub;
 
-	if(!context){
-		return MOSQ_ERR_INVAL;
+	නම්(!context){
+		ආපසු MOSQ_ERR_INVAL;
 	}
 
-	if(context->state != mosq_cs_active){
+	නම්(context->state != mosq_cs_active){
 		log__printf(NULL, MOSQ_LOG_INFO, "Protocol error from %s: UNSUBSCRIBE before session is active.", context->id);
-		return MOSQ_ERR_PROTOCOL;
+		ආපසු MOSQ_ERR_PROTOCOL;
 	}
-	if(context->in_packet.command != (CMD_UNSUBSCRIBE|2)){
-		return MOSQ_ERR_MALFORMED_PACKET;
+	නම්(context->in_packet.command != (CMD_UNSUBSCRIBE|2)){
+		ආපසු MOSQ_ERR_MALFORMED_PACKET;
 	}
 	log__printf(NULL, MOSQ_LOG_DEBUG, "Received UNSUBSCRIBE from %s", context->id);
 
-	if(context->protocol != mosq_p_mqtt31){
-		if((context->in_packet.command&0x0F) != 0x02){
-			return MOSQ_ERR_MALFORMED_PACKET;
+	නම්(context->protocol != mosq_p_mqtt31){
+		නම්((context->in_packet.command&0x0F) != 0x02){
+			ආපසු MOSQ_ERR_MALFORMED_PACKET;
 		}
 	}
-	if(packet__read_uint16(&context->in_packet, &mid)){
-		return MOSQ_ERR_MALFORMED_PACKET;
+	නම්(packet__read_uint16(&context->in_packet, &mid)){
+		ආපසු MOSQ_ERR_MALFORMED_PACKET;
 	}
-	if(mid == 0){
-		return MOSQ_ERR_MALFORMED_PACKET;
+	නම්(mid == 0){
+		ආපසු MOSQ_ERR_MALFORMED_PACKET;
 	}
 
-	if(context->protocol == mosq_p_mqtt5){
+	නම්(context->protocol == mosq_p_mqtt5){
 		rc = property__read_all(CMD_UNSUBSCRIBE, &context->in_packet, &properties);
-		if(rc){
+		නම්(rc){
 			/* FIXME - it would be better if property__read_all() returned
 			 * MOSQ_ERR_MALFORMED_PACKET, but this is would change the library
 			 * return codes so needs doc changes as well. */
-			if(rc == MOSQ_ERR_PROTOCOL){
+			නම්(rc == MOSQ_ERR_PROTOCOL){
 				log__printf(NULL, MOSQ_LOG_INFO, "Protocol error from %s: UNSUBSCRIBE packet with invalid properties.", context->id);
-				return MOSQ_ERR_MALFORMED_PACKET;
-			}else{
-				return rc;
+				ආපසු MOSQ_ERR_MALFORMED_PACKET;
+			}නැතහොත්{
+				ආපසු rc;
 			}
 		}
 		/* Immediately free, we don't do anything with User Property at the moment */
 		mosquitto_property_free_all(&properties);
 	}
 
-	if(context->protocol == mosq_p_mqtt311 || context->protocol == mosq_p_mqtt5){
-		if(context->in_packet.pos == context->in_packet.remaining_length){
+	නම්(context->protocol == mosq_p_mqtt311 || context->protocol == mosq_p_mqtt5){
+		නම්(context->in_packet.pos == context->in_packet.remaining_length){
 			/* No topic specified, protocol error. */
-			return MOSQ_ERR_MALFORMED_PACKET;
+			ආපසු MOSQ_ERR_MALFORMED_PACKET;
 		}
 	}
 
 	reason_code_max = 10;
 	reason_codes = mosquitto_malloc((size_t)reason_code_max);
-	if(!reason_codes){
-		return MOSQ_ERR_NOMEM;
+	නම්(!reason_codes){
+		ආපසු MOSQ_ERR_NOMEM;
 	}
 
-	while(context->in_packet.pos < context->in_packet.remaining_length){
-		memset(&sub, 0, sizeof(sub));
+	අතරතුර(context->in_packet.pos < context->in_packet.remaining_length){
+		memset(&sub, 0, parimaa_na(sub));
 		sub.properties = properties;
-		if(packet__read_string(&context->in_packet, &sub.topic_filter, &slen)){
+		නම්(packet__read_string(&context->in_packet, &sub.topic_filter, &slen)){
 			mosquitto_FREE(reason_codes);
-			return MOSQ_ERR_MALFORMED_PACKET;
+			ආපසු MOSQ_ERR_MALFORMED_PACKET;
 		}
 
-		if(!slen){
+		නම්(!slen){
 			log__printf(NULL, MOSQ_LOG_INFO,
 					"Empty unsubscription string from %s, disconnecting.",
 					context->id);
 			mosquitto_FREE(sub.topic_filter);
 			mosquitto_FREE(reason_codes);
-			return MOSQ_ERR_MALFORMED_PACKET;
+			ආපසු MOSQ_ERR_MALFORMED_PACKET;
 		}
-		if(mosquitto_sub_topic_check(sub.topic_filter)){
+		නම්(mosquitto_sub_topic_check(sub.topic_filter)){
 			log__printf(NULL, MOSQ_LOG_INFO,
 					"Invalid unsubscription string from %s, disconnecting.",
 					context->id);
 			mosquitto_FREE(sub.topic_filter);
 			mosquitto_FREE(reason_codes);
-			return MOSQ_ERR_MALFORMED_PACKET;
+			ආපසු MOSQ_ERR_MALFORMED_PACKET;
 		}
 
 		/* ACL check */
 		allowed = true;
 		rc = mosquitto_acl_check(context, sub.topic_filter, 0, NULL, 0, false, properties, MOSQ_ACL_UNSUBSCRIBE);
 		switch(rc){
-			case MOSQ_ERR_SUCCESS:
-				break;
-			case MOSQ_ERR_ACL_DENIED:
+			pak_sa MOSQ_ERR_SUCCESS:
+				bha_nga;
+			pak_sa MOSQ_ERR_ACL_DENIED:
 				allowed = false;
 				reason = MQTT_RC_NOT_AUTHORIZED;
-				break;
+				bha_nga;
 			default:
 				mosquitto_FREE(sub.topic_filter);
 				mosquitto_FREE(reason_codes);
-				return rc;
+				ආපසු rc;
 		}
 
 		log__printf(NULL, MOSQ_LOG_DEBUG, "\t%s", sub.topic_filter);
-		if(allowed){
+		නම්(allowed){
 			rc = plugin__handle_unsubscribe(context, &sub);
-			if(rc){
+			නම්(rc){
 				mosquitto_FREE(sub.topic_filter);
 				mosquitto_FREE(reason_codes);
-				return rc;
+				ආපසු rc;
 			}
 			rc = sub__remove(context, sub.topic_filter, &reason);
 			plugin_persist__handle_subscription_delete(context, sub.topic_filter);
-		}else{
+		}නැතහොත්{
 			rc = MOSQ_ERR_SUCCESS;
 		}
 		log__printf(NULL, MOSQ_LOG_UNSUBSCRIBE, "%s %s", context->id, sub.topic_filter);
 		mosquitto_FREE(sub.topic_filter);
-		if(rc){
+		නම්(rc){
 			mosquitto_FREE(reason_codes);
-			return rc;
+			ආපසු rc;
 		}
 
 		reason_codes[reason_code_count] = reason;
 		reason_code_count++;
-		if(reason_code_count == reason_code_max){
+		නම්(reason_code_count == reason_code_max){
 			reason_tmp = mosquitto_realloc(reason_codes, (size_t)(reason_code_max*2));
-			if(!reason_tmp){
+			නම්(!reason_tmp){
 				mosquitto_FREE(reason_codes);
-				return MOSQ_ERR_NOMEM;
+				ආපසු MOSQ_ERR_NOMEM;
 			}
 			reason_codes = reason_tmp;
 			reason_code_max *= 2;
@@ -177,5 +177,5 @@ int handle__unsubscribe(struct mosquitto *context)
 	/* We don't use Reason String or User Property yet. */
 	rc = send__unsuback(context, mid, reason_code_count, reason_codes, NULL);
 	mosquitto_FREE(reason_codes);
-	return rc;
+	ආපසු rc;
 }

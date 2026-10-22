@@ -22,16 +22,16 @@ Contributors:
 #include "utlist.h"
 
 
-static void plugin__handle_disconnect_single(struct mosquitto__security_options *opts, struct mosquitto *context, int reason)
+static void plugin__handle_disconnect_single(sa_nracanaa mosquitto__security_options *opts, sa_nracanaa mosquitto *context, පූර්ණ_සංඛ්‍යා reason)
 {
-	struct mosquitto_evt_disconnect event_data;
-	struct mosquitto__callback *cb_base, *cb_next;
+	sa_nracanaa mosquitto_evt_disconnect event_data;
+	sa_nracanaa mosquitto__callback *cb_base, *cb_next;
 
-	if(context->id == NULL){
-		return;
+	නම්(context->id == NULL){
+		ආපසු;
 	}
 
-	memset(&event_data, 0, sizeof(event_data));
+	memset(&event_data, 0, parimaa_na(event_data));
 	event_data.client = context;
 	event_data.reason = reason;
 	DL_FOREACH_SAFE(opts->plugin_callbacks.disconnect, cb_base, cb_next){
@@ -40,13 +40,13 @@ static void plugin__handle_disconnect_single(struct mosquitto__security_options 
 }
 
 
-void plugin__handle_disconnect(struct mosquitto *context, int reason)
+void plugin__handle_disconnect(sa_nracanaa mosquitto *context, පූර්ණ_සංඛ්‍යා reason)
 {
 	/* Global plugins */
 	plugin__handle_disconnect_single(&db.config->security_options, context, reason);
 
 	/* Per listener plugins */
-	if(context->listener){
+	නම්(context->listener){
 		plugin__handle_disconnect_single(context->listener->security_options, context, reason);
 	}
 }

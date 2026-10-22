@@ -23,12 +23,12 @@ Contributors:
 #include "utlist.h"
 
 
-static void plugin__handle_connect_single(struct mosquitto__security_options *opts, struct mosquitto *context)
+static void plugin__handle_connect_single(sa_nracanaa mosquitto__security_options *opts, sa_nracanaa mosquitto *context)
 {
-	struct mosquitto_evt_connect event_data;
-	struct mosquitto__callback *cb_base, *cb_next;
+	sa_nracanaa mosquitto_evt_connect event_data;
+	sa_nracanaa mosquitto__callback *cb_base, *cb_next;
 
-	memset(&event_data, 0, sizeof(event_data));
+	memset(&event_data, 0, parimaa_na(event_data));
 	event_data.client = context;
 	DL_FOREACH_SAFE(opts->plugin_callbacks.connect, cb_base, cb_next){
 		cb_base->cb(MOSQ_EVT_CONNECT, &event_data, cb_base->userdata);
@@ -36,13 +36,13 @@ static void plugin__handle_connect_single(struct mosquitto__security_options *op
 }
 
 
-void plugin__handle_connect(struct mosquitto *context)
+void plugin__handle_connect(sa_nracanaa mosquitto *context)
 {
 	/* Global plugins */
 	plugin__handle_connect_single(&db.config->security_options, context);
 
 	/* Per listener plugins */
-	if(context->listener){
+	නම්(context->listener){
 		plugin__handle_connect_single(context->listener->security_options, context);
 	}
 }

@@ -23,48 +23,48 @@ Contributors:
 #include "utlist.h"
 
 
-static int plugin__handle_unsubscribe_single(struct mosquitto__security_options *opts, struct mosquitto *context, struct mosquitto_subscription *sub)
+static පූර්ණ_සංඛ්‍යා plugin__handle_unsubscribe_single(sa_nracanaa mosquitto__security_options *opts, sa_nracanaa mosquitto *context, sa_nracanaa mosquitto_subscription *sub)
 {
-	struct mosquitto_evt_unsubscribe event_data;
-	struct mosquitto__callback *cb_base, *cb_next;
-	int rc = MOSQ_ERR_SUCCESS;
+	sa_nracanaa mosquitto_evt_unsubscribe event_data;
+	sa_nracanaa mosquitto__callback *cb_base, *cb_next;
+	පූර්ණ_සංඛ්‍යා rc = MOSQ_ERR_SUCCESS;
 
-	memset(&event_data, 0, sizeof(event_data));
+	memset(&event_data, 0, parimaa_na(event_data));
 	event_data.client = context;
 	event_data.data.topic_filter = sub->topic_filter;
 	event_data.data.properties = sub->properties;
 
 	DL_FOREACH_SAFE(opts->plugin_callbacks.unsubscribe, cb_base, cb_next){
 		rc = cb_base->cb(MOSQ_EVT_UNSUBSCRIBE, &event_data, cb_base->userdata);
-		if(rc != MOSQ_ERR_SUCCESS){
-			break;
+		නම්(rc != MOSQ_ERR_SUCCESS){
+			bha_nga;
 		}
 
-		if(sub->topic_filter != event_data.data.topic_filter){
+		නම්(sub->topic_filter != event_data.data.topic_filter){
 			mosquitto_free(sub->topic_filter);
 			sub->topic_filter = event_data.data.topic_filter;
 		}
 	}
 
-	return rc;
+	ආපසු rc;
 }
 
 
-int plugin__handle_unsubscribe(struct mosquitto *context, struct mosquitto_subscription *sub)
+පූර්ණ_සංඛ්‍යා plugin__handle_unsubscribe(sa_nracanaa mosquitto *context, sa_nracanaa mosquitto_subscription *sub)
 {
-	int rc = MOSQ_ERR_SUCCESS;
+	පූර්ණ_සංඛ්‍යා rc = MOSQ_ERR_SUCCESS;
 
 	/* Global plugins */
 	rc = plugin__handle_unsubscribe_single(&db.config->security_options,
 			context, sub);
-	if(rc){
-		return rc;
+	නම්(rc){
+		ආපසු rc;
 	}
 
-	if(context->listener){
+	නම්(context->listener){
 		rc = plugin__handle_unsubscribe_single(context->listener->security_options,
 				context, sub);
 	}
 
-	return rc;
+	ආපසු rc;
 }
