@@ -16,133 +16,133 @@ Contributors:
    Roger Light - initial implementation and documentation.
 */
 
-#include "config.h"
+#അന്തര്ഭാവ "config.h"
 
-#include "mosquitto.h"
-#include "mosquitto_broker_internal.h"
-#include "utlist.h"
+#അന്തര്ഭാവ "mosquitto.h"
+#അന്തര്ഭാവ "mosquitto_broker_internal.h"
+#അന്തര്ഭാവ "utlist.h"
 
 #ifdef WITH_BRIDGE
 
 
-static int bridge__create_remap_topic(const char *prefix, const char *topic, char **remap_topic)
+സ്ഥിതം പൂർണ്ണസംഖ്യ bridge__create_remap_topic(സ്ഥിരം അക്ഷരം *prefix, സ്ഥിരം അക്ഷരം *topic, അക്ഷരം **remap_topic)
 {
-	if(prefix){
-		if(topic){
+	എങ്കിൽ(prefix){
+		എങ്കിൽ(topic){
 			size_t len = strlen(topic) + strlen(prefix)+1;
 			*remap_topic = mosquitto_malloc(len+1);
-			if(!(*remap_topic)){
-				log__printf(NULL, MOSQ_LOG_ERR, "Error: Out of memory.");
-				return MOSQ_ERR_NOMEM;
+			എങ്കിൽ(!(*remap_topic)){
+				log__printf(ശൂന്യ, MOSQ_LOG_ERR, "Error: Out of memory.");
+				തിരികെ MOSQ_ERR_NOMEM;
 			}
 			snprintf(*remap_topic, len+1, "%s%s", prefix, topic);
 			(*remap_topic)[len] = '\0';
-		}else{
+		}അല്ലെങ്കിൽ{
 			*remap_topic = mosquitto_strdup(prefix);
-			if(!(*remap_topic)){
-				log__printf(NULL, MOSQ_LOG_ERR, "Error: Out of memory.");
-				return MOSQ_ERR_NOMEM;
+			എങ്കിൽ(!(*remap_topic)){
+				log__printf(ശൂന്യ, MOSQ_LOG_ERR, "Error: Out of memory.");
+				തിരികെ MOSQ_ERR_NOMEM;
 			}
 		}
-	}else{
+	}അല്ലെങ്കിൽ{
 		*remap_topic = mosquitto_strdup(topic);
-		if(!(*remap_topic)){
-			log__printf(NULL, MOSQ_LOG_ERR, "Error: Out of memory.");
-			return MOSQ_ERR_NOMEM;
+		എങ്കിൽ(!(*remap_topic)){
+			log__printf(ശൂന്യ, MOSQ_LOG_ERR, "Error: Out of memory.");
+			തിരികെ MOSQ_ERR_NOMEM;
 		}
 	}
-	return MOSQ_ERR_SUCCESS;
+	തിരികെ MOSQ_ERR_SUCCESS;
 }
 
 
-static int bridge__create_prefix(char **full_prefix, const char *topic, const char *prefix, const char *direction)
+സ്ഥിതം പൂർണ്ണസംഖ്യ bridge__create_prefix(അക്ഷരം **full_prefix, സ്ഥിരം അക്ഷരം *topic, സ്ഥിരം അക്ഷരം *prefix, സ്ഥിരം അക്ഷരം *direction)
 {
 	size_t len;
 
-	if(!prefix || strlen(prefix) != 0){
-		if(mosquitto_pub_topic_check(prefix) != MOSQ_ERR_SUCCESS){
-			log__printf(NULL, MOSQ_LOG_ERR, "Error: Invalid bridge topic local prefix '%s'.", prefix);
-			return MOSQ_ERR_INVAL;
+	എങ്കിൽ(!prefix || strlen(prefix) != 0){
+		എങ്കിൽ(mosquitto_pub_topic_check(prefix) != MOSQ_ERR_SUCCESS){
+			log__printf(ശൂന്യ, MOSQ_LOG_ERR, "Error: Invalid bridge topic local prefix '%s'.", prefix);
+			തിരികെ MOSQ_ERR_INVAL;
 		}
 	}
 
-	if(topic){
+	എങ്കിൽ(topic){
 		len = strlen(topic) + strlen(prefix) + 1;
-	}else{
+	}അല്ലെങ്കിൽ{
 		len = strlen(prefix) + 1;
 	}
 	*full_prefix = mosquitto_malloc(len);
-	if(*full_prefix == NULL){
-		log__printf(NULL, MOSQ_LOG_ERR, "Error: Out of memory.");
-		return MOSQ_ERR_NOMEM;
+	എങ്കിൽ(*full_prefix == ശൂന്യ){
+		log__printf(ശൂന്യ, MOSQ_LOG_ERR, "Error: Out of memory.");
+		തിരികെ MOSQ_ERR_NOMEM;
 	}
 
-	if(topic){
+	എങ്കിൽ(topic){
 		/* Print full_prefix+pattern to check for validity */
 		snprintf(*full_prefix, len, "%s%s", prefix, topic);
-	}else{
+	}അല്ലെങ്കിൽ{
 		snprintf(*full_prefix, len, "%s", prefix);
 	}
 
-	if(mosquitto_sub_topic_check(*full_prefix) != MOSQ_ERR_SUCCESS){
-		log__printf(NULL, MOSQ_LOG_ERR,
+	എങ്കിൽ(mosquitto_sub_topic_check(*full_prefix) != MOSQ_ERR_SUCCESS){
+		log__printf(ശൂന്യ, MOSQ_LOG_ERR,
 				"Error: Invalid bridge topic %s prefix and pattern combination '%s'.",
 				direction, *full_prefix);
 
-		return MOSQ_ERR_INVAL;
+		തിരികെ MOSQ_ERR_INVAL;
 	}
 
 	/* Print just the prefix for storage */
 	snprintf(*full_prefix, len, "%s", prefix);
 
-	return MOSQ_ERR_SUCCESS;
+	തിരികെ MOSQ_ERR_SUCCESS;
 }
 
 
-static struct mosquitto__bridge_topic *bridge__find_topic(struct mosquitto__bridge *bridge, const char *topic, enum mosquitto__bridge_direction direction, uint8_t qos, const char *local_prefix, const char *remote_prefix)
+സ്ഥിതം ഘടന mosquitto__bridge_topic *bridge__find_topic(ഘടന mosquitto__bridge *bridge, സ്ഥിരം അക്ഷരം *topic, എണ്ണൽ mosquitto__bridge_direction direction, uint8_t qos, സ്ഥിരം അക്ഷരം *local_prefix, സ്ഥിരം അക്ഷരം *remote_prefix)
 {
-	struct mosquitto__bridge_topic *cur_topic = NULL;
+	ഘടന mosquitto__bridge_topic *cur_topic = ശൂന്യ;
 	bool found = false;
 
 	LL_FOREACH(bridge->topics, cur_topic){
-		if(cur_topic->direction != direction){
-			continue;
+		എങ്കിൽ(cur_topic->direction != direction){
+			തുടരുക;
 		}
-		if(cur_topic->qos != qos){
-			continue;
+		എങ്കിൽ(cur_topic->qos != qos){
+			തുടരുക;
 		}
-		if(cur_topic->topic != NULL && topic != NULL){
-			if(strcmp(cur_topic->topic, topic)){
-				continue;
+		എങ്കിൽ(cur_topic->topic != ശൂന്യ && topic != ശൂന്യ){
+			എങ്കിൽ(strcmp(cur_topic->topic, topic)){
+				തുടരുക;
 			}
 		}
-		if(cur_topic->local_prefix != NULL && local_prefix != NULL){
-			if(strcmp(cur_topic->local_prefix, local_prefix)){
-				continue;
+		എങ്കിൽ(cur_topic->local_prefix != ശൂന്യ && local_prefix != ശൂന്യ){
+			എങ്കിൽ(strcmp(cur_topic->local_prefix, local_prefix)){
+				തുടരുക;
 			}
 		}
-		if(cur_topic->remote_prefix != NULL && remote_prefix != NULL){
-			if(strcmp(cur_topic->remote_prefix, remote_prefix)){
-				continue;
+		എങ്കിൽ(cur_topic->remote_prefix != ശൂന്യ && remote_prefix != ശൂന്യ){
+			എങ്കിൽ(strcmp(cur_topic->remote_prefix, remote_prefix)){
+				തുടരുക;
 			}
 		}
 		found = true;
-		break;
+		നിർത്തുക;
 	}
-	if(!found){
-		cur_topic = NULL;
+	എങ്കിൽ(!found){
+		cur_topic = ശൂന്യ;
 	}
 
-	return cur_topic;
+	തിരികെ cur_topic;
 }
 
 
-void bridge__cleanup_topics(struct mosquitto__bridge *bridge)
+ശൂന്യം bridge__cleanup_topics(ഘടന mosquitto__bridge *bridge)
 {
-	struct mosquitto__bridge_topic *topic, *topic_tmp;
+	ഘടന mosquitto__bridge_topic *topic, *topic_tmp;
 
-	if(!bridge){
-		return;
+	എങ്കിൽ(!bridge){
+		തിരികെ;
 	}
 
 	LL_FOREACH_SAFE(bridge->topics, topic, topic_tmp){
@@ -158,90 +158,90 @@ void bridge__cleanup_topics(struct mosquitto__bridge *bridge)
 
 
 /* topic <topic> [[[out | in | both] qos-level] local-prefix remote-prefix] */
-int bridge__add_topic(struct mosquitto__bridge *bridge, const char *topic, enum mosquitto__bridge_direction direction, uint8_t qos, const char *local_prefix, const char *remote_prefix)
+പൂർണ്ണസംഖ്യ bridge__add_topic(ഘടന mosquitto__bridge *bridge, സ്ഥിരം അക്ഷരം *topic, എണ്ണൽ mosquitto__bridge_direction direction, uint8_t qos, സ്ഥിരം അക്ഷരം *local_prefix, സ്ഥിരം അക്ഷരം *remote_prefix)
 {
-	struct mosquitto__bridge_topic *cur_topic;
+	ഘടന mosquitto__bridge_topic *cur_topic;
 
-	if(bridge == NULL){
-		return MOSQ_ERR_INVAL;
+	എങ്കിൽ(bridge == ശൂന്യ){
+		തിരികെ MOSQ_ERR_INVAL;
 	}
-	if(direction != bd_out && direction != bd_in && direction != bd_both){
-		return MOSQ_ERR_INVAL;
+	എങ്കിൽ(direction != bd_out && direction != bd_in && direction != bd_both){
+		തിരികെ MOSQ_ERR_INVAL;
 	}
-	if(qos > 2){
-		return MOSQ_ERR_INVAL;
+	എങ്കിൽ(qos > 2){
+		തിരികെ MOSQ_ERR_INVAL;
 	}
-	if(local_prefix && mosquitto_pub_topic_check(local_prefix)){
-		log__printf(NULL, MOSQ_LOG_ERR, "Error: Invalid bridge topic local prefix '%s'.", local_prefix);
-		return MOSQ_ERR_INVAL;
+	എങ്കിൽ(local_prefix && mosquitto_pub_topic_check(local_prefix)){
+		log__printf(ശൂന്യ, MOSQ_LOG_ERR, "Error: Invalid bridge topic local prefix '%s'.", local_prefix);
+		തിരികെ MOSQ_ERR_INVAL;
 	}
-	if(remote_prefix && mosquitto_pub_topic_check(remote_prefix)){
-		log__printf(NULL, MOSQ_LOG_ERR, "Error: Invalid bridge topic remote prefix '%s'.", remote_prefix);
-		return MOSQ_ERR_INVAL;
+	എങ്കിൽ(remote_prefix && mosquitto_pub_topic_check(remote_prefix)){
+		log__printf(ശൂന്യ, MOSQ_LOG_ERR, "Error: Invalid bridge topic remote prefix '%s'.", remote_prefix);
+		തിരികെ MOSQ_ERR_INVAL;
 	}
-	if((topic == NULL || !strcmp(topic, "\"\"")) &&
-			(local_prefix == NULL || remote_prefix == NULL)){
+	എങ്കിൽ((topic == ശൂന്യ || !strcmp(topic, "\"\"")) &&
+			(local_prefix == ശൂന്യ || remote_prefix == ശൂന്യ)){
 
-		log__printf(NULL, MOSQ_LOG_ERR, "Error: Invalid bridge remapping.");
-		return MOSQ_ERR_INVAL;
-	}
-
-	if(bridge__find_topic(bridge, topic, direction, qos, local_prefix, remote_prefix) != NULL){
-		log__printf(NULL, MOSQ_LOG_INFO, "Duplicate bridge topic '%s', skipping", topic);
-		return MOSQ_ERR_SUCCESS;
+		log__printf(ശൂന്യ, MOSQ_LOG_ERR, "Error: Invalid bridge remapping.");
+		തിരികെ MOSQ_ERR_INVAL;
 	}
 
-	bridge->topic_count++;
-	cur_topic = mosquitto_calloc(1, sizeof(struct mosquitto__bridge_topic));
-	if(cur_topic == NULL){
-		log__printf(NULL, MOSQ_LOG_ERR, "Error: Out of memory.");
-		return MOSQ_ERR_NOMEM;
+	എങ്കിൽ(bridge__find_topic(bridge, topic, direction, qos, local_prefix, remote_prefix) != ശൂന്യ){
+		log__printf(ശൂന്യ, MOSQ_LOG_INFO, "Duplicate bridge topic '%s', skipping", topic);
+		തിരികെ MOSQ_ERR_SUCCESS;
 	}
-	cur_topic->next = NULL;
+
+	bridge->topic_എണ്ണം++;
+	cur_topic = mosquitto_calloc(1, വലുപ്പം(ഘടന mosquitto__bridge_topic));
+	എങ്കിൽ(cur_topic == ശൂന്യ){
+		log__printf(ശൂന്യ, MOSQ_LOG_ERR, "Error: Out of memory.");
+		തിരികെ MOSQ_ERR_NOMEM;
+	}
+	cur_topic->next = ശൂന്യ;
 
 	cur_topic->direction = direction;
 	cur_topic->qos = qos;
-	cur_topic->local_prefix = NULL;
-	cur_topic->remote_prefix = NULL;
+	cur_topic->local_prefix = ശൂന്യ;
+	cur_topic->remote_prefix = ശൂന്യ;
 
-	if(topic == NULL || !strcmp(topic, "\"\"")){
-		cur_topic->topic = NULL;
-	}else{
+	എങ്കിൽ(topic == ശൂന്യ || !strcmp(topic, "\"\"")){
+		cur_topic->topic = ശൂന്യ;
+	}അല്ലെങ്കിൽ{
 		cur_topic->topic = mosquitto_strdup(topic);
-		if(cur_topic->topic == NULL){
-			goto error;
+		എങ്കിൽ(cur_topic->topic == ശൂന്യ){
+			പോകുക error;
 		}
 	}
 
-	if(local_prefix || remote_prefix){
+	എങ്കിൽ(local_prefix || remote_prefix){
 		bridge->topic_remapping = true;
-		if(local_prefix){
-			if(bridge__create_prefix(&cur_topic->local_prefix, cur_topic->topic, local_prefix, "local")){
-				goto error;
+		എങ്കിൽ(local_prefix){
+			എങ്കിൽ(bridge__create_prefix(&cur_topic->local_prefix, cur_topic->topic, local_prefix, "local")){
+				പോകുക error;
 			}
 		}
-		if(remote_prefix){
-			if(bridge__create_prefix(&cur_topic->remote_prefix, cur_topic->topic, remote_prefix, "local")){
-				goto error;
+		എങ്കിൽ(remote_prefix){
+			എങ്കിൽ(bridge__create_prefix(&cur_topic->remote_prefix, cur_topic->topic, remote_prefix, "local")){
+				പോകുക error;
 			}
 		}
 	}
 
-	if(bridge__create_remap_topic(cur_topic->local_prefix,
+	എങ്കിൽ(bridge__create_remap_topic(cur_topic->local_prefix,
 			cur_topic->topic, &cur_topic->local_topic)){
 
-		goto error;
+		പോകുക error;
 	}
 
-	if(bridge__create_remap_topic(cur_topic->remote_prefix,
+	എങ്കിൽ(bridge__create_remap_topic(cur_topic->remote_prefix,
 			cur_topic->topic, &cur_topic->remote_topic)){
 
-		goto error;
+		പോകുക error;
 	}
 
 	LL_APPEND(bridge->topics, cur_topic);
 
-	return MOSQ_ERR_SUCCESS;
+	തിരികെ MOSQ_ERR_SUCCESS;
 
 error:
 	mosquitto_FREE(cur_topic->local_prefix);
@@ -250,51 +250,51 @@ error:
 	mosquitto_FREE(cur_topic->remote_topic);
 	mosquitto_FREE(cur_topic->topic);
 	mosquitto_FREE(cur_topic);
-	log__printf(NULL, MOSQ_LOG_ERR, "Error: Out of memory.");
-	return MOSQ_ERR_NOMEM;
+	log__printf(ശൂന്യ, MOSQ_LOG_ERR, "Error: Out of memory.");
+	തിരികെ MOSQ_ERR_NOMEM;
 }
 
 
-int bridge__remap_topic_in(struct mosquitto *context, char **topic)
+പൂർണ്ണസംഖ്യ bridge__remap_topic_in(ഘടന mosquitto *context, അക്ഷരം **topic)
 {
-	struct mosquitto__bridge_topic *cur_topic;
+	ഘടന mosquitto__bridge_topic *cur_topic;
 	bool match;
 
-	if(context->bridge && context->bridge->topics && context->bridge->topic_remapping){
+	എങ്കിൽ(context->bridge && context->bridge->topics && context->bridge->topic_remapping){
 		LL_FOREACH(context->bridge->topics, cur_topic){
-			if((cur_topic->direction == bd_both || cur_topic->direction == bd_in)
+			എങ്കിൽ((cur_topic->direction == bd_both || cur_topic->direction == bd_in)
 					&& (cur_topic->remote_prefix || cur_topic->local_prefix)){
 
 				/* Topic mapping required on this topic if the message matches */
 
-				int rc = mosquitto_topic_matches_sub(cur_topic->remote_topic, *topic, &match);
-				if(rc){
+				പൂർണ്ണസംഖ്യ rc = mosquitto_topic_matches_sub(cur_topic->remote_topic, *topic, &match);
+				എങ്കിൽ(rc){
 					mosquitto_FREE(*topic);
-					return rc;
+					തിരികെ rc;
 				}
-				if(match){
-					char *topic_temp;
+				എങ്കിൽ(match){
+					അക്ഷരം *topic_temp;
 
-					if(cur_topic->remote_prefix){
+					എങ്കിൽ(cur_topic->remote_prefix){
 						/* This prefix needs removing. */
-						if(!strncmp(cur_topic->remote_prefix, *topic, strlen(cur_topic->remote_prefix))){
+						എങ്കിൽ(!strncmp(cur_topic->remote_prefix, *topic, strlen(cur_topic->remote_prefix))){
 							topic_temp = mosquitto_strdup((*topic)+strlen(cur_topic->remote_prefix));
-							if(!topic_temp){
+							എങ്കിൽ(!topic_temp){
 								mosquitto_FREE(*topic);
-								return MOSQ_ERR_NOMEM;
+								തിരികെ MOSQ_ERR_NOMEM;
 							}
 							mosquitto_FREE(*topic);
 							*topic = topic_temp;
 						}
 					}
 
-					if(cur_topic->local_prefix){
+					എങ്കിൽ(cur_topic->local_prefix){
 						/* This prefix needs adding. */
 						size_t len = strlen(*topic) + strlen(cur_topic->local_prefix)+1;
 						topic_temp = mosquitto_malloc(len+1);
-						if(!topic_temp){
+						എങ്കിൽ(!topic_temp){
 							mosquitto_FREE(*topic);
-							return MOSQ_ERR_NOMEM;
+							തിരികെ MOSQ_ERR_NOMEM;
 						}
 						snprintf(topic_temp, len, "%s%s", cur_topic->local_prefix, *topic);
 						topic_temp[len] = '\0';
@@ -302,13 +302,13 @@ int bridge__remap_topic_in(struct mosquitto *context, char **topic)
 						mosquitto_FREE(*topic);
 						*topic = topic_temp;
 					}
-					break;
+					നിർത്തുക;
 				}
 			}
 		}
 	}
 
-	return MOSQ_ERR_SUCCESS;
+	തിരികെ MOSQ_ERR_SUCCESS;
 }
 
 #endif

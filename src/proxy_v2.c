@@ -1,16 +1,16 @@
 #ifdef WIN32
 #  include <winsock2.h>
 #  include <ws2tcpip.h>
-#else
+#അല്ലെങ്കിൽ
 #  include <arpa/inet.h>
 #  include <netinet/in.h>
 #endif
-#include <stdint.h>
-#include "mosquitto_broker_internal.h"
-#include "mosquitto_internal.h"
-#include "net_mosq.h"
+#അന്തര്ഭാവ <stdint.h>
+#അന്തര്ഭാവ "mosquitto_broker_internal.h"
+#അന്തര്ഭാവ "mosquitto_internal.h"
+#അന്തര്ഭാവ "net_mosq.h"
 
-#if !defined(WITH_WEBSOCKETS) || WITH_WEBSOCKETS == WS_IS_BUILTIN
+#എങ്കിൽ !defined(WITH_WEBSOCKETS) || WITH_WEBSOCKETS == WS_IS_BUILTIN
 
 #define PROXY_CMD_LOCAL 0x00
 #define PROXY_CMD_PROXY 0x01
@@ -29,7 +29,7 @@
 #define PP2_SUBTYPE_SSL_CN      0x22
 #define PP2_SUBTYPE_SSL_CIPHER  0x23
 #define PP2_SUBTYPE_SSL_SIG_ALG 0x24
-#define PP2_SUBTYPE_SSL_KEY_ALG 0x25
+#define PP2_SUBTYPE_SSL_താക്കോൽ_ALG 0x25
 #define PP2_TYPE_NETNS          0x30
 
 #define PP2_CLIENT_SSL           0x01
@@ -38,47 +38,47 @@
 
 #define PROXY_PACKET_LIMIT 500
 
-struct proxy_hdr_v2 {
+ഘടന proxy_hdr_v2 {
 	uint8_t sig[12]; /* hex 0D 0A 0D 0A 00 0D 0A 51 55 49 54 0A */
 	uint8_t ver_cmd; /* protocol version and command */
 	uint8_t fam; /* protocol family and address */
 	uint16_t len; /* number of following bytes part of the header */
 };
 
-union proxy_addr {
-	struct { /* for TCP/UDP over IPv4, len = 12 */
+സംഘം proxy_addr {
+	ഘടന { /* for TCP/UDP over IPv4, len = 12 */
 		uint32_t src_addr;
 		uint32_t dst_addr;
 		uint16_t src_port;
 		uint16_t dst_port;
 	} ipv4_addr;
-	struct { /* for TCP/UDP over IPv6, len = 36 */
+	ഘടന { /* for TCP/UDP over IPv6, len = 36 */
 		uint8_t src_addr[16];
 		uint8_t dst_addr[16];
 		uint16_t src_port;
 		uint16_t dst_port;
 	} ipv6_addr;
-	struct { /* for AF_UNIX sockets, len = 216 */
+	ഘടന { /* for AF_UNIX sockets, len = 216 */
 		uint8_t src_addr[108];
 		uint8_t dst_addr[108];
 	} unix_addr;
 };
 
-struct pp2_tlv {
+ഘടന pp2_tlv {
 	uint8_t type;
 	uint8_t length_h;
 	uint8_t length_l;
 };
 
-struct pp2_tlv_ssl {
+ഘടന pp2_tlv_ssl {
 	uint8_t client;
 	uint32_t verify;
 };
 
-const uint8_t signature[12] = {0x0D, 0x0A, 0x0D, 0x0A, 0x00, 0x0D, 0x0A, 0x51, 0x55, 0x49, 0x54, 0x0A};
+സ്ഥിരം uint8_t signature[12] = {0x0D, 0x0A, 0x0D, 0x0A, 0x00, 0x0D, 0x0A, 0x51, 0x55, 0x49, 0x54, 0x0A};
 
 
-static void proxy_cleanup(struct mosquitto *context)
+സ്ഥിതം ശൂന്യം proxy_cleanup(ഘടന mosquitto *context)
 {
 	mosquitto_FREE(context->proxy.buf);
 	mosquitto_FREE(context->proxy.tls_version);
@@ -86,259 +86,259 @@ static void proxy_cleanup(struct mosquitto *context)
 }
 
 
-static int read_tlv_ssl(struct mosquitto *context, uint16_t len, bool *have_certificate)
+സ്ഥിതം പൂർണ്ണസംഖ്യ read_tlv_ssl(ഘടന mosquitto *context, uint16_t len, bool *have_certificate)
 {
-	struct pp2_tlv_ssl ssl = {0};
+	ഘടന pp2_tlv_ssl ssl = {0};
 
-	if(len < sizeof(uint8_t) + sizeof(uint32_t)){
-		return MOSQ_ERR_INVAL;
+	എങ്കിൽ(len < വലുപ്പം(uint8_t) + വലുപ്പം(uint32_t)){
+		തിരികെ MOSQ_ERR_INVAL;
 	}
 
 	ssl.client = context->proxy.buf[context->proxy.pos];
-	ssl.verify = ntohl(*(uint32_t *)(&context->proxy.buf[context->proxy.pos + sizeof(uint8_t)]));
-	context->proxy.pos = (uint16_t)(context->proxy.pos + sizeof(uint8_t) + sizeof(uint32_t));
-	len = (uint16_t)(len - (sizeof(uint8_t) + sizeof(uint32_t)));
+	ssl.verify = ntohl(*(uint32_t *)(&context->proxy.buf[context->proxy.pos + വലുപ്പം(uint8_t)]));
+	context->proxy.pos = (uint16_t)(context->proxy.pos + വലുപ്പം(uint8_t) + വലുപ്പം(uint32_t));
+	len = (uint16_t)(len - (വലുപ്പം(uint8_t) + വലുപ്പം(uint32_t)));
 
-	if(ssl.client & PP2_CLIENT_SSL && ssl.client & PP2_CLIENT_CERT_SESS && !ssl.verify){
+	എങ്കിൽ(ssl.client & PP2_CLIENT_SSL && ssl.client & PP2_CLIENT_CERT_SESS && !ssl.verify){
 		*have_certificate = true;
 	}
 
-	while(len > 0){
-		if(context->proxy.len - context->proxy.pos < (int)sizeof(struct pp2_tlv)){
-			return MOSQ_ERR_INVAL;
+	ആകുമ്പോൾ(len > 0){
+		എങ്കിൽ(context->proxy.len - context->proxy.pos < (പൂർണ്ണസംഖ്യ)വലുപ്പം(ഘടന pp2_tlv)){
+			തിരികെ MOSQ_ERR_INVAL;
 		}
-		struct pp2_tlv *tlv = (struct pp2_tlv *)(&context->proxy.buf[context->proxy.pos]);
+		ഘടന pp2_tlv *tlv = (ഘടന pp2_tlv *)(&context->proxy.buf[context->proxy.pos]);
 		uint16_t tlv_len = (uint16_t)((tlv->length_h<<8) + tlv->length_l);
-		context->proxy.pos = (uint16_t)(context->proxy.pos + sizeof(struct pp2_tlv));
+		context->proxy.pos = (uint16_t)(context->proxy.pos + വലുപ്പം(ഘടന pp2_tlv));
 
-		if(tlv_len > context->proxy.len - context->proxy.pos){
-			return MOSQ_ERR_INVAL;
+		എങ്കിൽ(tlv_len > context->proxy.len - context->proxy.pos){
+			തിരികെ MOSQ_ERR_INVAL;
 		}
 
-		switch(tlv->type){
-			case PP2_SUBTYPE_SSL_VERSION:
+		തിരഞ്ഞെടുപ്പ്(tlv->type){
+			അവസ്ഥ PP2_SUBTYPE_SSL_VERSION:
 #ifdef WITH_TLS
 				mosquitto_free(context->proxy.tls_version);
-				context->proxy.tls_version = mosquitto_strndup((const char *)&context->proxy.buf[context->proxy.pos], tlv_len);
-#else
-				return MOSQ_ERR_NOT_SUPPORTED;
+				context->proxy.tls_version = mosquitto_strndup((സ്ഥിരം അക്ഷരം *)&context->proxy.buf[context->proxy.pos], tlv_len);
+#അല്ലെങ്കിൽ
+				തിരികെ MOSQ_ERR_NOT_SUPPORTED;
 #endif
-				break;
+				നിർത്തുക;
 
-			case PP2_SUBTYPE_SSL_CIPHER:
+			അവസ്ഥ PP2_SUBTYPE_SSL_CIPHER:
 #ifdef WITH_TLS
 				mosquitto_free(context->proxy.cipher);
-				context->proxy.cipher = mosquitto_strndup((const char *)&context->proxy.buf[context->proxy.pos], tlv_len);
-#else
-				return MOSQ_ERR_NOT_SUPPORTED;
+				context->proxy.cipher = mosquitto_strndup((സ്ഥിരം അക്ഷരം *)&context->proxy.buf[context->proxy.pos], tlv_len);
+#അല്ലെങ്കിൽ
+				തിരികെ MOSQ_ERR_NOT_SUPPORTED;
 #endif
-				break;
+				നിർത്തുക;
 
-			case PP2_SUBTYPE_SSL_CN:
+			അവസ്ഥ PP2_SUBTYPE_SSL_CN:
 #ifdef WITH_TLS
-				if(context->listener->use_identity_as_username){
+				എങ്കിൽ(context->listener->use_identity_as_username){
 					mosquitto_free(context->username);
-					context->username = mosquitto_strndup((const char *)&context->proxy.buf[context->proxy.pos], tlv_len);
-					if(!context->username){
-						return MOSQ_ERR_NOMEM;
+					context->username = mosquitto_strndup((സ്ഥിരം അക്ഷരം *)&context->proxy.buf[context->proxy.pos], tlv_len);
+					എങ്കിൽ(!context->username){
+						തിരികെ MOSQ_ERR_NOMEM;
 					}
 				}
-#else
-				return MOSQ_ERR_NOT_SUPPORTED;
+#അല്ലെങ്കിൽ
+				തിരികെ MOSQ_ERR_NOT_SUPPORTED;
 #endif
-				break;
+				നിർത്തുക;
 		}
-		len = (uint16_t)(len - (sizeof(uint8_t) + sizeof(uint8_t) + sizeof(uint8_t) + tlv_len));
+		len = (uint16_t)(len - (വലുപ്പം(uint8_t) + വലുപ്പം(uint8_t) + വലുപ്പം(uint8_t) + tlv_len));
 		context->proxy.pos = (uint16_t)(context->proxy.pos + tlv_len);
 	}
 	context->proxy.have_tls = true;
 
-	return MOSQ_ERR_SUCCESS;
+	തിരികെ MOSQ_ERR_SUCCESS;
 }
 
 
-static int read_tlv(struct mosquitto *context, bool *have_certificate)
+സ്ഥിതം പൂർണ്ണസംഖ്യ read_tlv(ഘടന mosquitto *context, bool *have_certificate)
 {
-	while(context->proxy.pos < context->proxy.len){
-		if(context->proxy.len - context->proxy.pos < (int)sizeof(struct pp2_tlv)){
-			return MOSQ_ERR_INVAL;
+	ആകുമ്പോൾ(context->proxy.pos < context->proxy.len){
+		എങ്കിൽ(context->proxy.len - context->proxy.pos < (പൂർണ്ണസംഖ്യ)വലുപ്പം(ഘടന pp2_tlv)){
+			തിരികെ MOSQ_ERR_INVAL;
 		}
-		struct pp2_tlv *tlv = (struct pp2_tlv *)(&context->proxy.buf[context->proxy.pos]);
+		ഘടന pp2_tlv *tlv = (ഘടന pp2_tlv *)(&context->proxy.buf[context->proxy.pos]);
 		uint16_t tlv_len = (uint16_t)((tlv->length_h<<8) + tlv->length_l);
-		context->proxy.pos = (uint16_t)(context->proxy.pos + sizeof(struct pp2_tlv));
+		context->proxy.pos = (uint16_t)(context->proxy.pos + വലുപ്പം(ഘടന pp2_tlv));
 
-		if(tlv_len > context->proxy.len - context->proxy.pos){
-			return MOSQ_ERR_INVAL;
+		എങ്കിൽ(tlv_len > context->proxy.len - context->proxy.pos){
+			തിരികെ MOSQ_ERR_INVAL;
 		}
 
-		switch(tlv->type){
-			case PP2_TYPE_SSL:
+		തിരഞ്ഞെടുപ്പ്(tlv->type){
+			അവസ്ഥ PP2_TYPE_SSL:
 				{
-					int rc = read_tlv_ssl(context, tlv_len, have_certificate);
-					if(rc){
-						return rc;
+					പൂർണ്ണസംഖ്യ rc = read_tlv_ssl(context, tlv_len, have_certificate);
+					എങ്കിൽ(rc){
+						തിരികെ rc;
 					}
 				}
-				break;
-			default:
+				നിർത്തുക;
+			സ്ഥിരസ്ഥിതി:
 				context->proxy.pos = (uint16_t)(context->proxy.pos + tlv_len);
-				break;
+				നിർത്തുക;
 		}
 	}
 
-	return MOSQ_ERR_SUCCESS;
+	തിരികെ MOSQ_ERR_SUCCESS;
 }
 
 
-int proxy_v2__read(struct mosquitto *context)
+പൂർണ്ണസംഖ്യ proxy_v2__read(ഘടന mosquitto *context)
 {
-	struct proxy_hdr_v2 hdr;
+	ഘടന proxy_hdr_v2 hdr;
 
-	if(context->proxy.cmd == -1){
-		context->proxy.buf = NULL;
-		if(net__read(context, &hdr, sizeof(hdr)) != sizeof(hdr)){
-			return MOSQ_ERR_CONN_LOST;
+	എങ്കിൽ(context->proxy.cmd == -1){
+		context->proxy.buf = ശൂന്യ;
+		എങ്കിൽ(net__read(context, &hdr, വലുപ്പം(hdr)) != വലുപ്പം(hdr)){
+			തിരികെ MOSQ_ERR_CONN_LOST;
 		}
-		if(memcmp(hdr.sig, signature, sizeof(signature))){
-			return MOSQ_ERR_INVAL;
+		എങ്കിൽ(memcmp(hdr.sig, signature, വലുപ്പം(signature))){
+			തിരികെ MOSQ_ERR_INVAL;
 		}
-		if((hdr.ver_cmd & 0xF0) != 0x20){
-			return MOSQ_ERR_INVAL;
+		എങ്കിൽ((hdr.ver_cmd & 0xF0) != 0x20){
+			തിരികെ MOSQ_ERR_INVAL;
 		}
 		context->proxy.cmd = hdr.ver_cmd & 0x0F;
-		if(context->proxy.cmd != 0x00 && context->proxy.cmd != 0x01){
-			return MOSQ_ERR_INVAL;
+		എങ്കിൽ(context->proxy.cmd != 0x00 && context->proxy.cmd != 0x01){
+			തിരികെ MOSQ_ERR_INVAL;
 		}
 		context->proxy.fam = hdr.fam;
-		if((hdr.fam != 0x00 || context->proxy.cmd != PROXY_CMD_LOCAL)
+		എങ്കിൽ((hdr.fam != 0x00 || context->proxy.cmd != PROXY_CMD_LOCAL)
 				&& hdr.fam != PROXY_TCP_IPV4
 				&& hdr.fam != PROXY_TCP_IPV6
 				&& hdr.fam != PROXY_TCP_UNIX){
 
-			return 1;
+			തിരികെ 1;
 		}
 		context->proxy.pos = 0;
 		context->proxy.len = ntohs(hdr.len);
-		if(context->proxy.len > 0){
+		എങ്കിൽ(context->proxy.len > 0){
 			/* PROXY_PACKET_LIMIT=500 bytes, arbitrary upper limit */
-			switch(context->proxy.fam){
-				case PROXY_TCP_IPV4:
-					if(context->proxy.len < 12 || context->proxy.len > PROXY_PACKET_LIMIT){
-						return MOSQ_ERR_INVAL;
+			തിരഞ്ഞെടുപ്പ്(context->proxy.fam){
+				അവസ്ഥ PROXY_TCP_IPV4:
+					എങ്കിൽ(context->proxy.len < 12 || context->proxy.len > PROXY_PACKET_LIMIT){
+						തിരികെ MOSQ_ERR_INVAL;
 					}
-					break;
-				case PROXY_TCP_IPV6:
-					if(context->proxy.len < 36 || context->proxy.len > PROXY_PACKET_LIMIT){
-						return MOSQ_ERR_INVAL;
+					നിർത്തുക;
+				അവസ്ഥ PROXY_TCP_IPV6:
+					എങ്കിൽ(context->proxy.len < 36 || context->proxy.len > PROXY_PACKET_LIMIT){
+						തിരികെ MOSQ_ERR_INVAL;
 					}
-					break;
-				case PROXY_TCP_UNIX:
-					if(context->proxy.len > PROXY_PACKET_LIMIT){
-						return MOSQ_ERR_INVAL;
+					നിർത്തുക;
+				അവസ്ഥ PROXY_TCP_UNIX:
+					എങ്കിൽ(context->proxy.len > PROXY_PACKET_LIMIT){
+						തിരികെ MOSQ_ERR_INVAL;
 					}
-					break;
+					നിർത്തുക;
 			}
 			context->proxy.buf = mosquitto_calloc(1, (size_t)(context->proxy.len+1));
-			if(!context->proxy.buf){
-				return MOSQ_ERR_NOMEM;
+			എങ്കിൽ(!context->proxy.buf){
+				തിരികെ MOSQ_ERR_NOMEM;
 			}
-		}else{
-			if(context->proxy.cmd != PROXY_CMD_LOCAL || context->proxy.fam != 0x00){
-				return MOSQ_ERR_PROTOCOL;
+		}അല്ലെങ്കിൽ{
+			എങ്കിൽ(context->proxy.cmd != PROXY_CMD_LOCAL || context->proxy.fam != 0x00){
+				തിരികെ MOSQ_ERR_PROTOCOL;
 			}
 		}
 
 	}
 
-	if(context->proxy.pos < context->proxy.len){
+	എങ്കിൽ(context->proxy.pos < context->proxy.len){
 		ssize_t rc = net__read(context, context->proxy.buf, (size_t)(context->proxy.len - context->proxy.pos));
-		if(rc > 0){
+		എങ്കിൽ(rc > 0){
 			context->proxy.pos = (uint16_t)(context->proxy.pos + rc);
-		}else{
+		}അല്ലെങ്കിൽ{
 			proxy_cleanup(context);
-			return MOSQ_ERR_CONN_LOST;
+			തിരികെ MOSQ_ERR_CONN_LOST;
 		}
 	}
-	if(context->proxy.pos == context->proxy.len){
-		if(context->proxy.fam == PROXY_TCP_IPV4){
-			char address[100];
-			union proxy_addr *addr = (union proxy_addr *)context->proxy.buf;
+	എങ്കിൽ(context->proxy.pos == context->proxy.len){
+		എങ്കിൽ(context->proxy.fam == PROXY_TCP_IPV4){
+			അക്ഷരം address[100];
+			സംഘം proxy_addr *addr = (സംഘം proxy_addr *)context->proxy.buf;
 
-			inet_ntop(AF_INET, &addr->ipv4_addr.src_addr, address, sizeof(address));
+			inet_ntop(AF_INET, &addr->ipv4_addr.src_addr, address, വലുപ്പം(address));
 			context->address = mosquitto_strdup(address);
 			context->remote_port = ntohs(addr->ipv4_addr.src_port);
 			context->proxy.pos = 4+4+2+2;
-		}else if(context->proxy.fam == PROXY_TCP_IPV6){
-			char address[100];
-			union proxy_addr *addr = (union proxy_addr *)context->proxy.buf;
+		}അല്ലെങ്കിൽ എങ്കിൽ(context->proxy.fam == PROXY_TCP_IPV6){
+			അക്ഷരം address[100];
+			സംഘം proxy_addr *addr = (സംഘം proxy_addr *)context->proxy.buf;
 
-			inet_ntop(AF_INET6, addr->ipv6_addr.src_addr, address, sizeof(address));
+			inet_ntop(AF_INET6, addr->ipv6_addr.src_addr, address, വലുപ്പം(address));
 			context->address = mosquitto_strdup(address);
 			context->remote_port = ntohs(addr->ipv6_addr.src_port);
 			context->proxy.pos = 16+16+2+2;
-		}else if(context->proxy.fam == PROXY_TCP_UNIX){
-			union proxy_addr *addr = (union proxy_addr *)context->proxy.buf;
-			context->address = mosquitto_strndup((char *)addr->unix_addr.src_addr, sizeof(addr->unix_addr.src_addr));
+		}അല്ലെങ്കിൽ എങ്കിൽ(context->proxy.fam == PROXY_TCP_UNIX){
+			സംഘം proxy_addr *addr = (സംഘം proxy_addr *)context->proxy.buf;
+			context->address = mosquitto_strndup((അക്ഷരം *)addr->unix_addr.src_addr, വലുപ്പം(addr->unix_addr.src_addr));
 			context->remote_port = 0;
-			context->proxy.pos = (uint16_t)(sizeof(addr->unix_addr.src_addr) + 1);
-		}else{
+			context->proxy.pos = (uint16_t)(വലുപ്പം(addr->unix_addr.src_addr) + 1);
+		}അല്ലെങ്കിൽ{
 			/* Must be LOCAL */
 			/* Ignore address */
-			context->address = NULL;
+			context->address = ശൂന്യ;
 			context->remote_port = 0;
 			proxy_cleanup(context);
-			return MOSQ_ERR_PROXY;
+			തിരികെ MOSQ_ERR_PROXY;
 		}
-		if(!context->address){
+		എങ്കിൽ(!context->address){
 			proxy_cleanup(context);
-			return MOSQ_ERR_NOMEM;
+			തിരികെ MOSQ_ERR_NOMEM;
 		}
 
 		bool have_certificate = false;
 
-		int rc = read_tlv(context, &have_certificate);
-		if(rc){
-			log__printf(NULL, MOSQ_LOG_NOTICE, "Connection from %s:%d rejected, corrupt PROXY header.",
+		പൂർണ്ണസംഖ്യ rc = read_tlv(context, &have_certificate);
+		എങ്കിൽ(rc){
+			log__printf(ശൂന്യ, MOSQ_LOG_NOTICE, "Connection from %s:%d rejected, corrupt PROXY header.",
 					context->address, context->remote_port);
 			proxy_cleanup(context);
-			return MOSQ_ERR_PROXY;
+			തിരികെ MOSQ_ERR_PROXY;
 		}
 		mosquitto_FREE(context->proxy.buf);
 
-		if(context->listener->proxy_protocol_v2_require_tls && !context->proxy.have_tls){
-			log__printf(NULL, MOSQ_LOG_NOTICE, "Connection from %s:%d rejected, client did not connect using TLS.",
+		എങ്കിൽ(context->listener->proxy_protocol_v2_require_tls && !context->proxy.have_tls){
+			log__printf(ശൂന്യ, MOSQ_LOG_NOTICE, "Connection from %s:%d rejected, client did not connect using TLS.",
 					context->address, context->remote_port);
 			proxy_cleanup(context);
-			return MOSQ_ERR_PROXY;
+			തിരികെ MOSQ_ERR_PROXY;
 		}
 
 #ifdef WITH_TLS
-		if(context->listener->require_certificate){
-			if(!have_certificate){
-				log__printf(NULL, MOSQ_LOG_NOTICE, "Connection from %s:%d rejected, client did not provide a certificate.",
+		എങ്കിൽ(context->listener->require_certificate){
+			എങ്കിൽ(!have_certificate){
+				log__printf(ശൂന്യ, MOSQ_LOG_NOTICE, "Connection from %s:%d rejected, client did not provide a certificate.",
 						context->address, context->remote_port);
 				proxy_cleanup(context);
-				return MOSQ_ERR_PROXY;
+				തിരികെ MOSQ_ERR_PROXY;
 			}
 		}
 
-		if(context->proxy.tls_version && context->proxy.cipher){
-			log__printf(NULL, MOSQ_LOG_NOTICE, "Connection from %s:%d negotiated %s cipher %s",
+		എങ്കിൽ(context->proxy.tls_version && context->proxy.cipher){
+			log__printf(ശൂന്യ, MOSQ_LOG_NOTICE, "Connection from %s:%d negotiated %s cipher %s",
 					context->address, context->remote_port, context->proxy.tls_version, context->proxy.cipher);
 		}
 #endif
 		proxy_cleanup(context);
 
-#if defined(WITH_WEBSOCKETS) && WITH_WEBSOCKETS == WS_IS_BUILTIN
-		if(context->listener->protocol == mp_websockets){
-			return http__context_init(context);
-		}else
+#എങ്കിൽ defined(WITH_WEBSOCKETS) && WITH_WEBSOCKETS == WS_IS_BUILTIN
+		എങ്കിൽ(context->listener->protocol == mp_websockets){
+			തിരികെ http__context_init(context);
+		}അല്ലെങ്കിൽ
 #endif
 		{
 			context->transport = mosq_t_tcp;
 		}
 	}
 
-	return MOSQ_ERR_SUCCESS;
+	തിരികെ MOSQ_ERR_SUCCESS;
 }
 #endif

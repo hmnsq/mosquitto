@@ -18,244 +18,244 @@ Contributors:
 
 #ifdef WITH_WEBSOCKETS
 
-#include "config.h"
+#അന്തര്ഭാവ "config.h"
 
-#if defined(WITH_WEBSOCKETS) && WITH_WEBSOCKETS == WS_IS_LWS
+#എങ്കിൽ defined(WITH_WEBSOCKETS) && WITH_WEBSOCKETS == WS_IS_LWS
 #  include <libwebsockets.h>
 #endif
-#include "mosquitto_internal.h"
-#include "mosquitto_broker_internal.h"
-#include "mosquitto/mqtt_protocol.h"
-#include "packet_mosq.h"
-#include "sys_tree.h"
-#include "util_mosq.h"
+#അന്തര്ഭാവ "mosquitto_internal.h"
+#അന്തര്ഭാവ "mosquitto_broker_internal.h"
+#അന്തര്ഭാവ "mosquitto/mqtt_protocol.h"
+#അന്തര്ഭാവ "packet_mosq.h"
+#അന്തര്ഭാവ "sys_tree.h"
+#അന്തര്ഭാവ "util_mosq.h"
 
-#include <stdlib.h>
-#include <errno.h>
-#include <sys/stat.h>
+#അന്തര്ഭാവ <stdlib.h>
+#അന്തര്ഭാവ <errno.h>
+#അന്തര്ഭാവ <sys/stat.h>
 
 #ifndef WIN32
 #  include <sys/socket.h>
 #endif
 
-#if defined(WITH_WEBSOCKETS) && WITH_WEBSOCKETS == WS_IS_LWS
+#എങ്കിൽ defined(WITH_WEBSOCKETS) && WITH_WEBSOCKETS == WS_IS_LWS
 /* Be careful if changing these, if TX is not bigger than SERV then there can
  * be very large write performance penalties.
  */
 #define WS_SERV_BUF_SIZE 4096
 #define WS_TX_BUF_SIZE (WS_SERV_BUF_SIZE*2)
 
-static int callback_mqtt(
-		struct lws *wsi,
-		enum lws_callback_reasons reason,
-		void *user,
-		void *in,
+സ്ഥിതം പൂർണ്ണസംഖ്യ callback_mqtt(
+		ഘടന lws *wsi,
+		എണ്ണൽ lws_callback_reasons reason,
+		ശൂന്യം *user,
+		ശൂന്യം *in,
 		size_t len);
 
-static int callback_http(
-		struct lws *wsi,
-		enum lws_callback_reasons reason,
-		void *user,
-		void *in,
+സ്ഥിതം പൂർണ്ണസംഖ്യ callback_http(
+		ഘടന lws *wsi,
+		എണ്ണൽ lws_callback_reasons reason,
+		ശൂന്യം *user,
+		ശൂന്യം *in,
 		size_t len);
 
-enum mosq_ws_protocols {
+എണ്ണൽ mosq_ws_protocols {
 	PROTOCOL_HTTP = 0,
 	PROTOCOL_MQTT,
-	DEMO_PROTOCOL_COUNT,
+	DEMO_PROTOCOL_എണ്ണം,
 };
 
-struct libws_http_data {
+ഘടന libws_http_data {
 	FILE *fptr;
 };
 
-static struct lws_protocols protocols[] = {
+സ്ഥിതം ഘടന lws_protocols protocols[] = {
 	/* first protocol must always be HTTP handler */
 	{
 		"http-only",                        /* name */
 		callback_http,                      /* lws_callback_function */
-		sizeof (struct libws_http_data),    /* per_session_data_size */
+		വലുപ്പം (ഘടന libws_http_data),    /* per_session_data_size */
 		0,                                  /* rx_buffer_size */
 		0,                                  /* id */
-		NULL,                               /* user v1.4 on */
+		ശൂന്യ,                               /* user v1.4 on */
 		WS_TX_BUF_SIZE                      /* tx_packet_size v2.3.0 */
 	},
 	{
 		"mqtt",
 		callback_mqtt,
-		sizeof(struct libws_mqtt_data),
+		വലുപ്പം(ഘടന libws_mqtt_data),
 		0,                                  /* rx_buffer_size */
 		1,                                  /* id */
-		NULL,                               /* user v1.4 on */
+		ശൂന്യ,                               /* user v1.4 on */
 		WS_TX_BUF_SIZE                      /* tx_packet_size v2.3.0 */
 	},
 	{
 		"mqttv3.1",
 		callback_mqtt,
-		sizeof(struct libws_mqtt_data),
+		വലുപ്പം(ഘടന libws_mqtt_data),
 		0,                                  /* rx_buffer_size */
 		2,                                  /* id */
-		NULL,                               /* user v1.4 on */
+		ശൂന്യ,                               /* user v1.4 on */
 		WS_TX_BUF_SIZE                      /* tx_packet_size v2.3.0 */
 	},
 	{
-		NULL,
-		NULL,
+		ശൂന്യ,
+		ശൂന്യ,
 		0,
 		0,                                  /* rx_buffer_size */
 		0,                                  /* id */
-		NULL,                               /* user v1.4 on */
+		ശൂന്യ,                               /* user v1.4 on */
 		0                                   /* tx_packet_size v2.3.0 */
 	}
 };
 
 
-static void easy_address(int sock, struct mosquitto *mosq)
+സ്ഥിതം ശൂന്യം easy_address(പൂർണ്ണസംഖ്യ sock, ഘടന mosquitto *mosq)
 {
-	char address[1024];
+	അക്ഷരം address[1024];
 
-	if(!net__socket_get_address(sock, address, 1024, &mosq->remote_port)){
+	എങ്കിൽ(!net__socket_get_address(sock, address, 1024, &mosq->remote_port)){
 		mosq->address = mosquitto_strdup(address);
 	}
 }
 
 
-static int callback_mqtt(
-		struct lws *wsi,
-		enum lws_callback_reasons reason,
-		void *user,
-		void *in,
+സ്ഥിതം പൂർണ്ണസംഖ്യ callback_mqtt(
+		ഘടന lws *wsi,
+		എണ്ണൽ lws_callback_reasons reason,
+		ശൂന്യം *user,
+		ശൂന്യം *in,
 		size_t len)
 {
-	struct mosquitto *mosq = NULL;
-	struct mosquitto__packet *packet;
-	int count;
-	unsigned int ucount;
-	const struct lws_protocols *p;
-	struct libws_mqtt_data *u = (struct libws_mqtt_data *)user;
+	ഘടന mosquitto *mosq = ശൂന്യ;
+	ഘടന mosquitto__packet *packet;
+	പൂർണ്ണസംഖ്യ എണ്ണം;
+	unsigned പൂർണ്ണസംഖ്യ ucount;
+	സ്ഥിരം ഘടന lws_protocols *p;
+	ഘടന libws_mqtt_data *u = (ഘടന libws_mqtt_data *)user;
 	size_t pos;
 	uint8_t *buf;
-	int rc;
+	പൂർണ്ണസംഖ്യ rc;
 	uint8_t byte;
-	char ip_addr_buff[1024];
+	അക്ഷരം ip_addr_buff[1024];
 
-	switch(reason){
-		case LWS_CALLBACK_ESTABLISHED:
+	തിരഞ്ഞെടുപ്പ്(reason){
+		അവസ്ഥ LWS_CALLBACK_ESTABLISHED:
 			mosq = context__init();
-			if(mosq){
+			എങ്കിൽ(mosq){
 				p = lws_get_protocol(wsi);
 				mosq->listener = p->user;
-				if(!mosq->listener){
+				എങ്കിൽ(!mosq->listener){
 					mosquitto_FREE(mosq);
-					return -1;
+					തിരികെ -1;
 				}
 				mosq->wsi = wsi;
 #ifdef WITH_TLS
-				if(in){
+				എങ്കിൽ(in){
 					mosq->ssl = (SSL *)in;
-					if(!mosq->listener->ssl_ctx){
+					എങ്കിൽ(!mosq->listener->ssl_ctx){
 						mosq->listener->ssl_ctx = SSL_get_SSL_CTX(mosq->ssl);
 					}
 				}
 #endif
 				u->mosq = mosq;
-			}else{
-				return -1;
+			}അല്ലെങ്കിൽ{
+				തിരികെ -1;
 			}
 
 			easy_address(lws_get_socket_fd(wsi), mosq);
-			if(!mosq->address){
+			എങ്കിൽ(!mosq->address){
 				/* getpeername and inet_ntop failed and not a bridge */
 				mosquitto_FREE(mosq);
-				u->mosq = NULL;
-				return -1;
+				u->mosq = ശൂന്യ;
+				തിരികെ -1;
 			}
-			mosq->listener->client_count++;
-			if((mosq->listener->max_connections > 0 && mosq->listener->client_count > mosq->listener->max_connections)
-					|| (db.config->global_max_connections > 0 && HASH_CNT(hh_sock, db.contexts_by_sock) > (unsigned int)db.config->global_max_connections)){
+			mosq->listener->client_എണ്ണം++;
+			എങ്കിൽ((mosq->listener->max_connections > 0 && mosq->listener->client_എണ്ണം > mosq->listener->max_connections)
+					|| (db.config->global_max_connections > 0 && HASH_CNT(hh_sock, db.contexts_by_sock) > (unsigned പൂർണ്ണസംഖ്യ)db.config->global_max_connections)){
 
-				if(db.config->connection_messages == true){
-					log__printf(NULL, MOSQ_LOG_NOTICE, "Client connection from %s denied: max_connections exceeded.", mosq->address);
+				എങ്കിൽ(db.config->connection_messages == true){
+					log__printf(ശൂന്യ, MOSQ_LOG_NOTICE, "Client connection from %s denied: max_connections exceeded.", mosq->address);
 				}
-				mosq->listener->client_count--;
+				mosq->listener->client_എണ്ണം--;
 				mosquitto_FREE(mosq->address);
 				mosquitto_FREE(mosq);
-				u->mosq = NULL;
-				return -1;
+				u->mosq = ശൂന്യ;
+				തിരികെ -1;
 			}
 			mosq->sock = lws_get_socket_fd(wsi);
-			HASH_ADD(hh_sock, db.contexts_by_sock, sock, sizeof(mosq->sock), mosq);
+			HASH_ADD(hh_sock, db.contexts_by_sock, sock, വലുപ്പം(mosq->sock), mosq);
 			mux__new(mosq);
-			break;
+			നിർത്തുക;
 
-		case LWS_CALLBACK_CLOSED:
-			if(!u){
-				return -1;
+		അവസ്ഥ LWS_CALLBACK_CLOSED:
+			എങ്കിൽ(!u){
+				തിരികെ -1;
 			}
 			mosq = u->mosq;
-			if(mosq){
-				if(mosq->sock != INVALID_SOCKET){
+			എങ്കിൽ(mosq){
+				എങ്കിൽ(mosq->sock != INVALID_SOCKET){
 					HASH_DELETE(hh_sock, db.contexts_by_sock, mosq);
 					mosq->sock = INVALID_SOCKET;
 					mux__delete(mosq);
 				}
-				mosq->wsi = NULL;
+				mosq->wsi = ശൂന്യ;
 #ifdef WITH_TLS
-				mosq->ssl = NULL;
+				mosq->ssl = ശൂന്യ;
 #endif
 				do_disconnect(mosq, MOSQ_ERR_CONN_LOST);
 			}
-			break;
+			നിർത്തുക;
 
-		case LWS_CALLBACK_SERVER_WRITEABLE:
-			if(!u){
-				return -1;
+		അവസ്ഥ LWS_CALLBACK_SERVER_WRITEABLE:
+			എങ്കിൽ(!u){
+				തിരികെ -1;
 			}
 			mosq = u->mosq;
-			if(!mosq){
-				return -1;
+			എങ്കിൽ(!mosq){
+				തിരികെ -1;
 			}
 
 			rc = db__message_write_inflight_out_latest(mosq);
-			if(rc){
-				return -1;
+			എങ്കിൽ(rc){
+				തിരികെ -1;
 			}
 			rc = db__message_write_queued_out(mosq);
-			if(rc){
-				return -1;
+			എങ്കിൽ(rc){
+				തിരികെ -1;
 			}
 
-			while(mosq->out_packet && !lws_send_pipe_choked(mosq->wsi)){
+			ആകുമ്പോൾ(mosq->out_packet && !lws_send_pipe_choked(mosq->wsi)){
 				packet = mosq->out_packet;
-				count = lws_write(wsi, &packet->payload[packet->pos], packet->to_process, LWS_WRITE_BINARY);
-				if(count < 0){
-					if(mosq->state == mosq_cs_disconnect_ws
+				എണ്ണം = lws_write(wsi, &packet->payload[packet->pos], packet->to_process, LWS_WRITE_ദ്വിമാന);
+				എങ്കിൽ(എണ്ണം < 0){
+					എങ്കിൽ(mosq->state == mosq_cs_disconnect_ws
 							|| mosq->state == mosq_cs_disconnecting
 							|| mosq->state == mosq_cs_disused){
 
-						return -1;
+						തിരികെ -1;
 					}
-					return 0;
+					തിരികെ 0;
 				}
-				ucount = (unsigned int)count;
-#ifdef WITH_SYS_TREE
+				ucount = (unsigned പൂർണ്ണസംഖ്യ)എണ്ണം;
+#ifdef WITH_SYS_വൃക്ഷം
 				metrics__int_inc(mosq_counter_bytes_sent, ucount);
 #endif
 				packet->to_process -= ucount;
 				packet->pos += ucount;
-				if(packet->to_process > 0){
-					if(mosq->state == mosq_cs_disconnect_ws
+				എങ്കിൽ(packet->to_process > 0){
+					എങ്കിൽ(mosq->state == mosq_cs_disconnect_ws
 							|| mosq->state == mosq_cs_disconnecting
 							|| mosq->state == mosq_cs_disused){
 
-						return -1;
+						തിരികെ -1;
 					}
-					break;
+					നിർത്തുക;
 				}
 
-#ifdef WITH_SYS_TREE
+#ifdef WITH_SYS_വൃക്ഷം
 				metrics__int_inc(mosq_counter_messages_sent, 1);
-				if(((packet->command)&0xF0) == CMD_PUBLISH){
+				എങ്കിൽ(((packet->command)&0xF0) == CMD_PUBLISH){
 					metrics__int_inc(mosq_counter_mqtt_publish_sent, 1);
 				}
 #endif
@@ -263,82 +263,82 @@ static int callback_mqtt(
 				packet__get_next_out(mosq);
 				mosquitto_FREE(packet);
 
-				mosq->next_msg_out = db.now_s + mosq->keepalive;
+				mosq->next_സന്ദേശം_out = db.now_s + mosq->keepalive;
 			}
-			if(mosq->state == mosq_cs_disconnect_ws
+			എങ്കിൽ(mosq->state == mosq_cs_disconnect_ws
 					|| mosq->state == mosq_cs_disconnecting
 					|| mosq->state == mosq_cs_disused){
 
-				return -1;
+				തിരികെ -1;
 			}
-			if(mosq->out_packet){
+			എങ്കിൽ(mosq->out_packet){
 				lws_callback_on_writable(mosq->wsi);
 			}
-			break;
+			നിർത്തുക;
 
-		case LWS_CALLBACK_RECEIVE:
-			if(!u || !u->mosq){
-				return -1;
+		അവസ്ഥ LWS_CALLBACK_RECEIVE:
+			എങ്കിൽ(!u || !u->mosq){
+				തിരികെ -1;
 			}
 			mosq = u->mosq;
 			pos = 0;
 			buf = (uint8_t *)in;
 			metrics__int_inc(mosq_counter_bytes_received, (int64_t)len);
-			while(pos < len){
-				if(!mosq->in_packet.command){
+			ആകുമ്പോൾ(pos < len){
+				എങ്കിൽ(!mosq->in_packet.command){
 					mosq->in_packet.command = buf[pos];
 					pos++;
 					/* Clients must send CONNECT as their first command. */
-					if(mosq->state == mosq_cs_new && (mosq->in_packet.command&0xF0) != CMD_CONNECT){
-						return -1;
+					എങ്കിൽ(mosq->state == mosq_cs_new && (mosq->in_packet.command&0xF0) != CMD_CONNECT){
+						തിരികെ -1;
 					}
 				}
-				if(mosq->in_packet.remaining_count <= 0){
-					do{
-						if(pos == len){
-							return 0;
+				എങ്കിൽ(mosq->in_packet.remaining_എണ്ണം <= 0){
+					ചെയ്യുക{
+						എങ്കിൽ(pos == len){
+							തിരികെ 0;
 						}
 						byte = buf[pos];
 						pos++;
 
-						mosq->in_packet.remaining_count--;
+						mosq->in_packet.remaining_എണ്ണം--;
 						/* Max 4 bytes length for remaining length as defined by protocol.
 						* Anything more likely means a broken/malicious client.
 						*/
-						if(mosq->in_packet.remaining_count < -4){
-							return -1;
+						എങ്കിൽ(mosq->in_packet.remaining_എണ്ണം < -4){
+							തിരികെ -1;
 						}
 
 						mosq->in_packet.remaining_length += (byte & 127) * mosq->in_packet.remaining_mult;
 						mosq->in_packet.remaining_mult *= 128;
-					}while((byte & 128) != 0);
-					mosq->in_packet.remaining_count = (int8_t)(mosq->in_packet.remaining_count * -1);
+					}ആകുമ്പോൾ((byte & 128) != 0);
+					mosq->in_packet.remaining_എണ്ണം = (int8_t)(mosq->in_packet.remaining_എണ്ണം * -1);
 
-					if(mosq->in_packet.remaining_length > 0){
-						mosq->in_packet.payload = mosquitto_malloc(mosq->in_packet.remaining_length*sizeof(uint8_t));
-						if(!mosq->in_packet.payload){
-							return -1;
+					എങ്കിൽ(mosq->in_packet.remaining_length > 0){
+						mosq->in_packet.payload = mosquitto_malloc(mosq->in_packet.remaining_length*വലുപ്പം(uint8_t));
+						എങ്കിൽ(!mosq->in_packet.payload){
+							തിരികെ -1;
 						}
 						mosq->in_packet.to_process = mosq->in_packet.remaining_length;
 					}
 				}
-				if(mosq->in_packet.to_process>0){
-					if((uint32_t)len - pos >= mosq->in_packet.to_process){
+				എങ്കിൽ(mosq->in_packet.to_process>0){
+					എങ്കിൽ((uint32_t)len - pos >= mosq->in_packet.to_process){
 						memcpy(&mosq->in_packet.payload[mosq->in_packet.pos], &buf[pos], mosq->in_packet.to_process);
 						mosq->in_packet.pos += mosq->in_packet.to_process;
 						pos += mosq->in_packet.to_process;
 						mosq->in_packet.to_process = 0;
-					}else{
+					}അല്ലെങ്കിൽ{
 						memcpy(&mosq->in_packet.payload[mosq->in_packet.pos], &buf[pos], len-pos);
 						mosq->in_packet.pos += (uint32_t)(len-pos);
 						mosq->in_packet.to_process -= (uint32_t)(len-pos);
-						return 0;
+						തിരികെ 0;
 					}
 				}
 				/* All data for this packet is read. */
 				mosq->in_packet.pos = 0;
 
-#ifdef WITH_SYS_TREE
+#ifdef WITH_SYS_വൃക്ഷം
 				metrics__int_inc(mosq_counter_messages_received, 1);
 #endif
 				rc = handle__packet(mosq);
@@ -348,346 +348,346 @@ static int callback_mqtt(
 
 				keepalive__update(mosq);
 
-				if(rc && mosq->out_packet){
-					if(mosq->state != mosq_cs_disconnecting){
+				എങ്കിൽ(rc && mosq->out_packet){
+					എങ്കിൽ(mosq->state != mosq_cs_disconnecting){
 						mosquitto__set_state(mosq, mosq_cs_disconnect_ws);
 					}
 					lws_callback_on_writable(mosq->wsi);
-				}else if(rc){
+				}അല്ലെങ്കിൽ എങ്കിൽ(rc){
 					do_disconnect(mosq, MOSQ_ERR_CONN_LOST);
-					return -1;
+					തിരികെ -1;
 				}
 			}
-			break;
+			നിർത്തുക;
 
-		default:
-			break;
+		സ്ഥിരസ്ഥിതി:
+			നിർത്തുക;
 	}
 
-	return 0;
+	തിരികെ 0;
 }
 
 
-static char *http__canonical_filename(
-		struct lws *wsi,
-		const char *in,
-		const char *http_dir)
+സ്ഥിതം അക്ഷരം *http__canonical_filename(
+		ഘടന lws *wsi,
+		സ്ഥിരം അക്ഷരം *in,
+		സ്ഥിരം അക്ഷരം *http_dir)
 {
 	size_t inlen, slen;
-	char *filename, *filename_canonical;
+	അക്ഷരം *filename, *filename_canonical;
 
 	inlen = strlen(in);
-	if(in[inlen-1] == '/'){
+	എങ്കിൽ(in[inlen-1] == '/'){
 		slen = strlen(http_dir) + inlen + strlen("/index.html") + 2;
-	}else{
+	}അല്ലെങ്കിൽ{
 		slen = strlen(http_dir) + inlen + 2;
 	}
 	filename = mosquitto_malloc(slen);
-	if(!filename){
-		lws_return_http_status(wsi, HTTP_STATUS_INTERNAL_SERVER_ERROR, NULL);
-		return NULL;
+	എങ്കിൽ(!filename){
+		lws_return_http_status(wsi, HTTP_STATUS_INTERNAL_SERVER_ERROR, ശൂന്യ);
+		തിരികെ ശൂന്യ;
 	}
-	if(((char *)in)[inlen-1] == '/'){
-		snprintf(filename, slen, "%s%sindex.html", http_dir, (char *)in);
-	}else{
-		snprintf(filename, slen, "%s%s", http_dir, (char *)in);
+	എങ്കിൽ(((അക്ഷരം *)in)[inlen-1] == '/'){
+		snprintf(filename, slen, "%s%sindex.html", http_dir, (അക്ഷരം *)in);
+	}അല്ലെങ്കിൽ{
+		snprintf(filename, slen, "%s%s", http_dir, (അക്ഷരം *)in);
 	}
 
 
 	/* Get canonical path and check it is within our http_dir */
 #ifdef WIN32
-	filename_canonical = _fullpath(NULL, filename, 0);
+	filename_canonical = _fullpath(ശൂന്യ, filename, 0);
 	mosquitto_FREE(filename);
-	if(!filename_canonical){
-		lws_return_http_status(wsi, HTTP_STATUS_INTERNAL_SERVER_ERROR, NULL);
-		return NULL;
+	എങ്കിൽ(!filename_canonical){
+		lws_return_http_status(wsi, HTTP_STATUS_INTERNAL_SERVER_ERROR, ശൂന്യ);
+		തിരികെ ശൂന്യ;
 	}
-#else
-	filename_canonical = realpath(filename, NULL);
+#അല്ലെങ്കിൽ
+	filename_canonical = realpath(filename, ശൂന്യ);
 	mosquitto_FREE(filename);
-	if(!filename_canonical){
-		if(errno == EACCES){
-			lws_return_http_status(wsi, HTTP_STATUS_FORBIDDEN, NULL);
-		}else if(errno == EINVAL || errno == EIO || errno == ELOOP){
-			lws_return_http_status(wsi, HTTP_STATUS_INTERNAL_SERVER_ERROR, NULL);
-		}else if(errno == ENAMETOOLONG){
-			lws_return_http_status(wsi, HTTP_STATUS_REQ_URI_TOO_LONG, NULL);
-		}else if(errno == ENOENT || errno == ENOTDIR){
-			lws_return_http_status(wsi, HTTP_STATUS_NOT_FOUND, NULL);
+	എങ്കിൽ(!filename_canonical){
+		എങ്കിൽ(errno == EACCES){
+			lws_return_http_status(wsi, HTTP_STATUS_FORBIDDEN, ശൂന്യ);
+		}അല്ലെങ്കിൽ എങ്കിൽ(errno == EINVAL || errno == EIO || errno == ELOOP){
+			lws_return_http_status(wsi, HTTP_STATUS_INTERNAL_SERVER_ERROR, ശൂന്യ);
+		}അല്ലെങ്കിൽ എങ്കിൽ(errno == ENAMETOOLONG){
+			lws_return_http_status(wsi, HTTP_STATUS_REQ_URI_TOO_LONG, ശൂന്യ);
+		}അല്ലെങ്കിൽ എങ്കിൽ(errno == ENOENT || errno == ENOTDIR){
+			lws_return_http_status(wsi, HTTP_STATUS_NOT_FOUND, ശൂന്യ);
 		}
-		return NULL;
+		തിരികെ ശൂന്യ;
 	}
 #endif
-	if(strncmp(http_dir, filename_canonical, strlen(http_dir))){
+	എങ്കിൽ(strncmp(http_dir, filename_canonical, strlen(http_dir))){
 		/* Requested file isn't within http_dir, deny access. */
 		SAFE_FREE(filename_canonical);
-		lws_return_http_status(wsi, HTTP_STATUS_FORBIDDEN, NULL);
-		return NULL;
+		lws_return_http_status(wsi, HTTP_STATUS_FORBIDDEN, ശൂന്യ);
+		തിരികെ ശൂന്യ;
 	}
 
-	return filename_canonical;
+	തിരികെ filename_canonical;
 }
 
 
-static int callback_http(
-		struct lws *wsi,
-		enum lws_callback_reasons reason,
-		void *user,
-		void *in,
+സ്ഥിതം പൂർണ്ണസംഖ്യ callback_http(
+		ഘടന lws *wsi,
+		എണ്ണൽ lws_callback_reasons reason,
+		ശൂന്യം *user,
+		ശൂന്യം *in,
 		size_t len)
 {
-	struct libws_http_data *u = (struct libws_http_data *)user;
-	struct libws_mqtt_hack *hack;
-	char *http_dir;
+	ഘടന libws_http_data *u = (ഘടന libws_http_data *)user;
+	ഘടന libws_mqtt_hack *hack;
+	അക്ഷരം *http_dir;
 	size_t buflen;
 	size_t wlen;
-	int rc;
-	char *filename_canonical;
-	unsigned char buf[4096];
-	struct stat filestat;
-	struct mosquitto *mosq;
-	struct lws_pollargs *pollargs = (struct lws_pollargs *)in;
-	int hlen;
+	പൂർണ്ണസംഖ്യ rc;
+	അക്ഷരം *filename_canonical;
+	unsigned അക്ഷരം buf[4096];
+	ഘടന stat filestat;
+	ഘടന mosquitto *mosq;
+	ഘടന lws_pollargs *pollargs = (ഘടന lws_pollargs *)in;
+	പൂർണ്ണസംഖ്യ hlen;
 
 	/* FIXME - ssl cert verification is done here. */
 
-	switch(reason){
-		case LWS_CALLBACK_HTTP:
-			if(!u){
-				return -1;
+	തിരഞ്ഞെടുപ്പ്(reason){
+		അവസ്ഥ LWS_CALLBACK_HTTP:
+			എങ്കിൽ(!u){
+				തിരികെ -1;
 			}
 
-			hack = (struct libws_mqtt_hack *)lws_context_user(lws_get_context(wsi));
-			if(!hack){
-				return -1;
+			hack = (ഘടന libws_mqtt_hack *)lws_context_user(lws_get_context(wsi));
+			എങ്കിൽ(!hack){
+				തിരികെ -1;
 			}
 			http_dir = hack->http_dir;
 
-			if(!http_dir){
+			എങ്കിൽ(!http_dir){
 				/* http disabled */
-				return -1;
+				തിരികെ -1;
 			}
 
 			/* Forbid POST */
-			if(lws_hdr_total_length(wsi, WSI_TOKEN_POST_URI)){
-				lws_return_http_status(wsi, HTTP_STATUS_METHOD_NOT_ALLOWED, NULL);
-				return -1;
+			എങ്കിൽ(lws_hdr_total_length(wsi, WSI_TOKEN_POST_URI)){
+				lws_return_http_status(wsi, HTTP_STATUS_METHOD_NOT_ALLOWED, ശൂന്യ);
+				തിരികെ -1;
 			}
 
-			filename_canonical = http__canonical_filename(wsi, (char *)in, http_dir);
-			if(!filename_canonical){
-				return -1;
+			filename_canonical = http__canonical_filename(wsi, (അക്ഷരം *)in, http_dir);
+			എങ്കിൽ(!filename_canonical){
+				തിരികെ -1;
 			}
 
 			u->fptr = fopen(filename_canonical, "rb");
-			if(!u->fptr){
+			എങ്കിൽ(!u->fptr){
 				SAFE_FREE(filename_canonical);
-				lws_return_http_status(wsi, HTTP_STATUS_NOT_FOUND, NULL);
-				return -1;
+				lws_return_http_status(wsi, HTTP_STATUS_NOT_FOUND, ശൂന്യ);
+				തിരികെ -1;
 			}
-			if(fstat(fileno(u->fptr), &filestat) < 0){
+			എങ്കിൽ(fstat(fileno(u->fptr), &filestat) < 0){
 				SAFE_FREE(filename_canonical);
-				lws_return_http_status(wsi, HTTP_STATUS_INTERNAL_SERVER_ERROR, NULL);
+				lws_return_http_status(wsi, HTTP_STATUS_INTERNAL_SERVER_ERROR, ശൂന്യ);
 				fclose(u->fptr);
-				u->fptr = NULL;
-				return -1;
+				u->fptr = ശൂന്യ;
+				തിരികെ -1;
 			}
 
 
-			if((filestat.st_mode & S_IFDIR) == S_IFDIR){
+			എങ്കിൽ((filestat.st_mode & S_IFDIR) == S_IFDIR){
 				fclose(u->fptr);
-				u->fptr = NULL;
+				u->fptr = ശൂന്യ;
 				SAFE_FREE(filename_canonical);
 
 				/* FIXME - use header functions from lws 2.x */
-				buflen = (size_t)snprintf((char *)buf, 4096, "HTTP/1.0 302 OK\r\n"
+				buflen = (size_t)snprintf((അക്ഷരം *)buf, 4096, "HTTP/1.0 302 OK\r\n"
 						"Location: %s/\r\n\r\n",
-						(char *)in);
-				return lws_write(wsi, buf, buflen, LWS_WRITE_HTTP);
+						(അക്ഷരം *)in);
+				തിരികെ lws_write(wsi, buf, buflen, LWS_WRITE_HTTP);
 			}
 
-			if((filestat.st_mode & S_IFREG) != S_IFREG){
-				lws_return_http_status(wsi, HTTP_STATUS_FORBIDDEN, NULL);
+			എങ്കിൽ((filestat.st_mode & S_IFREG) != S_IFREG){
+				lws_return_http_status(wsi, HTTP_STATUS_FORBIDDEN, ശൂന്യ);
 				fclose(u->fptr);
-				u->fptr = NULL;
+				u->fptr = ശൂന്യ;
 				SAFE_FREE(filename_canonical);
-				return -1;
+				തിരികെ -1;
 			}
 
-			log__printf(NULL, MOSQ_LOG_DEBUG, "http serving file \"%s\".", filename_canonical);
+			log__printf(ശൂന്യ, MOSQ_LOG_DEBUG, "http serving file \"%s\".", filename_canonical);
 			SAFE_FREE(filename_canonical);
 			/* FIXME - use header functions from lws 2.x */
-			buflen = (size_t)snprintf((char *)buf, 4096, "HTTP/1.0 200 OK\r\n"
+			buflen = (size_t)snprintf((അക്ഷരം *)buf, 4096, "HTTP/1.0 200 OK\r\n"
 					"Server: mosquitto\r\n"
 					"Content-Length: %u\r\n\r\n",
-					(unsigned int)filestat.st_size);
-			if(lws_write(wsi, buf, buflen, LWS_WRITE_HTTP) < 0){
+					(unsigned പൂർണ്ണസംഖ്യ)filestat.st_size);
+			എങ്കിൽ(lws_write(wsi, buf, buflen, LWS_WRITE_HTTP) < 0){
 				fclose(u->fptr);
-				u->fptr = NULL;
-				return -1;
+				u->fptr = ശൂന്യ;
+				തിരികെ -1;
 			}
 			lws_callback_on_writable(wsi);
-			break;
+			നിർത്തുക;
 
-		case LWS_CALLBACK_HTTP_BODY:
+		അവസ്ഥ LWS_CALLBACK_HTTP_BODY:
 			/* For extra POST data? */
-			return -1;
+			തിരികെ -1;
 
-		case LWS_CALLBACK_HTTP_BODY_COMPLETION:
+		അവസ്ഥ LWS_CALLBACK_HTTP_BODY_COMPLETION:
 			/* For end of extra POST data? */
-			return -1;
+			തിരികെ -1;
 
-		case LWS_CALLBACK_FILTER_HTTP_CONNECTION:
+		അവസ്ഥ LWS_CALLBACK_FILTER_HTTP_CONNECTION:
 			/* Access control here */
-			return 0;
+			തിരികെ 0;
 
-#if LWS_LIBRARY_VERSION_NUMBER >= 3001000
-		case LWS_CALLBACK_HTTP_CONFIRM_UPGRADE:
+#എങ്കിൽ LWS_LIBRARY_VERSION_സംഖ്യ >= 3001000
+		അവസ്ഥ LWS_CALLBACK_HTTP_CONFIRM_UPGRADE:
 			hack = lws_context_user(lws_get_context(wsi));
-			if(hack->listener->ws_origin_count){
+			എങ്കിൽ(hack->listener->ws_origin_എണ്ണം){
 				hlen = lws_hdr_total_length(wsi, WSI_TOKEN_ORIGIN);
-				if(hlen <= 0 || hlen >= (int)sizeof(buf)){
-					return -1;
+				എങ്കിൽ(hlen <= 0 || hlen >= (പൂർണ്ണസംഖ്യ)വലുപ്പം(buf)){
+					തിരികെ -1;
 				}
-				for(int i=0; i<hack->listener->ws_origin_count; i++){
-					lws_hdr_copy(wsi, (char *)buf, sizeof(buf), WSI_TOKEN_ORIGIN);
-					if((!strcmp(hack->listener->ws_origins[i], (char *)buf))){
-						return 0;
+				വേണ്ടി(പൂർണ്ണസംഖ്യ i=0; i<hack->listener->ws_origin_എണ്ണം; i++){
+					lws_hdr_copy(wsi, (അക്ഷരം *)buf, വലുപ്പം(buf), WSI_TOKEN_ORIGIN);
+					എങ്കിൽ((!strcmp(hack->listener->ws_origins[i], (അക്ഷരം *)buf))){
+						തിരികെ 0;
 					}
 				}
-				return -1;
-			}else{
-				return 0;
+				തിരികെ -1;
+			}അല്ലെങ്കിൽ{
+				തിരികെ 0;
 			}
 #endif
 
-		case LWS_CALLBACK_HTTP_WRITEABLE:
+		അവസ്ഥ LWS_CALLBACK_HTTP_WRITEABLE:
 			/* Send our data here */
-			if(u && u->fptr){
-				do{
-					buflen = fread(buf, 1, sizeof(buf), u->fptr);
-					if(buflen < 1){
+			എങ്കിൽ(u && u->fptr){
+				ചെയ്യുക{
+					buflen = fread(buf, 1, വലുപ്പം(buf), u->fptr);
+					എങ്കിൽ(buflen < 1){
 						fclose(u->fptr);
-						u->fptr = NULL;
-						return -1;
+						u->fptr = ശൂന്യ;
+						തിരികെ -1;
 					}
 					rc = lws_write(wsi, buf, buflen, LWS_WRITE_HTTP);
-					if(rc < 0){
-						return -1;
+					എങ്കിൽ(rc < 0){
+						തിരികെ -1;
 					}
 					wlen = (size_t)rc;
 					/* while still active, extend timeout */
-					if(wlen){
+					എങ്കിൽ(wlen){
 						lws_set_timeout(wsi, PENDING_TIMEOUT_HTTP_CONTENT, 10);
 					}
-					if(wlen < buflen){
-						if(fseek(u->fptr, (long)(buflen-wlen), SEEK_CUR) < 0){
+					എങ്കിൽ(wlen < buflen){
+						എങ്കിൽ(fseek(u->fptr, (long)(buflen-wlen), SEEK_CUR) < 0){
 							fclose(u->fptr);
-							u->fptr = NULL;
-							return -1;
+							u->fptr = ശൂന്യ;
+							തിരികെ -1;
 						}
-					}else{
-						if(buflen < sizeof(buf)){
+					}അല്ലെങ്കിൽ{
+						എങ്കിൽ(buflen < വലുപ്പം(buf)){
 							fclose(u->fptr);
-							u->fptr = NULL;
+							u->fptr = ശൂന്യ;
 						}
 					}
-				}while(u->fptr && !lws_send_pipe_choked(wsi));
+				}ആകുമ്പോൾ(u->fptr && !lws_send_pipe_choked(wsi));
 				lws_callback_on_writable(wsi);
-			}else{
-				return -1;
+			}അല്ലെങ്കിൽ{
+				തിരികെ -1;
 			}
-			break;
+			നിർത്തുക;
 
-		case LWS_CALLBACK_CLOSED:
-		case LWS_CALLBACK_CLOSED_HTTP:
-		case LWS_CALLBACK_HTTP_FILE_COMPLETION:
-			if(u && u->fptr){
+		അവസ്ഥ LWS_CALLBACK_CLOSED:
+		അവസ്ഥ LWS_CALLBACK_CLOSED_HTTP:
+		അവസ്ഥ LWS_CALLBACK_HTTP_FILE_COMPLETION:
+			എങ്കിൽ(u && u->fptr){
 				fclose(u->fptr);
-				u->fptr = NULL;
+				u->fptr = ശൂന്യ;
 			}
-			break;
+			നിർത്തുക;
 
-		case LWS_CALLBACK_ADD_POLL_FD:
-			HASH_FIND(hh_sock, db.contexts_by_sock, &pollargs->fd, sizeof(pollargs->fd), mosq);
-			if(mosq){
-				if(pollargs->events & LWS_POLLOUT){
+		അവസ്ഥ LWS_CALLBACK_ADD_POLL_FD:
+			HASH_FIND(hh_sock, db.contexts_by_sock, &pollargs->fd, വലുപ്പം(pollargs->fd), mosq);
+			എങ്കിൽ(mosq){
+				എങ്കിൽ(pollargs->events & LWS_POLLOUT){
 					mux__add_out(mosq);
-				}else{
+				}അല്ലെങ്കിൽ{
 					mux__remove_out(mosq);
 				}
-			}else{
-				if(pollargs->events & POLLIN){
+			}അല്ലെങ്കിൽ{
+				എങ്കിൽ(pollargs->events & POLLIN){
 					/* Assume this is a new listener */
 					listeners__add_websockets(lws_get_context(wsi), pollargs->fd);
 				}
 			}
-			break;
+			നിർത്തുക;
 
-		case LWS_CALLBACK_DEL_POLL_FD:
-			HASH_FIND(hh_sock, db.contexts_by_sock, &pollargs->fd, sizeof(pollargs->fd), mosq);
-			if(mosq){
+		അവസ്ഥ LWS_CALLBACK_DEL_POLL_FD:
+			HASH_FIND(hh_sock, db.contexts_by_sock, &pollargs->fd, വലുപ്പം(pollargs->fd), mosq);
+			എങ്കിൽ(mosq){
 				mux__delete(mosq);
 			}
-			break;
+			നിർത്തുക;
 
-		case LWS_CALLBACK_CHANGE_MODE_POLL_FD:
-			HASH_FIND(hh_sock, db.contexts_by_sock, &pollargs->fd, sizeof(pollargs->fd), mosq);
-			if(mosq){
-				if(pollargs->events & LWS_POLLHUP){
-					return 1;
-				}else if(pollargs->events & LWS_POLLOUT){
+		അവസ്ഥ LWS_CALLBACK_CHANGE_MODE_POLL_FD:
+			HASH_FIND(hh_sock, db.contexts_by_sock, &pollargs->fd, വലുപ്പം(pollargs->fd), mosq);
+			എങ്കിൽ(mosq){
+				എങ്കിൽ(pollargs->events & LWS_POLLHUP){
+					തിരികെ 1;
+				}അല്ലെങ്കിൽ എങ്കിൽ(pollargs->events & LWS_POLLOUT){
 					mux__add_out(mosq);
-				}else{
+				}അല്ലെങ്കിൽ{
 					mux__remove_out(mosq);
 				}
 			}
-			break;
+			നിർത്തുക;
 
 #ifdef WITH_TLS
-		case LWS_CALLBACK_OPENSSL_PERFORM_CLIENT_CERT_VERIFICATION:
-			if(!len || (SSL_get_verify_result((SSL *)in) != X509_V_OK)){
-				return 1;
+		അവസ്ഥ LWS_CALLBACK_OPENSSL_PERFORM_CLIENT_CERT_VERIFICATION:
+			എങ്കിൽ(!len || (SSL_get_verify_result((SSL *)in) != X509_V_OK)){
+				തിരികെ 1;
 			}
-			break;
+			നിർത്തുക;
 #endif
 
-		default:
-			return 0;
+		സ്ഥിരസ്ഥിതി:
+			തിരികെ 0;
 	}
 
-	return 0;
+	തിരികെ 0;
 }
 
 
-static void log_wrap(int level, const char *line)
+സ്ഥിതം ശൂന്യം log_wrap(പൂർണ്ണസംഖ്യ level, സ്ഥിരം അക്ഷരം *വരി)
 {
-	char *l = (char *)line;
+	അക്ഷരം *l = (അക്ഷരം *)വരി;
 	UNUSED(level);
-	l[strlen(line)-1] = '\0'; /* Remove \n */
-	log__printf(NULL, MOSQ_LOG_WEBSOCKETS, "%s", l);
+	l[strlen(വരി)-1] = '\0'; /* Remove \n */
+	log__printf(ശൂന്യ, MOSQ_LOG_WEBSOCKETS, "%s", l);
 }
 
 
-void mosq_websockets_init(struct mosquitto__listener *listener, const struct mosquitto__config *conf)
+ശൂന്യം mosq_websockets_init(ഘടന mosquitto__listener *listener, സ്ഥിരം ഘടന mosquitto__config *conf)
 {
-	struct lws_context_creation_info info;
-	struct lws_protocols *p;
-	size_t protocol_count;
-	int i;
-	struct libws_mqtt_hack *user;
+	ഘടന lws_context_creation_info info;
+	ഘടന lws_protocols *p;
+	size_t protocol_എണ്ണം;
+	പൂർണ്ണസംഖ്യ i;
+	ഘടന libws_mqtt_hack *user;
 
 	/* Count valid protocols */
-	for(protocol_count=0; protocols[protocol_count].name; protocol_count++){
+	വേണ്ടി(protocol_എണ്ണം=0; protocols[protocol_എണ്ണം].name; protocol_എണ്ണം++){
 		;
 	}
 
-	p = mosquitto_calloc(protocol_count+1, sizeof(struct lws_protocols));
-	if(!p){
-		log__printf(NULL, MOSQ_LOG_ERR, "Out of memory.");
-		return;
+	p = mosquitto_calloc(protocol_എണ്ണം+1, വലുപ്പം(ഘടന lws_protocols));
+	എങ്കിൽ(!p){
+		log__printf(ശൂന്യ, MOSQ_LOG_ERR, "Out of memory.");
+		തിരികെ;
 	}
-	for(i=0; protocols[i].name; i++){
+	വേണ്ടി(i=0; protocols[i].name; i++){
 		p[i].name = protocols[i].name;
 		p[i].callback = protocols[i].callback;
 		p[i].per_session_data_size = protocols[i].per_session_data_size;
@@ -695,57 +695,57 @@ void mosq_websockets_init(struct mosquitto__listener *listener, const struct mos
 		p[i].user = listener;
 	}
 
-	memset(&info, 0, sizeof(info));
+	memset(&info, 0, വലുപ്പം(info));
 	info.iface = listener->host;
 	info.port = listener->port;
 	info.protocols = p;
 	info.gid = -1;
 	info.uid = -1;
 #ifdef WITH_TLS
-	if(listener->cafile){
+	എങ്കിൽ(listener->cafile){
 		info.ssl_ca_filepath = listener->cafile;
-	}else if(listener->capath){
-		log__printf(NULL, MOSQ_LOG_WARNING, "Warning: CA path option is not supported for websockets");
+	}അല്ലെങ്കിൽ എങ്കിൽ(listener->capath){
+		log__printf(ശൂന്യ, MOSQ_LOG_WARNING, "Warning: CA path option is not supported for websockets");
 	}
 	info.ssl_cert_filepath = listener->certfile;
-	info.ssl_private_key_filepath = listener->keyfile;
+	info.ssl_private_താക്കോൽ_filepath = listener->keyfile;
 	info.ssl_cipher_list = listener->ciphers;
 	/* HTTP 1 only, due to HTTP 2 issues in Firefox:
 	   https://github.com/eclipse-mosquitto/mosquitto/issues/1211
 	*/
 	info.alpn = "h1";
-#if defined(WITH_WEBSOCKETS) && LWS_LIBRARY_VERSION_NUMBER>=3001000
+#എങ്കിൽ defined(WITH_WEBSOCKETS) && LWS_LIBRARY_VERSION_സംഖ്യ>=3001000
 	info.tls1_3_plus_cipher_list = listener->ciphers_tls13;
 #endif
-	if(listener->require_certificate){
+	എങ്കിൽ(listener->require_certificate){
 		info.options |= LWS_SERVER_OPTION_REQUIRE_VALID_OPENSSL_CLIENT_CERT;
 	}
 #endif
 
 	info.options |= LWS_SERVER_OPTION_DO_SSL_GLOBAL_INIT;
-	if(listener->socket_domain == AF_INET){
+	എങ്കിൽ(listener->socket_domain == AF_INET){
 		info.options |= LWS_SERVER_OPTION_DISABLE_IPV6;
 	}
 	info.max_http_header_data = conf->packet_buffer_size;
 
-	user = mosquitto_calloc(1, sizeof(struct libws_mqtt_hack));
-	if(!user){
+	user = mosquitto_calloc(1, വലുപ്പം(ഘടന libws_mqtt_hack));
+	എങ്കിൽ(!user){
 		mosquitto_FREE(p);
-		log__printf(NULL, MOSQ_LOG_ERR, "Out of memory.");
-		return;
+		log__printf(ശൂന്യ, MOSQ_LOG_ERR, "Out of memory.");
+		തിരികെ;
 	}
 
-	if(listener->http_dir){
+	എങ്കിൽ(listener->http_dir){
 #ifdef WIN32
-		user->http_dir = _fullpath(NULL, listener->http_dir, 0);
-#else
-		user->http_dir = realpath(listener->http_dir, NULL);
+		user->http_dir = _fullpath(ശൂന്യ, listener->http_dir, 0);
+#അല്ലെങ്കിൽ
+		user->http_dir = realpath(listener->http_dir, ശൂന്യ);
 #endif
-		if(!user->http_dir){
+		എങ്കിൽ(!user->http_dir){
 			mosquitto_FREE(user);
 			mosquitto_FREE(p);
-			log__printf(NULL, MOSQ_LOG_ERR, "Error: Unable to open http dir \"%s\".", listener->http_dir);
-			return;
+			log__printf(ശൂന്യ, MOSQ_LOG_ERR, "Error: Unable to open http dir \"%s\".", listener->http_dir);
+			തിരികെ;
 		}
 	}
 	user->listener = listener;
@@ -756,7 +756,7 @@ void mosq_websockets_init(struct mosquitto__listener *listener, const struct mos
 
 	lws_set_log_level(conf->websockets_log_level, log_wrap);
 
-	log__printf(NULL, MOSQ_LOG_INFO, "Opening websockets listen socket on port %d.", listener->port);
+	log__printf(ശൂന്യ, MOSQ_LOG_INFO, "Opening websockets listen socket on port %d.", listener->port);
 	listener->ws_in_init = true;
 	listener->ws_context = lws_create_context(&info);
 	listener->ws_in_init = false;

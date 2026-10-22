@@ -16,44 +16,44 @@ Contributors:
    Roger Light - initial implementation and documentation.
 */
 
-#include "config.h"
+#അന്തര്ഭാവ "config.h"
 
-#include "mosquitto_broker_internal.h"
-#include "mosquitto/mqtt_protocol.h"
-#include "packet_mosq.h"
-#include "property_mosq.h"
-#include "sys_tree.h"
-#include "util_mosq.h"
+#അന്തര്ഭാവ "mosquitto_broker_internal.h"
+#അന്തര്ഭാവ "mosquitto/mqtt_protocol.h"
+#അന്തര്ഭാവ "packet_mosq.h"
+#അന്തര്ഭാവ "property_mosq.h"
+#അന്തര്ഭാവ "sys_tree.h"
+#അന്തര്ഭാവ "util_mosq.h"
 
 
-int send__suback(struct mosquitto *context, uint16_t mid, uint32_t payloadlen, const void *payload)
+പൂർണ്ണസംഖ്യ send__suback(ഘടന mosquitto *context, uint16_t mid, uint32_t payloadlen, സ്ഥിരം ശൂന്യം *payload)
 {
-	struct mosquitto__packet *packet = NULL;
-	int rc;
-	mosquitto_property *properties = NULL;
+	ഘടന mosquitto__packet *packet = ശൂന്യ;
+	പൂർണ്ണസംഖ്യ rc;
+	mosquitto_property *properties = ശൂന്യ;
 	uint32_t remaining_length;
 
-	log__printf(NULL, MOSQ_LOG_DEBUG, "Sending SUBACK to %s", context->id);
+	log__printf(ശൂന്യ, MOSQ_LOG_DEBUG, "Sending SUBACK to %s", context->id);
 
 	remaining_length = 2+payloadlen;
-	if(context->protocol == mosq_p_mqtt5){
+	എങ്കിൽ(context->protocol == mosq_p_mqtt5){
 		remaining_length += mosquitto_property_get_remaining_length(properties);
 	}
 	rc = packet__alloc(&packet, CMD_SUBACK, remaining_length);
-	if(rc){
-		return rc;
+	എങ്കിൽ(rc){
+		തിരികെ rc;
 	}
 	packet__write_uint16(packet, mid);
 
-	if(context->protocol == mosq_p_mqtt5){
+	എങ്കിൽ(context->protocol == mosq_p_mqtt5){
 		/* We don't use Reason String or User Property yet. */
 		property__write_all(packet, properties, true);
 	}
 
-	if(payloadlen){
+	എങ്കിൽ(payloadlen){
 		packet__write_bytes(packet, payload, payloadlen);
 	}
 
 	metrics__int_inc(mosq_counter_mqtt_suback_sent, 1);
-	return packet__queue(context, packet);
+	തിരികെ packet__queue(context, packet);
 }

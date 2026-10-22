@@ -19,36 +19,36 @@ Contributors:
 #ifndef MUX_H
 #define MUX_H
 
-#include "mosquitto_broker_internal.h"
+#അന്തര്ഭാവ "mosquitto_broker_internal.h"
 
-int mux_epoll__init(void);
-int mux_epoll__add_listeners(struct mosquitto__listener_sock *listensock, int listensock_count);
-int mux_epoll__delete_listeners(struct mosquitto__listener_sock *listensock, int listensock_count);
-int mux_epoll__new(struct mosquitto *context);
-int mux_epoll__add_out(struct mosquitto *context);
-int mux_epoll__remove_out(struct mosquitto *context);
-int mux_epoll__delete(struct mosquitto *context);
-int mux_epoll__handle(void);
-int mux_epoll__cleanup(void);
+പൂർണ്ണസംഖ്യ mux_epoll__init(ശൂന്യം);
+പൂർണ്ണസംഖ്യ mux_epoll__add_listeners(ഘടന mosquitto__listener_sock *listensock, പൂർണ്ണസംഖ്യ listensock_എണ്ണം);
+പൂർണ്ണസംഖ്യ mux_epoll__delete_listeners(ഘടന mosquitto__listener_sock *listensock, പൂർണ്ണസംഖ്യ listensock_എണ്ണം);
+പൂർണ്ണസംഖ്യ mux_epoll__new(ഘടന mosquitto *context);
+പൂർണ്ണസംഖ്യ mux_epoll__add_out(ഘടന mosquitto *context);
+പൂർണ്ണസംഖ്യ mux_epoll__remove_out(ഘടന mosquitto *context);
+പൂർണ്ണസംഖ്യ mux_epoll__delete(ഘടന mosquitto *context);
+പൂർണ്ണസംഖ്യ mux_epoll__handle(ശൂന്യം);
+പൂർണ്ണസംഖ്യ mux_epoll__cleanup(ശൂന്യം);
 
-int mux_kqueue__init(void);
-int mux_kqueue__add_listeners(struct mosquitto__listener_sock *listensock, int listensock_count);
-int mux_kqueue__delete_listeners(struct mosquitto__listener_sock *listensock, int listensock_count);
-int mux_kqueue__new(struct mosquitto *context);
-int mux_kqueue__add_out(struct mosquitto *context);
-int mux_kqueue__remove_out(struct mosquitto *context);
-int mux_kqueue__delete(struct mosquitto *context);
-int mux_kqueue__handle(void);
-int mux_kqueue__cleanup(void);
+പൂർണ്ണസംഖ്യ mux_kqueue__init(ശൂന്യം);
+പൂർണ്ണസംഖ്യ mux_kqueue__add_listeners(ഘടന mosquitto__listener_sock *listensock, പൂർണ്ണസംഖ്യ listensock_എണ്ണം);
+പൂർണ്ണസംഖ്യ mux_kqueue__delete_listeners(ഘടന mosquitto__listener_sock *listensock, പൂർണ്ണസംഖ്യ listensock_എണ്ണം);
+പൂർണ്ണസംഖ്യ mux_kqueue__new(ഘടന mosquitto *context);
+പൂർണ്ണസംഖ്യ mux_kqueue__add_out(ഘടന mosquitto *context);
+പൂർണ്ണസംഖ്യ mux_kqueue__remove_out(ഘടന mosquitto *context);
+പൂർണ്ണസംഖ്യ mux_kqueue__delete(ഘടന mosquitto *context);
+പൂർണ്ണസംഖ്യ mux_kqueue__handle(ശൂന്യം);
+പൂർണ്ണസംഖ്യ mux_kqueue__cleanup(ശൂന്യം);
 
-int mux_poll__init(void);
-int mux_poll__add_listeners(struct mosquitto__listener_sock *listensock, int listensock_count);
-int mux_poll__delete_listeners(struct mosquitto__listener_sock *listensock, int listensock_count);
-int mux_poll__new(struct mosquitto *context);
-int mux_poll__add_out(struct mosquitto *context);
-int mux_poll__remove_out(struct mosquitto *context);
-int mux_poll__delete(struct mosquitto *context);
-int mux_poll__handle(struct mosquitto__listener_sock *listensock, int listensock_count);
-int mux_poll__cleanup(void);
+പൂർണ്ണസംഖ്യ mux_poll__init(ശൂന്യം);
+പൂർണ്ണസംഖ്യ mux_poll__add_listeners(ഘടന mosquitto__listener_sock *listensock, പൂർണ്ണസംഖ്യ listensock_എണ്ണം);
+പൂർണ്ണസംഖ്യ mux_poll__delete_listeners(ഘടന mosquitto__listener_sock *listensock, പൂർണ്ണസംഖ്യ listensock_എണ്ണം);
+പൂർണ്ണസംഖ്യ mux_poll__new(ഘടന mosquitto *context);
+പൂർണ്ണസംഖ്യ mux_poll__add_out(ഘടന mosquitto *context);
+പൂർണ്ണസംഖ്യ mux_poll__remove_out(ഘടന mosquitto *context);
+പൂർണ്ണസംഖ്യ mux_poll__delete(ഘടന mosquitto *context);
+പൂർണ്ണസംഖ്യ mux_poll__handle(ഘടന mosquitto__listener_sock *listensock, പൂർണ്ണസംഖ്യ listensock_എണ്ണം);
+പൂർണ്ണസംഖ്യ mux_poll__cleanup(ശൂന്യം);
 
 #endif

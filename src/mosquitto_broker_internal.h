@@ -20,12 +20,12 @@ Contributors:
 #ifndef MOSQUITTO_BROKER_INTERNAL_H
 #define MOSQUITTO_BROKER_INTERNAL_H
 
-#include "config.h"
-#include <stdio.h>
+#അന്തര്ഭാവ "config.h"
+#അന്തര്ഭാവ <stdio.h>
 
-#if defined(WITH_WEBSOCKETS) && WITH_WEBSOCKETS == WS_IS_LWS
+#എങ്കിൽ defined(WITH_WEBSOCKETS) && WITH_WEBSOCKETS == WS_IS_LWS
 #  include <libwebsockets.h>
-#  if LWS_LIBRARY_VERSION_NUMBER >= 3002000 && !defined(LWS_WITH_EXTERNAL_POLL)
+#  എങ്കിൽ LWS_LIBRARY_VERSION_സംഖ്യ >= 3002000 && !defined(LWS_WITH_EXTERNAL_POLL)
 #    warning "libwebsockets is not compiled with LWS_WITH_EXTERNAL_POLL support. Websocket performance will be unusable."
 #  endif
 #endif
@@ -38,15 +38,15 @@ Contributors:
 #define WITH_TCP_USER_TIMEOUT
 #endif
 
-#include "mosquitto_internal.h"
-#include "mosquitto/broker.h"
-#include "mosquitto/broker_plugin.h"
-#include "mosquitto.h"
-#include "logging_mosq.h"
-#include "tls_mosq.h"
-#include "uthash.h"
-#include "acl_file.h"
-#include "password_file.h"
+#അന്തര്ഭാവ "mosquitto_internal.h"
+#അന്തര്ഭാവ "mosquitto/broker.h"
+#അന്തര്ഭാവ "mosquitto/broker_plugin.h"
+#അന്തര്ഭാവ "mosquitto.h"
+#അന്തര്ഭാവ "logging_mosq.h"
+#അന്തര്ഭാവ "tls_mosq.h"
+#അന്തര്ഭാവ "uthash.h"
+#അന്തര്ഭാവ "acl_file.h"
+#അന്തര്ഭാവ "password_file.h"
 
 #ifndef __GNUC__
 #define __attribute__(attrib)
@@ -67,48 +67,48 @@ Contributors:
 
 #define CMD_PORT_LIMIT 10
 
-typedef uint64_t dbid_t;
+തരനിർവചനം uint64_t dbid_t;
 
-typedef int (*FUNC_plugin_init_v5)(mosquitto_plugin_id_t *, void **, struct mosquitto_opt *, int);
-typedef int (*FUNC_plugin_cleanup_v5)(void *, struct mosquitto_opt *, int);
+തരനിർവചനം പൂർണ്ണസംഖ്യ (*FUNC_plugin_init_v5)(mosquitto_plugin_id_t *, ശൂന്യം **, ഘടന mosquitto_opt *, പൂർണ്ണസംഖ്യ);
+തരനിർവചനം പൂർണ്ണസംഖ്യ (*FUNC_plugin_cleanup_v5)(ശൂന്യം *, ഘടന mosquitto_opt *, പൂർണ്ണസംഖ്യ);
 
-typedef int (*FUNC_auth_plugin_init_v4)(void **, struct mosquitto_opt *, int);
-typedef int (*FUNC_auth_plugin_cleanup_v4)(void *, struct mosquitto_opt *, int);
-typedef int (*FUNC_auth_plugin_security_init_v4)(void *, struct mosquitto_opt *, int, bool);
-typedef int (*FUNC_auth_plugin_security_cleanup_v4)(void *, struct mosquitto_opt *, int, bool);
-typedef int (*FUNC_auth_plugin_acl_check_v4)(void *, int, struct mosquitto *, struct mosquitto_acl_msg *);
-typedef int (*FUNC_auth_plugin_unpwd_check_v4)(void *, struct mosquitto *, const char *, const char *);
-typedef int (*FUNC_auth_plugin_psk_key_get_v4)(void *, struct mosquitto *, const char *, const char *, char *, int);
-typedef int (*FUNC_auth_plugin_auth_start_v4)(void *, struct mosquitto *, const char *, bool, const void *, uint16_t, void **, uint16_t *);
-typedef int (*FUNC_auth_plugin_auth_continue_v4)(void *, struct mosquitto *, const char *, const void *, uint16_t, void **, uint16_t *);
+തരനിർവചനം പൂർണ്ണസംഖ്യ (*FUNC_auth_plugin_init_v4)(ശൂന്യം **, ഘടന mosquitto_opt *, പൂർണ്ണസംഖ്യ);
+തരനിർവചനം പൂർണ്ണസംഖ്യ (*FUNC_auth_plugin_cleanup_v4)(ശൂന്യം *, ഘടന mosquitto_opt *, പൂർണ്ണസംഖ്യ);
+തരനിർവചനം പൂർണ്ണസംഖ്യ (*FUNC_auth_plugin_security_init_v4)(ശൂന്യം *, ഘടന mosquitto_opt *, പൂർണ്ണസംഖ്യ, bool);
+തരനിർവചനം പൂർണ്ണസംഖ്യ (*FUNC_auth_plugin_security_cleanup_v4)(ശൂന്യം *, ഘടന mosquitto_opt *, പൂർണ്ണസംഖ്യ, bool);
+തരനിർവചനം പൂർണ്ണസംഖ്യ (*FUNC_auth_plugin_acl_check_v4)(ശൂന്യം *, പൂർണ്ണസംഖ്യ, ഘടന mosquitto *, ഘടന mosquitto_acl_സന്ദേശം *);
+തരനിർവചനം പൂർണ്ണസംഖ്യ (*FUNC_auth_plugin_unpwd_check_v4)(ശൂന്യം *, ഘടന mosquitto *, സ്ഥിരം അക്ഷരം *, സ്ഥിരം അക്ഷരം *);
+തരനിർവചനം പൂർണ്ണസംഖ്യ (*FUNC_auth_plugin_psk_താക്കോൽ_get_v4)(ശൂന്യം *, ഘടന mosquitto *, സ്ഥിരം അക്ഷരം *, സ്ഥിരം അക്ഷരം *, അക്ഷരം *, പൂർണ്ണസംഖ്യ);
+തരനിർവചനം പൂർണ്ണസംഖ്യ (*FUNC_auth_plugin_auth_start_v4)(ശൂന്യം *, ഘടന mosquitto *, സ്ഥിരം അക്ഷരം *, bool, സ്ഥിരം ശൂന്യം *, uint16_t, ശൂന്യം **, uint16_t *);
+തരനിർവചനം പൂർണ്ണസംഖ്യ (*FUNC_auth_plugin_auth_continue_v4)(ശൂന്യം *, ഘടന mosquitto *, സ്ഥിരം അക്ഷരം *, സ്ഥിരം ശൂന്യം *, uint16_t, ശൂന്യം **, uint16_t *);
 
-typedef int (*FUNC_auth_plugin_init_v3)(void **, struct mosquitto_opt *, int);
-typedef int (*FUNC_auth_plugin_cleanup_v3)(void *, struct mosquitto_opt *, int);
-typedef int (*FUNC_auth_plugin_security_init_v3)(void *, struct mosquitto_opt *, int, bool);
-typedef int (*FUNC_auth_plugin_security_cleanup_v3)(void *, struct mosquitto_opt *, int, bool);
-typedef int (*FUNC_auth_plugin_acl_check_v3)(void *, int, const struct mosquitto *, struct mosquitto_acl_msg *);
-typedef int (*FUNC_auth_plugin_unpwd_check_v3)(void *, const struct mosquitto *, const char *, const char *);
-typedef int (*FUNC_auth_plugin_psk_key_get_v3)(void *, const struct mosquitto *, const char *, const char *, char *, int);
+തരനിർവചനം പൂർണ്ണസംഖ്യ (*FUNC_auth_plugin_init_v3)(ശൂന്യം **, ഘടന mosquitto_opt *, പൂർണ്ണസംഖ്യ);
+തരനിർവചനം പൂർണ്ണസംഖ്യ (*FUNC_auth_plugin_cleanup_v3)(ശൂന്യം *, ഘടന mosquitto_opt *, പൂർണ്ണസംഖ്യ);
+തരനിർവചനം പൂർണ്ണസംഖ്യ (*FUNC_auth_plugin_security_init_v3)(ശൂന്യം *, ഘടന mosquitto_opt *, പൂർണ്ണസംഖ്യ, bool);
+തരനിർവചനം പൂർണ്ണസംഖ്യ (*FUNC_auth_plugin_security_cleanup_v3)(ശൂന്യം *, ഘടന mosquitto_opt *, പൂർണ്ണസംഖ്യ, bool);
+തരനിർവചനം പൂർണ്ണസംഖ്യ (*FUNC_auth_plugin_acl_check_v3)(ശൂന്യം *, പൂർണ്ണസംഖ്യ, സ്ഥിരം ഘടന mosquitto *, ഘടന mosquitto_acl_സന്ദേശം *);
+തരനിർവചനം പൂർണ്ണസംഖ്യ (*FUNC_auth_plugin_unpwd_check_v3)(ശൂന്യം *, സ്ഥിരം ഘടന mosquitto *, സ്ഥിരം അക്ഷരം *, സ്ഥിരം അക്ഷരം *);
+തരനിർവചനം പൂർണ്ണസംഖ്യ (*FUNC_auth_plugin_psk_താക്കോൽ_get_v3)(ശൂന്യം *, സ്ഥിരം ഘടന mosquitto *, സ്ഥിരം അക്ഷരം *, സ്ഥിരം അക്ഷരം *, അക്ഷരം *, പൂർണ്ണസംഖ്യ);
 
-typedef int (*FUNC_auth_plugin_init_v2)(void **, struct mosquitto_auth_opt *, int);
-typedef int (*FUNC_auth_plugin_cleanup_v2)(void *, struct mosquitto_auth_opt *, int);
-typedef int (*FUNC_auth_plugin_security_init_v2)(void *, struct mosquitto_auth_opt *, int, bool);
-typedef int (*FUNC_auth_plugin_security_cleanup_v2)(void *, struct mosquitto_auth_opt *, int, bool);
-typedef int (*FUNC_auth_plugin_acl_check_v2)(void *, const char *, const char *, const char *, int);
-typedef int (*FUNC_auth_plugin_unpwd_check_v2)(void *, const char *, const char *);
-typedef int (*FUNC_auth_plugin_psk_key_get_v2)(void *, const char *, const char *, char *, int);
+തരനിർവചനം പൂർണ്ണസംഖ്യ (*FUNC_auth_plugin_init_v2)(ശൂന്യം **, ഘടന mosquitto_auth_opt *, പൂർണ്ണസംഖ്യ);
+തരനിർവചനം പൂർണ്ണസംഖ്യ (*FUNC_auth_plugin_cleanup_v2)(ശൂന്യം *, ഘടന mosquitto_auth_opt *, പൂർണ്ണസംഖ്യ);
+തരനിർവചനം പൂർണ്ണസംഖ്യ (*FUNC_auth_plugin_security_init_v2)(ശൂന്യം *, ഘടന mosquitto_auth_opt *, പൂർണ്ണസംഖ്യ, bool);
+തരനിർവചനം പൂർണ്ണസംഖ്യ (*FUNC_auth_plugin_security_cleanup_v2)(ശൂന്യം *, ഘടന mosquitto_auth_opt *, പൂർണ്ണസംഖ്യ, bool);
+തരനിർവചനം പൂർണ്ണസംഖ്യ (*FUNC_auth_plugin_acl_check_v2)(ശൂന്യം *, സ്ഥിരം അക്ഷരം *, സ്ഥിരം അക്ഷരം *, സ്ഥിരം അക്ഷരം *, പൂർണ്ണസംഖ്യ);
+തരനിർവചനം പൂർണ്ണസംഖ്യ (*FUNC_auth_plugin_unpwd_check_v2)(ശൂന്യം *, സ്ഥിരം അക്ഷരം *, സ്ഥിരം അക്ഷരം *);
+തരനിർവചനം പൂർണ്ണസംഖ്യ (*FUNC_auth_plugin_psk_താക്കോൽ_get_v2)(ശൂന്യം *, സ്ഥിരം അക്ഷരം *, സ്ഥിരം അക്ഷരം *, അക്ഷരം *, പൂർണ്ണസംഖ്യ);
 
 
-enum mosquitto_msg_origin {
+എണ്ണൽ mosquitto_സന്ദേശം_origin {
 	mosq_mo_client = 0,
 	mosq_mo_broker = 1,
 };
 
-struct mosquitto__plugin_lib {
-	void *lib;
-	void *user_data;
-	int (*plugin_version)(void);
-	struct mosquitto_plugin_id_t *identifier;
+ഘടന mosquitto__plugin_lib {
+	ശൂന്യം *lib;
+	ശൂന്യം *user_data;
+	പൂർണ്ണസംഖ്യ (*plugin_version)(ശൂന്യം);
+	ഘടന mosquitto_plugin_id_t *identifier;
 
 	FUNC_plugin_init_v5 plugin_init_v5;
 	FUNC_plugin_cleanup_v5 plugin_cleanup_v5;
@@ -119,7 +119,7 @@ struct mosquitto__plugin_lib {
 	FUNC_auth_plugin_security_cleanup_v4 security_cleanup_v4;
 	FUNC_auth_plugin_acl_check_v4 acl_check_v4;
 	FUNC_auth_plugin_unpwd_check_v4 unpwd_check_v4;
-	FUNC_auth_plugin_psk_key_get_v4 psk_key_get_v4;
+	FUNC_auth_plugin_psk_താക്കോൽ_get_v4 psk_താക്കോൽ_get_v4;
 	FUNC_auth_plugin_auth_start_v4 auth_start_v4;
 	FUNC_auth_plugin_auth_continue_v4 auth_continue_v4;
 
@@ -129,7 +129,7 @@ struct mosquitto__plugin_lib {
 	FUNC_auth_plugin_security_cleanup_v3 security_cleanup_v3;
 	FUNC_auth_plugin_acl_check_v3 acl_check_v3;
 	FUNC_auth_plugin_unpwd_check_v3 unpwd_check_v3;
-	FUNC_auth_plugin_psk_key_get_v3 psk_key_get_v3;
+	FUNC_auth_plugin_psk_താക്കോൽ_get_v3 psk_താക്കോൽ_get_v3;
 
 	FUNC_auth_plugin_init_v2 plugin_init_v2;
 	FUNC_auth_plugin_cleanup_v2 plugin_cleanup_v2;
@@ -137,89 +137,89 @@ struct mosquitto__plugin_lib {
 	FUNC_auth_plugin_security_cleanup_v2 security_cleanup_v2;
 	FUNC_auth_plugin_acl_check_v2 acl_check_v2;
 	FUNC_auth_plugin_unpwd_check_v2 unpwd_check_v2;
-	FUNC_auth_plugin_psk_key_get_v2 psk_key_get_v2;
-	int version;
+	FUNC_auth_plugin_psk_താക്കോൽ_get_v2 psk_താക്കോൽ_get_v2;
+	പൂർണ്ണസംഖ്യ version;
 };
 
-struct mosquitto__plugin_config {
-	char *path;
-	char *name;
-	struct mosquitto_opt *options;
-	struct mosquitto__security_options **security_options;
-	int option_count;
-	int security_option_count;
+ഘടന mosquitto__plugin_config {
+	അക്ഷരം *path;
+	അക്ഷരം *name;
+	ഘടന mosquitto_opt *options;
+	ഘടന mosquitto__security_options **security_options;
+	പൂർണ്ണസംഖ്യ option_എണ്ണം;
+	പൂർണ്ണസംഖ്യ security_option_എണ്ണം;
 	bool deny_special_chars;
 };
 
-struct mosquitto__callback {
+ഘടന mosquitto__callback {
 	UT_hash_handle hh; /* For callbacks that register for e.g. a specific topic */
-	struct mosquitto__callback *next, *prev; /* For typical callbacks */
+	ഘടന mosquitto__callback *next, *prev; /* For typical callbacks */
 	MOSQ_FUNC_generic_callback cb;
-	void *userdata;
-	union {
-		char *topic;
-		struct timespec next_tick;
+	ശൂന്യം *userdata;
+	സംഘം {
+		അക്ഷരം *topic;
+		ഘടന timespec next_tick;
 	} data;
 	mosquitto_plugin_id_t *identifier;
 };
 
-struct plugin__callbacks {
-	struct mosquitto__callback *tick;
-	struct mosquitto__callback *acl_check;
-	struct mosquitto__callback *basic_auth;
-	struct mosquitto__callback *connect;
-	struct mosquitto__callback *control;
-	struct mosquitto__callback *disconnect;
-	struct mosquitto__callback *client_offline;
-	struct mosquitto__callback *ext_auth_continue;
-	struct mosquitto__callback *ext_auth_start;
-	struct mosquitto__callback *message_in;
-	struct mosquitto__callback *message_out;
-	struct mosquitto__callback *psk_key;
-	struct mosquitto__callback *reload;
-	struct mosquitto__callback *subscribe;
-	struct mosquitto__callback *unsubscribe;
-	struct mosquitto__callback *persist_restore;
-	struct mosquitto__callback *persist_client_add;
-	struct mosquitto__callback *persist_client_delete;
-	struct mosquitto__callback *persist_client_update;
-	struct mosquitto__callback *persist_subscription_add;
-	struct mosquitto__callback *persist_subscription_delete;
-	struct mosquitto__callback *persist_client_msg_add;
-	struct mosquitto__callback *persist_client_msg_delete;
-	struct mosquitto__callback *persist_client_msg_update;
-	struct mosquitto__callback *persist_base_msg_add;
-	struct mosquitto__callback *persist_base_msg_delete;
-	struct mosquitto__callback *persist_retain_msg_set;
-	struct mosquitto__callback *persist_retain_msg_delete;
-	struct mosquitto__callback *persist_will_add;
-	struct mosquitto__callback *persist_will_delete;
+ഘടന plugin__callbacks {
+	ഘടന mosquitto__callback *tick;
+	ഘടന mosquitto__callback *acl_check;
+	ഘടന mosquitto__callback *basic_auth;
+	ഘടന mosquitto__callback *connect;
+	ഘടന mosquitto__callback *control;
+	ഘടന mosquitto__callback *disconnect;
+	ഘടന mosquitto__callback *client_offline;
+	ഘടന mosquitto__callback *ext_auth_continue;
+	ഘടന mosquitto__callback *ext_auth_start;
+	ഘടന mosquitto__callback *message_in;
+	ഘടന mosquitto__callback *message_out;
+	ഘടന mosquitto__callback *psk_താക്കോൽ;
+	ഘടന mosquitto__callback *reload;
+	ഘടന mosquitto__callback *subscribe;
+	ഘടന mosquitto__callback *unsubscribe;
+	ഘടന mosquitto__callback *persist_restore;
+	ഘടന mosquitto__callback *persist_client_add;
+	ഘടന mosquitto__callback *persist_client_delete;
+	ഘടന mosquitto__callback *persist_client_update;
+	ഘടന mosquitto__callback *persist_subscription_add;
+	ഘടന mosquitto__callback *persist_subscription_delete;
+	ഘടന mosquitto__callback *persist_client_സന്ദേശം_add;
+	ഘടന mosquitto__callback *persist_client_സന്ദേശം_delete;
+	ഘടന mosquitto__callback *persist_client_സന്ദേശം_update;
+	ഘടന mosquitto__callback *persist_base_സന്ദേശം_add;
+	ഘടന mosquitto__callback *persist_base_സന്ദേശം_delete;
+	ഘടന mosquitto__callback *persist_retain_സന്ദേശം_set;
+	ഘടന mosquitto__callback *persist_retain_സന്ദേശം_delete;
+	ഘടന mosquitto__callback *persist_will_add;
+	ഘടന mosquitto__callback *persist_will_delete;
 };
 
 /* This is owned by mosquitto__config or mosquitto__listener, and only referred
  * to by other structs */
-struct mosquitto__security_options {
+ഘടന mosquitto__security_options {
 	/* Any options that get added here also need considering
 	 * in config__read() with regards whether allow_anonymous
 	 * should be disabled when these options are set.
 	 */
-	struct mosquitto__unpwd *unpwd;
-	struct mosquitto__psk *psk_id;
-	struct acl_file_data acl_data;
-	struct password_file_data password_data;
-	char *psk_file;
+	ഘടന mosquitto__unpwd *unpwd;
+	ഘടന mosquitto__psk *psk_id;
+	ഘടന acl_file_data acl_data;
+	ഘടന password_file_data password_data;
+	അക്ഷരം *psk_file;
 	mosquitto_plugin_id_t **plugins;
-	int plugin_count;
+	പൂർണ്ണസംഖ്യ plugin_എണ്ണം;
 	int8_t allow_anonymous;
 	bool allow_zero_length_clientid;
-	char *auto_id_prefix;
+	അക്ഷരം *auto_id_prefix;
 	uint16_t auto_id_prefix_len;
-	struct plugin__callbacks plugin_callbacks;
+	ഘടന plugin__callbacks plugin_callbacks;
 	mosquitto_plugin_id_t *pid; /* For registering as a "plugin" */
 };
 
-#if defined(WITH_EPOLL) || defined(WITH_KQUEUE)
-enum struct_ident {
+#എങ്കിൽ defined(WITH_EPOLL) || defined(WITH_KQUEUE)
+എണ്ണൽ struct_ident {
 	id_invalid = 0,
 	id_listener = 1,
 	id_client = 2,
@@ -227,125 +227,125 @@ enum struct_ident {
 };
 #endif
 
-struct mosquitto__listener {
+ഘടന mosquitto__listener {
 	uint16_t port;
-	char *host;
-	char *bind_interface;
-	int max_connections;
-	char *mount_point;
+	അക്ഷരം *host;
+	അക്ഷരം *bind_interface;
+	പൂർണ്ണസംഖ്യ max_connections;
+	അക്ഷരം *mount_point;
 	mosq_sock_t *socks;
-	int sock_count;
-	int client_count;
-	enum mosquitto_protocol protocol;
-	int socket_domain;
+	പൂർണ്ണസംഖ്യ sock_എണ്ണം;
+	പൂർണ്ണസംഖ്യ client_എണ്ണം;
+	എണ്ണൽ mosquitto_protocol protocol;
+	പൂർണ്ണസംഖ്യ socket_domain;
 	bool use_username_as_clientid;
 	uint8_t max_qos;
 	uint16_t max_topic_alias;
 	uint16_t max_topic_alias_broker;
 #ifdef WITH_TLS
-	char *cafile;
-	char *capath;
-	char *certfile;
-	char *keyfile;
-	char *tls_engine;
-	char *tls_engine_kpass_sha1;
-	char *ciphers;
-	char *ciphers_tls13;
-	char *psk_hint;
+	അക്ഷരം *cafile;
+	അക്ഷരം *capath;
+	അക്ഷരം *certfile;
+	അക്ഷരം *keyfile;
+	അക്ഷരം *tls_engine;
+	അക്ഷരം *tls_engine_kpass_sha1;
+	അക്ഷരം *ciphers;
+	അക്ഷരം *ciphers_tls13;
+	അക്ഷരം *psk_hint;
 	SSL_CTX *ssl_ctx;
-	char *crlfile;
-	char *tls_version;
+	അക്ഷരം *crlfile;
+	അക്ഷരം *tls_version;
 	bool use_identity_as_username;
 	bool use_subject_as_username;
 	bool require_certificate;
 	bool disable_client_cert_date_checks;
-	enum mosquitto__keyform tls_keyform;
+	എണ്ണൽ mosquitto__keyform tls_keyform;
 #endif
 #ifdef WITH_WEBSOCKETS
-#  if WITH_WEBSOCKETS == WS_IS_LWS
-	struct lws_context *ws_context;
+#  എങ്കിൽ WITH_WEBSOCKETS == WS_IS_LWS
+	ഘടന lws_context *ws_context;
 	bool ws_in_init;
-	struct lws_protocols *ws_protocol;
+	ഘടന lws_protocols *ws_protocol;
 #  endif
-	char **ws_origins;
-	int ws_origin_count;
+	അക്ഷരം **ws_origins;
+	പൂർണ്ണസംഖ്യ ws_origin_എണ്ണം;
 #endif
-#if defined(WITH_WEBSOCKETS) || defined(WITH_HTTP_API)
-	char *http_dir;
+#എങ്കിൽ defined(WITH_WEBSOCKETS) || defined(WITH_HTTP_API)
+	അക്ഷരം *http_dir;
 #endif
-	struct mosquitto__security_options *security_options;
+	ഘടന mosquitto__security_options *security_options;
 #ifdef WITH_UNIX_SOCKETS
-	char *unix_socket_path;
+	അക്ഷരം *unix_socket_path;
 #endif
 	bool disable_protocol_v3;
 	bool disable_protocol_v4;
 	bool disable_protocol_v5;
-	int enable_proxy_protocol;
+	പൂർണ്ണസംഖ്യ enable_proxy_protocol;
 	bool proxy_protocol_v2_require_tls;
 #ifdef WITH_HTTP_API
-	struct MHD_Daemon *mhd;
+	ഘടന MHD_Daemon *mhd;
 #endif
 };
 
 
-struct mosquitto__listener_sock {
-#if defined(WITH_EPOLL) || defined(WITH_KQUEUE)
+ഘടന mosquitto__listener_sock {
+#എങ്കിൽ defined(WITH_EPOLL) || defined(WITH_KQUEUE)
 	/* This *must* be the first element in the struct. */
-	int ident;
+	പൂർണ്ണസംഖ്യ ident;
 #endif
 	mosq_sock_t sock;
-	struct mosquitto__listener *listener;
+	ഘടന mosquitto__listener *listener;
 };
 
 
 /* Callbacks belonging to a specific plugin
  * Doesn't include MOSQ_EVT_CONTROL events.
  */
-struct plugin_own_callback {
-	struct plugin_own_callback *next, *prev;
+ഘടന plugin_own_callback {
+	ഘടന plugin_own_callback *next, *prev;
 	MOSQ_FUNC_generic_callback cb_func;
-	enum mosquitto_plugin_event event;
+	എണ്ണൽ mosquitto_plugin_event event;
 };
 
-struct mosquitto_plugin_id_t {
-	struct mosquitto__plugin_config config;
-	struct mosquitto__plugin_lib lib;
-	struct mosquitto__listener *listener;
-	char *plugin_name;
-	char *plugin_version;
-	struct control_endpoint *control_endpoints;
-	struct plugin_own_callback *own_callbacks;
-	struct timespec next_tick;
+ഘടന mosquitto_plugin_id_t {
+	ഘടന mosquitto__plugin_config config;
+	ഘടന mosquitto__plugin_lib lib;
+	ഘടന mosquitto__listener *listener;
+	അക്ഷരം *plugin_name;
+	അക്ഷരം *plugin_version;
+	ഘടന control_endpoint *control_endpoints;
+	ഘടന plugin_own_callback *own_callbacks;
+	ഘടന timespec next_tick;
 };
 
-struct mosquitto__config {
+ഘടന mosquitto__config {
 	bool allow_duplicate_messages;
-	int autosave_interval;
+	പൂർണ്ണസംഖ്യ autosave_interval;
 	bool autosave_on_changes;
 	bool check_retain_source;
-	char *clientid_prefixes;
+	അക്ഷരം *clientid_prefixes;
 	bool connection_messages;
 	uint16_t cmd_port[CMD_PORT_LIMIT];
-	int cmd_port_count;
+	പൂർണ്ണസംഖ്യ cmd_port_എണ്ണം;
 	bool daemon;
 	bool test_configuration;
 	bool enable_control_api;
-	int global_max_clients;
-	int global_max_connections;
-	struct mosquitto__listener *default_listener; /* Points to one of `listeners` */
-	struct mosquitto__listener *listeners;
-	int listener_count;
+	പൂർണ്ണസംഖ്യ global_max_clients;
+	പൂർണ്ണസംഖ്യ global_max_connections;
+	ഘടന mosquitto__listener *default_listener; /* Points to one of `listeners` */
+	ഘടന mosquitto__listener *listeners;
+	പൂർണ്ണസംഖ്യ listener_എണ്ണം;
 	bool local_only;
-	unsigned int log_dest;
-	int log_facility;
-	unsigned int log_type;
+	unsigned പൂർണ്ണസംഖ്യ log_dest;
+	പൂർണ്ണസംഖ്യ log_facility;
+	unsigned പൂർണ്ണസംഖ്യ log_type;
 	bool log_timestamp;
-	char *log_timestamp_format;
-	char *log_file;
+	അക്ഷരം *log_timestamp_format;
+	അക്ഷരം *log_file;
 	FILE *log_fptr;
 	size_t max_inflight_bytes;
 	size_t max_queued_bytes;
-	int max_queued_messages;
+	പൂർണ്ണസംഖ്യ max_queued_messages;
 	uint32_t max_packet_size;
 	uint32_t message_size_limit;
 	uint16_t max_inflight_messages;
@@ -356,201 +356,201 @@ struct mosquitto__config {
 	uint32_t packet_max_sub;
 	uint32_t packet_max_auth;
 	bool persistence;
-	char *persistence_location;
-	char *persistence_file;
-	char *persistence_filepath;
+	അക്ഷരം *persistence_location;
+	അക്ഷരം *persistence_file;
+	അക്ഷരം *persistence_filepath;
 	time_t persistent_client_expiration;
-	char *pid_file;
+	അക്ഷരം *pid_file;
 	bool queue_qos0_messages;
 	bool per_listener_settings;
 	bool retain_available;
-	int retain_expiry_interval;
+	പൂർണ്ണസംഖ്യ retain_expiry_interval;
 	bool set_tcp_nodelay;
-	int sys_interval;
+	പൂർണ്ണസംഖ്യ sys_interval;
 	bool upgrade_outgoing_qos;
-	char *user;
-#if defined(WITH_WEBSOCKETS) && WITH_WEBSOCKETS == WS_IS_LWS
-	int websockets_log_level;
+	അക്ഷരം *user;
+#എങ്കിൽ defined(WITH_WEBSOCKETS) && WITH_WEBSOCKETS == WS_IS_LWS
+	പൂർണ്ണസംഖ്യ websockets_log_level;
 #endif
 	uint16_t packet_buffer_size;
 #ifdef WITH_BRIDGE
-	struct mosquitto__bridge **bridges;
-	int bridge_count;
+	ഘടന mosquitto__bridge **bridges;
+	പൂർണ്ണസംഖ്യ bridge_എണ്ണം;
 #endif
-	struct mosquitto__security_options security_options;
+	ഘടന mosquitto__security_options security_options;
 };
 
 
-struct mosquitto__subshared {
+ഘടന mosquitto__subshared {
 	UT_hash_handle hh;
-	struct mosquitto__subleaf *subs;
-	char name[];
+	ഘടന mosquitto__subleaf *subs;
+	അക്ഷരം name[];
 };
 
-struct mosquitto__subhier {
+ഘടന mosquitto__subhier {
 	UT_hash_handle hh;
-	struct mosquitto__subhier *parent;
-	struct mosquitto__subhier *children;
-	struct mosquitto__subleaf *subs;
-	struct mosquitto__subshared *shared;
+	ഘടന mosquitto__subhier *parent;
+	ഘടന mosquitto__subhier *children;
+	ഘടന mosquitto__subleaf *subs;
+	ഘടന mosquitto__subshared *shared;
 	uint16_t topic_len;
-	char topic[];
+	അക്ഷരം topic[];
 };
 
-struct mosquitto__subleaf {
-	struct mosquitto__subleaf *prev;
-	struct mosquitto__subleaf *next;
-	struct mosquitto *context;
-	struct mosquitto__subhier *hier;
-	struct mosquitto__subshared *shared;
+ഘടന mosquitto__subleaf {
+	ഘടന mosquitto__subleaf *prev;
+	ഘടന mosquitto__subleaf *next;
+	ഘടന mosquitto *context;
+	ഘടന mosquitto__subhier *hier;
+	ഘടന mosquitto__subshared *shared;
 	uint32_t identifier;
 	uint8_t subscription_options;
-	char topic_filter[];
+	അക്ഷരം topic_filter[];
 };
 
-struct sub__token {
-	struct sub__token *next;
+ഘടന sub__token {
+	ഘടന sub__token *next;
 	uint16_t topic_len;
-	char topic[];
+	അക്ഷരം topic[];
 };
 
-struct mosquitto__retainhier {
+ഘടന mosquitto__retainhier {
 	UT_hash_handle hh;
-	struct mosquitto__retainhier *parent;
-	struct mosquitto__retainhier *children;
-	struct mosquitto__base_msg *retained;
+	ഘടന mosquitto__retainhier *parent;
+	ഘടന mosquitto__retainhier *children;
+	ഘടന mosquitto_base_സന്ദേശം *retained;
 	uint16_t topic_len;
-	char topic[];
+	അക്ഷരം topic[];
 };
 
-struct mosquitto__base_msg {
+ഘടന mosquitto_base_സന്ദേശം {
 	UT_hash_handle hh;
-	struct mosquitto_base_msg data;
-	struct mosquitto__listener *source_listener;
-	char **dest_ids;
-	int dest_id_count;
-	int ref_count;
-	enum mosquitto_msg_origin origin;
+	ഘടന mosquitto_base_സന്ദേശം_2 data;
+	ഘടന mosquitto__listener *source_listener;
+	അക്ഷരം **dest_ids;
+	പൂർണ്ണസംഖ്യ dest_id_എണ്ണം;
+	പൂർണ്ണസംഖ്യ ref_എണ്ണം;
+	എണ്ണൽ mosquitto_സന്ദേശം_origin origin;
 	bool stored;
 };
 
-struct mosquitto__client_msg {
-	struct mosquitto_client_msg data;
-	struct mosquitto__client_msg *prev;
-	struct mosquitto__client_msg *next;
-	struct mosquitto__base_msg *base_msg;
+ഘടന mosquitto_client_സന്ദേശം {
+	ഘടന mosquitto_client_സന്ദേശം_2 data;
+	ഘടന mosquitto_client_സന്ദേശം *prev;
+	ഘടന mosquitto_client_സന്ദേശം *next;
+	ഘടന mosquitto_base_സന്ദേശം *base_സന്ദേശം;
 };
 
 
-struct mosquitto__psk {
+ഘടന mosquitto__psk {
 	UT_hash_handle hh;
-	char *username;
-	char *password;
+	അക്ഷരം *username;
+	അക്ഷരം *password;
 };
 
-struct mosquitto__message_v5 {
-	struct mosquitto__message_v5 *next, *prev;
-	char *topic;
-	void *payload;
+ഘടന mosquitto__message_v5 {
+	ഘടന mosquitto__message_v5 *next, *prev;
+	അക്ഷരം *topic;
+	ശൂന്യം *payload;
 	mosquitto_property *properties;
 	/* clientid is used only by mosquitto_broker_publish*() to indicate
 	   this message is for a specific client. */
-	char *clientid;
-	int payloadlen;
-	int qos;
+	അക്ഷരം *clientid;
+	പൂർണ്ണസംഖ്യ payloadlen;
+	പൂർണ്ണസംഖ്യ qos;
 	bool retain;
 };
 
-struct mosquitto_db {
+ഘടന mosquitto_db {
 	dbid_t last_db_id;
-	uint64_t node_id_shifted;
-	struct mosquitto__subhier *normal_subs;
-	struct mosquitto__subhier *shared_subs;
-	struct mosquitto__retainhier *retains;
-	struct mosquitto *contexts_by_id;
-	struct mosquitto *contexts_by_sock;
-	struct mosquitto *contexts_by_id_delayed_auth;
-	struct mosquitto *contexts_for_free;
+	uint64_t കണ്ണി_id_shifted;
+	ഘടന mosquitto__subhier *normal_subs;
+	ഘടന mosquitto__subhier *shared_subs;
+	ഘടന mosquitto__retainhier *retains;
+	ഘടന mosquitto *contexts_by_id;
+	ഘടന mosquitto *contexts_by_sock;
+	ഘടന mosquitto *contexts_by_id_delayed_auth;
+	ഘടന mosquitto *contexts_for_free;
 	mosquitto_plugin_id_t **plugins;
-	int plugin_count;
+	പൂർണ്ണസംഖ്യ plugin_എണ്ണം;
 #ifdef WITH_BRIDGE
-	struct mosquitto **bridges;
-	int bridge_count;
+	ഘടന mosquitto **bridges;
+	പൂർണ്ണസംഖ്യ bridge_എണ്ണം;
 #endif
-	struct clientid__index_hash *clientid_index_hash;
-	struct mosquitto__base_msg *msg_store;
+	ഘടന clientid__index_hash *clientid_index_hash;
+	ഘടന mosquitto_base_സന്ദേശം *സന്ദേശം_store;
 	time_t now_s; /* Monotonic clock, where possible */
 	time_t now_real_s; /* Read clock, for measuring session/message expiry */
-	uint64_t node_id; /* for unique db ids */
+	uint64_t കണ്ണി_id; /* for unique db ids */
 	time_t next_event_ms; /* for mux timeout */
-	int msg_store_count;
-	unsigned long msg_store_bytes;
-	char *config_file;
-	struct mosquitto__config *config;
+	പൂർണ്ണസംഖ്യ സന്ദേശം_store_എണ്ണം;
+	unsigned long സന്ദേശം_store_bytes;
+	അക്ഷരം *config_file;
+	ഘടന mosquitto__config *config;
 	bool quiet;
 	bool verbose;
-#ifdef WITH_SYS_TREE
-	int subscription_count;
-	int shared_subscription_count;
-	int retained_count;
+#ifdef WITH_SYS_വൃക്ഷം
+	പൂർണ്ണസംഖ്യ subscription_എണ്ണം;
+	പൂർണ്ണസംഖ്യ shared_subscription_എണ്ണം;
+	പൂർണ്ണസംഖ്യ retained_എണ്ണം;
 #endif
-	int persistence_changes;
-	struct mosquitto *ll_for_free;
+	പൂർണ്ണസംഖ്യ persistence_changes;
+	ഘടന mosquitto *ll_for_free;
 #ifdef WITH_EPOLL
-	int epollfd;
+	പൂർണ്ണസംഖ്യ epollfd;
 #endif
 #ifdef WITH_KQUEUE
-	int kqueuefd;
+	പൂർണ്ണസംഖ്യ kqueuefd;
 #endif
-	struct mosquitto__message_v5 *plugin_msgs;
+	ഘടന mosquitto__message_v5 *plugin_msgs;
 #ifdef WITH_TLS
 	/* tls_keylog can't be in the config struct because it is used
 	   before the config is allocated. Config probably
 	   shouldn't be separately allocated. */
-	char *tls_keylog;
+	അക്ഷരം *tls_keylog;
 #endif
 	bool shutdown;
 };
 
-enum mosquitto__bridge_direction {
+എണ്ണൽ mosquitto__bridge_direction {
 	bd_out = 0,
 	bd_in = 1,
 	bd_both = 2,
 };
 
-enum mosquitto_bridge_start_type {
+എണ്ണൽ mosquitto_bridge_start_type {
 	bst_automatic = 0,
 	bst_lazy = 1,
 	bst_manual = 2,
 	bst_once = 3,
 };
 
-enum mosquitto_bridge_reload_type {
+എണ്ണൽ mosquitto_bridge_reload_type {
 	brt_lazy = 0,
 	brt_immediate = 1,
 };
 
-struct mosquitto__bridge_topic {
-	struct mosquitto__bridge_topic *next;
-	char *topic;
-	char *local_prefix;
-	char *remote_prefix;
-	char *local_topic; /* topic prefixed with local_prefix */
-	char *remote_topic; /* topic prefixed with remote_prefix */
-	enum mosquitto__bridge_direction direction;
+ഘടന mosquitto__bridge_topic {
+	ഘടന mosquitto__bridge_topic *next;
+	അക്ഷരം *topic;
+	അക്ഷരം *local_prefix;
+	അക്ഷരം *remote_prefix;
+	അക്ഷരം *local_topic; /* topic prefixed with local_prefix */
+	അക്ഷരം *remote_topic; /* topic prefixed with remote_prefix */
+	എണ്ണൽ mosquitto__bridge_direction direction;
 	uint8_t qos;
 };
 
-struct bridge_address {
-	char *address;
+ഘടന bridge_address {
+	അക്ഷരം *address;
 	uint16_t port;
 };
 
-struct mosquitto__bridge {
-	char *name;
-	struct bridge_address *addresses;
-	int cur_address;
-	int address_count;
+ഘടന mosquitto__bridge {
+	അക്ഷരം *name;
+	ഘടന bridge_address *addresses;
+	പൂർണ്ണസംഖ്യ cur_address;
+	പൂർണ്ണസംഖ്യ address_എണ്ണം;
 	time_t primary_retry;
 	mosq_sock_t primary_retry_sock;
 	bool round_robin;
@@ -559,35 +559,35 @@ struct mosquitto__bridge {
 	bool clean_start;
 	int8_t clean_start_local;
 	uint16_t keepalive;
-	unsigned int tcp_keepalive_idle;
-	unsigned int tcp_keepalive_interval;
-	unsigned int tcp_keepalive_counter;
+	unsigned പൂർണ്ണസംഖ്യ tcp_keepalive_idle;
+	unsigned പൂർണ്ണസംഖ്യ tcp_keepalive_interval;
+	unsigned പൂർണ്ണസംഖ്യ tcp_keepalive_counter;
 #ifdef WITH_TCP_USER_TIMEOUT
-	int tcp_user_timeout;
+	പൂർണ്ണസംഖ്യ tcp_user_timeout;
 #endif
-	struct mosquitto__bridge_topic *topics;
-	int topic_count;
+	ഘടന mosquitto__bridge_topic *topics;
+	പൂർണ്ണസംഖ്യ topic_എണ്ണം;
 	bool topic_remapping;
-	enum mosquitto__protocol protocol_version;
+	എണ്ണൽ mosquitto__protocol protocol_version;
 	time_t restart_t;
 	time_t connected_at;
-	char *remote_clientid;
-	char *remote_username;
-	char *remote_password;
-	char *local_clientid;
-	char *local_username;
-	char *local_password;
-	char *notification_topic;
-	char *bind_address;
+	അക്ഷരം *remote_clientid;
+	അക്ഷരം *remote_username;
+	അക്ഷരം *remote_password;
+	അക്ഷരം *local_clientid;
+	അക്ഷരം *local_username;
+	അക്ഷരം *local_password;
+	അക്ഷരം *notification_topic;
+	അക്ഷരം *bind_address;
 	bool notifications;
 	bool notifications_local_only;
-	enum mosquitto_bridge_start_type start_type;
-	int idle_timeout;
-	int restart_timeout;
-	int backoff_base;
-	int backoff_cap;
-	int stable_connection_period;
-	int threshold;
+	എണ്ണൽ mosquitto_bridge_start_type start_type;
+	പൂർണ്ണസംഖ്യ idle_timeout;
+	പൂർണ്ണസംഖ്യ restart_timeout;
+	പൂർണ്ണസംഖ്യ backoff_base;
+	പൂർണ്ണസംഖ്യ backoff_cap;
+	പൂർണ്ണസംഖ്യ stable_connection_period;
+	പൂർണ്ണസംഖ്യ threshold;
 	uint32_t maximum_packet_size;
 	uint32_t session_expiry_interval;
 	uint16_t receive_maximum;
@@ -595,421 +595,421 @@ struct mosquitto__bridge {
 	bool attempt_unsubscribe;
 	bool initial_notification_done;
 	bool outgoing_retain;
-	enum mosquitto_bridge_reload_type reload_type;
+	എണ്ണൽ mosquitto_bridge_reload_type reload_type;
 	uint16_t max_topic_alias;
 #ifdef WITH_TLS
 	bool tls_insecure;
 	bool tls_ocsp_required;
 	bool tls_use_os_certs;
-	char *tls_cafile;
-	char *tls_capath;
-	char *tls_certfile;
-	char *tls_keyfile;
-	char *tls_version;
-	char *tls_alpn;
-	char *tls_ciphers;
-	char *tls_13_ciphers;
+	അക്ഷരം *tls_cafile;
+	അക്ഷരം *tls_capath;
+	അക്ഷരം *tls_certfile;
+	അക്ഷരം *tls_keyfile;
+	അക്ഷരം *tls_version;
+	അക്ഷരം *tls_alpn;
+	അക്ഷരം *tls_ciphers;
+	അക്ഷരം *tls_13_ciphers;
 #  ifdef FINAL_WITH_TLS_PSK
-	char *tls_psk_identity;
-	char *tls_psk;
+	അക്ഷരം *tls_psk_identity;
+	അക്ഷരം *tls_psk;
 #  endif
 #endif
 };
 
-#if defined(WITH_WEBSOCKETS) && WITH_WEBSOCKETS == WS_IS_LWS
-struct libws_mqtt_hack {
-	char *http_dir;
-	struct mosquitto__listener *listener;
+#എങ്കിൽ defined(WITH_WEBSOCKETS) && WITH_WEBSOCKETS == WS_IS_LWS
+ഘടന libws_mqtt_hack {
+	അക്ഷരം *http_dir;
+	ഘടന mosquitto__listener *listener;
 };
 
-struct libws_mqtt_data {
-	struct mosquitto *mosq;
+ഘടന libws_mqtt_data {
+	ഘടന mosquitto *mosq;
 };
 #endif
 
-#include <net_mosq.h>
+#അന്തര്ഭാവ <net_mosq.h>
 
 
-struct control_endpoint {
-	struct control_endpoint *next, *prev;
-	char topic[];
+ഘടന control_endpoint {
+	ഘടന control_endpoint *next, *prev;
+	അക്ഷരം topic[];
 };
 
-extern struct mosquitto_db db;
+ബാഹ്യ ഘടന mosquitto_db db;
 
 /* ============================================================
  * Main functions
  * ============================================================ */
-int mosquitto_main_loop(struct mosquitto__listener_sock *listensock, int listensock_count);
-void loop__update_next_event(time_t new_ms);
+പൂർണ്ണസംഖ്യ mosquitto_main_loop(ഘടന mosquitto__listener_sock *listensock, പൂർണ്ണസംഖ്യ listensock_എണ്ണം);
+ശൂന്യം loop__update_next_event(time_t new_ms);
 
 /* ============================================================
  * Config functions
  * ============================================================ */
 /* Initialise config struct to default values. */
-void config__init(struct mosquitto__config *config);
+ശൂന്യം config__init(ഘടന mosquitto__config *config);
 #ifdef WITH_BRIDGE
-void config__bridge_cleanup(struct mosquitto__bridge *bridge);
+ശൂന്യം config__bridge_cleanup(ഘടന mosquitto__bridge *bridge);
 #endif
 /* Parse command line options into config. */
-int config__parse_args(struct mosquitto__config *config, int argc, char *argv[]);
+പൂർണ്ണസംഖ്യ config__parse_args(ഘടന mosquitto__config *config, പൂർണ്ണസംഖ്യ argc, അക്ഷരം *argv[]);
 /* Read configuration data from config->config_file into config.
  * If reload is true, don't process config options that shouldn't be reloaded (listeners etc)
  * Returns 0 on success, 1 if there is a configuration error or if a file cannot be opened.
  */
-int config__read(struct mosquitto__config *config, bool reload);
+പൂർണ്ണസംഖ്യ config__read(ഘടന mosquitto__config *config, bool reload);
 /* Free all config data. */
-void config__cleanup(struct mosquitto__config *config);
-int config__get_dir_files(const char *include_dir, char ***files, int *file_count);
+ശൂന്യം config__cleanup(ഘടന mosquitto__config *config);
+പൂർണ്ണസംഖ്യ config__get_dir_files(സ്ഥിരം അക്ഷരം *include_dir, അക്ഷരം ***files, പൂർണ്ണസംഖ്യ *file_എണ്ണം);
 
 /* ============================================================
  * Server send functions
  * ============================================================ */
-int send__connack(struct mosquitto *context, uint8_t ack, uint8_t reason_code, const mosquitto_property *properties);
-int send__suback(struct mosquitto *context, uint16_t mid, uint32_t payloadlen, const void *payload);
-int send__unsuback(struct mosquitto *context, uint16_t mid, int reason_code_count, uint8_t *reason_codes, const mosquitto_property *properties);
-int send__auth(struct mosquitto *context, uint8_t reason_code, const void *auth_data, uint16_t auth_data_len);
+പൂർണ്ണസംഖ്യ send__connack(ഘടന mosquitto *context, uint8_t ack, uint8_t reason_code, സ്ഥിരം mosquitto_property *properties);
+പൂർണ്ണസംഖ്യ send__suback(ഘടന mosquitto *context, uint16_t mid, uint32_t payloadlen, സ്ഥിരം ശൂന്യം *payload);
+പൂർണ്ണസംഖ്യ send__unsuback(ഘടന mosquitto *context, uint16_t mid, പൂർണ്ണസംഖ്യ reason_code_എണ്ണം, uint8_t *reason_codes, സ്ഥിരം mosquitto_property *properties);
+പൂർണ്ണസംഖ്യ send__auth(ഘടന mosquitto *context, uint8_t reason_code, സ്ഥിരം ശൂന്യം *auth_data, uint16_t auth_data_len);
 
 /* ============================================================
  * Network functions
  * ============================================================ */
-void net__broker_init(void);
-void net__broker_cleanup(void);
-struct mosquitto *net__socket_accept(struct mosquitto__listener_sock *listensock);
-int net__socket_listen(struct mosquitto__listener *listener);
-int net__socket_get_address(mosq_sock_t sock, char *buf, size_t len, uint16_t *remote_address);
-int net__tls_load_verify(struct mosquitto__listener *listener);
-int net__tls_server_ctx(struct mosquitto__listener *listener);
-int net__load_certificates(struct mosquitto__listener *listener);
+ശൂന്യം net__broker_init(ശൂന്യം);
+ശൂന്യം net__broker_cleanup(ശൂന്യം);
+ഘടന mosquitto *net__socket_accept(ഘടന mosquitto__listener_sock *listensock);
+പൂർണ്ണസംഖ്യ net__socket_listen(ഘടന mosquitto__listener *listener);
+പൂർണ്ണസംഖ്യ net__socket_get_address(mosq_sock_t sock, അക്ഷരം *buf, size_t len, uint16_t *remote_address);
+പൂർണ്ണസംഖ്യ net__tls_load_verify(ഘടന mosquitto__listener *listener);
+പൂർണ്ണസംഖ്യ net__tls_server_ctx(ഘടന mosquitto__listener *listener);
+പൂർണ്ണസംഖ്യ net__load_certificates(ഘടന mosquitto__listener *listener);
 
 /* ============================================================
  * Read handling functions
  * ============================================================ */
-int handle__packet(struct mosquitto *context);
-int handle__connack(struct mosquitto *context);
-int handle__connect(struct mosquitto *context);
-int handle__disconnect(struct mosquitto *context);
-int handle__publish(struct mosquitto *context);
-int handle__subscribe(struct mosquitto *context);
-int handle__unsubscribe(struct mosquitto *context);
-int handle__auth(struct mosquitto *context);
+പൂർണ്ണസംഖ്യ handle__packet(ഘടന mosquitto *context);
+പൂർണ്ണസംഖ്യ handle__connack(ഘടന mosquitto *context);
+പൂർണ്ണസംഖ്യ handle__connect(ഘടന mosquitto *context);
+പൂർണ്ണസംഖ്യ handle__disconnect(ഘടന mosquitto *context);
+പൂർണ്ണസംഖ്യ handle__publish(ഘടന mosquitto *context);
+പൂർണ്ണസംഖ്യ handle__subscribe(ഘടന mosquitto *context);
+പൂർണ്ണസംഖ്യ handle__unsubscribe(ഘടന mosquitto *context);
+പൂർണ്ണസംഖ്യ handle__auth(ഘടന mosquitto *context);
 
 /* ============================================================
  * Database handling
  * ============================================================ */
-int db__open(struct mosquitto__config *config);
-int db__close(void);
+പൂർണ്ണസംഖ്യ db__open(ഘടന mosquitto__config *config);
+പൂർണ്ണസംഖ്യ db__close(ശൂന്യം);
 #ifdef WITH_PERSISTENCE
-int persist__backup(bool shutdown);
-int persist__restore(void);
+പൂർണ്ണസംഖ്യ persist__backup(bool shutdown);
+പൂർണ്ണസംഖ്യ persist__restore(ശൂന്യം);
 #endif
 /* Return the number of in-flight messages in count. */
-int db__message_count(int *count);
-int db__message_delete_outgoing(struct mosquitto *context, uint16_t mid, enum mosquitto_msg_state expect_state, int qos);
-int db__message_insert_outgoing(struct mosquitto *context, uint64_t cmsg_id, uint16_t mid, uint8_t qos, bool retain, struct mosquitto__base_msg *base_msg, uint32_t subscription_identifier, bool update, bool persist);
-int db__message_insert_incoming(struct mosquitto *context, uint64_t cmsg_id, struct mosquitto__base_msg *base_msg, bool persist);
-int db__message_remove_incoming(struct mosquitto *context, uint16_t mid);
-int db__message_release_incoming(struct mosquitto *context, uint16_t mid);
-int db__message_update_outgoing(struct mosquitto *context, uint16_t mid, enum mosquitto_msg_state state, int qos, bool persist);
-void db__message_dequeue_first(struct mosquitto *context, struct mosquitto_msg_data *msg_data);
-int db__messages_delete(struct mosquitto *context, bool force_free);
-int db__messages_delete_incoming(struct mosquitto *context);
-int db__messages_delete_outgoing(struct mosquitto *context);
-int db__messages_easy_queue(struct mosquitto *context, const char *topic, uint8_t qos, uint32_t payloadlen, const void *payload, int retain, uint32_t message_expiry_interval, mosquitto_property **properties);
-int db__message_store(const struct mosquitto *source, struct mosquitto__base_msg *base_msg, uint32_t *message_expiry_interval, enum mosquitto_msg_origin origin);
-int db__message_store_find(struct mosquitto *context, uint16_t mid, struct mosquitto__client_msg **client_msg);
-int db__msg_store_add(struct mosquitto__base_msg *base_msg);
-void db__msg_store_remove(struct mosquitto__base_msg *base_msg, bool notify);
-void db__msg_store_ref_inc(struct mosquitto__base_msg *base_msg);
-void db__msg_store_ref_dec(struct mosquitto__base_msg **base_msg);
-void db__msg_store_clean(void);
-void db__msg_store_compact(void);
-void db__msg_store_free(struct mosquitto__base_msg *base_msg);
-int db__message_reconnect_reset(struct mosquitto *context);
-bool db__ready_for_flight(struct mosquitto *context, enum mosquitto_msg_direction dir, int qos);
-bool db__ready_for_queue(struct mosquitto *context, int qos, struct mosquitto_msg_data *msg_data);
-void sys_tree__init(void);
-void sys_tree__update(bool force);
-int db__message_write_inflight_out_all(struct mosquitto *context);
-int db__message_write_inflight_out_latest(struct mosquitto *context);
-int db__message_write_queued_out(struct mosquitto *context);
-int db__message_write_queued_in(struct mosquitto *context);
-void db__msg_add_to_inflight_stats(struct mosquitto_msg_data *msg_data, struct mosquitto__client_msg *msg);
-void db__msg_add_to_queued_stats(struct mosquitto_msg_data *msg_data, struct mosquitto__client_msg *msg);
-uint64_t db__new_msg_id(void);
-void db__expire_all_messages(struct mosquitto *context);
-void db__check_acl_of_all_messages(struct mosquitto *context);
+പൂർണ്ണസംഖ്യ db_message_എണ്ണം(പൂർണ്ണസംഖ്യ *എണ്ണം);
+പൂർണ്ണസംഖ്യ db__message_delete_outgoing(ഘടന mosquitto *context, uint16_t mid, എണ്ണൽ mosquitto_സന്ദേശം_state expect_state, പൂർണ്ണസംഖ്യ qos);
+പൂർണ്ണസംഖ്യ db_message_തിരുകുക_outgoing(ഘടന mosquitto *context, uint64_t cmsg_id, uint16_t mid, uint8_t qos, bool retain, ഘടന mosquitto_base_സന്ദേശം *base_സന്ദേശം, uint32_t subscription_identifier, bool update, bool persist);
+പൂർണ്ണസംഖ്യ db_message_തിരുകുക_incoming(ഘടന mosquitto *context, uint64_t cmsg_id, ഘടന mosquitto_base_സന്ദേശം *base_സന്ദേശം, bool persist);
+പൂർണ്ണസംഖ്യ db__message_remove_incoming(ഘടന mosquitto *context, uint16_t mid);
+പൂർണ്ണസംഖ്യ db__message_release_incoming(ഘടന mosquitto *context, uint16_t mid);
+പൂർണ്ണസംഖ്യ db__message_update_outgoing(ഘടന mosquitto *context, uint16_t mid, എണ്ണൽ mosquitto_സന്ദേശം_state state, പൂർണ്ണസംഖ്യ qos, bool persist);
+ശൂന്യം db__message_dequeue_first(ഘടന mosquitto *context, ഘടന mosquitto_സന്ദേശം_data *സന്ദേശം_data);
+പൂർണ്ണസംഖ്യ db__messages_delete(ഘടന mosquitto *context, bool force_free);
+പൂർണ്ണസംഖ്യ db__messages_delete_incoming(ഘടന mosquitto *context);
+പൂർണ്ണസംഖ്യ db__messages_delete_outgoing(ഘടന mosquitto *context);
+പൂർണ്ണസംഖ്യ db__messages_easy_queue(ഘടന mosquitto *context, സ്ഥിരം അക്ഷരം *topic, uint8_t qos, uint32_t payloadlen, സ്ഥിരം ശൂന്യം *payload, പൂർണ്ണസംഖ്യ retain, uint32_t message_expiry_interval, mosquitto_property **properties);
+പൂർണ്ണസംഖ്യ db__message_store(സ്ഥിരം ഘടന mosquitto *source, ഘടന mosquitto_base_സന്ദേശം *base_സന്ദേശം, uint32_t *message_expiry_interval, എണ്ണൽ mosquitto_സന്ദേശം_origin origin);
+പൂർണ്ണസംഖ്യ db__message_store_find(ഘടന mosquitto *context, uint16_t mid, ഘടന mosquitto_client_സന്ദേശം **client_സന്ദേശം);
+പൂർണ്ണസംഖ്യ db_സന്ദേശം_store_add(ഘടന mosquitto_base_സന്ദേശം *base_സന്ദേശം);
+ശൂന്യം db_സന്ദേശം_store_remove(ഘടന mosquitto_base_സന്ദേശം *base_സന്ദേശം, bool notify);
+ശൂന്യം db_സന്ദേശം_store_ref_inc(ഘടന mosquitto_base_സന്ദേശം *base_സന്ദേശം);
+ശൂന്യം db_സന്ദേശം_store_ref_dec(ഘടന mosquitto_base_സന്ദേശം **base_സന്ദേശം);
+ശൂന്യം db_സന്ദേശം_store_clean(ശൂന്യം);
+ശൂന്യം db_സന്ദേശം_store_compact(ശൂന്യം);
+ശൂന്യം db_സന്ദേശം_store_free(ഘടന mosquitto_base_സന്ദേശം *base_സന്ദേശം);
+പൂർണ്ണസംഖ്യ db__message_reconnect_reset(ഘടന mosquitto *context);
+bool db__ready_for_flight(ഘടന mosquitto *context, എണ്ണൽ mosquitto_സന്ദേശം_direction dir, പൂർണ്ണസംഖ്യ qos);
+bool db__ready_for_queue(ഘടന mosquitto *context, പൂർണ്ണസംഖ്യ qos, ഘടന mosquitto_സന്ദേശം_data *സന്ദേശം_data);
+ശൂന്യം sys_വൃക്ഷം_init(ശൂന്യം);
+ശൂന്യം sys_വൃക്ഷം_update(bool force);
+പൂർണ്ണസംഖ്യ db__message_write_inflight_out_all(ഘടന mosquitto *context);
+പൂർണ്ണസംഖ്യ db__message_write_inflight_out_latest(ഘടന mosquitto *context);
+പൂർണ്ണസംഖ്യ db__message_write_queued_out(ഘടന mosquitto *context);
+പൂർണ്ണസംഖ്യ db__message_write_queued_in(ഘടന mosquitto *context);
+ശൂന്യം db_സന്ദേശം_add_to_inflight_stats(ഘടന mosquitto_സന്ദേശം_data *സന്ദേശം_data, ഘടന mosquitto_client_സന്ദേശം *സന്ദേശം);
+ശൂന്യം db_സന്ദേശം_add_to_queued_stats(ഘടന mosquitto_സന്ദേശം_data *സന്ദേശം_data, ഘടന mosquitto_client_സന്ദേശം *സന്ദേശം);
+uint64_t db_new_സന്ദേശം_id(ശൂന്യം);
+ശൂന്യം db__expire_all_messages(ഘടന mosquitto *context);
+ശൂന്യം db__check_acl_of_all_messages(ഘടന mosquitto *context);
 
 /* ============================================================
  * Subscription functions
  * ============================================================ */
-int sub__init(void);
-int sub__add(struct mosquitto *context, const struct mosquitto_subscription *sub);
-int sub__remove(struct mosquitto *context, const char *sub, uint8_t *reason);
-void sub__tree_print(struct mosquitto__subhier *root, int level);
-int sub__clean_session(struct mosquitto *context);
-int sub__messages_queue(const char *source_id, uint8_t qos, struct mosquitto__base_msg **base_msg);
-int sub__topic_tokenise(const char *subtopic, char **local_sub, char ***topics, const char **sharename);
-void sub__topic_tokens_free(struct sub__token *tokens);
+പൂർണ്ണസംഖ്യ sub__init(ശൂന്യം);
+പൂർണ്ണസംഖ്യ sub__add(ഘടന mosquitto *context, സ്ഥിരം ഘടന mosquitto_subscription *sub);
+പൂർണ്ണസംഖ്യ sub__remove(ഘടന mosquitto *context, സ്ഥിരം അക്ഷരം *sub, uint8_t *reason);
+ശൂന്യം sub_വൃക്ഷം_print(ഘടന mosquitto__subhier *വേര്, പൂർണ്ണസംഖ്യ level);
+പൂർണ്ണസംഖ്യ sub__clean_session(ഘടന mosquitto *context);
+പൂർണ്ണസംഖ്യ sub__messages_queue(സ്ഥിരം അക്ഷരം *source_id, uint8_t qos, ഘടന mosquitto_base_സന്ദേശം **base_സന്ദേശം);
+പൂർണ്ണസംഖ്യ sub__topic_tokenise(സ്ഥിരം അക്ഷരം *subtopic, അക്ഷരം **local_sub, അക്ഷരം ***topics, സ്ഥിരം അക്ഷരം **sharename);
+ശൂന്യം sub__topic_tokens_free(ഘടന sub__token *tokens);
 
 /* ============================================================
  * Context functions
  * ============================================================ */
-struct mosquitto *context__init(void);
-int context__init_sock(struct mosquitto *context, mosq_sock_t sock, bool get_address);
-void context__cleanup(struct mosquitto *context, bool force_free);
-void context__disconnect(struct mosquitto *context, int reason);
-void context__add_to_disused(struct mosquitto *context);
-void context__free_disused(void);
-void context__send_will(struct mosquitto *context);
-void context__add_to_by_id(struct mosquitto *context);
-void context__remove_from_by_id(struct mosquitto *context);
+ഘടന mosquitto *context__init(ശൂന്യം);
+പൂർണ്ണസംഖ്യ context__init_sock(ഘടന mosquitto *context, mosq_sock_t sock, bool get_address);
+ശൂന്യം context__cleanup(ഘടന mosquitto *context, bool force_free);
+ശൂന്യം context__disconnect(ഘടന mosquitto *context, പൂർണ്ണസംഖ്യ reason);
+ശൂന്യം context__add_to_disused(ഘടന mosquitto *context);
+ശൂന്യം context__free_disused(ശൂന്യം);
+ശൂന്യം context__send_will(ഘടന mosquitto *context);
+ശൂന്യം context__add_to_by_id(ഘടന mosquitto *context);
+ശൂന്യം context__remove_from_by_id(ഘടന mosquitto *context);
 
-int connect__on_authorised(struct mosquitto *context, void *auth_data_out, uint16_t auth_data_out_len);
+പൂർണ്ണസംഖ്യ connect__on_authorised(ഘടന mosquitto *context, ശൂന്യം *auth_data_out, uint16_t auth_data_out_len);
 
 
 /* ============================================================
  * Control functions
  * ============================================================ */
 #ifdef WITH_CONTROL
-int control__process(struct mosquitto *context, struct mosquitto__base_msg *base_msg);
-void control__cleanup(void);
+പൂർണ്ണസംഖ്യ control__process(ഘടന mosquitto *context, ഘടന mosquitto_base_സന്ദേശം *base_സന്ദേശം);
+ശൂന്യം control__cleanup(ശൂന്യം);
 #endif
-int control__register_callback(mosquitto_plugin_id_t *pid, MOSQ_FUNC_generic_callback cb_func, const char *topic, void *userdata);
-int control__unregister_callback(mosquitto_plugin_id_t *pid, MOSQ_FUNC_generic_callback cb_func, const char *topic);
-void control__unregister_all_callbacks(mosquitto_plugin_id_t *identifier);
+പൂർണ്ണസംഖ്യ control__register_callback(mosquitto_plugin_id_t *pid, MOSQ_FUNC_generic_callback cb_func, സ്ഥിരം അക്ഷരം *topic, ശൂന്യം *userdata);
+പൂർണ്ണസംഖ്യ control__unregister_callback(mosquitto_plugin_id_t *pid, MOSQ_FUNC_generic_callback cb_func, സ്ഥിരം അക്ഷരം *topic);
+ശൂന്യം control__unregister_all_callbacks(mosquitto_plugin_id_t *identifier);
 
 
 /* ============================================================
  * Logging functions
  * ============================================================ */
-int log__init(struct mosquitto__config *config);
-int log__close(struct mosquitto__config *config);
-void log__internal(const char *fmt, ...) __attribute__((format(printf, 1, 2)));
+പൂർണ്ണസംഖ്യ log__init(ഘടന mosquitto__config *config);
+പൂർണ്ണസംഖ്യ log__close(ഘടന mosquitto__config *config);
+ശൂന്യം log__internal(സ്ഥിരം അക്ഷരം *fmt, ...) __attribute__((format(printf, 1, 2)));
 
 /* ============================================================
  * Bridge functions
  * ============================================================ */
 #ifdef WITH_BRIDGE
-void bridge__start_all(void);
-void bridge__reload(void);
-void bridge__db_cleanup(void);
-void bridge__cleanup(struct mosquitto *context);
-int bridge__connect(struct mosquitto *context);
-#if defined(__GLIBC__) && defined(WITH_ADNS)
-int bridge__connect_step3(struct mosquitto *context);
+ശൂന്യം bridge__start_all(ശൂന്യം);
+ശൂന്യം bridge__reload(ശൂന്യം);
+ശൂന്യം bridge__db_cleanup(ശൂന്യം);
+ശൂന്യം bridge__cleanup(ഘടന mosquitto *context);
+പൂർണ്ണസംഖ്യ bridge__connect(ഘടന mosquitto *context);
+#എങ്കിൽ defined(__GLIBC__) && defined(WITH_ADNS)
+പൂർണ്ണസംഖ്യ bridge__connect_step3(ഘടന mosquitto *context);
 #endif
-int bridge__on_connect(struct mosquitto *context);
-void bridge_check(void);
-int bridge__register_local_connections(void);
-int bridge__add_topic(struct mosquitto__bridge *bridge, const char *topic, enum mosquitto__bridge_direction direction, uint8_t qos, const char *local_prefix, const char *remote_prefix);
-void bridge__cleanup_topics(struct mosquitto__bridge *bridge);
-int bridge__remap_topic_in(struct mosquitto *context, char **topic);
+പൂർണ്ണസംഖ്യ bridge__on_connect(ഘടന mosquitto *context);
+ശൂന്യം bridge_check(ശൂന്യം);
+പൂർണ്ണസംഖ്യ bridge__register_local_connections(ശൂന്യം);
+പൂർണ്ണസംഖ്യ bridge__add_topic(ഘടന mosquitto__bridge *bridge, സ്ഥിരം അക്ഷരം *topic, എണ്ണൽ mosquitto__bridge_direction direction, uint8_t qos, സ്ഥിരം അക്ഷരം *local_prefix, സ്ഥിരം അക്ഷരം *remote_prefix);
+ശൂന്യം bridge__cleanup_topics(ഘടന mosquitto__bridge *bridge);
+പൂർണ്ണസംഖ്യ bridge__remap_topic_in(ഘടന mosquitto *context, അക്ഷരം **topic);
 #endif
 
 /* ============================================================
  * IO multiplex related functions
  * ============================================================ */
-int mux__init(void);
-int mux__add_listeners(struct mosquitto__listener_sock *listensock, int listensock_count);
-int mux__delete_listeners(struct mosquitto__listener_sock *listensock, int listensock_count);
-int mux__loop_prepare(void);
-int mux__new(struct mosquitto *context);
-int mux__add_out(struct mosquitto *context);
-int mux__remove_out(struct mosquitto *context);
-int mux__delete(struct mosquitto *context);
-int mux__wait(void);
-int mux__handle(struct mosquitto__listener_sock *listensock, int listensock_count);
-int mux__cleanup(void);
+പൂർണ്ണസംഖ്യ mux__init(ശൂന്യം);
+പൂർണ്ണസംഖ്യ mux__add_listeners(ഘടന mosquitto__listener_sock *listensock, പൂർണ്ണസംഖ്യ listensock_എണ്ണം);
+പൂർണ്ണസംഖ്യ mux__delete_listeners(ഘടന mosquitto__listener_sock *listensock, പൂർണ്ണസംഖ്യ listensock_എണ്ണം);
+പൂർണ്ണസംഖ്യ mux__loop_prepare(ശൂന്യം);
+പൂർണ്ണസംഖ്യ mux__new(ഘടന mosquitto *context);
+പൂർണ്ണസംഖ്യ mux__add_out(ഘടന mosquitto *context);
+പൂർണ്ണസംഖ്യ mux__remove_out(ഘടന mosquitto *context);
+പൂർണ്ണസംഖ്യ mux__delete(ഘടന mosquitto *context);
+പൂർണ്ണസംഖ്യ mux__wait(ശൂന്യം);
+പൂർണ്ണസംഖ്യ mux__handle(ഘടന mosquitto__listener_sock *listensock, പൂർണ്ണസംഖ്യ listensock_എണ്ണം);
+പൂർണ്ണസംഖ്യ mux__cleanup(ശൂന്യം);
 
 /* ============================================================
  * Listener related functions
  * ============================================================ */
-extern struct mosquitto__listener_sock *g_listensock;
-extern int g_listensock_count;
+ബാഹ്യ ഘടന mosquitto__listener_sock *g_listensock;
+ബാഹ്യ പൂർണ്ണസംഖ്യ g_listensock_എണ്ണം;
 
-void listener__set_defaults(struct mosquitto__listener *listener);
-void listeners__reload_all_certificates(void);
-#if defined(WITH_WEBSOCKETS) && WITH_WEBSOCKETS == WS_IS_LWS
-void listeners__add_websockets(struct lws_context *ws_context, mosq_sock_t fd);
+ശൂന്യം listener__set_defaults(ഘടന mosquitto__listener *listener);
+ശൂന്യം listeners__reload_all_certificates(ശൂന്യം);
+#എങ്കിൽ defined(WITH_WEBSOCKETS) && WITH_WEBSOCKETS == WS_IS_LWS
+ശൂന്യം listeners__add_websockets(ഘടന lws_context *ws_context, mosq_sock_t fd);
 #endif
-int listeners__start(void);
-void listeners__stop(void);
+പൂർണ്ണസംഖ്യ listeners__start(ശൂന്യം);
+ശൂന്യം listeners__stop(ശൂന്യം);
 
 /* ============================================================
  * Plugin related functions
  * ============================================================ */
-int plugin__load_v5(mosquitto_plugin_id_t *plugin, void *lib);
-int plugin__load_v4(mosquitto_plugin_id_t *plugin, void *lib);
-int plugin__load_v3(mosquitto_plugin_id_t *plugin, void *lib);
-int plugin__load_v2(mosquitto_plugin_id_t *plugin, void *lib);
-int acl__pre_check(mosquitto_plugin_id_t *plugin, struct mosquitto *context, int access);
+പൂർണ്ണസംഖ്യ plugin__load_v5(mosquitto_plugin_id_t *plugin, ശൂന്യം *lib);
+പൂർണ്ണസംഖ്യ plugin__load_v4(mosquitto_plugin_id_t *plugin, ശൂന്യം *lib);
+പൂർണ്ണസംഖ്യ plugin__load_v3(mosquitto_plugin_id_t *plugin, ശൂന്യം *lib);
+പൂർണ്ണസംഖ്യ plugin__load_v2(mosquitto_plugin_id_t *plugin, ശൂന്യം *lib);
+പൂർണ്ണസംഖ്യ acl__pre_check(mosquitto_plugin_id_t *plugin, ഘടന mosquitto *context, പൂർണ്ണസംഖ്യ access);
 
-void LIB_ERROR(void);
-void plugin__handle_connect(struct mosquitto *context);
-void plugin__handle_disconnect(struct mosquitto *context, int reason);
-void plugin__handle_client_offline(struct mosquitto *context, int reason);
-int plugin__handle_message_in(struct mosquitto *context, struct mosquitto_base_msg *base_msg);
-int plugin__handle_message_out(struct mosquitto *context, struct mosquitto_base_msg *base_msg);
-int plugin__handle_subscribe(struct mosquitto *context, struct mosquitto_subscription *sub);
-int plugin__handle_unsubscribe(struct mosquitto *context, struct mosquitto_subscription *sub);
-int plugin__handle_reload(void);
-void plugin__handle_tick(void);
-int plugin__callback_unregister_all(mosquitto_plugin_id_t *identifier);
-void plugin_persist__handle_restore(void);
-void plugin_persist__handle_client_add(struct mosquitto *context);
-void plugin_persist__handle_client_delete(struct mosquitto *context);
-void plugin_persist__handle_client_update(struct mosquitto *context);
-void plugin_persist__handle_subscription_add(struct mosquitto *context, const struct mosquitto_subscription *sub);
-void plugin_persist__handle_subscription_delete(struct mosquitto *context, char *sub);
-void plugin_persist__handle_client_msg_add(struct mosquitto *context, const struct mosquitto__client_msg *cmsg);
-void plugin_persist__handle_client_msg_delete(struct mosquitto *context, const struct mosquitto__client_msg *cmsg);
-void plugin_persist__handle_client_msg_update(struct mosquitto *context, const struct mosquitto__client_msg *cmsg);
-void plugin_persist__handle_base_msg_add(struct mosquitto__base_msg *base_msg);
-void plugin_persist__handle_base_msg_delete(struct mosquitto__base_msg *base_msg);
-void plugin_persist__handle_retain_msg_set(struct mosquitto__base_msg *base_msg);
-void plugin_persist__handle_retain_msg_delete(struct mosquitto__base_msg *base_msg);
-void plugin_persist__handle_will_add(struct mosquitto *context);
-void plugin_persist__handle_will_delete(struct mosquitto *context);
-
-/* ============================================================
- * Property related functions
- * ============================================================ */
-int keepalive__init(void);
-void keepalive__cleanup(void);
-int keepalive__add(struct mosquitto *context);
-void keepalive__check(void);
-int keepalive__remove(struct mosquitto *context);
-int keepalive__update(struct mosquitto *context);
+ശൂന്യം LIB_ERROR(ശൂന്യം);
+ശൂന്യം plugin__handle_connect(ഘടന mosquitto *context);
+ശൂന്യം plugin__handle_disconnect(ഘടന mosquitto *context, പൂർണ്ണസംഖ്യ reason);
+ശൂന്യം plugin__handle_client_offline(ഘടന mosquitto *context, പൂർണ്ണസംഖ്യ reason);
+പൂർണ്ണസംഖ്യ plugin__handle_message_in(ഘടന mosquitto *context, ഘടന mosquitto_base_സന്ദേശം_2 *base_സന്ദേശം);
+പൂർണ്ണസംഖ്യ plugin__handle_message_out(ഘടന mosquitto *context, ഘടന mosquitto_base_സന്ദേശം_2 *base_സന്ദേശം);
+പൂർണ്ണസംഖ്യ plugin__handle_subscribe(ഘടന mosquitto *context, ഘടന mosquitto_subscription *sub);
+പൂർണ്ണസംഖ്യ plugin__handle_unsubscribe(ഘടന mosquitto *context, ഘടന mosquitto_subscription *sub);
+പൂർണ്ണസംഖ്യ plugin__handle_reload(ശൂന്യം);
+ശൂന്യം plugin__handle_tick(ശൂന്യം);
+പൂർണ്ണസംഖ്യ plugin__callback_unregister_all(mosquitto_plugin_id_t *identifier);
+ശൂന്യം plugin_persist__handle_restore(ശൂന്യം);
+ശൂന്യം plugin_persist__handle_client_add(ഘടന mosquitto *context);
+ശൂന്യം plugin_persist__handle_client_delete(ഘടന mosquitto *context);
+ശൂന്യം plugin_persist__handle_client_update(ഘടന mosquitto *context);
+ശൂന്യം plugin_persist__handle_subscription_add(ഘടന mosquitto *context, സ്ഥിരം ഘടന mosquitto_subscription *sub);
+ശൂന്യം plugin_persist__handle_subscription_delete(ഘടന mosquitto *context, അക്ഷരം *sub);
+ശൂന്യം plugin_persist_handle_client_സന്ദേശം_add(ഘടന mosquitto *context, സ്ഥിരം ഘടന mosquitto_client_സന്ദേശം *cmsg);
+ശൂന്യം plugin_persist_handle_client_സന്ദേശം_delete(ഘടന mosquitto *context, സ്ഥിരം ഘടന mosquitto_client_സന്ദേശം *cmsg);
+ശൂന്യം plugin_persist_handle_client_സന്ദേശം_update(ഘടന mosquitto *context, സ്ഥിരം ഘടന mosquitto_client_സന്ദേശം *cmsg);
+ശൂന്യം plugin_persist_handle_base_സന്ദേശം_add(ഘടന mosquitto_base_സന്ദേശം *base_സന്ദേശം);
+ശൂന്യം plugin_persist_handle_base_സന്ദേശം_delete(ഘടന mosquitto_base_സന്ദേശം *base_സന്ദേശം);
+ശൂന്യം plugin_persist_handle_retain_സന്ദേശം_set(ഘടന mosquitto_base_സന്ദേശം *base_സന്ദേശം);
+ശൂന്യം plugin_persist_handle_retain_സന്ദേശം_delete(ഘടന mosquitto_base_സന്ദേശം *base_സന്ദേശം);
+ശൂന്യം plugin_persist__handle_will_add(ഘടന mosquitto *context);
+ശൂന്യം plugin_persist__handle_will_delete(ഘടന mosquitto *context);
 
 /* ============================================================
  * Property related functions
  * ============================================================ */
-int property__process_connect(struct mosquitto *context, mosquitto_property **props);
-int property__process_will(struct mosquitto *context, struct mosquitto_message_all *msg, mosquitto_property **props);
-int property__process_publish(struct mosquitto__base_msg *base_msg, mosquitto_property **props, int *topic_alias, uint32_t *message_expiry_interval, bool is_bridge);
-int property__process_disconnect(struct mosquitto *context, mosquitto_property **props);
+പൂർണ്ണസംഖ്യ keepalive__init(ശൂന്യം);
+ശൂന്യം keepalive__cleanup(ശൂന്യം);
+പൂർണ്ണസംഖ്യ keepalive__add(ഘടന mosquitto *context);
+ശൂന്യം keepalive__check(ശൂന്യം);
+പൂർണ്ണസംഖ്യ keepalive__remove(ഘടന mosquitto *context);
+പൂർണ്ണസംഖ്യ keepalive__update(ഘടന mosquitto *context);
+
+/* ============================================================
+ * Property related functions
+ * ============================================================ */
+പൂർണ്ണസംഖ്യ property__process_connect(ഘടന mosquitto *context, mosquitto_property **props);
+പൂർണ്ണസംഖ്യ property__process_will(ഘടന mosquitto *context, ഘടന mosquitto_message_all *സന്ദേശം, mosquitto_property **props);
+പൂർണ്ണസംഖ്യ property__process_publish(ഘടന mosquitto_base_സന്ദേശം *base_സന്ദേശം, mosquitto_property **props, പൂർണ്ണസംഖ്യ *topic_alias, uint32_t *message_expiry_interval, bool is_bridge);
+പൂർണ്ണസംഖ്യ property__process_disconnect(ഘടന mosquitto *context, mosquitto_property **props);
 
 /* ============================================================
  * Retain tree related functions
  * ============================================================ */
-int retain__init(void);
-void retain__clean(struct mosquitto__retainhier **retainhier);
-int retain__queue(struct mosquitto *context, const struct mosquitto_subscription *sub);
-int retain__store(const char *topic, struct mosquitto__base_msg *base_msg, char **split_topics, bool persist);
-void retain__expiry_check(void);
-void retain__expire(struct mosquitto__retainhier **retainhier);
+പൂർണ്ണസംഖ്യ retain__init(ശൂന്യം);
+ശൂന്യം retain__clean(ഘടന mosquitto__retainhier **retainhier);
+പൂർണ്ണസംഖ്യ retain__queue(ഘടന mosquitto *context, സ്ഥിരം ഘടന mosquitto_subscription *sub);
+പൂർണ്ണസംഖ്യ retain__store(സ്ഥിരം അക്ഷരം *topic, ഘടന mosquitto_base_സന്ദേശം *base_സന്ദേശം, അക്ഷരം **split_topics, bool persist);
+ശൂന്യം retain__expiry_check(ശൂന്യം);
+ശൂന്യം retain__expire(ഘടന mosquitto__retainhier **retainhier);
 
 /* ============================================================
  * Security related functions
  * ============================================================ */
-int acl__find_acls(struct mosquitto *context);
-int plugin__load_all(void);
-int plugin__unload_all(void);
-int config__plugin_add_secopt(mosquitto_plugin_id_t *plugin, struct mosquitto__security_options *security_options);
+പൂർണ്ണസംഖ്യ acl__find_acls(ഘടന mosquitto *context);
+പൂർണ്ണസംഖ്യ plugin__load_all(ശൂന്യം);
+പൂർണ്ണസംഖ്യ plugin__unload_all(ശൂന്യം);
+പൂർണ്ണസംഖ്യ config__plugin_add_secopt(mosquitto_plugin_id_t *plugin, ഘടന mosquitto__security_options *security_options);
 
-int mosquitto_security_init(bool reload);
-int mosquitto_security_cleanup(bool reload);
-int mosquitto_acl_check(struct mosquitto *context, const char *topic, uint32_t payloadlen, void *payload, uint8_t qos, bool retain, mosquitto_property *properties, int access);
-int mosquitto_basic_auth(struct mosquitto *context);
-int mosquitto_psk_key_get(struct mosquitto *context, const char *hint, const char *identity, char *key, int max_key_len);
+പൂർണ്ണസംഖ്യ mosquitto_security_init(bool reload);
+പൂർണ്ണസംഖ്യ mosquitto_security_cleanup(bool reload);
+പൂർണ്ണസംഖ്യ mosquitto_acl_check(ഘടന mosquitto *context, സ്ഥിരം അക്ഷരം *topic, uint32_t payloadlen, ശൂന്യം *payload, uint8_t qos, bool retain, mosquitto_property *properties, പൂർണ്ണസംഖ്യ access);
+പൂർണ്ണസംഖ്യ mosquitto_basic_auth(ഘടന mosquitto *context);
+പൂർണ്ണസംഖ്യ mosquitto_psk_താക്കോൽ_get(ഘടന mosquitto *context, സ്ഥിരം അക്ഷരം *hint, സ്ഥിരം അക്ഷരം *identity, അക്ഷരം *താക്കോൽ, പൂർണ്ണസംഖ്യ max_താക്കോൽ_len);
 
-int mosquitto_security_init_default(void);
-int mosquitto_security_apply_default(void);
-int mosquitto_security_cleanup_default(void);
-int mosquitto_psk_key_get_default(struct mosquitto *context, const char *hint, const char *identity, char *key, int max_key_len);
-int broker_acl_file__init(void);
-void broker_acl_file__cleanup(void);
-int broker_password_file__init(void);
-void broker_password_file__cleanup(void);
-int psk_file__init(void);
-int psk_file__cleanup(void);
+പൂർണ്ണസംഖ്യ mosquitto_security_init_default(ശൂന്യം);
+പൂർണ്ണസംഖ്യ mosquitto_security_apply_default(ശൂന്യം);
+പൂർണ്ണസംഖ്യ mosquitto_security_cleanup_default(ശൂന്യം);
+പൂർണ്ണസംഖ്യ mosquitto_psk_താക്കോൽ_get_default(ഘടന mosquitto *context, സ്ഥിരം അക്ഷരം *hint, സ്ഥിരം അക്ഷരം *identity, അക്ഷരം *താക്കോൽ, പൂർണ്ണസംഖ്യ max_താക്കോൽ_len);
+പൂർണ്ണസംഖ്യ broker_acl_file__init(ശൂന്യം);
+ശൂന്യം broker_acl_file__cleanup(ശൂന്യം);
+പൂർണ്ണസംഖ്യ broker_password_file__init(ശൂന്യം);
+ശൂന്യം broker_password_file__cleanup(ശൂന്യം);
+പൂർണ്ണസംഖ്യ psk_file__init(ശൂന്യം);
+പൂർണ്ണസംഖ്യ psk_file__cleanup(ശൂന്യം);
 
-int mosquitto_security_auth_start(struct mosquitto *context, bool reauth, const void *data_in, uint16_t data_in_len, void **data_out, uint16_t *data_out_len);
-int mosquitto_security_auth_continue(struct mosquitto *context, const void *data_in, uint16_t data_len, void **data_out, uint16_t *data_out_len);
+പൂർണ്ണസംഖ്യ mosquitto_security_auth_start(ഘടന mosquitto *context, bool reauth, സ്ഥിരം ശൂന്യം *data_in, uint16_t data_in_len, ശൂന്യം **data_out, uint16_t *data_out_len);
+പൂർണ്ണസംഖ്യ mosquitto_security_auth_continue(ഘടന mosquitto *context, സ്ഥിരം ശൂന്യം *data_in, uint16_t data_len, ശൂന്യം **data_out, uint16_t *data_out_len);
 
-void unpwd__free_item(struct mosquitto__unpwd **unpwd, struct mosquitto__unpwd *item);
+ശൂന്യം unpwd__free_item(ഘടന mosquitto__unpwd **unpwd, ഘടന mosquitto__unpwd *item);
 
 /* ============================================================
  * Session expiry
  * ============================================================ */
-int session_expiry__add(struct mosquitto *context);
-int session_expiry__add_from_persistence(struct mosquitto *context, time_t expiry_time);
-void session_expiry__add_on_shutdown(void);
-void session_expiry__remove(struct mosquitto *context);
-void session_expiry__remove_all(void);
-void session_expiry__check(void);
-void session_expiry__send_all(void);
+പൂർണ്ണസംഖ്യ session_expiry__add(ഘടന mosquitto *context);
+പൂർണ്ണസംഖ്യ session_expiry__add_from_persistence(ഘടന mosquitto *context, time_t expiry_time);
+ശൂന്യം session_expiry__add_on_shutdown(ശൂന്യം);
+ശൂന്യം session_expiry__remove(ഘടന mosquitto *context);
+ശൂന്യം session_expiry__remove_all(ശൂന്യം);
+ശൂന്യം session_expiry__check(ശൂന്യം);
+ശൂന്യം session_expiry__send_all(ശൂന്യം);
 
 /* ============================================================
  * Signals
  * ============================================================ */
-void signal__setup(void);
-int signal__flag_check(void);
+ശൂന്യം signal__setup(ശൂന്യം);
+പൂർണ്ണസംഖ്യ signal__flag_check(ശൂന്യം);
 
 /* ============================================================
  * Window service and signal related functions
  * ============================================================ */
-#if defined(WIN32) || defined(__CYGWIN__)
-void service_install(char *name);
-void service_uninstall(char *name);
-void service_run(char *name);
+#എങ്കിൽ defined(WIN32) || defined(__CYGWIN__)
+ശൂന്യം service_install(അക്ഷരം *name);
+ശൂന്യം service_uninstall(അക്ഷരം *name);
+ശൂന്യം service_run(അക്ഷരം *name);
 
 #ifdef WIN32
-DWORD WINAPI SigThreadProc(void *data);
+DWORD WINAPI SigThreadProc(ശൂന്യം *data);
 #endif
 #endif
 
 /* ============================================================
  * Watchdog
  * ============================================================ */
-void watchdog__init(void);
-void watchdog__check(void);
+ശൂന്യം watchdog__init(ശൂന്യം);
+ശൂന്യം watchdog__check(ശൂന്യം);
 
 /* ============================================================
  * Websockets related functions
  * ============================================================ */
 #ifdef WITH_WEBSOCKETS
-#  if WITH_WEBSOCKETS == WS_IS_LWS
-void mosq_websockets_init(struct mosquitto__listener *listener, const struct mosquitto__config *conf);
+#  എങ്കിൽ WITH_WEBSOCKETS == WS_IS_LWS
+ശൂന്യം mosq_websockets_init(ഘടന mosquitto__listener *listener, സ്ഥിരം ഘടന mosquitto__config *conf);
 #  endif
-int http__context_init(struct mosquitto *context);
-int http__context_cleanup(struct mosquitto *context);
-int http__read(struct mosquitto *context);
+പൂർണ്ണസംഖ്യ http__context_init(ഘടന mosquitto *context);
+പൂർണ്ണസംഖ്യ http__context_cleanup(ഘടന mosquitto *context);
+പൂർണ്ണസംഖ്യ http__read(ഘടന mosquitto *context);
 #endif
-void do_disconnect(struct mosquitto *context, int reason);
+ശൂന്യം do_disconnect(ഘടന mosquitto *context, പൂർണ്ണസംഖ്യ reason);
 
 /* ============================================================
  * PROXY related functions
  * ============================================================ */
-int proxy_v2__read(struct mosquitto *context);
-int proxy_v1__read(struct mosquitto *context);
+പൂർണ്ണസംഖ്യ proxy_v2__read(ഘടന mosquitto *context);
+പൂർണ്ണസംഖ്യ proxy_v1__read(ഘടന mosquitto *context);
 
 /* ============================================================
  * Will delay
  * ============================================================ */
-int will_delay__add(struct mosquitto *context);
-void will_delay__check(void);
-void will_delay__send_all(void);
-void will_delay__remove(struct mosquitto *mosq);
+പൂർണ്ണസംഖ്യ will_delay__add(ഘടന mosquitto *context);
+ശൂന്യം will_delay__check(ശൂന്യം);
+ശൂന്യം will_delay__send_all(ശൂന്യം);
+ശൂന്യം will_delay__remove(ഘടന mosquitto *mosq);
 
 /* ============================================================
  * HTTP Info
  * ============================================================ */
-int http_api__start_local(struct mosquitto__listener *listener);
-int http_api__start(struct mosquitto__listener *listener);
-void http_api__stop(struct mosquitto__listener *listener);
+പൂർണ്ണസംഖ്യ http_api__start_local(ഘടന mosquitto__listener *listener);
+പൂർണ്ണസംഖ്യ http_api__start(ഘടന mosquitto__listener *listener);
+ശൂന്യം http_api__stop(ഘടന mosquitto__listener *listener);
 
 
 /* ============================================================
  * Other
  * ============================================================ */
 #ifdef WITH_XTREPORT
-void xtreport(void);
+ശൂന്യം xtreport(ശൂന്യം);
 #endif
 
-void broker_control__init(void);
-void broker_control__cleanup(void);
-void broker_control__reload(void);
+ശൂന്യം broker_control__init(ശൂന്യം);
+ശൂന്യം broker_control__cleanup(ശൂന്യം);
+ശൂന്യം broker_control__reload(ശൂന്യം);
 
 #endif

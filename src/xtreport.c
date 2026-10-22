@@ -22,40 +22,40 @@ Contributors:
  * compatible output file. It is for debugging purposes only and is most likely
  * of no interest to end users.
  */
-#include "config.h"
+#അന്തര്ഭാവ "config.h"
 
-#include <inttypes.h>
-#include <stdint.h>
-#include <stdio.h>
-#include <uthash.h>
+#അന്തര്ഭാവ <inttypes.h>
+#അന്തര്ഭാവ <stdint.h>
+#അന്തര്ഭാവ <stdio.h>
+#അന്തര്ഭാവ <uthash.h>
 
-#include "mosquitto_broker_internal.h"
-#include "mosquitto_internal.h"
-#include "net_mosq.h"
+#അന്തര്ഭാവ "mosquitto_broker_internal.h"
+#അന്തര്ഭാവ "mosquitto_internal.h"
+#അന്തര്ഭാവ "net_mosq.h"
 
 
-static void client_cost(FILE *fptr, struct mosquitto *context, int fn_index)
+സ്ഥിതം ശൂന്യം client_cost(FILE *fptr, ഘടന mosquitto *context, പൂർണ്ണസംഖ്യ fn_index)
 {
-	long pkt_count, pkt_bytes;
-	long cmsg_count;
+	long pkt_എണ്ണം, pkt_bytes;
+	long cmsg_എണ്ണം;
 	long cmsg_bytes;
 	long tBytes;
 
-	pkt_count = 1;
+	pkt_എണ്ണം = 1;
 	pkt_bytes = context->in_packet.packet_length + context->out_packet_bytes;
 
-	cmsg_count = context->msgs_in.inflight_count + context->msgs_in.queued_count;
+	cmsg_എണ്ണം = context->msgs_in.inflight_എണ്ണം + context->msgs_in.queued_എണ്ണം;
 	cmsg_bytes = context->msgs_in.inflight_bytes + context->msgs_in.queued_bytes;
-	cmsg_count += context->msgs_out.inflight_count + context->msgs_out.queued_count;
+	cmsg_എണ്ണം += context->msgs_out.inflight_എണ്ണം + context->msgs_out.queued_എണ്ണം;
 	cmsg_bytes += context->msgs_out.inflight_bytes + context->msgs_out.queued_bytes;
 
 	tBytes = pkt_bytes + cmsg_bytes;
-	if(context->id){
+	എങ്കിൽ(context->id){
 		tBytes += (long)strlen(context->id);
 	}
 	fprintf(fptr, "%d %ld %lu %lu %lu %lu %d 0 0 %" PRIu64 " %" PRIu64 " %" PRIu64 "\n", fn_index,
 			tBytes,
-			pkt_count, cmsg_count,
+			pkt_എണ്ണം, cmsg_എണ്ണം,
 			pkt_bytes, cmsg_bytes,
 			context->sock == INVALID_SOCKET?0:context->sock,
 			context->stats.messages_sent,
@@ -65,36 +65,36 @@ static void client_cost(FILE *fptr, struct mosquitto *context, int fn_index)
 }
 
 
-static void report_subscriptions(FILE *fptr, struct mosquitto *context, int *fn_index_max)
+സ്ഥിതം ശൂന്യം report_subscriptions(FILE *fptr, ഘടന mosquitto *context, പൂർണ്ണസംഖ്യ *fn_index_max)
 {
-	for(int i=0; i<context->subs_count; i++){
-		if(context->subs && context->subs[i]){
-			struct mosquitto__subhier *subhier = context->subs[i]->hier;
-			int topic_count = 0;
-			char *topics[100];
+	വേണ്ടി(പൂർണ്ണസംഖ്യ i=0; i<context->subs_എണ്ണം; i++){
+		എങ്കിൽ(context->subs && context->subs[i]){
+			ഘടന mosquitto__subhier *subhier = context->subs[i]->hier;
+			പൂർണ്ണസംഖ്യ topic_എണ്ണം = 0;
+			അക്ഷരം *topics[100];
 
-			do{
-				topics[topic_count] = subhier->topic;
+			ചെയ്യുക{
+				topics[topic_എണ്ണം] = subhier->topic;
 				subhier = subhier->parent;
-				topic_count++;
-				if(topic_count == 100){
-					break;
+				topic_എണ്ണം++;
+				എങ്കിൽ(topic_എണ്ണം == 100){
+					നിർത്തുക;
 				}
-			}while(subhier);
-			if(topic_count == 100){
-				continue;
+			}ആകുമ്പോൾ(subhier);
+			എങ്കിൽ(topic_എണ്ണം == 100){
+				തുടരുക;
 			}
 
 			fprintf(fptr, "cfn=(%d) ", *fn_index_max);
-			if(topics[topic_count-2] && topics[topic_count-2][0] == '\0'){
-				topic_count--;
+			എങ്കിൽ(topics[topic_എണ്ണം-2] && topics[topic_എണ്ണം-2][0] == '\0'){
+				topic_എണ്ണം--;
 			}
-			for(int j=topic_count-2; j>0; j--){
-				if(topics[j]){
+			വേണ്ടി(പൂർണ്ണസംഖ്യ j=topic_എണ്ണം-2; j>0; j--){
+				എങ്കിൽ(topics[j]){
 					fprintf(fptr, "%s/", topics[j]);
 				}
 			}
-			if(topics[0]){
+			എങ്കിൽ(topics[0]){
 				fprintf(fptr, "%s\n", topics[0]);
 			}
 
@@ -106,21 +106,21 @@ static void report_subscriptions(FILE *fptr, struct mosquitto *context, int *fn_
 }
 
 
-void xtreport(void)
+ശൂന്യം xtreport(ശൂന്യം)
 {
 	pid_t pid;
-	char filename[40];
+	അക്ഷരം filename[40];
 	FILE *fptr;
-	struct mosquitto *context, *ctxt_tmp;
-	int fn_index = 2, fn_index_max;
-	static int iter = 1;
+	ഘടന mosquitto *context, *ctxt_tmp;
+	പൂർണ്ണസംഖ്യ fn_index = 2, fn_index_max;
+	സ്ഥിതം പൂർണ്ണസംഖ്യ iter = 1;
 
 	pid = getpid();
 	snprintf(filename, 40, "/tmp/xtmosquitto.kcg.%d.%d", pid, iter);
 	iter++;
 	fptr = fopen(filename, "wt");
-	if(fptr == NULL){
-		return;
+	എങ്കിൽ(fptr == ശൂന്യ){
+		തിരികെ;
 	}
 
 	fprintf(fptr, "# callgrind format\n");
@@ -148,9 +148,9 @@ void xtreport(void)
 
 	fn_index = 2;
 	HASH_ITER(hh_id, db.contexts_by_id, context, ctxt_tmp){
-		if(context->id){
+		എങ്കിൽ(context->id){
 			fprintf(fptr, "cfn=(%d) %s\n", fn_index, context->id);
-		}else{
+		}അല്ലെങ്കിൽ{
 			fprintf(fptr, "cfn=(%d) unknown\n", fn_index);
 		}
 		fprintf(fptr, "calls=1 %d\n", fn_index);
@@ -171,13 +171,13 @@ void xtreport(void)
 	fprintf(fptr, "\nfn=(%d) messages\n", fn_index_max);
 	fprintf(fptr, "1 0 0 0 0 0 0 0 0 0 0 0\n");
 
-	struct mosquitto__base_msg *base_msg, *base_msg_tmp;
+	ഘടന mosquitto_base_സന്ദേശം *base_സന്ദേശം, *base_സന്ദേശം_tmp;
 
-	HASH_ITER(hh, db.msg_store, base_msg, base_msg_tmp){
-		if(base_msg->ref_count > 1){
-			fprintf(fptr, "cfn=(%d) %" PRIu64 "\n", fn_index_max, base_msg->data.store_id);
-			fprintf(fptr, "calls=%d %d\n", base_msg->ref_count, fn_index_max);
-			fprintf(fptr, "%d 0 0 0 0 0 0 0 %d 0 0 0\n", fn_index_max, base_msg->ref_count);
+	HASH_ITER(hh, db.സന്ദേശം_store, base_സന്ദേശം, base_സന്ദേശം_tmp){
+		എങ്കിൽ(base_സന്ദേശം->ref_എണ്ണം > 1){
+			fprintf(fptr, "cfn=(%d) %" PRIu64 "\n", fn_index_max, base_സന്ദേശം->data.store_id);
+			fprintf(fptr, "calls=%d %d\n", base_സന്ദേശം->ref_എണ്ണം, fn_index_max);
+			fprintf(fptr, "%d 0 0 0 0 0 0 0 %d 0 0 0\n", fn_index_max, base_സന്ദേശം->ref_എണ്ണം);
 			fn_index_max++;
 		}
 	}

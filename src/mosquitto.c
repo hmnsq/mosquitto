@@ -16,7 +16,7 @@ Contributors:
    Roger Light - initial implementation and documentation.
 */
 
-#include "config.h"
+#അന്തര്ഭാവ "config.h"
 
 #ifndef WIN32
 /* For initgroups() */
@@ -28,110 +28,110 @@ Contributors:
 #endif
 
 #ifndef WIN32
-#include <pwd.h>
-#else
-#include <process.h>
-#include <winsock2.h>
-#include <ws2tcpip.h>
+#അന്തര്ഭാവ <pwd.h>
+#അല്ലെങ്കിൽ
+#അന്തര്ഭാവ <process.h>
+#അന്തര്ഭാവ <winsock2.h>
+#അന്തര്ഭാവ <ws2tcpip.h>
 #endif
 
 #ifndef WIN32
 #  include <sys/time.h>
 #endif
 
-#include <errno.h>
-#include <limits.h>
-#include <signal.h>
-#include <stdio.h>
-#include <string.h>
+#അന്തര്ഭാവ <errno.h>
+#അന്തര്ഭാവ <limits.h>
+#അന്തര്ഭാവ <signal.h>
+#അന്തര്ഭാവ <stdio.h>
+#അന്തര്ഭാവ <string.h>
 #ifdef WITH_SYSTEMD
 #  include <systemd/sd-daemon.h>
 #endif
 #ifdef WITH_WRAP
-#include <tcpd.h>
+#അന്തര്ഭാവ <tcpd.h>
 #endif
 
-#include "mosquitto_broker_internal.h"
-#include "util_mosq.h"
+#അന്തര്ഭാവ "mosquitto_broker_internal.h"
+#അന്തര്ഭാവ "util_mosq.h"
 
-struct mosquitto_db db;
+ഘടന mosquitto_db db;
 
-struct mosquitto__listener_sock *g_listensock = NULL;
-int g_listensock_count = 0;
+ഘടന mosquitto__listener_sock *g_listensock = ശൂന്യ;
+പൂർണ്ണസംഖ്യ g_listensock_എണ്ണം = 0;
 
-int g_run = 0;
+പൂർണ്ണസംഖ്യ g_run = 0;
 #ifdef WITH_WRAP
-#include <syslog.h>
-int allow_severity = LOG_INFO;
-int deny_severity = LOG_INFO;
+#അന്തര്ഭാവ <syslog.h>
+പൂർണ്ണസംഖ്യ allow_severity = LOG_INFO;
+പൂർണ്ണസംഖ്യ deny_severity = LOG_INFO;
 #endif
 
 
-static int set_umask(void)
+സ്ഥിതം പൂർണ്ണസംഖ്യ set_umask(ശൂന്യം)
 {
-#if !defined(__CYGWIN__) && !defined(WIN32)
+#എങ്കിൽ !defined(__CYGWIN__) && !defined(WIN32)
 	/* This affects files that are written to, apart from those that are
 	 * created using mosquitto_fopen(..., restrict_read=true), which sets a
 	 * umask of 077. */
-	const char *mask_s;
-	char *endptr = NULL;
+	സ്ഥിരം അക്ഷരം *mask_s;
+	അക്ഷരം *endptr = ശൂന്യ;
 	long mask;
 
 
 	mask_s = getenv("UMASK_SET");
-	if(mask_s){
+	എങ്കിൽ(mask_s){
 		errno = 0;
 		mask = strtol(mask_s, &endptr, 8);
-		if(errno || endptr == mask_s || *endptr != '\0'){
-			log__printf(NULL, MOSQ_LOG_ERR, "Error: UMASK_SET environment variable not a valid octal number.");
-			return MOSQ_ERR_INVAL;
+		എങ്കിൽ(errno || endptr == mask_s || *endptr != '\0'){
+			log__printf(ശൂന്യ, MOSQ_LOG_ERR, "Error: UMASK_SET environment variable not a valid octal number.");
+			തിരികെ MOSQ_ERR_INVAL;
 		}
-		if(mask < 000 || mask > 0777){
-			log__printf(NULL, MOSQ_LOG_ERR, "Error: UMASK_SET environment variable out of range.");
-			return MOSQ_ERR_INVAL;
+		എങ്കിൽ(mask < 000 || mask > 0777){
+			log__printf(ശൂന്യ, MOSQ_LOG_ERR, "Error: UMASK_SET environment variable out of range.");
+			തിരികെ MOSQ_ERR_INVAL;
 		}
 		umask((mode_t)mask);
 	}
 #endif
-	return MOSQ_ERR_SUCCESS;
+	തിരികെ MOSQ_ERR_SUCCESS;
 }
 
 
 /* coverity[ +tainted_string_sanitize_content : arg-0 ] */
-static int check_uid(const char *s, const char *name)
+സ്ഥിതം പൂർണ്ണസംഖ്യ check_uid(സ്ഥിരം അക്ഷരം *s, സ്ഥിരം അക്ഷരം *name)
 {
-	char *endptr = NULL;
+	അക്ഷരം *endptr = ശൂന്യ;
 	long id;
 
 	errno = 0;
 	id = strtol(s, &endptr, 10);
-	if(errno || endptr == s || *endptr != '\0'){
-		log__printf(NULL, MOSQ_LOG_ERR, "Error: %s not a valid ID '%s'", name, s);
-		return -1;
+	എങ്കിൽ(errno || endptr == s || *endptr != '\0'){
+		log__printf(ശൂന്യ, MOSQ_LOG_ERR, "Error: %s not a valid ID '%s'", name, s);
+		തിരികെ -1;
 	}
-	if(id < 0){
-		log__printf(NULL, MOSQ_LOG_ERR, "Error: %s must not be negative", name);
-		return -1;
+	എങ്കിൽ(id < 0){
+		log__printf(ശൂന്യ, MOSQ_LOG_ERR, "Error: %s must not be negative", name);
+		തിരികെ -1;
 	}
-	if(id > INT_MAX){
-		log__printf(NULL, MOSQ_LOG_ERR, "Error: %s must not be less than %d", name, INT_MAX);
-		return -1;
+	എങ്കിൽ(id > INT_MAX){
+		log__printf(ശൂന്യ, MOSQ_LOG_ERR, "Error: %s must not be less than %d", name, INT_MAX);
+		തിരികെ -1;
 	}
-	return (int)id;
+	തിരികെ (പൂർണ്ണസംഖ്യ)id;
 }
 
 
 /* Prints the name of the process user from its user id if not found
  * it simply prints out the user id
  */
-static void print_pwname(void)
+സ്ഥിതം ശൂന്യം print_pwname(ശൂന്യം)
 {
 #ifndef WIN32
-	struct passwd *pwd = getpwuid(geteuid());
-	if(!pwd){
-		log__printf(NULL, MOSQ_LOG_INFO, "Info: running mosquitto as user id: %i.", geteuid());
-	}else{
-		log__printf(NULL, MOSQ_LOG_INFO, "Info: running mosquitto as user: %s.", pwd->pw_name);
+	ഘടന passwd *pwd = getpwuid(geteuid());
+	എങ്കിൽ(!pwd){
+		log__printf(ശൂന്യ, MOSQ_LOG_INFO, "Info: running mosquitto as user id: %i.", geteuid());
+	}അല്ലെങ്കിൽ{
+		log__printf(ശൂന്യ, MOSQ_LOG_INFO, "Info: running mosquitto as user: %s.", pwd->pw_name);
 	}
 #endif
 }
@@ -147,195 +147,195 @@ static void print_pwname(void)
  */
 
 
-static int drop_privileges(struct mosquitto__config *config)
+സ്ഥിതം പൂർണ്ണസംഖ്യ drop_privileges(ഘടന mosquitto__config *config)
 {
-#if !defined(__CYGWIN__) && !defined(WIN32)
-	struct passwd *pwd;
-	char *err;
-	int rc;
-	const char *puid_s, *pgid_s;
-	int puid;
-	int pgid;
+#എങ്കിൽ !defined(__CYGWIN__) && !defined(WIN32)
+	ഘടന passwd *pwd;
+	അക്ഷരം *err;
+	പൂർണ്ണസംഖ്യ rc;
+	സ്ഥിരം അക്ഷരം *puid_s, *pgid_s;
+	പൂർണ്ണസംഖ്യ puid;
+	പൂർണ്ണസംഖ്യ pgid;
 
-	const char *snap = getenv("SNAP_NAME");
-	if(snap && !strcmp(snap, "mosquitto")){
+	സ്ഥിരം അക്ഷരം *snap = getenv("SNAP_NAME");
+	എങ്കിൽ(snap && !strcmp(snap, "mosquitto")){
 		/* Don't attempt to drop privileges if running as a snap */
-		return MOSQ_ERR_SUCCESS;
+		തിരികെ MOSQ_ERR_SUCCESS;
 	}
 
 	/* PUID and PGID are docker custom user mappings */
 	puid_s = getenv("PUID");
 	pgid_s = getenv("PGID");
 
-	if(geteuid() == 0){
-		if(puid_s || pgid_s){
-			if(pgid_s){
+	എങ്കിൽ(geteuid() == 0){
+		എങ്കിൽ(puid_s || pgid_s){
+			എങ്കിൽ(pgid_s){
 				pgid = check_uid(pgid_s, "PGID");
-				if(pgid < 0){
-					return MOSQ_ERR_INVAL;
-				}else if(pgid > 0){
+				എങ്കിൽ(pgid < 0){
+					തിരികെ MOSQ_ERR_INVAL;
+				}അല്ലെങ്കിൽ എങ്കിൽ(pgid > 0){
 					rc = setgid((gid_t)pgid);
-					if(rc == -1){
+					എങ്കിൽ(rc == -1){
 						err = strerror(errno);
-						log__printf(NULL, MOSQ_LOG_ERR, "Error setting gid whilst dropping privileges: %s.", err);
-						return MOSQ_ERR_ERRNO;
+						log__printf(ശൂന്യ, MOSQ_LOG_ERR, "Error setting gid whilst dropping privileges: %s.", err);
+						തിരികെ MOSQ_ERR_ERRNO;
 					}
 				}
 			}
-			if(puid_s){
+			എങ്കിൽ(puid_s){
 				puid = check_uid(puid_s, "PUID");
-				if(puid < 0){
-					return MOSQ_ERR_INVAL;
-				}else if(puid > 0){
+				എങ്കിൽ(puid < 0){
+					തിരികെ MOSQ_ERR_INVAL;
+				}അല്ലെങ്കിൽ എങ്കിൽ(puid > 0){
 					rc = setuid((uid_t)puid);
-					if(rc == -1){
+					എങ്കിൽ(rc == -1){
 						err = strerror(errno);
-						log__printf(NULL, MOSQ_LOG_ERR, "Error setting uid whilst dropping privileges: %s.", err);
-						return MOSQ_ERR_ERRNO;
+						log__printf(ശൂന്യ, MOSQ_LOG_ERR, "Error setting uid whilst dropping privileges: %s.", err);
+						തിരികെ MOSQ_ERR_ERRNO;
 					}
 				}
 			}
-		}else if(config->user && strcmp(config->user, "root")){
+		}അല്ലെങ്കിൽ എങ്കിൽ(config->user && strcmp(config->user, "root")){
 			pwd = getpwnam(config->user);
-			if(!pwd){
-				if(strcmp(config->user, "mosquitto")){
-					log__printf(NULL, MOSQ_LOG_ERR, "Error: Unable to drop privileges to '%s' because this user does not exist.", config->user);
-					return MOSQ_ERR_INVAL;
-				}else{
-					log__printf(NULL, MOSQ_LOG_ERR, "Warning: Unable to drop privileges to '%s' because this user does not exist. Trying 'nobody' instead.", config->user);
+			എങ്കിൽ(!pwd){
+				എങ്കിൽ(strcmp(config->user, "mosquitto")){
+					log__printf(ശൂന്യ, MOSQ_LOG_ERR, "Error: Unable to drop privileges to '%s' because this user does not exist.", config->user);
+					തിരികെ MOSQ_ERR_INVAL;
+				}അല്ലെങ്കിൽ{
+					log__printf(ശൂന്യ, MOSQ_LOG_ERR, "Warning: Unable to drop privileges to '%s' because this user does not exist. Trying 'nobody' instead.", config->user);
 					pwd = getpwnam("nobody");
-					if(!pwd){
-						log__printf(NULL, MOSQ_LOG_ERR, "Error: Unable to drop privileges to 'nobody'.");
-						return MOSQ_ERR_ERRNO;
+					എങ്കിൽ(!pwd){
+						log__printf(ശൂന്യ, MOSQ_LOG_ERR, "Error: Unable to drop privileges to 'nobody'.");
+						തിരികെ MOSQ_ERR_ERRNO;
 					}
 				}
 			}
-			if(initgroups(config->user, pwd->pw_gid) == -1){
+			എങ്കിൽ(initgroups(config->user, pwd->pw_gid) == -1){
 				err = strerror(errno);
-				log__printf(NULL, MOSQ_LOG_ERR, "Error setting groups whilst dropping privileges: %s.", err);
-				return MOSQ_ERR_ERRNO;
+				log__printf(ശൂന്യ, MOSQ_LOG_ERR, "Error setting groups whilst dropping privileges: %s.", err);
+				തിരികെ MOSQ_ERR_ERRNO;
 			}
 			rc = setgid(pwd->pw_gid);
-			if(rc == -1){
+			എങ്കിൽ(rc == -1){
 				err = strerror(errno);
-				log__printf(NULL, MOSQ_LOG_ERR, "Error setting gid whilst dropping privileges: %s.", err);
-				return MOSQ_ERR_ERRNO;
+				log__printf(ശൂന്യ, MOSQ_LOG_ERR, "Error setting gid whilst dropping privileges: %s.", err);
+				തിരികെ MOSQ_ERR_ERRNO;
 			}
 			rc = setuid(pwd->pw_uid);
-			if(rc == -1){
+			എങ്കിൽ(rc == -1){
 				err = strerror(errno);
-				log__printf(NULL, MOSQ_LOG_ERR, "Error setting uid whilst dropping privileges: %s.", err);
-				return MOSQ_ERR_ERRNO;
+				log__printf(ശൂന്യ, MOSQ_LOG_ERR, "Error setting uid whilst dropping privileges: %s.", err);
+				തിരികെ MOSQ_ERR_ERRNO;
 			}
 		}
 		print_pwname();
-		if(geteuid() == 0 || getegid() == 0){
-			log__printf(NULL, MOSQ_LOG_WARNING, "Warning: Mosquitto should not be run as root/administrator.");
+		എങ്കിൽ(geteuid() == 0 || getegid() == 0){
+			log__printf(ശൂന്യ, MOSQ_LOG_WARNING, "Warning: Mosquitto should not be run as root/administrator.");
 		}
-	}else{
+	}അല്ലെങ്കിൽ{
 		print_pwname();
 	}
 
-#else
+#അല്ലെങ്കിൽ
 	UNUSED(config);
 #endif
-	return MOSQ_ERR_SUCCESS;
+	തിരികെ MOSQ_ERR_SUCCESS;
 }
 
 
-static void mosquitto__daemonise(void)
+സ്ഥിതം ശൂന്യം mosquitto__daemonise(ശൂന്യം)
 {
 #ifndef WIN32
-	char *err;
+	അക്ഷരം *err;
 	pid_t pid;
 
 	pid = fork();
-	if(pid < 0){
+	എങ്കിൽ(pid < 0){
 		err = strerror(errno);
-		log__printf(NULL, MOSQ_LOG_ERR, "Error in fork: %s", err);
+		log__printf(ശൂന്യ, MOSQ_LOG_ERR, "Error in fork: %s", err);
 		exit(1);
 	}
-	if(pid > 0){
+	എങ്കിൽ(pid > 0){
 		exit(0);
 	}
-	if(setsid() < 0){
+	എങ്കിൽ(setsid() < 0){
 		err = strerror(errno);
-		log__printf(NULL, MOSQ_LOG_ERR, "Error in setsid: %s", err);
+		log__printf(ശൂന്യ, MOSQ_LOG_ERR, "Error in setsid: %s", err);
 		exit(1);
 	}
 
-	if(!freopen("/dev/null", "r", stdin)){
-		log__printf(NULL, MOSQ_LOG_ERR, "Error whilst daemonising (%s): %s", "stdin", strerror(errno));
+	എങ്കിൽ(!freopen("/dev/null", "r", stdin)){
+		log__printf(ശൂന്യ, MOSQ_LOG_ERR, "Error whilst daemonising (%s): %s", "stdin", strerror(errno));
 		exit(1);
 	}
-	if(!freopen("/dev/null", "w", stdout)){
-		log__printf(NULL, MOSQ_LOG_ERR, "Error whilst daemonising (%s): %s", "stdout", strerror(errno));
+	എങ്കിൽ(!freopen("/dev/null", "w", stdout)){
+		log__printf(ശൂന്യ, MOSQ_LOG_ERR, "Error whilst daemonising (%s): %s", "stdout", strerror(errno));
 		exit(1);
 	}
-	if(!freopen("/dev/null", "w", stderr)){
-		log__printf(NULL, MOSQ_LOG_ERR, "Error whilst daemonising (%s): %s", "stderr", strerror(errno));
+	എങ്കിൽ(!freopen("/dev/null", "w", stderr)){
+		log__printf(ശൂന്യ, MOSQ_LOG_ERR, "Error whilst daemonising (%s): %s", "stderr", strerror(errno));
 		exit(1);
 	}
-#else
-	log__printf(NULL, MOSQ_LOG_WARNING, "Warning: Can't start in daemon mode in Windows.");
+#അല്ലെങ്കിൽ
+	log__printf(ശൂന്യ, MOSQ_LOG_WARNING, "Warning: Can't start in daemon mode in Windows.");
 #endif
 }
 
 
-static int pid__write(void)
+സ്ഥിതം പൂർണ്ണസംഖ്യ pid__write(ശൂന്യം)
 {
 	FILE *pid;
 
-	if(db.config->pid_file){
+	എങ്കിൽ(db.config->pid_file){
 		pid = mosquitto_fopen(db.config->pid_file, "wt", false);
-		if(pid){
+		എങ്കിൽ(pid){
 			fprintf(pid, "%d", getpid());
 			fclose(pid);
-		}else{
-			log__printf(NULL, MOSQ_LOG_ERR, "Error: Unable to write pid file.");
-			return MOSQ_ERR_ERRNO;
+		}അല്ലെങ്കിൽ{
+			log__printf(ശൂന്യ, MOSQ_LOG_ERR, "Error: Unable to write pid file.");
+			തിരികെ MOSQ_ERR_ERRNO;
 		}
 	}
-	return MOSQ_ERR_SUCCESS;
+	തിരികെ MOSQ_ERR_SUCCESS;
 }
 
 
-static void report_features(void)
+സ്ഥിതം ശൂന്യം report_features(ശൂന്യം)
 {
 #ifdef WITH_BRIDGE
-	log__printf(NULL, MOSQ_LOG_INFO, "Bridge support available.");
-#else
-	log__printf(NULL, MOSQ_LOG_INFO, "Bridge support NOT available.");
+	log__printf(ശൂന്യ, MOSQ_LOG_INFO, "Bridge support available.");
+#അല്ലെങ്കിൽ
+	log__printf(ശൂന്യ, MOSQ_LOG_INFO, "Bridge support NOT available.");
 #endif
 #ifdef WITH_PERSISTENCE
-	log__printf(NULL, MOSQ_LOG_INFO, "Persistence support available.");
-#else
-	log__printf(NULL, MOSQ_LOG_INFO, "Persistence support NOT available.");
+	log__printf(ശൂന്യ, MOSQ_LOG_INFO, "Persistence support available.");
+#അല്ലെങ്കിൽ
+	log__printf(ശൂന്യ, MOSQ_LOG_INFO, "Persistence support NOT available.");
 #endif
 #ifdef WITH_TLS
-	log__printf(NULL, MOSQ_LOG_INFO, "TLS support available.");
-#else
-	log__printf(NULL, MOSQ_LOG_INFO, "TLS support NOT available.");
+	log__printf(ശൂന്യ, MOSQ_LOG_INFO, "TLS support available.");
+#അല്ലെങ്കിൽ
+	log__printf(ശൂന്യ, MOSQ_LOG_INFO, "TLS support NOT available.");
 #endif
 #ifdef FINAL_WITH_TLS_PSK
-	log__printf(NULL, MOSQ_LOG_INFO, "TLS-PSK support available.");
-#else
-	log__printf(NULL, MOSQ_LOG_INFO, "TLS-PSK support NOT available.");
+	log__printf(ശൂന്യ, MOSQ_LOG_INFO, "TLS-PSK support available.");
+#അല്ലെങ്കിൽ
+	log__printf(ശൂന്യ, MOSQ_LOG_INFO, "TLS-PSK support NOT available.");
 #endif
 #ifdef WITH_WEBSOCKETS
-	log__printf(NULL, MOSQ_LOG_INFO, "Websockets support available.");
-#else
-	log__printf(NULL, MOSQ_LOG_INFO, "Websockets support NOT available.");
+	log__printf(ശൂന്യ, MOSQ_LOG_INFO, "Websockets support available.");
+#അല്ലെങ്കിൽ
+	log__printf(ശൂന്യ, MOSQ_LOG_INFO, "Websockets support NOT available.");
 #endif
-	if(getenv("MOSQUITTO_UNSAFE_ALLOW_SYMLINKS")){
-		log__printf(NULL, MOSQ_LOG_NOTICE, "MOSQUITTO_UNSAFE_ALLOW_SYMLINKS is set, loading of sensitive files through symbolic links is allowed.");
+	എങ്കിൽ(getenv("MOSQUITTO_UNSAFE_ALLOW_SYMLINKS")){
+		log__printf(ശൂന്യ, MOSQ_LOG_NOTICE, "MOSQUITTO_UNSAFE_ALLOW_SYMLINKS is set, loading of sensitive files through symbolic links is allowed.");
 	}
 }
 
 
-static void post_shutdown_cleanup(void)
+സ്ഥിതം ശൂന്യം post_shutdown_cleanup(ശൂന്യം)
 {
-	struct mosquitto *ctxt, *ctxt_tmp;
+	ഘടന mosquitto *ctxt, *ctxt_tmp;
 
 	/* FIXME - this isn't quite right, all wills with will delay zero should be
 	 * sent now, but those with positive will delay should be persisted and
@@ -348,7 +348,7 @@ static void post_shutdown_cleanup(void)
 
 	/* Set to true only after persistence events have been processed */
 	db.shutdown = true;
-	log__printf(NULL, MOSQ_LOG_INFO, "mosquitto version %s terminating", VERSION);
+	log__printf(ശൂന്യ, MOSQ_LOG_INFO, "mosquitto version %s terminating", VERSION);
 
 	broker_control__cleanup();
 
@@ -360,8 +360,8 @@ static void post_shutdown_cleanup(void)
 	listeners__stop();
 
 	HASH_ITER(hh_id, db.contexts_by_id, ctxt, ctxt_tmp){
-#if defined(WITH_WEBSOCKETS) && WITH_WEBSOCKETS == WS_IS_LWS
-		if(!ctxt->wsi)
+#എങ്കിൽ defined(WITH_WEBSOCKETS) && WITH_WEBSOCKETS == WS_IS_LWS
+		എങ്കിൽ(!ctxt->wsi)
 #endif
 		{
 			ctxt->is_persisted = false; /* prevent persistence removal */
@@ -386,8 +386,8 @@ static void post_shutdown_cleanup(void)
 	plugin__unload_all();
 	mosquitto_security_cleanup(false);
 
-	if(db.config->pid_file){
-		(void)remove(db.config->pid_file);
+	എങ്കിൽ(db.config->pid_file){
+		(ശൂന്യം)remove(db.config->pid_file);
 	}
 
 	mux__cleanup();
@@ -398,7 +398,7 @@ static void post_shutdown_cleanup(void)
 }
 
 
-static void cjson_init(void)
+സ്ഥിതം ശൂന്യം cjson_init(ശൂന്യം)
 {
 	cJSON_Hooks hooks = {mosquitto_malloc, mosquitto_free};
 	cJSON_InitHooks(&hooks);
@@ -407,78 +407,78 @@ static void cjson_init(void)
 #ifdef WITH_FUZZING
 
 
-int mosquitto_fuzz_main(int argc, char *argv[])
-#else
+പൂർണ്ണസംഖ്യ mosquitto_fuzz_main(പൂർണ്ണസംഖ്യ argc, അക്ഷരം *argv[])
+#അല്ലെങ്കിൽ
 
 
-int main(int argc, char *argv[])
+പൂർണ്ണസംഖ്യ പ്രധാന(പൂർണ്ണസംഖ്യ argc, അക്ഷരം *argv[])
 #endif
 {
-	struct mosquitto__config config;
-	int rc;
+	ഘടന mosquitto__config config;
+	പൂർണ്ണസംഖ്യ rc;
 
 	mosquitto_time_init();
 	cjson_init();
 
-#if defined(WIN32) || defined(__CYGWIN__)
-	if(argc == 2){
-		if(!strcmp(argv[1], "run")){
+#എങ്കിൽ defined(WIN32) || defined(__CYGWIN__)
+	എങ്കിൽ(argc == 2){
+		എങ്കിൽ(!strcmp(argv[1], "run")){
 			service_run(argv[0]);
-			return 0;
-		}else if(!strcmp(argv[1], "install")){
+			തിരികെ 0;
+		}അല്ലെങ്കിൽ എങ്കിൽ(!strcmp(argv[1], "install")){
 			service_install(argv[0]);
-			return 0;
-		}else if(!strcmp(argv[1], "uninstall")){
+			തിരികെ 0;
+		}അല്ലെങ്കിൽ എങ്കിൽ(!strcmp(argv[1], "uninstall")){
 			service_uninstall(argv[0]);
-			return 0;
+			തിരികെ 0;
 		}
 	}
 #endif
 
 
 #ifdef WIN32
-	if(_setmaxstdio(8192) != 8192){
+	എങ്കിൽ(_setmaxstdio(8192) != 8192){
 		/* Old limit was 2048 */
-		if(_setmaxstdio(2048) != 2048){
-			log__printf(NULL, MOSQ_LOG_WARNING, "Warning: Unable to increase maximum allowed connections. This session may be limited to 512 connections.");
+		എങ്കിൽ(_setmaxstdio(2048) != 2048){
+			log__printf(ശൂന്യ, MOSQ_LOG_WARNING, "Warning: Unable to increase maximum allowed connections. This session may be limited to 512 connections.");
 		}
 	}
 #endif
 
-	memset(&db, 0, sizeof(struct mosquitto_db));
+	memset(&db, 0, വലുപ്പം(ഘടന mosquitto_db));
 	db.now_s = mosquitto_time();
-	db.now_real_s = time(NULL);
-	mosquitto_broker_node_id_set(0);
+	db.now_real_s = time(ശൂന്യ);
+	mosquitto_broker_കണ്ണി_id_set(0);
 
 	net__broker_init();
 
 	db.config = &config;
 	config__init(&config);
 	rc = config__parse_args(&config, argc, argv);
-	if(rc == MOSQ_ERR_UNKNOWN){
+	എങ്കിൽ(rc == MOSQ_ERR_UNKNOWN){
 		post_shutdown_cleanup();
-		return MOSQ_ERR_SUCCESS;
-	}else if(rc != MOSQ_ERR_SUCCESS){
+		തിരികെ MOSQ_ERR_SUCCESS;
+	}അല്ലെങ്കിൽ എങ്കിൽ(rc != MOSQ_ERR_SUCCESS){
 		post_shutdown_cleanup();
-		return rc;
+		തിരികെ rc;
 	}
 
-	if(config.test_configuration){
-		if(!db.config_file){
-			log__printf(NULL, MOSQ_LOG_ERR, "Please provide a configuration file to test.");
+	എങ്കിൽ(config.test_configuration){
+		എങ്കിൽ(!db.config_file){
+			log__printf(ശൂന്യ, MOSQ_LOG_ERR, "Please provide a configuration file to test.");
 			post_shutdown_cleanup();
-			return MOSQ_ERR_INVAL;
-		}else{
-			log__printf(NULL, MOSQ_LOG_INFO, "Configuration file is OK.");
+			തിരികെ MOSQ_ERR_INVAL;
+		}അല്ലെങ്കിൽ{
+			log__printf(ശൂന്യ, MOSQ_LOG_INFO, "Configuration file is OK.");
 			post_shutdown_cleanup();
-			return MOSQ_ERR_SUCCESS;
+			തിരികെ MOSQ_ERR_SUCCESS;
 		}
 	}
 
 	rc = keepalive__init();
-	if(rc){
+	എങ്കിൽ(rc){
 		post_shutdown_cleanup();
-		return rc;
+		തിരികെ rc;
 	}
 
 	/* Drop privileges permanently immediately after the config is loaded.
@@ -486,80 +486,80 @@ int main(int argc, char *argv[])
 	 * etc. are accessible my the `mosquitto` or other unprivileged user.
 	 */
 	rc = drop_privileges(&config);
-	if(rc){
+	എങ്കിൽ(rc){
 		post_shutdown_cleanup();
-		return rc;
+		തിരികെ rc;
 	}
 	/* Set umask based on environment variable */
 	rc = set_umask();
-	if(rc){
+	എങ്കിൽ(rc){
 		post_shutdown_cleanup();
-		return rc;
+		തിരികെ rc;
 	}
 
 
-	if(config.daemon){
+	എങ്കിൽ(config.daemon){
 		mosquitto__daemonise();
 	}
 
 	rc = pid__write();
-	if(rc){
+	എങ്കിൽ(rc){
 		post_shutdown_cleanup();
-		return rc;
+		തിരികെ rc;
 	}
 
 	rc = db__open(&config);
-	if(rc != MOSQ_ERR_SUCCESS){
-		log__printf(NULL, MOSQ_LOG_ERR, "Error: Couldn't open database.");
+	എങ്കിൽ(rc != MOSQ_ERR_SUCCESS){
+		log__printf(ശൂന്യ, MOSQ_LOG_ERR, "Error: Couldn't open database.");
 		post_shutdown_cleanup();
-		return rc;
+		തിരികെ rc;
 	}
 
 	/* Initialise logging only after initialising the database in case we're
 	 * logging to topics */
 	rc = log__init(&config);
-	if(rc){
+	എങ്കിൽ(rc){
 		post_shutdown_cleanup();
-		return rc;
+		തിരികെ rc;
 	}
-	log__printf(NULL, MOSQ_LOG_INFO, "mosquitto version %s starting", VERSION);
-	if(db.config_file){
-		log__printf(NULL, MOSQ_LOG_INFO, "Config loaded from %s.", db.config_file);
-	}else{
-		log__printf(NULL, MOSQ_LOG_INFO, "Using default config.");
+	log__printf(ശൂന്യ, MOSQ_LOG_INFO, "mosquitto version %s starting", VERSION);
+	എങ്കിൽ(db.config_file){
+		log__printf(ശൂന്യ, MOSQ_LOG_INFO, "Config loaded from %s.", db.config_file);
+	}അല്ലെങ്കിൽ{
+		log__printf(ശൂന്യ, MOSQ_LOG_INFO, "Using default config.");
 	}
 	report_features();
 
 	rc = plugin__load_all();
-	if(rc){
+	എങ്കിൽ(rc){
 		post_shutdown_cleanup();
-		return rc;
+		തിരികെ rc;
 	}
 	rc = mosquitto_security_init(false);
-	if(rc){
+	എങ്കിൽ(rc){
 		post_shutdown_cleanup();
-		return rc;
+		തിരികെ rc;
 	}
 
 	plugin_persist__handle_restore();
 	session_expiry__check();
 	retain__expire(&db.retains);
-	db__msg_store_compact();
+	db_സന്ദേശം_store_compact();
 
-#ifdef WITH_SYS_TREE
-	sys_tree__init();
+#ifdef WITH_SYS_വൃക്ഷം
+	sys_വൃക്ഷം_init();
 #endif
 
 	rc = mux__init();
-	if(rc){
+	എങ്കിൽ(rc){
 		post_shutdown_cleanup();
-		return rc;
+		തിരികെ rc;
 	}
 
 	rc = listeners__start();
-	if(rc){
+	എങ്കിൽ(rc){
 		post_shutdown_cleanup();
-		return rc;
+		തിരികെ rc;
 	}
 
 
@@ -572,48 +572,48 @@ int main(int argc, char *argv[])
 	g_run = 1;
 	signal__setup();
 
-	log__printf(NULL, MOSQ_LOG_INFO, "mosquitto version %s running", VERSION);
+	log__printf(ശൂന്യ, MOSQ_LOG_INFO, "mosquitto version %s running", VERSION);
 #ifdef WITH_SYSTEMD
 	sd_notify(0, "READY=1");
 #endif
 
-	rc = mosquitto_main_loop(g_listensock, g_listensock_count);
+	rc = mosquitto_main_loop(g_listensock, g_listensock_എണ്ണം);
 
 	post_shutdown_cleanup();
 
-	return rc;
+	തിരികെ rc;
 }
 
 #ifdef WIN32
 
 
-int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nCmdShow)
+പൂർണ്ണസംഖ്യ WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lp_Cmd_വരി, പൂർണ്ണസംഖ്യ nCmdShow)
 {
-	char **argv;
-	int argc = 1;
-	char *token;
-	char *saveptr = NULL;
-	int rc;
+	അക്ഷരം **argv;
+	പൂർണ്ണസംഖ്യ argc = 1;
+	അക്ഷരം *token;
+	അക്ഷരം *saveptr = ശൂന്യ;
+	പൂർണ്ണസംഖ്യ rc;
 
 	UNUSED(hInstance);
 	UNUSED(hPrevInstance);
 	UNUSED(nCmdShow);
 
-	argv = mosquitto_malloc(sizeof(char *)*1);
+	argv = mosquitto_malloc(വലുപ്പം(അക്ഷരം *)*1);
 	argv[0] = "mosquitto";
-	token = strtok_r(lpCmdLine, " ", &saveptr);
-	while(token){
+	token = strtok_r(lp_Cmd_വരി, " ", &saveptr);
+	ആകുമ്പോൾ(token){
 		argc++;
-		argv = mosquitto_realloc(argv, sizeof(char *)*argc);
-		if(!argv){
+		argv = mosquitto_realloc(argv, വലുപ്പം(അക്ഷരം *)*argc);
+		എങ്കിൽ(!argv){
 			fprintf(stderr, "Error: Out of memory.\n");
-			return MOSQ_ERR_NOMEM;
+			തിരികെ MOSQ_ERR_NOMEM;
 		}
 		argv[argc-1] = token;
-		token = strtok_r(NULL, " ", &saveptr);
+		token = strtok_r(ശൂന്യ, " ", &saveptr);
 	}
-	rc = main(argc, argv);
+	rc = പ്രധാന(argc, argv);
 	mosquitto_FREE(argv);
-	return rc;
+	തിരികെ rc;
 }
 #endif

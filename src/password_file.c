@@ -16,70 +16,70 @@ Contributors:
    Roger Light - initial implementation and documentation.
 */
 
-#include "config.h"
+#അന്തര്ഭാവ "config.h"
 
-#include <ctype.h>
-#include <stdio.h>
-#include <string.h>
+#അന്തര്ഭാവ <ctype.h>
+#അന്തര്ഭാവ <stdio.h>
+#അന്തര്ഭാവ <string.h>
 
-#include "mosquitto_broker_internal.h"
-#include "password_file.h"
+#അന്തര്ഭാവ "mosquitto_broker_internal.h"
+#അന്തര്ഭാവ "password_file.h"
 
 
-int broker_password_file__init(void)
+പൂർണ്ണസംഖ്യ broker_password_file__init(ശൂന്യം)
 {
-	int rc;
+	പൂർണ്ണസംഖ്യ rc;
 
 	/* Load username/password data if required. */
-	if(db.config->per_listener_settings){
-		for(int i=0; i<db.config->listener_count; i++){
-			if(db.config->listeners[i].security_options->password_data.password_file){
+	എങ്കിൽ(db.config->per_listener_settings){
+		വേണ്ടി(പൂർണ്ണസംഖ്യ i=0; i<db.config->listener_എണ്ണം; i++){
+			എങ്കിൽ(db.config->listeners[i].security_options->password_data.password_file){
 				rc = password_file__parse(&db.config->listeners[i].security_options->password_data);
-				if(rc){
-					return rc;
+				എങ്കിൽ(rc){
+					തിരികെ rc;
 				}
-				if(db.config->listeners[i].security_options->plugin_count == 0){
+				എങ്കിൽ(db.config->listeners[i].security_options->plugin_എണ്ണം == 0){
 					config__plugin_add_secopt(db.config->listeners[i].security_options->pid, db.config->listeners[i].security_options);
 				}
 
 				mosquitto_callback_register(db.config->listeners[i].security_options->pid,
-						MOSQ_EVT_BASIC_AUTH, password_file__check, NULL, &db.config->listeners[i].security_options->password_data);
+						MOSQ_EVT_BASIC_AUTH, password_file__check, ശൂന്യ, &db.config->listeners[i].security_options->password_data);
 			}
 		}
-	}else{
-		if(db.config->security_options.password_data.password_file){
+	}അല്ലെങ്കിൽ{
+		എങ്കിൽ(db.config->security_options.password_data.password_file){
 			rc = password_file__parse(&db.config->security_options.password_data);
-			if(rc){
-				return rc;
+			എങ്കിൽ(rc){
+				തിരികെ rc;
 			}
-			if(db.config->security_options.plugin_count == 0){
+			എങ്കിൽ(db.config->security_options.plugin_എണ്ണം == 0){
 				config__plugin_add_secopt(db.config->security_options.pid, &db.config->security_options);
 			}
 
 			mosquitto_callback_register(db.config->security_options.pid,
-					MOSQ_EVT_BASIC_AUTH, password_file__check, NULL, &db.config->security_options.password_data);
+					MOSQ_EVT_BASIC_AUTH, password_file__check, ശൂന്യ, &db.config->security_options.password_data);
 		}
 	}
 
-	return MOSQ_ERR_SUCCESS;
+	തിരികെ MOSQ_ERR_SUCCESS;
 }
 
 
-void broker_password_file__cleanup(void)
+ശൂന്യം broker_password_file__cleanup(ശൂന്യം)
 {
-	if(db.config->per_listener_settings){
-		for(int i=0; i<db.config->listener_count; i++){
-			if(db.config->listeners[i].security_options->pid){
+	എങ്കിൽ(db.config->per_listener_settings){
+		വേണ്ടി(പൂർണ്ണസംഖ്യ i=0; i<db.config->listener_എണ്ണം; i++){
+			എങ്കിൽ(db.config->listeners[i].security_options->pid){
 				mosquitto_callback_unregister(db.config->listeners[i].security_options->pid,
-						MOSQ_EVT_BASIC_AUTH, password_file__check, NULL);
+						MOSQ_EVT_BASIC_AUTH, password_file__check, ശൂന്യ);
 
 				password_file__cleanup(&db.config->listeners[i].security_options->password_data);
 			}
 		}
-	}else{
-		if(db.config->security_options.pid){
+	}അല്ലെങ്കിൽ{
+		എങ്കിൽ(db.config->security_options.pid){
 			mosquitto_callback_unregister(db.config->security_options.pid,
-					MOSQ_EVT_BASIC_AUTH, password_file__check, NULL);
+					MOSQ_EVT_BASIC_AUTH, password_file__check, ശൂന്യ);
 
 			password_file__cleanup(&db.config->security_options.password_data);
 		}

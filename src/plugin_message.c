@@ -16,25 +16,25 @@ Contributors:
    Roger Light - initial implementation and documentation.
 */
 
-#include "config.h"
+#അന്തര്ഭാവ "config.h"
 
-#include "mosquitto_broker_internal.h"
-#include "utlist.h"
+#അന്തര്ഭാവ "mosquitto_broker_internal.h"
+#അന്തര്ഭാവ "utlist.h"
 
-struct should_free {
+ഘടന should_free {
 	bool topic;
 	bool payload;
 	bool properties;
 };
 
 
-static int plugin__handle_message_single(struct mosquitto__callback *callbacks, enum mosquitto_plugin_event ev_type, struct should_free *to_free, struct mosquitto *context, struct mosquitto_base_msg *stored)
+സ്ഥിതം പൂർണ്ണസംഖ്യ plugin__handle_message_single(ഘടന mosquitto__callback *callbacks, എണ്ണൽ mosquitto_plugin_event ev_type, ഘടന should_free *to_free, ഘടന mosquitto *context, ഘടന mosquitto_base_സന്ദേശം_2 *stored)
 {
-	struct mosquitto_evt_message event_data;
-	struct mosquitto__callback *cb_base, *cb_next;
-	int rc = MOSQ_ERR_SUCCESS;
+	ഘടന mosquitto_evt_message event_data;
+	ഘടന mosquitto__callback *cb_base, *cb_next;
+	പൂർണ്ണസംഖ്യ rc = MOSQ_ERR_SUCCESS;
 
-	memset(&event_data, 0, sizeof(event_data));
+	memset(&event_data, 0, വലുപ്പം(event_data));
 	event_data.client = context;
 	event_data.topic = stored->topic;
 	event_data.payloadlen = stored->payloadlen;
@@ -44,21 +44,21 @@ static int plugin__handle_message_single(struct mosquitto__callback *callbacks, 
 	event_data.properties = stored->properties;
 
 	DL_FOREACH_SAFE(callbacks, cb_base, cb_next){
-		rc = cb_base->cb((int)ev_type, &event_data, cb_base->userdata);
-		if(rc != MOSQ_ERR_SUCCESS){
-			break;
+		rc = cb_base->cb((പൂർണ്ണസംഖ്യ)ev_type, &event_data, cb_base->userdata);
+		എങ്കിൽ(rc != MOSQ_ERR_SUCCESS){
+			നിർത്തുക;
 		}
 
-		if(stored->topic != event_data.topic){
-			if(to_free->topic){
+		എങ്കിൽ(stored->topic != event_data.topic){
+			എങ്കിൽ(to_free->topic){
 				mosquitto_FREE(stored->topic);
 			}
 			stored->topic = event_data.topic;
 			to_free->topic = true;
 		}
 
-		if(stored->payload != event_data.payload){
-			if(to_free->payload){
+		എങ്കിൽ(stored->payload != event_data.payload){
+			എങ്കിൽ(to_free->payload){
 				mosquitto_FREE(stored->payload);
 			}
 			stored->payload = event_data.payload;
@@ -66,8 +66,8 @@ static int plugin__handle_message_single(struct mosquitto__callback *callbacks, 
 			to_free->payload = true;
 		}
 
-		if(stored->properties != event_data.properties){
-			if(to_free->properties){
+		എങ്കിൽ(stored->properties != event_data.properties){
+			എങ്കിൽ(to_free->properties){
 				mosquitto_property_free_all(&stored->properties);
 			}
 			stored->properties = event_data.properties;
@@ -76,51 +76,51 @@ static int plugin__handle_message_single(struct mosquitto__callback *callbacks, 
 	}
 
 	stored->retain = event_data.retain;
-	if(ev_type == MOSQ_EVT_MESSAGE_OUT){
+	എങ്കിൽ(ev_type == MOSQ_EVT_MESSAGE_OUT){
 		stored->qos = event_data.qos;
 	}
 
-	return rc;
+	തിരികെ rc;
 }
 
 
-int plugin__handle_message_out(struct mosquitto *context, struct mosquitto_base_msg *stored)
+പൂർണ്ണസംഖ്യ plugin__handle_message_out(ഘടന mosquitto *context, ഘടന mosquitto_base_സന്ദേശം_2 *stored)
 {
-	int rc = MOSQ_ERR_SUCCESS;
-	struct should_free to_free = {false, false, false}; /* in msg_out, original data will be freed later */
+	പൂർണ്ണസംഖ്യ rc = MOSQ_ERR_SUCCESS;
+	ഘടന should_free to_free = {false, false, false}; /* in msg_out, original data will be freed later */
 
 	/* Global plugins */
 	rc = plugin__handle_message_single(db.config->security_options.plugin_callbacks.message_out,
 			MOSQ_EVT_MESSAGE_OUT, &to_free, context, stored);
-	if(rc){
-		return rc;
+	എങ്കിൽ(rc){
+		തിരികെ rc;
 	}
 
-	if(context->listener){
+	എങ്കിൽ(context->listener){
 		rc = plugin__handle_message_single(context->listener->security_options->plugin_callbacks.message_out,
 				MOSQ_EVT_MESSAGE_OUT, &to_free, context, stored);
 	}
 
-	return rc;
+	തിരികെ rc;
 }
 
 
-int plugin__handle_message_in(struct mosquitto *context, struct mosquitto_base_msg *stored)
+പൂർണ്ണസംഖ്യ plugin__handle_message_in(ഘടന mosquitto *context, ഘടന mosquitto_base_സന്ദേശം_2 *stored)
 {
-	int rc = MOSQ_ERR_SUCCESS;
-	struct should_free to_free = {true, true, true}; /* in msg_in, original data should be freed */
+	പൂർണ്ണസംഖ്യ rc = MOSQ_ERR_SUCCESS;
+	ഘടന should_free to_free = {true, true, true}; /* in msg_in, original data should be freed */
 
 	/* Global plugins */
 	rc = plugin__handle_message_single(db.config->security_options.plugin_callbacks.message_in,
 			MOSQ_EVT_MESSAGE_IN, &to_free, context, stored);
-	if(rc){
-		return rc;
+	എങ്കിൽ(rc){
+		തിരികെ rc;
 	}
 
-	if(context->listener){
+	എങ്കിൽ(context->listener){
 		rc = plugin__handle_message_single(context->listener->security_options->plugin_callbacks.message_in,
 				MOSQ_EVT_MESSAGE_IN, &to_free, context, stored);
 	}
 
-	return rc;
+	തിരികെ rc;
 }

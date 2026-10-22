@@ -16,19 +16,19 @@ Contributors:
    Roger Light - initial implementation and documentation.
 */
 
-#ifndef SYS_TREE_H
-#define SYS_TREE_H
+#ifndef SYS_വൃക്ഷം_H
+#define SYS_വൃക്ഷം_H
 
-#if defined(WITH_SYS_TREE) && defined(WITH_BROKER)
+#എങ്കിൽ defined(WITH_SYS_വൃക്ഷം) && defined(WITH_BROKER)
 
 /* This ordering *must* match the metrics array in sys_tree.c. */
-enum mosq_metric_type {
+എണ്ണൽ mosq_metric_type {
 	mosq_gauge_clients_total = 0,
 	mosq_counter_clients_maximum = 1,
 	mosq_gauge_clients_disconnected = 2,
 	mosq_gauge_clients_connected = 3,
 	mosq_counter_clients_expired = 4,
-	mosq_gauge_message_store_count = 5,
+	mosq_gauge_message_store_എണ്ണം = 5,
 	mosq_gauge_message_store_bytes = 6,
 	mosq_gauge_subscriptions = 7,
 	mosq_gauge_shared_subscriptions = 8,
@@ -80,7 +80,7 @@ enum mosq_metric_type {
 };
 
 /* This ordering *must* match the metrics_load array in sys_tree.c. */
-enum mosq_metric_load_type {
+എണ്ണൽ mosq_metric_load_type {
 	mosq_load_messages_received_1min = 0,
 	mosq_load_messages_received_5min = 1,
 	mosq_load_messages_received_15min = 2,
@@ -112,10 +112,10 @@ enum mosq_metric_load_type {
 	mosq_metric_load_max,
 };
 
-void metrics__int_inc(enum mosq_metric_type m, int64_t value);
-void metrics__int_dec(enum mosq_metric_type m, int64_t value);
+ശൂന്യം metrics__int_inc(എണ്ണൽ mosq_metric_type m, int64_t മൂല്യം);
+ശൂന്യം metrics__int_dec(എണ്ണൽ mosq_metric_type m, int64_t മൂല്യം);
 
-#else
+#അല്ലെങ്കിൽ
 #  define metrics__int_inc(A, B)
 #  define metrics__int_dec(A, B)
 

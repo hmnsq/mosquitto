@@ -16,52 +16,52 @@ Contributors:
    Roger Light - initial implementation and documentation.
 */
 
-#include "config.h"
+#അന്തര്ഭാവ "config.h"
 
-#include <stdio.h>
-#include <string.h>
+#അന്തര്ഭാവ <stdio.h>
+#അന്തര്ഭാവ <string.h>
 
-#include "mosquitto/broker.h"
-#include "mosquitto_broker_internal.h"
-#include "mosquitto/broker_plugin.h"
-#include "lib_load.h"
-#include "utlist.h"
+#അന്തര്ഭാവ "mosquitto/broker.h"
+#അന്തര്ഭാവ "mosquitto_broker_internal.h"
+#അന്തര്ഭാവ "mosquitto/broker_plugin.h"
+#അന്തര്ഭാവ "lib_load.h"
+#അന്തര്ഭാവ "utlist.h"
 
-static int plugin__security_cleanup_single(mosquitto_plugin_id_t *plugin, bool reload);
+സ്ഥിതം പൂർണ്ണസംഖ്യ plugin__security_cleanup_single(mosquitto_plugin_id_t *plugin, bool reload);
 
 
-static void plugin__unload_single(mosquitto_plugin_id_t *plugin)
+സ്ഥിതം ശൂന്യം plugin__unload_single(mosquitto_plugin_id_t *plugin)
 {
-	struct control_endpoint *ep, *tmp;
+	ഘടന control_endpoint *ep, *tmp;
 
 	/* Run plugin cleanup function */
-	if(plugin->lib.version == 5){
-		if(plugin->lib.plugin_cleanup_v5){
+	എങ്കിൽ(plugin->lib.version == 5){
+		എങ്കിൽ(plugin->lib.plugin_cleanup_v5){
 			plugin->lib.plugin_cleanup_v5(
 					plugin->lib.user_data,
 					plugin->config.options,
-					plugin->config.option_count);
+					plugin->config.option_എണ്ണം);
 		}
-	}else if(plugin->lib.version == 4){
-		if(plugin->lib.plugin_cleanup_v4){
+	}അല്ലെങ്കിൽ എങ്കിൽ(plugin->lib.version == 4){
+		എങ്കിൽ(plugin->lib.plugin_cleanup_v4){
 			plugin->lib.plugin_cleanup_v4(
 					plugin->lib.user_data,
 					plugin->config.options,
-					plugin->config.option_count);
+					plugin->config.option_എണ്ണം);
 		}
-	}else if(plugin->lib.version == 3){
-		if(plugin->lib.plugin_cleanup_v3){
+	}അല്ലെങ്കിൽ എങ്കിൽ(plugin->lib.version == 3){
+		എങ്കിൽ(plugin->lib.plugin_cleanup_v3){
 			plugin->lib.plugin_cleanup_v3(
 					plugin->lib.user_data,
 					plugin->config.options,
-					plugin->config.option_count);
+					plugin->config.option_എണ്ണം);
 		}
-	}else if(plugin->lib.version == 2){
-		if(plugin->lib.plugin_cleanup_v2){
+	}അല്ലെങ്കിൽ എങ്കിൽ(plugin->lib.version == 2){
+		എങ്കിൽ(plugin->lib.plugin_cleanup_v2){
 			plugin->lib.plugin_cleanup_v2(
 					plugin->lib.user_data,
-					(struct mosquitto_auth_opt *)plugin->config.options,
-					plugin->config.option_count);
+					(ഘടന mosquitto_auth_opt *)plugin->config.options,
+					plugin->config.option_എണ്ണം);
 		}
 	}
 
@@ -73,64 +73,64 @@ static void plugin__unload_single(mosquitto_plugin_id_t *plugin)
 		mosquitto_FREE(ep);
 	}
 
-	if(plugin->lib.lib){
+	എങ്കിൽ(plugin->lib.lib){
 		//LIB_CLOSE(plugin->lib.lib);
 	}
-	memset(&plugin->lib, 0, sizeof(struct mosquitto__plugin_lib));
+	memset(&plugin->lib, 0, വലുപ്പം(ഘടന mosquitto__plugin_lib));
 }
 
 
-int plugin__unload_all(void)
+പൂർണ്ണസംഖ്യ plugin__unload_all(ശൂന്യം)
 {
-	for(int i=0; i<db.plugin_count; i++){
+	വേണ്ടി(പൂർണ്ണസംഖ്യ i=0; i<db.plugin_എണ്ണം; i++){
 		plugin__unload_single(db.plugins[i]);
 	}
 
 	mosquitto_security_cleanup(false);
 
-	return MOSQ_ERR_SUCCESS;
+	തിരികെ MOSQ_ERR_SUCCESS;
 }
 
 
-static int plugin__security_cleanup_single(mosquitto_plugin_id_t *plugin, bool reload)
+സ്ഥിതം പൂർണ്ണസംഖ്യ plugin__security_cleanup_single(mosquitto_plugin_id_t *plugin, bool reload)
 {
-	int rc;
+	പൂർണ്ണസംഖ്യ rc;
 
-	if(plugin->lib.version == 5){
+	എങ്കിൽ(plugin->lib.version == 5){
 		rc = MOSQ_ERR_SUCCESS;
-	}else if(plugin->lib.version == 4){
+	}അല്ലെങ്കിൽ എങ്കിൽ(plugin->lib.version == 4){
 		rc = plugin->lib.security_cleanup_v4(
 				plugin->lib.user_data,
 				plugin->config.options,
-				plugin->config.option_count,
+				plugin->config.option_എണ്ണം,
 				reload);
 
-	}else if(plugin->lib.version == 3){
+	}അല്ലെങ്കിൽ എങ്കിൽ(plugin->lib.version == 3){
 		rc = plugin->lib.security_cleanup_v3(
 				plugin->lib.user_data,
 				plugin->config.options,
-				plugin->config.option_count,
+				plugin->config.option_എണ്ണം,
 				reload);
 
-	}else if(plugin->lib.version == 2){
+	}അല്ലെങ്കിൽ എങ്കിൽ(plugin->lib.version == 2){
 		rc = plugin->lib.security_cleanup_v2(
 				plugin->lib.user_data,
-				(struct mosquitto_auth_opt *)plugin->config.options,
-				plugin->config.option_count,
+				(ഘടന mosquitto_auth_opt *)plugin->config.options,
+				plugin->config.option_എണ്ണം,
 				reload);
-	}else{
+	}അല്ലെങ്കിൽ{
 		rc = MOSQ_ERR_INVAL;
 	}
 
-	return rc;
+	തിരികെ rc;
 }
 
 
-int mosquitto_security_cleanup(bool reload)
+പൂർണ്ണസംഖ്യ mosquitto_security_cleanup(bool reload)
 {
-	for(int i=0; i<db.plugin_count; i++){
+	വേണ്ടി(പൂർണ്ണസംഖ്യ i=0; i<db.plugin_എണ്ണം; i++){
 		plugin__security_cleanup_single(db.plugins[i], reload);
 	}
 
-	return mosquitto_security_cleanup_default();
+	തിരികെ mosquitto_security_cleanup_default();
 }

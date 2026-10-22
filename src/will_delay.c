@@ -16,99 +16,99 @@ Contributors:
    Roger Light - initial implementation and documentation.
 */
 
-#include "config.h"
+#അന്തര്ഭാവ "config.h"
 
-#include <math.h>
-#include <stdio.h>
-#include <utlist.h>
+#അന്തര്ഭാവ <math.h>
+#അന്തര്ഭാവ <stdio.h>
+#അന്തര്ഭാവ <utlist.h>
 
-#include "mosquitto_broker_internal.h"
+#അന്തര്ഭാവ "mosquitto_broker_internal.h"
 
-static struct will_delay_list *delay_list = NULL;
-static time_t last_check = 0;
+സ്ഥിതം ഘടന will_delay_list *delay_list = ശൂന്യ;
+സ്ഥിതം time_t last_check = 0;
 
 
-static int will_delay__cmp(struct will_delay_list *i1, struct will_delay_list *i2)
+സ്ഥിതം പൂർണ്ണസംഖ്യ will_delay__cmp(ഘടന will_delay_list *i1, ഘടന will_delay_list *i2)
 {
-	return (int)(i1->context->will_delay_interval - i2->context->will_delay_interval);
+	തിരികെ (പൂർണ്ണസംഖ്യ)(i1->context->will_delay_interval - i2->context->will_delay_interval);
 }
 
 
-int will_delay__add(struct mosquitto *context)
+പൂർണ്ണസംഖ്യ will_delay__add(ഘടന mosquitto *context)
 {
-	struct will_delay_list *item;
+	ഘടന will_delay_list *item;
 
-	if(context->will_delay_entry){
-		return MOSQ_ERR_SUCCESS;
+	എങ്കിൽ(context->will_delay_entry){
+		തിരികെ MOSQ_ERR_SUCCESS;
 	}
 
-	item = mosquitto_calloc(1, sizeof(struct will_delay_list));
-	if(!item){
-		return MOSQ_ERR_NOMEM;
+	item = mosquitto_calloc(1, വലുപ്പം(ഘടന will_delay_list));
+	എങ്കിൽ(!item){
+		തിരികെ MOSQ_ERR_NOMEM;
 	}
 
 	item->context = context;
 	context->will_delay_entry = item;
 	item->context->will_delay_time = db.now_real_s + item->context->will_delay_interval;
 
-	DL_INSERT_INORDER(delay_list, item, will_delay__cmp);
+	DL_തിരുകുക_മധ്യക്രമം(delay_list, item, will_delay__cmp);
 
 	loop__update_next_event(item->context->will_delay_interval*1000);
 	plugin_persist__handle_client_update(context);
 
-	return MOSQ_ERR_SUCCESS;
+	തിരികെ MOSQ_ERR_SUCCESS;
 }
 
 
 /* Call on broker shutdown only */
-void will_delay__send_all(void)
+ശൂന്യം will_delay__send_all(ശൂന്യം)
 {
-	struct will_delay_list *item, *tmp;
+	ഘടന will_delay_list *item, *tmp;
 
 	DL_FOREACH_SAFE(delay_list, item, tmp){
 		DL_DELETE(delay_list, item);
 		item->context->will_delay_interval = 0;
-		item->context->will_delay_entry = NULL;
+		item->context->will_delay_entry = ശൂന്യ;
 		context__send_will(item->context);
 		mosquitto_FREE(item);
 	}
 }
 
 
-void will_delay__check(void)
+ശൂന്യം will_delay__check(ശൂന്യം)
 {
-	struct will_delay_list *item, *tmp;
+	ഘടന will_delay_list *item, *tmp;
 
-	if(db.now_real_s <= last_check){
-		if(delay_list){
+	എങ്കിൽ(db.now_real_s <= last_check){
+		എങ്കിൽ(delay_list){
 			loop__update_next_event(1000);
 		}
-		return;
+		തിരികെ;
 	}
 
 	last_check = db.now_real_s;
 
 	DL_FOREACH_SAFE(delay_list, item, tmp){
-		if(item->context->will_delay_time <= db.now_real_s){
+		എങ്കിൽ(item->context->will_delay_time <= db.now_real_s){
 			DL_DELETE(delay_list, item);
 			item->context->will_delay_interval = 0;
-			item->context->will_delay_entry = NULL;
+			item->context->will_delay_entry = ശൂന്യ;
 			context__send_will(item->context);
-			if(item->context->session_expiry_interval == MQTT_SESSION_EXPIRY_IMMEDIATE){
+			എങ്കിൽ(item->context->session_expiry_interval == MQTT_SESSION_EXPIRY_IMMEDIATE){
 				context__add_to_disused(item->context);
 			}
 			mosquitto_FREE(item);
-		}else{
+		}അല്ലെങ്കിൽ{
 			loop__update_next_event((item->context->will_delay_time - db.now_real_s)*1000);
-			return;
+			തിരികെ;
 		}
 	}
 }
 
 
-void will_delay__remove(struct mosquitto *mosq)
+ശൂന്യം will_delay__remove(ഘടന mosquitto *mosq)
 {
-	if(mosq->will_delay_entry != NULL){
+	എങ്കിൽ(mosq->will_delay_entry != ശൂന്യ){
 		DL_DELETE(delay_list, mosq->will_delay_entry);
 		mosquitto_FREE(mosq->will_delay_entry);
 	}

@@ -16,277 +16,277 @@ Contributors:
    Roger Light - initial implementation and documentation.
 */
 
-#include "config.h"
+#അന്തര്ഭാവ "config.h"
 
-#include "mosquitto_broker_internal.h"
-#include "mosquitto/mqtt_protocol.h"
-#include "send_mosq.h"
-#include "util_mosq.h"
-#include "will_mosq.h"
-#include "utlist.h"
-#include "will_mosq.h"
+#അന്തര്ഭാവ "mosquitto_broker_internal.h"
+#അന്തര്ഭാവ "mosquitto/mqtt_protocol.h"
+#അന്തര്ഭാവ "send_mosq.h"
+#അന്തര്ഭാവ "util_mosq.h"
+#അന്തര്ഭാവ "will_mosq.h"
+#അന്തര്ഭാവ "utlist.h"
+#അന്തര്ഭാവ "will_mosq.h"
 
 #ifdef WITH_TLS
 #  include <openssl/ssl.h>
 #endif
 
 
-BROKER_EXPORT int mosquitto_plugin_set_info(mosquitto_plugin_id_t *identifier,
-		const char *plugin_name,
-		const char *plugin_version)
+BROKER_EXPORT പൂർണ്ണസംഖ്യ mosquitto_plugin_set_info(mosquitto_plugin_id_t *identifier,
+		സ്ഥിരം അക്ഷരം *plugin_name,
+		സ്ഥിരം അക്ഷരം *plugin_version)
 {
-	if(identifier == NULL || plugin_name == NULL){
-		return MOSQ_ERR_INVAL;
+	എങ്കിൽ(identifier == ശൂന്യ || plugin_name == ശൂന്യ){
+		തിരികെ MOSQ_ERR_INVAL;
 	}
 
 	identifier->plugin_name = mosquitto_strdup(plugin_name);
-	if(plugin_version){
+	എങ്കിൽ(plugin_version){
 		identifier->plugin_version = mosquitto_strdup(plugin_version);
-	}else{
-		identifier->plugin_version = NULL;
+	}അല്ലെങ്കിൽ{
+		identifier->plugin_version = ശൂന്യ;
 	}
 
-	return MOSQ_ERR_SUCCESS;
+	തിരികെ MOSQ_ERR_SUCCESS;
 }
 
 
-BROKER_EXPORT const char *mosquitto_client_address(const struct mosquitto *client)
+BROKER_EXPORT സ്ഥിരം അക്ഷരം *mosquitto_client_address(സ്ഥിരം ഘടന mosquitto *client)
 {
-	if(client){
-		return client->address;
-	}else{
-		return NULL;
+	എങ്കിൽ(client){
+		തിരികെ client->address;
+	}അല്ലെങ്കിൽ{
+		തിരികെ ശൂന്യ;
 	}
 }
 
 
-BROKER_EXPORT struct mosquitto *mosquitto_client(const char *clientid)
+BROKER_EXPORT ഘടന mosquitto *mosquitto_client(സ്ഥിരം അക്ഷരം *clientid)
 {
 	size_t len;
-	struct mosquitto *context;
+	ഘടന mosquitto *context;
 
-	if(!clientid){
-		return NULL;
+	എങ്കിൽ(!clientid){
+		തിരികെ ശൂന്യ;
 	}
 	len = strlen(clientid);
-	if(len == 0){
-		return NULL;
+	എങ്കിൽ(len == 0){
+		തിരികെ ശൂന്യ;
 	}
 
 	HASH_FIND(hh_id, db.contexts_by_id, clientid, strlen(clientid), context);
 
-	return context;
+	തിരികെ context;
 }
 
 
-BROKER_EXPORT int mosquitto_client_port(const struct mosquitto *client)
+BROKER_EXPORT പൂർണ്ണസംഖ്യ mosquitto_client_port(സ്ഥിരം ഘടന mosquitto *client)
 {
-	if(client && client->listener){
-		return client->listener->port;
-	}else{
-		return 0;
+	എങ്കിൽ(client && client->listener){
+		തിരികെ client->listener->port;
+	}അല്ലെങ്കിൽ{
+		തിരികെ 0;
 	}
 }
 
 
-BROKER_EXPORT bool mosquitto_client_clean_session(const struct mosquitto *client)
+BROKER_EXPORT bool mosquitto_client_clean_session(സ്ഥിരം ഘടന mosquitto *client)
 {
-	if(client){
-		return client->clean_start;
-	}else{
-		return true;
+	എങ്കിൽ(client){
+		തിരികെ client->clean_start;
+	}അല്ലെങ്കിൽ{
+		തിരികെ true;
 	}
 }
 
 
-BROKER_EXPORT const char *mosquitto_client_id(const struct mosquitto *client)
+BROKER_EXPORT സ്ഥിരം അക്ഷരം *mosquitto_client_id(സ്ഥിരം ഘടന mosquitto *client)
 {
-	if(client){
-		return client->id;
-	}else{
-		return NULL;
+	എങ്കിൽ(client){
+		തിരികെ client->id;
+	}അല്ലെങ്കിൽ{
+		തിരികെ ശൂന്യ;
 	}
 }
 
 
-BROKER_EXPORT unsigned mosquitto_client_id_hashv(const struct mosquitto *client)
+BROKER_EXPORT unsigned mosquitto_client_id_hashv(സ്ഥിരം ഘടന mosquitto *client)
 {
-	if(client){
-		return client->id_hashv;
-	}else{
-		return 0;
+	എങ്കിൽ(client){
+		തിരികെ client->id_hashv;
+	}അല്ലെങ്കിൽ{
+		തിരികെ 0;
 	}
 }
 
 
-BROKER_EXPORT int mosquitto_client_keepalive(const struct mosquitto *client)
+BROKER_EXPORT പൂർണ്ണസംഖ്യ mosquitto_client_keepalive(സ്ഥിരം ഘടന mosquitto *client)
 {
-	if(client){
-		return client->keepalive;
-	}else{
-		return -1;
+	എങ്കിൽ(client){
+		തിരികെ client->keepalive;
+	}അല്ലെങ്കിൽ{
+		തിരികെ -1;
 	}
 }
 
 
-BROKER_EXPORT void *mosquitto_client_certificate(const struct mosquitto *client)
+BROKER_EXPORT ശൂന്യം *mosquitto_client_certificate(സ്ഥിരം ഘടന mosquitto *client)
 {
 #ifdef WITH_TLS
-	if(client && client->ssl){
-		return SSL_get_peer_certificate(client->ssl);
-	}else{
-		return NULL;
+	എങ്കിൽ(client && client->ssl){
+		തിരികെ SSL_get_peer_certificate(client->ssl);
+	}അല്ലെങ്കിൽ{
+		തിരികെ ശൂന്യ;
 	}
-#else
+#അല്ലെങ്കിൽ
 	UNUSED(client);
 
-	return NULL;
+	തിരികെ ശൂന്യ;
 #endif
 }
 
 
-BROKER_EXPORT int mosquitto_client_protocol(const struct mosquitto *client)
+BROKER_EXPORT പൂർണ്ണസംഖ്യ mosquitto_client_protocol(സ്ഥിരം ഘടന mosquitto *client)
 {
-#if defined(WITH_WEBSOCKETS) && WITH_WEBSOCKETS == WS_IS_LWS
-	if(client && client->wsi){
-		return mp_websockets;
-	}else
-#elif defined(WITH_WEBSOCKETS) && WITH_WEBSOCKETS == WS_IS_BUILTIN
-	if(client && client->transport == mosq_t_ws){
-		return mp_websockets;
-	}else
-#else
+#എങ്കിൽ defined(WITH_WEBSOCKETS) && WITH_WEBSOCKETS == WS_IS_LWS
+	എങ്കിൽ(client && client->wsi){
+		തിരികെ mp_websockets;
+	}അല്ലെങ്കിൽ
+#അല്ലെങ്കിലെങ്കിൽ defined(WITH_WEBSOCKETS) && WITH_WEBSOCKETS == WS_IS_BUILTIN
+	എങ്കിൽ(client && client->transport == mosq_t_ws){
+		തിരികെ mp_websockets;
+	}അല്ലെങ്കിൽ
+#അല്ലെങ്കിൽ
 	UNUSED(client);
 #endif
 	{
-		return mp_mqtt;
+		തിരികെ mp_mqtt;
 	}
 }
 
 
-BROKER_EXPORT int mosquitto_client_protocol_version(const struct mosquitto *client)
+BROKER_EXPORT പൂർണ്ണസംഖ്യ mosquitto_client_protocol_version(സ്ഥിരം ഘടന mosquitto *client)
 {
-	if(client){
-		switch(client->protocol){
-			case mosq_p_mqtt31:
-				return 3;
-			case mosq_p_mqtt311:
-				return 4;
-			case mosq_p_mqtt5:
-				return 5;
-			default:
-				return 0;
+	എങ്കിൽ(client){
+		തിരഞ്ഞെടുപ്പ്(client->protocol){
+			അവസ്ഥ mosq_p_mqtt31:
+				തിരികെ 3;
+			അവസ്ഥ mosq_p_mqtt311:
+				തിരികെ 4;
+			അവസ്ഥ mosq_p_mqtt5:
+				തിരികെ 5;
+			സ്ഥിരസ്ഥിതി:
+				തിരികെ 0;
 		}
-	}else{
-		return 0;
+	}അല്ലെങ്കിൽ{
+		തിരികെ 0;
 	}
 }
 
 
-BROKER_EXPORT int mosquitto_client_sub_count(const struct mosquitto *client)
+BROKER_EXPORT പൂർണ്ണസംഖ്യ mosquitto_client_sub_എണ്ണം(സ്ഥിരം ഘടന mosquitto *client)
 {
-	if(client){
-		return client->subs_count;
-	}else{
-		return 0;
+	എങ്കിൽ(client){
+		തിരികെ client->subs_എണ്ണം;
+	}അല്ലെങ്കിൽ{
+		തിരികെ 0;
 	}
 }
 
 
-BROKER_EXPORT const char *mosquitto_client_username(const struct mosquitto *client)
+BROKER_EXPORT സ്ഥിരം അക്ഷരം *mosquitto_client_username(സ്ഥിരം ഘടന mosquitto *client)
 {
-	if(client){
+	എങ്കിൽ(client){
 #ifdef WITH_BRIDGE
-		if(client->bridge){
-			return client->bridge->local_username;
-		}else
+		എങ്കിൽ(client->bridge){
+			തിരികെ client->bridge->local_username;
+		}അല്ലെങ്കിൽ
 #endif
 		{
-			return client->username;
+			തിരികെ client->username;
 		}
-	}else{
-		return NULL;
+	}അല്ലെങ്കിൽ{
+		തിരികെ ശൂന്യ;
 	}
 }
 
 
-BROKER_EXPORT int mosquitto_broker_publish(
-		const char *clientid,
-		const char *topic,
-		int payloadlen,
-		void *payload,
-		int qos,
+BROKER_EXPORT പൂർണ്ണസംഖ്യ mosquitto_broker_publish(
+		സ്ഥിരം അക്ഷരം *clientid,
+		സ്ഥിരം അക്ഷരം *topic,
+		പൂർണ്ണസംഖ്യ payloadlen,
+		ശൂന്യം *payload,
+		പൂർണ്ണസംഖ്യ qos,
 		bool retain,
 		mosquitto_property *properties)
 {
-	struct mosquitto__message_v5 *msg;
+	ഘടന mosquitto__message_v5 *സന്ദേശം;
 
-	if(topic == NULL
+	എങ്കിൽ(topic == ശൂന്യ
 			|| payloadlen < 0
-			|| (payloadlen > 0 && payload == NULL)
+			|| (payloadlen > 0 && payload == ശൂന്യ)
 			|| qos < 0 || qos > 2){
 
-		return MOSQ_ERR_INVAL;
+		തിരികെ MOSQ_ERR_INVAL;
 	}
 
-	msg = mosquitto_malloc(sizeof(struct mosquitto__message_v5));
-	if(msg == NULL){
-		return MOSQ_ERR_NOMEM;
+	സന്ദേശം = mosquitto_malloc(വലുപ്പം(ഘടന mosquitto__message_v5));
+	എങ്കിൽ(സന്ദേശം == ശൂന്യ){
+		തിരികെ MOSQ_ERR_NOMEM;
 	}
 
-	msg->next = NULL;
-	msg->prev = NULL;
-	if(clientid){
-		msg->clientid = mosquitto_strdup(clientid);
-		if(msg->clientid == NULL){
-			mosquitto_FREE(msg);
-			return MOSQ_ERR_NOMEM;
+	സന്ദേശം->next = ശൂന്യ;
+	സന്ദേശം->prev = ശൂന്യ;
+	എങ്കിൽ(clientid){
+		സന്ദേശം->clientid = mosquitto_strdup(clientid);
+		എങ്കിൽ(സന്ദേശം->clientid == ശൂന്യ){
+			mosquitto_FREE(സന്ദേശം);
+			തിരികെ MOSQ_ERR_NOMEM;
 		}
-	}else{
-		msg->clientid = NULL;
+	}അല്ലെങ്കിൽ{
+		സന്ദേശം->clientid = ശൂന്യ;
 	}
-	msg->topic = mosquitto_strdup(topic);
-	if(msg->topic == NULL){
-		mosquitto_FREE(msg->clientid);
-		mosquitto_FREE(msg);
-		return MOSQ_ERR_NOMEM;
+	സന്ദേശം->topic = mosquitto_strdup(topic);
+	എങ്കിൽ(സന്ദേശം->topic == ശൂന്യ){
+		mosquitto_FREE(സന്ദേശം->clientid);
+		mosquitto_FREE(സന്ദേശം);
+		തിരികെ MOSQ_ERR_NOMEM;
 	}
-	msg->payloadlen = payloadlen;
-	msg->payload = payload;
-	msg->qos = qos;
-	msg->retain = retain;
-	msg->properties = properties;
+	സന്ദേശം->payloadlen = payloadlen;
+	സന്ദേശം->payload = payload;
+	സന്ദേശം->qos = qos;
+	സന്ദേശം->retain = retain;
+	സന്ദേശം->properties = properties;
 
-	DL_APPEND(db.plugin_msgs, msg);
+	DL_APPEND(db.plugin_msgs, സന്ദേശം);
 
 	loop__update_next_event(1);
-	return MOSQ_ERR_SUCCESS;
+	തിരികെ MOSQ_ERR_SUCCESS;
 }
 
 
-BROKER_EXPORT int mosquitto_broker_publish_copy(
-		const char *clientid,
-		const char *topic,
-		int payloadlen,
-		const void *payload,
-		int qos,
+BROKER_EXPORT പൂർണ്ണസംഖ്യ mosquitto_broker_publish_copy(
+		സ്ഥിരം അക്ഷരം *clientid,
+		സ്ഥിരം അക്ഷരം *topic,
+		പൂർണ്ണസംഖ്യ payloadlen,
+		സ്ഥിരം ശൂന്യം *payload,
+		പൂർണ്ണസംഖ്യ qos,
 		bool retain,
 		mosquitto_property *properties)
 {
-	void *payload_out;
-	int rc;
+	ശൂന്യം *payload_out;
+	പൂർണ്ണസംഖ്യ rc;
 
-	if(topic == NULL
+	എങ്കിൽ(topic == ശൂന്യ
 			|| payloadlen < 0
-			|| (payloadlen > 0 && payload == NULL)
+			|| (payloadlen > 0 && payload == ശൂന്യ)
 			|| qos < 0 || qos > 2){
 
-		return MOSQ_ERR_INVAL;
+		തിരികെ MOSQ_ERR_INVAL;
 	}
 
 	payload_out = mosquitto_calloc(1, (size_t)(payloadlen+1));
-	if(payload_out == NULL){
-		return MOSQ_ERR_NOMEM;
+	എങ്കിൽ(payload_out == ശൂന്യ){
+		തിരികെ MOSQ_ERR_NOMEM;
 	}
 	memcpy(payload_out, payload, (size_t)payloadlen);
 
@@ -299,51 +299,51 @@ BROKER_EXPORT int mosquitto_broker_publish_copy(
 			retain,
 			properties);
 
-	if(rc){
+	എങ്കിൽ(rc){
 		mosquitto_FREE(payload_out);
 	}
-	return rc;
+	തിരികെ rc;
 }
 
 
-BROKER_EXPORT int mosquitto_set_username(struct mosquitto *client, const char *username)
+BROKER_EXPORT പൂർണ്ണസംഖ്യ mosquitto_set_username(ഘടന mosquitto *client, സ്ഥിരം അക്ഷരം *username)
 {
-	char *u_dup;
-	char *old;
+	അക്ഷരം *u_dup;
+	അക്ഷരം *old;
 
-	if(!client){
-		return MOSQ_ERR_INVAL;
+	എങ്കിൽ(!client){
+		തിരികെ MOSQ_ERR_INVAL;
 	}
 
-	if(username){
-		if(mosquitto_validate_utf8(username, (int)strlen(username))){
-			return MOSQ_ERR_MALFORMED_UTF8;
+	എങ്കിൽ(username){
+		എങ്കിൽ(mosquitto_validate_utf8(username, (പൂർണ്ണസംഖ്യ)strlen(username))){
+			തിരികെ MOSQ_ERR_MALFORMED_UTF8;
 		}
 		u_dup = mosquitto_strdup(username);
-		if(!u_dup){
-			return MOSQ_ERR_NOMEM;
+		എങ്കിൽ(!u_dup){
+			തിരികെ MOSQ_ERR_NOMEM;
 		}
-	}else{
-		u_dup = NULL;
+	}അല്ലെങ്കിൽ{
+		u_dup = ശൂന്യ;
 	}
 
 	old = client->username;
 	client->username = u_dup;
 
 	mosquitto_FREE(old);
-	return MOSQ_ERR_SUCCESS;
+	തിരികെ MOSQ_ERR_SUCCESS;
 }
 
 
-BROKER_EXPORT int mosquitto_set_clientid(struct mosquitto *client, const char *clientid)
+BROKER_EXPORT പൂർണ്ണസംഖ്യ mosquitto_set_clientid(ഘടന mosquitto *client, സ്ഥിരം അക്ഷരം *clientid)
 {
-	struct mosquitto *found_client;
-	char *id_dup;
+	ഘടന mosquitto *found_client;
+	അക്ഷരം *id_dup;
 	bool in_by_id;
-	int clientid_len;
+	പൂർണ്ണസംഖ്യ clientid_len;
 
-	if(!client || !clientid){
-		return MOSQ_ERR_INVAL;
+	എങ്കിൽ(!client || !clientid){
+		തിരികെ MOSQ_ERR_INVAL;
 	}
 
 	in_by_id = client->in_by_id;
@@ -356,167 +356,167 @@ BROKER_EXPORT int mosquitto_set_clientid(struct mosquitto *client, const char *c
 	 * because it will be checked after authentication.
 	 */
 
-	if(in_by_id){
+	എങ്കിൽ(in_by_id){
 		HASH_FIND(hh_id, db.contexts_by_id, clientid, strlen(clientid), found_client);
-		if(found_client){
-			return MOSQ_ERR_ALREADY_EXISTS;
+		എങ്കിൽ(found_client){
+			തിരികെ MOSQ_ERR_ALREADY_EXISTS;
 		}
 	}
 
-	clientid_len = (int)strlen(clientid);
-	if(mosquitto_validate_utf8(clientid, clientid_len)){
-		return MOSQ_ERR_INVAL;
+	clientid_len = (പൂർണ്ണസംഖ്യ)strlen(clientid);
+	എങ്കിൽ(mosquitto_validate_utf8(clientid, clientid_len)){
+		തിരികെ MOSQ_ERR_INVAL;
 	}
 
 	id_dup = mosquitto_strdup(clientid);
-	if(!id_dup){
-		return MOSQ_ERR_NOMEM;
+	എങ്കിൽ(!id_dup){
+		തിരികെ MOSQ_ERR_NOMEM;
 	}
 
-	if(in_by_id){
+	എങ്കിൽ(in_by_id){
 		context__remove_from_by_id(client);
 	}
 	mosquitto_free(client->id);
 	client->id = id_dup;
-	if(in_by_id){
+	എങ്കിൽ(in_by_id){
 		context__add_to_by_id(client);
 	}
 
-	return MOSQ_ERR_SUCCESS;
+	തിരികെ MOSQ_ERR_SUCCESS;
 }
 
 
 /* Check to see whether durable clients still have rights to their subscriptions. */
-static void check_subscription_acls(struct mosquitto *context)
+സ്ഥിതം ശൂന്യം check_subscription_acls(ഘടന mosquitto *context)
 {
-	int rc;
+	പൂർണ്ണസംഖ്യ rc;
 	uint8_t reason;
 
-	for(int i=0; i<context->subs_capacity; i++){
-		if(context->subs[i] == NULL){
-			continue;
+	വേണ്ടി(പൂർണ്ണസംഖ്യ i=0; i<context->subs_capacity; i++){
+		എങ്കിൽ(context->subs[i] == ശൂന്യ){
+			തുടരുക;
 		}
 		rc = mosquitto_acl_check(context,
 				context->subs[i]->topic_filter,
 				0,
-				NULL,
+				ശൂന്യ,
 				0, /* FIXME */
 				false,
-				NULL,
+				ശൂന്യ,
 				MOSQ_ACL_SUBSCRIBE);
 
-		if(rc != MOSQ_ERR_SUCCESS){
+		എങ്കിൽ(rc != MOSQ_ERR_SUCCESS){
 			sub__remove(context, context->subs[i]->topic_filter, &reason);
 		}
 	}
 }
 
 
-static void disconnect_client(struct mosquitto *context, bool with_will)
+സ്ഥിതം ശൂന്യം disconnect_client(ഘടന mosquitto *context, bool with_will)
 {
-	if(context->protocol == mosq_p_mqtt5){
-		send__disconnect(context, MQTT_RC_ADMINISTRATIVE_ACTION, NULL);
+	എങ്കിൽ(context->protocol == mosq_p_mqtt5){
+		send__disconnect(context, MQTT_RC_ADMINISTRATIVE_ACTION, ശൂന്യ);
 	}
-	if(with_will == false){
+	എങ്കിൽ(with_will == false){
 		mosquitto__set_state(context, mosq_cs_disconnecting);
 	}
-	if(context->session_expiry_interval != MQTT_SESSION_EXPIRY_IMMEDIATE){
+	എങ്കിൽ(context->session_expiry_interval != MQTT_SESSION_EXPIRY_IMMEDIATE){
 		check_subscription_acls(context);
 	}
 	do_disconnect(context, MOSQ_ERR_ADMINISTRATIVE_ACTION);
 }
 
 
-BROKER_EXPORT int mosquitto_kick_client_by_clientid(const char *clientid, bool with_will)
+BROKER_EXPORT പൂർണ്ണസംഖ്യ mosquitto_kick_client_by_clientid(സ്ഥിരം അക്ഷരം *clientid, bool with_will)
 {
-	struct mosquitto *ctxt, *ctxt_tmp;
+	ഘടന mosquitto *ctxt, *ctxt_tmp;
 
-	if(clientid == NULL){
+	എങ്കിൽ(clientid == ശൂന്യ){
 		HASH_ITER(hh_sock, db.contexts_by_sock, ctxt, ctxt_tmp){
 			disconnect_client(ctxt, with_will);
 		}
-		return MOSQ_ERR_SUCCESS;
-	}else{
+		തിരികെ MOSQ_ERR_SUCCESS;
+	}അല്ലെങ്കിൽ{
 		HASH_FIND(hh_id, db.contexts_by_id, clientid, strlen(clientid), ctxt);
-		if(ctxt){
+		എങ്കിൽ(ctxt){
 			disconnect_client(ctxt, with_will);
-			return MOSQ_ERR_SUCCESS;
-		}else{
-			return MOSQ_ERR_NOT_FOUND;
+			തിരികെ MOSQ_ERR_SUCCESS;
+		}അല്ലെങ്കിൽ{
+			തിരികെ MOSQ_ERR_NOT_FOUND;
 		}
 	}
 }
 
 
-BROKER_EXPORT int mosquitto_kick_client_by_username(const char *username, bool with_will)
+BROKER_EXPORT പൂർണ്ണസംഖ്യ mosquitto_kick_client_by_username(സ്ഥിരം അക്ഷരം *username, bool with_will)
 {
-	struct mosquitto *ctxt, *ctxt_tmp;
+	ഘടന mosquitto *ctxt, *ctxt_tmp;
 
-	if(username == NULL){
+	എങ്കിൽ(username == ശൂന്യ){
 		HASH_ITER(hh_sock, db.contexts_by_sock, ctxt, ctxt_tmp){
-			if(ctxt->username == NULL){
+			എങ്കിൽ(ctxt->username == ശൂന്യ){
 				disconnect_client(ctxt, with_will);
 			}
 		}
-	}else{
+	}അല്ലെങ്കിൽ{
 		HASH_ITER(hh_sock, db.contexts_by_sock, ctxt, ctxt_tmp){
-			if(ctxt->username != NULL && !strcmp(ctxt->username, username)){
+			എങ്കിൽ(ctxt->username != ശൂന്യ && !strcmp(ctxt->username, username)){
 				disconnect_client(ctxt, with_will);
 			}
 		}
 	}
-	return MOSQ_ERR_SUCCESS;
+	തിരികെ MOSQ_ERR_SUCCESS;
 }
 
 
-BROKER_EXPORT int mosquitto_apply_on_all_clients(int (*FUNC_client_functor)(const struct mosquitto *, void *), void *functor_context)
+BROKER_EXPORT പൂർണ്ണസംഖ്യ mosquitto_apply_on_all_clients(പൂർണ്ണസംഖ്യ (*FUNC_client_functor)(സ്ഥിരം ഘടന mosquitto *, ശൂന്യം *), ശൂന്യം *functor_context)
 {
-	int rc = MOSQ_ERR_SUCCESS;
-	struct mosquitto *ctxt, *ctxt_tmp;
+	പൂർണ്ണസംഖ്യ rc = MOSQ_ERR_SUCCESS;
+	ഘടന mosquitto *ctxt, *ctxt_tmp;
 
 	HASH_ITER(hh_id, db.contexts_by_id, ctxt, ctxt_tmp){
 		rc = (*FUNC_client_functor)(ctxt, functor_context);
-		if(rc != MOSQ_ERR_SUCCESS){
-			break;
+		എങ്കിൽ(rc != MOSQ_ERR_SUCCESS){
+			നിർത്തുക;
 		}
 	}
 
-	return rc;
+	തിരികെ rc;
 }
 
 
-BROKER_EXPORT int mosquitto_persist_client_add(struct mosquitto_client *client)
+BROKER_EXPORT പൂർണ്ണസംഖ്യ mosquitto_persist_client_add(ഘടന mosquitto_client *client)
 {
-	struct mosquitto *context;
-	int rc;
+	ഘടന mosquitto *context;
+	പൂർണ്ണസംഖ്യ rc;
 
-	if(client == NULL){
-		return MOSQ_ERR_INVAL;
+	എങ്കിൽ(client == ശൂന്യ){
+		തിരികെ MOSQ_ERR_INVAL;
 	}
-	if(client->clientid == NULL){
+	എങ്കിൽ(client->clientid == ശൂന്യ){
 		rc = MOSQ_ERR_INVAL;
-		goto error;
+		പോകുക error;
 	}
 
-	context = NULL;
+	context = ശൂന്യ;
 	HASH_FIND(hh_id, db.contexts_by_id, client->clientid, strlen(client->clientid), context);
-	if(context){
+	എങ്കിൽ(context){
 		rc = MOSQ_ERR_INVAL;
-		goto error;
+		പോകുക error;
 	}
 
 	context = context__init();
-	if(!context){
+	എങ്കിൽ(!context){
 		rc = MOSQ_ERR_NOMEM;
-		goto error;
+		പോകുക error;
 	}
 
 	context->id = client->clientid;
-	client->clientid = NULL;
+	client->clientid = ശൂന്യ;
 	context->username = client->username;
-	client->username = NULL;
+	client->username = ശൂന്യ;
 	context->auth_method = client->auth_method;
-	client->auth_method = NULL;
+	client->auth_method = ശൂന്യ;
 
 	context->clean_start = false;
 	context->will_delay_time = client->will_delay_time;
@@ -529,11 +529,11 @@ BROKER_EXPORT int mosquitto_persist_client_add(struct mosquitto_client *client)
 	context->is_persisted = true;
 
 	/* in per_listener_settings mode, try to find the listener by persisted port */
-	if(db.config->per_listener_settings && client->listener_port > 0){
-		for(int i=0; i < db.config->listener_count; i++){
-			if(db.config->listeners[i].port == client->listener_port){
+	എങ്കിൽ(db.config->per_listener_settings && client->listener_port > 0){
+		വേണ്ടി(പൂർണ്ണസംഖ്യ i=0; i < db.config->listener_എണ്ണം; i++){
+			എങ്കിൽ(db.config->listeners[i].port == client->listener_port){
 				context->listener = &db.config->listeners[i];
-				break;
+				നിർത്തുക;
 			}
 		}
 	}
@@ -541,38 +541,38 @@ BROKER_EXPORT int mosquitto_persist_client_add(struct mosquitto_client *client)
 	context__add_to_by_id(context);
 	session_expiry__add_from_persistence(context, context->session_expiry_time);
 
-	return MOSQ_ERR_SUCCESS;
+	തിരികെ MOSQ_ERR_SUCCESS;
 error:
 	SAFE_FREE(client->clientid);
 	SAFE_FREE(client->username);
 	SAFE_FREE(client->auth_method);
-	return rc;
+	തിരികെ rc;
 }
 
 
-BROKER_EXPORT int mosquitto_persist_client_update(struct mosquitto_client *client)
+BROKER_EXPORT പൂർണ്ണസംഖ്യ mosquitto_persist_client_update(ഘടന mosquitto_client *client)
 {
-	struct mosquitto *context;
-	int rc;
+	ഘടന mosquitto *context;
+	പൂർണ്ണസംഖ്യ rc;
 
-	if(client == NULL){
-		return MOSQ_ERR_INVAL;
+	എങ്കിൽ(client == ശൂന്യ){
+		തിരികെ MOSQ_ERR_INVAL;
 	}
-	if(client->clientid == NULL){
+	എങ്കിൽ(client->clientid == ശൂന്യ){
 		rc = MOSQ_ERR_INVAL;
-		goto error;
+		പോകുക error;
 	}
 
-	context = NULL;
+	context = ശൂന്യ;
 	HASH_FIND(hh_id, db.contexts_by_id, client->clientid, strlen(client->clientid), context);
-	if(context == NULL){
+	എങ്കിൽ(context == ശൂന്യ){
 		rc = MOSQ_ERR_NOT_FOUND;
-		goto error;
+		പോകുക error;
 	}
 
 	mosquitto_free(context->username);
 	context->username = client->username;
-	client->username = NULL;
+	client->username = ശൂന്യ;
 
 	context->clean_start = false;
 	context->will_delay_time = client->will_delay_time;
@@ -584,34 +584,34 @@ BROKER_EXPORT int mosquitto_persist_client_update(struct mosquitto_client *clien
 	context->retain_available = client->retain_available;
 
 	/* in per_listener_settings mode, try to find the listener by persisted port */
-	if(db.config->per_listener_settings && client->listener_port > 0){
-		for(int i=0; i < db.config->listener_count; i++){
-			if(db.config->listeners[i].port == client->listener_port){
+	എങ്കിൽ(db.config->per_listener_settings && client->listener_port > 0){
+		വേണ്ടി(പൂർണ്ണസംഖ്യ i=0; i < db.config->listener_എണ്ണം; i++){
+			എങ്കിൽ(db.config->listeners[i].port == client->listener_port){
 				context->listener = &db.config->listeners[i];
-				break;
+				നിർത്തുക;
 			}
 		}
 	}
 
-	return MOSQ_ERR_SUCCESS;
+	തിരികെ MOSQ_ERR_SUCCESS;
 error:
 	SAFE_FREE(client->username);
-	return rc;
+	തിരികെ rc;
 }
 
 
-BROKER_EXPORT int mosquitto_persist_client_delete(const char *clientid)
+BROKER_EXPORT പൂർണ്ണസംഖ്യ mosquitto_persist_client_delete(സ്ഥിരം അക്ഷരം *clientid)
 {
-	struct mosquitto *context;
+	ഘടന mosquitto *context;
 
-	if(clientid == NULL){
-		return MOSQ_ERR_INVAL;
+	എങ്കിൽ(clientid == ശൂന്യ){
+		തിരികെ MOSQ_ERR_INVAL;
 	}
 
-	context = NULL;
+	context = ശൂന്യ;
 	HASH_FIND(hh_id, db.contexts_by_id, clientid, strlen(clientid), context);
-	if(context == NULL){
-		return MOSQ_ERR_SUCCESS;
+	എങ്കിൽ(context == ശൂന്യ){
+		തിരികെ MOSQ_ERR_SUCCESS;
 	}
 
 	session_expiry__remove(context);
@@ -624,225 +624,225 @@ BROKER_EXPORT int mosquitto_persist_client_delete(const char *clientid)
 	mosquitto__set_state(context, mosq_cs_duplicate);
 	do_disconnect(context, MOSQ_ERR_SUCCESS);
 
-	return MOSQ_ERR_SUCCESS;
+	തിരികെ MOSQ_ERR_SUCCESS;
 }
 
 
-static struct mosquitto__base_msg *find_store_msg(uint64_t store_id)
+സ്ഥിതം ഘടന mosquitto_base_സന്ദേശം *find_store_സന്ദേശം(uint64_t store_id)
 {
-	struct mosquitto__base_msg *base_msg;
+	ഘടന mosquitto_base_സന്ദേശം *base_സന്ദേശം;
 
-	HASH_FIND(hh, db.msg_store, &store_id, sizeof(store_id), base_msg);
-	return base_msg;
+	HASH_FIND(hh, db.സന്ദേശം_store, &store_id, വലുപ്പം(store_id), base_സന്ദേശം);
+	തിരികെ base_സന്ദേശം;
 }
 
 
-BROKER_EXPORT int mosquitto_persist_client_msg_add(struct mosquitto_client_msg *client_msg)
+BROKER_EXPORT പൂർണ്ണസംഖ്യ mosquitto_persist_client_സന്ദേശം_add(ഘടന mosquitto_client_സന്ദേശം_2 *client_സന്ദേശം)
 {
-	struct mosquitto *context;
-	struct mosquitto__base_msg *base_msg;
+	ഘടന mosquitto *context;
+	ഘടന mosquitto_base_സന്ദേശം *base_സന്ദേശം;
 
-	if(client_msg == NULL || client_msg->clientid == NULL){
-		return MOSQ_ERR_INVAL;
+	എങ്കിൽ(client_സന്ദേശം == ശൂന്യ || client_സന്ദേശം->clientid == ശൂന്യ){
+		തിരികെ MOSQ_ERR_INVAL;
 	}
 
-	HASH_FIND(hh_id, db.contexts_by_id, client_msg->clientid, strlen(client_msg->clientid), context);
-	if(context == NULL){
-		return MOSQ_ERR_NOT_FOUND;
+	HASH_FIND(hh_id, db.contexts_by_id, client_സന്ദേശം->clientid, strlen(client_സന്ദേശം->clientid), context);
+	എങ്കിൽ(context == ശൂന്യ){
+		തിരികെ MOSQ_ERR_NOT_FOUND;
 	}
-	base_msg = find_store_msg(client_msg->store_id);
-	if(base_msg == NULL){
-		return MOSQ_ERR_NOT_FOUND;
+	base_സന്ദേശം = find_store_സന്ദേശം(client_സന്ദേശം->store_id);
+	എങ്കിൽ(base_സന്ദേശം == ശൂന്യ){
+		തിരികെ MOSQ_ERR_NOT_FOUND;
 	}
 
-	if(client_msg->direction == mosq_md_out){
-		if(client_msg->qos > 0){
-			context->last_mid = client_msg->mid;
+	എങ്കിൽ(client_സന്ദേശം->direction == mosq_md_out){
+		എങ്കിൽ(client_സന്ദേശം->qos > 0){
+			context->last_mid = client_സന്ദേശം->mid;
 		}
-		return db__message_insert_outgoing(context, client_msg->cmsg_id, client_msg->mid,
-				client_msg->qos, client_msg->retain,
-				base_msg, client_msg->subscription_identifier, false, false);
-	}else if(client_msg->direction == mosq_md_in){
-		return db__message_insert_incoming(context, client_msg->cmsg_id, base_msg, false);
-	}else{
-		return MOSQ_ERR_INVAL;
+		തിരികെ db_message_തിരുകുക_outgoing(context, client_സന്ദേശം->cmsg_id, client_സന്ദേശം->mid,
+				client_സന്ദേശം->qos, client_സന്ദേശം->retain,
+				base_സന്ദേശം, client_സന്ദേശം->subscription_identifier, false, false);
+	}അല്ലെങ്കിൽ എങ്കിൽ(client_സന്ദേശം->direction == mosq_md_in){
+		തിരികെ db_message_തിരുകുക_incoming(context, client_സന്ദേശം->cmsg_id, base_സന്ദേശം, false);
+	}അല്ലെങ്കിൽ{
+		തിരികെ MOSQ_ERR_INVAL;
 	}
-	return MOSQ_ERR_SUCCESS;
+	തിരികെ MOSQ_ERR_SUCCESS;
 }
 
 
-BROKER_EXPORT int mosquitto_persist_client_msg_delete(struct mosquitto_client_msg *client_msg)
+BROKER_EXPORT പൂർണ്ണസംഖ്യ mosquitto_persist_client_സന്ദേശം_delete(ഘടന mosquitto_client_സന്ദേശം_2 *client_സന്ദേശം)
 {
-	struct mosquitto *context;
+	ഘടന mosquitto *context;
 
-	if(client_msg == NULL || client_msg->clientid == NULL){
-		return MOSQ_ERR_INVAL;
+	എങ്കിൽ(client_സന്ദേശം == ശൂന്യ || client_സന്ദേശം->clientid == ശൂന്യ){
+		തിരികെ MOSQ_ERR_INVAL;
 	}
 
-	HASH_FIND(hh_id, db.contexts_by_id, client_msg->clientid, strlen(client_msg->clientid), context);
-	if(context == NULL){
-		return MOSQ_ERR_NOT_FOUND;
+	HASH_FIND(hh_id, db.contexts_by_id, client_സന്ദേശം->clientid, strlen(client_സന്ദേശം->clientid), context);
+	എങ്കിൽ(context == ശൂന്യ){
+		തിരികെ MOSQ_ERR_NOT_FOUND;
 	}
 
 
-	int rc = MOSQ_ERR_INVAL;
-	if(client_msg->direction == mosq_md_out){
-		rc = db__message_delete_outgoing(context, client_msg->mid, mosq_ms_any, client_msg->qos);
-	}else if(client_msg->direction == mosq_md_in){
-		rc = db__message_remove_incoming(context, client_msg->mid);
+	പൂർണ്ണസംഖ്യ rc = MOSQ_ERR_INVAL;
+	എങ്കിൽ(client_സന്ദേശം->direction == mosq_md_out){
+		rc = db__message_delete_outgoing(context, client_സന്ദേശം->mid, mosq_ms_any, client_സന്ദേശം->qos);
+	}അല്ലെങ്കിൽ എങ്കിൽ(client_സന്ദേശം->direction == mosq_md_in){
+		rc = db__message_remove_incoming(context, client_സന്ദേശം->mid);
 	}
-	return rc;
+	തിരികെ rc;
 }
 
 
-BROKER_EXPORT int mosquitto_persist_client_msg_update(struct mosquitto_client_msg *client_msg)
+BROKER_EXPORT പൂർണ്ണസംഖ്യ mosquitto_persist_client_സന്ദേശം_update(ഘടന mosquitto_client_സന്ദേശം_2 *client_സന്ദേശം)
 {
-	struct mosquitto *context;
+	ഘടന mosquitto *context;
 
-	if(client_msg == NULL || client_msg->clientid == NULL){
-		return MOSQ_ERR_INVAL;
+	എങ്കിൽ(client_സന്ദേശം == ശൂന്യ || client_സന്ദേശം->clientid == ശൂന്യ){
+		തിരികെ MOSQ_ERR_INVAL;
 	}
 
-	HASH_FIND(hh_id, db.contexts_by_id, client_msg->clientid, strlen(client_msg->clientid), context);
-	if(context == NULL){
-		return MOSQ_ERR_NOT_FOUND;
+	HASH_FIND(hh_id, db.contexts_by_id, client_സന്ദേശം->clientid, strlen(client_സന്ദേശം->clientid), context);
+	എങ്കിൽ(context == ശൂന്യ){
+		തിരികെ MOSQ_ERR_NOT_FOUND;
 	}
 
-	if(client_msg->direction == mosq_md_out){
-		db__message_update_outgoing(context, client_msg->mid, client_msg->state, client_msg->qos, false);
-	}else if(client_msg->direction == mosq_md_in){
+	എങ്കിൽ(client_സന്ദേശം->direction == mosq_md_out){
+		db__message_update_outgoing(context, client_സന്ദേശം->mid, client_സന്ദേശം->state, client_സന്ദേശം->qos, false);
+	}അല്ലെങ്കിൽ എങ്കിൽ(client_സന്ദേശം->direction == mosq_md_in){
 		// FIXME db__message_update_incoming(context, client_msg->mid, client_msg->state, client_msg->qos, false);
-	}else{
-		return MOSQ_ERR_INVAL;
+	}അല്ലെങ്കിൽ{
+		തിരികെ MOSQ_ERR_INVAL;
 	}
-	return MOSQ_ERR_SUCCESS;
+	തിരികെ MOSQ_ERR_SUCCESS;
 }
 
 
-BROKER_EXPORT int mosquitto_persist_client_msg_clear(struct mosquitto_client_msg *client_msg)
+BROKER_EXPORT പൂർണ്ണസംഖ്യ mosquitto_persist_client_സന്ദേശം_clear(ഘടന mosquitto_client_സന്ദേശം_2 *client_സന്ദേശം)
 {
-	struct mosquitto *context;
+	ഘടന mosquitto *context;
 
-	if(client_msg == NULL || client_msg->clientid == NULL){
-		return MOSQ_ERR_INVAL;
+	എങ്കിൽ(client_സന്ദേശം == ശൂന്യ || client_സന്ദേശം->clientid == ശൂന്യ){
+		തിരികെ MOSQ_ERR_INVAL;
 	}
 
-	HASH_FIND(hh_id, db.contexts_by_id, client_msg->clientid, strlen(client_msg->clientid), context);
-	if(context == NULL){
-		return MOSQ_ERR_NOT_FOUND;
+	HASH_FIND(hh_id, db.contexts_by_id, client_സന്ദേശം->clientid, strlen(client_സന്ദേശം->clientid), context);
+	എങ്കിൽ(context == ശൂന്യ){
+		തിരികെ MOSQ_ERR_NOT_FOUND;
 	}
 
-	if(client_msg->direction == mosq_bmd_in || client_msg->direction == mosq_bmd_all){
+	എങ്കിൽ(client_സന്ദേശം->direction == mosq_bmd_in || client_സന്ദേശം->direction == mosq_bmd_all){
 		db__messages_delete_incoming(context);
 	}
-	if(client_msg->direction == mosq_bmd_out || client_msg->direction == mosq_bmd_all){
+	എങ്കിൽ(client_സന്ദേശം->direction == mosq_bmd_out || client_സന്ദേശം->direction == mosq_bmd_all){
 		db__messages_delete_outgoing(context);
 	}
-	return MOSQ_ERR_SUCCESS;
+	തിരികെ MOSQ_ERR_SUCCESS;
 }
 
 
-BROKER_EXPORT int mosquitto_subscription_add(const struct mosquitto_subscription *sub)
+BROKER_EXPORT പൂർണ്ണസംഖ്യ mosquitto_subscription_add(സ്ഥിരം ഘടന mosquitto_subscription *sub)
 {
-	struct mosquitto *context;
+	ഘടന mosquitto *context;
 
-	if(sub == NULL || sub->clientid == NULL || sub->topic_filter == NULL || sub->clientid[0] == '\0' || sub->topic_filter[0] == '\0'){
-		return MOSQ_ERR_INVAL;
+	എങ്കിൽ(sub == ശൂന്യ || sub->clientid == ശൂന്യ || sub->topic_filter == ശൂന്യ || sub->clientid[0] == '\0' || sub->topic_filter[0] == '\0'){
+		തിരികെ MOSQ_ERR_INVAL;
 	}
 
 	HASH_FIND(hh_id, db.contexts_by_id, sub->clientid, strlen(sub->clientid), context);
 
-	if(context){
-		return sub__add(context, sub);
-	}else{
-		return MOSQ_ERR_NOT_FOUND;
+	എങ്കിൽ(context){
+		തിരികെ sub__add(context, sub);
+	}അല്ലെങ്കിൽ{
+		തിരികെ MOSQ_ERR_NOT_FOUND;
 	}
 }
 
 
-BROKER_EXPORT int mosquitto_subscription_delete(const char *clientid, const char *topic)
+BROKER_EXPORT പൂർണ്ണസംഖ്യ mosquitto_subscription_delete(സ്ഥിരം അക്ഷരം *clientid, സ്ഥിരം അക്ഷരം *topic)
 {
-	struct mosquitto *context;
+	ഘടന mosquitto *context;
 	uint8_t reason;
 
-	if(clientid == NULL || topic == NULL || clientid[0] == '\0' || topic[0] == '\0'){
-		return MOSQ_ERR_INVAL;
+	എങ്കിൽ(clientid == ശൂന്യ || topic == ശൂന്യ || clientid[0] == '\0' || topic[0] == '\0'){
+		തിരികെ MOSQ_ERR_INVAL;
 	}
 
 	HASH_FIND(hh_id, db.contexts_by_id, clientid, strlen(clientid), context);
 
-	if(context){
-		return sub__remove(context, topic, &reason);
-	}else{
-		return MOSQ_ERR_NOT_FOUND;
+	എങ്കിൽ(context){
+		തിരികെ sub__remove(context, topic, &reason);
+	}അല്ലെങ്കിൽ{
+		തിരികെ MOSQ_ERR_NOT_FOUND;
 	}
 }
 
 
-BROKER_EXPORT int mosquitto_persist_base_msg_add(struct mosquitto_base_msg *msg_add)
+BROKER_EXPORT പൂർണ്ണസംഖ്യ mosquitto_persist_base_സന്ദേശം_add(ഘടന mosquitto_base_സന്ദേശം_2 *സന്ദേശം_add)
 {
-	struct mosquitto context;
-	struct mosquitto__base_msg *base_msg;
-	int rc;
+	ഘടന mosquitto context;
+	ഘടന mosquitto_base_സന്ദേശം *base_സന്ദേശം;
+	പൂർണ്ണസംഖ്യ rc;
 
-	memset(&context, 0, sizeof(context));
+	memset(&context, 0, വലുപ്പം(context));
 
-	if(msg_add->payloadlen > MQTT_MAX_PAYLOAD){
-		return MOSQ_ERR_INVAL;
+	എങ്കിൽ(സന്ദേശം_add->payloadlen > MQTT_MAX_PAYLOAD){
+		തിരികെ MOSQ_ERR_INVAL;
 	}
 
 	/* db__message_store only takes a copy of .id and .username, so it is reasonably safe
 	 * to cast the const char * to char * */
-	context.id = (char *)msg_add->source_id;
-	context.username = (char *)msg_add->source_username;
+	context.id = (അക്ഷരം *)സന്ദേശം_add->source_id;
+	context.username = (അക്ഷരം *)സന്ദേശം_add->source_username;
 
-	base_msg = mosquitto_calloc(1, sizeof(struct mosquitto__base_msg));
-	if(base_msg == NULL){
-		goto error;
+	base_സന്ദേശം = mosquitto_calloc(1, വലുപ്പം(ഘടന mosquitto_base_സന്ദേശം));
+	എങ്കിൽ(base_സന്ദേശം == ശൂന്യ){
+		പോകുക error;
 	}
-	base_msg->data.store_id = msg_add->store_id;
-	base_msg->data.expiry_time = msg_add->expiry_time;
-	base_msg->data.payloadlen = msg_add->payloadlen;
-	base_msg->data.source_mid = msg_add->source_mid;
-	base_msg->data.qos = msg_add->qos;
-	base_msg->data.retain = msg_add->retain;
+	base_സന്ദേശം->data.store_id = സന്ദേശം_add->store_id;
+	base_സന്ദേശം->data.expiry_time = സന്ദേശം_add->expiry_time;
+	base_സന്ദേശം->data.payloadlen = സന്ദേശം_add->payloadlen;
+	base_സന്ദേശം->data.source_mid = സന്ദേശം_add->source_mid;
+	base_സന്ദേശം->data.qos = സന്ദേശം_add->qos;
+	base_സന്ദേശം->data.retain = സന്ദേശം_add->retain;
 
-	base_msg->data.payload = msg_add->payload;
-	msg_add->payload = NULL;
-	base_msg->data.topic = msg_add->topic;
-	msg_add->topic = NULL;
-	base_msg->data.properties = msg_add->properties;
-	msg_add->properties = NULL;
+	base_സന്ദേശം->data.payload = സന്ദേശം_add->payload;
+	സന്ദേശം_add->payload = ശൂന്യ;
+	base_സന്ദേശം->data.topic = സന്ദേശം_add->topic;
+	സന്ദേശം_add->topic = ശൂന്യ;
+	base_സന്ദേശം->data.properties = സന്ദേശം_add->properties;
+	സന്ദേശം_add->properties = ശൂന്യ;
 
-	if(msg_add->source_port){
-		for(int i=0; i<db.config->listener_count; i++){
-			if(db.config->listeners[i].port == msg_add->source_port){
-				base_msg->source_listener = &db.config->listeners[i];
-				break;
+	എങ്കിൽ(സന്ദേശം_add->source_port){
+		വേണ്ടി(പൂർണ്ണസംഖ്യ i=0; i<db.config->listener_എണ്ണം; i++){
+			എങ്കിൽ(db.config->listeners[i].port == സന്ദേശം_add->source_port){
+				base_സന്ദേശം->source_listener = &db.config->listeners[i];
+				നിർത്തുക;
 			}
 		}
 	}
 
-	base_msg->stored = true;
-	rc = db__message_store(&context, base_msg, NULL, mosq_mo_broker);
-	return rc;
+	base_സന്ദേശം->stored = true;
+	rc = db__message_store(&context, base_സന്ദേശം, ശൂന്യ, mosq_mo_broker);
+	തിരികെ rc;
 
 error:
-	mosquitto_property_free_all(&msg_add->properties);
-	mosquitto_free(msg_add->topic);
-	mosquitto_free(msg_add->payload);
-	mosquitto_free(base_msg);
+	mosquitto_property_free_all(&സന്ദേശം_add->properties);
+	mosquitto_free(സന്ദേശം_add->topic);
+	mosquitto_free(സന്ദേശം_add->payload);
+	mosquitto_free(base_സന്ദേശം);
 
-	return MOSQ_ERR_NOMEM;
+	തിരികെ MOSQ_ERR_NOMEM;
 }
 
 
-BROKER_EXPORT int mosquitto_persist_base_msg_delete(uint64_t store_id)
+BROKER_EXPORT പൂർണ്ണസംഖ്യ mosquitto_persist_base_സന്ദേശം_delete(uint64_t store_id)
 {
-	struct mosquitto__base_msg *base_msg;
+	ഘടന mosquitto_base_സന്ദേശം *base_സന്ദേശം;
 
-	base_msg = find_store_msg(store_id);
-	if(base_msg && base_msg->ref_count == 0){
+	base_സന്ദേശം = find_store_സന്ദേശം(store_id);
+	എങ്കിൽ(base_സന്ദേശം && base_സന്ദേശം->ref_എണ്ണം == 0){
 		/* If ref count is zero, then we should delete this. It might seem
 		 * surprising that the ref count is zero already, but it can be. If ref
 		 * count is greater than zero then there may be e.g. a retained message
@@ -851,31 +851,31 @@ BROKER_EXPORT int mosquitto_persist_base_msg_delete(uint64_t store_id)
 		 * the retain changes there will be use after free errors. All messages
 		 * will eventually hit ref count 0 and be removed in some way or other.
 		 */
-		db__msg_store_remove(base_msg, false);
+		db_സന്ദേശം_store_remove(base_സന്ദേശം, false);
 	}
 
-	return MOSQ_ERR_SUCCESS;
+	തിരികെ MOSQ_ERR_SUCCESS;
 }
 
 
-BROKER_EXPORT void mosquitto_complete_basic_auth(const char *clientid, int result)
+BROKER_EXPORT ശൂന്യം mosquitto_complete_basic_auth(സ്ഥിരം അക്ഷരം *clientid, പൂർണ്ണസംഖ്യ result)
 {
-	struct mosquitto *context;
+	ഘടന mosquitto *context;
 
-	if(clientid == NULL){
-		return;
+	എങ്കിൽ(clientid == ശൂന്യ){
+		തിരികെ;
 	}
 
 	HASH_FIND(hh_id, db.contexts_by_id_delayed_auth, clientid, strlen(clientid), context);
-	if(context){
+	എങ്കിൽ(context){
 		HASH_DELETE(hh_id, db.contexts_by_id_delayed_auth, context);
-		if(result == MOSQ_ERR_SUCCESS){
-			connect__on_authorised(context, NULL, 0);
-		}else{
-			if(context->protocol == mosq_p_mqtt5){
-				send__connack(context, 0, MQTT_RC_NOT_AUTHORIZED, NULL);
-			}else{
-				send__connack(context, 0, CONNACK_REFUSED_NOT_AUTHORIZED, NULL);
+		എങ്കിൽ(result == MOSQ_ERR_SUCCESS){
+			connect__on_authorised(context, ശൂന്യ, 0);
+		}അല്ലെങ്കിൽ{
+			എങ്കിൽ(context->protocol == mosq_p_mqtt5){
+				send__connack(context, 0, MQTT_RC_NOT_AUTHORIZED, ശൂന്യ);
+			}അല്ലെങ്കിൽ{
+				send__connack(context, 0, CONNACK_REFUSED_NOT_AUTHORIZED, ശൂന്യ);
 			}
 			context->clean_start = true;
 			context->session_expiry_interval = MQTT_SESSION_EXPIRY_IMMEDIATE;
@@ -886,35 +886,35 @@ BROKER_EXPORT void mosquitto_complete_basic_auth(const char *clientid, int resul
 }
 
 
-BROKER_EXPORT int mosquitto_broker_node_id_set(uint16_t id)
+BROKER_EXPORT പൂർണ്ണസംഖ്യ mosquitto_broker_കണ്ണി_id_set(uint16_t id)
 {
-	if(id > 1023){
-		return MOSQ_ERR_INVAL;
-	}else{
-		db.node_id = id;
-		db.node_id_shifted = ((uint64_t)id) << 54;
-		return MOSQ_ERR_SUCCESS;
+	എങ്കിൽ(id > 1023){
+		തിരികെ MOSQ_ERR_INVAL;
+	}അല്ലെങ്കിൽ{
+		db.കണ്ണി_id = id;
+		db.കണ്ണി_id_shifted = ((uint64_t)id) << 54;
+		തിരികെ MOSQ_ERR_SUCCESS;
 	}
 }
 
 
-BROKER_EXPORT const char *mosquitto_persistence_location(void)
+BROKER_EXPORT സ്ഥിരം അക്ഷരം *mosquitto_persistence_location(ശൂന്യം)
 {
-	return db.config->persistence_location;
+	തിരികെ db.config->persistence_location;
 }
 
 
-BROKER_EXPORT int mosquitto_client_will_set(const char *clientid, const char *topic, int payloadlen, const void *payload, int qos, bool retain, mosquitto_property *properties)
+BROKER_EXPORT പൂർണ്ണസംഖ്യ mosquitto_client_will_set(സ്ഥിരം അക്ഷരം *clientid, സ്ഥിരം അക്ഷരം *topic, പൂർണ്ണസംഖ്യ payloadlen, സ്ഥിരം ശൂന്യം *payload, പൂർണ്ണസംഖ്യ qos, bool retain, mosquitto_property *properties)
 {
-	struct mosquitto *mosq = mosquitto_client(clientid);
-	if(!mosq){
-		return MOSQ_ERR_NOT_FOUND;
+	ഘടന mosquitto *mosq = mosquitto_client(clientid);
+	എങ്കിൽ(!mosq){
+		തിരികെ MOSQ_ERR_NOT_FOUND;
 	}
-	if(properties && mosq->protocol != mosq_p_mqtt5){
-		if(net__is_connected(mosq)){
-			return MOSQ_ERR_NOT_SUPPORTED;
+	എങ്കിൽ(properties && mosq->protocol != mosq_p_mqtt5){
+		എങ്കിൽ(net__is_connected(mosq)){
+			തിരികെ MOSQ_ERR_NOT_SUPPORTED;
 		}
 		mosq->protocol = mosq_p_mqtt5;
 	}
-	return will__set(mosq, topic, payloadlen, payload, qos, retain, properties);
+	തിരികെ will__set(mosq, topic, payloadlen, payload, qos, retain, properties);
 }

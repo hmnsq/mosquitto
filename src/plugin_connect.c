@@ -16,19 +16,19 @@ Contributors:
    Roger Light - initial implementation and documentation.
 */
 
-#include "config.h"
+#അന്തര്ഭാവ "config.h"
 
-#include "mosquitto_broker_internal.h"
-#include "mosquitto_internal.h"
-#include "utlist.h"
+#അന്തര്ഭാവ "mosquitto_broker_internal.h"
+#അന്തര്ഭാവ "mosquitto_internal.h"
+#അന്തര്ഭാവ "utlist.h"
 
 
-static void plugin__handle_connect_single(struct mosquitto__security_options *opts, struct mosquitto *context)
+സ്ഥിതം ശൂന്യം plugin__handle_connect_single(ഘടന mosquitto__security_options *opts, ഘടന mosquitto *context)
 {
-	struct mosquitto_evt_connect event_data;
-	struct mosquitto__callback *cb_base, *cb_next;
+	ഘടന mosquitto_evt_connect event_data;
+	ഘടന mosquitto__callback *cb_base, *cb_next;
 
-	memset(&event_data, 0, sizeof(event_data));
+	memset(&event_data, 0, വലുപ്പം(event_data));
 	event_data.client = context;
 	DL_FOREACH_SAFE(opts->plugin_callbacks.connect, cb_base, cb_next){
 		cb_base->cb(MOSQ_EVT_CONNECT, &event_data, cb_base->userdata);
@@ -36,13 +36,13 @@ static void plugin__handle_connect_single(struct mosquitto__security_options *op
 }
 
 
-void plugin__handle_connect(struct mosquitto *context)
+ശൂന്യം plugin__handle_connect(ഘടന mosquitto *context)
 {
 	/* Global plugins */
 	plugin__handle_connect_single(&db.config->security_options, context);
 
 	/* Per listener plugins */
-	if(context->listener){
+	എങ്കിൽ(context->listener){
 		plugin__handle_connect_single(context->listener->security_options, context);
 	}
 }

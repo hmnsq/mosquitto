@@ -16,22 +16,22 @@ Contributors:
    Roger Light - initial implementation and documentation.
 */
 
-#include "config.h"
+#അന്തര്ഭാവ "config.h"
 
-#include <ctype.h>
-#include <stdio.h>
-#include <string.h>
+#അന്തര്ഭാവ <ctype.h>
+#അന്തര്ഭാവ <stdio.h>
+#അന്തര്ഭാവ <string.h>
 
-#include "mosquitto_broker_internal.h"
-#include "mosquitto/mqtt_protocol.h"
-#include "send_mosq.h"
-#include "util_mosq.h"
+#അന്തര്ഭാവ "mosquitto_broker_internal.h"
+#അന്തര്ഭാവ "mosquitto/mqtt_protocol.h"
+#അന്തര്ഭാവ "send_mosq.h"
+#അന്തര്ഭാവ "util_mosq.h"
 
-static int psk__cleanup(struct mosquitto__psk **psk);
-static int psk__file_parse(struct mosquitto__psk **psk_id, const char *psk_file);
+സ്ഥിതം പൂർണ്ണസംഖ്യ psk__cleanup(ഘടന mosquitto__psk **psk);
+സ്ഥിതം പൂർണ്ണസംഖ്യ psk__file_parse(ഘടന mosquitto__psk **psk_id, സ്ഥിരം അക്ഷരം *psk_file);
 
 
-static void psk__free_item(struct mosquitto__psk *psk)
+സ്ഥിതം ശൂന്യം psk__free_item(ഘടന mosquitto__psk *psk)
 {
 	mosquitto_FREE(psk->username);
 	mosquitto_FREE(psk->password);
@@ -39,143 +39,143 @@ static void psk__free_item(struct mosquitto__psk *psk)
 }
 
 
-int psk_file__init(void)
+പൂർണ്ണസംഖ്യ psk_file__init(ശൂന്യം)
 {
-	int rc;
-	char *pskf = NULL;
+	പൂർണ്ണസംഖ്യ rc;
+	അക്ഷരം *pskf = ശൂന്യ;
 
 	/* Load psk data if required. */
-	if(db.config->per_listener_settings){
-		for(int i=0; i<db.config->listener_count; i++){
+	എങ്കിൽ(db.config->per_listener_settings){
+		വേണ്ടി(പൂർണ്ണസംഖ്യ i=0; i<db.config->listener_എണ്ണം; i++){
 			pskf = db.config->listeners[i].security_options->psk_file;
-			if(pskf){
+			എങ്കിൽ(pskf){
 				rc = psk__file_parse(&db.config->listeners[i].security_options->psk_id, pskf);
-				if(rc){
-					log__printf(NULL, MOSQ_LOG_ERR, "Error opening psk file \"%s\".", pskf);
-					return rc;
+				എങ്കിൽ(rc){
+					log__printf(ശൂന്യ, MOSQ_LOG_ERR, "Error opening psk file \"%s\".", pskf);
+					തിരികെ rc;
 				}
 			}
 		}
-	}else{
+	}അല്ലെങ്കിൽ{
 		pskf = db.config->security_options.psk_file;
-		if(pskf){
+		എങ്കിൽ(pskf){
 			rc = psk__file_parse(&db.config->security_options.psk_id, pskf);
-			if(rc){
-				log__printf(NULL, MOSQ_LOG_ERR, "Error opening psk file \"%s\".", pskf);
-				return rc;
+			എങ്കിൽ(rc){
+				log__printf(ശൂന്യ, MOSQ_LOG_ERR, "Error opening psk file \"%s\".", pskf);
+				തിരികെ rc;
 			}
 		}
 	}
 
-	return MOSQ_ERR_SUCCESS;
+	തിരികെ MOSQ_ERR_SUCCESS;
 }
 
 
-int psk_file__cleanup(void)
+പൂർണ്ണസംഖ്യ psk_file__cleanup(ശൂന്യം)
 {
-	int rc;
+	പൂർണ്ണസംഖ്യ rc;
 
 	rc = psk__cleanup(&db.config->security_options.psk_id);
-	if(rc != MOSQ_ERR_SUCCESS){
-		return rc;
+	എങ്കിൽ(rc != MOSQ_ERR_SUCCESS){
+		തിരികെ rc;
 	}
 
-	for(int i=0; i<db.config->listener_count; i++){
-		if(db.config->listeners[i].security_options->psk_id){
+	വേണ്ടി(പൂർണ്ണസംഖ്യ i=0; i<db.config->listener_എണ്ണം; i++){
+		എങ്കിൽ(db.config->listeners[i].security_options->psk_id){
 			rc = psk__cleanup(&db.config->listeners[i].security_options->psk_id);
-			if(rc != MOSQ_ERR_SUCCESS){
-				return rc;
+			എങ്കിൽ(rc != MOSQ_ERR_SUCCESS){
+				തിരികെ rc;
 			}
 		}
 	}
 
-	return MOSQ_ERR_SUCCESS;
+	തിരികെ MOSQ_ERR_SUCCESS;
 }
 
 
-static int pwfile__parse(const char *file, struct mosquitto__psk **root)
+സ്ഥിതം പൂർണ്ണസംഖ്യ pwfile__parse(സ്ഥിരം അക്ഷരം *file, ഘടന mosquitto__psk **വേര്)
 {
 	FILE *pwfile;
-	struct mosquitto__psk *psk;
-	char *username, *password;
-	char *saveptr = NULL;
-	char *buf;
-	int buflen = 256;
+	ഘടന mosquitto__psk *psk;
+	അക്ഷരം *username, *password;
+	അക്ഷരം *saveptr = ശൂന്യ;
+	അക്ഷരം *buf;
+	പൂർണ്ണസംഖ്യ buflen = 256;
 
 	buf = mosquitto_malloc((size_t)buflen);
-	if(buf == NULL){
-		log__printf(NULL, MOSQ_LOG_ERR, "Error: Out of memory.");
-		return MOSQ_ERR_NOMEM;
+	എങ്കിൽ(buf == ശൂന്യ){
+		log__printf(ശൂന്യ, MOSQ_LOG_ERR, "Error: Out of memory.");
+		തിരികെ MOSQ_ERR_NOMEM;
 	}
 
 	pwfile = mosquitto_fopen(file, "rt", true);
-	if(!pwfile){
-		log__printf(NULL, MOSQ_LOG_ERR, "Error: Unable to open pwfile \"%s\".", file);
+	എങ്കിൽ(!pwfile){
+		log__printf(ശൂന്യ, MOSQ_LOG_ERR, "Error: Unable to open pwfile \"%s\".", file);
 		mosquitto_FREE(buf);
-		return MOSQ_ERR_UNKNOWN;
+		തിരികെ MOSQ_ERR_UNKNOWN;
 	}
 
-	while(!feof(pwfile)){
-		if(mosquitto_fgets(&buf, &buflen, pwfile)){
-			if(buf[0] == '#'){
-				continue;
+	ആകുമ്പോൾ(!feof(pwfile)){
+		എങ്കിൽ(mosquitto_fgets(&buf, &buflen, pwfile)){
+			എങ്കിൽ(buf[0] == '#'){
+				തുടരുക;
 			}
-			if(!strchr(buf, ':')){
-				continue;
+			എങ്കിൽ(!strchr(buf, ':')){
+				തുടരുക;
 			}
 
 			username = strtok_r(buf, ":", &saveptr);
-			if(username){
+			എങ്കിൽ(username){
 				username = mosquitto_trimblanks(username);
-				if(strlen(username) > 65535){
-					log__printf(NULL, MOSQ_LOG_NOTICE, "Warning: Invalid line in password file '%s', username too long.", file);
-					continue;
+				എങ്കിൽ(strlen(username) > 65535){
+					log__printf(ശൂന്യ, MOSQ_LOG_NOTICE, "Warning: Invalid line in password file '%s', username too long.", file);
+					തുടരുക;
 				}
-				if(strlen(username) <= 0){
-					log__printf(NULL, MOSQ_LOG_NOTICE, "Warning: Empty username in password file '%s', ingoring.", file);
-					continue;
-				}
-
-				HASH_FIND(hh, *root, username, strlen(username), psk);
-				if(psk){
-					log__printf(NULL, MOSQ_LOG_NOTICE, "Error: Duplicate user '%s' in password file '%s', ignoring.", username, file);
-					continue;
+				എങ്കിൽ(strlen(username) <= 0){
+					log__printf(ശൂന്യ, MOSQ_LOG_NOTICE, "Warning: Empty username in password file '%s', ingoring.", file);
+					തുടരുക;
 				}
 
-				psk = mosquitto_calloc(1, sizeof(struct mosquitto__psk));
-				if(!psk){
+				HASH_FIND(hh, *വേര്, username, strlen(username), psk);
+				എങ്കിൽ(psk){
+					log__printf(ശൂന്യ, MOSQ_LOG_NOTICE, "Error: Duplicate user '%s' in password file '%s', ignoring.", username, file);
+					തുടരുക;
+				}
+
+				psk = mosquitto_calloc(1, വലുപ്പം(ഘടന mosquitto__psk));
+				എങ്കിൽ(!psk){
 					fclose(pwfile);
 					mosquitto_FREE(buf);
-					return MOSQ_ERR_NOMEM;
+					തിരികെ MOSQ_ERR_NOMEM;
 				}
 
 				psk->username = mosquitto_strdup(username);
-				if(!psk->username){
+				എങ്കിൽ(!psk->username){
 					psk__free_item(psk);
 					mosquitto_FREE(buf);
 					fclose(pwfile);
-					return MOSQ_ERR_NOMEM;
+					തിരികെ MOSQ_ERR_NOMEM;
 				}
-				password = strtok_r(NULL, ":", &saveptr);
-				if(password){
+				password = strtok_r(ശൂന്യ, ":", &saveptr);
+				എങ്കിൽ(password){
 					password = mosquitto_trimblanks(password);
 
-					if(strlen(password) > 65535){
-						log__printf(NULL, MOSQ_LOG_NOTICE, "Warning: Invalid line in password file '%s', password too long.", file);
+					എങ്കിൽ(strlen(password) > 65535){
+						log__printf(ശൂന്യ, MOSQ_LOG_NOTICE, "Warning: Invalid line in password file '%s', password too long.", file);
 						psk__free_item(psk);
-						continue;
+						തുടരുക;
 					}
 
 					psk->password = mosquitto_strdup(password);
-					if(!psk->password){
-						log__printf(NULL, MOSQ_LOG_NOTICE, "Warning: Unable to decode line in password file '%s'.", file);
+					എങ്കിൽ(!psk->password){
+						log__printf(ശൂന്യ, MOSQ_LOG_NOTICE, "Warning: Unable to decode line in password file '%s'.", file);
 						psk__free_item(psk);
-						continue;
+						തുടരുക;
 					}
 
-					HASH_ADD_KEYPTR(hh, *root, psk->username, strlen(psk->username), psk);
-				}else{
-					log__printf(NULL, MOSQ_LOG_NOTICE, "Warning: Invalid line in psk file '%s': %s", file, buf);
+					HASH_ADD_KEYPTR(hh, *വേര്, psk->username, strlen(psk->username), psk);
+				}അല്ലെങ്കിൽ{
+					log__printf(ശൂന്യ, MOSQ_LOG_NOTICE, "Warning: Invalid line in psk file '%s': %s", file, buf);
 					psk__free_item(psk);
 				}
 			}
@@ -184,89 +184,89 @@ static int pwfile__parse(const char *file, struct mosquitto__psk **root)
 	fclose(pwfile);
 	mosquitto_FREE(buf);
 
-	return MOSQ_ERR_SUCCESS;
+	തിരികെ MOSQ_ERR_SUCCESS;
 }
 
 
-static int psk__file_parse(struct mosquitto__psk **psk_id, const char *psk_file)
+സ്ഥിതം പൂർണ്ണസംഖ്യ psk__file_parse(ഘടന mosquitto__psk **psk_id, സ്ഥിരം അക്ഷരം *psk_file)
 {
-	int rc;
-	struct mosquitto__psk *psk, *tmp = NULL;
+	പൂർണ്ണസംഖ്യ rc;
+	ഘടന mosquitto__psk *psk, *tmp = ശൂന്യ;
 
-	if(!db.config || !psk_id){
-		return MOSQ_ERR_INVAL;
+	എങ്കിൽ(!db.config || !psk_id){
+		തിരികെ MOSQ_ERR_INVAL;
 	}
 
 	/* We haven't been asked to parse a psk file. */
-	if(!psk_file){
-		return MOSQ_ERR_SUCCESS;
+	എങ്കിൽ(!psk_file){
+		തിരികെ MOSQ_ERR_SUCCESS;
 	}
 
 	rc = pwfile__parse(psk_file, psk_id);
-	if(rc){
-		return rc;
+	എങ്കിൽ(rc){
+		തിരികെ rc;
 	}
 
 	HASH_ITER(hh, (*psk_id), psk, tmp){
 		/* Check for hex only digits */
-		if(!psk->password){
-			log__printf(NULL, MOSQ_LOG_ERR, "Error: Empty psk for identity \"%s\".", psk->username);
-			return MOSQ_ERR_INVAL;
+		എങ്കിൽ(!psk->password){
+			log__printf(ശൂന്യ, MOSQ_LOG_ERR, "Error: Empty psk for identity \"%s\".", psk->username);
+			തിരികെ MOSQ_ERR_INVAL;
 		}
-		if(strspn(psk->password, "0123456789abcdefABCDEF") < strlen(psk->password)){
-			log__printf(NULL, MOSQ_LOG_ERR, "Error: psk for identity \"%s\" contains non-hexadecimal characters.", psk->username);
-			return MOSQ_ERR_INVAL;
+		എങ്കിൽ(strspn(psk->password, "0123456789abcdefABCDEF") < strlen(psk->password)){
+			log__printf(ശൂന്യ, MOSQ_LOG_ERR, "Error: psk for identity \"%s\" contains non-hexadecimal characters.", psk->username);
+			തിരികെ MOSQ_ERR_INVAL;
 		}
 	}
-	return MOSQ_ERR_SUCCESS;
+	തിരികെ MOSQ_ERR_SUCCESS;
 }
 
 
-static int psk__cleanup(struct mosquitto__psk **root)
+സ്ഥിതം പൂർണ്ണസംഖ്യ psk__cleanup(ഘടന mosquitto__psk **വേര്)
 {
-	struct mosquitto__psk *psk, *tmp = NULL;
+	ഘടന mosquitto__psk *psk, *tmp = ശൂന്യ;
 
-	if(!root){
-		return MOSQ_ERR_INVAL;
+	എങ്കിൽ(!വേര്){
+		തിരികെ MOSQ_ERR_INVAL;
 	}
 
-	HASH_ITER(hh, *root, psk, tmp){
-		HASH_DEL(*root, psk);
+	HASH_ITER(hh, *വേര്, psk, tmp){
+		HASH_DEL(*വേര്, psk);
 		psk__free_item(psk);
 	}
 
-	*root = NULL;
+	*വേര് = ശൂന്യ;
 
-	return MOSQ_ERR_SUCCESS;
+	തിരികെ MOSQ_ERR_SUCCESS;
 }
 
 
-int mosquitto_psk_key_get_default(struct mosquitto *context, const char *hint, const char *identity, char *key, int max_key_len)
+പൂർണ്ണസംഖ്യ mosquitto_psk_താക്കോൽ_get_default(ഘടന mosquitto *context, സ്ഥിരം അക്ഷരം *hint, സ്ഥിരം അക്ഷരം *identity, അക്ഷരം *താക്കോൽ, പൂർണ്ണസംഖ്യ max_താക്കോൽ_len)
 {
-	struct mosquitto__psk *psk;
-	struct mosquitto__psk *psk_id_ref = NULL;
+	ഘടന mosquitto__psk *psk;
+	ഘടന mosquitto__psk *psk_id_ref = ശൂന്യ;
 
-	if(!hint || !identity || !key){
-		return MOSQ_ERR_INVAL;
+	എങ്കിൽ(!hint || !identity || !താക്കോൽ){
+		തിരികെ MOSQ_ERR_INVAL;
 	}
 
-	if(db.config->per_listener_settings){
-		if(!context->listener){
-			return MOSQ_ERR_INVAL;
+	എങ്കിൽ(db.config->per_listener_settings){
+		എങ്കിൽ(!context->listener){
+			തിരികെ MOSQ_ERR_INVAL;
 		}
 		psk_id_ref = context->listener->security_options->psk_id;
-	}else{
+	}അല്ലെങ്കിൽ{
 		psk_id_ref = db.config->security_options.psk_id;
 	}
-	if(!psk_id_ref){
-		return MOSQ_ERR_PLUGIN_IGNORE;
+	എങ്കിൽ(!psk_id_ref){
+		തിരികെ MOSQ_ERR_PLUGIN_IGNORE;
 	}
 
 	HASH_FIND(hh, psk_id_ref, identity, strlen(identity), psk);
-	if(psk){
-		strncpy(key, psk->password, (size_t)max_key_len);
-		return MOSQ_ERR_SUCCESS;
+	എങ്കിൽ(psk){
+		strncpy(താക്കോൽ, psk->password, (size_t)max_താക്കോൽ_len);
+		തിരികെ MOSQ_ERR_SUCCESS;
 	}
 
-	return MOSQ_ERR_AUTH;
+	തിരികെ MOSQ_ERR_AUTH;
 }

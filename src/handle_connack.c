@@ -16,22 +16,22 @@ Contributors:
    Roger Light - initial implementation and documentation.
 */
 
-#include "config.h"
+#അന്തര്ഭാവ "config.h"
 
-#include <stdio.h>
-#include <string.h>
+#അന്തര്ഭാവ <stdio.h>
+#അന്തര്ഭാവ <string.h>
 
-#include "mosquitto_broker_internal.h"
-#include "mosquitto/mqtt_protocol.h"
-#include "packet_mosq.h"
-#include "send_mosq.h"
-#include "util_mosq.h"
+#അന്തര്ഭാവ "mosquitto_broker_internal.h"
+#അന്തര്ഭാവ "mosquitto/mqtt_protocol.h"
+#അന്തര്ഭാവ "packet_mosq.h"
+#അന്തര്ഭാവ "send_mosq.h"
+#അന്തര്ഭാവ "util_mosq.h"
 
 
-static int handle__connack_properties(struct mosquitto *context)
+സ്ഥിതം പൂർണ്ണസംഖ്യ handle__connack_properties(ഘടന mosquitto *context)
 {
-	int rc;
-	mosquitto_property *properties = NULL;
+	പൂർണ്ണസംഖ്യ rc;
+	mosquitto_property *properties = ശൂന്യ;
 	uint16_t inflight_maximum;
 	uint8_t max_qos = 255;
 	uint32_t maximum_packet_size;
@@ -40,22 +40,22 @@ static int handle__connack_properties(struct mosquitto *context)
 	uint8_t retain_available;
 
 	rc = property__read_all(CMD_CONNACK, &context->in_packet, &properties);
-	if(rc){
-		return rc;
+	എങ്കിൽ(rc){
+		തിരികെ rc;
 	}
 
 	/* maximum-qos */
 	mosquitto_property_read_byte(properties, MQTT_PROP_MAXIMUM_QOS,
 			&max_qos, false);
-	if(max_qos != 255){
+	എങ്കിൽ(max_qos != 255){
 		context->max_qos = max_qos;
 	}
 
 	/* maximum-packet-size */
-	if(mosquitto_property_read_int32(properties, MQTT_PROP_MAXIMUM_PACKET_SIZE,
+	എങ്കിൽ(mosquitto_property_read_int32(properties, MQTT_PROP_MAXIMUM_PACKET_SIZE,
 			&maximum_packet_size, false)){
 
-		if(context->maximum_packet_size == 0 || context->maximum_packet_size > maximum_packet_size){
+		എങ്കിൽ(context->maximum_packet_size == 0 || context->maximum_packet_size > maximum_packet_size){
 			context->maximum_packet_size = maximum_packet_size;
 		}
 	}
@@ -63,148 +63,148 @@ static int handle__connack_properties(struct mosquitto *context)
 	/* receive-maximum */
 	inflight_maximum = context->msgs_out.inflight_maximum;
 	mosquitto_property_read_int16(properties, MQTT_PROP_RECEIVE_MAXIMUM, &inflight_maximum, false);
-	if(context->msgs_out.inflight_maximum != inflight_maximum){
+	എങ്കിൽ(context->msgs_out.inflight_maximum != inflight_maximum){
 		context->msgs_out.inflight_maximum = inflight_maximum;
 		db__message_reconnect_reset(context);
 	}
 
 	/* retain-available */
-	if(mosquitto_property_read_byte(properties, MQTT_PROP_RETAIN_AVAILABLE,
+	എങ്കിൽ(mosquitto_property_read_byte(properties, MQTT_PROP_RETAIN_AVAILABLE,
 			&retain_available, false)){
 
 		/* Only use broker provided value if the local config is set to available==true */
-		if(context->retain_available){
+		എങ്കിൽ(context->retain_available){
 			context->retain_available = retain_available;
 		}
 	}
 
 	/* server-keepalive */
-	if(mosquitto_property_read_int16(properties, MQTT_PROP_SERVER_KEEP_ALIVE,
+	എങ്കിൽ(mosquitto_property_read_int16(properties, MQTT_PROP_SERVER_KEEP_ALIVE,
 			&server_keepalive, false)){
 
 		context->keepalive = server_keepalive;
 	}
 
 	/* topic-alias-maximum */
-	if(mosquitto_property_read_int16(properties, MQTT_PROP_TOPIC_ALIAS_MAXIMUM,
+	എങ്കിൽ(mosquitto_property_read_int16(properties, MQTT_PROP_TOPIC_ALIAS_MAXIMUM,
 			&max_topic_alias, false)){
 
-		if(max_topic_alias < context->bridge->max_topic_alias){
+		എങ്കിൽ(max_topic_alias < context->bridge->max_topic_alias){
 			context->alias_max_l2r = max_topic_alias;
-		}else{
+		}അല്ലെങ്കിൽ{
 			context->alias_max_l2r = context->bridge->max_topic_alias;
 		}
 	}
 
 	mosquitto_property_free_all(&properties);
 
-	return MOSQ_ERR_SUCCESS;
+	തിരികെ MOSQ_ERR_SUCCESS;
 }
 
 
-int handle__connack(struct mosquitto *context)
+പൂർണ്ണസംഖ്യ handle__connack(ഘടന mosquitto *context)
 {
-	int rc;
+	പൂർണ്ണസംഖ്യ rc;
 	uint8_t connect_acknowledge;
 	uint8_t reason_code;
 
-	if(context == NULL){
-		return MOSQ_ERR_INVAL;
+	എങ്കിൽ(context == ശൂന്യ){
+		തിരികെ MOSQ_ERR_INVAL;
 	}
-	if(context->bridge == NULL){
-		log__printf(NULL, MOSQ_LOG_INFO, "Protocol error from %s: CONNACK when not a bridge.", context->id);
-		return MOSQ_ERR_PROTOCOL;
+	എങ്കിൽ(context->bridge == ശൂന്യ){
+		log__printf(ശൂന്യ, MOSQ_LOG_INFO, "Protocol error from %s: CONNACK when not a bridge.", context->id);
+		തിരികെ MOSQ_ERR_PROTOCOL;
 	}
-	if(context->in_packet.command != CMD_CONNACK){
-		return MOSQ_ERR_MALFORMED_PACKET;
+	എങ്കിൽ(context->in_packet.command != CMD_CONNACK){
+		തിരികെ MOSQ_ERR_MALFORMED_PACKET;
 	}
-	log__printf(NULL, MOSQ_LOG_DEBUG, "Received CONNACK on connection %s.", context->id);
-	if(packet__read_byte(&context->in_packet, &connect_acknowledge)){
-		return MOSQ_ERR_MALFORMED_PACKET;
+	log__printf(ശൂന്യ, MOSQ_LOG_DEBUG, "Received CONNACK on connection %s.", context->id);
+	എങ്കിൽ(packet__read_byte(&context->in_packet, &connect_acknowledge)){
+		തിരികെ MOSQ_ERR_MALFORMED_PACKET;
 	}
-	if(packet__read_byte(&context->in_packet, &reason_code)){
-		return MOSQ_ERR_MALFORMED_PACKET;
+	എങ്കിൽ(packet__read_byte(&context->in_packet, &reason_code)){
+		തിരികെ MOSQ_ERR_MALFORMED_PACKET;
 	}
 
-	if(context->protocol == mosq_p_mqtt5){
-		if(context->in_packet.remaining_length == 2 && reason_code == CONNACK_REFUSED_PROTOCOL_VERSION){
+	എങ്കിൽ(context->protocol == mosq_p_mqtt5){
+		എങ്കിൽ(context->in_packet.remaining_length == 2 && reason_code == CONNACK_REFUSED_PROTOCOL_VERSION){
 			/* We have connected to a MQTT v3.x broker that doesn't support MQTT v5.0
 			 * It has correctly replied with a CONNACK code of a bad protocol version.
 			 */
-			log__printf(NULL, MOSQ_LOG_NOTICE,
+			log__printf(ശൂന്യ, MOSQ_LOG_NOTICE,
 					"Warning: Remote bridge %s does not support MQTT v5.0, reconnecting using MQTT v3.1.1.",
 					context->bridge->name);
 
 			context->protocol = mosq_p_mqtt311;
 			context->bridge->protocol_version = mosq_p_mqtt311;
-			return MOSQ_ERR_PROTOCOL;
+			തിരികെ MOSQ_ERR_PROTOCOL;
 		}
 
 		rc = handle__connack_properties(context);
-		if(rc){
-			return rc;
+		എങ്കിൽ(rc){
+			തിരികെ rc;
 		}
 	}
 
-	if(reason_code == MQTT_RC_SUCCESS){
+	എങ്കിൽ(reason_code == MQTT_RC_SUCCESS){
 #ifdef WITH_BRIDGE
-		if(context->bridge){
+		എങ്കിൽ(context->bridge){
 			rc = bridge__on_connect(context);
-			if(rc){
-				return rc;
+			എങ്കിൽ(rc){
+				തിരികെ rc;
 			}
 		}
 #endif
 		mosquitto__set_state(context, mosq_cs_active);
 		rc = db__message_write_queued_out(context);
-		if(rc){
-			return rc;
+		എങ്കിൽ(rc){
+			തിരികെ rc;
 		}
 		rc = db__message_write_inflight_out_all(context);
-		return rc;
-	}else{
-		if(context->protocol == mosq_p_mqtt5){
-			switch(reason_code){
-				case MQTT_RC_RETAIN_NOT_SUPPORTED:
+		തിരികെ rc;
+	}അല്ലെങ്കിൽ{
+		എങ്കിൽ(context->protocol == mosq_p_mqtt5){
+			തിരഞ്ഞെടുപ്പ്(reason_code){
+				അവസ്ഥ MQTT_RC_RETAIN_NOT_SUPPORTED:
 					context->retain_available = 0;
-					log__printf(NULL, MOSQ_LOG_ERR, "Connection Refused: retain not available (will retry)");
-					return MOSQ_ERR_CONN_LOST;
-				case MQTT_RC_QOS_NOT_SUPPORTED:
-					if(context->max_qos != 0){
+					log__printf(ശൂന്യ, MOSQ_LOG_ERR, "Connection Refused: retain not available (will retry)");
+					തിരികെ MOSQ_ERR_CONN_LOST;
+				അവസ്ഥ MQTT_RC_QOS_NOT_SUPPORTED:
+					എങ്കിൽ(context->max_qos != 0){
 						context->max_qos--;
 					}
-					log__printf(NULL, MOSQ_LOG_ERR, "Connection Refused: QoS not supported (will retry)");
-					return MOSQ_ERR_CONN_LOST;
-				default:
-					log__printf(NULL, MOSQ_LOG_ERR, "Connection Refused: %s", mosquitto_reason_string(reason_code));
-					return MOSQ_ERR_CONN_LOST;
+					log__printf(ശൂന്യ, MOSQ_LOG_ERR, "Connection Refused: QoS not supported (will retry)");
+					തിരികെ MOSQ_ERR_CONN_LOST;
+				സ്ഥിരസ്ഥിതി:
+					log__printf(ശൂന്യ, MOSQ_LOG_ERR, "Connection Refused: %s", mosquitto_reason_string(reason_code));
+					തിരികെ MOSQ_ERR_CONN_LOST;
 			}
-		}else{
-			switch(reason_code){
-				case CONNACK_REFUSED_PROTOCOL_VERSION:
-					if(context->bridge){
+		}അല്ലെങ്കിൽ{
+			തിരഞ്ഞെടുപ്പ്(reason_code){
+				അവസ്ഥ CONNACK_REFUSED_PROTOCOL_VERSION:
+					എങ്കിൽ(context->bridge){
 						context->bridge->try_private_accepted = false;
 					}
-					log__printf(NULL, MOSQ_LOG_ERR, "Connection Refused: unacceptable protocol version");
-					return MOSQ_ERR_CONN_LOST;
-				case CONNACK_REFUSED_IDENTIFIER_REJECTED:
-					log__printf(NULL, MOSQ_LOG_ERR, "Connection Refused: identifier rejected");
-					return MOSQ_ERR_CONN_LOST;
-				case CONNACK_REFUSED_SERVER_UNAVAILABLE:
-					log__printf(NULL, MOSQ_LOG_ERR, "Connection Refused: broker unavailable");
-					return MOSQ_ERR_CONN_LOST;
-				case CONNACK_REFUSED_BAD_USERNAME_PASSWORD:
-					log__printf(NULL, MOSQ_LOG_ERR, "Connection Refused: bad user name or password");
-					return MOSQ_ERR_CONN_LOST;
-				case CONNACK_REFUSED_NOT_AUTHORIZED:
-					log__printf(NULL, MOSQ_LOG_ERR, "Connection Refused: not authorised");
-					return MOSQ_ERR_CONN_LOST;
-				default:
-					log__printf(NULL, MOSQ_LOG_ERR, "Connection Refused: unknown reason");
-					return MOSQ_ERR_CONN_LOST;
+					log__printf(ശൂന്യ, MOSQ_LOG_ERR, "Connection Refused: unacceptable protocol version");
+					തിരികെ MOSQ_ERR_CONN_LOST;
+				അവസ്ഥ CONNACK_REFUSED_IDENTIFIER_REJECTED:
+					log__printf(ശൂന്യ, MOSQ_LOG_ERR, "Connection Refused: identifier rejected");
+					തിരികെ MOSQ_ERR_CONN_LOST;
+				അവസ്ഥ CONNACK_REFUSED_SERVER_UNAVAILABLE:
+					log__printf(ശൂന്യ, MOSQ_LOG_ERR, "Connection Refused: broker unavailable");
+					തിരികെ MOSQ_ERR_CONN_LOST;
+				അവസ്ഥ CONNACK_REFUSED_BAD_USERNAME_PASSWORD:
+					log__printf(ശൂന്യ, MOSQ_LOG_ERR, "Connection Refused: bad user name or password");
+					തിരികെ MOSQ_ERR_CONN_LOST;
+				അവസ്ഥ CONNACK_REFUSED_NOT_AUTHORIZED:
+					log__printf(ശൂന്യ, MOSQ_LOG_ERR, "Connection Refused: not authorised");
+					തിരികെ MOSQ_ERR_CONN_LOST;
+				സ്ഥിരസ്ഥിതി:
+					log__printf(ശൂന്യ, MOSQ_LOG_ERR, "Connection Refused: unknown reason");
+					തിരികെ MOSQ_ERR_CONN_LOST;
 			}
 		}
 	}
-	return MOSQ_ERR_CONN_LOST;
+	തിരികെ MOSQ_ERR_CONN_LOST;
 }
 

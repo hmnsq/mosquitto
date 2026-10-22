@@ -17,116 +17,116 @@ Contributors:
    Tatsuzo Osawa - Add epoll.
 */
 
-#include "mux.h"
+#അന്തര്ഭാവ "mux.h"
 
 
-int mux__init(void)
+പൂർണ്ണസംഖ്യ mux__init(ശൂന്യം)
 {
 #ifdef WITH_EPOLL
-	return mux_epoll__init();
-#elif defined(WITH_KQUEUE)
-	return mux_kqueue__init();
-#else
-	return mux_poll__init();
+	തിരികെ mux_epoll__init();
+#അല്ലെങ്കിലെങ്കിൽ defined(WITH_KQUEUE)
+	തിരികെ mux_kqueue__init();
+#അല്ലെങ്കിൽ
+	തിരികെ mux_poll__init();
 #endif
 }
 
 
-int mux__add_listeners(struct mosquitto__listener_sock *listensock, int listensock_count)
+പൂർണ്ണസംഖ്യ mux__add_listeners(ഘടന mosquitto__listener_sock *listensock, പൂർണ്ണസംഖ്യ listensock_എണ്ണം)
 {
 #ifdef WITH_EPOLL
-	return mux_epoll__add_listeners(listensock, listensock_count);
-#elif defined(WITH_KQUEUE)
-	return mux_kqueue__add_listeners(listensock, listensock_count);
-#else
-	return mux_poll__add_listeners(listensock, listensock_count);
+	തിരികെ mux_epoll__add_listeners(listensock, listensock_എണ്ണം);
+#അല്ലെങ്കിലെങ്കിൽ defined(WITH_KQUEUE)
+	തിരികെ mux_kqueue__add_listeners(listensock, listensock_എണ്ണം);
+#അല്ലെങ്കിൽ
+	തിരികെ mux_poll__add_listeners(listensock, listensock_എണ്ണം);
 #endif
 }
 
 
-int mux__delete_listeners(struct mosquitto__listener_sock *listensock, int listensock_count)
+പൂർണ്ണസംഖ്യ mux__delete_listeners(ഘടന mosquitto__listener_sock *listensock, പൂർണ്ണസംഖ്യ listensock_എണ്ണം)
 {
 #ifdef WITH_EPOLL
-	return mux_epoll__delete_listeners(listensock, listensock_count);
-#elif defined(WITH_KQUEUE)
-	return mux_kqueue__delete_listeners(listensock, listensock_count);
-#else
-	return mux_poll__delete_listeners(listensock, listensock_count);
+	തിരികെ mux_epoll__delete_listeners(listensock, listensock_എണ്ണം);
+#അല്ലെങ്കിലെങ്കിൽ defined(WITH_KQUEUE)
+	തിരികെ mux_kqueue__delete_listeners(listensock, listensock_എണ്ണം);
+#അല്ലെങ്കിൽ
+	തിരികെ mux_poll__delete_listeners(listensock, listensock_എണ്ണം);
 #endif
 }
 
 
-int mux__add_out(struct mosquitto *context)
+പൂർണ്ണസംഖ്യ mux__add_out(ഘടന mosquitto *context)
 {
 #ifdef WITH_EPOLL
-	return mux_epoll__add_out(context);
-#elif defined(WITH_KQUEUE)
-	return mux_kqueue__add_out(context);
-#else
-	return mux_poll__add_out(context);
+	തിരികെ mux_epoll__add_out(context);
+#അല്ലെങ്കിലെങ്കിൽ defined(WITH_KQUEUE)
+	തിരികെ mux_kqueue__add_out(context);
+#അല്ലെങ്കിൽ
+	തിരികെ mux_poll__add_out(context);
 #endif
 }
 
 
-int mux__remove_out(struct mosquitto *context)
+പൂർണ്ണസംഖ്യ mux__remove_out(ഘടന mosquitto *context)
 {
 #ifdef WITH_EPOLL
-	return mux_epoll__remove_out(context);
-#elif defined(WITH_KQUEUE)
-	return mux_kqueue__remove_out(context);
-#else
-	return mux_poll__remove_out(context);
+	തിരികെ mux_epoll__remove_out(context);
+#അല്ലെങ്കിലെങ്കിൽ defined(WITH_KQUEUE)
+	തിരികെ mux_kqueue__remove_out(context);
+#അല്ലെങ്കിൽ
+	തിരികെ mux_poll__remove_out(context);
 #endif
 }
 
 
-int mux__new(struct mosquitto *context)
+പൂർണ്ണസംഖ്യ mux__new(ഘടന mosquitto *context)
 {
 #ifdef WITH_EPOLL
-	return mux_epoll__new(context);
-#elif defined(WITH_KQUEUE)
-	return mux_kqueue__new(context);
-#else
-	return mux_poll__new(context);
+	തിരികെ mux_epoll__new(context);
+#അല്ലെങ്കിലെങ്കിൽ defined(WITH_KQUEUE)
+	തിരികെ mux_kqueue__new(context);
+#അല്ലെങ്കിൽ
+	തിരികെ mux_poll__new(context);
 #endif
 }
 
 
-int mux__delete(struct mosquitto *context)
+പൂർണ്ണസംഖ്യ mux__delete(ഘടന mosquitto *context)
 {
 #ifdef WITH_EPOLL
-	return mux_epoll__delete(context);
-#elif defined(WITH_KQUEUE)
-	return mux_kqueue__delete(context);
-#else
-	return mux_poll__delete(context);
+	തിരികെ mux_epoll__delete(context);
+#അല്ലെങ്കിലെങ്കിൽ defined(WITH_KQUEUE)
+	തിരികെ mux_kqueue__delete(context);
+#അല്ലെങ്കിൽ
+	തിരികെ mux_poll__delete(context);
 #endif
 }
 
 
-int mux__handle(struct mosquitto__listener_sock *listensock, int listensock_count)
+പൂർണ്ണസംഖ്യ mux__handle(ഘടന mosquitto__listener_sock *listensock, പൂർണ്ണസംഖ്യ listensock_എണ്ണം)
 {
 #ifdef WITH_EPOLL
 	UNUSED(listensock);
-	UNUSED(listensock_count);
-	return mux_epoll__handle();
-#elif defined(WITH_KQUEUE)
+	UNUSED(listensock_എണ്ണം);
+	തിരികെ mux_epoll__handle();
+#അല്ലെങ്കിലെങ്കിൽ defined(WITH_KQUEUE)
 	UNUSED(listensock);
-	UNUSED(listensock_count);
-	return mux_kqueue__handle();
-#else
-	return mux_poll__handle(listensock, listensock_count);
+	UNUSED(listensock_എണ്ണം);
+	തിരികെ mux_kqueue__handle();
+#അല്ലെങ്കിൽ
+	തിരികെ mux_poll__handle(listensock, listensock_എണ്ണം);
 #endif
 }
 
 
-int mux__cleanup(void)
+പൂർണ്ണസംഖ്യ mux__cleanup(ശൂന്യം)
 {
 #ifdef WITH_EPOLL
-	return mux_epoll__cleanup();
-#elif defined(WITH_KQUEUE)
-	return mux_kqueue__cleanup();
-#else
-	return mux_poll__cleanup();
+	തിരികെ mux_epoll__cleanup();
+#അല്ലെങ്കിലെങ്കിൽ defined(WITH_KQUEUE)
+	തിരികെ mux_kqueue__cleanup();
+#അല്ലെങ്കിൽ
+	തിരികെ mux_poll__cleanup();
 #endif
 }
