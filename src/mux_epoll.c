@@ -17,7 +17,7 @@ Contributors:
    Tatsuzo Osawa - Add epoll.
 */
 
-#include "config.h"
+#अन्तर्भाव "config.h"
 
 #ifdef WITH_EPOLL
 
@@ -30,276 +30,276 @@ Contributors:
 #  define MAX_EVENTS 1000
 #endif
 
-#include <errno.h>
-#include <signal.h>
+#अन्तर्भाव <errno.h>
+#अन्तर्भाव <signal.h>
 
-#include "mosquitto_broker_internal.h"
-#include "mux.h"
-#include "packet_mosq.h"
-#include "util_mosq.h"
+#अन्तर्भाव "mosquitto_broker_internal.h"
+#अन्तर्भाव "mux.h"
+#अन्तर्भाव "packet_mosq.h"
+#अन्तर्भाव "util_mosq.h"
 
-static void loop_handle_reads_writes(struct mosquitto *context, uint32_t events);
+स्थिर शून्य loop_handle_reads_writes(संरचना mosquitto *context, uint32_t events);
 
-static struct epoll_event ep_events[MAX_EVENTS];
+स्थिर संरचना epoll_event ep_events[MAX_EVENTS];
 
 
-int mux_epoll__init(void)
+पूर्णाङ्क mux_epoll__init(शून्य)
 {
-	memset(&ep_events, 0, sizeof(struct epoll_event)*MAX_EVENTS);
+	स_रखो(&ep_events, 0, परिमाण(संरचना epoll_event)*MAX_EVENTS);
 
 	db.epollfd = 0;
-	if((db.epollfd = epoll_create(MAX_EVENTS)) == -1){
-		log__printf(NULL, MOSQ_LOG_ERR, "Error in epoll creating: %s", strerror(errno));
-		return MOSQ_ERR_UNKNOWN;
+	यदि((db.epollfd = epoll_create(MAX_EVENTS)) == -1){
+		log__printf(रिक्त, MOSQ_LOG_ERR, "Error in epoll creating: %s", म_त्रुटि(त्रुटि_सं));
+		प्रत्यागम MOSQ_ERR_UNKNOWN;
 	}
 
-	return MOSQ_ERR_SUCCESS;
+	प्रत्यागम MOSQ_ERR_SUCCESS;
 }
 
 
-int mux_epoll__add_listeners(struct mosquitto__listener_sock *listensock, int listensock_count)
+पूर्णाङ्क mux_epoll__add_listeners(संरचना mosquitto__listener_sock *listensock, पूर्णाङ्क listensock_गिनती)
 {
-	for(int i=0; i<listensock_count; i++){
-		struct epoll_event ev;
+	प्रति(पूर्णाङ्क i=0; i<listensock_गिनती; i++){
+		संरचना epoll_event ev;
 
-		memset(&ev, 0, sizeof(struct epoll_event));
+		स_रखो(&ev, 0, परिमाण(संरचना epoll_event));
 		ev.data.ptr = &listensock[i];
 		ev.events = EPOLLIN;
-		if(epoll_ctl(db.epollfd, EPOLL_CTL_ADD, listensock[i].sock, &ev) == -1){
-			log__printf(NULL, MOSQ_LOG_ERR, "Error in epoll initial registering: %s", strerror(errno));
-			return MOSQ_ERR_UNKNOWN;
+		यदि(epoll_ctl(db.epollfd, EPOLL_CTL_ADD, listensock[i].sock, &ev) == -1){
+			log__printf(रिक्त, MOSQ_LOG_ERR, "Error in epoll initial registering: %s", म_त्रुटि(त्रुटि_सं));
+			प्रत्यागम MOSQ_ERR_UNKNOWN;
 		}
 	}
 
-	return MOSQ_ERR_SUCCESS;
+	प्रत्यागम MOSQ_ERR_SUCCESS;
 }
 
 
-int mux_epoll__delete_listeners(struct mosquitto__listener_sock *listensock, int listensock_count)
+पूर्णाङ्क mux_epoll__delete_listeners(संरचना mosquitto__listener_sock *listensock, पूर्णाङ्क listensock_गिनती)
 {
-	for(int i=0; i<listensock_count; i++){
-		if(epoll_ctl(db.epollfd, EPOLL_CTL_DEL, listensock[i].sock, NULL) == -1){
-			return MOSQ_ERR_UNKNOWN;
+	प्रति(पूर्णाङ्क i=0; i<listensock_गिनती; i++){
+		यदि(epoll_ctl(db.epollfd, EPOLL_CTL_DEL, listensock[i].sock, रिक्त) == -1){
+			प्रत्यागम MOSQ_ERR_UNKNOWN;
 		}
 	}
 
-	return MOSQ_ERR_SUCCESS;
+	प्रत्यागम MOSQ_ERR_SUCCESS;
 }
 
 
-int mux_epoll__add_out(struct mosquitto *context)
+पूर्णाङ्क mux_epoll__add_out(संरचना mosquitto *context)
 {
-	if(!(context->events & EPOLLOUT)){
-		struct epoll_event ev;
+	यदि(!(context->events & EPOLLOUT)){
+		संरचना epoll_event ev;
 
-		memset(&ev, 0, sizeof(struct epoll_event));
+		स_रखो(&ev, 0, परिमाण(संरचना epoll_event));
 		ev.data.ptr = context;
 		ev.events = EPOLLIN | EPOLLOUT;
-		if(epoll_ctl(db.epollfd, EPOLL_CTL_MOD, context->sock, &ev) == -1){
-			if((errno != ENOENT)||(epoll_ctl(db.epollfd, EPOLL_CTL_ADD, context->sock, &ev) == -1)){
-				log__printf(NULL, MOSQ_LOG_DEBUG, "Error in epoll re-registering to EPOLLOUT: %s", strerror(errno));
+		यदि(epoll_ctl(db.epollfd, EPOLL_CTL_MOD, context->sock, &ev) == -1){
+			यदि((त्रुटि_सं != ENOENT)||(epoll_ctl(db.epollfd, EPOLL_CTL_ADD, context->sock, &ev) == -1)){
+				log__printf(रिक्त, MOSQ_LOG_DEBUG, "Error in epoll re-registering to EPOLLOUT: %s", म_त्रुटि(त्रुटि_सं));
 			}
 		}
 		context->events = EPOLLIN | EPOLLOUT;
 	}
-	return MOSQ_ERR_SUCCESS;
+	प्रत्यागम MOSQ_ERR_SUCCESS;
 }
 
 
-int mux_epoll__remove_out(struct mosquitto *context)
+पूर्णाङ्क mux_epoll__remove_out(संरचना mosquitto *context)
 {
-	if(context->events & EPOLLOUT){
-		struct epoll_event ev;
+	यदि(context->events & EPOLLOUT){
+		संरचना epoll_event ev;
 
-		memset(&ev, 0, sizeof(struct epoll_event));
+		स_रखो(&ev, 0, परिमाण(संरचना epoll_event));
 		ev.data.ptr = context;
 		ev.events = EPOLLIN;
-		if(epoll_ctl(db.epollfd, EPOLL_CTL_MOD, context->sock, &ev) == -1){
-			if((errno != ENOENT)||(epoll_ctl(db.epollfd, EPOLL_CTL_ADD, context->sock, &ev) == -1)){
-				log__printf(NULL, MOSQ_LOG_DEBUG, "Error in epoll re-registering to EPOLLIN: %s", strerror(errno));
+		यदि(epoll_ctl(db.epollfd, EPOLL_CTL_MOD, context->sock, &ev) == -1){
+			यदि((त्रुटि_सं != ENOENT)||(epoll_ctl(db.epollfd, EPOLL_CTL_ADD, context->sock, &ev) == -1)){
+				log__printf(रिक्त, MOSQ_LOG_DEBUG, "Error in epoll re-registering to EPOLLIN: %s", म_त्रुटि(त्रुटि_सं));
 			}
 		}
 		context->events = EPOLLIN;
 	}
-	return MOSQ_ERR_SUCCESS;
+	प्रत्यागम MOSQ_ERR_SUCCESS;
 }
 
 
-int mux_epoll__new(struct mosquitto *context)
+पूर्णाङ्क mux_epoll__new(संरचना mosquitto *context)
 {
-	struct epoll_event ev;
+	संरचना epoll_event ev;
 
-	memset(&ev, 0, sizeof(struct epoll_event));
+	स_रखो(&ev, 0, परिमाण(संरचना epoll_event));
 	ev.events = EPOLLIN;
 	ev.data.ptr = context;
-	if(epoll_ctl(db.epollfd, EPOLL_CTL_ADD, context->sock, &ev) == -1){
-		if(errno != EEXIST){
-			log__printf(NULL, MOSQ_LOG_ERR, "Error in epoll accepting: %s", strerror(errno));
+	यदि(epoll_ctl(db.epollfd, EPOLL_CTL_ADD, context->sock, &ev) == -1){
+		यदि(त्रुटि_सं != EEXIST){
+			log__printf(रिक्त, MOSQ_LOG_ERR, "Error in epoll accepting: %s", म_त्रुटि(त्रुटि_सं));
 		}
 	}
 	context->events = EPOLLIN;
-	return MOSQ_ERR_SUCCESS;
+	प्रत्यागम MOSQ_ERR_SUCCESS;
 }
 
 
-int mux_epoll__delete(struct mosquitto *context)
+पूर्णाङ्क mux_epoll__delete(संरचना mosquitto *context)
 {
-	if(context->sock != INVALID_SOCKET){
-		if(epoll_ctl(db.epollfd, EPOLL_CTL_DEL, context->sock, NULL) == -1){
-			return 1;
+	यदि(context->sock != INVALID_SOCKET){
+		यदि(epoll_ctl(db.epollfd, EPOLL_CTL_DEL, context->sock, रिक्त) == -1){
+			प्रत्यागम 1;
 		}
 	}
-	return 0;
+	प्रत्यागम 0;
 }
 
 
-int mux_epoll__handle(void)
+पूर्णाङ्क mux_epoll__handle(शून्य)
 {
-	struct epoll_event ev;
-	struct mosquitto *context;
-	struct mosquitto__listener_sock *listensock;
-	int event_count;
+	संरचना epoll_event ev;
+	संरचना mosquitto *context;
+	संरचना mosquitto__listener_sock *listensock;
+	पूर्णाङ्क event_गिनती;
 
-	memset(&ev, 0, sizeof(struct epoll_event));
-#if defined(WITH_WEBSOCKETS)
-	event_count = epoll_wait(db.epollfd, ep_events, MAX_EVENTS, 100);
-#else
-	event_count = epoll_wait(db.epollfd, ep_events, MAX_EVENTS, db.next_event_ms);
+	स_रखो(&ev, 0, परिमाण(संरचना epoll_event));
+#यदि defined(WITH_WEBSOCKETS)
+	event_गिनती = epoll_wait(db.epollfd, ep_events, MAX_EVENTS, 100);
+#अन्यथा
+	event_गिनती = epoll_wait(db.epollfd, ep_events, MAX_EVENTS, db.next_event_ms);
 #endif
 
 	db.now_s = mosquitto_time();
-	db.now_real_s = time(NULL);
+	db.now_real_s = समय(रिक्त);
 
-	switch(event_count){
-		case -1:
-			if(errno != EINTR){
-				log__printf(NULL, MOSQ_LOG_ERR, "Error in epoll waiting: %s.", strerror(errno));
+	विकल्प(event_गिनती){
+		पक्ष -1:
+			यदि(त्रुटि_सं != EINTR){
+				log__printf(रिक्त, MOSQ_LOG_ERR, "Error in epoll waiting: %s.", म_त्रुटि(त्रुटि_सं));
 			}
-			break;
-		case 0:
-			break;
-		default:
-			for(int i=0; i<event_count; i++){
+			भङ्ग;
+		पक्ष 0:
+			भङ्ग;
+		स्वभाव:
+			प्रति(पूर्णाङ्क i=0; i<event_गिनती; i++){
 				context = ep_events[i].data.ptr;
-				if(context->ident == id_client){
+				यदि(context->ident == id_client){
 					loop_handle_reads_writes(context, ep_events[i].events);
-				}else if(context->ident == id_listener){
+				}अन्यथा यदि(context->ident == id_listener){
 					listensock = ep_events[i].data.ptr;
 
-					if(ep_events[i].events & (EPOLLIN | EPOLLPRI)){
-						while((context = net__socket_accept(listensock)) != NULL){
+					यदि(ep_events[i].events & (EPOLLIN | EPOLLPRI)){
+						यावत्((context = net__socket_accept(listensock)) != रिक्त){
 						}
 					}
-#if defined(WITH_WEBSOCKETS) && WITH_WEBSOCKETS == WS_IS_LWS
-				}else if(context->ident == id_listener_ws){
+#यदि defined(WITH_WEBSOCKETS) && WITH_WEBSOCKETS == WS_IS_LWS
+				}अन्यथा यदि(context->ident == id_listener_ws){
 					/* Nothing needs to happen here, because we always call lws_service in the loop.
 					 * The important point is we've been woken up for this listener. */
 #endif
 				}
 			}
 	}
-	return MOSQ_ERR_SUCCESS;
+	प्रत्यागम MOSQ_ERR_SUCCESS;
 }
 
 
-int mux_epoll__cleanup(void)
+पूर्णाङ्क mux_epoll__cleanup(शून्य)
 {
-	(void)close(db.epollfd);
+	(शून्य)बंद(db.epollfd);
 	db.epollfd = 0;
-	return MOSQ_ERR_SUCCESS;
+	प्रत्यागम MOSQ_ERR_SUCCESS;
 }
 
 
-static void loop_handle_reads_writes(struct mosquitto *context, uint32_t events)
+स्थिर शून्य loop_handle_reads_writes(संरचना mosquitto *context, uint32_t events)
 {
-	int err;
+	पूर्णाङ्क err;
 	socklen_t len;
-	int rc;
+	पूर्णाङ्क rc;
 
-	if(context->sock == INVALID_SOCKET){
-		return;
+	यदि(context->sock == INVALID_SOCKET){
+		प्रत्यागम;
 	}
 
-#if defined(WITH_WEBSOCKETS) && WITH_WEBSOCKETS == WS_IS_LWS
-	if(context->wsi){
-		struct lws_pollfd wspoll;
+#यदि defined(WITH_WEBSOCKETS) && WITH_WEBSOCKETS == WS_IS_LWS
+	यदि(context->wsi){
+		संरचना lws_pollfd wspoll;
 		wspoll.fd = context->sock;
 		wspoll.events = (int16_t)context->events;
 		wspoll.revents = (int16_t)events;
 		lws_service_fd(lws_get_context(context->wsi), &wspoll);
-		return;
+		प्रत्यागम;
 	}
 #endif
 
-	if(events & EPOLLOUT
+	यदि(events & EPOLLOUT
 #ifdef WITH_TLS
 			|| context->want_write
 			|| (context->ssl && context->state == mosq_cs_new)
 #endif
 			){
 
-		if(context->state == mosq_cs_connect_pending){
-			len = sizeof(int);
-			if(!getsockopt(context->sock, SOL_SOCKET, SO_ERROR, (char *)&err, &len)){
-				if(err == 0){
+		यदि(context->state == mosq_cs_connect_pending){
+			len = परिमाण(पूर्णाङ्क);
+			यदि(!getsockopt(context->sock, SOL_SOCKET, SO_ERROR, (वर्ण *)&err, &len)){
+				यदि(err == 0){
 					mosquitto__set_state(context, mosq_cs_new);
-#if defined(WITH_ADNS) && defined(WITH_BRIDGE)
-					if(context->bridge){
+#यदि defined(WITH_ADNS) && defined(WITH_BRIDGE)
+					यदि(context->bridge){
 						bridge__connect_step3(context);
 					}
 #endif
 				}
-			}else{
+			}अन्यथा{
 				do_disconnect(context, MOSQ_ERR_CONN_LOST);
-				return;
+				प्रत्यागम;
 			}
 		}
 		rc = packet__write(context);
-		if(rc){
+		यदि(rc){
 			do_disconnect(context, rc);
-			return;
+			प्रत्यागम;
 		}
 	}
 
-	if(events & EPOLLIN
+	यदि(events & EPOLLIN
 #ifdef WITH_TLS
 			|| (context->ssl && context->state == mosq_cs_new)
 #endif
 			){
 
-		do{
-			switch(context->transport){
-				case mosq_t_tcp:
-				case mosq_t_ws:
+		कुरु{
+			विकल्प(context->transport){
+				पक्ष mosq_t_tcp:
+				पक्ष mosq_t_ws:
 					rc = packet__read(context);
-					break;
-#if defined(WITH_WEBSOCKETS) && WITH_WEBSOCKETS == WS_IS_BUILTIN
-				case mosq_t_http:
+					भङ्ग;
+#यदि defined(WITH_WEBSOCKETS) && WITH_WEBSOCKETS == WS_IS_BUILTIN
+				पक्ष mosq_t_http:
 					rc = http__read(context);
-					break;
+					भङ्ग;
 #endif
-#if !defined(WITH_WEBSOCKETS) || WITH_WEBSOCKETS == WS_IS_BUILTIN
+#यदि !defined(WITH_WEBSOCKETS) || WITH_WEBSOCKETS == WS_IS_BUILTIN
 				/* Not supported with LWS */
-				case mosq_t_proxy_v2:
+				पक्ष mosq_t_proxy_v2:
 					rc = proxy_v2__read(context);
-					break;
-				case mosq_t_proxy_v1:
+					भङ्ग;
+				पक्ष mosq_t_proxy_v1:
 					rc = proxy_v1__read(context);
-					break;
+					भङ्ग;
 #endif
-				default:
+				स्वभाव:
 					rc = MOSQ_ERR_INVAL;
-					break;
+					भङ्ग;
 			}
-			if(rc){
+			यदि(rc){
 				do_disconnect(context, rc);
-				return;
+				प्रत्यागम;
 			}
-		}while(SSL_DATA_PENDING(context));
-	}else{
-		if(events & (EPOLLERR | EPOLLHUP)){
+		}यावत्(SSL_DATA_PENDING(context));
+	}अन्यथा{
+		यदि(events & (EPOLLERR | EPOLLHUP)){
 			do_disconnect(context, MOSQ_ERR_CONN_LOST);
-			return;
+			प्रत्यागम;
 		}
 	}
 }

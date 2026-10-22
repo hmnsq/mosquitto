@@ -16,102 +16,102 @@ Contributors:
    Roger Light - initial implementation and documentation.
 */
 
-#include "config.h"
+#अन्तर्भाव "config.h"
 
-#include <ctype.h>
-#include <stdio.h>
-#include <string.h>
+#अन्तर्भाव <ctype.h>
+#अन्तर्भाव <stdio.h>
+#अन्तर्भाव <string.h>
 
-#include "mosquitto_broker_internal.h"
-#include "mosquitto/mqtt_protocol.h"
-#include "password_file.h"
-#include "send_mosq.h"
-#include "util_mosq.h"
+#अन्तर्भाव "mosquitto_broker_internal.h"
+#अन्तर्भाव "mosquitto/mqtt_protocol.h"
+#अन्तर्भाव "password_file.h"
+#अन्तर्भाव "send_mosq.h"
+#अन्तर्भाव "util_mosq.h"
 
 
-int mosquitto_security_init_default(void)
+पूर्णाङ्क mosquitto_security_init_default(शून्य)
 {
-	int rc;
+	पूर्णाङ्क rc;
 
 	/* Configure plugin identifier */
-	if(db.config->per_listener_settings){
-		for(int i=0; i<db.config->listener_count; i++){
-			db.config->listeners[i].security_options->pid = mosquitto_calloc(1, sizeof(mosquitto_plugin_id_t));
-			if(db.config->listeners[i].security_options->pid == NULL){
-				log__printf(NULL, MOSQ_LOG_ERR, "Error: Out of memory.");
-				return MOSQ_ERR_NOMEM;
+	यदि(db.config->per_listener_settings){
+		प्रति(पूर्णाङ्क i=0; i<db.config->listener_गिनती; i++){
+			db.config->listeners[i].security_options->pid = mosquitto_calloc(1, परिमाण(mosquitto_plugin_id_t));
+			यदि(db.config->listeners[i].security_options->pid == रिक्त){
+				log__printf(रिक्त, MOSQ_LOG_ERR, "Error: Out of memory.");
+				प्रत्यागम MOSQ_ERR_NOMEM;
 			}
 			db.config->listeners[i].security_options->pid->plugin_name = mosquitto_strdup("builtin-security");
 			db.config->listeners[i].security_options->pid->listener = &db.config->listeners[i];
 			config__plugin_add_secopt(db.config->listeners[i].security_options->pid, db.config->listeners[i].security_options);
 		}
-	}else{
-		db.config->security_options.pid = mosquitto_calloc(1, sizeof(mosquitto_plugin_id_t));
-		if(db.config->security_options.pid == NULL){
-			log__printf(NULL, MOSQ_LOG_ERR, "Error: Out of memory.");
-			return MOSQ_ERR_NOMEM;
+	}अन्यथा{
+		db.config->security_options.pid = mosquitto_calloc(1, परिमाण(mosquitto_plugin_id_t));
+		यदि(db.config->security_options.pid == रिक्त){
+			log__printf(रिक्त, MOSQ_LOG_ERR, "Error: Out of memory.");
+			प्रत्यागम MOSQ_ERR_NOMEM;
 		}
 		db.config->security_options.pid->plugin_name = mosquitto_strdup("builtin-security");
 		config__plugin_add_secopt(db.config->security_options.pid, &db.config->security_options);
 	}
 
 	rc = broker_password_file__init();
-	if(rc){
-		return rc;
+	यदि(rc){
+		प्रत्यागम rc;
 	}
 
 	rc = broker_acl_file__init();
-	if(rc){
-		return rc;
+	यदि(rc){
+		प्रत्यागम rc;
 	}
 
 	rc = psk_file__init();
-	if(rc){
-		return rc;
+	यदि(rc){
+		प्रत्यागम rc;
 	}
 
-	return MOSQ_ERR_SUCCESS;
+	प्रत्यागम MOSQ_ERR_SUCCESS;
 }
 
 
-int mosquitto_security_cleanup_default(void)
+पूर्णाङ्क mosquitto_security_cleanup_default(शून्य)
 {
-	int rc = 0;
+	पूर्णाङ्क rc = 0;
 
 	broker_password_file__cleanup();
 	broker_acl_file__cleanup();
 
 	rc = psk_file__cleanup();
-	if(rc != MOSQ_ERR_SUCCESS){
-		return rc;
+	यदि(rc != MOSQ_ERR_SUCCESS){
+		प्रत्यागम rc;
 	}
 
-	if(db.config->per_listener_settings){
-		for(int i=0; i<db.config->listener_count; i++){
-			if(db.config->listeners[i].security_options->pid){
+	यदि(db.config->per_listener_settings){
+		प्रति(पूर्णाङ्क i=0; i<db.config->listener_गिनती; i++){
+			यदि(db.config->listeners[i].security_options->pid){
 				mosquitto_FREE(db.config->listeners[i].security_options->pid->plugin_name);
 				mosquitto_FREE(db.config->listeners[i].security_options->pid->config.security_options);
 				mosquitto_FREE(db.config->listeners[i].security_options->pid);
 			}
 		}
-	}else{
-		if(db.config->security_options.pid){
+	}अन्यथा{
+		यदि(db.config->security_options.pid){
 			mosquitto_FREE(db.config->security_options.pid->plugin_name);
 			mosquitto_FREE(db.config->security_options.pid->config.security_options);
 			mosquitto_FREE(db.config->security_options.pid);
 		}
 	}
-	return MOSQ_ERR_SUCCESS;
+	प्रत्यागम MOSQ_ERR_SUCCESS;
 }
 
 
 #ifdef WITH_TLS
 
 
-static void security__disconnect_auth(struct mosquitto *context)
+स्थिर शून्य security__disconnect_auth(संरचना mosquitto *context)
 {
-	if(context->protocol == mosq_p_mqtt5){
-		send__disconnect(context, MQTT_RC_ADMINISTRATIVE_ACTION, NULL);
+	यदि(context->protocol == mosq_p_mqtt5){
+		send__disconnect(context, MQTT_RC_ADMINISTRATIVE_ACTION, रिक्त);
 	}
 	mosquitto__set_state(context, mosq_cs_disconnecting);
 	do_disconnect(context, MOSQ_ERR_AUTH);
@@ -125,75 +125,75 @@ static void security__disconnect_auth(struct mosquitto *context)
  * - Disconnecting users with invalid passwords
  * - Reapplying ACLs
  */
-int mosquitto_security_apply_default(void)
+पूर्णाङ्क mosquitto_security_apply_default(शून्य)
 {
-	struct mosquitto *context, *ctxt_tmp = NULL;
+	संरचना mosquitto *context, *ctxt_tmp = रिक्त;
 	bool allow_anonymous;
 #ifdef WITH_TLS
 	X509_NAME *name;
 	X509_NAME_ENTRY *name_entry;
-	ASN1_STRING *name_asn1 = NULL;
-	struct mosquitto__listener *listener;
+	ASN1_STRING *name_asn1 = रिक्त;
+	संरचना mosquitto__listener *listener;
 	BIO *subject_bio;
-	char *data_start;
-	size_t name_length;
-	char *subject;
+	वर्ण *data_start;
+	माप_प्रकार name_length;
+	वर्ण *subject;
 #endif
 
 #ifdef WITH_TLS
-	for(int i=0; i<db.config->listener_count; i++){
+	प्रति(पूर्णाङ्क i=0; i<db.config->listener_गिनती; i++){
 		listener = &db.config->listeners[i];
-		if(listener && listener->ssl_ctx && listener->certfile && listener->keyfile && listener->crlfile && listener->require_certificate){
-			if(net__tls_server_ctx(listener)){
-				return MOSQ_ERR_TLS;
+		यदि(listener && listener->ssl_ctx && listener->certfile && listener->keyfile && listener->crlfile && listener->require_certificate){
+			यदि(net__tls_server_ctx(listener)){
+				प्रत्यागम MOSQ_ERR_TLS;
 			}
 
-			if(net__tls_load_verify(listener)){
-				return MOSQ_ERR_TLS;
+			यदि(net__tls_load_verify(listener)){
+				प्रत्यागम MOSQ_ERR_TLS;
 			}
 		}
 	}
 #endif
 
 	HASH_ITER(hh_id, db.contexts_by_id, context, ctxt_tmp){
-		if(context->bridge){
-			continue;
+		यदि(context->bridge){
+			अनुवर्त;
 		}
 
-		if((context->listener && context->listener->security_options->allow_anonymous == true)
+		यदि((context->listener && context->listener->security_options->allow_anonymous == true)
 				|| (!db.config->per_listener_settings && db.config->security_options.allow_anonymous == true
 				&& context->listener && context->listener->security_options->allow_anonymous != false)){
 			allow_anonymous = true;
-		}else{
+		}अन्यथा{
 			allow_anonymous = false;
 		}
 
-		if(!allow_anonymous && !context->username){
+		यदि(!allow_anonymous && !context->username){
 			mosquitto__set_state(context, mosq_cs_disconnecting);
 			do_disconnect(context, MOSQ_ERR_AUTH);
-			continue;
+			अनुवर्त;
 		}
 
 		/* Check for connected clients that are no longer authorised */
 #ifdef WITH_TLS
-		if(context->listener && context->listener->ssl_ctx && (context->listener->use_identity_as_username || context->listener->use_subject_as_username)){
+		यदि(context->listener && context->listener->ssl_ctx && (context->listener->use_identity_as_username || context->listener->use_subject_as_username)){
 			/* Client must have either a valid certificate, or valid PSK used as a username. */
-			if(!context->ssl){
-				if(context->protocol == mosq_p_mqtt5){
-					send__disconnect(context, MQTT_RC_ADMINISTRATIVE_ACTION, NULL);
+			यदि(!context->ssl){
+				यदि(context->protocol == mosq_p_mqtt5){
+					send__disconnect(context, MQTT_RC_ADMINISTRATIVE_ACTION, रिक्त);
 				}
 				mosquitto__set_state(context, mosq_cs_disconnecting);
 				do_disconnect(context, MOSQ_ERR_AUTH);
-				continue;
+				अनुवर्त;
 			}
 #ifdef FINAL_WITH_TLS_PSK
-			if(context->listener->psk_hint){
+			यदि(context->listener->psk_hint){
 				/* Client should have provided an identity to get this far. */
-				if(!context->username){
+				यदि(!context->username){
 					security__disconnect_auth(context);
-					continue;
+					अनुवर्त;
 				}
-			}else
+			}अन्यथा
 #endif /* FINAL_WITH_TLS_PSK */
 			{
 				/* Free existing credentials and then recover them. */
@@ -201,86 +201,86 @@ int mosquitto_security_apply_default(void)
 				mosquitto_FREE(context->password);
 
 				X509 *client_cert = SSL_get_peer_certificate(context->ssl);
-				if(!client_cert){
+				यदि(!client_cert){
 					security__disconnect_auth(context);
-					continue;
+					अनुवर्त;
 				}
 				name = X509_get_subject_name(client_cert);
-				if(!name){
+				यदि(!name){
 					X509_free(client_cert);
 					security__disconnect_auth(context);
-					continue;
+					अनुवर्त;
 				}
-				if(context->listener->use_identity_as_username){   /* use_identity_as_username */
-					int i = X509_NAME_get_index_by_NID(name, NID_commonName, -1);
-					if(i == -1){
+				यदि(context->listener->use_identity_as_username){   /* use_identity_as_username */
+					पूर्णाङ्क i = X509_NAME_get_index_by_NID(name, NID_commonName, -1);
+					यदि(i == -1){
 						X509_free(client_cert);
 						security__disconnect_auth(context);
-						continue;
+						अनुवर्त;
 					}
 					name_entry = X509_NAME_get_entry(name, i);
-					if(name_entry){
+					यदि(name_entry){
 						name_asn1 = X509_NAME_ENTRY_get_data(name_entry);
-						if(name_asn1 == NULL){
+						यदि(name_asn1 == रिक्त){
 							X509_free(client_cert);
 							security__disconnect_auth(context);
-							continue;
+							अनुवर्त;
 						}
-						const char *username = (const char *)ASN1_STRING_get0_data(name_asn1);
-						if(!username){
+						ध्रुव वर्ण *username = (ध्रुव वर्ण *)ASN1_STRING_get0_data(name_asn1);
+						यदि(!username){
 							X509_free(client_cert);
-							client_cert = NULL;
+							client_cert = रिक्त;
 							security__disconnect_auth(context);
-							continue;
+							अनुवर्त;
 						}
 						context->username = mosquitto_strdup(username);
-						if(!context->username){
+						यदि(!context->username){
 							X509_free(client_cert);
 							security__disconnect_auth(context);
-							continue;
+							अनुवर्त;
 						}
 						/* Make sure there isn't an embedded NUL character in the CN */
-						if((size_t)ASN1_STRING_length(name_asn1) != strlen(context->username)){
+						यदि((माप_प्रकार)ASN1_STRING_length(name_asn1) != म_माप(context->username)){
 							X509_free(client_cert);
 							security__disconnect_auth(context);
-							continue;
+							अनुवर्त;
 						}
 					}
-				}else{   /* use_subject_as_username */
+				}अन्यथा{   /* use_subject_as_username */
 					subject_bio = BIO_new(BIO_s_mem());
 					X509_NAME_print_ex(subject_bio, X509_get_subject_name(client_cert), 0, XN_FLAG_RFC2253);
-					data_start = NULL;
-					name_length = (size_t)BIO_get_mem_data(subject_bio, &data_start);
-					subject = mosquitto_malloc(sizeof(char)*name_length+1);
-					if(!subject){
+					data_start = रिक्त;
+					name_length = (माप_प्रकार)BIO_get_mem_data(subject_bio, &data_start);
+					subject = mosquitto_malloc(परिमाण(वर्ण)*name_length+1);
+					यदि(!subject){
 						BIO_free(subject_bio);
 						X509_free(client_cert);
 						security__disconnect_auth(context);
-						continue;
+						अनुवर्त;
 					}
-					memcpy(subject, data_start, name_length);
+					स_नकल(subject, data_start, name_length);
 					subject[name_length] = '\0';
 					BIO_free(subject_bio);
 					context->username = subject;
 				}
-				if(!context->username){
+				यदि(!context->username){
 					X509_free(client_cert);
 					security__disconnect_auth(context);
-					continue;
+					अनुवर्त;
 				}
 				X509_free(client_cert);
 			}
-		}else
+		}अन्यथा
 #endif
 		{
 			/* Username/password check only if the identity/subject check not used */
-			if(mosquitto_basic_auth(context) != MOSQ_ERR_SUCCESS){
+			यदि(mosquitto_basic_auth(context) != MOSQ_ERR_SUCCESS){
 				mosquitto__set_state(context, mosq_cs_disconnecting);
 				do_disconnect(context, MOSQ_ERR_AUTH);
-				continue;
+				अनुवर्त;
 			}
 		}
 	}
 
-	return MOSQ_ERR_SUCCESS;
+	प्रत्यागम MOSQ_ERR_SUCCESS;
 }
