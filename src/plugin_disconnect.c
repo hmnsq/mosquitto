@@ -16,37 +16,37 @@ Contributors:
    Roger Light - initial implementation and documentation.
 */
 
-#include "config.h"
+#समावेश "config.h"
 
-#include "mosquitto_broker_internal.h"
-#include "utlist.h"
+#समावेश "mosquitto_broker_internal.h"
+#समावेश "utlist.h"
 
 
-static void plugin__handle_disconnect_single(struct mosquitto__security_options *opts, struct mosquitto *context, int reason)
+अटल व्योम plugin__handle_disconnect_single(काष्ठा mosquitto__security_options *opts, काष्ठा mosquitto *context, पूर्णांक reason)
 {
-	struct mosquitto_evt_disconnect event_data;
-	struct mosquitto__callback *cb_base, *cb_next;
+	काष्ठा mosquitto_evt_disconnect event_तथ्य;
+	काष्ठा mosquitto__callback *cb_base, *cb_अग्र;
 
-	if(context->id == NULL){
-		return;
+	अगर(context->id == शून्य){
+		वापस;
 	}
 
-	memset(&event_data, 0, sizeof(event_data));
-	event_data.client = context;
-	event_data.reason = reason;
-	DL_FOREACH_SAFE(opts->plugin_callbacks.disconnect, cb_base, cb_next){
-		cb_base->cb(MOSQ_EVT_DISCONNECT, &event_data, cb_base->userdata);
+	स_रखो(&event_तथ्य, 0, माप(event_तथ्य));
+	event_तथ्य.client = context;
+	event_तथ्य.reason = reason;
+	DL_FOREACH_SAFE(opts->plugin_callbacks.disconnect, cb_base, cb_अग्र){
+		cb_base->cb(MOSQ_EVT_DISCONNECT, &event_तथ्य, cb_base->userdata);
 	}
 }
 
 
-void plugin__handle_disconnect(struct mosquitto *context, int reason)
+व्योम plugin__handle_disconnect(काष्ठा mosquitto *context, पूर्णांक reason)
 {
 	/* Global plugins */
 	plugin__handle_disconnect_single(&db.config->security_options, context, reason);
 
 	/* Per listener plugins */
-	if(context->listener){
+	अगर(context->listener){
 		plugin__handle_disconnect_single(context->listener->security_options, context, reason);
 	}
 }

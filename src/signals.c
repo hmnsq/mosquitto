@@ -16,139 +16,139 @@ Contributors:
    Roger Light - initial implementation and documentation.
    Dmitry Kaukov - windows named events implementation.
 */
-#ifdef WIN32
+#अगर_घोषित WIN32
 #  ifndef WIN32_LEAN_AND_MEAN
 #    define WIN32_LEAN_AND_MEAN
 #  endif
 #  include <windows.h>
-#endif
+#पूर्ण_अगर
 
-#include "config.h"
+#समावेश "config.h"
 
-#include <stdio.h>
-#include <stdbool.h>
-#include <signal.h>
+#समावेश <stdio.h>
+#समावेश <stdbool.h>
+#समावेश <signal.h>
 
-#include "mosquitto_broker_internal.h"
+#समावेश "mosquitto_broker_internal.h"
 
-extern int g_run;
+बाह्य पूर्णांक g_run;
 
-static bool flag_reload = false;
-static bool flag_log_rotate = false;
-#ifdef WITH_PERSISTENCE
-static bool flag_db_backup = false;
-#endif
-static bool flag_tree_print = false;
-static bool flag_xtreport = false;
+अटल bool flag_reload = false;
+अटल bool flag_log_rotate = false;
+#अगर_घोषित WITH_PERSISTENCE
+अटल bool flag_db_backup = false;
+#पूर्ण_अगर
+अटल bool flag_वृक्ष_print = false;
+अटल bool flag_xtreport = false;
 
 
-static void handle_signal(int signal)
+अटल व्योम handle_signal(पूर्णांक संकेत)
 {
-	UNUSED(signal);
+	UNUSED(संकेत);
 
-	if(signal == SIGINT || signal == SIGTERM){
+	अगर(संकेत == संक_विघ्न || संकेत == संक_इति){
 		g_run = 0;
-#ifdef SIGHUP
-	}else if(signal == SIGHUP){
+#अगर_घोषित SIGHUP
+	}अन्यथा अगर(संकेत == SIGHUP){
 		flag_reload = true;
-#endif
-#ifdef SIGUSR1
-	}else if(signal == SIGUSR1){
-#ifdef WITH_PERSISTENCE
+#पूर्ण_अगर
+#अगर_घोषित SIGUSR1
+	}अन्यथा अगर(संकेत == SIGUSR1){
+#अगर_घोषित WITH_PERSISTENCE
 		flag_db_backup = true;
-#endif
-#endif
-#ifdef SIGUSR2
-	}else if(signal == SIGUSR2){
-		flag_tree_print = true;
+#पूर्ण_अगर
+#पूर्ण_अगर
+#अगर_घोषित SIGUSR2
+	}अन्यथा अगर(संकेत == SIGUSR2){
+		flag_वृक्ष_print = true;
 		flag_xtreport = true;
-#endif
-#ifdef SIGRTMIN
-	}else if(signal == SIGRTMIN){
+#पूर्ण_अगर
+#अगर_घोषित SIGRTMIN
+	}अन्यथा अगर(संकेत == SIGRTMIN){
 		flag_log_rotate = true;
-#endif
+#पूर्ण_अगर
 	}
 }
 
 
-void signal__setup(void)
+व्योम signal__setup(व्योम)
 {
-	signal(SIGINT, handle_signal);
-	signal(SIGTERM, handle_signal);
-#ifdef SIGHUP
-	signal(SIGHUP, handle_signal);
-#endif
-#ifndef WIN32
-	signal(SIGUSR1, handle_signal);
-	signal(SIGUSR2, handle_signal);
-	signal(SIGPIPE, SIG_IGN);
-#endif
-#ifdef SIGRTMIN
-	signal(SIGRTMIN, handle_signal);
-#endif
-#ifdef WIN32
-	CreateThread(NULL, 0, SigThreadProc, NULL, 0, NULL);
-#endif
+	संकेत(संक_विघ्न, handle_signal);
+	संकेत(संक_इति, handle_signal);
+#अगर_घोषित SIGHUP
+	संकेत(SIGHUP, handle_signal);
+#पूर्ण_अगर
+#अगर_अघोषित WIN32
+	संकेत(SIGUSR1, handle_signal);
+	संकेत(SIGUSR2, handle_signal);
+	संकेत(SIGPIPE, संक_छोड़ो);
+#पूर्ण_अगर
+#अगर_घोषित SIGRTMIN
+	संकेत(SIGRTMIN, handle_signal);
+#पूर्ण_अगर
+#अगर_घोषित WIN32
+	CreateThread(शून्य, 0, SigThreadProc, शून्य, 0, शून्य);
+#पूर्ण_अगर
 }
 
 
-int signal__flag_check(void)
+पूर्णांक signal__flag_check(व्योम)
 {
-#ifdef WITH_PERSISTENCE
-	if(flag_db_backup){
+#अगर_घोषित WITH_PERSISTENCE
+	अगर(flag_db_backup){
 		persist__backup(false);
 		flag_db_backup = false;
 	}
-#endif
-	if(flag_log_rotate){
+#पूर्ण_अगर
+	अगर(flag_log_rotate){
 		log__close(db.config);
 		log__init(db.config);
 		flag_log_rotate = false;
 	}
-	if(flag_reload){
-		int rc;
-		log__printf(NULL, MOSQ_LOG_INFO, "Reloading config.");
+	अगर(flag_reload){
+		पूर्णांक rc;
+		log__printf(शून्य, MOSQ_LOG_INFO, "Reloading config.");
 		config__read(db.config, true);
 		listeners__reload_all_certificates();
 		rc = plugin__handle_reload();
-		if(rc){
-			return rc;
+		अगर(rc){
+			वापस rc;
 		}
 		mosquitto_security_cleanup(true);
 		rc = mosquitto_security_init(true);
-		if(rc){
-			return rc;
+		अगर(rc){
+			वापस rc;
 		}
 		rc = mosquitto_security_apply_default();
-		if(rc){
-			return rc;
+		अगर(rc){
+			वापस rc;
 		}
 		log__close(db.config);
 		log__init(db.config);
 		keepalive__cleanup();
 		rc = keepalive__init();
-		if(rc){
-			return rc;
+		अगर(rc){
+			वापस rc;
 		}
 		broker_control__reload();
-#ifdef WITH_BRIDGE
+#अगर_घोषित WITH_BRIDGE
 		bridge__reload();
-#endif
+#पूर्ण_अगर
 		flag_reload = false;
 	}
-	if(flag_tree_print){
-		sub__tree_print(db.normal_subs, 0);
-		sub__tree_print(db.shared_subs, 0);
-		flag_tree_print = false;
+	अगर(flag_वृक्ष_print){
+		sub_वृक्ष_print(db.normal_subs, 0);
+		sub_वृक्ष_print(db.shared_subs, 0);
+		flag_वृक्ष_print = false;
 	}
-#ifdef WITH_XTREPORT
-	if(flag_xtreport){
+#अगर_घोषित WITH_XTREPORT
+	अगर(flag_xtreport){
 		xtreport();
 		flag_xtreport = false;
 	}
-#endif
+#पूर्ण_अगर
 
-	return MOSQ_ERR_SUCCESS;
+	वापस MOSQ_ERR_SUCCESS;
 }
 
 /*
@@ -167,17 +167,17 @@ int signal__flag_check(void)
  *
  * (where PID is the PID of the mosquitto process).
  */
-#ifdef WIN32
+#अगर_घोषित WIN32
 
-#define MOSQ_MAX_EVTS 6
+#घोषणा MOSQ_MAX_EVTS 6
 
 
-DWORD WINAPI SigThreadProc(void *data)
+DWORD WINAPI SigThreadProc(व्योम *तथ्य)
 {
 	TCHAR evt_name[MAX_PATH];
-	static HANDLE evt[MOSQ_MAX_EVTS];
-	int pid = GetCurrentProcessId();
-	const char *evt_names[MOSQ_MAX_EVTS] = {
+	अटल HANDLE evt[MOSQ_MAX_EVTS];
+	पूर्णांक pid = GetCurrentProcessId();
+	स्थिर अक्षर *evt_names[MOSQ_MAX_EVTS] = {
 		"shutdown",
 		"reload",
 		"backup",
@@ -186,45 +186,45 @@ DWORD WINAPI SigThreadProc(void *data)
 		"xtreport"
 	};
 
-	UNUSED(data);
+	UNUSED(तथ्य);
 
-	for(int i=0; i<MOSQ_MAX_EVTS; i++){
+	क्रम(पूर्णांक i=0; i<MOSQ_MAX_EVTS; i++){
 		sprintf_s(evt_name, MAX_PATH, "mosq%d_%s", pid, evt_names[i]);
-		evt[i] = CreateEvent(NULL, FALSE, FALSE, evt_name);
+		evt[i] = CreateEvent(शून्य, FALSE, FALSE, evt_name);
 	}
 
-	while(g_run){
-		int wr = WaitForMultipleObjects(MOSQ_MAX_EVTS, evt, FALSE, INFINITE);
-		switch(wr){
-			case WAIT_OBJECT_0 + 0:
-				handle_signal(SIGINT);
-				break;
-			case WAIT_OBJECT_0 + 1:
+	जबतक(g_run){
+		पूर्णांक wr = WaitForMultipleObjects(MOSQ_MAX_EVTS, evt, FALSE, INFINITE);
+		चयन(wr){
+			हाल WAIT_OBJECT_0 + 0:
+				handle_signal(संक_विघ्न);
+				अवरोध;
+			हाल WAIT_OBJECT_0 + 1:
 				flag_reload = true;
-				continue;
-			case WAIT_OBJECT_0 + 2:
-#ifdef WITH_PERSISTENCE
+				जारी;
+			हाल WAIT_OBJECT_0 + 2:
+#अगर_घोषित WITH_PERSISTENCE
 				flag_db_backup = true;
-#endif
-				continue;
-				break;
-			case WAIT_OBJECT_0 + 3:
+#पूर्ण_अगर
+				जारी;
+				अवरोध;
+			हाल WAIT_OBJECT_0 + 3:
 				flag_log_rotate = true;
-				continue;
-			case WAIT_OBJECT_0 + 4:
-				flag_tree_print = true;
-				continue;
-			case WAIT_OBJECT_0 + 5:
+				जारी;
+			हाल WAIT_OBJECT_0 + 4:
+				flag_वृक्ष_print = true;
+				जारी;
+			हाल WAIT_OBJECT_0 + 5:
 				flag_xtreport = true;
-				continue;
+				जारी;
 		}
 	}
-	for(int i=0; i<MOSQ_MAX_EVTS; i++){
-		if(evt[i]){
+	क्रम(पूर्णांक i=0; i<MOSQ_MAX_EVTS; i++){
+		अगर(evt[i]){
 			CloseHandle(evt[i]);
 		}
 	}
-	return 0;
+	वापस 0;
 }
-#undef MOSQ_MAX_EVTS
-#endif
+#अघोषित MOSQ_MAX_EVTS
+#पूर्ण_अगर

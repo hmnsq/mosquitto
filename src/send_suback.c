@@ -16,44 +16,44 @@ Contributors:
    Roger Light - initial implementation and documentation.
 */
 
-#include "config.h"
+#समावेश "config.h"
 
-#include "mosquitto_broker_internal.h"
-#include "mosquitto/mqtt_protocol.h"
-#include "packet_mosq.h"
-#include "property_mosq.h"
-#include "sys_tree.h"
-#include "util_mosq.h"
+#समावेश "mosquitto_broker_internal.h"
+#समावेश "mosquitto/mqtt_protocol.h"
+#समावेश "packet_mosq.h"
+#समावेश "property_mosq.h"
+#समावेश "sys_tree.h"
+#समावेश "util_mosq.h"
 
 
-int send__suback(struct mosquitto *context, uint16_t mid, uint32_t payloadlen, const void *payload)
+पूर्णांक send__suback(काष्ठा mosquitto *context, uint16_t mid, uint32_t payloadlen, स्थिर व्योम *payload)
 {
-	struct mosquitto__packet *packet = NULL;
-	int rc;
-	mosquitto_property *properties = NULL;
-	uint32_t remaining_length;
+	काष्ठा mosquitto__packet *packet = शून्य;
+	पूर्णांक rc;
+	mosquitto_property *properties = शून्य;
+	uint32_t remaining_लंबाई;
 
-	log__printf(NULL, MOSQ_LOG_DEBUG, "Sending SUBACK to %s", context->id);
+	log__printf(शून्य, MOSQ_LOG_DEBUG, "Sending SUBACK to %s", context->id);
 
-	remaining_length = 2+payloadlen;
-	if(context->protocol == mosq_p_mqtt5){
-		remaining_length += mosquitto_property_get_remaining_length(properties);
+	remaining_लंबाई = 2+payloadlen;
+	अगर(context->protocol == mosq_p_mqtt5){
+		remaining_लंबाई += mosquitto_property_get_remaining_लंबाई(properties);
 	}
-	rc = packet__alloc(&packet, CMD_SUBACK, remaining_length);
-	if(rc){
-		return rc;
+	rc = packet__alloc(&packet, CMD_SUBACK, remaining_लंबाई);
+	अगर(rc){
+		वापस rc;
 	}
 	packet__write_uint16(packet, mid);
 
-	if(context->protocol == mosq_p_mqtt5){
+	अगर(context->protocol == mosq_p_mqtt5){
 		/* We don't use Reason String or User Property yet. */
 		property__write_all(packet, properties, true);
 	}
 
-	if(payloadlen){
+	अगर(payloadlen){
 		packet__write_bytes(packet, payload, payloadlen);
 	}
 
-	metrics__int_inc(mosq_counter_mqtt_suback_sent, 1);
-	return packet__queue(context, packet);
+	metrics__int_inc(mosq_गणक_mqtt_suback_sent, 1);
+	वापस packet__queue(context, packet);
 }

@@ -16,52 +16,52 @@ Contributors:
    Roger Light - initial implementation and documentation.
 */
 
-#include "config.h"
+#समावेश "config.h"
 
-#include <stdio.h>
-#include <string.h>
+#समावेश <stdio.h>
+#समावेश <string.h>
 
-#include "mosquitto/broker.h"
-#include "mosquitto_broker_internal.h"
-#include "mosquitto/broker_plugin.h"
-#include "lib_load.h"
-#include "utlist.h"
+#समावेश "mosquitto/broker.h"
+#समावेश "mosquitto_broker_internal.h"
+#समावेश "mosquitto/broker_plugin.h"
+#समावेश "lib_load.h"
+#समावेश "utlist.h"
 
-static int plugin__security_cleanup_single(mosquitto_plugin_id_t *plugin, bool reload);
+अटल पूर्णांक plugin__security_cleanup_single(mosquitto_plugin_id_t *plugin, bool reload);
 
 
-static void plugin__unload_single(mosquitto_plugin_id_t *plugin)
+अटल व्योम plugin__unload_single(mosquitto_plugin_id_t *plugin)
 {
-	struct control_endpoint *ep, *tmp;
+	काष्ठा control_endpoint *ep, *tmp;
 
 	/* Run plugin cleanup function */
-	if(plugin->lib.version == 5){
-		if(plugin->lib.plugin_cleanup_v5){
+	अगर(plugin->lib.version == 5){
+		अगर(plugin->lib.plugin_cleanup_v5){
 			plugin->lib.plugin_cleanup_v5(
-					plugin->lib.user_data,
+					plugin->lib.user_तथ्य,
 					plugin->config.options,
-					plugin->config.option_count);
+					plugin->config.option_गिनती);
 		}
-	}else if(plugin->lib.version == 4){
-		if(plugin->lib.plugin_cleanup_v4){
+	}अन्यथा अगर(plugin->lib.version == 4){
+		अगर(plugin->lib.plugin_cleanup_v4){
 			plugin->lib.plugin_cleanup_v4(
-					plugin->lib.user_data,
+					plugin->lib.user_तथ्य,
 					plugin->config.options,
-					plugin->config.option_count);
+					plugin->config.option_गिनती);
 		}
-	}else if(plugin->lib.version == 3){
-		if(plugin->lib.plugin_cleanup_v3){
+	}अन्यथा अगर(plugin->lib.version == 3){
+		अगर(plugin->lib.plugin_cleanup_v3){
 			plugin->lib.plugin_cleanup_v3(
-					plugin->lib.user_data,
+					plugin->lib.user_तथ्य,
 					plugin->config.options,
-					plugin->config.option_count);
+					plugin->config.option_गिनती);
 		}
-	}else if(plugin->lib.version == 2){
-		if(plugin->lib.plugin_cleanup_v2){
+	}अन्यथा अगर(plugin->lib.version == 2){
+		अगर(plugin->lib.plugin_cleanup_v2){
 			plugin->lib.plugin_cleanup_v2(
-					plugin->lib.user_data,
-					(struct mosquitto_auth_opt *)plugin->config.options,
-					plugin->config.option_count);
+					plugin->lib.user_तथ्य,
+					(काष्ठा mosquitto_auth_opt *)plugin->config.options,
+					plugin->config.option_गिनती);
 		}
 	}
 
@@ -73,64 +73,64 @@ static void plugin__unload_single(mosquitto_plugin_id_t *plugin)
 		mosquitto_FREE(ep);
 	}
 
-	if(plugin->lib.lib){
+	अगर(plugin->lib.lib){
 		//LIB_CLOSE(plugin->lib.lib);
 	}
-	memset(&plugin->lib, 0, sizeof(struct mosquitto__plugin_lib));
+	स_रखो(&plugin->lib, 0, माप(काष्ठा mosquitto__plugin_lib));
 }
 
 
-int plugin__unload_all(void)
+पूर्णांक plugin__unload_all(व्योम)
 {
-	for(int i=0; i<db.plugin_count; i++){
+	क्रम(पूर्णांक i=0; i<db.plugin_गिनती; i++){
 		plugin__unload_single(db.plugins[i]);
 	}
 
 	mosquitto_security_cleanup(false);
 
-	return MOSQ_ERR_SUCCESS;
+	वापस MOSQ_ERR_SUCCESS;
 }
 
 
-static int plugin__security_cleanup_single(mosquitto_plugin_id_t *plugin, bool reload)
+अटल पूर्णांक plugin__security_cleanup_single(mosquitto_plugin_id_t *plugin, bool reload)
 {
-	int rc;
+	पूर्णांक rc;
 
-	if(plugin->lib.version == 5){
+	अगर(plugin->lib.version == 5){
 		rc = MOSQ_ERR_SUCCESS;
-	}else if(plugin->lib.version == 4){
+	}अन्यथा अगर(plugin->lib.version == 4){
 		rc = plugin->lib.security_cleanup_v4(
-				plugin->lib.user_data,
+				plugin->lib.user_तथ्य,
 				plugin->config.options,
-				plugin->config.option_count,
+				plugin->config.option_गिनती,
 				reload);
 
-	}else if(plugin->lib.version == 3){
+	}अन्यथा अगर(plugin->lib.version == 3){
 		rc = plugin->lib.security_cleanup_v3(
-				plugin->lib.user_data,
+				plugin->lib.user_तथ्य,
 				plugin->config.options,
-				plugin->config.option_count,
+				plugin->config.option_गिनती,
 				reload);
 
-	}else if(plugin->lib.version == 2){
+	}अन्यथा अगर(plugin->lib.version == 2){
 		rc = plugin->lib.security_cleanup_v2(
-				plugin->lib.user_data,
-				(struct mosquitto_auth_opt *)plugin->config.options,
-				plugin->config.option_count,
+				plugin->lib.user_तथ्य,
+				(काष्ठा mosquitto_auth_opt *)plugin->config.options,
+				plugin->config.option_गिनती,
 				reload);
-	}else{
+	}अन्यथा{
 		rc = MOSQ_ERR_INVAL;
 	}
 
-	return rc;
+	वापस rc;
 }
 
 
-int mosquitto_security_cleanup(bool reload)
+पूर्णांक mosquitto_security_cleanup(bool reload)
 {
-	for(int i=0; i<db.plugin_count; i++){
+	क्रम(पूर्णांक i=0; i<db.plugin_गिनती; i++){
 		plugin__security_cleanup_single(db.plugins[i], reload);
 	}
 
-	return mosquitto_security_cleanup_default();
+	वापस mosquitto_security_cleanup_default();
 }

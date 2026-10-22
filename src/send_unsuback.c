@@ -16,43 +16,43 @@ Contributors:
    Roger Light - initial implementation and documentation.
 */
 
-#include "config.h"
+#समावेश "config.h"
 
-#include <assert.h>
+#समावेश <assert.h>
 
-#include "mosquitto_broker_internal.h"
-#include "mosquitto/mqtt_protocol.h"
-#include "packet_mosq.h"
-#include "property_mosq.h"
-#include "sys_tree.h"
+#समावेश "mosquitto_broker_internal.h"
+#समावेश "mosquitto/mqtt_protocol.h"
+#समावेश "packet_mosq.h"
+#समावेश "property_mosq.h"
+#समावेश "sys_tree.h"
 
 
-int send__unsuback(struct mosquitto *mosq, uint16_t mid, int reason_code_count, uint8_t *reason_codes, const mosquitto_property *properties)
+पूर्णांक send__unsuback(काष्ठा mosquitto *mosq, uint16_t mid, पूर्णांक reason_code_गिनती, uint8_t *reason_codes, स्थिर mosquitto_property *properties)
 {
-	struct mosquitto__packet *packet = NULL;
-	int rc;
-	uint32_t remaining_length;
+	काष्ठा mosquitto__packet *packet = शून्य;
+	पूर्णांक rc;
+	uint32_t remaining_लंबाई;
 
-	assert(mosq);
+	निश्चित(mosq);
 
-	remaining_length = 2;
-	if(mosq->protocol == mosq_p_mqtt5){
-		remaining_length += mosquitto_property_get_remaining_length(properties);
-		remaining_length += (uint32_t)reason_code_count;
+	remaining_लंबाई = 2;
+	अगर(mosq->protocol == mosq_p_mqtt5){
+		remaining_लंबाई += mosquitto_property_get_remaining_लंबाई(properties);
+		remaining_लंबाई += (uint32_t)reason_code_गिनती;
 	}
 
-	rc = packet__alloc(&packet, CMD_UNSUBACK, remaining_length);
-	if(rc){
-		return rc;
+	rc = packet__alloc(&packet, CMD_UNSUBACK, remaining_लंबाई);
+	अगर(rc){
+		वापस rc;
 	}
 
 	packet__write_uint16(packet, mid);
 
-	if(mosq->protocol == mosq_p_mqtt5){
+	अगर(mosq->protocol == mosq_p_mqtt5){
 		property__write_all(packet, properties, true);
-		packet__write_bytes(packet, reason_codes, (uint32_t)reason_code_count);
+		packet__write_bytes(packet, reason_codes, (uint32_t)reason_code_गिनती);
 	}
 
-	metrics__int_inc(mosq_counter_mqtt_unsuback_sent, 1);
-	return packet__queue(mosq, packet);
+	metrics__int_inc(mosq_गणक_mqtt_unsuback_sent, 1);
+	वापस packet__queue(mosq, packet);
 }

@@ -16,46 +16,46 @@ Contributors:
    Roger Light - initial implementation and documentation.
 */
 
-#ifdef WITH_XTREPORT
+#अगर_घोषित WITH_XTREPORT
 
 /* This file allows reporting of internal parameters to a kcachegrind
  * compatible output file. It is for debugging purposes only and is most likely
  * of no interest to end users.
  */
-#include "config.h"
+#समावेश "config.h"
 
-#include <inttypes.h>
-#include <stdint.h>
-#include <stdio.h>
-#include <uthash.h>
+#समावेश <inttypes.h>
+#समावेश <stdint.h>
+#समावेश <stdio.h>
+#समावेश <uthash.h>
 
-#include "mosquitto_broker_internal.h"
-#include "mosquitto_internal.h"
-#include "net_mosq.h"
+#समावेश "mosquitto_broker_internal.h"
+#समावेश "mosquitto_internal.h"
+#समावेश "net_mosq.h"
 
 
-static void client_cost(FILE *fptr, struct mosquitto *context, int fn_index)
+अटल व्योम client_cost(खाता *fptr, काष्ठा mosquitto *context, पूर्णांक fn_सूचकांक)
 {
-	long pkt_count, pkt_bytes;
-	long cmsg_count;
-	long cmsg_bytes;
-	long tBytes;
+	दीर्घ pkt_गिनती, pkt_bytes;
+	दीर्घ cmsg_गिनती;
+	दीर्घ cmsg_bytes;
+	दीर्घ tBytes;
 
-	pkt_count = 1;
-	pkt_bytes = context->in_packet.packet_length + context->out_packet_bytes;
+	pkt_गिनती = 1;
+	pkt_bytes = context->in_packet.packet_लंबाई + context->out_packet_bytes;
 
-	cmsg_count = context->msgs_in.inflight_count + context->msgs_in.queued_count;
+	cmsg_गिनती = context->msgs_in.inflight_गिनती + context->msgs_in.queued_गिनती;
 	cmsg_bytes = context->msgs_in.inflight_bytes + context->msgs_in.queued_bytes;
-	cmsg_count += context->msgs_out.inflight_count + context->msgs_out.queued_count;
+	cmsg_गिनती += context->msgs_out.inflight_गिनती + context->msgs_out.queued_गिनती;
 	cmsg_bytes += context->msgs_out.inflight_bytes + context->msgs_out.queued_bytes;
 
 	tBytes = pkt_bytes + cmsg_bytes;
-	if(context->id){
-		tBytes += (long)strlen(context->id);
+	अगर(context->id){
+		tBytes += (दीर्घ)म_माप(context->id);
 	}
-	fprintf(fptr, "%d %ld %lu %lu %lu %lu %d 0 0 %" PRIu64 " %" PRIu64 " %" PRIu64 "\n", fn_index,
+	ख_लिखो(fptr, "%d %ld %lu %lu %lu %lu %d 0 0 %" PRIu64 " %" PRIu64 " %" PRIu64 "\n", fn_सूचकांक,
 			tBytes,
-			pkt_count, cmsg_count,
+			pkt_गिनती, cmsg_गिनती,
 			pkt_bytes, cmsg_bytes,
 			context->sock == INVALID_SOCKET?0:context->sock,
 			context->stats.messages_sent,
@@ -65,123 +65,123 @@ static void client_cost(FILE *fptr, struct mosquitto *context, int fn_index)
 }
 
 
-static void report_subscriptions(FILE *fptr, struct mosquitto *context, int *fn_index_max)
+अटल व्योम report_subscriptions(खाता *fptr, काष्ठा mosquitto *context, पूर्णांक *fn_सूचकांक_max)
 {
-	for(int i=0; i<context->subs_count; i++){
-		if(context->subs && context->subs[i]){
-			struct mosquitto__subhier *subhier = context->subs[i]->hier;
-			int topic_count = 0;
-			char *topics[100];
+	क्रम(पूर्णांक i=0; i<context->subs_गिनती; i++){
+		अगर(context->subs && context->subs[i]){
+			काष्ठा mosquitto__subhier *subhier = context->subs[i]->hier;
+			पूर्णांक topic_गिनती = 0;
+			अक्षर *topics[100];
 
-			do{
-				topics[topic_count] = subhier->topic;
+			करो{
+				topics[topic_गिनती] = subhier->topic;
 				subhier = subhier->parent;
-				topic_count++;
-				if(topic_count == 100){
-					break;
+				topic_गिनती++;
+				अगर(topic_गिनती == 100){
+					अवरोध;
 				}
-			}while(subhier);
-			if(topic_count == 100){
-				continue;
+			}जबतक(subhier);
+			अगर(topic_गिनती == 100){
+				जारी;
 			}
 
-			fprintf(fptr, "cfn=(%d) ", *fn_index_max);
-			if(topics[topic_count-2] && topics[topic_count-2][0] == '\0'){
-				topic_count--;
+			ख_लिखो(fptr, "cfn=(%d) ", *fn_सूचकांक_max);
+			अगर(topics[topic_गिनती-2] && topics[topic_गिनती-2][0] == '\0'){
+				topic_गिनती--;
 			}
-			for(int j=topic_count-2; j>0; j--){
-				if(topics[j]){
-					fprintf(fptr, "%s/", topics[j]);
+			क्रम(पूर्णांक j=topic_गिनती-2; j>0; j--){
+				अगर(topics[j]){
+					ख_लिखो(fptr, "%s/", topics[j]);
 				}
 			}
-			if(topics[0]){
-				fprintf(fptr, "%s\n", topics[0]);
+			अगर(topics[0]){
+				ख_लिखो(fptr, "%s\n", topics[0]);
 			}
 
-			fprintf(fptr, "calls=1 %d\n", *fn_index_max);
-			fprintf(fptr, "1 0 0 0 0 0 0 1 0 0 0 0\n");
-			(*fn_index_max)++;
+			ख_लिखो(fptr, "calls=1 %d\n", *fn_सूचकांक_max);
+			ख_लिखो(fptr, "1 0 0 0 0 0 0 1 0 0 0 0\n");
+			(*fn_सूचकांक_max)++;
 		}
 	}
 }
 
 
-void xtreport(void)
+व्योम xtreport(व्योम)
 {
 	pid_t pid;
-	char filename[40];
-	FILE *fptr;
-	struct mosquitto *context, *ctxt_tmp;
-	int fn_index = 2, fn_index_max;
-	static int iter = 1;
+	अक्षर filename[40];
+	खाता *fptr;
+	काष्ठा mosquitto *context, *ctxt_tmp;
+	पूर्णांक fn_सूचकांक = 2, fn_सूचकांक_max;
+	अटल पूर्णांक iter = 1;
 
 	pid = getpid();
 	snprintf(filename, 40, "/tmp/xtmosquitto.kcg.%d.%d", pid, iter);
 	iter++;
-	fptr = fopen(filename, "wt");
-	if(fptr == NULL){
-		return;
+	fptr = ख_खोलो(filename, "wt");
+	अगर(fptr == शून्य){
+		वापस;
 	}
 
-	fprintf(fptr, "# callgrind format\n");
-	fprintf(fptr, "version: 1\n");
-	fprintf(fptr, "creator: mosquitto\n");
-	fprintf(fptr, "pid: %d\n", pid);
-	fprintf(fptr, "cmd: mosquitto\n\n");
+	ख_लिखो(fptr, "# callgrind format\n");
+	ख_लिखो(fptr, "version: 1\n");
+	ख_लिखो(fptr, "creator: mosquitto\n");
+	ख_लिखो(fptr, "pid: %d\n", pid);
+	ख_लिखो(fptr, "cmd: mosquitto\n\n");
 
-	fprintf(fptr, "positions: line\n");
-	fprintf(fptr, "event: tB : total bytes\n");
-	fprintf(fptr, "event: pkt : currently queued packets\n");
-	fprintf(fptr, "event: cmsg : currently pending client messages\n");
-	fprintf(fptr, "event: pktB : currently queued packet bytes\n");
-	fprintf(fptr, "event: cmsgB : currently pending client message bytes\n");
-	fprintf(fptr, "event: sock : client socket number\n");
-	fprintf(fptr, "event: sub : client subscriptions\n");
-	fprintf(fptr, "event: refc : message store ref counts\n");
-	fprintf(fptr, "event: msgS : client message sent count\n");
-	fprintf(fptr, "event: msgR : client message received count\n");
-	fprintf(fptr, "event: msgD : client message dropped count\n");
-	fprintf(fptr, "events: tB pkt cmsg pktB cmsgB sock sub refc msgS msgR msgD\n");
+	ख_लिखो(fptr, "positions: line\n");
+	ख_लिखो(fptr, "event: tB : total bytes\n");
+	ख_लिखो(fptr, "event: pkt : currently queued packets\n");
+	ख_लिखो(fptr, "event: cmsg : currently pending client messages\n");
+	ख_लिखो(fptr, "event: pktB : currently queued packet bytes\n");
+	ख_लिखो(fptr, "event: cmsgB : currently pending client message bytes\n");
+	ख_लिखो(fptr, "event: sock : client socket number\n");
+	ख_लिखो(fptr, "event: sub : client subscriptions\n");
+	ख_लिखो(fptr, "event: refc : message store ref counts\n");
+	ख_लिखो(fptr, "event: msgS : client message sent count\n");
+	ख_लिखो(fptr, "event: msgR : client message received count\n");
+	ख_लिखो(fptr, "event: msgD : client message dropped count\n");
+	ख_लिखो(fptr, "events: tB pkt cmsg pktB cmsgB sock sub refc msgS msgR msgD\n");
 
-	fprintf(fptr, "\nfn=(1) clients\n");
-	fprintf(fptr, "1 0 0 0 0 0 0 0 0 0 0 0\n");
+	ख_लिखो(fptr, "\nfn=(1) clients\n");
+	ख_लिखो(fptr, "1 0 0 0 0 0 0 0 0 0 0 0\n");
 
-	fn_index = 2;
+	fn_सूचकांक = 2;
 	HASH_ITER(hh_id, db.contexts_by_id, context, ctxt_tmp){
-		if(context->id){
-			fprintf(fptr, "cfn=(%d) %s\n", fn_index, context->id);
-		}else{
-			fprintf(fptr, "cfn=(%d) unknown\n", fn_index);
+		अगर(context->id){
+			ख_लिखो(fptr, "cfn=(%d) %s\n", fn_सूचकांक, context->id);
+		}अन्यथा{
+			ख_लिखो(fptr, "cfn=(%d) unknown\n", fn_सूचकांक);
 		}
-		fprintf(fptr, "calls=1 %d\n", fn_index);
-		client_cost(fptr, context, fn_index);
-		fn_index++;
+		ख_लिखो(fptr, "calls=1 %d\n", fn_सूचकांक);
+		client_cost(fptr, context, fn_सूचकांक);
+		fn_सूचकांक++;
 	}
-	fn_index_max = fn_index;
+	fn_सूचकांक_max = fn_सूचकांक;
 
-	fn_index = 2;
+	fn_सूचकांक = 2;
 	HASH_ITER(hh_id, db.contexts_by_id, context, ctxt_tmp){
-		fprintf(fptr, "\nfn=(%d)\n", fn_index);
-		client_cost(fptr, context, fn_index);
-		fn_index++;
+		ख_लिखो(fptr, "\nfn=(%d)\n", fn_सूचकांक);
+		client_cost(fptr, context, fn_सूचकांक);
+		fn_सूचकांक++;
 
-		report_subscriptions(fptr, context, &fn_index_max);
+		report_subscriptions(fptr, context, &fn_सूचकांक_max);
 	}
 
-	fprintf(fptr, "\nfn=(%d) messages\n", fn_index_max);
-	fprintf(fptr, "1 0 0 0 0 0 0 0 0 0 0 0\n");
+	ख_लिखो(fptr, "\nfn=(%d) messages\n", fn_सूचकांक_max);
+	ख_लिखो(fptr, "1 0 0 0 0 0 0 0 0 0 0 0\n");
 
-	struct mosquitto__base_msg *base_msg, *base_msg_tmp;
+	काष्ठा mosquitto_base_संदेश *base_संदेश, *base_संदेश_tmp;
 
-	HASH_ITER(hh, db.msg_store, base_msg, base_msg_tmp){
-		if(base_msg->ref_count > 1){
-			fprintf(fptr, "cfn=(%d) %" PRIu64 "\n", fn_index_max, base_msg->data.store_id);
-			fprintf(fptr, "calls=%d %d\n", base_msg->ref_count, fn_index_max);
-			fprintf(fptr, "%d 0 0 0 0 0 0 0 %d 0 0 0\n", fn_index_max, base_msg->ref_count);
-			fn_index_max++;
+	HASH_ITER(hh, db.संदेश_store, base_संदेश, base_संदेश_tmp){
+		अगर(base_संदेश->ref_गिनती > 1){
+			ख_लिखो(fptr, "cfn=(%d) %" PRIu64 "\n", fn_सूचकांक_max, base_संदेश->तथ्य.store_id);
+			ख_लिखो(fptr, "calls=%d %d\n", base_संदेश->ref_गिनती, fn_सूचकांक_max);
+			ख_लिखो(fptr, "%d 0 0 0 0 0 0 0 %d 0 0 0\n", fn_सूचकांक_max, base_संदेश->ref_गिनती);
+			fn_सूचकांक_max++;
 		}
 	}
 
-	fclose(fptr);
+	ख_बंद(fptr);
 }
-#endif
+#पूर्ण_अगर

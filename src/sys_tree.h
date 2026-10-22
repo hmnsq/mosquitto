@@ -16,71 +16,71 @@ Contributors:
    Roger Light - initial implementation and documentation.
 */
 
-#ifndef SYS_TREE_H
-#define SYS_TREE_H
+#अगर_अघोषित SYS_वृक्ष_H
+#घोषणा SYS_वृक्ष_H
 
-#if defined(WITH_SYS_TREE) && defined(WITH_BROKER)
+#अगर defined(WITH_SYS_वृक्ष) && defined(WITH_BROKER)
 
 /* This ordering *must* match the metrics array in sys_tree.c. */
-enum mosq_metric_type {
-	mosq_gauge_clients_total = 0,
-	mosq_counter_clients_maximum = 1,
+क्रमागत mosq_metric_type {
+	mosq_gauge_clients_योग = 0,
+	mosq_गणक_clients_maximum = 1,
 	mosq_gauge_clients_disconnected = 2,
 	mosq_gauge_clients_connected = 3,
-	mosq_counter_clients_expired = 4,
-	mosq_gauge_message_store_count = 5,
+	mosq_गणक_clients_expired = 4,
+	mosq_gauge_message_store_गिनती = 5,
 	mosq_gauge_message_store_bytes = 6,
 	mosq_gauge_subscriptions = 7,
 	mosq_gauge_shared_subscriptions = 8,
 	mosq_gauge_retained_messages = 9,
 	mosq_gauge_heap_current = 10,
-	mosq_counter_heap_maximum = 11,
-	mosq_counter_messages_received = 12,
-	mosq_counter_messages_sent = 13,
-	mosq_counter_bytes_received = 14,
-	mosq_counter_bytes_sent = 15,
-	mosq_counter_pub_bytes_received = 16,
-	mosq_counter_pub_bytes_sent = 17,
+	mosq_गणक_heap_maximum = 11,
+	mosq_गणक_messages_received = 12,
+	mosq_गणक_messages_sent = 13,
+	mosq_गणक_bytes_received = 14,
+	mosq_गणक_bytes_sent = 15,
+	mosq_गणक_pub_bytes_received = 16,
+	mosq_गणक_pub_bytes_sent = 17,
 	mosq_gauge_out_packets = 18,
 	mosq_gauge_out_packet_bytes = 19,
-	mosq_counter_socket_connections = 20,
-	mosq_counter_mqtt_connect_received = 21,
-	mosq_counter_mqtt_connect_sent = 22,
-	mosq_counter_mqtt_connack_received = 23,
-	mosq_counter_mqtt_connack_sent = 24,
-	mosq_counter_mqtt_publish_dropped = 25,
-	mosq_counter_mqtt_publish_received = 26,
-	mosq_counter_mqtt_publish_sent = 27,
-	mosq_counter_mqtt_puback_received = 28,
-	mosq_counter_mqtt_puback_sent = 29,
-	mosq_counter_mqtt_pubrec_received = 30,
-	mosq_counter_mqtt_pubrec_sent = 31,
-	mosq_counter_mqtt_pubrel_received = 32,
-	mosq_counter_mqtt_pubrel_sent = 33,
-	mosq_counter_mqtt_pubcomp_received = 34,
-	mosq_counter_mqtt_pubcomp_sent = 35,
-	mosq_counter_mqtt_subscribe_received = 36,
-	mosq_counter_mqtt_subscribe_sent = 37,
-	mosq_counter_mqtt_suback_received = 38,
-	mosq_counter_mqtt_suback_sent = 39,
-	mosq_counter_mqtt_unsubscribe_received = 40,
-	mosq_counter_mqtt_unsubscribe_sent = 41,
-	mosq_counter_mqtt_unsuback_received = 42,
-	mosq_counter_mqtt_unsuback_sent = 43,
-	mosq_counter_mqtt_pingreq_received = 44,
-	mosq_counter_mqtt_pingreq_sent = 45,
-	mosq_counter_mqtt_pingresp_received = 46,
-	mosq_counter_mqtt_pingresp_sent = 47,
-	mosq_counter_mqtt_disconnect_received = 48,
-	mosq_counter_mqtt_disconnect_sent = 49,
-	mosq_counter_mqtt_auth_received = 50,
-	mosq_counter_mqtt_auth_sent = 51,
+	mosq_गणक_socket_connections = 20,
+	mosq_गणक_mqtt_connect_received = 21,
+	mosq_गणक_mqtt_connect_sent = 22,
+	mosq_गणक_mqtt_connack_received = 23,
+	mosq_गणक_mqtt_connack_sent = 24,
+	mosq_गणक_mqtt_publish_dropped = 25,
+	mosq_गणक_mqtt_publish_received = 26,
+	mosq_गणक_mqtt_publish_sent = 27,
+	mosq_गणक_mqtt_puback_received = 28,
+	mosq_गणक_mqtt_puback_sent = 29,
+	mosq_गणक_mqtt_pubrec_received = 30,
+	mosq_गणक_mqtt_pubrec_sent = 31,
+	mosq_गणक_mqtt_pubrel_received = 32,
+	mosq_गणक_mqtt_pubrel_sent = 33,
+	mosq_गणक_mqtt_pubcomp_received = 34,
+	mosq_गणक_mqtt_pubcomp_sent = 35,
+	mosq_गणक_mqtt_subscribe_received = 36,
+	mosq_गणक_mqtt_subscribe_sent = 37,
+	mosq_गणक_mqtt_suback_received = 38,
+	mosq_गणक_mqtt_suback_sent = 39,
+	mosq_गणक_mqtt_unsubscribe_received = 40,
+	mosq_गणक_mqtt_unsubscribe_sent = 41,
+	mosq_गणक_mqtt_unsuback_received = 42,
+	mosq_गणक_mqtt_unsuback_sent = 43,
+	mosq_गणक_mqtt_pingreq_received = 44,
+	mosq_गणक_mqtt_pingreq_sent = 45,
+	mosq_गणक_mqtt_pingresp_received = 46,
+	mosq_गणक_mqtt_pingresp_sent = 47,
+	mosq_गणक_mqtt_disconnect_received = 48,
+	mosq_गणक_mqtt_disconnect_sent = 49,
+	mosq_गणक_mqtt_auth_received = 50,
+	mosq_गणक_mqtt_auth_sent = 51,
 
 	mosq_metric_max,
 };
 
 /* This ordering *must* match the metrics_load array in sys_tree.c. */
-enum mosq_metric_load_type {
+क्रमागत mosq_metric_load_type {
 	mosq_load_messages_received_1min = 0,
 	mosq_load_messages_received_5min = 1,
 	mosq_load_messages_received_15min = 2,
@@ -112,13 +112,13 @@ enum mosq_metric_load_type {
 	mosq_metric_load_max,
 };
 
-void metrics__int_inc(enum mosq_metric_type m, int64_t value);
-void metrics__int_dec(enum mosq_metric_type m, int64_t value);
+व्योम metrics__int_inc(क्रमागत mosq_metric_type m, int64_t मूल्य);
+व्योम metrics__int_dec(क्रमागत mosq_metric_type m, int64_t मूल्य);
 
-#else
+#अन्यथा
 #  define metrics__int_inc(A, B)
 #  define metrics__int_dec(A, B)
 
-#endif
+#पूर्ण_अगर
 
-#endif
+#पूर्ण_अगर

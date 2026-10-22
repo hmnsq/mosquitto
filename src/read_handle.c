@@ -16,110 +16,110 @@ Contributors:
    Roger Light - initial implementation and documentation.
 */
 
-#include "config.h"
+#समावेश "config.h"
 
-#include <stdio.h>
-#include <string.h>
+#समावेश <stdio.h>
+#समावेश <string.h>
 
-#include "mosquitto_broker_internal.h"
-#include "mosquitto/mqtt_protocol.h"
-#include "packet_mosq.h"
-#include "read_handle.h"
-#include "send_mosq.h"
-#include "sys_tree.h"
-#include "util_mosq.h"
+#समावेश "mosquitto_broker_internal.h"
+#समावेश "mosquitto/mqtt_protocol.h"
+#समावेश "packet_mosq.h"
+#समावेश "read_handle.h"
+#समावेश "send_mosq.h"
+#समावेश "sys_tree.h"
+#समावेश "util_mosq.h"
 
 
-int handle__packet(struct mosquitto *context)
+पूर्णांक handle__packet(काष्ठा mosquitto *context)
 {
-	int rc = MOSQ_ERR_INVAL;
+	पूर्णांक rc = MOSQ_ERR_INVAL;
 
-	if(!context){
-		return MOSQ_ERR_INVAL;
+	अगर(!context){
+		वापस MOSQ_ERR_INVAL;
 	}
 
-	switch((context->in_packet.command)&0xF0){
-		case CMD_PINGREQ:
-			metrics__int_inc(mosq_counter_mqtt_pingreq_received, 1);
+	चयन((context->in_packet.command)&0xF0){
+		हाल CMD_PINGREQ:
+			metrics__int_inc(mosq_गणक_mqtt_pingreq_received, 1);
 			rc = handle__pingreq(context);
-			break;
-		case CMD_PINGRESP:
-			metrics__int_inc(mosq_counter_mqtt_pingresp_received, 1);
+			अवरोध;
+		हाल CMD_PINGRESP:
+			metrics__int_inc(mosq_गणक_mqtt_pingresp_received, 1);
 			rc = handle__pingresp(context);
-			break;
-		case CMD_PUBACK:
-			metrics__int_inc(mosq_counter_mqtt_puback_received, 1);
+			अवरोध;
+		हाल CMD_PUBACK:
+			metrics__int_inc(mosq_गणक_mqtt_puback_received, 1);
 			rc = handle__pubackcomp(context, "PUBACK");
-			break;
-		case CMD_PUBCOMP:
-			metrics__int_inc(mosq_counter_mqtt_pubcomp_received, 1);
+			अवरोध;
+		हाल CMD_PUBCOMP:
+			metrics__int_inc(mosq_गणक_mqtt_pubcomp_received, 1);
 			rc = handle__pubackcomp(context, "PUBCOMP");
-			break;
-		case CMD_PUBLISH:
-			metrics__int_inc(mosq_counter_mqtt_publish_received, 1);
+			अवरोध;
+		हाल CMD_PUBLISH:
+			metrics__int_inc(mosq_गणक_mqtt_publish_received, 1);
 			rc = handle__publish(context);
-			break;
-		case CMD_PUBREC:
-			metrics__int_inc(mosq_counter_mqtt_pubrec_received, 1);
+			अवरोध;
+		हाल CMD_PUBREC:
+			metrics__int_inc(mosq_गणक_mqtt_pubrec_received, 1);
 			rc = handle__pubrec(context);
-			break;
-		case CMD_PUBREL:
-			metrics__int_inc(mosq_counter_mqtt_pubrel_received, 1);
+			अवरोध;
+		हाल CMD_PUBREL:
+			metrics__int_inc(mosq_गणक_mqtt_pubrel_received, 1);
 			rc = handle__pubrel(context);
-			break;
-		case CMD_CONNECT:
-			metrics__int_inc(mosq_counter_mqtt_connect_received, 1);
-			return handle__connect(context);
-		case CMD_DISCONNECT:
-			metrics__int_inc(mosq_counter_mqtt_disconnect_received, 1);
+			अवरोध;
+		हाल CMD_CONNECT:
+			metrics__int_inc(mosq_गणक_mqtt_connect_received, 1);
+			वापस handle__connect(context);
+		हाल CMD_DISCONNECT:
+			metrics__int_inc(mosq_गणक_mqtt_disconnect_received, 1);
 			rc = handle__disconnect(context);
-			break;
-		case CMD_SUBSCRIBE:
-			metrics__int_inc(mosq_counter_mqtt_subscribe_received, 1);
+			अवरोध;
+		हाल CMD_SUBSCRIBE:
+			metrics__int_inc(mosq_गणक_mqtt_subscribe_received, 1);
 			rc = handle__subscribe(context);
-			break;
-		case CMD_UNSUBSCRIBE:
-			metrics__int_inc(mosq_counter_mqtt_unsubscribe_received, 1);
+			अवरोध;
+		हाल CMD_UNSUBSCRIBE:
+			metrics__int_inc(mosq_गणक_mqtt_unsubscribe_received, 1);
 			rc = handle__unsubscribe(context);
-			break;
-#ifdef WITH_BRIDGE
-		case CMD_CONNACK:
-			metrics__int_inc(mosq_counter_mqtt_connack_received, 1);
+			अवरोध;
+#अगर_घोषित WITH_BRIDGE
+		हाल CMD_CONNACK:
+			metrics__int_inc(mosq_गणक_mqtt_connack_received, 1);
 			rc = handle__connack(context);
-			break;
-		case CMD_SUBACK:
-			metrics__int_inc(mosq_counter_mqtt_suback_received, 1);
+			अवरोध;
+		हाल CMD_SUBACK:
+			metrics__int_inc(mosq_गणक_mqtt_suback_received, 1);
 			rc = handle__suback(context);
-			break;
-		case CMD_UNSUBACK:
-			metrics__int_inc(mosq_counter_mqtt_unsuback_received, 1);
+			अवरोध;
+		हाल CMD_UNSUBACK:
+			metrics__int_inc(mosq_गणक_mqtt_unsuback_received, 1);
 			rc = handle__unsuback(context);
-			break;
-#endif
-		case CMD_AUTH:
-			metrics__int_inc(mosq_counter_mqtt_auth_received, 1);
+			अवरोध;
+#पूर्ण_अगर
+		हाल CMD_AUTH:
+			metrics__int_inc(mosq_गणक_mqtt_auth_received, 1);
 			rc = handle__auth(context);
-			break;
-		default:
+			अवरोध;
+		शेष:
 			rc = MOSQ_ERR_PROTOCOL;
 	}
 
-	if(context->protocol == mosq_p_mqtt5){
-		if(rc == MOSQ_ERR_PROTOCOL || rc == MOSQ_ERR_DUPLICATE_PROPERTY){
-			send__disconnect(context, MQTT_RC_PROTOCOL_ERROR, NULL);
-		}else if(rc == MOSQ_ERR_MALFORMED_PACKET){
-			send__disconnect(context, MQTT_RC_MALFORMED_PACKET, NULL);
-		}else if(rc == MOSQ_ERR_QOS_NOT_SUPPORTED){
-			send__disconnect(context, MQTT_RC_QOS_NOT_SUPPORTED, NULL);
-		}else if(rc == MOSQ_ERR_RETAIN_NOT_SUPPORTED){
-			send__disconnect(context, MQTT_RC_RETAIN_NOT_SUPPORTED, NULL);
-		}else if(rc == MOSQ_ERR_TOPIC_ALIAS_INVALID){
-			send__disconnect(context, MQTT_RC_TOPIC_ALIAS_INVALID, NULL);
-		}else if(rc == MOSQ_ERR_RECEIVE_MAXIMUM_EXCEEDED){
-			send__disconnect(context, MQTT_RC_RECEIVE_MAXIMUM_EXCEEDED, NULL);
-		}else if(rc == MOSQ_ERR_UNKNOWN || rc == MOSQ_ERR_NOMEM){
-			send__disconnect(context, MQTT_RC_UNSPECIFIED, NULL);
+	अगर(context->protocol == mosq_p_mqtt5){
+		अगर(rc == MOSQ_ERR_PROTOCOL || rc == MOSQ_ERR_DUPLICATE_PROPERTY){
+			send__disconnect(context, MQTT_RC_PROTOCOL_ERROR, शून्य);
+		}अन्यथा अगर(rc == MOSQ_ERR_MALFORMED_PACKET){
+			send__disconnect(context, MQTT_RC_MALFORMED_PACKET, शून्य);
+		}अन्यथा अगर(rc == MOSQ_ERR_QOS_NOT_SUPPORTED){
+			send__disconnect(context, MQTT_RC_QOS_NOT_SUPPORTED, शून्य);
+		}अन्यथा अगर(rc == MOSQ_ERR_RETAIN_NOT_SUPPORTED){
+			send__disconnect(context, MQTT_RC_RETAIN_NOT_SUPPORTED, शून्य);
+		}अन्यथा अगर(rc == MOSQ_ERR_TOPIC_ALIAS_INVALID){
+			send__disconnect(context, MQTT_RC_TOPIC_ALIAS_INVALID, शून्य);
+		}अन्यथा अगर(rc == MOSQ_ERR_RECEIVE_MAXIMUM_EXCEEDED){
+			send__disconnect(context, MQTT_RC_RECEIVE_MAXIMUM_EXCEEDED, शून्य);
+		}अन्यथा अगर(rc == MOSQ_ERR_UNKNOWN || rc == MOSQ_ERR_NOMEM){
+			send__disconnect(context, MQTT_RC_UNSPECIFIED, शून्य);
 		}
 	}
-	return rc;
+	वापस rc;
 }

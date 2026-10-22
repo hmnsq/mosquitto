@@ -15,42 +15,42 @@ SPDX-License-Identifier: EPL-2.0 OR BSD-3-Clause
 Contributors:
    Roger Light - initial implementation and documentation.
 */
-#include "config.h"
+#समावेश "config.h"
 
-#include <inttypes.h>
-#include <stdarg.h>
-#include <stdio.h>
-#include <string.h>
-#include <inttypes.h>
-#ifndef WIN32
-#include <syslog.h>
-#endif
-#include <time.h>
+#समावेश <inttypes.h>
+#समावेश <stdarg.h>
+#समावेश <stdio.h>
+#समावेश <string.h>
+#समावेश <inttypes.h>
+#अगर_अघोषित WIN32
+#समावेश <syslog.h>
+#पूर्ण_अगर
+#समावेश <time.h>
 
-#if defined(__APPLE__)
+#अगर defined(__APPLE__)
 #  include <sys/time.h>
-#endif
+#पूर्ण_अगर
 
-#ifdef WITH_DLT
-#include <sys/stat.h>
-#include <dlt/dlt.h>
-#endif
+#अगर_घोषित WITH_DLT
+#समावेश <sys/stat.h>
+#समावेश <dlt/dlt.h>
+#पूर्ण_अगर
 
-#include "logging_mosq.h"
-#include "mosquitto_broker_internal.h"
-#include "util_mosq.h"
+#समावेश "logging_mosq.h"
+#समावेश "mosquitto_broker_internal.h"
+#समावेश "util_mosq.h"
 
-#ifdef WIN32
+#अगर_घोषित WIN32
 HANDLE syslog_h;
-#endif
+#पूर्ण_अगर
 
-#ifdef ANDROID
-#include <android/log.h>
-static const char *LOG_TAG = "mosquitto";
-#endif
+#अगर_घोषित ANDROID
+#समावेश <android/log.h>
+अटल स्थिर अक्षर *LOG_TAG = "mosquitto";
+#पूर्ण_अगर
 
-static char log_fptr_buffer[BUFSIZ];
-static void libcommon__vprintf(const char *fmt, va_list va);
+अटल अक्षर log_fptr_बफर[बफ_मान];
+अटल व्योम libcommon__vprintf(स्थिर अक्षर *fmt, बहु_सूची va);
 
 /* Options for logging should be:
  *
@@ -64,386 +64,386 @@ static void libcommon__vprintf(const char *fmt, va_list va);
 /* Give option of logging timestamp.
  * Logging pid.
  */
-static unsigned int log_destinations = MQTT3_LOG_STDERR;
-static unsigned int log_priorities = MOSQ_LOG_ERR | MOSQ_LOG_WARNING | MOSQ_LOG_NOTICE | MOSQ_LOG_INFO;
+अटल अचिन्हित पूर्णांक log_destinations = MQTT3_LOG_STDERR;
+अटल अचिन्हित पूर्णांक log_priorities = MOSQ_LOG_ERR | MOSQ_LOG_WARNING | MOSQ_LOG_NOTICE | MOSQ_LOG_INFO;
 
-#ifdef WITH_DLT
-static DltContext dltContext;
-static bool dlt_allowed = false;
+#अगर_घोषित WITH_DLT
+अटल DltContext dltContext;
+अटल bool dlt_allowed = false;
 
 
-void dlt_fifo_check(void)
+व्योम dlt_fifo_check(व्योम)
 {
-	struct stat statbuf;
+	काष्ठा stat statbuf;
 
 	/* If we start DLT but the /tmp/dlt fifo doesn't exist, or isn't available
 	 * for writing then there is a big delay when we try and close the log
 	 * later, so check for it first. This has the side effect of not letting
 	 * people using DLT create the fifo after Mosquitto has started, but at the
 	 * benefit of not having a massive delay for everybody else. */
-	memset(&statbuf, 0, sizeof(statbuf));
-	if(stat("/tmp/dlt", &statbuf) == 0){
-		if(S_ISFIFO(statbuf.st_mode)){
-			int fd = open("/tmp/dlt", O_NONBLOCK | O_WRONLY);
-			if(fd != -1){
+	स_रखो(&statbuf, 0, माप(statbuf));
+	अगर(stat("/tmp/dlt", &statbuf) == 0){
+		अगर(S_ISFIFO(statbuf.st_mode)){
+			पूर्णांक fd = खोलो("/tmp/dlt", O_NONBLOCK | O_WRONLY);
+			अगर(fd != -1){
 				dlt_allowed = true;
-				close(fd);
+				बंद(fd);
 			}
 		}
 	}
 }
-#endif
+#पूर्ण_अगर
 
 
-static int get_time(struct tm **ti)
+अटल पूर्णांक get_time(काष्ठा पंचांग **ti)
 {
-	time_t s;
+	समय_प्रकार s;
 
 	s = db.now_real_s;
 
-	*ti = localtime(&s);
-	if(!(*ti)){
-		fprintf(stderr, "Error obtaining system time.\n");
-		return 1;
+	*ti = स_स्थानीय(&s);
+	अगर(!(*ti)){
+		ख_लिखो(मानक_त्रुटि, "Error obtaining system time.\n");
+		वापस 1;
 	}
 
-	return 0;
+	वापस 0;
 }
 
 
-int log__init(struct mosquitto__config *config)
+पूर्णांक log__init(काष्ठा mosquitto__config *config)
 {
-	int rc = 0;
+	पूर्णांक rc = 0;
 
 	libcommon_vprintf = libcommon__vprintf;
 
 	log_priorities = config->log_type;
 	log_destinations = config->log_dest;
 
-	if(log_destinations & MQTT3_LOG_SYSLOG){
-#ifndef WIN32
+	अगर(log_destinations & MQTT3_LOG_SYSLOG){
+#अगर_अघोषित WIN32
 		openlog("mosquitto", LOG_PID|LOG_CONS, config->log_facility);
-#else
-		syslog_h = OpenEventLog(NULL, "mosquitto");
-#endif
+#अन्यथा
+		syslog_h = OpenEventLog(शून्य, "mosquitto");
+#पूर्ण_अगर
 	}
 
-	if(log_destinations & MQTT3_LOG_FILE){
+	अगर(log_destinations & MQTT3_LOG_FILE){
 		config->log_fptr = mosquitto_fopen(config->log_file, "at", true);
-		if(config->log_fptr){
-			setvbuf(config->log_fptr, log_fptr_buffer, _IOLBF, sizeof(log_fptr_buffer));
-		}else{
+		अगर(config->log_fptr){
+			रखो_भबफ(config->log_fptr, log_fptr_बफर, _IOLBF, माप(log_fptr_बफर));
+		}अन्यथा{
 			log_destinations = MQTT3_LOG_STDERR;
 			log_priorities = MOSQ_LOG_ERR;
-			log__printf(NULL, MOSQ_LOG_ERR, "Error: Unable to open log file %s for writing.", config->log_file);
+			log__printf(शून्य, MOSQ_LOG_ERR, "Error: Unable to open log file %s for writing.", config->log_file);
 		}
 	}
-#ifndef WIN32
-	if(log_destinations & MQTT3_LOG_STDOUT){
-		setvbuf(stdout, NULL, _IOLBF, 0);
+#अगर_अघोषित WIN32
+	अगर(log_destinations & MQTT3_LOG_STDOUT){
+		रखो_भबफ(मानक_निकास, शून्य, _IOLBF, 0);
 	}
-#endif
-#ifdef WITH_DLT
-	if(log_destinations & MQTT3_LOG_DLT){
+#पूर्ण_अगर
+#अगर_घोषित WITH_DLT
+	अगर(log_destinations & MQTT3_LOG_DLT){
 		dlt_fifo_check();
-		if(dlt_allowed){
+		अगर(dlt_allowed){
 			DLT_REGISTER_APP("MQTT", "mosquitto log");
 			dlt_register_context(&dltContext, "MQTT", "mosquitto DLT context");
 		}
 	}
-#endif
-	return rc;
+#पूर्ण_अगर
+	वापस rc;
 }
 
 
-int log__close(struct mosquitto__config *config)
+पूर्णांक log__close(काष्ठा mosquitto__config *config)
 {
-	if(log_destinations & MQTT3_LOG_SYSLOG){
-#ifndef WIN32
+	अगर(log_destinations & MQTT3_LOG_SYSLOG){
+#अगर_अघोषित WIN32
 		closelog();
-#else
+#अन्यथा
 		CloseEventLog(syslog_h);
-#endif
+#पूर्ण_अगर
 	}
-	if(log_destinations & MQTT3_LOG_FILE){
-		if(config->log_fptr){
-			fclose(config->log_fptr);
-			config->log_fptr = NULL;
+	अगर(log_destinations & MQTT3_LOG_FILE){
+		अगर(config->log_fptr){
+			ख_बंद(config->log_fptr);
+			config->log_fptr = शून्य;
 		}
 	}
 
-#ifdef WITH_DLT
-	if(dlt_allowed){
+#अगर_घोषित WITH_DLT
+	अगर(dlt_allowed){
 		dlt_unregister_context(&dltContext);
 		DLT_UNREGISTER_APP();
 	}
-#endif
+#पूर्ण_अगर
 	/* FIXME - do something for all destinations! */
-	return MOSQ_ERR_SUCCESS;
+	वापस MOSQ_ERR_SUCCESS;
 }
 
-#ifdef WITH_DLT
+#अगर_घोषित WITH_DLT
 
 
-DltLogLevelType get_dlt_level(unsigned int priority)
+DltLogLevelType get_dlt_level(अचिन्हित पूर्णांक priority)
 {
-	switch(priority){
-		case MOSQ_LOG_ERR:
-			return DLT_LOG_ERROR;
-		case MOSQ_LOG_WARNING:
-			return DLT_LOG_WARN;
-		case MOSQ_LOG_INFO:
-			return DLT_LOG_INFO;
-		case MOSQ_LOG_DEBUG:
-			return DLT_LOG_DEBUG;
-		case MOSQ_LOG_NOTICE:
-		case MOSQ_LOG_SUBSCRIBE:
-		case MOSQ_LOG_UNSUBSCRIBE:
-			return DLT_LOG_VERBOSE;
-		default:
-			return DLT_LOG_DEFAULT;
+	चयन(priority){
+		हाल MOSQ_LOG_ERR:
+			वापस DLT_LOG_ERROR;
+		हाल MOSQ_LOG_WARNING:
+			वापस DLT_LOG_WARN;
+		हाल MOSQ_LOG_INFO:
+			वापस DLT_LOG_INFO;
+		हाल MOSQ_LOG_DEBUG:
+			वापस DLT_LOG_DEBUG;
+		हाल MOSQ_LOG_NOTICE:
+		हाल MOSQ_LOG_SUBSCRIBE:
+		हाल MOSQ_LOG_UNSUBSCRIBE:
+			वापस DLT_LOG_VERBOSE;
+		शेष:
+			वापस DLT_LOG_DEFAULT;
 	}
 }
-#endif
+#पूर्ण_अगर
 
-#ifdef ANDROID
+#अगर_घोषित ANDROID
 
 
-android_LogPriority get_android_level(unsigned int priority)
+android_LogPriority get_android_level(अचिन्हित पूर्णांक priority)
 {
-	switch(priority){
-		case MOSQ_LOG_ERR:
-			return ANDROID_LOG_ERROR;
-		case MOSQ_LOG_WARNING:
-			return ANDROID_LOG_WARN;
-		case MOSQ_LOG_INFO:
-			return ANDROID_LOG_INFO;
-		case MOSQ_LOG_DEBUG:
-			return ANDROID_LOG_DEBUG;
-		case MOSQ_LOG_NOTICE:
-		case MOSQ_LOG_SUBSCRIBE:
-		case MOSQ_LOG_UNSUBSCRIBE:
-			return ANDROID_LOG_VERBOSE;
-		default:
-			return ANDROID_LOG_DEBUG;
+	चयन(priority){
+		हाल MOSQ_LOG_ERR:
+			वापस ANDROID_LOG_ERROR;
+		हाल MOSQ_LOG_WARNING:
+			वापस ANDROID_LOG_WARN;
+		हाल MOSQ_LOG_INFO:
+			वापस ANDROID_LOG_INFO;
+		हाल MOSQ_LOG_DEBUG:
+			वापस ANDROID_LOG_DEBUG;
+		हाल MOSQ_LOG_NOTICE:
+		हाल MOSQ_LOG_SUBSCRIBE:
+		हाल MOSQ_LOG_UNSUBSCRIBE:
+			वापस ANDROID_LOG_VERBOSE;
+		शेष:
+			वापस ANDROID_LOG_DEBUG;
 	}
 }
-#endif
+#पूर्ण_अगर
 
 
-static int log__vprintf(unsigned int priority, const char *fmt, va_list va)
+अटल पूर्णांक log__vprintf(अचिन्हित पूर्णांक priority, स्थिर अक्षर *fmt, बहु_सूची va)
 {
-	const char *topic;
-	int syslog_priority;
-	char log_line[1000];
-	size_t log_line_pos;
-#ifdef WIN32
-	char *sp;
-#endif
+	स्थिर अक्षर *topic;
+	पूर्णांक syslog_priority;
+	अक्षर log_पंक्ति[1000];
+	माप_प्रकार log_पंक्ति_pos;
+#अगर_घोषित WIN32
+	अक्षर *sp;
+#पूर्ण_अगर
 	bool log_timestamp = true;
-	char *log_timestamp_format = NULL;
-	FILE *log_fptr = NULL;
+	अक्षर *log_timestamp_format = शून्य;
+	खाता *log_fptr = शून्य;
 
-	if(db.config){
+	अगर(db.config){
 		log_timestamp = db.config->log_timestamp;
 		log_timestamp_format = db.config->log_timestamp_format;
 		log_fptr = db.config->log_fptr;
 	}
 
-	if((log_priorities & priority) && log_destinations != MQTT3_LOG_NONE){
-		switch(priority){
-			case MOSQ_LOG_SUBSCRIBE:
+	अगर((log_priorities & priority) && log_destinations != MQTT3_LOG_NONE){
+		चयन(priority){
+			हाल MOSQ_LOG_SUBSCRIBE:
 				topic = "$SYS/broker/log/M/subscribe";
-#ifndef WIN32
+#अगर_अघोषित WIN32
 				syslog_priority = LOG_NOTICE;
-#else
+#अन्यथा
 				syslog_priority = EVENTLOG_INFORMATION_TYPE;
-#endif
-				break;
-			case MOSQ_LOG_UNSUBSCRIBE:
+#पूर्ण_अगर
+				अवरोध;
+			हाल MOSQ_LOG_UNSUBSCRIBE:
 				topic = "$SYS/broker/log/M/unsubscribe";
-#ifndef WIN32
+#अगर_अघोषित WIN32
 				syslog_priority = LOG_NOTICE;
-#else
+#अन्यथा
 				syslog_priority = EVENTLOG_INFORMATION_TYPE;
-#endif
-				break;
-			case MOSQ_LOG_DEBUG:
+#पूर्ण_अगर
+				अवरोध;
+			हाल MOSQ_LOG_DEBUG:
 				topic = "$SYS/broker/log/D";
-#ifndef WIN32
+#अगर_अघोषित WIN32
 				syslog_priority = LOG_DEBUG;
-#else
+#अन्यथा
 				syslog_priority = EVENTLOG_INFORMATION_TYPE;
-#endif
-				break;
-			case MOSQ_LOG_ERR:
+#पूर्ण_अगर
+				अवरोध;
+			हाल MOSQ_LOG_ERR:
 				topic = "$SYS/broker/log/E";
-#ifndef WIN32
+#अगर_अघोषित WIN32
 				syslog_priority = LOG_ERR;
-#else
+#अन्यथा
 				syslog_priority = EVENTLOG_ERROR_TYPE;
-#endif
-				break;
-			case MOSQ_LOG_WARNING:
+#पूर्ण_अगर
+				अवरोध;
+			हाल MOSQ_LOG_WARNING:
 				topic = "$SYS/broker/log/W";
-#ifndef WIN32
+#अगर_अघोषित WIN32
 				syslog_priority = LOG_WARNING;
-#else
+#अन्यथा
 				syslog_priority = EVENTLOG_WARNING_TYPE;
-#endif
-				break;
-			case MOSQ_LOG_NOTICE:
+#पूर्ण_अगर
+				अवरोध;
+			हाल MOSQ_LOG_NOTICE:
 				topic = "$SYS/broker/log/N";
-#ifndef WIN32
+#अगर_अघोषित WIN32
 				syslog_priority = LOG_NOTICE;
-#else
+#अन्यथा
 				syslog_priority = EVENTLOG_INFORMATION_TYPE;
-#endif
-				break;
-			case MOSQ_LOG_INFO:
+#पूर्ण_अगर
+				अवरोध;
+			हाल MOSQ_LOG_INFO:
 				topic = "$SYS/broker/log/I";
-#ifndef WIN32
+#अगर_अघोषित WIN32
 				syslog_priority = LOG_INFO;
-#else
+#अन्यथा
 				syslog_priority = EVENTLOG_INFORMATION_TYPE;
-#endif
-				break;
-#if defined(WITH_WEBSOCKETS) && WITH_WEBSOCKETS == WS_IS_LWS
-			case MOSQ_LOG_WEBSOCKETS:
+#पूर्ण_अगर
+				अवरोध;
+#अगर defined(WITH_WEBSOCKETS) && WITH_WEBSOCKETS == WS_IS_LWS
+			हाल MOSQ_LOG_WEBSOCKETS:
 				topic = "$SYS/broker/log/WS";
-#ifndef WIN32
+#अगर_अघोषित WIN32
 				syslog_priority = LOG_DEBUG;
-#else
+#अन्यथा
 				syslog_priority = EVENTLOG_INFORMATION_TYPE;
-#endif
-				break;
-#endif
-			default:
+#पूर्ण_अगर
+				अवरोध;
+#पूर्ण_अगर
+			शेष:
 				topic = "$SYS/broker/log/E";
-#ifndef WIN32
+#अगर_अघोषित WIN32
 				syslog_priority = LOG_ERR;
-#else
+#अन्यथा
 				syslog_priority = EVENTLOG_ERROR_TYPE;
-#endif
+#पूर्ण_अगर
 		}
-		if(log_timestamp){
-			if(log_timestamp_format){
-				struct tm *ti = NULL;
+		अगर(log_timestamp){
+			अगर(log_timestamp_format){
+				काष्ठा पंचांग *ti = शून्य;
 				get_time(&ti);
-				log_line_pos = strftime(log_line, sizeof(log_line), log_timestamp_format, ti);
-				if(log_line_pos == 0){
-					log_line_pos = (size_t)snprintf(log_line, sizeof(log_line), "Time error");
+				log_पंक्ति_pos = स_माला(log_पंक्ति, माप(log_पंक्ति), log_timestamp_format, ti);
+				अगर(log_पंक्ति_pos == 0){
+					log_पंक्ति_pos = (माप_प्रकार)snprintf(log_पंक्ति, माप(log_पंक्ति), "Time error");
 				}
-			}else{
-				log_line_pos = (size_t)snprintf(log_line, sizeof(log_line), "%" PRIu64, (uint64_t)db.now_real_s);
+			}अन्यथा{
+				log_पंक्ति_pos = (माप_प्रकार)snprintf(log_पंक्ति, माप(log_पंक्ति), "%" PRIu64, (uint64_t)db.now_real_s);
 			}
-			if(log_line_pos < sizeof(log_line)-3){
-				log_line[log_line_pos] = ':';
-				log_line[log_line_pos+1] = ' ';
-				log_line[log_line_pos+2] = '\0';
-				log_line_pos += 2;
+			अगर(log_पंक्ति_pos < माप(log_पंक्ति)-3){
+				log_पंक्ति[log_पंक्ति_pos] = ':';
+				log_पंक्ति[log_पंक्ति_pos+1] = ' ';
+				log_पंक्ति[log_पंक्ति_pos+2] = '\0';
+				log_पंक्ति_pos += 2;
 			}
-		}else{
-			log_line_pos = 0;
+		}अन्यथा{
+			log_पंक्ति_pos = 0;
 		}
-		vsnprintf(&log_line[log_line_pos], sizeof(log_line)-log_line_pos, fmt, va);
-		log_line[sizeof(log_line)-1] = '\0'; /* Ensure string is null terminated. */
+		vsnprintf(&log_पंक्ति[log_पंक्ति_pos], माप(log_पंक्ति)-log_पंक्ति_pos, fmt, va);
+		log_पंक्ति[माप(log_पंक्ति)-1] = '\0'; /* Ensure string is null terminated. */
 
-		if(log_destinations & MQTT3_LOG_STDOUT){
-			fprintf(stdout, "%s\n", log_line);
+		अगर(log_destinations & MQTT3_LOG_STDOUT){
+			ख_लिखो(मानक_निकास, "%s\n", log_पंक्ति);
 		}
-		if(log_destinations & MQTT3_LOG_STDERR){
-			fprintf(stderr, "%s\n", log_line);
+		अगर(log_destinations & MQTT3_LOG_STDERR){
+			ख_लिखो(मानक_त्रुटि, "%s\n", log_पंक्ति);
 		}
-		if(log_destinations & MQTT3_LOG_FILE && log_fptr){
-			fprintf(log_fptr, "%s\n", log_line);
-#ifdef WIN32
+		अगर(log_destinations & MQTT3_LOG_FILE && log_fptr){
+			ख_लिखो(log_fptr, "%s\n", log_पंक्ति);
+#अगर_घोषित WIN32
 			/* Windows doesn't support line buffering, so flush. */
-			fflush(log_fptr);
-#endif
+			ख_साफ(log_fptr);
+#पूर्ण_अगर
 		}
-		if(log_destinations & MQTT3_LOG_SYSLOG){
-#ifndef WIN32
-			syslog(syslog_priority, "%s", log_line);
-#else
-			sp = (char *)log_line;
-			ReportEvent(syslog_h, syslog_priority, 0, 0, NULL, 1, 0, (const char **)&sp, NULL);
-#endif
+		अगर(log_destinations & MQTT3_LOG_SYSLOG){
+#अगर_अघोषित WIN32
+			syslog(syslog_priority, "%s", log_पंक्ति);
+#अन्यथा
+			sp = (अक्षर *)log_पंक्ति;
+			ReportEvent(syslog_h, syslog_priority, 0, 0, शून्य, 1, 0, (स्थिर अक्षर **)&sp, शून्य);
+#पूर्ण_अगर
 		}
-		if(log_destinations & MQTT3_LOG_TOPIC && priority != MOSQ_LOG_DEBUG && priority != MOSQ_LOG_INTERNAL){
-			db__messages_easy_queue(NULL, topic, 2, (uint32_t)strlen(log_line), log_line, 0, 20, NULL);
+		अगर(log_destinations & MQTT3_LOG_TOPIC && priority != MOSQ_LOG_DEBUG && priority != MOSQ_LOG_INTERNAL){
+			db__messages_easy_queue(शून्य, topic, 2, (uint32_t)म_माप(log_पंक्ति), log_पंक्ति, 0, 20, शून्य);
 		}
-#ifdef WITH_DLT
-		if(log_destinations & MQTT3_LOG_DLT && priority != MOSQ_LOG_INTERNAL){
-			DLT_LOG_STRING(dltContext, get_dlt_level(priority), log_line);
+#अगर_घोषित WITH_DLT
+		अगर(log_destinations & MQTT3_LOG_DLT && priority != MOSQ_LOG_INTERNAL){
+			DLT_LOG_STRING(dltContext, get_dlt_level(priority), log_पंक्ति);
 		}
-#endif
-#ifdef ANDROID
-		if(log_destinations & MQTT3_LOG_ANDROID && priority != MOSQ_LOG_INTERNAL){
-			__android_log_write(get_android_level(priority), LOG_TAG, log_line);
+#पूर्ण_अगर
+#अगर_घोषित ANDROID
+		अगर(log_destinations & MQTT3_LOG_ANDROID && priority != MOSQ_LOG_INTERNAL){
+			__android_log_write(get_android_level(priority), LOG_TAG, log_पंक्ति);
 		}
-#endif
+#पूर्ण_अगर
 	}
 
-	return MOSQ_ERR_SUCCESS;
+	वापस MOSQ_ERR_SUCCESS;
 }
 
 
-int log__printf(struct mosquitto *mosq, unsigned int priority, const char *fmt, ...)
+पूर्णांक log__printf(काष्ठा mosquitto *mosq, अचिन्हित पूर्णांक priority, स्थिर अक्षर *fmt, ...)
 {
-	va_list va;
-	int rc;
+	बहु_सूची va;
+	पूर्णांक rc;
 
 	UNUSED(mosq);
 
-	va_start(va, fmt);
+	बहु_शुरू(va, fmt);
 	rc = log__vprintf(priority, fmt, va);
-	va_end(va);
+	बहु_पूर्ण(va);
 
-	return rc;
+	वापस rc;
 }
 
 
-void log__internal(const char *fmt, ...)
+व्योम log__internal(स्थिर अक्षर *fmt, ...)
 {
-	va_list va;
-	char buf[200];
-	int len;
+	बहु_सूची va;
+	अक्षर buf[200];
+	पूर्णांक len;
 
-	va_start(va, fmt);
+	बहु_शुरू(va, fmt);
 	len = vsnprintf(buf, 200, fmt, va);
-	va_end(va);
+	बहु_पूर्ण(va);
 
-	if(len >= 200){
-		log__printf(NULL, MOSQ_LOG_INTERNAL, "Internal log buffer too short (%d)", len);
-		return;
+	अगर(len >= 200){
+		log__printf(शून्य, MOSQ_LOG_INTERNAL, "Internal log buffer too short (%d)", len);
+		वापस;
 	}
 
-#ifdef WIN32
-	log__printf(NULL, MOSQ_LOG_INTERNAL, "%s", buf);
-#else
-	log__printf(NULL, MOSQ_LOG_INTERNAL, "%s%s%s", "\e[32m", buf, "\e[0m");
-#endif
+#अगर_घोषित WIN32
+	log__printf(शून्य, MOSQ_LOG_INTERNAL, "%s", buf);
+#अन्यथा
+	log__printf(शून्य, MOSQ_LOG_INTERNAL, "%s%s%s", "\e[32m", buf, "\e[0m");
+#पूर्ण_अगर
 }
 
 
-BROKER_EXPORT int mosquitto_log_vprintf(int level, const char *fmt, va_list va)
+BROKER_EXPORT पूर्णांक mosquitto_log_vprintf(पूर्णांक level, स्थिर अक्षर *fmt, बहु_सूची va)
 {
-	return log__vprintf((unsigned int)level, fmt, va);
+	वापस log__vprintf((अचिन्हित पूर्णांक)level, fmt, va);
 }
 
 
-BROKER_EXPORT void mosquitto_log_printf(int level, const char *fmt, ...)
+BROKER_EXPORT व्योम mosquitto_log_printf(पूर्णांक level, स्थिर अक्षर *fmt, ...)
 {
-	va_list va;
+	बहु_सूची va;
 
-	va_start(va, fmt);
-	log__vprintf((unsigned int)level, fmt, va);
-	va_end(va);
+	बहु_शुरू(va, fmt);
+	log__vprintf((अचिन्हित पूर्णांक)level, fmt, va);
+	बहु_पूर्ण(va);
 }
 
 
-static void libcommon__vprintf(const char *fmt, va_list va)
+अटल व्योम libcommon__vprintf(स्थिर अक्षर *fmt, बहु_सूची va)
 {
 	log__vprintf(MOSQ_LOG_INFO, fmt, va);
 }

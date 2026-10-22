@@ -15,38 +15,38 @@ SPDX-License-Identifier: EPL-2.0 OR BSD-3-Clause
 Contributors:
    Roger Light - initial implementation and documentation.
 */
-#ifndef ACL_FILE_H
-#define ACL_FILE_H
+#अगर_अघोषित ACL_FILE_H
+#घोषणा ACL_FILE_H
 
-#include <uthash.h>
+#समावेश <uthash.h>
 
-struct acl__entry {
-	struct acl__entry *next, *prev;
-	char *topic;
-	int access;
-	int ucount;
-	int ccount;
+काष्ठा acl__entry {
+	काष्ठा acl__entry *अग्र, *पूर्व;
+	अक्षर *topic;
+	पूर्णांक access;
+	पूर्णांक ucount;
+	पूर्णांक ccount;
 };
 
 
-struct acl__user {
+काष्ठा acl__user {
 	UT_hash_handle hh;
-	char *username;
-	struct acl__entry *acl;
+	अक्षर *username;
+	काष्ठा acl__entry *acl;
 };
 
 
-struct acl_file_data {
-	char *acl_file;
-	struct acl__user *acl_users;
-	struct acl__user acl_anon;
-	struct acl__entry *acl_patterns;
+काष्ठा acl_file_तथ्य {
+	अक्षर *acl_file;
+	काष्ठा acl__user *acl_users;
+	काष्ठा acl__user acl_anon;
+	काष्ठा acl__entry *acl_patterns;
 };
 
 
-int acl_file__parse(struct acl_file_data *data);
-int acl_file__check(int event, void *event_data, void *userdata);
-int acl_file__reload(int event, void *event_data, void *userdata);
-void acl_file__cleanup(struct acl_file_data *data);
+पूर्णांक acl_file__parse(काष्ठा acl_file_तथ्य *तथ्य);
+पूर्णांक acl_file__check(पूर्णांक event, व्योम *event_तथ्य, व्योम *userdata);
+पूर्णांक acl_file__reload(पूर्णांक event, व्योम *event_तथ्य, व्योम *userdata);
+व्योम acl_file__cleanup(काष्ठा acl_file_तथ्य *तथ्य);
 
-#endif
+#पूर्ण_अगर
