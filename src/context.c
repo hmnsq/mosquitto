@@ -16,67 +16,67 @@ Contributors:
    Roger Light - initial implementation and documentation.
 */
 
-#include "config.h"
+#ضمن "config.h"
 
-#include <time.h>
-#if defined(__APPLE__) || defined(_AIX)
-#include <sys/socket.h>
+#ضمن <time.h>
+#ܐܢ defined(__APPLE__) || defined(_AIX)
+#ضمن <sys/socket.h>
 #endif
 
-#include "mosquitto_broker_internal.h"
-#include "alias_mosq.h"
-#include "packet_mosq.h"
-#include "property_mosq.h"
-#include "sys_tree.h"
-#include "util_mosq.h"
-#include "will_mosq.h"
+#ضمن "mosquitto_broker_internal.h"
+#ضمن "alias_mosq.h"
+#ضمن "packet_mosq.h"
+#ضمن "property_mosq.h"
+#ضمن "sys_tree.h"
+#ضمن "util_mosq.h"
+#ضمن "will_mosq.h"
 
-#include "uthash.h"
+#ضمن "uthash.h"
 
 
-int context__init_sock(struct mosquitto *context, mosq_sock_t sock, bool get_address)
+صحيح context__init_sock(بنية mosquitto *context, mosq_sock_t sock, bool get_address)
 {
 	context->sock = sock;
 
-	if((int)context->sock >= 0){
-		if(get_address){
-			char address[1024];
+	ܐܢ((صحيح)context->sock >= 0){
+		ܐܢ(get_address){
+			حرف address[1024];
 
-			if(!net__socket_get_address(context->sock,
-					address, sizeof(address),
+			ܐܢ(!net__socket_get_address(context->sock,
+					address, حجم(address),
 					&context->remote_port)){
 
 				context->address = mosquitto_strdup(address);
 			}
-			if(!context->address){
+			ܐܢ(!context->address){
 				/* getpeername and inet_ntop failed and not a bridge */
-				return MOSQ_ERR_NOMEM;
+				ܦܢܐ MOSQ_ERR_NOMEM;
 			}
 		}
-		HASH_ADD(hh_sock, db.contexts_by_sock, sock, sizeof(context->sock), context);
+		HASH_ADD(hh_sock, db.contexts_by_sock, sock, حجم(context->sock), context);
 	}
-	return MOSQ_ERR_SUCCESS;
+	ܦܢܐ MOSQ_ERR_SUCCESS;
 }
 
-struct mosquitto *context__init(void)
+بنية mosquitto *context__init(فراغ)
 {
-	struct mosquitto *context;
+	بنية mosquitto *context;
 
-	context = mosquitto_calloc(1, sizeof(struct mosquitto));
-	if(!context){
-		return NULL;
+	context = mosquitto_calloc(1, حجم(بنية mosquitto));
+	ܐܢ(!context){
+		ܦܢܐ عدم;
 	}
 
 	context->in_packet.packet_buffer_size = db.config->packet_buffer_size;
 	context->in_packet.packet_buffer = mosquitto_calloc(1, context->in_packet.packet_buffer_size);
-	if(!context->in_packet.packet_buffer){
+	ܐܢ(!context->in_packet.packet_buffer){
 		mosquitto_FREE(context);
-		return NULL;
+		ܦܢܐ عدم;
 	}
 
-#if defined(WITH_EPOLL) || defined(WITH_KQUEUE)
+#ܐܢ defined(WITH_EPOLL) || defined(WITH_KQUEUE)
 	context->ident = id_client;
-#else
+#ܐܚܪܢܐ
 	context->pollfd_index = -1;
 #endif
 	mosquitto__set_state(context, mosq_cs_new);
@@ -85,16 +85,16 @@ struct mosquitto *context__init(void)
 	context->next_msg_out = db.now_s + 20;
 	context->keepalive = 20; /* Default to 20s */
 	context->clean_start = true;
-	context->id = NULL;
+	context->id = عدم;
 	context->last_mid = 0;
-	context->will = NULL;
-	context->username = NULL;
-	context->password = NULL;
-	context->listener = NULL;
-	context->acl_list = NULL;
+	context->will = عدم;
+	context->username = عدم;
+	context->password = عدم;
+	context->listener = عدم;
+	context->acl_list = عدم;
 	context->retain_available = true;
-#if defined(WITH_WEBSOCKETS) && WITH_WEBSOCKETS == WS_IS_BUILTIN
-	memset(&context->wsd, 0, sizeof(context->wsd));
+#ܐܢ defined(WITH_WEBSOCKETS) && WITH_WEBSOCKETS == WS_IS_BUILTIN
+	memset(&context->wsd, 0, حجم(context->wsd));
 	context->wsd.opcode = UINT8_MAX;
 	context->wsd.mask = UINT8_MAX;
 	context->wsd.disconnect_reason = 0xE8;
@@ -105,36 +105,36 @@ struct mosquitto *context__init(void)
 	 * but incoming bridges need some other way of being recorded. */
 	context->is_bridge = false;
 
-	context->in_packet.payload = NULL;
+	context->in_packet.payload = عدم;
 	packet__cleanup(&context->in_packet);
-	context->out_packet = NULL;
+	context->out_packet = عدم;
 	context->out_packet_count = 0;
 	context->out_packet_bytes = 0;
 
-	context->address = NULL;
-	context->bridge = NULL;
+	context->address = عدم;
+	context->bridge = عدم;
 	context->msgs_in.inflight_maximum = db.config->max_inflight_messages;
 	context->msgs_in.inflight_quota = db.config->max_inflight_messages;
 	context->msgs_out.inflight_maximum = db.config->max_inflight_messages;
 	context->msgs_out.inflight_quota = db.config->max_inflight_messages;
 	context->max_qos = 2;
 #ifdef WITH_TLS
-	context->ssl = NULL;
+	context->ssl = عدم;
 #endif
 
-	return context;
+	ܦܢܐ context;
 }
 
 
-static void context__cleanup_out_packets(struct mosquitto *context)
+ساكن فراغ context__cleanup_out_packets(بنية mosquitto *context)
 {
-	struct mosquitto__packet *packet;
+	بنية mosquitto__packet *packet;
 
-	if(!context){
-		return;
+	ܐܢ(!context){
+		ܦܢܐ;
 	}
 
-	while(context->out_packet){
+	ܟܡܐ(context->out_packet){
 		packet = context->out_packet;
 		context->out_packet = context->out_packet->next;
 		mosquitto_free(packet);
@@ -152,18 +152,18 @@ static void context__cleanup_out_packets(struct mosquitto *context)
  * but it will mean that CONNACK messages will never get sent for bad protocol
  * versions for example.
  */
-void context__cleanup(struct mosquitto *context, bool force_free)
+فراغ context__cleanup(بنية mosquitto *context, bool force_free)
 {
-	if(!context){
-		return;
+	ܐܢ(!context){
+		ܦܢܐ;
 	}
 
-	if(force_free){
+	ܐܢ(force_free){
 		context->clean_start = true;
 	}
 
 #ifdef WITH_BRIDGE
-	if(context->bridge){
+	ܐܢ(context->bridge){
 		bridge__cleanup(context);
 	}
 #endif
@@ -179,7 +179,7 @@ void context__cleanup(struct mosquitto *context, bool force_free)
 	mosquitto_FREE(context->password);
 
 	net__socket_close(context);
-	if(force_free){
+	ܐܢ(force_free){
 		sub__clean_session(context);
 	}
 	db__messages_delete(context, force_free);
@@ -188,40 +188,40 @@ void context__cleanup(struct mosquitto *context, bool force_free)
 
 	context__send_will(context);
 
-	if(context->id){
+	ܐܢ(context->id){
 		context__remove_from_by_id(context);
 		mosquitto_FREE(context->id);
 	}
 	packet__cleanup(&(context->in_packet));
 	context__cleanup_out_packets(context);
-#if defined(WITH_BROKER) && defined(__GLIBC__) && defined(WITH_ADNS)
-	if(context->adns){
+#ܐܢ defined(WITH_BROKER) && defined(__GLIBC__) && defined(WITH_ADNS)
+	ܐܢ(context->adns){
 		gai_cancel(context->adns);
-		struct addrinfo *ar_request = (struct addrinfo *)context->adns->ar_request;
+		بنية addrinfo *ar_request = (بنية addrinfo *)context->adns->ar_request;
 		mosquitto_FREE(ar_request);
 		mosquitto_FREE(context->adns);
 	}
 #endif
 
-#if defined(WITH_WEBSOCKETS) && WITH_WEBSOCKETS == WS_IS_BUILTIN
+#ܐܢ defined(WITH_WEBSOCKETS) && WITH_WEBSOCKETS == WS_IS_BUILTIN
 	mosquitto_FREE(context->http_request);
 #endif
 	mosquitto_FREE(context->proxy.buf);
-	if(force_free){
+	ܐܢ(force_free){
 		mosquitto_FREE(context);
 	}
 }
 
 
-void context__send_will(struct mosquitto *ctxt)
+فراغ context__send_will(بنية mosquitto *ctxt)
 {
-	if(ctxt->state != mosq_cs_disconnecting && ctxt->will){
-		if(ctxt->session_expiry_interval > 0 && ctxt->will_delay_interval > 0){
+	ܐܢ(ctxt->state != mosq_cs_disconnecting && ctxt->will){
+		ܐܢ(ctxt->session_expiry_interval > 0 && ctxt->will_delay_interval > 0){
 			will_delay__add(ctxt);
-			return;
+			ܦܢܐ;
 		}
 
-		if(mosquitto_acl_check(ctxt,
+		ܐܢ(mosquitto_acl_check(ctxt,
 				ctxt->will->msg.topic,
 				(uint32_t)ctxt->will->msg.payloadlen,
 				ctxt->will->msg.payload,
@@ -245,52 +245,52 @@ void context__send_will(struct mosquitto *ctxt)
 }
 
 
-void context__disconnect(struct mosquitto *context, int reason)
+فراغ context__disconnect(بنية mosquitto *context, صحيح reason)
 {
-	if(mosquitto__get_state(context) == mosq_cs_disconnected){
-		return;
+	ܐܢ(mosquitto__get_state(context) == mosq_cs_disconnected){
+		ܦܢܐ;
 	}
 
-#if defined(WITH_WEBSOCKETS) && WITH_WEBSOCKETS == WS_IS_BUILTIN
-	if(context->transport == mosq_t_ws){
+#ܐܢ defined(WITH_WEBSOCKETS) && WITH_WEBSOCKETS == WS_IS_BUILTIN
+	ܐܢ(context->transport == mosq_t_ws){
 		uint8_t buf[4] = {0x88, 0x02, 0x03, context->wsd.disconnect_reason};
 		/* Send the disconnect reason, but don't care if it fails */
-		if(send(context->sock, buf, 4, 0)){
+		ܐܢ(send(context->sock, buf, 4, 0)){
 		}
 	}
 #endif
-	if(context->id){
-		struct mosquitto *context_found;
+	ܐܢ(context->id){
+		بنية mosquitto *context_found;
 		HASH_FIND(hh_id, db.contexts_by_id_delayed_auth, context->id, strlen(context->id), context_found);
-		if(context_found == context){
+		ܐܢ(context_found == context){
 			net__socket_close(context);
 			context__add_to_disused(context);
-			return;
+			ܦܢܐ;
 		}
 	}
 
 	context__send_will(context);
 
-	if(context->session_expiry_interval == MQTT_SESSION_EXPIRY_IMMEDIATE){
+	ܐܢ(context->session_expiry_interval == MQTT_SESSION_EXPIRY_IMMEDIATE){
 		plugin__handle_disconnect(context, reason);
-	}else{
+	}ܐܚܪܢܐ{
 		plugin__handle_client_offline(context, reason);
 	}
 
 	net__socket_close(context);
 #ifdef WITH_BRIDGE
-	if(context->bridge == NULL)
+	ܐܢ(context->bridge == عدم)
 	/* Outgoing bridge connection never expire */
 #endif
 	{
-		if(context->session_expiry_interval == MQTT_SESSION_EXPIRY_IMMEDIATE){
+		ܐܢ(context->session_expiry_interval == MQTT_SESSION_EXPIRY_IMMEDIATE){
 			plugin_persist__handle_client_delete(context);
 			/* Client session is due to be expired now */
-			if(context->will_delay_interval == 0){
+			ܐܢ(context->will_delay_interval == 0){
 				/* This will be done later, after the will is published for delay>0. */
 				context__add_to_disused(context);
 			}
-		}else{
+		}ܐܚܪܢܐ{
 			session_expiry__add(context);
 		}
 	}
@@ -301,10 +301,10 @@ void context__disconnect(struct mosquitto *context, int reason)
 }
 
 
-void context__add_to_disused(struct mosquitto *context)
+فراغ context__add_to_disused(بنية mosquitto *context)
 {
-	if(context->state == mosq_cs_disused){
-		return;
+	ܐܢ(context->state == mosq_cs_disused){
+		ܦܢܐ;
 	}
 
 	mosquitto__set_state(context, mosq_cs_disused);
@@ -316,29 +316,29 @@ void context__add_to_disused(struct mosquitto *context)
 }
 
 
-void context__free_disused(void)
+فراغ context__free_disused(فراغ)
 {
-	struct mosquitto *context, *next;
-#if defined(WITH_WEBSOCKETS) && WITH_WEBSOCKETS == WS_IS_LWS
-	struct mosquitto *last = NULL;
+	بنية mosquitto *context, *next;
+#ܐܢ defined(WITH_WEBSOCKETS) && WITH_WEBSOCKETS == WS_IS_LWS
+	بنية mosquitto *last = عدم;
 #endif
 
 	context = db.ll_for_free;
-	db.ll_for_free = NULL;
-	while(context){
-#if defined(WITH_WEBSOCKETS) && WITH_WEBSOCKETS == WS_IS_LWS
-		if(context->wsi){
+	db.ll_for_free = عدم;
+	ܟܡܐ(context){
+#ܐܢ defined(WITH_WEBSOCKETS) && WITH_WEBSOCKETS == WS_IS_LWS
+		ܐܢ(context->wsi){
 			/* Don't delete yet, lws hasn't finished with it */
-			if(last){
+			ܐܢ(last){
 				last->for_free_next = context;
-			}else{
+			}ܐܚܪܢܐ{
 				db.ll_for_free = context;
 			}
 			next = context->for_free_next;
-			context->for_free_next = NULL;
+			context->for_free_next = عدم;
 			last = context;
 			context = next;
-		}else
+		}ܐܚܪܢܐ
 #endif
 		{
 			next = context->for_free_next;
@@ -349,9 +349,9 @@ void context__free_disused(void)
 }
 
 
-void context__add_to_by_id(struct mosquitto *context)
+فراغ context__add_to_by_id(بنية mosquitto *context)
 {
-	if(context->in_by_id == false){
+	ܐܢ(context->in_by_id == false){
 		context->in_by_id = true;
 		HASH_VALUE(context->id, strlen(context->id), context->id_hashv);
 		HASH_ADD_KEYPTR_BYHASHVALUE(hh_id, db.contexts_by_id, context->id, strlen(context->id), context->id_hashv, context);
@@ -359,26 +359,26 @@ void context__add_to_by_id(struct mosquitto *context)
 }
 
 
-void context__remove_from_by_id(struct mosquitto *context)
+فراغ context__remove_from_by_id(بنية mosquitto *context)
 {
-	struct mosquitto *context_found;
+	بنية mosquitto *context_found;
 
-	if(!context->id){
-		return;
+	ܐܢ(!context->id){
+		ܦܢܐ;
 	}
 
-	if(context->in_by_id){
+	ܐܢ(context->in_by_id){
 		HASH_FIND(hh_id, db.contexts_by_id, context->id, strlen(context->id), context_found);
-		if(context_found == context){
+		ܐܢ(context_found == context){
 			HASH_DELETE(hh_id, db.contexts_by_id, context_found);
 		}
 		context->id_hashv = 0;
 		context->in_by_id = false;
-		return;
+		ܦܢܐ;
 	}
 
 	HASH_FIND(hh_id, db.contexts_by_id_delayed_auth, context->id, strlen(context->id), context_found);
-	if(context_found == context){
+	ܐܢ(context_found == context){
 		HASH_DELETE(hh_id, db.contexts_by_id_delayed_auth, context_found);
 	}
 }

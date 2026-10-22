@@ -16,51 +16,51 @@ Contributors:
    Roger Light - initial implementation and documentation.
 */
 
-#include "config.h"
+#ضمن "config.h"
 
-#include <stdio.h>
-#include <string.h>
+#ضمن <stdio.h>
+#ضمن <string.h>
 
-#include "mosquitto/broker.h"
-#include "mosquitto_broker_internal.h"
-#include "mosquitto/broker_plugin.h"
-#include "lib_load.h"
-#include "utlist.h"
+#ضمن "mosquitto/broker.h"
+#ضمن "mosquitto_broker_internal.h"
+#ضمن "mosquitto/broker_plugin.h"
+#ضمن "lib_load.h"
+#ضمن "utlist.h"
 
-static int plugin__security_cleanup_single(mosquitto_plugin_id_t *plugin, bool reload);
+ساكن صحيح plugin__security_cleanup_single(mosquitto_plugin_id_t *plugin, bool reload);
 
 
-static void plugin__unload_single(mosquitto_plugin_id_t *plugin)
+ساكن فراغ plugin__unload_single(mosquitto_plugin_id_t *plugin)
 {
-	struct control_endpoint *ep, *tmp;
+	بنية control_endpoint *ep, *tmp;
 
 	/* Run plugin cleanup function */
-	if(plugin->lib.version == 5){
-		if(plugin->lib.plugin_cleanup_v5){
+	ܐܢ(plugin->lib.version == 5){
+		ܐܢ(plugin->lib.plugin_cleanup_v5){
 			plugin->lib.plugin_cleanup_v5(
 					plugin->lib.user_data,
 					plugin->config.options,
 					plugin->config.option_count);
 		}
-	}else if(plugin->lib.version == 4){
-		if(plugin->lib.plugin_cleanup_v4){
+	}ܐܚܪܢܐ ܐܢ(plugin->lib.version == 4){
+		ܐܢ(plugin->lib.plugin_cleanup_v4){
 			plugin->lib.plugin_cleanup_v4(
 					plugin->lib.user_data,
 					plugin->config.options,
 					plugin->config.option_count);
 		}
-	}else if(plugin->lib.version == 3){
-		if(plugin->lib.plugin_cleanup_v3){
+	}ܐܚܪܢܐ ܐܢ(plugin->lib.version == 3){
+		ܐܢ(plugin->lib.plugin_cleanup_v3){
 			plugin->lib.plugin_cleanup_v3(
 					plugin->lib.user_data,
 					plugin->config.options,
 					plugin->config.option_count);
 		}
-	}else if(plugin->lib.version == 2){
-		if(plugin->lib.plugin_cleanup_v2){
+	}ܐܚܪܢܐ ܐܢ(plugin->lib.version == 2){
+		ܐܢ(plugin->lib.plugin_cleanup_v2){
 			plugin->lib.plugin_cleanup_v2(
 					plugin->lib.user_data,
-					(struct mosquitto_auth_opt *)plugin->config.options,
+					(بنية mosquitto_auth_opt *)plugin->config.options,
 					plugin->config.option_count);
 		}
 	}
@@ -73,64 +73,64 @@ static void plugin__unload_single(mosquitto_plugin_id_t *plugin)
 		mosquitto_FREE(ep);
 	}
 
-	if(plugin->lib.lib){
+	ܐܢ(plugin->lib.lib){
 		//LIB_CLOSE(plugin->lib.lib);
 	}
-	memset(&plugin->lib, 0, sizeof(struct mosquitto__plugin_lib));
+	memset(&plugin->lib, 0, حجم(بنية mosquitto__plugin_lib));
 }
 
 
-int plugin__unload_all(void)
+صحيح plugin__unload_all(فراغ)
 {
-	for(int i=0; i<db.plugin_count; i++){
+	لكل(صحيح i=0; i<db.plugin_count; i++){
 		plugin__unload_single(db.plugins[i]);
 	}
 
 	mosquitto_security_cleanup(false);
 
-	return MOSQ_ERR_SUCCESS;
+	ܦܢܐ MOSQ_ERR_SUCCESS;
 }
 
 
-static int plugin__security_cleanup_single(mosquitto_plugin_id_t *plugin, bool reload)
+ساكن صحيح plugin__security_cleanup_single(mosquitto_plugin_id_t *plugin, bool reload)
 {
-	int rc;
+	صحيح rc;
 
-	if(plugin->lib.version == 5){
+	ܐܢ(plugin->lib.version == 5){
 		rc = MOSQ_ERR_SUCCESS;
-	}else if(plugin->lib.version == 4){
+	}ܐܚܪܢܐ ܐܢ(plugin->lib.version == 4){
 		rc = plugin->lib.security_cleanup_v4(
 				plugin->lib.user_data,
 				plugin->config.options,
 				plugin->config.option_count,
 				reload);
 
-	}else if(plugin->lib.version == 3){
+	}ܐܚܪܢܐ ܐܢ(plugin->lib.version == 3){
 		rc = plugin->lib.security_cleanup_v3(
 				plugin->lib.user_data,
 				plugin->config.options,
 				plugin->config.option_count,
 				reload);
 
-	}else if(plugin->lib.version == 2){
+	}ܐܚܪܢܐ ܐܢ(plugin->lib.version == 2){
 		rc = plugin->lib.security_cleanup_v2(
 				plugin->lib.user_data,
-				(struct mosquitto_auth_opt *)plugin->config.options,
+				(بنية mosquitto_auth_opt *)plugin->config.options,
 				plugin->config.option_count,
 				reload);
-	}else{
+	}ܐܚܪܢܐ{
 		rc = MOSQ_ERR_INVAL;
 	}
 
-	return rc;
+	ܦܢܐ rc;
 }
 
 
-int mosquitto_security_cleanup(bool reload)
+صحيح mosquitto_security_cleanup(bool reload)
 {
-	for(int i=0; i<db.plugin_count; i++){
+	لكل(صحيح i=0; i<db.plugin_count; i++){
 		plugin__security_cleanup_single(db.plugins[i], reload);
 	}
 
-	return mosquitto_security_cleanup_default();
+	ܦܢܐ mosquitto_security_cleanup_default();
 }

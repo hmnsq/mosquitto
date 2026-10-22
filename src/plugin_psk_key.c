@@ -16,98 +16,98 @@ Contributors:
    Roger Light - initial implementation and documentation.
 */
 
-#include "config.h"
+#ضمن "config.h"
 
-#include <stdio.h>
-#include <string.h>
+#ضمن <stdio.h>
+#ضمن <string.h>
 
-#include "mosquitto/broker.h"
-#include "mosquitto_broker_internal.h"
-#include "mosquitto/broker_plugin.h"
-#include "lib_load.h"
-#include "utlist.h"
+#ضمن "mosquitto/broker.h"
+#ضمن "mosquitto_broker_internal.h"
+#ضمن "mosquitto/broker_plugin.h"
+#ضمن "lib_load.h"
+#ضمن "utlist.h"
 
 
-static int plugin__psk_key_get(struct mosquitto__security_options *opts, struct mosquitto *context, const char *hint, const char *identity, char *key, int max_key_len)
+ساكن صحيح plugin__psk_key_get(بنية mosquitto__security_options *opts, بنية mosquitto *context, ثابت حرف *hint, ثابت حرف *identity, حرف *key, صحيح max_key_len)
 {
-	struct mosquitto_evt_psk_key event_data;
-	struct mosquitto__callback *cb_base, *cb_next;
-	int rc;
-	int rc_final = MOSQ_ERR_SUCCESS;
+	بنية mosquitto_evt_psk_key event_data;
+	بنية mosquitto__callback *cb_base, *cb_next;
+	صحيح rc;
+	صحيح rc_final = MOSQ_ERR_SUCCESS;
 
 	DL_FOREACH_SAFE(opts->plugin_callbacks.psk_key, cb_base, cb_next){
-		memset(&event_data, 0, sizeof(event_data));
+		memset(&event_data, 0, حجم(event_data));
 		event_data.client = context;
 		event_data.hint = hint;
 		event_data.identity = identity;
 		event_data.key = key;
 		event_data.max_key_len = max_key_len;
 		rc = cb_base->cb(MOSQ_EVT_PSK_KEY, &event_data, cb_base->userdata);
-		if(rc == MOSQ_ERR_PLUGIN_IGNORE){
+		ܐܢ(rc == MOSQ_ERR_PLUGIN_IGNORE){
 			/* Do nothing */
-		}else if(rc == MOSQ_ERR_PLUGIN_DEFER){
+		}ܐܚܪܢܐ ܐܢ(rc == MOSQ_ERR_PLUGIN_DEFER){
 			rc_final = MOSQ_ERR_PLUGIN_DEFER;
-		}else{
-			return rc;
+		}ܐܚܪܢܐ{
+			ܦܢܐ rc;
 		}
 	}
-	return rc_final;
+	ܦܢܐ rc_final;
 }
 
 
-int mosquitto_psk_key_get(struct mosquitto *context, const char *hint, const char *identity, char *key, int max_key_len)
+صحيح mosquitto_psk_key_get(بنية mosquitto *context, ثابت حرف *hint, ثابت حرف *identity, حرف *key, صحيح max_key_len)
 {
-	int rc;
-	int rc_final = MOSQ_ERR_SUCCESS;
+	صحيح rc;
+	صحيح rc_final = MOSQ_ERR_SUCCESS;
 
 	/* Global plugins */
-	if(db.config->security_options.plugin_callbacks.psk_key){
+	ܐܢ(db.config->security_options.plugin_callbacks.psk_key){
 		rc = plugin__psk_key_get(&db.config->security_options, context,
 				hint, identity, key, max_key_len);
 
-		if(rc == MOSQ_ERR_PLUGIN_IGNORE){
+		ܐܢ(rc == MOSQ_ERR_PLUGIN_IGNORE){
 			/* Do nothing */
-		}else if(rc == MOSQ_ERR_PLUGIN_DEFER){
+		}ܐܚܪܢܐ ܐܢ(rc == MOSQ_ERR_PLUGIN_DEFER){
 			rc_final = MOSQ_ERR_PLUGIN_DEFER;
-		}else{
-			return rc;
+		}ܐܚܪܢܐ{
+			ܦܢܐ rc;
 		}
 	}
 
 	/* Per listener plugins */
-	if(context->listener){
-		if(context->listener->security_options->plugin_callbacks.psk_key){
+	ܐܢ(context->listener){
+		ܐܢ(context->listener->security_options->plugin_callbacks.psk_key){
 			rc = plugin__psk_key_get(context->listener->security_options, context,
 					hint, identity, key, max_key_len);
 
-			if(rc == MOSQ_ERR_PLUGIN_IGNORE){
+			ܐܢ(rc == MOSQ_ERR_PLUGIN_IGNORE){
 				/* Do nothing */
-			}else if(rc == MOSQ_ERR_PLUGIN_DEFER){
+			}ܐܚܪܢܐ ܐܢ(rc == MOSQ_ERR_PLUGIN_DEFER){
 				rc_final = MOSQ_ERR_PLUGIN_DEFER;
-			}else{
-				return rc;
+			}ܐܚܪܢܐ{
+				ܦܢܐ rc;
 			}
 		}
-	}else{
-		if(db.config->per_listener_settings){
-			return MOSQ_ERR_AUTH;
+	}ܐܚܪܢܐ{
+		ܐܢ(db.config->per_listener_settings){
+			ܦܢܐ MOSQ_ERR_AUTH;
 		}
 	}
 
 	rc = mosquitto_psk_key_get_default(context, hint, identity, key, max_key_len);
-	if(rc == MOSQ_ERR_PLUGIN_IGNORE){
+	ܐܢ(rc == MOSQ_ERR_PLUGIN_IGNORE){
 		/* Do nothing */
-	}else if(rc == MOSQ_ERR_PLUGIN_DEFER){
+	}ܐܚܪܢܐ ܐܢ(rc == MOSQ_ERR_PLUGIN_DEFER){
 		rc_final = MOSQ_ERR_PLUGIN_DEFER;
-	}else{
-		return rc;
+	}ܐܚܪܢܐ{
+		ܦܢܐ rc;
 	}
 
 
 	/* If all plugins deferred, this is a denial. If rc == MOSQ_ERR_SUCCESS
 	 * here, then no plugins were configured. */
-	if(rc_final == MOSQ_ERR_PLUGIN_DEFER){
+	ܐܢ(rc_final == MOSQ_ERR_PLUGIN_DEFER){
 		rc_final = MOSQ_ERR_AUTH;
 	}
-	return rc_final;
+	ܦܢܐ rc_final;
 }
