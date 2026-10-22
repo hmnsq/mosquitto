@@ -29,22 +29,22 @@ Contributors:
 #include "lib_load.h"
 #include "utlist.h"
 
-typedef int (*FUNC_auth_plugin_version)(void);
-typedef int (*FUNC_plugin_version)(int, const int *);
+typedef цео (*FUNC_auth_plugin_version)(void);
+typedef цео (*FUNC_plugin_version)(цео, const цео *);
 
 
-static int plugin_v4_basic_auth(int event, void *event_data, void *userdata)
+static цео plugin_v4_basic_auth(цео event, void *event_data, void *userdata)
 {
 	mosquitto_plugin_id_t *plugin = userdata;
 	struct mosquitto_evt_basic_auth *ed = event_data;
 
 	UNUSED(event);
 
-	if(plugin->lib.unpwd_check_v4 == NULL){
-		return MOSQ_ERR_PLUGIN_DEFER;
+	ако(plugin->lib.unpwd_check_v4 == NULL){
+		врати MOSQ_ERR_PLUGIN_DEFER;
 	}
 
-	return plugin->lib.unpwd_check_v4(
+	врати plugin->lib.unpwd_check_v4(
 			plugin->lib.user_data,
 			ed->client,
 			ed->username,
@@ -52,17 +52,17 @@ static int plugin_v4_basic_auth(int event, void *event_data, void *userdata)
 }
 
 
-static int plugin_v4_acl_check(int event, void *event_data, void *userdata)
+static цео plugin_v4_acl_check(цео event, void *event_data, void *userdata)
 {
 	mosquitto_plugin_id_t *plugin = userdata;
 	struct mosquitto_evt_acl_check *ed = event_data;
 	struct mosquitto_acl_msg msg;
-	int rc;
+	цео rc;
 
 	UNUSED(event);
 
-	if(plugin->lib.acl_check_v4 == NULL){
-		return MOSQ_ERR_PLUGIN_DEFER;
+	ако(plugin->lib.acl_check_v4 == NULL){
+		врати MOSQ_ERR_PLUGIN_DEFER;
 	}
 
 	memset(&msg, 0, sizeof(msg));
@@ -73,30 +73,30 @@ static int plugin_v4_acl_check(int event, void *event_data, void *userdata)
 	msg.retain = ed->retain;
 
 	rc = acl__pre_check(plugin, ed->client, ed->access);
-	if(rc == MOSQ_ERR_PLUGIN_DEFER){
-		return plugin->lib.acl_check_v4(
+	ако(rc == MOSQ_ERR_PLUGIN_DEFER){
+		врати plugin->lib.acl_check_v4(
 				plugin->lib.user_data,
 				ed->access,
 				ed->client,
 				&msg);
-	}else{
-		return rc;
+	}инако{
+		врати rc;
 	}
 }
 
 
-static int plugin_v4_auth_start(int event, void *event_data, void *userdata)
+static цео plugin_v4_auth_start(цео event, void *event_data, void *userdata)
 {
 	mosquitto_plugin_id_t *plugin = userdata;
 	struct mosquitto_evt_extended_auth *ed = event_data;
 
 	UNUSED(event);
 
-	if(plugin->lib.auth_start_v4 == NULL){
-		return MOSQ_ERR_PLUGIN_DEFER;
+	ако(plugin->lib.auth_start_v4 == NULL){
+		врати MOSQ_ERR_PLUGIN_DEFER;
 	}
 
-	return plugin->lib.auth_start_v4(
+	врати plugin->lib.auth_start_v4(
 			plugin->lib.user_data,
 			ed->client,
 			ed->client->auth_method,
@@ -106,18 +106,18 @@ static int plugin_v4_auth_start(int event, void *event_data, void *userdata)
 }
 
 
-static int plugin_v4_auth_continue(int event, void *event_data, void *userdata)
+static цео plugin_v4_auth_continue(цео event, void *event_data, void *userdata)
 {
 	mosquitto_plugin_id_t *plugin = userdata;
 	struct mosquitto_evt_extended_auth *ed = event_data;
 
 	UNUSED(event);
 
-	if(plugin->lib.auth_continue_v4 == NULL){
-		return MOSQ_ERR_PLUGIN_DEFER;
+	ако(plugin->lib.auth_continue_v4 == NULL){
+		врати MOSQ_ERR_PLUGIN_DEFER;
 	}
 
-	return plugin->lib.auth_continue_v4(
+	врати plugin->lib.auth_continue_v4(
 			plugin->lib.user_data,
 			ed->client,
 			ed->client->auth_method,
@@ -126,18 +126,18 @@ static int plugin_v4_auth_continue(int event, void *event_data, void *userdata)
 }
 
 
-static int plugin_v4_psk_key_get(int event, void *event_data, void *userdata)
+static цео plugin_v4_psk_key_get(цео event, void *event_data, void *userdata)
 {
 	mosquitto_plugin_id_t *plugin = userdata;
 	struct mosquitto_evt_psk_key *ed = event_data;
 
 	UNUSED(event);
 
-	if(plugin->lib.psk_key_get_v4 == NULL){
-		return MOSQ_ERR_PLUGIN_DEFER;
+	ако(plugin->lib.psk_key_get_v4 == NULL){
+		врати MOSQ_ERR_PLUGIN_DEFER;
 	}
 
-	return plugin->lib.psk_key_get_v4(
+	врати plugin->lib.psk_key_get_v4(
 			plugin->lib.user_data,
 			ed->client,
 			ed->hint,
@@ -147,10 +147,10 @@ static int plugin_v4_psk_key_get(int event, void *event_data, void *userdata)
 }
 
 
-static int plugin_v4_reload(int event, void *event_data, void *userdata)
+static цео plugin_v4_reload(цео event, void *event_data, void *userdata)
 {
 	mosquitto_plugin_id_t *plugin = userdata;
-	int rc;
+	цео rc;
 
 	UNUSED(event);
 	UNUSED(event_data);
@@ -160,8 +160,8 @@ static int plugin_v4_reload(int event, void *event_data, void *userdata)
 			plugin->config.options,
 			plugin->config.option_count,
 			true);
-	if(rc){
-		return rc;
+	ако(rc){
+		врати rc;
 	}
 
 	rc = plugin->lib.security_init_v4(
@@ -169,62 +169,62 @@ static int plugin_v4_reload(int event, void *event_data, void *userdata)
 			plugin->config.options,
 			plugin->config.option_count,
 			true);
-	return rc;
+	врати rc;
 }
 
 
-int plugin__load_v4(mosquitto_plugin_id_t *plugin, void *lib)
+цео plugin__load_v4(mosquitto_plugin_id_t *plugin, void *lib)
 {
-	int rc;
+	цео rc;
 
-	if(!(plugin->lib.plugin_init_v4 = (FUNC_auth_plugin_init_v4)LIB_SYM(lib, "mosquitto_auth_plugin_init"))){
+	ако(!(plugin->lib.plugin_init_v4 = (FUNC_auth_plugin_init_v4)LIB_SYM(lib, "mosquitto_auth_plugin_init"))){
 		log__printf(NULL, MOSQ_LOG_ERR,
 				"Error: Unable to load auth plugin function mosquitto_auth_plugin_init().");
 		LIB_ERROR();
-		return MOSQ_ERR_UNKNOWN;
+		врати MOSQ_ERR_UNKNOWN;
 	}
-	if(!(plugin->lib.plugin_cleanup_v4 = (FUNC_auth_plugin_cleanup_v4)LIB_SYM(lib, "mosquitto_auth_plugin_cleanup"))){
+	ако(!(plugin->lib.plugin_cleanup_v4 = (FUNC_auth_plugin_cleanup_v4)LIB_SYM(lib, "mosquitto_auth_plugin_cleanup"))){
 		log__printf(NULL, MOSQ_LOG_ERR,
 				"Error: Unable to load auth plugin function mosquitto_auth_plugin_cleanup().");
 		LIB_ERROR();
-		return MOSQ_ERR_UNKNOWN;
+		врати MOSQ_ERR_UNKNOWN;
 	}
 
-	if(!(plugin->lib.security_init_v4 = (FUNC_auth_plugin_security_init_v4)LIB_SYM(lib, "mosquitto_auth_security_init"))){
+	ако(!(plugin->lib.security_init_v4 = (FUNC_auth_plugin_security_init_v4)LIB_SYM(lib, "mosquitto_auth_security_init"))){
 		log__printf(NULL, MOSQ_LOG_ERR,
 				"Error: Unable to load auth plugin function mosquitto_auth_security_init().");
 		LIB_ERROR();
-		return MOSQ_ERR_UNKNOWN;
+		врати MOSQ_ERR_UNKNOWN;
 	}
 
-	if(!(plugin->lib.security_cleanup_v4 = (FUNC_auth_plugin_security_cleanup_v4)LIB_SYM(lib, "mosquitto_auth_security_cleanup"))){
+	ако(!(plugin->lib.security_cleanup_v4 = (FUNC_auth_plugin_security_cleanup_v4)LIB_SYM(lib, "mosquitto_auth_security_cleanup"))){
 		log__printf(NULL, MOSQ_LOG_ERR,
 				"Error: Unable to load auth plugin function mosquitto_auth_security_cleanup().");
 		LIB_ERROR();
-		return MOSQ_ERR_UNKNOWN;
+		врати MOSQ_ERR_UNKNOWN;
 	}
 
-	if(!(plugin->lib.acl_check_v4 = (FUNC_auth_plugin_acl_check_v4)LIB_SYM(lib, "mosquitto_auth_acl_check"))){
+	ако(!(plugin->lib.acl_check_v4 = (FUNC_auth_plugin_acl_check_v4)LIB_SYM(lib, "mosquitto_auth_acl_check"))){
 		log__printf(NULL, MOSQ_LOG_ERR,
 				"Error: Unable to load auth plugin function mosquitto_auth_acl_check().");
 		LIB_ERROR();
-		return MOSQ_ERR_UNKNOWN;
+		врати MOSQ_ERR_UNKNOWN;
 	}
 
 	plugin->lib.unpwd_check_v4 = (FUNC_auth_plugin_unpwd_check_v4)LIB_SYM(lib, "mosquitto_auth_unpwd_check");
-	if(plugin->lib.unpwd_check_v4){
+	ако(plugin->lib.unpwd_check_v4){
 		log__printf(NULL, MOSQ_LOG_INFO,
 				" ├── Username/password checking enabled.");
-	}else{
+	}инако{
 		log__printf(NULL, MOSQ_LOG_INFO,
 				" ├── Username/password checking not enabled.");
 	}
 
 	plugin->lib.psk_key_get_v4 = (FUNC_auth_plugin_psk_key_get_v4)LIB_SYM(lib, "mosquitto_auth_psk_key_get");
-	if(plugin->lib.psk_key_get_v4){
+	ако(plugin->lib.psk_key_get_v4){
 		log__printf(NULL, MOSQ_LOG_INFO,
 				" ├── TLS-PSK checking enabled.");
-	}else{
+	}инако{
 		log__printf(NULL, MOSQ_LOG_INFO,
 				" ├── TLS-PSK checking not enabled.");
 	}
@@ -232,16 +232,16 @@ int plugin__load_v4(mosquitto_plugin_id_t *plugin, void *lib)
 	plugin->lib.auth_start_v4 = (FUNC_auth_plugin_auth_start_v4)LIB_SYM(lib, "mosquitto_auth_start");
 	plugin->lib.auth_continue_v4 = (FUNC_auth_plugin_auth_continue_v4)LIB_SYM(lib, "mosquitto_auth_continue");
 
-	if(plugin->lib.auth_start_v4){
-		if(plugin->lib.auth_continue_v4){
+	ако(plugin->lib.auth_start_v4){
+		ако(plugin->lib.auth_continue_v4){
 			log__printf(NULL, MOSQ_LOG_INFO,
 					" └── Extended authentication enabled.");
-		}else{
+		}инако{
 			log__printf(NULL, MOSQ_LOG_ERR,
 					"Error: Plugin has missing mosquitto_auth_continue() function.");
-			return MOSQ_ERR_UNKNOWN;
+			врати MOSQ_ERR_UNKNOWN;
 		}
-	}else{
+	}инако{
 		log__printf(NULL, MOSQ_LOG_INFO,
 				" └── Extended authentication not enabled.");
 	}
@@ -250,32 +250,32 @@ int plugin__load_v4(mosquitto_plugin_id_t *plugin, void *lib)
 	plugin->lib.user_data = NULL;
 	plugin->lib.identifier = plugin;
 
-	if(plugin->lib.plugin_init_v4){
+	ако(plugin->lib.plugin_init_v4){
 		rc = plugin->lib.plugin_init_v4(&plugin->lib.user_data, plugin->config.options, plugin->config.option_count);
-		if(rc){
+		ако(rc){
 			log__printf(NULL, MOSQ_LOG_ERR,
 					"Error: Authentication plugin returned %d when initialising.", rc);
-			return rc;
+			врати rc;
 		}
 	}
 
 	mosquitto_callback_register(plugin, MOSQ_EVT_RELOAD, plugin_v4_reload, NULL, plugin);
 
-	if(plugin->lib.unpwd_check_v4){
+	ако(plugin->lib.unpwd_check_v4){
 		mosquitto_callback_register(plugin, MOSQ_EVT_BASIC_AUTH, plugin_v4_basic_auth, NULL, plugin);
 	}
-	if(plugin->lib.acl_check_v4){
+	ако(plugin->lib.acl_check_v4){
 		mosquitto_callback_register(plugin, MOSQ_EVT_ACL_CHECK, plugin_v4_acl_check, NULL, plugin);
 	}
-	if(plugin->lib.auth_start_v4){
+	ако(plugin->lib.auth_start_v4){
 		mosquitto_callback_register(plugin, MOSQ_EVT_EXT_AUTH_START, plugin_v4_auth_start, NULL, plugin);
 	}
-	if(plugin->lib.auth_continue_v4){
+	ако(plugin->lib.auth_continue_v4){
 		mosquitto_callback_register(plugin, MOSQ_EVT_EXT_AUTH_CONTINUE, plugin_v4_auth_continue, NULL, plugin);
 	}
-	if(plugin->lib.psk_key_get_v4){
+	ако(plugin->lib.psk_key_get_v4){
 		mosquitto_callback_register(plugin, MOSQ_EVT_PSK_KEY, plugin_v4_psk_key_get, NULL, plugin);
 	}
 
-	return 0;
+	врати 0;
 }

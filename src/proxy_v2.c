@@ -1,7 +1,7 @@
 #ifdef WIN32
 #  include <winsock2.h>
 #  include <ws2tcpip.h>
-#else
+#инако
 #  include <arpa/inet.h>
 #  include <netinet/in.h>
 #endif
@@ -10,7 +10,7 @@
 #include "mosquitto_internal.h"
 #include "net_mosq.h"
 
-#if !defined(WITH_WEBSOCKETS) || WITH_WEBSOCKETS == WS_IS_BUILTIN
+#ако !defined(WITH_WEBSOCKETS) || WITH_WEBSOCKETS == WS_IS_BUILTIN
 
 #define PROXY_CMD_LOCAL 0x00
 #define PROXY_CMD_PROXY 0x01
@@ -86,12 +86,12 @@ static void proxy_cleanup(struct mosquitto *context)
 }
 
 
-static int read_tlv_ssl(struct mosquitto *context, uint16_t len, bool *have_certificate)
+static цео read_tlv_ssl(struct mosquitto *context, uint16_t len, bool *have_certificate)
 {
 	struct pp2_tlv_ssl ssl = {0};
 
-	if(len < sizeof(uint8_t) + sizeof(uint32_t)){
-		return MOSQ_ERR_INVAL;
+	ако(len < sizeof(uint8_t) + sizeof(uint32_t)){
+		врати MOSQ_ERR_INVAL;
 	}
 
 	ssl.client = context->proxy.buf[context->proxy.pos];
@@ -99,20 +99,20 @@ static int read_tlv_ssl(struct mosquitto *context, uint16_t len, bool *have_cert
 	context->proxy.pos = (uint16_t)(context->proxy.pos + sizeof(uint8_t) + sizeof(uint32_t));
 	len = (uint16_t)(len - (sizeof(uint8_t) + sizeof(uint32_t)));
 
-	if(ssl.client & PP2_CLIENT_SSL && ssl.client & PP2_CLIENT_CERT_SESS && !ssl.verify){
+	ако(ssl.client & PP2_CLIENT_SSL && ssl.client & PP2_CLIENT_CERT_SESS && !ssl.verify){
 		*have_certificate = true;
 	}
 
-	while(len > 0){
-		if(context->proxy.len - context->proxy.pos < (int)sizeof(struct pp2_tlv)){
-			return MOSQ_ERR_INVAL;
+	док(len > 0){
+		ако(context->proxy.len - context->proxy.pos < (цео)sizeof(struct pp2_tlv)){
+			врати MOSQ_ERR_INVAL;
 		}
 		struct pp2_tlv *tlv = (struct pp2_tlv *)(&context->proxy.buf[context->proxy.pos]);
 		uint16_t tlv_len = (uint16_t)((tlv->length_h<<8) + tlv->length_l);
 		context->proxy.pos = (uint16_t)(context->proxy.pos + sizeof(struct pp2_tlv));
 
-		if(tlv_len > context->proxy.len - context->proxy.pos){
-			return MOSQ_ERR_INVAL;
+		ако(tlv_len > context->proxy.len - context->proxy.pos){
+			врати MOSQ_ERR_INVAL;
 		}
 
 		switch(tlv->type){
@@ -120,8 +120,8 @@ static int read_tlv_ssl(struct mosquitto *context, uint16_t len, bool *have_cert
 #ifdef WITH_TLS
 				mosquitto_free(context->proxy.tls_version);
 				context->proxy.tls_version = mosquitto_strndup((const char *)&context->proxy.buf[context->proxy.pos], tlv_len);
-#else
-				return MOSQ_ERR_NOT_SUPPORTED;
+#инако
+				врати MOSQ_ERR_NOT_SUPPORTED;
 #endif
 				break;
 
@@ -129,22 +129,22 @@ static int read_tlv_ssl(struct mosquitto *context, uint16_t len, bool *have_cert
 #ifdef WITH_TLS
 				mosquitto_free(context->proxy.cipher);
 				context->proxy.cipher = mosquitto_strndup((const char *)&context->proxy.buf[context->proxy.pos], tlv_len);
-#else
-				return MOSQ_ERR_NOT_SUPPORTED;
+#инако
+				врати MOSQ_ERR_NOT_SUPPORTED;
 #endif
 				break;
 
 			case PP2_SUBTYPE_SSL_CN:
 #ifdef WITH_TLS
-				if(context->listener->use_identity_as_username){
+				ако(context->listener->use_identity_as_username){
 					mosquitto_free(context->username);
 					context->username = mosquitto_strndup((const char *)&context->proxy.buf[context->proxy.pos], tlv_len);
-					if(!context->username){
-						return MOSQ_ERR_NOMEM;
+					ако(!context->username){
+						врати MOSQ_ERR_NOMEM;
 					}
 				}
-#else
-				return MOSQ_ERR_NOT_SUPPORTED;
+#инако
+				врати MOSQ_ERR_NOT_SUPPORTED;
 #endif
 				break;
 		}
@@ -153,30 +153,30 @@ static int read_tlv_ssl(struct mosquitto *context, uint16_t len, bool *have_cert
 	}
 	context->proxy.have_tls = true;
 
-	return MOSQ_ERR_SUCCESS;
+	врати MOSQ_ERR_SUCCESS;
 }
 
 
-static int read_tlv(struct mosquitto *context, bool *have_certificate)
+static цео read_tlv(struct mosquitto *context, bool *have_certificate)
 {
-	while(context->proxy.pos < context->proxy.len){
-		if(context->proxy.len - context->proxy.pos < (int)sizeof(struct pp2_tlv)){
-			return MOSQ_ERR_INVAL;
+	док(context->proxy.pos < context->proxy.len){
+		ако(context->proxy.len - context->proxy.pos < (цео)sizeof(struct pp2_tlv)){
+			врати MOSQ_ERR_INVAL;
 		}
 		struct pp2_tlv *tlv = (struct pp2_tlv *)(&context->proxy.buf[context->proxy.pos]);
 		uint16_t tlv_len = (uint16_t)((tlv->length_h<<8) + tlv->length_l);
 		context->proxy.pos = (uint16_t)(context->proxy.pos + sizeof(struct pp2_tlv));
 
-		if(tlv_len > context->proxy.len - context->proxy.pos){
-			return MOSQ_ERR_INVAL;
+		ако(tlv_len > context->proxy.len - context->proxy.pos){
+			врати MOSQ_ERR_INVAL;
 		}
 
 		switch(tlv->type){
 			case PP2_TYPE_SSL:
 				{
-					int rc = read_tlv_ssl(context, tlv_len, have_certificate);
-					if(rc){
-						return rc;
+					цео rc = read_tlv_ssl(context, tlv_len, have_certificate);
+					ако(rc){
+						врати rc;
 					}
 				}
 				break;
@@ -186,81 +186,81 @@ static int read_tlv(struct mosquitto *context, bool *have_certificate)
 		}
 	}
 
-	return MOSQ_ERR_SUCCESS;
+	врати MOSQ_ERR_SUCCESS;
 }
 
 
-int proxy_v2__read(struct mosquitto *context)
+цео proxy_v2__read(struct mosquitto *context)
 {
 	struct proxy_hdr_v2 hdr;
 
-	if(context->proxy.cmd == -1){
+	ако(context->proxy.cmd == -1){
 		context->proxy.buf = NULL;
-		if(net__read(context, &hdr, sizeof(hdr)) != sizeof(hdr)){
-			return MOSQ_ERR_CONN_LOST;
+		ако(net__read(context, &hdr, sizeof(hdr)) != sizeof(hdr)){
+			врати MOSQ_ERR_CONN_LOST;
 		}
-		if(memcmp(hdr.sig, signature, sizeof(signature))){
-			return MOSQ_ERR_INVAL;
+		ако(memcmp(hdr.sig, signature, sizeof(signature))){
+			врати MOSQ_ERR_INVAL;
 		}
-		if((hdr.ver_cmd & 0xF0) != 0x20){
-			return MOSQ_ERR_INVAL;
+		ако((hdr.ver_cmd & 0xF0) != 0x20){
+			врати MOSQ_ERR_INVAL;
 		}
 		context->proxy.cmd = hdr.ver_cmd & 0x0F;
-		if(context->proxy.cmd != 0x00 && context->proxy.cmd != 0x01){
-			return MOSQ_ERR_INVAL;
+		ако(context->proxy.cmd != 0x00 && context->proxy.cmd != 0x01){
+			врати MOSQ_ERR_INVAL;
 		}
 		context->proxy.fam = hdr.fam;
-		if((hdr.fam != 0x00 || context->proxy.cmd != PROXY_CMD_LOCAL)
+		ако((hdr.fam != 0x00 || context->proxy.cmd != PROXY_CMD_LOCAL)
 				&& hdr.fam != PROXY_TCP_IPV4
 				&& hdr.fam != PROXY_TCP_IPV6
 				&& hdr.fam != PROXY_TCP_UNIX){
 
-			return 1;
+			врати 1;
 		}
 		context->proxy.pos = 0;
 		context->proxy.len = ntohs(hdr.len);
-		if(context->proxy.len > 0){
+		ако(context->proxy.len > 0){
 			/* PROXY_PACKET_LIMIT=500 bytes, arbitrary upper limit */
 			switch(context->proxy.fam){
 				case PROXY_TCP_IPV4:
-					if(context->proxy.len < 12 || context->proxy.len > PROXY_PACKET_LIMIT){
-						return MOSQ_ERR_INVAL;
+					ако(context->proxy.len < 12 || context->proxy.len > PROXY_PACKET_LIMIT){
+						врати MOSQ_ERR_INVAL;
 					}
 					break;
 				case PROXY_TCP_IPV6:
-					if(context->proxy.len < 36 || context->proxy.len > PROXY_PACKET_LIMIT){
-						return MOSQ_ERR_INVAL;
+					ако(context->proxy.len < 36 || context->proxy.len > PROXY_PACKET_LIMIT){
+						врати MOSQ_ERR_INVAL;
 					}
 					break;
 				case PROXY_TCP_UNIX:
-					if(context->proxy.len > PROXY_PACKET_LIMIT){
-						return MOSQ_ERR_INVAL;
+					ако(context->proxy.len > PROXY_PACKET_LIMIT){
+						врати MOSQ_ERR_INVAL;
 					}
 					break;
 			}
 			context->proxy.buf = mosquitto_calloc(1, (size_t)(context->proxy.len+1));
-			if(!context->proxy.buf){
-				return MOSQ_ERR_NOMEM;
+			ако(!context->proxy.buf){
+				врати MOSQ_ERR_NOMEM;
 			}
-		}else{
-			if(context->proxy.cmd != PROXY_CMD_LOCAL || context->proxy.fam != 0x00){
-				return MOSQ_ERR_PROTOCOL;
+		}инако{
+			ако(context->proxy.cmd != PROXY_CMD_LOCAL || context->proxy.fam != 0x00){
+				врати MOSQ_ERR_PROTOCOL;
 			}
 		}
 
 	}
 
-	if(context->proxy.pos < context->proxy.len){
+	ако(context->proxy.pos < context->proxy.len){
 		ssize_t rc = net__read(context, context->proxy.buf, (size_t)(context->proxy.len - context->proxy.pos));
-		if(rc > 0){
+		ако(rc > 0){
 			context->proxy.pos = (uint16_t)(context->proxy.pos + rc);
-		}else{
+		}инако{
 			proxy_cleanup(context);
-			return MOSQ_ERR_CONN_LOST;
+			врати MOSQ_ERR_CONN_LOST;
 		}
 	}
-	if(context->proxy.pos == context->proxy.len){
-		if(context->proxy.fam == PROXY_TCP_IPV4){
+	ако(context->proxy.pos == context->proxy.len){
+		ако(context->proxy.fam == PROXY_TCP_IPV4){
 			char address[100];
 			union proxy_addr *addr = (union proxy_addr *)context->proxy.buf;
 
@@ -268,7 +268,7 @@ int proxy_v2__read(struct mosquitto *context)
 			context->address = mosquitto_strdup(address);
 			context->remote_port = ntohs(addr->ipv4_addr.src_port);
 			context->proxy.pos = 4+4+2+2;
-		}else if(context->proxy.fam == PROXY_TCP_IPV6){
+		}инако ако(context->proxy.fam == PROXY_TCP_IPV6){
 			char address[100];
 			union proxy_addr *addr = (union proxy_addr *)context->proxy.buf;
 
@@ -276,69 +276,69 @@ int proxy_v2__read(struct mosquitto *context)
 			context->address = mosquitto_strdup(address);
 			context->remote_port = ntohs(addr->ipv6_addr.src_port);
 			context->proxy.pos = 16+16+2+2;
-		}else if(context->proxy.fam == PROXY_TCP_UNIX){
+		}инако ако(context->proxy.fam == PROXY_TCP_UNIX){
 			union proxy_addr *addr = (union proxy_addr *)context->proxy.buf;
 			context->address = mosquitto_strndup((char *)addr->unix_addr.src_addr, sizeof(addr->unix_addr.src_addr));
 			context->remote_port = 0;
 			context->proxy.pos = (uint16_t)(sizeof(addr->unix_addr.src_addr) + 1);
-		}else{
+		}инако{
 			/* Must be LOCAL */
 			/* Ignore address */
 			context->address = NULL;
 			context->remote_port = 0;
 			proxy_cleanup(context);
-			return MOSQ_ERR_PROXY;
+			врати MOSQ_ERR_PROXY;
 		}
-		if(!context->address){
+		ако(!context->address){
 			proxy_cleanup(context);
-			return MOSQ_ERR_NOMEM;
+			врати MOSQ_ERR_NOMEM;
 		}
 
 		bool have_certificate = false;
 
-		int rc = read_tlv(context, &have_certificate);
-		if(rc){
+		цео rc = read_tlv(context, &have_certificate);
+		ако(rc){
 			log__printf(NULL, MOSQ_LOG_NOTICE, "Connection from %s:%d rejected, corrupt PROXY header.",
 					context->address, context->remote_port);
 			proxy_cleanup(context);
-			return MOSQ_ERR_PROXY;
+			врати MOSQ_ERR_PROXY;
 		}
 		mosquitto_FREE(context->proxy.buf);
 
-		if(context->listener->proxy_protocol_v2_require_tls && !context->proxy.have_tls){
+		ако(context->listener->proxy_protocol_v2_require_tls && !context->proxy.have_tls){
 			log__printf(NULL, MOSQ_LOG_NOTICE, "Connection from %s:%d rejected, client did not connect using TLS.",
 					context->address, context->remote_port);
 			proxy_cleanup(context);
-			return MOSQ_ERR_PROXY;
+			врати MOSQ_ERR_PROXY;
 		}
 
 #ifdef WITH_TLS
-		if(context->listener->require_certificate){
-			if(!have_certificate){
+		ако(context->listener->require_certificate){
+			ако(!have_certificate){
 				log__printf(NULL, MOSQ_LOG_NOTICE, "Connection from %s:%d rejected, client did not provide a certificate.",
 						context->address, context->remote_port);
 				proxy_cleanup(context);
-				return MOSQ_ERR_PROXY;
+				врати MOSQ_ERR_PROXY;
 			}
 		}
 
-		if(context->proxy.tls_version && context->proxy.cipher){
+		ако(context->proxy.tls_version && context->proxy.cipher){
 			log__printf(NULL, MOSQ_LOG_NOTICE, "Connection from %s:%d negotiated %s cipher %s",
 					context->address, context->remote_port, context->proxy.tls_version, context->proxy.cipher);
 		}
 #endif
 		proxy_cleanup(context);
 
-#if defined(WITH_WEBSOCKETS) && WITH_WEBSOCKETS == WS_IS_BUILTIN
-		if(context->listener->protocol == mp_websockets){
-			return http__context_init(context);
-		}else
+#ако defined(WITH_WEBSOCKETS) && WITH_WEBSOCKETS == WS_IS_BUILTIN
+		ако(context->listener->protocol == mp_websockets){
+			врати http__context_init(context);
+		}инако
 #endif
 		{
 			context->transport = mosq_t_tcp;
 		}
 	}
 
-	return MOSQ_ERR_SUCCESS;
+	врати MOSQ_ERR_SUCCESS;
 }
 #endif

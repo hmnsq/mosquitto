@@ -45,77 +45,77 @@ static long client_count = 0;
 static long subscription_count = 0;
 static long client_msg_count = 0;
 
-static int persist__restore_sub(const struct mosquitto_subscription *sub);
+static цео persist__restore_sub(const struct mosquitto_subscription *sub);
 
 static struct mosquitto *persist__find_or_add_context(const char *clientid, uint16_t last_mid)
 {
 	struct mosquitto *context;
 
-	if(!clientid){
-		return NULL;
+	ако(!clientid){
+		врати NULL;
 	}
 
 	context = NULL;
 	HASH_FIND(hh_id, db.contexts_by_id, clientid, strlen(clientid), context);
-	if(!context){
+	ако(!context){
 		context = context__init();
-		if(!context){
-			return NULL;
+		ако(!context){
+			врати NULL;
 		}
 		context->id = mosquitto_strdup(clientid);
-		if(!context->id){
+		ако(!context->id){
 			mosquitto_FREE(context);
-			return NULL;
+			врати NULL;
 		}
 
 		context->clean_start = false;
 
 		context__add_to_by_id(context);
 	}
-	if(last_mid){
+	ако(last_mid){
 		context->last_mid = last_mid;
 	}
-	return context;
+	врати context;
 }
 
 
-int persist__read_string_len(FILE *db_fptr, char **str, uint16_t len)
+цео persist__read_string_len(FILE *db_fptr, char **str, uint16_t len)
 {
 	char *s = NULL;
 
-	if(len){
+	ако(len){
 		s = mosquitto_malloc(len+1U);
-		if(!s){
+		ако(!s){
 			log__printf(NULL, MOSQ_LOG_ERR, "Error: Out of memory.");
-			return MOSQ_ERR_NOMEM;
+			врати MOSQ_ERR_NOMEM;
 		}
-		if(fread(s, 1, len, db_fptr) != len){
+		ако(fread(s, 1, len, db_fptr) != len){
 			mosquitto_FREE(s);
-			return MOSQ_ERR_NOMEM;
+			врати MOSQ_ERR_NOMEM;
 		}
 		s[len] = '\0';
 	}
 
 	*str = s;
-	return MOSQ_ERR_SUCCESS;
+	врати MOSQ_ERR_SUCCESS;
 }
 
 
-int persist__read_string(FILE *db_fptr, char **str)
+цео persist__read_string(FILE *db_fptr, char **str)
 {
 	uint16_t i16temp;
 	uint16_t slen;
 
-	if(fread(&i16temp, 1, sizeof(uint16_t), db_fptr) != sizeof(uint16_t)){
-		return MOSQ_ERR_INVAL;
+	ако(fread(&i16temp, 1, sizeof(uint16_t), db_fptr) != sizeof(uint16_t)){
+		врати MOSQ_ERR_INVAL;
 	}
 
 	slen = ntohs(i16temp);
-	return persist__read_string_len(db_fptr, str, slen);
+	врати persist__read_string_len(db_fptr, str, slen);
 }
 
 
-static int persist__client_msg_restore(struct P_client_msg *chunk)
+static цео persist__client_msg_restore(struct P_client_msg *chunk)
 {
 	struct mosquitto__client_msg *cmsg;
 	struct mosquitto__base_msg *msg;
@@ -123,21 +123,21 @@ static int persist__client_msg_restore(struct P_client_msg *chunk)
 	struct mosquitto_msg_data *msg_data;
 
 	HASH_FIND(hh, db.msg_store, &chunk->F.store_id, sizeof(chunk->F.store_id), msg);
-	if(!msg){
+	ако(!msg){
 		/* Can't find message - probably expired */
-		return MOSQ_ERR_SUCCESS;
+		врати MOSQ_ERR_SUCCESS;
 	}
 
 	context = persist__find_or_add_context(chunk->clientid, 0);
-	if(!context){
+	ако(!context){
 		log__printf(NULL, MOSQ_LOG_WARNING, "Warning: Persistence file contains client message with no matching client. File may be corrupt.");
-		return 0;
+		врати 0;
 	}
 
 	cmsg = mosquitto_calloc(1, sizeof(struct mosquitto__client_msg));
-	if(!cmsg){
+	ако(!cmsg){
 		log__printf(NULL, MOSQ_LOG_ERR, "Error: Out of memory.");
-		return MOSQ_ERR_NOMEM;
+		врати MOSQ_ERR_NOMEM;
 	}
 
 	cmsg->next = NULL;
@@ -154,153 +154,153 @@ static int persist__client_msg_restore(struct P_client_msg *chunk)
 	cmsg->base_msg = msg;
 	db__msg_store_ref_inc(cmsg->base_msg);
 
-	if(cmsg->data.direction == mosq_md_out){
+	ако(cmsg->data.direction == mosq_md_out){
 		msg_data = &context->msgs_out;
-	}else{
+	}инако{
 		msg_data = &context->msgs_in;
 	}
 
-	if(chunk->F.state == mosq_ms_queued || (chunk->F.qos > 0 && msg_data->inflight_quota == 0)){
+	ако(chunk->F.state == mosq_ms_queued || (chunk->F.qos > 0 && msg_data->inflight_quota == 0)){
 		DL_APPEND(msg_data->queued, cmsg);
 		db__msg_add_to_queued_stats(msg_data, cmsg);
-	}else{
+	}инако{
 		DL_APPEND(msg_data->inflight, cmsg);
-		if(chunk->F.qos > 0 && msg_data->inflight_quota > 0){
+		ако(chunk->F.qos > 0 && msg_data->inflight_quota > 0){
 			msg_data->inflight_quota--;
 		}
 		db__msg_add_to_inflight_stats(msg_data, cmsg);
 	}
 
-	return MOSQ_ERR_SUCCESS;
+	врати MOSQ_ERR_SUCCESS;
 }
 
 
-static int persist__client_chunk_restore(FILE *db_fptr)
+static цео persist__client_chunk_restore(FILE *db_fptr)
 {
-	int rc = 0;
+	цео rc = 0;
 	struct mosquitto *context;
 	struct P_client chunk;
 
 	memset(&chunk, 0, sizeof(struct P_client));
 
-	if(db_version == 6 || db_version == 5){
+	ако(db_version == 6 || db_version == 5){
 		rc = persist__chunk_client_read_v56(db_fptr, &chunk, db_version);
-	}else{
+	}инако{
 		rc = persist__chunk_client_read_v234(db_fptr, &chunk, db_version);
 	}
-	if(rc > 0){
-		return rc;
-	}else if(rc < 0){
+	ако(rc > 0){
+		врати rc;
+	}инако ако(rc < 0){
 		/* Client not loaded, but otherwise not an error */
 		log__printf(NULL, MOSQ_LOG_WARNING, "Warning: Empty client entry found in persistence database, it may be corrupt.");
-		return MOSQ_ERR_SUCCESS;
+		врати MOSQ_ERR_SUCCESS;
 	}
 
 	context = persist__find_or_add_context(chunk.clientid, chunk.F.last_mid);
-	if(context){
+	ако(context){
 		context->session_expiry_time = chunk.F.session_expiry_time;
 		context->session_expiry_interval = chunk.F.session_expiry_interval;
-		if(chunk.username && !context->username){
+		ако(chunk.username && !context->username){
 			/* username is not freed here, it is now owned by context */
 			context->username = chunk.username;
 			chunk.username = NULL;
 		}
 		/* in per_listener_settings mode, try to find the listener by persisted port */
-		if(db.config->per_listener_settings && !context->listener && chunk.F.listener_port > 0){
-			for(int i=0; i < db.config->listener_count; i++){
-				if(db.config->listeners[i].port == chunk.F.listener_port){
+		ако(db.config->per_listener_settings && !context->listener && chunk.F.listener_port > 0){
+			за(цео i=0; i < db.config->listener_count; i++){
+				ако(db.config->listeners[i].port == chunk.F.listener_port){
 					context->listener = &db.config->listeners[i];
 					break;
 				}
 			}
 		}
 		session_expiry__add_from_persistence(context, chunk.F.session_expiry_time);
-	}else{
+	}инако{
 		rc = 1;
 	}
 
 	mosquitto_FREE(chunk.clientid);
 	mosquitto_FREE(chunk.username);
-	if(rc == 0){
+	ако(rc == 0){
 		client_count++;
 	}
-	return rc;
+	врати rc;
 }
 
 
-static int persist__client_msg_chunk_restore(FILE *db_fptr, uint32_t length)
+static цео persist__client_msg_chunk_restore(FILE *db_fptr, uint32_t length)
 {
 	struct P_client_msg chunk;
-	int rc;
+	цео rc;
 
 	memset(&chunk, 0, sizeof(struct P_client_msg));
 
-	if(db_version == 6 || db_version == 5){
+	ако(db_version == 6 || db_version == 5){
 		rc = persist__chunk_client_msg_read_v56(db_fptr, &chunk, length);
-	}else{
+	}инако{
 		rc = persist__chunk_client_msg_read_v234(db_fptr, &chunk);
 	}
-	if(rc){
-		return rc;
+	ако(rc){
+		врати rc;
 	}
 
 	rc = persist__client_msg_restore(&chunk);
 	mosquitto_FREE(chunk.clientid);
 
-	if(rc == 0){
+	ако(rc == 0){
 		client_msg_count++;
 	}
-	return rc;
+	врати rc;
 }
 
 
-static int persist__base_msg_chunk_restore(FILE *db_fptr, uint32_t length)
+static цео persist__base_msg_chunk_restore(FILE *db_fptr, uint32_t length)
 {
 	struct P_base_msg chunk;
 	struct mosquitto__base_msg *base_msg = NULL;
 	int64_t message_expiry_interval64;
 	uint32_t message_expiry_interval;
 	uint32_t *p_message_expiry_interval = NULL;
-	int rc = 0;
+	цео rc = 0;
 
 	memset(&chunk, 0, sizeof(struct P_base_msg));
 
-	if(db_version == 6 || db_version == 5){
+	ако(db_version == 6 || db_version == 5){
 		rc = persist__chunk_base_msg_read_v56(db_fptr, &chunk, length);
-	}else{
+	}инако{
 		rc = persist__chunk_base_msg_read_v234(db_fptr, &chunk, db_version);
 	}
-	if(rc){
-		return rc;
+	ако(rc){
+		врати rc;
 	}
-	if(chunk.F.topic_len == 0){
+	ако(chunk.F.topic_len == 0){
 		rc = MOSQ_ERR_INVAL;
 		goto cleanup;
 	}
 
-	if(chunk.F.source_port){
-		for(int i=0; i<db.config->listener_count; i++){
-			if(db.config->listeners[i].port == chunk.F.source_port){
+	ако(chunk.F.source_port){
+		за(цео i=0; i<db.config->listener_count; i++){
+			ако(db.config->listeners[i].port == chunk.F.source_port){
 				chunk.source.listener = &db.config->listeners[i];
 				break;
 			}
 		}
 	}
 
-	if(chunk.F.expiry_time > 0){
+	ако(chunk.F.expiry_time > 0){
 		message_expiry_interval64 = chunk.F.expiry_time - time(NULL);
-		if(message_expiry_interval64 < 0 || message_expiry_interval64 > UINT32_MAX){
+		ако(message_expiry_interval64 < 0 || message_expiry_interval64 > UINT32_MAX){
 			/* Expired message */
 			rc = MOSQ_ERR_SUCCESS;
 			goto cleanup;
-		}else{
+		}инако{
 			message_expiry_interval = (uint32_t)message_expiry_interval64;
 		}
 		p_message_expiry_interval = &message_expiry_interval;
 	}
 
 	base_msg = mosquitto_calloc(1, sizeof(struct mosquitto__base_msg));
-	if(base_msg == NULL){
+	ако(base_msg == NULL){
 		log__printf(NULL, MOSQ_LOG_ERR, "Error: Out of memory.");
 		rc = MOSQ_ERR_NOMEM;
 		goto cleanup;
@@ -322,72 +322,72 @@ static int persist__base_msg_chunk_restore(FILE *db_fptr, uint32_t length)
 	mosquitto_FREE(chunk.source.id);
 	mosquitto_FREE(chunk.source.username);
 
-	if(rc == MOSQ_ERR_SUCCESS){
+	ако(rc == MOSQ_ERR_SUCCESS){
 		base_msg_count++;
-		return MOSQ_ERR_SUCCESS;
-	}else{
-		return rc;
+		врати MOSQ_ERR_SUCCESS;
+	}инако{
+		врати rc;
 	}
 cleanup:
 	mosquitto_FREE(chunk.source.id);
 	mosquitto_FREE(chunk.source.username);
 	mosquitto_FREE(chunk.topic);
 	mosquitto_FREE(chunk.payload);
-	return rc;
+	врати rc;
 }
 
 
-static int persist__retain_chunk_restore(FILE *db_fptr)
+static цео persist__retain_chunk_restore(FILE *db_fptr)
 {
 	struct mosquitto__base_msg *base_msg;
 	struct P_retain chunk;
-	int rc;
+	цео rc;
 	char **split_topics;
 	char *local_topic;
 
 	memset(&chunk, 0, sizeof(struct P_retain));
 
-	if(db_version == 6 || db_version == 5){
+	ако(db_version == 6 || db_version == 5){
 		rc = persist__chunk_retain_read_v56(db_fptr, &chunk);
-	}else{
+	}инако{
 		rc = persist__chunk_retain_read_v234(db_fptr, &chunk);
 	}
-	if(rc){
-		return rc;
+	ако(rc){
+		врати rc;
 	}
 
 	HASH_FIND(hh, db.msg_store, &chunk.F.store_id, sizeof(chunk.F.store_id), base_msg);
-	if(base_msg){
+	ако(base_msg){
 		rc = sub__topic_tokenise(base_msg->data.topic, &local_topic, &split_topics, NULL);
-		if(rc){
-			return rc;
+		ако(rc){
+			врати rc;
 		}
 		retain__store(base_msg->data.topic, base_msg, split_topics, true);
 		mosquitto_FREE(local_topic);
 		mosquitto_FREE(split_topics);
 		retained_count++;
-	}else{
+	}инако{
 		/* Can't find the message - probably expired */
 	}
-	return MOSQ_ERR_SUCCESS;
+	врати MOSQ_ERR_SUCCESS;
 }
 
 
-static int persist__sub_chunk_restore(FILE *db_fptr)
+static цео persist__sub_chunk_restore(FILE *db_fptr)
 {
 	struct P_sub chunk;
-	int rc;
+	цео rc;
 	struct mosquitto_subscription sub;
 
 	memset(&chunk, 0, sizeof(struct P_sub));
 
-	if(db_version == 6 || db_version == 5){
+	ако(db_version == 6 || db_version == 5){
 		rc = persist__chunk_sub_read_v56(db_fptr, &chunk);
-	}else{
+	}инако{
 		rc = persist__chunk_sub_read_v234(db_fptr, &chunk);
 	}
-	if(rc){
-		return rc;
+	ако(rc){
+		врати rc;
 	}
 
 	sub.clientid = chunk.clientid;
@@ -398,29 +398,29 @@ static int persist__sub_chunk_restore(FILE *db_fptr)
 
 	mosquitto_FREE(chunk.clientid);
 	mosquitto_FREE(chunk.topic);
-	if(rc == 0){
+	ако(rc == 0){
 		subscription_count++;
 	}
 
-	return rc;
+	врати rc;
 }
 
 
-int persist__chunk_header_read(FILE *db_fptr, uint32_t *chunk, uint32_t *length)
+цео persist__chunk_header_read(FILE *db_fptr, uint32_t *chunk, uint32_t *length)
 {
-	if(db_version == 6 || db_version == 5){
-		return persist__chunk_header_read_v56(db_fptr, chunk, length);
-	}else{
-		return persist__chunk_header_read_v234(db_fptr, chunk, length);
+	ако(db_version == 6 || db_version == 5){
+		врати persist__chunk_header_read_v56(db_fptr, chunk, length);
+	}инако{
+		врати persist__chunk_header_read_v234(db_fptr, chunk, length);
 	}
 }
 
 
-int persist__restore(void)
+цео persist__restore(void)
 {
 	FILE *fptr;
 	char header[15];
-	int rc = 0;
+	цео rc = 0;
 	uint32_t crc;
 	uint32_t i32temp;
 	uint32_t chunk, length;
@@ -430,8 +430,8 @@ int persist__restore(void)
 
 	assert(db.config);
 
-	if(!db.config->persistence || db.config->persistence_filepath == NULL){
-		return MOSQ_ERR_SUCCESS;
+	ако(!db.config->persistence || db.config->persistence_filepath == NULL){
+		врати MOSQ_ERR_SUCCESS;
 	}
 
 	db.msg_store = NULL;
@@ -442,18 +442,18 @@ int persist__restore(void)
 	client_msg_count = 0;
 
 	fptr = mosquitto_fopen(db.config->persistence_filepath, "rb", true);
-	if(fptr == NULL){
-		return MOSQ_ERR_SUCCESS;
+	ако(fptr == NULL){
+		врати MOSQ_ERR_SUCCESS;
 	}
 	rlen = fread(&header, 1, 15, fptr);
-	if(rlen == 0){
+	ако(rlen == 0){
 		fclose(fptr);
 		log__printf(NULL, MOSQ_LOG_WARNING, "Warning: Persistence file is empty.");
-		return 0;
-	}else if(rlen != 15){
+		врати 0;
+	}инако ако(rlen != 15){
 		goto error;
 	}
-	if(!memcmp(header, magic, 15)){
+	ако(!memcmp(header, magic, 15)){
 		/* Restore DB as normal */
 		read_e(fptr, &crc, sizeof(uint32_t));
 		read_e(fptr, &i32temp, sizeof(uint32_t));
@@ -461,96 +461,96 @@ int persist__restore(void)
 		/* IMPORTANT - this is where compatibility checks are made.
 		 * Is your DB change still compatible with previous versions?
 		 */
-		if(db_version != MOSQ_DB_VERSION){
-			if(db_version == 5){
+		ако(db_version != MOSQ_DB_VERSION){
+			ако(db_version == 5){
 				/* Addition of username and listener_port to client chunk in v6 */
-			}else if(db_version == 4){
-			}else if(db_version == 3){
+			}инако ако(db_version == 4){
+			}инако ако(db_version == 3){
 				/* Addition of source_username and source_port to msg_store chunk in v4, v1.5.6 */
-			}else if(db_version == 2){
+			}инако ако(db_version == 2){
 				/* Addition of disconnect_t to client chunk in v3. */
-			}else{
+			}инако{
 				fclose(fptr);
 				log__printf(NULL, MOSQ_LOG_ERR, "Error: Unsupported persistent database format version %d (need version %d).", db_version, MOSQ_DB_VERSION);
-				return MOSQ_ERR_INVAL;
+				врати MOSQ_ERR_INVAL;
 			}
 		}
 
-		while(persist__chunk_header_read(fptr, &chunk, &length) == MOSQ_ERR_SUCCESS){
+		док(persist__chunk_header_read(fptr, &chunk, &length) == MOSQ_ERR_SUCCESS){
 			switch(chunk){
 				case DB_CHUNK_CFG:
-					if(db_version == 6 || db_version == 5){
+					ако(db_version == 6 || db_version == 5){
 						rc = persist__chunk_cfg_read_v56(fptr, &cfg_chunk);
-						if(rc){
+						ако(rc){
 							fclose(fptr);
-							return rc;
+							врати rc;
 						}
-					}else{
+					}инако{
 						rc = persist__chunk_cfg_read_v234(fptr, &cfg_chunk);
-						if(rc){
+						ако(rc){
 							fclose(fptr);
-							return rc;
+							врати rc;
 						}
 					}
-					if(cfg_chunk.dbid_size != sizeof(dbid_t)){
+					ако(cfg_chunk.dbid_size != sizeof(dbid_t)){
 						log__printf(NULL, MOSQ_LOG_ERR, "Error: Incompatible database configuration (dbid size is %d bytes, expected %lu)",
 								cfg_chunk.dbid_size, (unsigned long)sizeof(dbid_t));
 						fclose(fptr);
-						return MOSQ_ERR_INVAL;
+						врати MOSQ_ERR_INVAL;
 					}
 					db.last_db_id = cfg_chunk.last_db_id;
 					break;
 
 				case DB_CHUNK_BASE_MSG:
 					rc = persist__base_msg_chunk_restore(fptr, length);
-					if(rc){
+					ако(rc){
 						fclose(fptr);
-						return rc;
+						врати rc;
 					}
 					break;
 
 				case DB_CHUNK_CLIENT_MSG:
 					rc = persist__client_msg_chunk_restore(fptr, length);
-					if(rc){
+					ако(rc){
 						fclose(fptr);
-						return rc;
+						врати rc;
 					}
 					break;
 
 				case DB_CHUNK_RETAIN:
 					rc = persist__retain_chunk_restore(fptr);
-					if(rc){
+					ако(rc){
 						fclose(fptr);
-						return rc;
+						врати rc;
 					}
 					break;
 
 				case DB_CHUNK_SUB:
 					rc = persist__sub_chunk_restore(fptr);
-					if(rc){
+					ако(rc){
 						fclose(fptr);
-						return rc;
+						врати rc;
 					}
 					break;
 
 				case DB_CHUNK_CLIENT:
 					rc = persist__client_chunk_restore(fptr);
-					if(rc){
+					ако(rc){
 						fclose(fptr);
-						return rc;
+						врати rc;
 					}
 					break;
 
 				default:
 					log__printf(NULL, MOSQ_LOG_WARNING, "Warning: Unsupported chunk \"%d\" in persistent database file. Ignoring.", chunk);
-					if(fseek(fptr, length, SEEK_CUR) < 0){
+					ако(fseek(fptr, length, SEEK_CUR) < 0){
 						fclose(fptr);
-						return MOSQ_ERR_INVAL;
+						врати MOSQ_ERR_INVAL;
 					}
 					break;
 			}
 		}
-	}else{
+	}инако{
 		log__printf(NULL, MOSQ_LOG_ERR, "Error: Unable to restore persistent database. Unrecognised file format.");
 		rc = 1;
 	}
@@ -563,35 +563,35 @@ int persist__restore(void)
 	log__printf(NULL, MOSQ_LOG_INFO, "Restored %ld subscriptions", subscription_count);
 	log__printf(NULL, MOSQ_LOG_INFO, "Restored %ld client messages", client_msg_count);
 
-	return rc;
+	врати rc;
 error:
 	err = strerror(errno);
 	log__printf(NULL, MOSQ_LOG_ERR, "Error: %s.", err);
-	if(fptr){
+	ако(fptr){
 		fclose(fptr);
 	}
-	return MOSQ_ERR_ERRNO;
+	врати MOSQ_ERR_ERRNO;
 }
 
 
-static int persist__restore_sub(const struct mosquitto_subscription *sub)
+static цео persist__restore_sub(const struct mosquitto_subscription *sub)
 {
 	struct mosquitto *context;
 
-	if(!sub->clientid){
+	ако(!sub->clientid){
 		log__printf(NULL, MOSQ_LOG_WARNING, "Warning: Persistence found a subscription with no client id, ignoring.");
-		return MOSQ_ERR_SUCCESS;
+		врати MOSQ_ERR_SUCCESS;
 	}
-	if(!sub->topic_filter){
+	ако(!sub->topic_filter){
 		log__printf(NULL, MOSQ_LOG_WARNING, "Warning: Persistence found a subscription with no topic filter, ignoring.");
-		return MOSQ_ERR_SUCCESS;
+		врати MOSQ_ERR_SUCCESS;
 	}
 
 	context = persist__find_or_add_context(sub->clientid, 0);
-	if(!context){
-		return MOSQ_ERR_INVAL;
+	ако(!context){
+		врати MOSQ_ERR_INVAL;
 	}
-	return sub__add(context, sub);
+	врати sub__add(context, sub);
 }
 
 #endif
