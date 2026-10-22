@@ -26,77 +26,77 @@ Contributors:
 #include "util_mosq.h"
 
 
-int send__connack(struct mosquitto *context, uint8_t ack, uint8_t reason_code, const mosquitto_property *properties)
+puur_naa_nka send__connack(sa_nracanaa mosquitto *context, uint8_t ack, uint8_t reason_code, const mosquitto_property *properties)
 {
-	struct mosquitto__packet *packet = NULL;
-	int rc;
+	sa_nracanaa mosquitto__packet *packet = NULL;
+	puur_naa_nka rc;
 	mosquitto_property *connack_props = NULL;
 	uint32_t remaining_length;
 
 	rc = mosquitto_property_copy_all(&connack_props, properties);
-	if(rc){
-		return rc;
+	ᮚᮦᮔ᮪(rc){
+		ᮝᮜᮤ rc;
 	}
 
-	if(context->id){
+	ᮚᮦᮔ᮪(context->id){
 		log__printf(NULL, MOSQ_LOG_DEBUG, "Sending CONNACK to %s (%d, %d)", context->id, ack, reason_code);
-	}else{
+	}ᮜᮤᮚ{
 		log__printf(NULL, MOSQ_LOG_DEBUG, "Sending CONNACK to %s (%d, %d)", context->address, ack, reason_code);
 	}
 
 	remaining_length = 2;
 
-	if(context->protocol == mosq_p_mqtt5){
-		if(reason_code < 128 && db.config->retain_available == false){
+	ᮚᮦᮔ᮪(context->protocol == mosq_p_mqtt5){
+		ᮚᮦᮔ᮪(reason_code < 128 && db.config->retain_available == false){
 			rc = mosquitto_property_add_byte(&connack_props, MQTT_PROP_RETAIN_AVAILABLE, 0);
-			if(rc){
+			ᮚᮦᮔ᮪(rc){
 				mosquitto_property_free_all(&connack_props);
-				return rc;
+				ᮝᮜᮤ rc;
 			}
 		}
-		if(reason_code < 128 && db.config->max_packet_size > 0){
+		ᮚᮦᮔ᮪(reason_code < 128 && db.config->max_packet_size > 0){
 			rc = mosquitto_property_add_int32(&connack_props, MQTT_PROP_MAXIMUM_PACKET_SIZE, db.config->max_packet_size);
-			if(rc){
+			ᮚᮦᮔ᮪(rc){
 				mosquitto_property_free_all(&connack_props);
-				return rc;
+				ᮝᮜᮤ rc;
 			}
 		}
-		if(reason_code < 128 && db.config->max_inflight_messages > 0){
+		ᮚᮦᮔ᮪(reason_code < 128 && db.config->max_inflight_messages > 0){
 			rc = mosquitto_property_add_int16(&connack_props, MQTT_PROP_RECEIVE_MAXIMUM, db.config->max_inflight_messages);
-			if(rc){
+			ᮚᮦᮔ᮪(rc){
 				mosquitto_property_free_all(&connack_props);
-				return rc;
+				ᮝᮜᮤ rc;
 			}
 		}
-		if(context->listener->max_qos != 2){
+		ᮚᮦᮔ᮪(context->listener->max_qos != 2){
 			rc = mosquitto_property_add_byte(&connack_props, MQTT_PROP_MAXIMUM_QOS, context->listener->max_qos);
-			if(rc){
+			ᮚᮦᮔ᮪(rc){
 				mosquitto_property_free_all(&connack_props);
-				return rc;
+				ᮝᮜᮤ rc;
 			}
 		}
 
 		remaining_length += mosquitto_property_get_remaining_length(connack_props);
 	}
 
-	if(packet__check_oversize(context, remaining_length)){
+	ᮚᮦᮔ᮪(packet__check_oversize(context, remaining_length)){
 		mosquitto_property_free_all(&connack_props);
-		return MOSQ_ERR_OVERSIZE_PACKET;
+		ᮝᮜᮤ MOSQ_ERR_OVERSIZE_PACKET;
 	}
 
 	rc = packet__alloc(&packet, CMD_CONNACK, remaining_length);
-	if(rc){
+	ᮚᮦᮔ᮪(rc){
 		mosquitto_property_free_all(&connack_props);
-		return rc;
+		ᮝᮜᮤ rc;
 	}
 	packet__write_byte(packet, ack);
 	packet__write_byte(packet, reason_code);
-	if(context->protocol == mosq_p_mqtt5){
+	ᮚᮦᮔ᮪(context->protocol == mosq_p_mqtt5){
 		property__write_all(packet, connack_props, true);
 	}
 	mosquitto_property_free_all(&connack_props);
 
 	metrics__int_inc(mosq_counter_mqtt_connack_sent, 1);
-	return packet__queue(context, packet);
+	ᮝᮜᮤ packet__queue(context, packet);
 }
 

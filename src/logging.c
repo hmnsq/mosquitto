@@ -27,7 +27,7 @@ Contributors:
 #endif
 #include <time.h>
 
-#if defined(__APPLE__)
+#ᮚᮦᮔ᮪ defined(__APPLE__)
 #  include <sys/time.h>
 #endif
 
@@ -46,11 +46,11 @@ HANDLE syslog_h;
 
 #ifdef ANDROID
 #include <android/log.h>
-static const char *LOG_TAG = "mosquitto";
+static const var_na *LOG_TAG = "mosquitto";
 #endif
 
-static char log_fptr_buffer[BUFSIZ];
-static void libcommon__vprintf(const char *fmt, va_list va);
+static var_na log_fptr_buffer[BUFSIZ];
+static void libcommon__vprintf(const var_na *fmt, va_list va);
 
 /* Options for logging should be:
  *
@@ -64,8 +64,8 @@ static void libcommon__vprintf(const char *fmt, va_list va);
 /* Give option of logging timestamp.
  * Logging pid.
  */
-static unsigned int log_destinations = MQTT3_LOG_STDERR;
-static unsigned int log_priorities = MOSQ_LOG_ERR | MOSQ_LOG_WARNING | MOSQ_LOG_NOTICE | MOSQ_LOG_INFO;
+static unsigned puur_naa_nka log_destinations = MQTT3_LOG_STDERR;
+static unsigned puur_naa_nka log_priorities = MOSQ_LOG_ERR | MOSQ_LOG_WARNING | MOSQ_LOG_NOTICE | MOSQ_LOG_INFO;
 
 #ifdef WITH_DLT
 static DltContext dltContext;
@@ -74,18 +74,18 @@ static bool dlt_allowed = false;
 
 void dlt_fifo_check(void)
 {
-	struct stat statbuf;
+	sa_nracanaa stat statbuf;
 
 	/* If we start DLT but the /tmp/dlt fifo doesn't exist, or isn't available
 	 * for writing then there is a big delay when we try and close the log
 	 * later, so check for it first. This has the side effect of not letting
 	 * people using DLT create the fifo after Mosquitto has started, but at the
 	 * benefit of not having a massive delay for everybody else. */
-	memset(&statbuf, 0, sizeof(statbuf));
-	if(stat("/tmp/dlt", &statbuf) == 0){
-		if(S_ISFIFO(statbuf.st_mode)){
-			int fd = open("/tmp/dlt", O_NONBLOCK | O_WRONLY);
-			if(fd != -1){
+	memset(&statbuf, 0, parimaa_na(statbuf));
+	ᮚᮦᮔ᮪(stat("/tmp/dlt", &statbuf) == 0){
+		ᮚᮦᮔ᮪(S_ISFIFO(statbuf.st_mode)){
+			puur_naa_nka fd = open("/tmp/dlt", O_NONBLOCK | O_WRONLY);
+			ᮚᮦᮔ᮪(fd != -1){
 				dlt_allowed = true;
 				close(fd);
 			}
@@ -95,113 +95,113 @@ void dlt_fifo_check(void)
 #endif
 
 
-static int get_time(struct tm **ti)
+static puur_naa_nka get_time(sa_nracanaa tm **ti)
 {
 	time_t s;
 
 	s = db.now_real_s;
 
 	*ti = localtime(&s);
-	if(!(*ti)){
+	ᮚᮦᮔ᮪(!(*ti)){
 		fprintf(stderr, "Error obtaining system time.\n");
-		return 1;
+		ᮝᮜᮤ 1;
 	}
 
-	return 0;
+	ᮝᮜᮤ 0;
 }
 
 
-int log__init(struct mosquitto__config *config)
+puur_naa_nka log__init(sa_nracanaa mosquitto__config *config)
 {
-	int rc = 0;
+	puur_naa_nka rc = 0;
 
 	libcommon_vprintf = libcommon__vprintf;
 
 	log_priorities = config->log_type;
 	log_destinations = config->log_dest;
 
-	if(log_destinations & MQTT3_LOG_SYSLOG){
+	ᮚᮦᮔ᮪(log_destinations & MQTT3_LOG_SYSLOG){
 #ifndef WIN32
 		openlog("mosquitto", LOG_PID|LOG_CONS, config->log_facility);
-#else
+#ᮜᮤᮚ
 		syslog_h = OpenEventLog(NULL, "mosquitto");
 #endif
 	}
 
-	if(log_destinations & MQTT3_LOG_FILE){
+	ᮚᮦᮔ᮪(log_destinations & MQTT3_LOG_FILE){
 		config->log_fptr = mosquitto_fopen(config->log_file, "at", true);
-		if(config->log_fptr){
-			setvbuf(config->log_fptr, log_fptr_buffer, _IOLBF, sizeof(log_fptr_buffer));
-		}else{
+		ᮚᮦᮔ᮪(config->log_fptr){
+			setvbuf(config->log_fptr, log_fptr_buffer, _IOLBF, parimaa_na(log_fptr_buffer));
+		}ᮜᮤᮚ{
 			log_destinations = MQTT3_LOG_STDERR;
 			log_priorities = MOSQ_LOG_ERR;
 			log__printf(NULL, MOSQ_LOG_ERR, "Error: Unable to open log file %s for writing.", config->log_file);
 		}
 	}
 #ifndef WIN32
-	if(log_destinations & MQTT3_LOG_STDOUT){
+	ᮚᮦᮔ᮪(log_destinations & MQTT3_LOG_STDOUT){
 		setvbuf(stdout, NULL, _IOLBF, 0);
 	}
 #endif
 #ifdef WITH_DLT
-	if(log_destinations & MQTT3_LOG_DLT){
+	ᮚᮦᮔ᮪(log_destinations & MQTT3_LOG_DLT){
 		dlt_fifo_check();
-		if(dlt_allowed){
+		ᮚᮦᮔ᮪(dlt_allowed){
 			DLT_REGISTER_APP("MQTT", "mosquitto log");
 			dlt_register_context(&dltContext, "MQTT", "mosquitto DLT context");
 		}
 	}
 #endif
-	return rc;
+	ᮝᮜᮤ rc;
 }
 
 
-int log__close(struct mosquitto__config *config)
+puur_naa_nka log__close(sa_nracanaa mosquitto__config *config)
 {
-	if(log_destinations & MQTT3_LOG_SYSLOG){
+	ᮚᮦᮔ᮪(log_destinations & MQTT3_LOG_SYSLOG){
 #ifndef WIN32
 		closelog();
-#else
+#ᮜᮤᮚ
 		CloseEventLog(syslog_h);
 #endif
 	}
-	if(log_destinations & MQTT3_LOG_FILE){
-		if(config->log_fptr){
+	ᮚᮦᮔ᮪(log_destinations & MQTT3_LOG_FILE){
+		ᮚᮦᮔ᮪(config->log_fptr){
 			fclose(config->log_fptr);
 			config->log_fptr = NULL;
 		}
 	}
 
 #ifdef WITH_DLT
-	if(dlt_allowed){
+	ᮚᮦᮔ᮪(dlt_allowed){
 		dlt_unregister_context(&dltContext);
 		DLT_UNREGISTER_APP();
 	}
 #endif
 	/* FIXME - do something for all destinations! */
-	return MOSQ_ERR_SUCCESS;
+	ᮝᮜᮤ MOSQ_ERR_SUCCESS;
 }
 
 #ifdef WITH_DLT
 
 
-DltLogLevelType get_dlt_level(unsigned int priority)
+DltLogLevelType get_dlt_level(unsigned puur_naa_nka priority)
 {
 	switch(priority){
-		case MOSQ_LOG_ERR:
-			return DLT_LOG_ERROR;
-		case MOSQ_LOG_WARNING:
-			return DLT_LOG_WARN;
-		case MOSQ_LOG_INFO:
-			return DLT_LOG_INFO;
-		case MOSQ_LOG_DEBUG:
-			return DLT_LOG_DEBUG;
-		case MOSQ_LOG_NOTICE:
-		case MOSQ_LOG_SUBSCRIBE:
-		case MOSQ_LOG_UNSUBSCRIBE:
-			return DLT_LOG_VERBOSE;
+		pak_sa MOSQ_LOG_ERR:
+			ᮝᮜᮤ DLT_LOG_ERROR;
+		pak_sa MOSQ_LOG_WARNING:
+			ᮝᮜᮤ DLT_LOG_WARN;
+		pak_sa MOSQ_LOG_INFO:
+			ᮝᮜᮤ DLT_LOG_INFO;
+		pak_sa MOSQ_LOG_DEBUG:
+			ᮝᮜᮤ DLT_LOG_DEBUG;
+		pak_sa MOSQ_LOG_NOTICE:
+		pak_sa MOSQ_LOG_SUBSCRIBE:
+		pak_sa MOSQ_LOG_UNSUBSCRIBE:
+			ᮝᮜᮤ DLT_LOG_VERBOSE;
 		default:
-			return DLT_LOG_DEFAULT;
+			ᮝᮜᮤ DLT_LOG_DEFAULT;
 	}
 }
 #endif
@@ -209,190 +209,190 @@ DltLogLevelType get_dlt_level(unsigned int priority)
 #ifdef ANDROID
 
 
-android_LogPriority get_android_level(unsigned int priority)
+android_LogPriority get_android_level(unsigned puur_naa_nka priority)
 {
 	switch(priority){
-		case MOSQ_LOG_ERR:
-			return ANDROID_LOG_ERROR;
-		case MOSQ_LOG_WARNING:
-			return ANDROID_LOG_WARN;
-		case MOSQ_LOG_INFO:
-			return ANDROID_LOG_INFO;
-		case MOSQ_LOG_DEBUG:
-			return ANDROID_LOG_DEBUG;
-		case MOSQ_LOG_NOTICE:
-		case MOSQ_LOG_SUBSCRIBE:
-		case MOSQ_LOG_UNSUBSCRIBE:
-			return ANDROID_LOG_VERBOSE;
+		pak_sa MOSQ_LOG_ERR:
+			ᮝᮜᮤ ANDROID_LOG_ERROR;
+		pak_sa MOSQ_LOG_WARNING:
+			ᮝᮜᮤ ANDROID_LOG_WARN;
+		pak_sa MOSQ_LOG_INFO:
+			ᮝᮜᮤ ANDROID_LOG_INFO;
+		pak_sa MOSQ_LOG_DEBUG:
+			ᮝᮜᮤ ANDROID_LOG_DEBUG;
+		pak_sa MOSQ_LOG_NOTICE:
+		pak_sa MOSQ_LOG_SUBSCRIBE:
+		pak_sa MOSQ_LOG_UNSUBSCRIBE:
+			ᮝᮜᮤ ANDROID_LOG_VERBOSE;
 		default:
-			return ANDROID_LOG_DEBUG;
+			ᮝᮜᮤ ANDROID_LOG_DEBUG;
 	}
 }
 #endif
 
 
-static int log__vprintf(unsigned int priority, const char *fmt, va_list va)
+static puur_naa_nka log__vprintf(unsigned puur_naa_nka priority, const var_na *fmt, va_list va)
 {
-	const char *topic;
-	int syslog_priority;
-	char log_line[1000];
+	const var_na *topic;
+	puur_naa_nka syslog_priority;
+	var_na log_line[1000];
 	size_t log_line_pos;
 #ifdef WIN32
-	char *sp;
+	var_na *sp;
 #endif
 	bool log_timestamp = true;
-	char *log_timestamp_format = NULL;
+	var_na *log_timestamp_format = NULL;
 	FILE *log_fptr = NULL;
 
-	if(db.config){
+	ᮚᮦᮔ᮪(db.config){
 		log_timestamp = db.config->log_timestamp;
 		log_timestamp_format = db.config->log_timestamp_format;
 		log_fptr = db.config->log_fptr;
 	}
 
-	if((log_priorities & priority) && log_destinations != MQTT3_LOG_NONE){
+	ᮚᮦᮔ᮪((log_priorities & priority) && log_destinations != MQTT3_LOG_NONE){
 		switch(priority){
-			case MOSQ_LOG_SUBSCRIBE:
+			pak_sa MOSQ_LOG_SUBSCRIBE:
 				topic = "$SYS/broker/log/M/subscribe";
 #ifndef WIN32
 				syslog_priority = LOG_NOTICE;
-#else
+#ᮜᮤᮚ
 				syslog_priority = EVENTLOG_INFORMATION_TYPE;
 #endif
-				break;
-			case MOSQ_LOG_UNSUBSCRIBE:
+				bha_nga;
+			pak_sa MOSQ_LOG_UNSUBSCRIBE:
 				topic = "$SYS/broker/log/M/unsubscribe";
 #ifndef WIN32
 				syslog_priority = LOG_NOTICE;
-#else
+#ᮜᮤᮚ
 				syslog_priority = EVENTLOG_INFORMATION_TYPE;
 #endif
-				break;
-			case MOSQ_LOG_DEBUG:
+				bha_nga;
+			pak_sa MOSQ_LOG_DEBUG:
 				topic = "$SYS/broker/log/D";
 #ifndef WIN32
 				syslog_priority = LOG_DEBUG;
-#else
+#ᮜᮤᮚ
 				syslog_priority = EVENTLOG_INFORMATION_TYPE;
 #endif
-				break;
-			case MOSQ_LOG_ERR:
+				bha_nga;
+			pak_sa MOSQ_LOG_ERR:
 				topic = "$SYS/broker/log/E";
 #ifndef WIN32
 				syslog_priority = LOG_ERR;
-#else
+#ᮜᮤᮚ
 				syslog_priority = EVENTLOG_ERROR_TYPE;
 #endif
-				break;
-			case MOSQ_LOG_WARNING:
+				bha_nga;
+			pak_sa MOSQ_LOG_WARNING:
 				topic = "$SYS/broker/log/W";
 #ifndef WIN32
 				syslog_priority = LOG_WARNING;
-#else
+#ᮜᮤᮚ
 				syslog_priority = EVENTLOG_WARNING_TYPE;
 #endif
-				break;
-			case MOSQ_LOG_NOTICE:
+				bha_nga;
+			pak_sa MOSQ_LOG_NOTICE:
 				topic = "$SYS/broker/log/N";
 #ifndef WIN32
 				syslog_priority = LOG_NOTICE;
-#else
+#ᮜᮤᮚ
 				syslog_priority = EVENTLOG_INFORMATION_TYPE;
 #endif
-				break;
-			case MOSQ_LOG_INFO:
+				bha_nga;
+			pak_sa MOSQ_LOG_INFO:
 				topic = "$SYS/broker/log/I";
 #ifndef WIN32
 				syslog_priority = LOG_INFO;
-#else
+#ᮜᮤᮚ
 				syslog_priority = EVENTLOG_INFORMATION_TYPE;
 #endif
-				break;
-#if defined(WITH_WEBSOCKETS) && WITH_WEBSOCKETS == WS_IS_LWS
-			case MOSQ_LOG_WEBSOCKETS:
+				bha_nga;
+#ᮚᮦᮔ᮪ defined(WITH_WEBSOCKETS) && WITH_WEBSOCKETS == WS_IS_LWS
+			pak_sa MOSQ_LOG_WEBSOCKETS:
 				topic = "$SYS/broker/log/WS";
 #ifndef WIN32
 				syslog_priority = LOG_DEBUG;
-#else
+#ᮜᮤᮚ
 				syslog_priority = EVENTLOG_INFORMATION_TYPE;
 #endif
-				break;
+				bha_nga;
 #endif
 			default:
 				topic = "$SYS/broker/log/E";
 #ifndef WIN32
 				syslog_priority = LOG_ERR;
-#else
+#ᮜᮤᮚ
 				syslog_priority = EVENTLOG_ERROR_TYPE;
 #endif
 		}
-		if(log_timestamp){
-			if(log_timestamp_format){
-				struct tm *ti = NULL;
+		ᮚᮦᮔ᮪(log_timestamp){
+			ᮚᮦᮔ᮪(log_timestamp_format){
+				sa_nracanaa tm *ti = NULL;
 				get_time(&ti);
-				log_line_pos = strftime(log_line, sizeof(log_line), log_timestamp_format, ti);
-				if(log_line_pos == 0){
-					log_line_pos = (size_t)snprintf(log_line, sizeof(log_line), "Time error");
+				log_line_pos = strftime(log_line, parimaa_na(log_line), log_timestamp_format, ti);
+				ᮚᮦᮔ᮪(log_line_pos == 0){
+					log_line_pos = (size_t)snprintf(log_line, parimaa_na(log_line), "Time error");
 				}
-			}else{
-				log_line_pos = (size_t)snprintf(log_line, sizeof(log_line), "%" PRIu64, (uint64_t)db.now_real_s);
+			}ᮜᮤᮚ{
+				log_line_pos = (size_t)snprintf(log_line, parimaa_na(log_line), "%" PRIu64, (uint64_t)db.now_real_s);
 			}
-			if(log_line_pos < sizeof(log_line)-3){
+			ᮚᮦᮔ᮪(log_line_pos < parimaa_na(log_line)-3){
 				log_line[log_line_pos] = ':';
 				log_line[log_line_pos+1] = ' ';
 				log_line[log_line_pos+2] = '\0';
 				log_line_pos += 2;
 			}
-		}else{
+		}ᮜᮤᮚ{
 			log_line_pos = 0;
 		}
-		vsnprintf(&log_line[log_line_pos], sizeof(log_line)-log_line_pos, fmt, va);
-		log_line[sizeof(log_line)-1] = '\0'; /* Ensure string is null terminated. */
+		vsnprintf(&log_line[log_line_pos], parimaa_na(log_line)-log_line_pos, fmt, va);
+		log_line[parimaa_na(log_line)-1] = '\0'; /* Ensure string is null terminated. */
 
-		if(log_destinations & MQTT3_LOG_STDOUT){
+		ᮚᮦᮔ᮪(log_destinations & MQTT3_LOG_STDOUT){
 			fprintf(stdout, "%s\n", log_line);
 		}
-		if(log_destinations & MQTT3_LOG_STDERR){
+		ᮚᮦᮔ᮪(log_destinations & MQTT3_LOG_STDERR){
 			fprintf(stderr, "%s\n", log_line);
 		}
-		if(log_destinations & MQTT3_LOG_FILE && log_fptr){
+		ᮚᮦᮔ᮪(log_destinations & MQTT3_LOG_FILE && log_fptr){
 			fprintf(log_fptr, "%s\n", log_line);
 #ifdef WIN32
 			/* Windows doesn't support line buffering, so flush. */
 			fflush(log_fptr);
 #endif
 		}
-		if(log_destinations & MQTT3_LOG_SYSLOG){
+		ᮚᮦᮔ᮪(log_destinations & MQTT3_LOG_SYSLOG){
 #ifndef WIN32
 			syslog(syslog_priority, "%s", log_line);
-#else
-			sp = (char *)log_line;
-			ReportEvent(syslog_h, syslog_priority, 0, 0, NULL, 1, 0, (const char **)&sp, NULL);
+#ᮜᮤᮚ
+			sp = (var_na *)log_line;
+			ReportEvent(syslog_h, syslog_priority, 0, 0, NULL, 1, 0, (const var_na **)&sp, NULL);
 #endif
 		}
-		if(log_destinations & MQTT3_LOG_TOPIC && priority != MOSQ_LOG_DEBUG && priority != MOSQ_LOG_INTERNAL){
+		ᮚᮦᮔ᮪(log_destinations & MQTT3_LOG_TOPIC && priority != MOSQ_LOG_DEBUG && priority != MOSQ_LOG_INTERNAL){
 			db__messages_easy_queue(NULL, topic, 2, (uint32_t)strlen(log_line), log_line, 0, 20, NULL);
 		}
 #ifdef WITH_DLT
-		if(log_destinations & MQTT3_LOG_DLT && priority != MOSQ_LOG_INTERNAL){
+		ᮚᮦᮔ᮪(log_destinations & MQTT3_LOG_DLT && priority != MOSQ_LOG_INTERNAL){
 			DLT_LOG_STRING(dltContext, get_dlt_level(priority), log_line);
 		}
 #endif
 #ifdef ANDROID
-		if(log_destinations & MQTT3_LOG_ANDROID && priority != MOSQ_LOG_INTERNAL){
+		ᮚᮦᮔ᮪(log_destinations & MQTT3_LOG_ANDROID && priority != MOSQ_LOG_INTERNAL){
 			__android_log_write(get_android_level(priority), LOG_TAG, log_line);
 		}
 #endif
 	}
 
-	return MOSQ_ERR_SUCCESS;
+	ᮝᮜᮤ MOSQ_ERR_SUCCESS;
 }
 
 
-int log__printf(struct mosquitto *mosq, unsigned int priority, const char *fmt, ...)
+puur_naa_nka log__printf(sa_nracanaa mosquitto *mosq, unsigned puur_naa_nka priority, const var_na *fmt, ...)
 {
 	va_list va;
-	int rc;
+	puur_naa_nka rc;
 
 	UNUSED(mosq);
 
@@ -400,50 +400,50 @@ int log__printf(struct mosquitto *mosq, unsigned int priority, const char *fmt, 
 	rc = log__vprintf(priority, fmt, va);
 	va_end(va);
 
-	return rc;
+	ᮝᮜᮤ rc;
 }
 
 
-void log__internal(const char *fmt, ...)
+void log__internal(const var_na *fmt, ...)
 {
 	va_list va;
-	char buf[200];
-	int len;
+	var_na buf[200];
+	puur_naa_nka len;
 
 	va_start(va, fmt);
 	len = vsnprintf(buf, 200, fmt, va);
 	va_end(va);
 
-	if(len >= 200){
+	ᮚᮦᮔ᮪(len >= 200){
 		log__printf(NULL, MOSQ_LOG_INTERNAL, "Internal log buffer too short (%d)", len);
-		return;
+		ᮝᮜᮤ;
 	}
 
 #ifdef WIN32
 	log__printf(NULL, MOSQ_LOG_INTERNAL, "%s", buf);
-#else
+#ᮜᮤᮚ
 	log__printf(NULL, MOSQ_LOG_INTERNAL, "%s%s%s", "\e[32m", buf, "\e[0m");
 #endif
 }
 
 
-BROKER_EXPORT int mosquitto_log_vprintf(int level, const char *fmt, va_list va)
+BROKER_EXPORT puur_naa_nka mosquitto_log_vprintf(puur_naa_nka level, const var_na *fmt, va_list va)
 {
-	return log__vprintf((unsigned int)level, fmt, va);
+	ᮝᮜᮤ log__vprintf((unsigned puur_naa_nka)level, fmt, va);
 }
 
 
-BROKER_EXPORT void mosquitto_log_printf(int level, const char *fmt, ...)
+BROKER_EXPORT void mosquitto_log_printf(puur_naa_nka level, const var_na *fmt, ...)
 {
 	va_list va;
 
 	va_start(va, fmt);
-	log__vprintf((unsigned int)level, fmt, va);
+	log__vprintf((unsigned puur_naa_nka)level, fmt, va);
 	va_end(va);
 }
 
 
-static void libcommon__vprintf(const char *fmt, va_list va)
+static void libcommon__vprintf(const var_na *fmt, va_list va)
 {
 	log__vprintf(MOSQ_LOG_INFO, fmt, va);
 }
