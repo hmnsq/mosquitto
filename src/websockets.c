@@ -16,751 +16,751 @@ Contributors:
    Roger Light - initial implementation and documentation.
 */
 
-#ifdef WITH_WEBSOCKETS
+#ਜੇ_ਪਰਿਭਾਸ਼ਿਤ WITH_WEBSOCKETS
 
-#include "config.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "config.h"
 
-#if defined(WITH_WEBSOCKETS) && WITH_WEBSOCKETS == WS_IS_LWS
+#ਜੇ defined(WITH_WEBSOCKETS) && WITH_WEBSOCKETS == WS_IS_LWS
 #  include <libwebsockets.h>
-#endif
-#include "mosquitto_internal.h"
-#include "mosquitto_broker_internal.h"
-#include "mosquitto/mqtt_protocol.h"
-#include "packet_mosq.h"
-#include "sys_tree.h"
-#include "util_mosq.h"
+#ਜੇ_ਅੰਤ
+#ਅਨ੍ਤਰ੍ਭਾਵ "mosquitto_internal.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "mosquitto_broker_internal.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "mosquitto/mqtt_protocol.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "packet_mosq.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "sys_tree.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "util_mosq.h"
 
-#include <stdlib.h>
-#include <errno.h>
-#include <sys/stat.h>
+#ਅਨ੍ਤਰ੍ਭਾਵ <stdlib.h>
+#ਅਨ੍ਤਰ੍ਭਾਵ <errno.h>
+#ਅਨ੍ਤਰ੍ਭਾਵ <sys/stat.h>
 
-#ifndef WIN32
+#ਜੇ_ਅਪਰਿਭਾਸ਼ਿਤ WIN32
 #  include <sys/socket.h>
-#endif
+#ਜੇ_ਅੰਤ
 
-#if defined(WITH_WEBSOCKETS) && WITH_WEBSOCKETS == WS_IS_LWS
+#ਜੇ defined(WITH_WEBSOCKETS) && WITH_WEBSOCKETS == WS_IS_LWS
 /* Be careful if changing these, if TX is not bigger than SERV then there can
  * be very large write performance penalties.
  */
-#define WS_SERV_BUF_SIZE 4096
-#define WS_TX_BUF_SIZE (WS_SERV_BUF_SIZE*2)
+#ਪਰਿਭਾਸ਼ਿਤ_ਕਰੋ WS_SERV_BUF_ਮਾਪ 4096
+#ਪਰਿਭਾਸ਼ਿਤ_ਕਰੋ WS_TX_BUF_ਮਾਪ (WS_SERV_BUF_ਮਾਪ*2)
 
-static int callback_mqtt(
-		struct lws *wsi,
-		enum lws_callback_reasons reason,
-		void *user,
-		void *in,
+ਸਥਿਰ ਪੂਰਨ callback_mqtt(
+		ਬਣਤਰ lws *wsi,
+		ਗਿਣਤੀ lws_callback_reasons reason,
+		ਖਾਲੀ *user,
+		ਖਾਲੀ *ਵਿੱਚ,
 		size_t len);
 
-static int callback_http(
-		struct lws *wsi,
-		enum lws_callback_reasons reason,
-		void *user,
-		void *in,
+ਸਥਿਰ ਪੂਰਨ callback_http(
+		ਬਣਤਰ lws *wsi,
+		ਗਿਣਤੀ lws_callback_reasons reason,
+		ਖਾਲੀ *user,
+		ਖਾਲੀ *ਵਿੱਚ,
 		size_t len);
 
-enum mosq_ws_protocols {
+ਗਿਣਤੀ mosq_ws_protocols {
 	PROTOCOL_HTTP = 0,
 	PROTOCOL_MQTT,
-	DEMO_PROTOCOL_COUNT,
+	DEMO_PROTOCOL_ਗਿਣਤੀ,
 };
 
-struct libws_http_data {
+ਬਣਤਰ libws_http_ਅੰਕੜੇ {
 	FILE *fptr;
 };
 
-static struct lws_protocols protocols[] = {
+ਸਥਿਰ ਬਣਤਰ lws_protocols protocols[] = {
 	/* first protocol must always be HTTP handler */
 	{
 		"http-only",                        /* name */
 		callback_http,                      /* lws_callback_function */
-		sizeof (struct libws_http_data),    /* per_session_data_size */
+		ਆਕਾਰ (ਬਣਤਰ libws_http_ਅੰਕੜੇ),    /* per_session_data_size */
 		0,                                  /* rx_buffer_size */
 		0,                                  /* id */
-		NULL,                               /* user v1.4 on */
-		WS_TX_BUF_SIZE                      /* tx_packet_size v2.3.0 */
+		ਨਿਰਾ,                               /* user v1.4 on */
+		WS_TX_BUF_ਮਾਪ                      /* tx_packet_size v2.3.0 */
 	},
 	{
 		"mqtt",
 		callback_mqtt,
-		sizeof(struct libws_mqtt_data),
+		ਆਕਾਰ(ਬਣਤਰ libws_mqtt_ਅੰਕੜੇ),
 		0,                                  /* rx_buffer_size */
 		1,                                  /* id */
-		NULL,                               /* user v1.4 on */
-		WS_TX_BUF_SIZE                      /* tx_packet_size v2.3.0 */
+		ਨਿਰਾ,                               /* user v1.4 on */
+		WS_TX_BUF_ਮਾਪ                      /* tx_packet_size v2.3.0 */
 	},
 	{
 		"mqttv3.1",
 		callback_mqtt,
-		sizeof(struct libws_mqtt_data),
+		ਆਕਾਰ(ਬਣਤਰ libws_mqtt_ਅੰਕੜੇ),
 		0,                                  /* rx_buffer_size */
 		2,                                  /* id */
-		NULL,                               /* user v1.4 on */
-		WS_TX_BUF_SIZE                      /* tx_packet_size v2.3.0 */
+		ਨਿਰਾ,                               /* user v1.4 on */
+		WS_TX_BUF_ਮਾਪ                      /* tx_packet_size v2.3.0 */
 	},
 	{
-		NULL,
-		NULL,
+		ਨਿਰਾ,
+		ਨਿਰਾ,
 		0,
 		0,                                  /* rx_buffer_size */
 		0,                                  /* id */
-		NULL,                               /* user v1.4 on */
+		ਨਿਰਾ,                               /* user v1.4 on */
 		0                                   /* tx_packet_size v2.3.0 */
 	}
 };
 
 
-static void easy_address(int sock, struct mosquitto *mosq)
+ਸਥਿਰ ਖਾਲੀ easy_ਪਤਾ(ਪੂਰਨ sock, ਬਣਤਰ mosquitto *mosq)
 {
-	char address[1024];
+	ਅੱਖਰ ਪਤਾ[1024];
 
-	if(!net__socket_get_address(sock, address, 1024, &mosq->remote_port)){
-		mosq->address = mosquitto_strdup(address);
+	ਜੇ(!net_socket_get_ਪਤਾ(sock, ਪਤਾ, 1024, &mosq->remote_ਪੋਰਟ)){
+		mosq->ਪਤਾ = mosquitto_strdup(ਪਤਾ);
 	}
 }
 
 
-static int callback_mqtt(
-		struct lws *wsi,
-		enum lws_callback_reasons reason,
-		void *user,
-		void *in,
+ਸਥਿਰ ਪੂਰਨ callback_mqtt(
+		ਬਣਤਰ lws *wsi,
+		ਗਿਣਤੀ lws_callback_reasons reason,
+		ਖਾਲੀ *user,
+		ਖਾਲੀ *ਵਿੱਚ,
 		size_t len)
 {
-	struct mosquitto *mosq = NULL;
-	struct mosquitto__packet *packet;
-	int count;
-	unsigned int ucount;
-	const struct lws_protocols *p;
-	struct libws_mqtt_data *u = (struct libws_mqtt_data *)user;
+	ਬਣਤਰ mosquitto *mosq = ਨਿਰਾ;
+	ਬਣਤਰ mosquitto__packet *packet;
+	ਪੂਰਨ ਗਿਣਤੀ_2;
+	ਬਿਨਾਨਿਸ਼ਾਨੀ ਪੂਰਨ ucount;
+	ਅਚਲ ਬਣਤਰ lws_protocols *p;
+	ਬਣਤਰ libws_mqtt_ਅੰਕੜੇ *u = (ਬਣਤਰ libws_mqtt_ਅੰਕੜੇ *)user;
 	size_t pos;
 	uint8_t *buf;
-	int rc;
+	ਪੂਰਨ rc;
 	uint8_t byte;
-	char ip_addr_buff[1024];
+	ਅੱਖਰ ip_addr_buff[1024];
 
-	switch(reason){
-		case LWS_CALLBACK_ESTABLISHED:
+	ਚੋਣ(reason){
+		ਹਾਲਤ LWS_CALLBACK_ESTABLISHED:
 			mosq = context__init();
-			if(mosq){
+			ਜੇ(mosq){
 				p = lws_get_protocol(wsi);
 				mosq->listener = p->user;
-				if(!mosq->listener){
+				ਜੇ(!mosq->listener){
 					mosquitto_FREE(mosq);
-					return -1;
+					ਵਾਪਸ -1;
 				}
 				mosq->wsi = wsi;
-#ifdef WITH_TLS
-				if(in){
-					mosq->ssl = (SSL *)in;
-					if(!mosq->listener->ssl_ctx){
+#ਜੇ_ਪਰਿਭਾਸ਼ਿਤ WITH_TLS
+				ਜੇ(ਵਿੱਚ){
+					mosq->ssl = (SSL *)ਵਿੱਚ;
+					ਜੇ(!mosq->listener->ssl_ctx){
 						mosq->listener->ssl_ctx = SSL_get_SSL_CTX(mosq->ssl);
 					}
 				}
-#endif
+#ਜੇ_ਅੰਤ
 				u->mosq = mosq;
-			}else{
-				return -1;
+			}ਨਹੀਂਤਾਂ{
+				ਵਾਪਸ -1;
 			}
 
-			easy_address(lws_get_socket_fd(wsi), mosq);
-			if(!mosq->address){
+			easy_ਪਤਾ(lws_get_socket_fd(wsi), mosq);
+			ਜੇ(!mosq->ਪਤਾ){
 				/* getpeername and inet_ntop failed and not a bridge */
 				mosquitto_FREE(mosq);
-				u->mosq = NULL;
-				return -1;
+				u->mosq = ਨਿਰਾ;
+				ਵਾਪਸ -1;
 			}
-			mosq->listener->client_count++;
-			if((mosq->listener->max_connections > 0 && mosq->listener->client_count > mosq->listener->max_connections)
-					|| (db.config->global_max_connections > 0 && HASH_CNT(hh_sock, db.contexts_by_sock) > (unsigned int)db.config->global_max_connections)){
+			mosq->listener->client_ਗਿਣਤੀ++;
+			ਜੇ((mosq->listener->max_connections > 0 && mosq->listener->client_ਗਿਣਤੀ > mosq->listener->max_connections)
+					|| (db.config->global_max_connections > 0 && HASH_CNT(hh_sock, db.contexts_by_sock) > (ਬਿਨਾਨਿਸ਼ਾਨੀ ਪੂਰਨ)db.config->global_max_connections)){
 
-				if(db.config->connection_messages == true){
-					log__printf(NULL, MOSQ_LOG_NOTICE, "Client connection from %s denied: max_connections exceeded.", mosq->address);
+				ਜੇ(db.config->connection_messages == true){
+					log__printf(ਨਿਰਾ, MOSQ_LOG_NOTICE, "Client connection from %s denied: max_connections exceeded.", mosq->ਪਤਾ);
 				}
-				mosq->listener->client_count--;
-				mosquitto_FREE(mosq->address);
+				mosq->listener->client_ਗਿਣਤੀ--;
+				mosquitto_FREE(mosq->ਪਤਾ);
 				mosquitto_FREE(mosq);
-				u->mosq = NULL;
-				return -1;
+				u->mosq = ਨਿਰਾ;
+				ਵਾਪਸ -1;
 			}
 			mosq->sock = lws_get_socket_fd(wsi);
-			HASH_ADD(hh_sock, db.contexts_by_sock, sock, sizeof(mosq->sock), mosq);
+			HASH_ਜੋੜੋ(hh_sock, db.contexts_by_sock, sock, ਆਕਾਰ(mosq->sock), mosq);
 			mux__new(mosq);
-			break;
+			ਰੋਕੋ;
 
-		case LWS_CALLBACK_CLOSED:
-			if(!u){
-				return -1;
+		ਹਾਲਤ LWS_CALLBACK_CLOSED:
+			ਜੇ(!u){
+				ਵਾਪਸ -1;
 			}
 			mosq = u->mosq;
-			if(mosq){
-				if(mosq->sock != INVALID_SOCKET){
+			ਜੇ(mosq){
+				ਜੇ(mosq->sock != INVALID_SOCKET){
 					HASH_DELETE(hh_sock, db.contexts_by_sock, mosq);
 					mosq->sock = INVALID_SOCKET;
 					mux__delete(mosq);
 				}
-				mosq->wsi = NULL;
-#ifdef WITH_TLS
-				mosq->ssl = NULL;
-#endif
-				do_disconnect(mosq, MOSQ_ERR_CONN_LOST);
+				mosq->wsi = ਨਿਰਾ;
+#ਜੇ_ਪਰਿਭਾਸ਼ਿਤ WITH_TLS
+				mosq->ssl = ਨਿਰਾ;
+#ਜੇ_ਅੰਤ
+				do_disconnect(mosq, MOSQ_ERR_CONN_ਗੁਆਚਾ);
 			}
-			break;
+			ਰੋਕੋ;
 
-		case LWS_CALLBACK_SERVER_WRITEABLE:
-			if(!u){
-				return -1;
+		ਹਾਲਤ LWS_CALLBACK_SERVER_WRITEABLE:
+			ਜੇ(!u){
+				ਵਾਪਸ -1;
 			}
 			mosq = u->mosq;
-			if(!mosq){
-				return -1;
+			ਜੇ(!mosq){
+				ਵਾਪਸ -1;
 			}
 
-			rc = db__message_write_inflight_out_latest(mosq);
-			if(rc){
-				return -1;
+			rc = db_ਸੁਨੇਹਾ_write_inflight_ਬਾਹਰਲਾ_latest(mosq);
+			ਜੇ(rc){
+				ਵਾਪਸ -1;
 			}
-			rc = db__message_write_queued_out(mosq);
-			if(rc){
-				return -1;
+			rc = db_ਸੁਨੇਹਾ_write_queued_ਬਾਹਰਲਾ(mosq);
+			ਜੇ(rc){
+				ਵਾਪਸ -1;
 			}
 
-			while(mosq->out_packet && !lws_send_pipe_choked(mosq->wsi)){
-				packet = mosq->out_packet;
-				count = lws_write(wsi, &packet->payload[packet->pos], packet->to_process, LWS_WRITE_BINARY);
-				if(count < 0){
-					if(mosq->state == mosq_cs_disconnect_ws
+			ਜਦੋਂ(mosq->ਬਾਹਰਲਾ_packet && !lws_send_pipe_choked(mosq->wsi)){
+				packet = mosq->ਬਾਹਰਲਾ_packet;
+				ਗਿਣਤੀ_2 = lws_write(wsi, &packet->payload[packet->pos], packet->ਮੰਜ਼ਿਲ_process, LWS_WRITE_ਦੁਆਧਾਰੀ);
+				ਜੇ(ਗਿਣਤੀ_2 < 0){
+					ਜੇ(mosq->state == mosq_cs_disconnect_ws
 							|| mosq->state == mosq_cs_disconnecting
 							|| mosq->state == mosq_cs_disused){
 
-						return -1;
+						ਵਾਪਸ -1;
 					}
-					return 0;
+					ਵਾਪਸ 0;
 				}
-				ucount = (unsigned int)count;
-#ifdef WITH_SYS_TREE
-				metrics__int_inc(mosq_counter_bytes_sent, ucount);
-#endif
-				packet->to_process -= ucount;
+				ucount = (ਬਿਨਾਨਿਸ਼ਾਨੀ ਪੂਰਨ)ਗਿਣਤੀ_2;
+#ਜੇ_ਪਰਿਭਾਸ਼ਿਤ WITH_SYS_ਰੁੱਖ
+				metrics__int_inc(mosq_counter_ਬਾਈਟਾਂ_ਭੇਜਿਆ, ucount);
+#ਜੇ_ਅੰਤ
+				packet->ਮੰਜ਼ਿਲ_process -= ucount;
 				packet->pos += ucount;
-				if(packet->to_process > 0){
-					if(mosq->state == mosq_cs_disconnect_ws
+				ਜੇ(packet->ਮੰਜ਼ਿਲ_process > 0){
+					ਜੇ(mosq->state == mosq_cs_disconnect_ws
 							|| mosq->state == mosq_cs_disconnecting
 							|| mosq->state == mosq_cs_disused){
 
-						return -1;
+						ਵਾਪਸ -1;
 					}
-					break;
+					ਰੋਕੋ;
 				}
 
-#ifdef WITH_SYS_TREE
-				metrics__int_inc(mosq_counter_messages_sent, 1);
-				if(((packet->command)&0xF0) == CMD_PUBLISH){
-					metrics__int_inc(mosq_counter_mqtt_publish_sent, 1);
+#ਜੇ_ਪਰਿਭਾਸ਼ਿਤ WITH_SYS_ਰੁੱਖ
+				metrics__int_inc(mosq_counter_messages_ਭੇਜਿਆ, 1);
+				ਜੇ(((packet->command)&0xF0) == CMD_PUBLISH){
+					metrics__int_inc(mosq_counter_mqtt_publish_ਭੇਜਿਆ, 1);
 				}
-#endif
+#ਜੇ_ਅੰਤ
 
-				packet__get_next_out(mosq);
+				packet_get_ਅਗਲਾ_ਬਾਹਰਲਾ(mosq);
 				mosquitto_FREE(packet);
 
-				mosq->next_msg_out = db.now_s + mosq->keepalive;
+				mosq->ਅਗਲਾ_ਸੁਨੇਹਾ_ਬਾਹਰਲਾ = db.now_s + mosq->keepalive;
 			}
-			if(mosq->state == mosq_cs_disconnect_ws
+			ਜੇ(mosq->state == mosq_cs_disconnect_ws
 					|| mosq->state == mosq_cs_disconnecting
 					|| mosq->state == mosq_cs_disused){
 
-				return -1;
+				ਵਾਪਸ -1;
 			}
-			if(mosq->out_packet){
+			ਜੇ(mosq->ਬਾਹਰਲਾ_packet){
 				lws_callback_on_writable(mosq->wsi);
 			}
-			break;
+			ਰੋਕੋ;
 
-		case LWS_CALLBACK_RECEIVE:
-			if(!u || !u->mosq){
-				return -1;
+		ਹਾਲਤ LWS_CALLBACK_RECEIVE:
+			ਜੇ(!u || !u->mosq){
+				ਵਾਪਸ -1;
 			}
 			mosq = u->mosq;
 			pos = 0;
-			buf = (uint8_t *)in;
-			metrics__int_inc(mosq_counter_bytes_received, (int64_t)len);
-			while(pos < len){
-				if(!mosq->in_packet.command){
-					mosq->in_packet.command = buf[pos];
+			buf = (uint8_t *)ਵਿੱਚ;
+			metrics__int_inc(mosq_counter_ਬਾਈਟਾਂ_received, (int64_t)len);
+			ਜਦੋਂ(pos < len){
+				ਜੇ(!mosq->ਵਿੱਚ_packet.command){
+					mosq->ਵਿੱਚ_packet.command = buf[pos];
 					pos++;
 					/* Clients must send CONNECT as their first command. */
-					if(mosq->state == mosq_cs_new && (mosq->in_packet.command&0xF0) != CMD_CONNECT){
-						return -1;
+					ਜੇ(mosq->state == mosq_cs_new && (mosq->ਵਿੱਚ_packet.command&0xF0) != CMD_CONNECT){
+						ਵਾਪਸ -1;
 					}
 				}
-				if(mosq->in_packet.remaining_count <= 0){
-					do{
-						if(pos == len){
-							return 0;
+				ਜੇ(mosq->ਵਿੱਚ_packet.ਬਚਿਆ_ਗਿਣਤੀ <= 0){
+					ਕਰੋ{
+						ਜੇ(pos == len){
+							ਵਾਪਸ 0;
 						}
 						byte = buf[pos];
 						pos++;
 
-						mosq->in_packet.remaining_count--;
+						mosq->ਵਿੱਚ_packet.ਬਚਿਆ_ਗਿਣਤੀ--;
 						/* Max 4 bytes length for remaining length as defined by protocol.
 						* Anything more likely means a broken/malicious client.
 						*/
-						if(mosq->in_packet.remaining_count < -4){
-							return -1;
+						ਜੇ(mosq->ਵਿੱਚ_packet.ਬਚਿਆ_ਗਿਣਤੀ < -4){
+							ਵਾਪਸ -1;
 						}
 
-						mosq->in_packet.remaining_length += (byte & 127) * mosq->in_packet.remaining_mult;
-						mosq->in_packet.remaining_mult *= 128;
-					}while((byte & 128) != 0);
-					mosq->in_packet.remaining_count = (int8_t)(mosq->in_packet.remaining_count * -1);
+						mosq->ਵਿੱਚ_packet.ਬਚਿਆ_ਲੰਮਾਈ += (byte & 127) * mosq->ਵਿੱਚ_packet.ਬਚਿਆ_mult;
+						mosq->ਵਿੱਚ_packet.ਬਚਿਆ_mult *= 128;
+					}ਜਦੋਂ((byte & 128) != 0);
+					mosq->ਵਿੱਚ_packet.ਬਚਿਆ_ਗਿਣਤੀ = (int8_t)(mosq->ਵਿੱਚ_packet.ਬਚਿਆ_ਗਿਣਤੀ * -1);
 
-					if(mosq->in_packet.remaining_length > 0){
-						mosq->in_packet.payload = mosquitto_malloc(mosq->in_packet.remaining_length*sizeof(uint8_t));
-						if(!mosq->in_packet.payload){
-							return -1;
+					ਜੇ(mosq->ਵਿੱਚ_packet.ਬਚਿਆ_ਲੰਮਾਈ > 0){
+						mosq->ਵਿੱਚ_packet.payload = mosquitto_malloc(mosq->ਵਿੱਚ_packet.ਬਚਿਆ_ਲੰਮਾਈ*ਆਕਾਰ(uint8_t));
+						ਜੇ(!mosq->ਵਿੱਚ_packet.payload){
+							ਵਾਪਸ -1;
 						}
-						mosq->in_packet.to_process = mosq->in_packet.remaining_length;
+						mosq->ਵਿੱਚ_packet.ਮੰਜ਼ਿਲ_process = mosq->ਵਿੱਚ_packet.ਬਚਿਆ_ਲੰਮਾਈ;
 					}
 				}
-				if(mosq->in_packet.to_process>0){
-					if((uint32_t)len - pos >= mosq->in_packet.to_process){
-						memcpy(&mosq->in_packet.payload[mosq->in_packet.pos], &buf[pos], mosq->in_packet.to_process);
-						mosq->in_packet.pos += mosq->in_packet.to_process;
-						pos += mosq->in_packet.to_process;
-						mosq->in_packet.to_process = 0;
-					}else{
-						memcpy(&mosq->in_packet.payload[mosq->in_packet.pos], &buf[pos], len-pos);
-						mosq->in_packet.pos += (uint32_t)(len-pos);
-						mosq->in_packet.to_process -= (uint32_t)(len-pos);
-						return 0;
+				ਜੇ(mosq->ਵਿੱਚ_packet.ਮੰਜ਼ਿਲ_process>0){
+					ਜੇ((uint32_t)len - pos >= mosq->ਵਿੱਚ_packet.ਮੰਜ਼ਿਲ_process){
+						ਸਮ੍ਰਿਤੀ_ਨਕਲ(&mosq->ਵਿੱਚ_packet.payload[mosq->ਵਿੱਚ_packet.pos], &buf[pos], mosq->ਵਿੱਚ_packet.ਮੰਜ਼ਿਲ_process);
+						mosq->ਵਿੱਚ_packet.pos += mosq->ਵਿੱਚ_packet.ਮੰਜ਼ਿਲ_process;
+						pos += mosq->ਵਿੱਚ_packet.ਮੰਜ਼ਿਲ_process;
+						mosq->ਵਿੱਚ_packet.ਮੰਜ਼ਿਲ_process = 0;
+					}ਨਹੀਂਤਾਂ{
+						ਸਮ੍ਰਿਤੀ_ਨਕਲ(&mosq->ਵਿੱਚ_packet.payload[mosq->ਵਿੱਚ_packet.pos], &buf[pos], len-pos);
+						mosq->ਵਿੱਚ_packet.pos += (uint32_t)(len-pos);
+						mosq->ਵਿੱਚ_packet.ਮੰਜ਼ਿਲ_process -= (uint32_t)(len-pos);
+						ਵਾਪਸ 0;
 					}
 				}
 				/* All data for this packet is read. */
-				mosq->in_packet.pos = 0;
+				mosq->ਵਿੱਚ_packet.pos = 0;
 
-#ifdef WITH_SYS_TREE
+#ਜੇ_ਪਰਿਭਾਸ਼ਿਤ WITH_SYS_ਰੁੱਖ
 				metrics__int_inc(mosq_counter_messages_received, 1);
-#endif
+#ਜੇ_ਅੰਤ
 				rc = handle__packet(mosq);
 
 				/* Free data and reset values */
-				packet__cleanup(&mosq->in_packet);
+				packet__cleanup(&mosq->ਵਿੱਚ_packet);
 
 				keepalive__update(mosq);
 
-				if(rc && mosq->out_packet){
-					if(mosq->state != mosq_cs_disconnecting){
-						mosquitto__set_state(mosq, mosq_cs_disconnect_ws);
+				ਜੇ(rc && mosq->ਬਾਹਰਲਾ_packet){
+					ਜੇ(mosq->state != mosq_cs_disconnecting){
+						mosquitto_ਸੈੱਟ_state(mosq, mosq_cs_disconnect_ws);
 					}
 					lws_callback_on_writable(mosq->wsi);
-				}else if(rc){
-					do_disconnect(mosq, MOSQ_ERR_CONN_LOST);
-					return -1;
+				}ਨਹੀਂਤਾਂ ਜੇ(rc){
+					do_disconnect(mosq, MOSQ_ERR_CONN_ਗੁਆਚਾ);
+					ਵਾਪਸ -1;
 				}
 			}
-			break;
+			ਰੋਕੋ;
 
-		default:
-			break;
+		ਮੂਲ:
+			ਰੋਕੋ;
 	}
 
-	return 0;
+	ਵਾਪਸ 0;
 }
 
 
-static char *http__canonical_filename(
-		struct lws *wsi,
-		const char *in,
-		const char *http_dir)
+ਸਥਿਰ ਅੱਖਰ *http__canonical_filename(
+		ਬਣਤਰ lws *wsi,
+		ਅਚਲ ਅੱਖਰ *ਵਿੱਚ,
+		ਅਚਲ ਅੱਖਰ *http_dir)
 {
 	size_t inlen, slen;
-	char *filename, *filename_canonical;
+	ਅੱਖਰ *filename, *filename_canonical;
 
-	inlen = strlen(in);
-	if(in[inlen-1] == '/'){
-		slen = strlen(http_dir) + inlen + strlen("/index.html") + 2;
-	}else{
-		slen = strlen(http_dir) + inlen + 2;
+	inlen = ਲੜੀ_ਲੰਬਾਈ(ਵਿੱਚ);
+	ਜੇ(ਵਿੱਚ[inlen-1] == '/'){
+		slen = ਲੜੀ_ਲੰਬਾਈ(http_dir) + inlen + ਲੜੀ_ਲੰਬਾਈ("/index.html") + 2;
+	}ਨਹੀਂਤਾਂ{
+		slen = ਲੜੀ_ਲੰਬਾਈ(http_dir) + inlen + 2;
 	}
 	filename = mosquitto_malloc(slen);
-	if(!filename){
-		lws_return_http_status(wsi, HTTP_STATUS_INTERNAL_SERVER_ERROR, NULL);
-		return NULL;
+	ਜੇ(!filename){
+		lws_return_http_ਸਥਿਤੀ(wsi, HTTP_ਸਥਿਤੀ_ਅੰਦਰੂਨੀ_SERVER_ERROR, ਨਿਰਾ);
+		ਵਾਪਸ ਨਿਰਾ;
 	}
-	if(((char *)in)[inlen-1] == '/'){
-		snprintf(filename, slen, "%s%sindex.html", http_dir, (char *)in);
-	}else{
-		snprintf(filename, slen, "%s%s", http_dir, (char *)in);
+	ਜੇ(((ਅੱਖਰ *)ਵਿੱਚ)[inlen-1] == '/'){
+		snprintf(filename, slen, "%s%sindex.html", http_dir, (ਅੱਖਰ *)ਵਿੱਚ);
+	}ਨਹੀਂਤਾਂ{
+		snprintf(filename, slen, "%s%s", http_dir, (ਅੱਖਰ *)ਵਿੱਚ);
 	}
 
 
 	/* Get canonical path and check it is within our http_dir */
-#ifdef WIN32
-	filename_canonical = _fullpath(NULL, filename, 0);
+#ਜੇ_ਪਰਿਭਾਸ਼ਿਤ WIN32
+	filename_canonical = _fullpath(ਨਿਰਾ, filename, 0);
 	mosquitto_FREE(filename);
-	if(!filename_canonical){
-		lws_return_http_status(wsi, HTTP_STATUS_INTERNAL_SERVER_ERROR, NULL);
-		return NULL;
+	ਜੇ(!filename_canonical){
+		lws_return_http_ਸਥਿਤੀ(wsi, HTTP_ਸਥਿਤੀ_ਅੰਦਰੂਨੀ_SERVER_ERROR, ਨਿਰਾ);
+		ਵਾਪਸ ਨਿਰਾ;
 	}
-#else
-	filename_canonical = realpath(filename, NULL);
+#ਨਹੀਂਤਾਂ
+	filename_canonical = realpath(filename, ਨਿਰਾ);
 	mosquitto_FREE(filename);
-	if(!filename_canonical){
-		if(errno == EACCES){
-			lws_return_http_status(wsi, HTTP_STATUS_FORBIDDEN, NULL);
-		}else if(errno == EINVAL || errno == EIO || errno == ELOOP){
-			lws_return_http_status(wsi, HTTP_STATUS_INTERNAL_SERVER_ERROR, NULL);
-		}else if(errno == ENAMETOOLONG){
-			lws_return_http_status(wsi, HTTP_STATUS_REQ_URI_TOO_LONG, NULL);
-		}else if(errno == ENOENT || errno == ENOTDIR){
-			lws_return_http_status(wsi, HTTP_STATUS_NOT_FOUND, NULL);
+	ਜੇ(!filename_canonical){
+		ਜੇ(errno == EACCES){
+			lws_return_http_ਸਥਿਤੀ(wsi, HTTP_ਸਥਿਤੀ_FORBIDDEN, ਨਿਰਾ);
+		}ਨਹੀਂਤਾਂ ਜੇ(errno == EINVAL || errno == EIO || errno == ELOOP){
+			lws_return_http_ਸਥਿਤੀ(wsi, HTTP_ਸਥਿਤੀ_ਅੰਦਰੂਨੀ_SERVER_ERROR, ਨਿਰਾ);
+		}ਨਹੀਂਤਾਂ ਜੇ(errno == ENAMETOOLONG){
+			lws_return_http_ਸਥਿਤੀ(wsi, HTTP_ਸਥਿਤੀ_REQ_URI_TOO_LONG, ਨਿਰਾ);
+		}ਨਹੀਂਤਾਂ ਜੇ(errno == ENOENT || errno == ENOTDIR){
+			lws_return_http_ਸਥਿਤੀ(wsi, HTTP_ਸਥਿਤੀ_NOT_ਮਿਲਿਆ, ਨਿਰਾ);
 		}
-		return NULL;
+		ਵਾਪਸ ਨਿਰਾ;
 	}
-#endif
-	if(strncmp(http_dir, filename_canonical, strlen(http_dir))){
+#ਜੇ_ਅੰਤ
+	ਜੇ(ਲੜੀ_ਤੁਲਨਾ(http_dir, filename_canonical, ਲੜੀ_ਲੰਬਾਈ(http_dir))){
 		/* Requested file isn't within http_dir, deny access. */
-		SAFE_FREE(filename_canonical);
-		lws_return_http_status(wsi, HTTP_STATUS_FORBIDDEN, NULL);
-		return NULL;
+		ਸੁਰੱਖਿਅਤ_FREE(filename_canonical);
+		lws_return_http_ਸਥਿਤੀ(wsi, HTTP_ਸਥਿਤੀ_FORBIDDEN, ਨਿਰਾ);
+		ਵਾਪਸ ਨਿਰਾ;
 	}
 
-	return filename_canonical;
+	ਵਾਪਸ filename_canonical;
 }
 
 
-static int callback_http(
-		struct lws *wsi,
-		enum lws_callback_reasons reason,
-		void *user,
-		void *in,
+ਸਥਿਰ ਪੂਰਨ callback_http(
+		ਬਣਤਰ lws *wsi,
+		ਗਿਣਤੀ lws_callback_reasons reason,
+		ਖਾਲੀ *user,
+		ਖਾਲੀ *ਵਿੱਚ,
 		size_t len)
 {
-	struct libws_http_data *u = (struct libws_http_data *)user;
-	struct libws_mqtt_hack *hack;
-	char *http_dir;
+	ਬਣਤਰ libws_http_ਅੰਕੜੇ *u = (ਬਣਤਰ libws_http_ਅੰਕੜੇ *)user;
+	ਬਣਤਰ libws_mqtt_hack *hack;
+	ਅੱਖਰ *http_dir;
 	size_t buflen;
 	size_t wlen;
-	int rc;
-	char *filename_canonical;
-	unsigned char buf[4096];
-	struct stat filestat;
-	struct mosquitto *mosq;
-	struct lws_pollargs *pollargs = (struct lws_pollargs *)in;
-	int hlen;
+	ਪੂਰਨ rc;
+	ਅੱਖਰ *filename_canonical;
+	ਬਿਨਾਨਿਸ਼ਾਨੀ ਅੱਖਰ buf[4096];
+	ਬਣਤਰ stat filestat;
+	ਬਣਤਰ mosquitto *mosq;
+	ਬਣਤਰ lws_pollargs *pollargs = (ਬਣਤਰ lws_pollargs *)ਵਿੱਚ;
+	ਪੂਰਨ hlen;
 
 	/* FIXME - ssl cert verification is done here. */
 
-	switch(reason){
-		case LWS_CALLBACK_HTTP:
-			if(!u){
-				return -1;
+	ਚੋਣ(reason){
+		ਹਾਲਤ LWS_CALLBACK_HTTP:
+			ਜੇ(!u){
+				ਵਾਪਸ -1;
 			}
 
-			hack = (struct libws_mqtt_hack *)lws_context_user(lws_get_context(wsi));
-			if(!hack){
-				return -1;
+			hack = (ਬਣਤਰ libws_mqtt_hack *)lws_context_user(lws_get_context(wsi));
+			ਜੇ(!hack){
+				ਵਾਪਸ -1;
 			}
 			http_dir = hack->http_dir;
 
-			if(!http_dir){
+			ਜੇ(!http_dir){
 				/* http disabled */
-				return -1;
+				ਵਾਪਸ -1;
 			}
 
 			/* Forbid POST */
-			if(lws_hdr_total_length(wsi, WSI_TOKEN_POST_URI)){
-				lws_return_http_status(wsi, HTTP_STATUS_METHOD_NOT_ALLOWED, NULL);
-				return -1;
+			ਜੇ(lws_hdr_ਕੁੱਲ_ਲੰਮਾਈ(wsi, WSI_TOKEN_POST_URI)){
+				lws_return_http_ਸਥਿਤੀ(wsi, HTTP_ਸਥਿਤੀ_ਵਿਧੀ_NOT_ALLOWED, ਨਿਰਾ);
+				ਵਾਪਸ -1;
 			}
 
-			filename_canonical = http__canonical_filename(wsi, (char *)in, http_dir);
-			if(!filename_canonical){
-				return -1;
+			filename_canonical = http__canonical_filename(wsi, (ਅੱਖਰ *)ਵਿੱਚ, http_dir);
+			ਜੇ(!filename_canonical){
+				ਵਾਪਸ -1;
 			}
 
 			u->fptr = fopen(filename_canonical, "rb");
-			if(!u->fptr){
-				SAFE_FREE(filename_canonical);
-				lws_return_http_status(wsi, HTTP_STATUS_NOT_FOUND, NULL);
-				return -1;
+			ਜੇ(!u->fptr){
+				ਸੁਰੱਖਿਅਤ_FREE(filename_canonical);
+				lws_return_http_ਸਥਿਤੀ(wsi, HTTP_ਸਥਿਤੀ_NOT_ਮਿਲਿਆ, ਨਿਰਾ);
+				ਵਾਪਸ -1;
 			}
-			if(fstat(fileno(u->fptr), &filestat) < 0){
-				SAFE_FREE(filename_canonical);
-				lws_return_http_status(wsi, HTTP_STATUS_INTERNAL_SERVER_ERROR, NULL);
+			ਜੇ(fstat(fileno(u->fptr), &filestat) < 0){
+				ਸੁਰੱਖਿਅਤ_FREE(filename_canonical);
+				lws_return_http_ਸਥਿਤੀ(wsi, HTTP_ਸਥਿਤੀ_ਅੰਦਰੂਨੀ_SERVER_ERROR, ਨਿਰਾ);
 				fclose(u->fptr);
-				u->fptr = NULL;
-				return -1;
+				u->fptr = ਨਿਰਾ;
+				ਵਾਪਸ -1;
 			}
 
 
-			if((filestat.st_mode & S_IFDIR) == S_IFDIR){
+			ਜੇ((filestat.st_ਬਹੁਲਕ & S_IFDIR) == S_IFDIR){
 				fclose(u->fptr);
-				u->fptr = NULL;
-				SAFE_FREE(filename_canonical);
+				u->fptr = ਨਿਰਾ;
+				ਸੁਰੱਖਿਅਤ_FREE(filename_canonical);
 
 				/* FIXME - use header functions from lws 2.x */
-				buflen = (size_t)snprintf((char *)buf, 4096, "HTTP/1.0 302 OK\r\n"
+				buflen = (size_t)snprintf((ਅੱਖਰ *)buf, 4096, "HTTP/1.0 302 OK\r\n"
 						"Location: %s/\r\n\r\n",
-						(char *)in);
-				return lws_write(wsi, buf, buflen, LWS_WRITE_HTTP);
+						(ਅੱਖਰ *)ਵਿੱਚ);
+				ਵਾਪਸ lws_write(wsi, buf, buflen, LWS_WRITE_HTTP);
 			}
 
-			if((filestat.st_mode & S_IFREG) != S_IFREG){
-				lws_return_http_status(wsi, HTTP_STATUS_FORBIDDEN, NULL);
+			ਜੇ((filestat.st_ਬਹੁਲਕ & S_IFREG) != S_IFREG){
+				lws_return_http_ਸਥਿਤੀ(wsi, HTTP_ਸਥਿਤੀ_FORBIDDEN, ਨਿਰਾ);
 				fclose(u->fptr);
-				u->fptr = NULL;
-				SAFE_FREE(filename_canonical);
-				return -1;
+				u->fptr = ਨਿਰਾ;
+				ਸੁਰੱਖਿਅਤ_FREE(filename_canonical);
+				ਵਾਪਸ -1;
 			}
 
-			log__printf(NULL, MOSQ_LOG_DEBUG, "http serving file \"%s\".", filename_canonical);
-			SAFE_FREE(filename_canonical);
+			log__printf(ਨਿਰਾ, MOSQ_LOG_DEBUG, "http serving file \"%s\".", filename_canonical);
+			ਸੁਰੱਖਿਅਤ_FREE(filename_canonical);
 			/* FIXME - use header functions from lws 2.x */
-			buflen = (size_t)snprintf((char *)buf, 4096, "HTTP/1.0 200 OK\r\n"
+			buflen = (size_t)snprintf((ਅੱਖਰ *)buf, 4096, "HTTP/1.0 200 OK\r\n"
 					"Server: mosquitto\r\n"
 					"Content-Length: %u\r\n\r\n",
-					(unsigned int)filestat.st_size);
-			if(lws_write(wsi, buf, buflen, LWS_WRITE_HTTP) < 0){
+					(ਬਿਨਾਨਿਸ਼ਾਨੀ ਪੂਰਨ)filestat.st_ਮਾਪ);
+			ਜੇ(lws_write(wsi, buf, buflen, LWS_WRITE_HTTP) < 0){
 				fclose(u->fptr);
-				u->fptr = NULL;
-				return -1;
+				u->fptr = ਨਿਰਾ;
+				ਵਾਪਸ -1;
 			}
 			lws_callback_on_writable(wsi);
-			break;
+			ਰੋਕੋ;
 
-		case LWS_CALLBACK_HTTP_BODY:
+		ਹਾਲਤ LWS_CALLBACK_HTTP_BODY:
 			/* For extra POST data? */
-			return -1;
+			ਵਾਪਸ -1;
 
-		case LWS_CALLBACK_HTTP_BODY_COMPLETION:
+		ਹਾਲਤ LWS_CALLBACK_HTTP_BODY_COMPLETION:
 			/* For end of extra POST data? */
-			return -1;
+			ਵਾਪਸ -1;
 
-		case LWS_CALLBACK_FILTER_HTTP_CONNECTION:
+		ਹਾਲਤ LWS_CALLBACK_FILTER_HTTP_CONNECTION:
 			/* Access control here */
-			return 0;
+			ਵਾਪਸ 0;
 
-#if LWS_LIBRARY_VERSION_NUMBER >= 3001000
-		case LWS_CALLBACK_HTTP_CONFIRM_UPGRADE:
+#ਜੇ LWS_LIBRARY_ਸੰਸਕਰਣ_ਸੰਖਿਆ >= 3001000
+		ਹਾਲਤ LWS_CALLBACK_HTTP_CONFIRM_UPGRADE:
 			hack = lws_context_user(lws_get_context(wsi));
-			if(hack->listener->ws_origin_count){
-				hlen = lws_hdr_total_length(wsi, WSI_TOKEN_ORIGIN);
-				if(hlen <= 0 || hlen >= (int)sizeof(buf)){
-					return -1;
+			ਜੇ(hack->listener->ws_origin_ਗਿਣਤੀ){
+				hlen = lws_hdr_ਕੁੱਲ_ਲੰਮਾਈ(wsi, WSI_TOKEN_ORIGIN);
+				ਜੇ(hlen <= 0 || hlen >= (ਪੂਰਨ)ਆਕਾਰ(buf)){
+					ਵਾਪਸ -1;
 				}
-				for(int i=0; i<hack->listener->ws_origin_count; i++){
-					lws_hdr_copy(wsi, (char *)buf, sizeof(buf), WSI_TOKEN_ORIGIN);
-					if((!strcmp(hack->listener->ws_origins[i], (char *)buf))){
-						return 0;
+				ਲਈ(ਪੂਰਨ i=0; i<hack->listener->ws_origin_ਗਿਣਤੀ; i++){
+					lws_hdr_copy(wsi, (ਅੱਖਰ *)buf, ਆਕਾਰ(buf), WSI_TOKEN_ORIGIN);
+					ਜੇ((!strcmp(hack->listener->ws_origins[i], (ਅੱਖਰ *)buf))){
+						ਵਾਪਸ 0;
 					}
 				}
-				return -1;
-			}else{
-				return 0;
+				ਵਾਪਸ -1;
+			}ਨਹੀਂਤਾਂ{
+				ਵਾਪਸ 0;
 			}
-#endif
+#ਜੇ_ਅੰਤ
 
-		case LWS_CALLBACK_HTTP_WRITEABLE:
+		ਹਾਲਤ LWS_CALLBACK_HTTP_WRITEABLE:
 			/* Send our data here */
-			if(u && u->fptr){
-				do{
-					buflen = fread(buf, 1, sizeof(buf), u->fptr);
-					if(buflen < 1){
+			ਜੇ(u && u->fptr){
+				ਕਰੋ{
+					buflen = fread(buf, 1, ਆਕਾਰ(buf), u->fptr);
+					ਜੇ(buflen < 1){
 						fclose(u->fptr);
-						u->fptr = NULL;
-						return -1;
+						u->fptr = ਨਿਰਾ;
+						ਵਾਪਸ -1;
 					}
 					rc = lws_write(wsi, buf, buflen, LWS_WRITE_HTTP);
-					if(rc < 0){
-						return -1;
+					ਜੇ(rc < 0){
+						ਵਾਪਸ -1;
 					}
 					wlen = (size_t)rc;
 					/* while still active, extend timeout */
-					if(wlen){
-						lws_set_timeout(wsi, PENDING_TIMEOUT_HTTP_CONTENT, 10);
+					ਜੇ(wlen){
+						lws_ਸੈੱਟ_timeout(wsi, PENDING_TIMEOUT_HTTP_CONTENT, 10);
 					}
-					if(wlen < buflen){
-						if(fseek(u->fptr, (long)(buflen-wlen), SEEK_CUR) < 0){
+					ਜੇ(wlen < buflen){
+						ਜੇ(fseek(u->fptr, (ਲੰਮਾ)(buflen-wlen), SEEK_CUR) < 0){
 							fclose(u->fptr);
-							u->fptr = NULL;
-							return -1;
+							u->fptr = ਨਿਰਾ;
+							ਵਾਪਸ -1;
 						}
-					}else{
-						if(buflen < sizeof(buf)){
+					}ਨਹੀਂਤਾਂ{
+						ਜੇ(buflen < ਆਕਾਰ(buf)){
 							fclose(u->fptr);
-							u->fptr = NULL;
+							u->fptr = ਨਿਰਾ;
 						}
 					}
-				}while(u->fptr && !lws_send_pipe_choked(wsi));
+				}ਜਦੋਂ(u->fptr && !lws_send_pipe_choked(wsi));
 				lws_callback_on_writable(wsi);
-			}else{
-				return -1;
+			}ਨਹੀਂਤਾਂ{
+				ਵਾਪਸ -1;
 			}
-			break;
+			ਰੋਕੋ;
 
-		case LWS_CALLBACK_CLOSED:
-		case LWS_CALLBACK_CLOSED_HTTP:
-		case LWS_CALLBACK_HTTP_FILE_COMPLETION:
-			if(u && u->fptr){
+		ਹਾਲਤ LWS_CALLBACK_CLOSED:
+		ਹਾਲਤ LWS_CALLBACK_CLOSED_HTTP:
+		ਹਾਲਤ LWS_CALLBACK_HTTP_FILE_COMPLETION:
+			ਜੇ(u && u->fptr){
 				fclose(u->fptr);
-				u->fptr = NULL;
+				u->fptr = ਨਿਰਾ;
 			}
-			break;
+			ਰੋਕੋ;
 
-		case LWS_CALLBACK_ADD_POLL_FD:
-			HASH_FIND(hh_sock, db.contexts_by_sock, &pollargs->fd, sizeof(pollargs->fd), mosq);
-			if(mosq){
-				if(pollargs->events & LWS_POLLOUT){
-					mux__add_out(mosq);
-				}else{
-					mux__remove_out(mosq);
+		ਹਾਲਤ LWS_CALLBACK_ਜੋੜੋ_POLL_FD:
+			HASH_ਲੱਭੋ(hh_sock, db.contexts_by_sock, &pollargs->fd, ਆਕਾਰ(pollargs->fd), mosq);
+			ਜੇ(mosq){
+				ਜੇ(pollargs->events & LWS_POLLOUT){
+					mux_ਜੋੜੋ_ਬਾਹਰਲਾ(mosq);
+				}ਨਹੀਂਤਾਂ{
+					mux_remove_ਬਾਹਰਲਾ(mosq);
 				}
-			}else{
-				if(pollargs->events & POLLIN){
+			}ਨਹੀਂਤਾਂ{
+				ਜੇ(pollargs->events & POLLIN){
 					/* Assume this is a new listener */
-					listeners__add_websockets(lws_get_context(wsi), pollargs->fd);
+					listeners_ਜੋੜੋ_websockets(lws_get_context(wsi), pollargs->fd);
 				}
 			}
-			break;
+			ਰੋਕੋ;
 
-		case LWS_CALLBACK_DEL_POLL_FD:
-			HASH_FIND(hh_sock, db.contexts_by_sock, &pollargs->fd, sizeof(pollargs->fd), mosq);
-			if(mosq){
+		ਹਾਲਤ LWS_CALLBACK_DEL_POLL_FD:
+			HASH_ਲੱਭੋ(hh_sock, db.contexts_by_sock, &pollargs->fd, ਆਕਾਰ(pollargs->fd), mosq);
+			ਜੇ(mosq){
 				mux__delete(mosq);
 			}
-			break;
+			ਰੋਕੋ;
 
-		case LWS_CALLBACK_CHANGE_MODE_POLL_FD:
-			HASH_FIND(hh_sock, db.contexts_by_sock, &pollargs->fd, sizeof(pollargs->fd), mosq);
-			if(mosq){
-				if(pollargs->events & LWS_POLLHUP){
-					return 1;
-				}else if(pollargs->events & LWS_POLLOUT){
-					mux__add_out(mosq);
-				}else{
-					mux__remove_out(mosq);
+		ਹਾਲਤ LWS_CALLBACK_CHANGE_ਬਹੁਲਕ_POLL_FD:
+			HASH_ਲੱਭੋ(hh_sock, db.contexts_by_sock, &pollargs->fd, ਆਕਾਰ(pollargs->fd), mosq);
+			ਜੇ(mosq){
+				ਜੇ(pollargs->events & LWS_POLLHUP){
+					ਵਾਪਸ 1;
+				}ਨਹੀਂਤਾਂ ਜੇ(pollargs->events & LWS_POLLOUT){
+					mux_ਜੋੜੋ_ਬਾਹਰਲਾ(mosq);
+				}ਨਹੀਂਤਾਂ{
+					mux_remove_ਬਾਹਰਲਾ(mosq);
 				}
 			}
-			break;
+			ਰੋਕੋ;
 
-#ifdef WITH_TLS
-		case LWS_CALLBACK_OPENSSL_PERFORM_CLIENT_CERT_VERIFICATION:
-			if(!len || (SSL_get_verify_result((SSL *)in) != X509_V_OK)){
-				return 1;
+#ਜੇ_ਪਰਿਭਾਸ਼ਿਤ WITH_TLS
+		ਹਾਲਤ LWS_CALLBACK_OPENSSL_PERFORM_CLIENT_CERT_VERIFICATION:
+			ਜੇ(!len || (SSL_get_verify_ਨਤੀਜਾ((SSL *)ਵਿੱਚ) != X509_V_OK)){
+				ਵਾਪਸ 1;
 			}
-			break;
-#endif
+			ਰੋਕੋ;
+#ਜੇ_ਅੰਤ
 
-		default:
-			return 0;
+		ਮੂਲ:
+			ਵਾਪਸ 0;
 	}
 
-	return 0;
+	ਵਾਪਸ 0;
 }
 
 
-static void log_wrap(int level, const char *line)
+ਸਥਿਰ ਖਾਲੀ log_wrap(ਪੂਰਨ level, ਅਚਲ ਅੱਖਰ *ਸਤਰ)
 {
-	char *l = (char *)line;
-	UNUSED(level);
-	l[strlen(line)-1] = '\0'; /* Remove \n */
-	log__printf(NULL, MOSQ_LOG_WEBSOCKETS, "%s", l);
+	ਅੱਖਰ *l = (ਅੱਖਰ *)ਸਤਰ;
+	ਅਣਵਰਤਿਆ(level);
+	l[ਲੜੀ_ਲੰਬਾਈ(ਸਤਰ)-1] = '\0'; /* Remove \n */
+	log__printf(ਨਿਰਾ, MOSQ_LOG_WEBSOCKETS, "%s", l);
 }
 
 
-void mosq_websockets_init(struct mosquitto__listener *listener, const struct mosquitto__config *conf)
+ਖਾਲੀ mosq_websockets_init(ਬਣਤਰ mosquitto__listener *listener, ਅਚਲ ਬਣਤਰ mosquitto__config *conf)
 {
-	struct lws_context_creation_info info;
-	struct lws_protocols *p;
-	size_t protocol_count;
-	int i;
-	struct libws_mqtt_hack *user;
+	ਬਣਤਰ lws_context_creation_info info;
+	ਬਣਤਰ lws_protocols *p;
+	size_t protocol_ਗਿਣਤੀ;
+	ਪੂਰਨ i;
+	ਬਣਤਰ libws_mqtt_hack *user;
 
 	/* Count valid protocols */
-	for(protocol_count=0; protocols[protocol_count].name; protocol_count++){
+	ਲਈ(protocol_ਗਿਣਤੀ=0; protocols[protocol_ਗਿਣਤੀ].name; protocol_ਗਿਣਤੀ++){
 		;
 	}
 
-	p = mosquitto_calloc(protocol_count+1, sizeof(struct lws_protocols));
-	if(!p){
-		log__printf(NULL, MOSQ_LOG_ERR, "Out of memory.");
-		return;
+	p = mosquitto_calloc(protocol_ਗਿਣਤੀ+1, ਆਕਾਰ(ਬਣਤਰ lws_protocols));
+	ਜੇ(!p){
+		log__printf(ਨਿਰਾ, MOSQ_LOG_ERR, "Out of memory.");
+		ਵਾਪਸ;
 	}
-	for(i=0; protocols[i].name; i++){
+	ਲਈ(i=0; protocols[i].name; i++){
 		p[i].name = protocols[i].name;
 		p[i].callback = protocols[i].callback;
-		p[i].per_session_data_size = protocols[i].per_session_data_size;
-		p[i].rx_buffer_size = protocols[i].rx_buffer_size;
+		p[i].ਪ੍ਰਤੀ_session_ਅੰਕੜੇ_ਮਾਪ = protocols[i].ਪ੍ਰਤੀ_session_ਅੰਕੜੇ_ਮਾਪ;
+		p[i].rx_ਬਫਰ_ਮਾਪ = protocols[i].rx_ਬਫਰ_ਮਾਪ;
 		p[i].user = listener;
 	}
 
-	memset(&info, 0, sizeof(info));
+	memset(&info, 0, ਆਕਾਰ(info));
 	info.iface = listener->host;
-	info.port = listener->port;
+	info.ਪੋਰਟ = listener->ਪੋਰਟ;
 	info.protocols = p;
 	info.gid = -1;
 	info.uid = -1;
-#ifdef WITH_TLS
-	if(listener->cafile){
+#ਜੇ_ਪਰਿਭਾਸ਼ਿਤ WITH_TLS
+	ਜੇ(listener->cafile){
 		info.ssl_ca_filepath = listener->cafile;
-	}else if(listener->capath){
-		log__printf(NULL, MOSQ_LOG_WARNING, "Warning: CA path option is not supported for websockets");
+	}ਨਹੀਂਤਾਂ ਜੇ(listener->capath){
+		log__printf(ਨਿਰਾ, MOSQ_LOG_WARNING, "Warning: CA path option is not supported for websockets");
 	}
 	info.ssl_cert_filepath = listener->certfile;
-	info.ssl_private_key_filepath = listener->keyfile;
+	info.ssl_ਨਿੱਜੀ_ਕੁੰਜੀ_filepath = listener->keyfile;
 	info.ssl_cipher_list = listener->ciphers;
 	/* HTTP 1 only, due to HTTP 2 issues in Firefox:
 	   https://github.com/eclipse-mosquitto/mosquitto/issues/1211
 	*/
 	info.alpn = "h1";
-#if defined(WITH_WEBSOCKETS) && LWS_LIBRARY_VERSION_NUMBER>=3001000
+#ਜੇ defined(WITH_WEBSOCKETS) && LWS_LIBRARY_ਸੰਸਕਰਣ_ਸੰਖਿਆ>=3001000
 	info.tls1_3_plus_cipher_list = listener->ciphers_tls13;
-#endif
-	if(listener->require_certificate){
+#ਜੇ_ਅੰਤ
+	ਜੇ(listener->require_certificate){
 		info.options |= LWS_SERVER_OPTION_REQUIRE_VALID_OPENSSL_CLIENT_CERT;
 	}
-#endif
+#ਜੇ_ਅੰਤ
 
 	info.options |= LWS_SERVER_OPTION_DO_SSL_GLOBAL_INIT;
-	if(listener->socket_domain == AF_INET){
+	ਜੇ(listener->socket_domain == AF_INET){
 		info.options |= LWS_SERVER_OPTION_DISABLE_IPV6;
 	}
-	info.max_http_header_data = conf->packet_buffer_size;
+	info.max_http_ਸਿਰਲੇਖ_ਅੰਕੜੇ = conf->packet_ਬਫਰ_ਮਾਪ;
 
-	user = mosquitto_calloc(1, sizeof(struct libws_mqtt_hack));
-	if(!user){
+	user = mosquitto_calloc(1, ਆਕਾਰ(ਬਣਤਰ libws_mqtt_hack));
+	ਜੇ(!user){
 		mosquitto_FREE(p);
-		log__printf(NULL, MOSQ_LOG_ERR, "Out of memory.");
-		return;
+		log__printf(ਨਿਰਾ, MOSQ_LOG_ERR, "Out of memory.");
+		ਵਾਪਸ;
 	}
 
-	if(listener->http_dir){
-#ifdef WIN32
-		user->http_dir = _fullpath(NULL, listener->http_dir, 0);
-#else
-		user->http_dir = realpath(listener->http_dir, NULL);
-#endif
-		if(!user->http_dir){
+	ਜੇ(listener->http_dir){
+#ਜੇ_ਪਰਿਭਾਸ਼ਿਤ WIN32
+		user->http_dir = _fullpath(ਨਿਰਾ, listener->http_dir, 0);
+#ਨਹੀਂਤਾਂ
+		user->http_dir = realpath(listener->http_dir, ਨਿਰਾ);
+#ਜੇ_ਅੰਤ
+		ਜੇ(!user->http_dir){
 			mosquitto_FREE(user);
 			mosquitto_FREE(p);
-			log__printf(NULL, MOSQ_LOG_ERR, "Error: Unable to open http dir \"%s\".", listener->http_dir);
-			return;
+			log__printf(ਨਿਰਾ, MOSQ_LOG_ERR, "Error: Unable to open http dir \"%s\".", listener->http_dir);
+			ਵਾਪਸ;
 		}
 	}
 	user->listener = listener;
 
 	info.user = user;
-	info.pt_serv_buf_size = WS_SERV_BUF_SIZE;
+	info.pt_serv_buf_ਮਾਪ = WS_SERV_BUF_ਮਾਪ;
 	listener->ws_protocol = p;
 
-	lws_set_log_level(conf->websockets_log_level, log_wrap);
+	lws_ਸੈੱਟ_log_level(conf->websockets_log_level, log_wrap);
 
-	log__printf(NULL, MOSQ_LOG_INFO, "Opening websockets listen socket on port %d.", listener->port);
-	listener->ws_in_init = true;
+	log__printf(ਨਿਰਾ, MOSQ_LOG_INFO, "Opening websockets listen socket on port %d.", listener->ਪੋਰਟ);
+	listener->ws_ਵਿੱਚ_init = true;
 	listener->ws_context = lws_create_context(&info);
-	listener->ws_in_init = false;
+	listener->ws_ਵਿੱਚ_init = false;
 }
 
-#endif
-#endif
+#ਜੇ_ਅੰਤ
+#ਜੇ_ਅੰਤ

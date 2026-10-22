@@ -16,56 +16,56 @@ Contributors:
    Roger Light - initial implementation and documentation.
 */
 
-#include "config.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "config.h"
 
-#include <string.h>
+#ਅਨ੍ਤਰ੍ਭਾਵ <string.h>
 
-#include "mosquitto_broker_internal.h"
-#include "mosquitto/broker.h"
-#include "utlist.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "mosquitto_broker_internal.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "mosquitto/broker.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "utlist.h"
 
 
-static int plugin__handle_reload_single(struct mosquitto__security_options *opts)
+ਸਥਿਰ ਪੂਰਨ plugin__handle_reload_single(ਬਣਤਰ mosquitto__security_options *opts)
 {
-	struct mosquitto_evt_reload event_data;
-	struct mosquitto__callback *cb_base, *cb_next;
+	ਬਣਤਰ mosquitto_evt_reload event_ਅੰਕੜੇ;
+	ਬਣਤਰ mosquitto__callback *cb_ਅਧਾਰ, *cb_ਅਗਲਾ;
 
-	memset(&event_data, 0, sizeof(event_data));
+	memset(&event_ਅੰਕੜੇ, 0, ਆਕਾਰ(event_ਅੰਕੜੇ));
 
 	// Using DL_FOREACH_SAFE here, as reload callbacks might unregister themself
-	DL_FOREACH_SAFE(opts->plugin_callbacks.reload, cb_base, cb_next){
-		int rc = cb_base->cb(MOSQ_EVT_RELOAD, &event_data, cb_base->userdata);
-		if(rc){
-			log__printf(NULL, MOSQ_LOG_ERR, "Error: Plugin %s produced error on reload: %s",
-					cb_base->identifier->plugin_name?cb_base->identifier->plugin_name:"",
+	DL_FOREACH_ਸੁਰੱਖਿਅਤ(opts->plugin_callbacks.reload, cb_ਅਧਾਰ, cb_ਅਗਲਾ){
+		ਪੂਰਨ rc = cb_ਅਧਾਰ->cb(MOSQ_EVT_RELOAD, &event_ਅੰਕੜੇ, cb_ਅਧਾਰ->userdata);
+		ਜੇ(rc){
+			log__printf(ਨਿਰਾ, MOSQ_LOG_ERR, "Error: Plugin %s produced error on reload: %s",
+					cb_ਅਧਾਰ->identifier->plugin_name?cb_ਅਧਾਰ->identifier->plugin_name:"",
 					mosquitto_strerror(rc));
 
-			return rc;
+			ਵਾਪਸ rc;
 		}
 	}
-	return MOSQ_ERR_SUCCESS;
+	ਵਾਪਸ MOSQ_ERR_SUCCESS;
 }
 
 
-int plugin__handle_reload(void)
+ਪੂਰਨ plugin__handle_reload(ਖਾਲੀ)
 {
-	struct mosquitto__security_options *opts;
-	int rc;
+	ਬਣਤਰ mosquitto__security_options *opts;
+	ਪੂਰਨ rc;
 
 	/* Global plugins */
 	rc = plugin__handle_reload_single(&db.config->security_options);
-	if(rc){
-		return rc;
+	ਜੇ(rc){
+		ਵਾਪਸ rc;
 	}
 
-	for(int i=0; i<db.config->listener_count; i++){
+	ਲਈ(ਪੂਰਨ i=0; i<db.config->listener_ਗਿਣਤੀ; i++){
 		opts = db.config->listeners[i].security_options;
-		if(opts && opts->plugin_callbacks.reload){
+		ਜੇ(opts && opts->plugin_callbacks.reload){
 			rc = plugin__handle_reload_single(opts);
-			if(rc){
-				return rc;
+			ਜੇ(rc){
+				ਵਾਪਸ rc;
 			}
 		}
 	}
-	return MOSQ_ERR_SUCCESS;
+	ਵਾਪਸ MOSQ_ERR_SUCCESS;
 }

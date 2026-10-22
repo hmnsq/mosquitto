@@ -16,157 +16,157 @@ Contributors:
    Roger Light - initial implementation and documentation.
 */
 
-#include "config.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "config.h"
 
-#include <stdio.h>
-#include <string.h>
+#ਅਨ੍ਤਰ੍ਭਾਵ <stdio.h>
+#ਅਨ੍ਤਰ੍ਭਾਵ <string.h>
 
-#include "mosquitto_broker_internal.h"
-#include "mosquitto/mqtt_protocol.h"
-#include "packet_mosq.h"
-#include "property_mosq.h"
-#include "send_mosq.h"
-#include "util_mosq.h"
-#include "will_mosq.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "mosquitto_broker_internal.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "mosquitto/mqtt_protocol.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "packet_mosq.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "property_mosq.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "send_mosq.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "util_mosq.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "will_mosq.h"
 
 
-int handle__auth(struct mosquitto *context)
+ਪੂਰਨ handle__auth(ਬਣਤਰ mosquitto *context)
 {
-	int rc = 0;
-	uint8_t reason_code = 0;
-	mosquitto_property *properties = NULL;
-	char *auth_method = NULL;
-	void *auth_data = NULL;
-	uint16_t auth_data_len = 0;
-	void *auth_data_out = NULL;
-	uint16_t auth_data_out_len = 0;
+	ਪੂਰਨ rc = 0;
+	uint8_t reason_ਕੋਡ = 0;
+	mosquitto_property *properties = ਨਿਰਾ;
+	ਅੱਖਰ *auth_ਵਿਧੀ = ਨਿਰਾ;
+	ਖਾਲੀ *auth_ਅੰਕੜੇ = ਨਿਰਾ;
+	uint16_t auth_ਅੰਕੜੇ_len = 0;
+	ਖਾਲੀ *auth_ਅੰਕੜੇ_ਬਾਹਰਲਾ = ਨਿਰਾ;
+	uint16_t auth_ਅੰਕੜੇ_ਬਾਹਰਲਾ_len = 0;
 
-	if(!context){
-		return MOSQ_ERR_INVAL;
-	}
-
-	if(context->protocol != mosq_p_mqtt5){
-		log__printf(NULL, MOSQ_LOG_INFO, "Protocol error from %s: AUTH packet when session not MQTT v5.0.", context->id);
-		return MOSQ_ERR_PROTOCOL;
-	}
-	if(context->auth_method == NULL){
-		log__printf(NULL, MOSQ_LOG_INFO, "Protocol error from %s: AUTH packet without existing auth-method.", context->id);
-		return MOSQ_ERR_PROTOCOL;
-	}
-	if(context->in_packet.command != CMD_AUTH){
-		return MOSQ_ERR_MALFORMED_PACKET;
+	ਜੇ(!context){
+		ਵਾਪਸ MOSQ_ERR_INVAL;
 	}
 
-	if(context->in_packet.remaining_length > 0){
-		if(packet__read_byte(&context->in_packet, &reason_code)){
-			return MOSQ_ERR_MALFORMED_PACKET;
+	ਜੇ(context->protocol != mosq_p_mqtt5){
+		log__printf(ਨਿਰਾ, MOSQ_LOG_INFO, "Protocol error from %s: AUTH packet when session not MQTT v5.0.", context->id);
+		ਵਾਪਸ MOSQ_ERR_PROTOCOL;
+	}
+	ਜੇ(context->auth_ਵਿਧੀ == ਨਿਰਾ){
+		log__printf(ਨਿਰਾ, MOSQ_LOG_INFO, "Protocol error from %s: AUTH packet without existing auth-method.", context->id);
+		ਵਾਪਸ MOSQ_ERR_PROTOCOL;
+	}
+	ਜੇ(context->ਵਿੱਚ_packet.command != CMD_AUTH){
+		ਵਾਪਸ MOSQ_ERR_MALFORMED_PACKET;
+	}
+
+	ਜੇ(context->ਵਿੱਚ_packet.ਬਚਿਆ_ਲੰਮਾਈ > 0){
+		ਜੇ(packet__read_byte(&context->ਵਿੱਚ_packet, &reason_ਕੋਡ)){
+			ਵਾਪਸ MOSQ_ERR_MALFORMED_PACKET;
 		}
-		if(reason_code != MQTT_RC_CONTINUE_AUTHENTICATION
-				&& reason_code != MQTT_RC_REAUTHENTICATE){
+		ਜੇ(reason_ਕੋਡ != MQTT_RC_CONTINUE_AUTHENTICATION
+				&& reason_ਕੋਡ != MQTT_RC_REAUTHENTICATE){
 
-			send__disconnect(context, MQTT_RC_PROTOCOL_ERROR, NULL);
-			log__printf(NULL, MOSQ_LOG_INFO, "Protocol error from %s: AUTH packet with reason-code = %d.",
-					context->id, reason_code);
-			return MOSQ_ERR_PROTOCOL;
+			send__disconnect(context, MQTT_RC_PROTOCOL_ERROR, ਨਿਰਾ);
+			log__printf(ਨਿਰਾ, MOSQ_LOG_INFO, "Protocol error from %s: AUTH packet with reason-code = %d.",
+					context->id, reason_ਕੋਡ);
+			ਵਾਪਸ MOSQ_ERR_PROTOCOL;
 		}
 
-		if((reason_code == MQTT_RC_REAUTHENTICATE && context->state != mosq_cs_active)
-				|| (reason_code == MQTT_RC_CONTINUE_AUTHENTICATION
+		ਜੇ((reason_ਕੋਡ == MQTT_RC_REAUTHENTICATE && context->state != mosq_cs_ਸਰਗਰਮ)
+				|| (reason_ਕੋਡ == MQTT_RC_CONTINUE_AUTHENTICATION
 				&& context->state != mosq_cs_authenticating && context->state != mosq_cs_reauthenticating)){
 
-			send__disconnect(context, MQTT_RC_PROTOCOL_ERROR, NULL);
-			log__printf(NULL, MOSQ_LOG_INFO, "Protocol error from %s: AUTH reauthentication packet before session is active,",
+			send__disconnect(context, MQTT_RC_PROTOCOL_ERROR, ਨਿਰਾ);
+			log__printf(ਨਿਰਾ, MOSQ_LOG_INFO, "Protocol error from %s: AUTH reauthentication packet before session is active,",
 					context->id);
-			log__printf(NULL, MOSQ_LOG_INFO, "     or attempted to continue authentication when no authentication in progress.");
-			return MOSQ_ERR_PROTOCOL;
+			log__printf(ਨਿਰਾ, MOSQ_LOG_INFO, "     or attempted to continue authentication when no authentication in progress.");
+			ਵਾਪਸ MOSQ_ERR_PROTOCOL;
 		}
 
-		rc = property__read_all(CMD_AUTH, &context->in_packet, &properties);
-		if(rc){
-			send__disconnect(context, MQTT_RC_UNSPECIFIED, NULL);
-			return rc;
+		rc = property__read_all(CMD_AUTH, &context->ਵਿੱਚ_packet, &properties);
+		ਜੇ(rc){
+			send__disconnect(context, MQTT_RC_UNSPECIFIED, ਨਿਰਾ);
+			ਵਾਪਸ rc;
 		}
 
 
-		if(mosquitto_property_read_string(properties, MQTT_PROP_AUTHENTICATION_METHOD, &auth_method, false) == NULL){
+		ਜੇ(mosquitto_property_read_string(properties, MQTT_PROP_AUTHENTICATION_ਵਿਧੀ, &auth_ਵਿਧੀ, false) == ਨਿਰਾ){
 			mosquitto_property_free_all(&properties);
-			send__disconnect(context, MQTT_RC_UNSPECIFIED, NULL);
-			log__printf(NULL, MOSQ_LOG_INFO, "Protocol error from %s: AUTH packet without auth-method property.",
+			send__disconnect(context, MQTT_RC_UNSPECIFIED, ਨਿਰਾ);
+			log__printf(ਨਿਰਾ, MOSQ_LOG_INFO, "Protocol error from %s: AUTH packet without auth-method property.",
 					context->id);
-			return MOSQ_ERR_PROTOCOL;
+			ਵਾਪਸ MOSQ_ERR_PROTOCOL;
 		}
 
-		if(!auth_method || strcmp(auth_method, context->auth_method)){
+		ਜੇ(!auth_ਵਿਧੀ || strcmp(auth_ਵਿਧੀ, context->auth_ਵਿਧੀ)){
 			/* No method, or non-matching method */
-			mosquitto_FREE(auth_method);
+			mosquitto_FREE(auth_ਵਿਧੀ);
 			mosquitto_property_free_all(&properties);
-			send__disconnect(context, MQTT_RC_PROTOCOL_ERROR, NULL);
-			log__printf(NULL, MOSQ_LOG_INFO, "Protocol error from %s: AUTH packet with non-matching auth-method property (%s:%s).",
-					context->id, context->auth_method, auth_method);
-			return MOSQ_ERR_PROTOCOL;
+			send__disconnect(context, MQTT_RC_PROTOCOL_ERROR, ਨਿਰਾ);
+			log__printf(ਨਿਰਾ, MOSQ_LOG_INFO, "Protocol error from %s: AUTH packet with non-matching auth-method property (%s:%s).",
+					context->id, context->auth_ਵਿਧੀ, auth_ਵਿਧੀ);
+			ਵਾਪਸ MOSQ_ERR_PROTOCOL;
 		}
-		mosquitto_FREE(auth_method);
+		mosquitto_FREE(auth_ਵਿਧੀ);
 
-		mosquitto_property_read_binary(properties, MQTT_PROP_AUTHENTICATION_DATA, &auth_data, &auth_data_len, false);
+		mosquitto_property_read_ਦੁਆਧਾਰੀ(properties, MQTT_PROP_AUTHENTICATION_ਅੰਕੜੇ, &auth_ਅੰਕੜੇ, &auth_ਅੰਕੜੇ_len, false);
 
 		mosquitto_property_free_all(&properties); /* FIXME - TEMPORARY UNTIL PROPERTIES PROCESSED */
 	}
 
-	log__printf(NULL, MOSQ_LOG_DEBUG, "Received AUTH from %s (rc%d, %s)", context->id, reason_code, context->auth_method);
+	log__printf(ਨਿਰਾ, MOSQ_LOG_DEBUG, "Received AUTH from %s (rc%d, %s)", context->id, reason_ਕੋਡ, context->auth_ਵਿਧੀ);
 
 
-	if(reason_code == MQTT_RC_REAUTHENTICATE){
+	ਜੇ(reason_ਕੋਡ == MQTT_RC_REAUTHENTICATE){
 		/* This is a re-authentication attempt */
-		mosquitto__set_state(context, mosq_cs_reauthenticating);
-		rc = mosquitto_security_auth_start(context, true, auth_data, auth_data_len, &auth_data_out, &auth_data_out_len);
-	}else{
-		if(context->state != mosq_cs_reauthenticating){
-			mosquitto__set_state(context, mosq_cs_authenticating);
+		mosquitto_ਸੈੱਟ_state(context, mosq_cs_reauthenticating);
+		rc = mosquitto_security_auth_ਸ਼ੁਰੂ(context, true, auth_ਅੰਕੜੇ, auth_ਅੰਕੜੇ_len, &auth_ਅੰਕੜੇ_ਬਾਹਰਲਾ, &auth_ਅੰਕੜੇ_ਬਾਹਰਲਾ_len);
+	}ਨਹੀਂਤਾਂ{
+		ਜੇ(context->state != mosq_cs_reauthenticating){
+			mosquitto_ਸੈੱਟ_state(context, mosq_cs_authenticating);
 		}
-		rc = mosquitto_security_auth_continue(context, auth_data, auth_data_len, &auth_data_out, &auth_data_out_len);
+		rc = mosquitto_security_auth_continue(context, auth_ਅੰਕੜੇ, auth_ਅੰਕੜੇ_len, &auth_ਅੰਕੜੇ_ਬਾਹਰਲਾ, &auth_ਅੰਕੜੇ_ਬਾਹਰਲਾ_len);
 	}
-	mosquitto_FREE(auth_data);
-	if(rc == MOSQ_ERR_SUCCESS){
-		if(context->state == mosq_cs_authenticating){
-			return connect__on_authorised(context, auth_data_out, auth_data_out_len);
-		}else{
-			mosquitto__set_state(context, mosq_cs_active);
-			rc = send__auth(context, MQTT_RC_SUCCESS, auth_data_out, auth_data_out_len);
-			SAFE_FREE(auth_data_out);
-			return rc;
+	mosquitto_FREE(auth_ਅੰਕੜੇ);
+	ਜੇ(rc == MOSQ_ERR_SUCCESS){
+		ਜੇ(context->state == mosq_cs_authenticating){
+			ਵਾਪਸ connect__on_authorised(context, auth_ਅੰਕੜੇ_ਬਾਹਰਲਾ, auth_ਅੰਕੜੇ_ਬਾਹਰਲਾ_len);
+		}ਨਹੀਂਤਾਂ{
+			mosquitto_ਸੈੱਟ_state(context, mosq_cs_ਸਰਗਰਮ);
+			rc = send__auth(context, MQTT_RC_SUCCESS, auth_ਅੰਕੜੇ_ਬਾਹਰਲਾ, auth_ਅੰਕੜੇ_ਬਾਹਰਲਾ_len);
+			ਸੁਰੱਖਿਅਤ_FREE(auth_ਅੰਕੜੇ_ਬਾਹਰਲਾ);
+			ਵਾਪਸ rc;
 		}
-	}else if(rc == MOSQ_ERR_AUTH_CONTINUE){
-		rc = send__auth(context, MQTT_RC_CONTINUE_AUTHENTICATION, auth_data_out, auth_data_out_len);
-		SAFE_FREE(auth_data_out);
-		return rc;
-	}else{
-		SAFE_FREE(auth_data_out);
-		if(context->state == mosq_cs_authenticating && context->will){
+	}ਨਹੀਂਤਾਂ ਜੇ(rc == MOSQ_ERR_AUTH_CONTINUE){
+		rc = send__auth(context, MQTT_RC_CONTINUE_AUTHENTICATION, auth_ਅੰਕੜੇ_ਬਾਹਰਲਾ, auth_ਅੰਕੜੇ_ਬਾਹਰਲਾ_len);
+		ਸੁਰੱਖਿਅਤ_FREE(auth_ਅੰਕੜੇ_ਬਾਹਰਲਾ);
+		ਵਾਪਸ rc;
+	}ਨਹੀਂਤਾਂ{
+		ਸੁਰੱਖਿਅਤ_FREE(auth_ਅੰਕੜੇ_ਬਾਹਰਲਾ);
+		ਜੇ(context->state == mosq_cs_authenticating && context->will){
 			/* Free will without sending if this is our first authentication attempt */
 			will__clear(context);
 		}
-		if(rc == MOSQ_ERR_AUTH){
-			if(context->state == mosq_cs_authenticating){
-				send__connack(context, 0, MQTT_RC_NOT_AUTHORIZED, NULL);
+		ਜੇ(rc == MOSQ_ERR_AUTH){
+			ਜੇ(context->state == mosq_cs_authenticating){
+				send__connack(context, 0, MQTT_RC_NOT_AUTHORIZED, ਨਿਰਾ);
 				mosquitto_FREE(context->id);
-			}else{
-				send__disconnect(context, MQTT_RC_NOT_AUTHORIZED, NULL);
+			}ਨਹੀਂਤਾਂ{
+				send__disconnect(context, MQTT_RC_NOT_AUTHORIZED, ਨਿਰਾ);
 			}
-			return MOSQ_ERR_PROTOCOL;
-		}else if(rc == MOSQ_ERR_NOT_SUPPORTED){
+			ਵਾਪਸ MOSQ_ERR_PROTOCOL;
+		}ਨਹੀਂਤਾਂ ਜੇ(rc == MOSQ_ERR_NOT_SUPPORTED){
 			/* Client has requested extended authentication, but we don't support it. */
-			if(context->state == mosq_cs_authenticating){
-				send__connack(context, 0, MQTT_RC_BAD_AUTHENTICATION_METHOD, NULL);
+			ਜੇ(context->state == mosq_cs_authenticating){
+				send__connack(context, 0, MQTT_RC_BAD_AUTHENTICATION_ਵਿਧੀ, ਨਿਰਾ);
 				mosquitto_FREE(context->id);
-			}else{
-				send__disconnect(context, MQTT_RC_BAD_AUTHENTICATION_METHOD, NULL);
+			}ਨਹੀਂਤਾਂ{
+				send__disconnect(context, MQTT_RC_BAD_AUTHENTICATION_ਵਿਧੀ, ਨਿਰਾ);
 			}
-			return MOSQ_ERR_PROTOCOL;
-		}else{
-			if(context->state == mosq_cs_authenticating){
+			ਵਾਪਸ MOSQ_ERR_PROTOCOL;
+		}ਨਹੀਂਤਾਂ{
+			ਜੇ(context->state == mosq_cs_authenticating){
 				mosquitto_FREE(context->id);
 			}
-			return rc;
+			ਵਾਪਸ rc;
 		}
 	}
 }

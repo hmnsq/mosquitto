@@ -16,39 +16,39 @@ Contributors:
    Roger Light - initial implementation and documentation.
 */
 
-#ifndef MUX_H
-#define MUX_H
+#ਜੇ_ਅਪਰਿਭਾਸ਼ਿਤ MUX_H
+#ਪਰਿਭਾਸ਼ਿਤ_ਕਰੋ MUX_H
 
-#include "mosquitto_broker_internal.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "mosquitto_broker_internal.h"
 
-int mux_epoll__init(void);
-int mux_epoll__add_listeners(struct mosquitto__listener_sock *listensock, int listensock_count);
-int mux_epoll__delete_listeners(struct mosquitto__listener_sock *listensock, int listensock_count);
-int mux_epoll__new(struct mosquitto *context);
-int mux_epoll__add_out(struct mosquitto *context);
-int mux_epoll__remove_out(struct mosquitto *context);
-int mux_epoll__delete(struct mosquitto *context);
-int mux_epoll__handle(void);
-int mux_epoll__cleanup(void);
+ਪੂਰਨ mux_epoll__init(ਖਾਲੀ);
+ਪੂਰਨ mux_epoll_ਜੋੜੋ_listeners(ਬਣਤਰ mosquitto__listener_sock *listensock, ਪੂਰਨ listensock_ਗਿਣਤੀ);
+ਪੂਰਨ mux_epoll__delete_listeners(ਬਣਤਰ mosquitto__listener_sock *listensock, ਪੂਰਨ listensock_ਗਿਣਤੀ);
+ਪੂਰਨ mux_epoll__new(ਬਣਤਰ mosquitto *context);
+ਪੂਰਨ mux_epoll_ਜੋੜੋ_ਬਾਹਰਲਾ(ਬਣਤਰ mosquitto *context);
+ਪੂਰਨ mux_epoll_remove_ਬਾਹਰਲਾ(ਬਣਤਰ mosquitto *context);
+ਪੂਰਨ mux_epoll__delete(ਬਣਤਰ mosquitto *context);
+ਪੂਰਨ mux_epoll__handle(ਖਾਲੀ);
+ਪੂਰਨ mux_epoll__cleanup(ਖਾਲੀ);
 
-int mux_kqueue__init(void);
-int mux_kqueue__add_listeners(struct mosquitto__listener_sock *listensock, int listensock_count);
-int mux_kqueue__delete_listeners(struct mosquitto__listener_sock *listensock, int listensock_count);
-int mux_kqueue__new(struct mosquitto *context);
-int mux_kqueue__add_out(struct mosquitto *context);
-int mux_kqueue__remove_out(struct mosquitto *context);
-int mux_kqueue__delete(struct mosquitto *context);
-int mux_kqueue__handle(void);
-int mux_kqueue__cleanup(void);
+ਪੂਰਨ mux_kqueue__init(ਖਾਲੀ);
+ਪੂਰਨ mux_kqueue_ਜੋੜੋ_listeners(ਬਣਤਰ mosquitto__listener_sock *listensock, ਪੂਰਨ listensock_ਗਿਣਤੀ);
+ਪੂਰਨ mux_kqueue__delete_listeners(ਬਣਤਰ mosquitto__listener_sock *listensock, ਪੂਰਨ listensock_ਗਿਣਤੀ);
+ਪੂਰਨ mux_kqueue__new(ਬਣਤਰ mosquitto *context);
+ਪੂਰਨ mux_kqueue_ਜੋੜੋ_ਬਾਹਰਲਾ(ਬਣਤਰ mosquitto *context);
+ਪੂਰਨ mux_kqueue_remove_ਬਾਹਰਲਾ(ਬਣਤਰ mosquitto *context);
+ਪੂਰਨ mux_kqueue__delete(ਬਣਤਰ mosquitto *context);
+ਪੂਰਨ mux_kqueue__handle(ਖਾਲੀ);
+ਪੂਰਨ mux_kqueue__cleanup(ਖਾਲੀ);
 
-int mux_poll__init(void);
-int mux_poll__add_listeners(struct mosquitto__listener_sock *listensock, int listensock_count);
-int mux_poll__delete_listeners(struct mosquitto__listener_sock *listensock, int listensock_count);
-int mux_poll__new(struct mosquitto *context);
-int mux_poll__add_out(struct mosquitto *context);
-int mux_poll__remove_out(struct mosquitto *context);
-int mux_poll__delete(struct mosquitto *context);
-int mux_poll__handle(struct mosquitto__listener_sock *listensock, int listensock_count);
-int mux_poll__cleanup(void);
+ਪੂਰਨ mux_poll__init(ਖਾਲੀ);
+ਪੂਰਨ mux_poll_ਜੋੜੋ_listeners(ਬਣਤਰ mosquitto__listener_sock *listensock, ਪੂਰਨ listensock_ਗਿਣਤੀ);
+ਪੂਰਨ mux_poll__delete_listeners(ਬਣਤਰ mosquitto__listener_sock *listensock, ਪੂਰਨ listensock_ਗਿਣਤੀ);
+ਪੂਰਨ mux_poll__new(ਬਣਤਰ mosquitto *context);
+ਪੂਰਨ mux_poll_ਜੋੜੋ_ਬਾਹਰਲਾ(ਬਣਤਰ mosquitto *context);
+ਪੂਰਨ mux_poll_remove_ਬਾਹਰਲਾ(ਬਣਤਰ mosquitto *context);
+ਪੂਰਨ mux_poll__delete(ਬਣਤਰ mosquitto *context);
+ਪੂਰਨ mux_poll__handle(ਬਣਤਰ mosquitto__listener_sock *listensock, ਪੂਰਨ listensock_ਗਿਣਤੀ);
+ਪੂਰਨ mux_poll__cleanup(ਖਾਲੀ);
 
-#endif
+#ਜੇ_ਅੰਤ

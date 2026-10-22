@@ -16,107 +16,107 @@ Contributors:
    Roger Light - initial implementation and documentation.
 */
 
-#include "config.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "config.h"
 
-#include <ctype.h>
-#include <stdio.h>
-#include <string.h>
+#ਅਨ੍ਤਰ੍ਭਾਵ <ctype.h>
+#ਅਨ੍ਤਰ੍ਭਾਵ <stdio.h>
+#ਅਨ੍ਤਰ੍ਭਾਵ <string.h>
 
-#include "mosquitto_broker_internal.h"
-#include "mosquitto/mqtt_protocol.h"
-#include "password_file.h"
-#include "send_mosq.h"
-#include "util_mosq.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "mosquitto_broker_internal.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "mosquitto/mqtt_protocol.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "password_file.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "send_mosq.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "util_mosq.h"
 
 
-int mosquitto_security_init_default(void)
+ਪੂਰਨ mosquitto_security_init_default(ਖਾਲੀ)
 {
-	int rc;
+	ਪੂਰਨ rc;
 
 	/* Configure plugin identifier */
-	if(db.config->per_listener_settings){
-		for(int i=0; i<db.config->listener_count; i++){
-			db.config->listeners[i].security_options->pid = mosquitto_calloc(1, sizeof(mosquitto_plugin_id_t));
-			if(db.config->listeners[i].security_options->pid == NULL){
-				log__printf(NULL, MOSQ_LOG_ERR, "Error: Out of memory.");
-				return MOSQ_ERR_NOMEM;
+	ਜੇ(db.config->ਪ੍ਰਤੀ_listener_settings){
+		ਲਈ(ਪੂਰਨ i=0; i<db.config->listener_ਗਿਣਤੀ; i++){
+			db.config->listeners[i].security_options->pid = mosquitto_calloc(1, ਆਕਾਰ(mosquitto_plugin_id_t));
+			ਜੇ(db.config->listeners[i].security_options->pid == ਨਿਰਾ){
+				log__printf(ਨਿਰਾ, MOSQ_LOG_ERR, "Error: Out of memory.");
+				ਵਾਪਸ MOSQ_ERR_NOMEM;
 			}
 			db.config->listeners[i].security_options->pid->plugin_name = mosquitto_strdup("builtin-security");
 			db.config->listeners[i].security_options->pid->listener = &db.config->listeners[i];
-			config__plugin_add_secopt(db.config->listeners[i].security_options->pid, db.config->listeners[i].security_options);
+			config_plugin_ਜੋੜੋ_secopt(db.config->listeners[i].security_options->pid, db.config->listeners[i].security_options);
 		}
-	}else{
-		db.config->security_options.pid = mosquitto_calloc(1, sizeof(mosquitto_plugin_id_t));
-		if(db.config->security_options.pid == NULL){
-			log__printf(NULL, MOSQ_LOG_ERR, "Error: Out of memory.");
-			return MOSQ_ERR_NOMEM;
+	}ਨਹੀਂਤਾਂ{
+		db.config->security_options.pid = mosquitto_calloc(1, ਆਕਾਰ(mosquitto_plugin_id_t));
+		ਜੇ(db.config->security_options.pid == ਨਿਰਾ){
+			log__printf(ਨਿਰਾ, MOSQ_LOG_ERR, "Error: Out of memory.");
+			ਵਾਪਸ MOSQ_ERR_NOMEM;
 		}
 		db.config->security_options.pid->plugin_name = mosquitto_strdup("builtin-security");
-		config__plugin_add_secopt(db.config->security_options.pid, &db.config->security_options);
+		config_plugin_ਜੋੜੋ_secopt(db.config->security_options.pid, &db.config->security_options);
 	}
 
 	rc = broker_password_file__init();
-	if(rc){
-		return rc;
+	ਜੇ(rc){
+		ਵਾਪਸ rc;
 	}
 
 	rc = broker_acl_file__init();
-	if(rc){
-		return rc;
+	ਜੇ(rc){
+		ਵਾਪਸ rc;
 	}
 
 	rc = psk_file__init();
-	if(rc){
-		return rc;
+	ਜੇ(rc){
+		ਵਾਪਸ rc;
 	}
 
-	return MOSQ_ERR_SUCCESS;
+	ਵਾਪਸ MOSQ_ERR_SUCCESS;
 }
 
 
-int mosquitto_security_cleanup_default(void)
+ਪੂਰਨ mosquitto_security_cleanup_default(ਖਾਲੀ)
 {
-	int rc = 0;
+	ਪੂਰਨ rc = 0;
 
 	broker_password_file__cleanup();
 	broker_acl_file__cleanup();
 
 	rc = psk_file__cleanup();
-	if(rc != MOSQ_ERR_SUCCESS){
-		return rc;
+	ਜੇ(rc != MOSQ_ERR_SUCCESS){
+		ਵਾਪਸ rc;
 	}
 
-	if(db.config->per_listener_settings){
-		for(int i=0; i<db.config->listener_count; i++){
-			if(db.config->listeners[i].security_options->pid){
+	ਜੇ(db.config->ਪ੍ਰਤੀ_listener_settings){
+		ਲਈ(ਪੂਰਨ i=0; i<db.config->listener_ਗਿਣਤੀ; i++){
+			ਜੇ(db.config->listeners[i].security_options->pid){
 				mosquitto_FREE(db.config->listeners[i].security_options->pid->plugin_name);
 				mosquitto_FREE(db.config->listeners[i].security_options->pid->config.security_options);
 				mosquitto_FREE(db.config->listeners[i].security_options->pid);
 			}
 		}
-	}else{
-		if(db.config->security_options.pid){
+	}ਨਹੀਂਤਾਂ{
+		ਜੇ(db.config->security_options.pid){
 			mosquitto_FREE(db.config->security_options.pid->plugin_name);
 			mosquitto_FREE(db.config->security_options.pid->config.security_options);
 			mosquitto_FREE(db.config->security_options.pid);
 		}
 	}
-	return MOSQ_ERR_SUCCESS;
+	ਵਾਪਸ MOSQ_ERR_SUCCESS;
 }
 
 
-#ifdef WITH_TLS
+#ਜੇ_ਪਰਿਭਾਸ਼ਿਤ WITH_TLS
 
 
-static void security__disconnect_auth(struct mosquitto *context)
+ਸਥਿਰ ਖਾਲੀ security__disconnect_auth(ਬਣਤਰ mosquitto *context)
 {
-	if(context->protocol == mosq_p_mqtt5){
-		send__disconnect(context, MQTT_RC_ADMINISTRATIVE_ACTION, NULL);
+	ਜੇ(context->protocol == mosq_p_mqtt5){
+		send__disconnect(context, MQTT_RC_ADMINISTRATIVE_ACTION, ਨਿਰਾ);
 	}
-	mosquitto__set_state(context, mosq_cs_disconnecting);
+	mosquitto_ਸੈੱਟ_state(context, mosq_cs_disconnecting);
 	do_disconnect(context, MOSQ_ERR_AUTH);
 }
-#endif
+#ਜੇ_ਅੰਤ
 
 
 /* Apply security settings after a reload.
@@ -125,162 +125,162 @@ static void security__disconnect_auth(struct mosquitto *context)
  * - Disconnecting users with invalid passwords
  * - Reapplying ACLs
  */
-int mosquitto_security_apply_default(void)
+ਪੂਰਨ mosquitto_security_apply_default(ਖਾਲੀ)
 {
-	struct mosquitto *context, *ctxt_tmp = NULL;
+	ਬਣਤਰ mosquitto *context, *ctxt_tmp = ਨਿਰਾ;
 	bool allow_anonymous;
-#ifdef WITH_TLS
+#ਜੇ_ਪਰਿਭਾਸ਼ਿਤ WITH_TLS
 	X509_NAME *name;
-	X509_NAME_ENTRY *name_entry;
-	ASN1_STRING *name_asn1 = NULL;
-	struct mosquitto__listener *listener;
+	X509_NAME_ਇੰਦਰਾਜ *name_ਇੰਦਰਾਜ;
+	ASN1_STRING *name_asn1 = ਨਿਰਾ;
+	ਬਣਤਰ mosquitto__listener *listener;
 	BIO *subject_bio;
-	char *data_start;
-	size_t name_length;
-	char *subject;
-#endif
+	ਅੱਖਰ *ਅੰਕੜੇ_ਸ਼ੁਰੂ;
+	size_t name_ਲੰਮਾਈ;
+	ਅੱਖਰ *subject;
+#ਜੇ_ਅੰਤ
 
-#ifdef WITH_TLS
-	for(int i=0; i<db.config->listener_count; i++){
+#ਜੇ_ਪਰਿਭਾਸ਼ਿਤ WITH_TLS
+	ਲਈ(ਪੂਰਨ i=0; i<db.config->listener_ਗਿਣਤੀ; i++){
 		listener = &db.config->listeners[i];
-		if(listener && listener->ssl_ctx && listener->certfile && listener->keyfile && listener->crlfile && listener->require_certificate){
-			if(net__tls_server_ctx(listener)){
-				return MOSQ_ERR_TLS;
+		ਜੇ(listener && listener->ssl_ctx && listener->certfile && listener->keyfile && listener->crlfile && listener->require_certificate){
+			ਜੇ(net__tls_server_ctx(listener)){
+				ਵਾਪਸ MOSQ_ERR_TLS;
 			}
 
-			if(net__tls_load_verify(listener)){
-				return MOSQ_ERR_TLS;
+			ਜੇ(net_tls_ਲੱਦੋ_verify(listener)){
+				ਵਾਪਸ MOSQ_ERR_TLS;
 			}
 		}
 	}
-#endif
+#ਜੇ_ਅੰਤ
 
 	HASH_ITER(hh_id, db.contexts_by_id, context, ctxt_tmp){
-		if(context->bridge){
-			continue;
+		ਜੇ(context->bridge){
+			ਜਾਰੀ;
 		}
 
-		if((context->listener && context->listener->security_options->allow_anonymous == true)
-				|| (!db.config->per_listener_settings && db.config->security_options.allow_anonymous == true
+		ਜੇ((context->listener && context->listener->security_options->allow_anonymous == true)
+				|| (!db.config->ਪ੍ਰਤੀ_listener_settings && db.config->security_options.allow_anonymous == true
 				&& context->listener && context->listener->security_options->allow_anonymous != false)){
 			allow_anonymous = true;
-		}else{
+		}ਨਹੀਂਤਾਂ{
 			allow_anonymous = false;
 		}
 
-		if(!allow_anonymous && !context->username){
-			mosquitto__set_state(context, mosq_cs_disconnecting);
+		ਜੇ(!allow_anonymous && !context->username){
+			mosquitto_ਸੈੱਟ_state(context, mosq_cs_disconnecting);
 			do_disconnect(context, MOSQ_ERR_AUTH);
-			continue;
+			ਜਾਰੀ;
 		}
 
 		/* Check for connected clients that are no longer authorised */
-#ifdef WITH_TLS
-		if(context->listener && context->listener->ssl_ctx && (context->listener->use_identity_as_username || context->listener->use_subject_as_username)){
+#ਜੇ_ਪਰਿਭਾਸ਼ਿਤ WITH_TLS
+		ਜੇ(context->listener && context->listener->ssl_ctx && (context->listener->use_ਪਛਾਣ_ਤੱਤ_as_username || context->listener->use_subject_as_username)){
 			/* Client must have either a valid certificate, or valid PSK used as a username. */
-			if(!context->ssl){
-				if(context->protocol == mosq_p_mqtt5){
-					send__disconnect(context, MQTT_RC_ADMINISTRATIVE_ACTION, NULL);
+			ਜੇ(!context->ssl){
+				ਜੇ(context->protocol == mosq_p_mqtt5){
+					send__disconnect(context, MQTT_RC_ADMINISTRATIVE_ACTION, ਨਿਰਾ);
 				}
-				mosquitto__set_state(context, mosq_cs_disconnecting);
+				mosquitto_ਸੈੱਟ_state(context, mosq_cs_disconnecting);
 				do_disconnect(context, MOSQ_ERR_AUTH);
-				continue;
+				ਜਾਰੀ;
 			}
-#ifdef FINAL_WITH_TLS_PSK
-			if(context->listener->psk_hint){
+#ਜੇ_ਪਰਿਭਾਸ਼ਿਤ FINAL_WITH_TLS_PSK
+			ਜੇ(context->listener->psk_hint){
 				/* Client should have provided an identity to get this far. */
-				if(!context->username){
+				ਜੇ(!context->username){
 					security__disconnect_auth(context);
-					continue;
+					ਜਾਰੀ;
 				}
-			}else
-#endif /* FINAL_WITH_TLS_PSK */
+			}ਨਹੀਂਤਾਂ
+#ਜੇ_ਅੰਤ /* FINAL_WITH_TLS_PSK */
 			{
 				/* Free existing credentials and then recover them. */
 				mosquitto_FREE(context->username);
 				mosquitto_FREE(context->password);
 
 				X509 *client_cert = SSL_get_peer_certificate(context->ssl);
-				if(!client_cert){
+				ਜੇ(!client_cert){
 					security__disconnect_auth(context);
-					continue;
+					ਜਾਰੀ;
 				}
 				name = X509_get_subject_name(client_cert);
-				if(!name){
+				ਜੇ(!name){
 					X509_free(client_cert);
 					security__disconnect_auth(context);
-					continue;
+					ਜਾਰੀ;
 				}
-				if(context->listener->use_identity_as_username){   /* use_identity_as_username */
-					int i = X509_NAME_get_index_by_NID(name, NID_commonName, -1);
-					if(i == -1){
+				ਜੇ(context->listener->use_ਪਛਾਣ_ਤੱਤ_as_username){   /* use_identity_as_username */
+					ਪੂਰਨ i = X509_NAME_get_ਸੂਚਕਾਂਕ_by_NID(name, NID_commonName, -1);
+					ਜੇ(i == -1){
 						X509_free(client_cert);
 						security__disconnect_auth(context);
-						continue;
+						ਜਾਰੀ;
 					}
-					name_entry = X509_NAME_get_entry(name, i);
-					if(name_entry){
-						name_asn1 = X509_NAME_ENTRY_get_data(name_entry);
-						if(name_asn1 == NULL){
+					name_ਇੰਦਰਾਜ = X509_NAME_get_ਇੰਦਰਾਜ(name, i);
+					ਜੇ(name_ਇੰਦਰਾਜ){
+						name_asn1 = X509_NAME_ਇੰਦਰਾਜ_get_ਅੰਕੜੇ(name_ਇੰਦਰਾਜ);
+						ਜੇ(name_asn1 == ਨਿਰਾ){
 							X509_free(client_cert);
 							security__disconnect_auth(context);
-							continue;
+							ਜਾਰੀ;
 						}
-						const char *username = (const char *)ASN1_STRING_get0_data(name_asn1);
-						if(!username){
+						ਅਚਲ ਅੱਖਰ *username = (ਅਚਲ ਅੱਖਰ *)ASN1_STRING_get0_ਅੰਕੜੇ(name_asn1);
+						ਜੇ(!username){
 							X509_free(client_cert);
-							client_cert = NULL;
+							client_cert = ਨਿਰਾ;
 							security__disconnect_auth(context);
-							continue;
+							ਜਾਰੀ;
 						}
 						context->username = mosquitto_strdup(username);
-						if(!context->username){
+						ਜੇ(!context->username){
 							X509_free(client_cert);
 							security__disconnect_auth(context);
-							continue;
+							ਜਾਰੀ;
 						}
 						/* Make sure there isn't an embedded NUL character in the CN */
-						if((size_t)ASN1_STRING_length(name_asn1) != strlen(context->username)){
+						ਜੇ((size_t)ASN1_STRING_ਲੰਮਾਈ(name_asn1) != ਲੜੀ_ਲੰਬਾਈ(context->username)){
 							X509_free(client_cert);
 							security__disconnect_auth(context);
-							continue;
+							ਜਾਰੀ;
 						}
 					}
-				}else{   /* use_subject_as_username */
+				}ਨਹੀਂਤਾਂ{   /* use_subject_as_username */
 					subject_bio = BIO_new(BIO_s_mem());
 					X509_NAME_print_ex(subject_bio, X509_get_subject_name(client_cert), 0, XN_FLAG_RFC2253);
-					data_start = NULL;
-					name_length = (size_t)BIO_get_mem_data(subject_bio, &data_start);
-					subject = mosquitto_malloc(sizeof(char)*name_length+1);
-					if(!subject){
+					ਅੰਕੜੇ_ਸ਼ੁਰੂ = ਨਿਰਾ;
+					name_ਲੰਮਾਈ = (size_t)BIO_get_mem_ਅੰਕੜੇ(subject_bio, &ਅੰਕੜੇ_ਸ਼ੁਰੂ);
+					subject = mosquitto_malloc(ਆਕਾਰ(ਅੱਖਰ)*name_ਲੰਮਾਈ+1);
+					ਜੇ(!subject){
 						BIO_free(subject_bio);
 						X509_free(client_cert);
 						security__disconnect_auth(context);
-						continue;
+						ਜਾਰੀ;
 					}
-					memcpy(subject, data_start, name_length);
-					subject[name_length] = '\0';
+					ਸਮ੍ਰਿਤੀ_ਨਕਲ(subject, ਅੰਕੜੇ_ਸ਼ੁਰੂ, name_ਲੰਮਾਈ);
+					subject[name_ਲੰਮਾਈ] = '\0';
 					BIO_free(subject_bio);
 					context->username = subject;
 				}
-				if(!context->username){
+				ਜੇ(!context->username){
 					X509_free(client_cert);
 					security__disconnect_auth(context);
-					continue;
+					ਜਾਰੀ;
 				}
 				X509_free(client_cert);
 			}
-		}else
-#endif
+		}ਨਹੀਂਤਾਂ
+#ਜੇ_ਅੰਤ
 		{
 			/* Username/password check only if the identity/subject check not used */
-			if(mosquitto_basic_auth(context) != MOSQ_ERR_SUCCESS){
-				mosquitto__set_state(context, mosq_cs_disconnecting);
+			ਜੇ(mosquitto_basic_auth(context) != MOSQ_ERR_SUCCESS){
+				mosquitto_ਸੈੱਟ_state(context, mosq_cs_disconnecting);
 				do_disconnect(context, MOSQ_ERR_AUTH);
-				continue;
+				ਜਾਰੀ;
 			}
 		}
 	}
 
-	return MOSQ_ERR_SUCCESS;
+	ਵਾਪਸ MOSQ_ERR_SUCCESS;
 }

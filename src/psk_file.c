@@ -16,22 +16,22 @@ Contributors:
    Roger Light - initial implementation and documentation.
 */
 
-#include "config.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "config.h"
 
-#include <ctype.h>
-#include <stdio.h>
-#include <string.h>
+#ਅਨ੍ਤਰ੍ਭਾਵ <ctype.h>
+#ਅਨ੍ਤਰ੍ਭਾਵ <stdio.h>
+#ਅਨ੍ਤਰ੍ਭਾਵ <string.h>
 
-#include "mosquitto_broker_internal.h"
-#include "mosquitto/mqtt_protocol.h"
-#include "send_mosq.h"
-#include "util_mosq.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "mosquitto_broker_internal.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "mosquitto/mqtt_protocol.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "send_mosq.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "util_mosq.h"
 
-static int psk__cleanup(struct mosquitto__psk **psk);
-static int psk__file_parse(struct mosquitto__psk **psk_id, const char *psk_file);
+ਸਥਿਰ ਪੂਰਨ psk__cleanup(ਬਣਤਰ mosquitto__psk **psk);
+ਸਥਿਰ ਪੂਰਨ psk__file_parse(ਬਣਤਰ mosquitto__psk **psk_id, ਅਚਲ ਅੱਖਰ *psk_file);
 
 
-static void psk__free_item(struct mosquitto__psk *psk)
+ਸਥਿਰ ਖਾਲੀ psk_free_ਵਸਤੂ(ਬਣਤਰ mosquitto__psk *psk)
 {
 	mosquitto_FREE(psk->username);
 	mosquitto_FREE(psk->password);
@@ -39,144 +39,144 @@ static void psk__free_item(struct mosquitto__psk *psk)
 }
 
 
-int psk_file__init(void)
+ਪੂਰਨ psk_file__init(ਖਾਲੀ)
 {
-	int rc;
-	char *pskf = NULL;
+	ਪੂਰਨ rc;
+	ਅੱਖਰ *pskf = ਨਿਰਾ;
 
 	/* Load psk data if required. */
-	if(db.config->per_listener_settings){
-		for(int i=0; i<db.config->listener_count; i++){
+	ਜੇ(db.config->ਪ੍ਰਤੀ_listener_settings){
+		ਲਈ(ਪੂਰਨ i=0; i<db.config->listener_ਗਿਣਤੀ; i++){
 			pskf = db.config->listeners[i].security_options->psk_file;
-			if(pskf){
+			ਜੇ(pskf){
 				rc = psk__file_parse(&db.config->listeners[i].security_options->psk_id, pskf);
-				if(rc){
-					log__printf(NULL, MOSQ_LOG_ERR, "Error opening psk file \"%s\".", pskf);
-					return rc;
+				ਜੇ(rc){
+					log__printf(ਨਿਰਾ, MOSQ_LOG_ERR, "Error opening psk file \"%s\".", pskf);
+					ਵਾਪਸ rc;
 				}
 			}
 		}
-	}else{
+	}ਨਹੀਂਤਾਂ{
 		pskf = db.config->security_options.psk_file;
-		if(pskf){
+		ਜੇ(pskf){
 			rc = psk__file_parse(&db.config->security_options.psk_id, pskf);
-			if(rc){
-				log__printf(NULL, MOSQ_LOG_ERR, "Error opening psk file \"%s\".", pskf);
-				return rc;
+			ਜੇ(rc){
+				log__printf(ਨਿਰਾ, MOSQ_LOG_ERR, "Error opening psk file \"%s\".", pskf);
+				ਵਾਪਸ rc;
 			}
 		}
 	}
 
-	return MOSQ_ERR_SUCCESS;
+	ਵਾਪਸ MOSQ_ERR_SUCCESS;
 }
 
 
-int psk_file__cleanup(void)
+ਪੂਰਨ psk_file__cleanup(ਖਾਲੀ)
 {
-	int rc;
+	ਪੂਰਨ rc;
 
 	rc = psk__cleanup(&db.config->security_options.psk_id);
-	if(rc != MOSQ_ERR_SUCCESS){
-		return rc;
+	ਜੇ(rc != MOSQ_ERR_SUCCESS){
+		ਵਾਪਸ rc;
 	}
 
-	for(int i=0; i<db.config->listener_count; i++){
-		if(db.config->listeners[i].security_options->psk_id){
+	ਲਈ(ਪੂਰਨ i=0; i<db.config->listener_ਗਿਣਤੀ; i++){
+		ਜੇ(db.config->listeners[i].security_options->psk_id){
 			rc = psk__cleanup(&db.config->listeners[i].security_options->psk_id);
-			if(rc != MOSQ_ERR_SUCCESS){
-				return rc;
+			ਜੇ(rc != MOSQ_ERR_SUCCESS){
+				ਵਾਪਸ rc;
 			}
 		}
 	}
 
-	return MOSQ_ERR_SUCCESS;
+	ਵਾਪਸ MOSQ_ERR_SUCCESS;
 }
 
 
-static int pwfile__parse(const char *file, struct mosquitto__psk **root)
+ਸਥਿਰ ਪੂਰਨ pwfile__parse(ਅਚਲ ਅੱਖਰ *file, ਬਣਤਰ mosquitto__psk **ਜੜ੍ਹ)
 {
 	FILE *pwfile;
-	struct mosquitto__psk *psk;
-	char *username, *password;
-	char *saveptr = NULL;
-	char *buf;
-	int buflen = 256;
+	ਬਣਤਰ mosquitto__psk *psk;
+	ਅੱਖਰ *username, *password;
+	ਅੱਖਰ *saveptr = ਨਿਰਾ;
+	ਅੱਖਰ *buf;
+	ਪੂਰਨ buflen = 256;
 
 	buf = mosquitto_malloc((size_t)buflen);
-	if(buf == NULL){
-		log__printf(NULL, MOSQ_LOG_ERR, "Error: Out of memory.");
-		return MOSQ_ERR_NOMEM;
+	ਜੇ(buf == ਨਿਰਾ){
+		log__printf(ਨਿਰਾ, MOSQ_LOG_ERR, "Error: Out of memory.");
+		ਵਾਪਸ MOSQ_ERR_NOMEM;
 	}
 
 	pwfile = mosquitto_fopen(file, "rt", true);
-	if(!pwfile){
-		log__printf(NULL, MOSQ_LOG_ERR, "Error: Unable to open pwfile \"%s\".", file);
+	ਜੇ(!pwfile){
+		log__printf(ਨਿਰਾ, MOSQ_LOG_ERR, "Error: Unable to open pwfile \"%s\".", file);
 		mosquitto_FREE(buf);
-		return MOSQ_ERR_UNKNOWN;
+		ਵਾਪਸ MOSQ_ERR_UNKNOWN;
 	}
 
-	while(!feof(pwfile)){
-		if(mosquitto_fgets(&buf, &buflen, pwfile)){
-			if(buf[0] == '#'){
-				continue;
+	ਜਦੋਂ(!feof(pwfile)){
+		ਜੇ(mosquitto_fgets(&buf, &buflen, pwfile)){
+			ਜੇ(buf[0] == '#'){
+				ਜਾਰੀ;
 			}
-			if(!strchr(buf, ':')){
-				continue;
+			ਜੇ(!strchr(buf, ':')){
+				ਜਾਰੀ;
 			}
 
 			username = strtok_r(buf, ":", &saveptr);
-			if(username){
+			ਜੇ(username){
 				username = mosquitto_trimblanks(username);
-				if(strlen(username) > 65535){
-					log__printf(NULL, MOSQ_LOG_NOTICE, "Warning: Invalid line in password file '%s', username too long.", file);
-					continue;
+				ਜੇ(ਲੜੀ_ਲੰਬਾਈ(username) > 65535){
+					log__printf(ਨਿਰਾ, MOSQ_LOG_NOTICE, "Warning: Invalid line in password file '%s', username too long.", file);
+					ਜਾਰੀ;
 				}
-				if(strlen(username) <= 0){
-					log__printf(NULL, MOSQ_LOG_NOTICE, "Warning: Empty username in password file '%s', ingoring.", file);
-					continue;
-				}
-
-				HASH_FIND(hh, *root, username, strlen(username), psk);
-				if(psk){
-					log__printf(NULL, MOSQ_LOG_NOTICE, "Error: Duplicate user '%s' in password file '%s', ignoring.", username, file);
-					continue;
+				ਜੇ(ਲੜੀ_ਲੰਬਾਈ(username) <= 0){
+					log__printf(ਨਿਰਾ, MOSQ_LOG_NOTICE, "Warning: Empty username in password file '%s', ingoring.", file);
+					ਜਾਰੀ;
 				}
 
-				psk = mosquitto_calloc(1, sizeof(struct mosquitto__psk));
-				if(!psk){
+				HASH_ਲੱਭੋ(hh, *ਜੜ੍ਹ, username, ਲੜੀ_ਲੰਬਾਈ(username), psk);
+				ਜੇ(psk){
+					log__printf(ਨਿਰਾ, MOSQ_LOG_NOTICE, "Error: Duplicate user '%s' in password file '%s', ignoring.", username, file);
+					ਜਾਰੀ;
+				}
+
+				psk = mosquitto_calloc(1, ਆਕਾਰ(ਬਣਤਰ mosquitto__psk));
+				ਜੇ(!psk){
 					fclose(pwfile);
 					mosquitto_FREE(buf);
-					return MOSQ_ERR_NOMEM;
+					ਵਾਪਸ MOSQ_ERR_NOMEM;
 				}
 
 				psk->username = mosquitto_strdup(username);
-				if(!psk->username){
-					psk__free_item(psk);
+				ਜੇ(!psk->username){
+					psk_free_ਵਸਤੂ(psk);
 					mosquitto_FREE(buf);
 					fclose(pwfile);
-					return MOSQ_ERR_NOMEM;
+					ਵਾਪਸ MOSQ_ERR_NOMEM;
 				}
-				password = strtok_r(NULL, ":", &saveptr);
-				if(password){
+				password = strtok_r(ਨਿਰਾ, ":", &saveptr);
+				ਜੇ(password){
 					password = mosquitto_trimblanks(password);
 
-					if(strlen(password) > 65535){
-						log__printf(NULL, MOSQ_LOG_NOTICE, "Warning: Invalid line in password file '%s', password too long.", file);
-						psk__free_item(psk);
-						continue;
+					ਜੇ(ਲੜੀ_ਲੰਬਾਈ(password) > 65535){
+						log__printf(ਨਿਰਾ, MOSQ_LOG_NOTICE, "Warning: Invalid line in password file '%s', password too long.", file);
+						psk_free_ਵਸਤੂ(psk);
+						ਜਾਰੀ;
 					}
 
 					psk->password = mosquitto_strdup(password);
-					if(!psk->password){
-						log__printf(NULL, MOSQ_LOG_NOTICE, "Warning: Unable to decode line in password file '%s'.", file);
-						psk__free_item(psk);
-						continue;
+					ਜੇ(!psk->password){
+						log__printf(ਨਿਰਾ, MOSQ_LOG_NOTICE, "Warning: Unable to decode line in password file '%s'.", file);
+						psk_free_ਵਸਤੂ(psk);
+						ਜਾਰੀ;
 					}
 
-					HASH_ADD_KEYPTR(hh, *root, psk->username, strlen(psk->username), psk);
-				}else{
-					log__printf(NULL, MOSQ_LOG_NOTICE, "Warning: Invalid line in psk file '%s': %s", file, buf);
-					psk__free_item(psk);
+					HASH_ਜੋੜੋ_KEYPTR(hh, *ਜੜ੍ਹ, psk->username, ਲੜੀ_ਲੰਬਾਈ(psk->username), psk);
+				}ਨਹੀਂਤਾਂ{
+					log__printf(ਨਿਰਾ, MOSQ_LOG_NOTICE, "Warning: Invalid line in psk file '%s': %s", file, buf);
+					psk_free_ਵਸਤੂ(psk);
 				}
 			}
 		}
@@ -184,89 +184,89 @@ static int pwfile__parse(const char *file, struct mosquitto__psk **root)
 	fclose(pwfile);
 	mosquitto_FREE(buf);
 
-	return MOSQ_ERR_SUCCESS;
+	ਵਾਪਸ MOSQ_ERR_SUCCESS;
 }
 
 
-static int psk__file_parse(struct mosquitto__psk **psk_id, const char *psk_file)
+ਸਥਿਰ ਪੂਰਨ psk__file_parse(ਬਣਤਰ mosquitto__psk **psk_id, ਅਚਲ ਅੱਖਰ *psk_file)
 {
-	int rc;
-	struct mosquitto__psk *psk, *tmp = NULL;
+	ਪੂਰਨ rc;
+	ਬਣਤਰ mosquitto__psk *psk, *tmp = ਨਿਰਾ;
 
-	if(!db.config || !psk_id){
-		return MOSQ_ERR_INVAL;
+	ਜੇ(!db.config || !psk_id){
+		ਵਾਪਸ MOSQ_ERR_INVAL;
 	}
 
 	/* We haven't been asked to parse a psk file. */
-	if(!psk_file){
-		return MOSQ_ERR_SUCCESS;
+	ਜੇ(!psk_file){
+		ਵਾਪਸ MOSQ_ERR_SUCCESS;
 	}
 
 	rc = pwfile__parse(psk_file, psk_id);
-	if(rc){
-		return rc;
+	ਜੇ(rc){
+		ਵਾਪਸ rc;
 	}
 
 	HASH_ITER(hh, (*psk_id), psk, tmp){
 		/* Check for hex only digits */
-		if(!psk->password){
-			log__printf(NULL, MOSQ_LOG_ERR, "Error: Empty psk for identity \"%s\".", psk->username);
-			return MOSQ_ERR_INVAL;
+		ਜੇ(!psk->password){
+			log__printf(ਨਿਰਾ, MOSQ_LOG_ERR, "Error: Empty psk for identity \"%s\".", psk->username);
+			ਵਾਪਸ MOSQ_ERR_INVAL;
 		}
-		if(strspn(psk->password, "0123456789abcdefABCDEF") < strlen(psk->password)){
-			log__printf(NULL, MOSQ_LOG_ERR, "Error: psk for identity \"%s\" contains non-hexadecimal characters.", psk->username);
-			return MOSQ_ERR_INVAL;
+		ਜੇ(strspn(psk->password, "0123456789abcdefABCDEF") < ਲੜੀ_ਲੰਬਾਈ(psk->password)){
+			log__printf(ਨਿਰਾ, MOSQ_LOG_ERR, "Error: psk for identity \"%s\" contains non-hexadecimal characters.", psk->username);
+			ਵਾਪਸ MOSQ_ERR_INVAL;
 		}
 	}
-	return MOSQ_ERR_SUCCESS;
+	ਵਾਪਸ MOSQ_ERR_SUCCESS;
 }
 
 
-static int psk__cleanup(struct mosquitto__psk **root)
+ਸਥਿਰ ਪੂਰਨ psk__cleanup(ਬਣਤਰ mosquitto__psk **ਜੜ੍ਹ)
 {
-	struct mosquitto__psk *psk, *tmp = NULL;
+	ਬਣਤਰ mosquitto__psk *psk, *tmp = ਨਿਰਾ;
 
-	if(!root){
-		return MOSQ_ERR_INVAL;
+	ਜੇ(!ਜੜ੍ਹ){
+		ਵਾਪਸ MOSQ_ERR_INVAL;
 	}
 
-	HASH_ITER(hh, *root, psk, tmp){
-		HASH_DEL(*root, psk);
-		psk__free_item(psk);
+	HASH_ITER(hh, *ਜੜ੍ਹ, psk, tmp){
+		HASH_DEL(*ਜੜ੍ਹ, psk);
+		psk_free_ਵਸਤੂ(psk);
 	}
 
-	*root = NULL;
+	*ਜੜ੍ਹ = ਨਿਰਾ;
 
-	return MOSQ_ERR_SUCCESS;
+	ਵਾਪਸ MOSQ_ERR_SUCCESS;
 }
 
 
-int mosquitto_psk_key_get_default(struct mosquitto *context, const char *hint, const char *identity, char *key, int max_key_len)
+ਪੂਰਨ mosquitto_psk_ਕੁੰਜੀ_get_default(ਬਣਤਰ mosquitto *context, ਅਚਲ ਅੱਖਰ *hint, ਅਚਲ ਅੱਖਰ *ਪਛਾਣ_ਤੱਤ, ਅੱਖਰ *ਕੁੰਜੀ, ਪੂਰਨ max_ਕੁੰਜੀ_len)
 {
-	struct mosquitto__psk *psk;
-	struct mosquitto__psk *psk_id_ref = NULL;
+	ਬਣਤਰ mosquitto__psk *psk;
+	ਬਣਤਰ mosquitto__psk *psk_id_ref = ਨਿਰਾ;
 
-	if(!hint || !identity || !key){
-		return MOSQ_ERR_INVAL;
+	ਜੇ(!hint || !ਪਛਾਣ_ਤੱਤ || !ਕੁੰਜੀ){
+		ਵਾਪਸ MOSQ_ERR_INVAL;
 	}
 
-	if(db.config->per_listener_settings){
-		if(!context->listener){
-			return MOSQ_ERR_INVAL;
+	ਜੇ(db.config->ਪ੍ਰਤੀ_listener_settings){
+		ਜੇ(!context->listener){
+			ਵਾਪਸ MOSQ_ERR_INVAL;
 		}
 		psk_id_ref = context->listener->security_options->psk_id;
-	}else{
+	}ਨਹੀਂਤਾਂ{
 		psk_id_ref = db.config->security_options.psk_id;
 	}
-	if(!psk_id_ref){
-		return MOSQ_ERR_PLUGIN_IGNORE;
+	ਜੇ(!psk_id_ref){
+		ਵਾਪਸ MOSQ_ERR_PLUGIN_IGNORE;
 	}
 
-	HASH_FIND(hh, psk_id_ref, identity, strlen(identity), psk);
-	if(psk){
-		strncpy(key, psk->password, (size_t)max_key_len);
-		return MOSQ_ERR_SUCCESS;
+	HASH_ਲੱਭੋ(hh, psk_id_ref, ਪਛਾਣ_ਤੱਤ, ਲੜੀ_ਲੰਬਾਈ(ਪਛਾਣ_ਤੱਤ), psk);
+	ਜੇ(psk){
+		strncpy(ਕੁੰਜੀ, psk->password, (size_t)max_ਕੁੰਜੀ_len);
+		ਵਾਪਸ MOSQ_ERR_SUCCESS;
 	}
 
-	return MOSQ_ERR_AUTH;
+	ਵਾਪਸ MOSQ_ERR_AUTH;
 }

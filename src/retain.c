@@ -16,389 +16,389 @@ Contributors:
    Roger Light - initial implementation and documentation.
 */
 
-#include "config.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "config.h"
 
-#include <assert.h>
-#include <stdio.h>
-#include <string.h>
+#ਅਨ੍ਤਰ੍ਭਾਵ <assert.h>
+#ਅਨ੍ਤਰ੍ਭਾਵ <stdio.h>
+#ਅਨ੍ਤਰ੍ਭਾਵ <string.h>
 
-#include "mosquitto_broker_internal.h"
-#include "mosquitto/mqtt_protocol.h"
-#include "util_mosq.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "mosquitto_broker_internal.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "mosquitto/mqtt_protocol.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "util_mosq.h"
 
-#include "utlist.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "utlist.h"
 
-static time_t next_expire_check = 0;
+ਸਥਿਰ time_t ਅਗਲਾ_expire_check = 0;
 
-static struct mosquitto__retainhier *retain__add_hier_entry(struct mosquitto__retainhier *parent, struct mosquitto__retainhier **sibling, const char *topic, uint16_t len)
+ਸਥਿਰ ਬਣਤਰ mosquitto__retainhier *retain_ਜੋੜੋ_hier_ਇੰਦਰਾਜ(ਬਣਤਰ mosquitto__retainhier *ਮਾਪਾ, ਬਣਤਰ mosquitto__retainhier **sibling, ਅਚਲ ਅੱਖਰ *topic, uint16_t len)
 {
-	struct mosquitto__retainhier *child;
+	ਬਣਤਰ mosquitto__retainhier *ਬੱਚਾ;
 
-	assert(sibling);
+	ਪ੍ਰਤਿਜ੍ਞਾ(sibling);
 
-	child = mosquitto_calloc(1, sizeof(struct mosquitto__retainhier) + len + 1);
-	if(!child){
-		log__printf(NULL, MOSQ_LOG_ERR, "Error: Out of memory.");
-		return NULL;
+	ਬੱਚਾ = mosquitto_calloc(1, ਆਕਾਰ(ਬਣਤਰ mosquitto__retainhier) + len + 1);
+	ਜੇ(!ਬੱਚਾ){
+		log__printf(ਨਿਰਾ, MOSQ_LOG_ERR, "Error: Out of memory.");
+		ਵਾਪਸ ਨਿਰਾ;
 	}
-	child->parent = parent;
-	child->topic_len = len;
-	if(len > 0){
-		strncpy(child->topic, topic, (size_t)(len+1));
+	ਬੱਚਾ->ਮਾਪਾ = ਮਾਪਾ;
+	ਬੱਚਾ->topic_len = len;
+	ਜੇ(len > 0){
+		strncpy(ਬੱਚਾ->topic, topic, (size_t)(len+1));
 	}
 
-	HASH_ADD(hh, *sibling, topic, child->topic_len, child);
+	HASH_ਜੋੜੋ(hh, *sibling, topic, ਬੱਚਾ->topic_len, ਬੱਚਾ);
 
-	return child;
+	ਵਾਪਸ ਬੱਚਾ;
 }
 
 
-int retain__init(void)
+ਪੂਰਨ retain__init(ਖਾਲੀ)
 {
-	struct mosquitto__retainhier *retainhier;
+	ਬਣਤਰ mosquitto__retainhier *retainhier;
 
-	retainhier = retain__add_hier_entry(NULL, &db.retains, "", 0);
-	if(!retainhier){
-		return MOSQ_ERR_NOMEM;
+	retainhier = retain_ਜੋੜੋ_hier_ਇੰਦਰਾਜ(ਨਿਰਾ, &db.retains, "", 0);
+	ਜੇ(!retainhier){
+		ਵਾਪਸ MOSQ_ERR_NOMEM;
 	}
 
-	retainhier = retain__add_hier_entry(NULL, &db.retains, "$SYS", (uint16_t)strlen("$SYS"));
-	if(!retainhier){
-		return MOSQ_ERR_NOMEM;
+	retainhier = retain_ਜੋੜੋ_hier_ਇੰਦਰਾਜ(ਨਿਰਾ, &db.retains, "$SYS", (uint16_t)ਲੜੀ_ਲੰਬਾਈ("$SYS"));
+	ਜੇ(!retainhier){
+		ਵਾਪਸ MOSQ_ERR_NOMEM;
 	}
 
-	return MOSQ_ERR_SUCCESS;
+	ਵਾਪਸ MOSQ_ERR_SUCCESS;
 }
 
 
-BROKER_EXPORT int mosquitto_persist_retain_msg_set(const char *topic, uint64_t base_msg_id)
+BROKER_EXPORT ਪੂਰਨ mosquitto_persist_retain_ਸੁਨੇਹਾ_ਸੈੱਟ(ਅਚਲ ਅੱਖਰ *topic, uint64_t ਅਧਾਰ_ਸੁਨੇਹਾ_id)
 {
-	struct mosquitto__base_msg *base_msg;
-	int rc = MOSQ_ERR_UNKNOWN;
-	char **split_topics = NULL;
-	char *local_topic = NULL;
+	ਬਣਤਰ mosquitto_ਅਧਾਰ_ਸੁਨੇਹਾ *ਅਧਾਰ_ਸੁਨੇਹਾ;
+	ਪੂਰਨ rc = MOSQ_ERR_UNKNOWN;
+	ਅੱਖਰ **ਵੰਡੋ_topics = ਨਿਰਾ;
+	ਅੱਖਰ *local_topic = ਨਿਰਾ;
 
-	if(topic == NULL){
-		return MOSQ_ERR_INVAL;
+	ਜੇ(topic == ਨਿਰਾ){
+		ਵਾਪਸ MOSQ_ERR_INVAL;
 	}
 
-	HASH_FIND(hh, db.msg_store, &base_msg_id, sizeof(base_msg_id), base_msg);
-	if(base_msg){
-		if(sub__topic_tokenise(topic, &local_topic, &split_topics, NULL)){
-			return MOSQ_ERR_NOMEM;
+	HASH_ਲੱਭੋ(hh, db.ਸੁਨੇਹਾ_store, &ਅਧਾਰ_ਸੁਨੇਹਾ_id, ਆਕਾਰ(ਅਧਾਰ_ਸੁਨੇਹਾ_id), ਅਧਾਰ_ਸੁਨੇਹਾ);
+	ਜੇ(ਅਧਾਰ_ਸੁਨੇਹਾ){
+		ਜੇ(sub__topic_tokenise(topic, &local_topic, &ਵੰਡੋ_topics, ਨਿਰਾ)){
+			ਵਾਪਸ MOSQ_ERR_NOMEM;
 		}
 
-		rc = retain__store(topic, base_msg, split_topics, false);
-		mosquitto_free(split_topics);
+		rc = retain__store(topic, ਅਧਾਰ_ਸੁਨੇਹਾ, ਵੰਡੋ_topics, false);
+		mosquitto_free(ਵੰਡੋ_topics);
 		mosquitto_free(local_topic);
 	}
 
-	return rc;
+	ਵਾਪਸ rc;
 }
 
 
-BROKER_EXPORT int mosquitto_persist_retain_msg_delete(const char *topic)
+BROKER_EXPORT ਪੂਰਨ mosquitto_persist_retain_ਸੁਨੇਹਾ_delete(ਅਚਲ ਅੱਖਰ *topic)
 {
-	struct mosquitto__base_msg base_msg;
-	int rc = MOSQ_ERR_UNKNOWN;
-	char **split_topics = NULL;
-	char *local_topic = NULL;
+	ਬਣਤਰ mosquitto_ਅਧਾਰ_ਸੁਨੇਹਾ ਅਧਾਰ_ਸੁਨੇਹਾ;
+	ਪੂਰਨ rc = MOSQ_ERR_UNKNOWN;
+	ਅੱਖਰ **ਵੰਡੋ_topics = ਨਿਰਾ;
+	ਅੱਖਰ *local_topic = ਨਿਰਾ;
 
-	if(topic == NULL){
-		return MOSQ_ERR_INVAL;
+	ਜੇ(topic == ਨਿਰਾ){
+		ਵਾਪਸ MOSQ_ERR_INVAL;
 	}
 
-	memset(&base_msg, 0, sizeof(base_msg));
-	base_msg.ref_count = 10; /* Ensure this isn't freed */
+	memset(&ਅਧਾਰ_ਸੁਨੇਹਾ, 0, ਆਕਾਰ(ਅਧਾਰ_ਸੁਨੇਹਾ));
+	ਅਧਾਰ_ਸੁਨੇਹਾ.ref_ਗਿਣਤੀ = 10; /* Ensure this isn't freed */
 
-	if(sub__topic_tokenise(topic, &local_topic, &split_topics, NULL)){
-		return MOSQ_ERR_NOMEM;
+	ਜੇ(sub__topic_tokenise(topic, &local_topic, &ਵੰਡੋ_topics, ਨਿਰਾ)){
+		ਵਾਪਸ MOSQ_ERR_NOMEM;
 	}
 
 	/* With stored->payloadlen == 0, this means the message will be removed */
-	rc = retain__store(topic, &base_msg, split_topics, false);
-	mosquitto_FREE(split_topics);
+	rc = retain__store(topic, &ਅਧਾਰ_ਸੁਨੇਹਾ, ਵੰਡੋ_topics, false);
+	mosquitto_FREE(ਵੰਡੋ_topics);
 	mosquitto_FREE(local_topic);
 
-	return rc;
+	ਵਾਪਸ rc;
 }
 
 
-void retain__clean_empty_hierarchy(struct mosquitto__retainhier *retainhier)
+ਖਾਲੀ retain_clean_ਖਾਲੀ_ਥਾਵਾਂ_hierarchy(ਬਣਤਰ mosquitto__retainhier *retainhier)
 {
-	while(retainhier){
-		if(retainhier->children || retainhier->retained || retainhier->parent == NULL){
+	ਜਦੋਂ(retainhier){
+		ਜੇ(retainhier->children || retainhier->retained || retainhier->ਮਾਪਾ == ਨਿਰਾ){
 			/* Entry is being used */
-			return;
-		}else{
-			HASH_DELETE(hh, retainhier->parent->children, retainhier);
+			ਵਾਪਸ;
+		}ਨਹੀਂਤਾਂ{
+			HASH_DELETE(hh, retainhier->ਮਾਪਾ->children, retainhier);
 
-			struct mosquitto__retainhier *parent = retainhier->parent;
+			ਬਣਤਰ mosquitto__retainhier *ਮਾਪਾ = retainhier->ਮਾਪਾ;
 			mosquitto_FREE(retainhier);
-			retainhier = parent;
+			retainhier = ਮਾਪਾ;
 		}
 	}
 }
 
 
-int retain__store(const char *topic, struct mosquitto__base_msg *base_msg, char **split_topics, bool persist)
+ਪੂਰਨ retain__store(ਅਚਲ ਅੱਖਰ *topic, ਬਣਤਰ mosquitto_ਅਧਾਰ_ਸੁਨੇਹਾ *ਅਧਾਰ_ਸੁਨੇਹਾ, ਅੱਖਰ **ਵੰਡੋ_topics, bool persist)
 {
-	struct mosquitto__retainhier *retainhier;
-	struct mosquitto__retainhier *branch;
+	ਬਣਤਰ mosquitto__retainhier *retainhier;
+	ਬਣਤਰ mosquitto__retainhier *branch;
 	size_t slen;
 
-	assert(base_msg);
-	assert(split_topics);
+	ਪ੍ਰਤਿਜ੍ਞਾ(ਅਧਾਰ_ਸੁਨੇਹਾ);
+	ਪ੍ਰਤਿਜ੍ਞਾ(ਵੰਡੋ_topics);
 
-	HASH_FIND(hh, db.retains, split_topics[0], strlen(split_topics[0]), retainhier);
-	if(retainhier == NULL){
-		retainhier = retain__add_hier_entry(NULL, &db.retains, split_topics[0], (uint16_t)strlen(split_topics[0]));
-		if(!retainhier){
-			return MOSQ_ERR_NOMEM;
+	HASH_ਲੱਭੋ(hh, db.retains, ਵੰਡੋ_topics[0], ਲੜੀ_ਲੰਬਾਈ(ਵੰਡੋ_topics[0]), retainhier);
+	ਜੇ(retainhier == ਨਿਰਾ){
+		retainhier = retain_ਜੋੜੋ_hier_ਇੰਦਰਾਜ(ਨਿਰਾ, &db.retains, ਵੰਡੋ_topics[0], (uint16_t)ਲੜੀ_ਲੰਬਾਈ(ਵੰਡੋ_topics[0]));
+		ਜੇ(!retainhier){
+			ਵਾਪਸ MOSQ_ERR_NOMEM;
 		}
 	}
 
-	for(int i=0; split_topics[i] != NULL; i++){
-		slen = strlen(split_topics[i]);
-		HASH_FIND(hh, retainhier->children, split_topics[i], slen, branch);
-		if(branch == NULL){
-			branch = retain__add_hier_entry(retainhier, &retainhier->children, split_topics[i], (uint16_t)slen);
-			if(branch == NULL){
-				return MOSQ_ERR_NOMEM;
+	ਲਈ(ਪੂਰਨ i=0; ਵੰਡੋ_topics[i] != ਨਿਰਾ; i++){
+		slen = ਲੜੀ_ਲੰਬਾਈ(ਵੰਡੋ_topics[i]);
+		HASH_ਲੱਭੋ(hh, retainhier->children, ਵੰਡੋ_topics[i], slen, branch);
+		ਜੇ(branch == ਨਿਰਾ){
+			branch = retain_ਜੋੜੋ_hier_ਇੰਦਰਾਜ(retainhier, &retainhier->children, ਵੰਡੋ_topics[i], (uint16_t)slen);
+			ਜੇ(branch == ਨਿਰਾ){
+				ਵਾਪਸ MOSQ_ERR_NOMEM;
 			}
 		}
 		retainhier = branch;
 	}
 
-#ifdef WITH_PERSISTENCE
-	if(strncmp(topic, "$SYS", 4)){
+#ਜੇ_ਪਰਿਭਾਸ਼ਿਤ WITH_PERSISTENCE
+	ਜੇ(ਲੜੀ_ਤੁਲਨਾ(topic, "$SYS", 4)){
 		/* Retained messages count as a persistence change, but only if
 		 * they aren't for $SYS. */
 		db.persistence_changes++;
 	}
-#else
-	UNUSED(topic);
-#endif
+#ਨਹੀਂਤਾਂ
+	ਅਣਵਰਤਿਆ(topic);
+#ਜੇ_ਅੰਤ
 
-	if(retainhier->retained){
-		if(retainhier->retained == base_msg){
+	ਜੇ(retainhier->retained){
+		ਜੇ(retainhier->retained == ਅਧਾਰ_ਸੁਨੇਹਾ){
 			/* This may occur if multiple persistence providers are used */
-			return MOSQ_ERR_SUCCESS;
+			ਵਾਪਸ MOSQ_ERR_SUCCESS;
 		}
 
-		if(persist && retainhier->retained->data.topic[0] != '$' && base_msg->data.payloadlen == 0){
+		ਜੇ(persist && retainhier->retained->ਅੰਕੜੇ.topic[0] != '$' && ਅਧਾਰ_ਸੁਨੇਹਾ->ਅੰਕੜੇ.payloadlen == 0){
 			/* Only delete if another retained message isn't replacing this one */
-			plugin_persist__handle_retain_msg_delete(retainhier->retained);
+			plugin_persist_handle_retain_ਸੁਨੇਹਾ_delete(retainhier->retained);
 		}
-		db__msg_store_ref_dec(&retainhier->retained);
-#ifdef WITH_SYS_TREE
-		db.retained_count--;
-#endif
-		if(base_msg->data.payloadlen == 0){
-			retainhier->retained = NULL;
-			retain__clean_empty_hierarchy(retainhier);
+		db_ਸੁਨੇਹਾ_store_ref_dec(&retainhier->retained);
+#ਜੇ_ਪਰਿਭਾਸ਼ਿਤ WITH_SYS_ਰੁੱਖ
+		db.retained_ਗਿਣਤੀ--;
+#ਜੇ_ਅੰਤ
+		ਜੇ(ਅਧਾਰ_ਸੁਨੇਹਾ->ਅੰਕੜੇ.payloadlen == 0){
+			retainhier->retained = ਨਿਰਾ;
+			retain_clean_ਖਾਲੀ_ਥਾਵਾਂ_hierarchy(retainhier);
 		}
 	}
-	if(base_msg->data.payloadlen){
-		retainhier->retained = base_msg;
-		db__msg_store_ref_inc(retainhier->retained);
-		if(persist && retainhier->retained->data.topic[0] != '$'){
-			plugin_persist__handle_base_msg_add(retainhier->retained);
-			plugin_persist__handle_retain_msg_set(retainhier->retained);
+	ਜੇ(ਅਧਾਰ_ਸੁਨੇਹਾ->ਅੰਕੜੇ.payloadlen){
+		retainhier->retained = ਅਧਾਰ_ਸੁਨੇਹਾ;
+		db_ਸੁਨੇਹਾ_store_ref_inc(retainhier->retained);
+		ਜੇ(persist && retainhier->retained->ਅੰਕੜੇ.topic[0] != '$'){
+			plugin_persist_handle_ਅਧਾਰ_ਸੁਨੇਹਾ_ਜੋੜੋ(retainhier->retained);
+			plugin_persist_handle_retain_ਸੁਨੇਹਾ_ਸੈੱਟ(retainhier->retained);
 		}
-#ifdef WITH_SYS_TREE
-		db.retained_count++;
-#endif
+#ਜੇ_ਪਰਿਭਾਸ਼ਿਤ WITH_SYS_ਰੁੱਖ
+		db.retained_ਗਿਣਤੀ++;
+#ਜੇ_ਅੰਤ
 	}
 
-	return MOSQ_ERR_SUCCESS;
+	ਵਾਪਸ MOSQ_ERR_SUCCESS;
 }
 
 
-static bool retain__delete_expired_msg(struct mosquitto__retainhier *branch)
+ਸਥਿਰ bool retain_delete_expired_ਸੁਨੇਹਾ(ਬਣਤਰ mosquitto__retainhier *branch)
 {
-	if(branch->retained && branch->retained->data.expiry_time > 0 && db.now_real_s >= branch->retained->data.expiry_time){
-		plugin_persist__handle_retain_msg_delete(branch->retained);
-		db__msg_store_ref_dec(&branch->retained);
-		branch->retained = NULL;
-#ifdef WITH_SYS_TREE
-		db.retained_count--;
-#endif
-		return true;
+	ਜੇ(branch->retained && branch->retained->ਅੰਕੜੇ.expiry_ਸਮਾਂ > 0 && db.now_real_s >= branch->retained->ਅੰਕੜੇ.expiry_ਸਮਾਂ){
+		plugin_persist_handle_retain_ਸੁਨੇਹਾ_delete(branch->retained);
+		db_ਸੁਨੇਹਾ_store_ref_dec(&branch->retained);
+		branch->retained = ਨਿਰਾ;
+#ਜੇ_ਪਰਿਭਾਸ਼ਿਤ WITH_SYS_ਰੁੱਖ
+		db.retained_ਗਿਣਤੀ--;
+#ਜੇ_ਅੰਤ
+		ਵਾਪਸ true;
 	}
-	return false;
+	ਵਾਪਸ false;
 }
 
 
-static int retain__process(struct mosquitto__retainhier *branch, struct mosquitto *context, const struct mosquitto_subscription *sub)
+ਸਥਿਰ ਪੂਰਨ retain__process(ਬਣਤਰ mosquitto__retainhier *branch, ਬਣਤਰ mosquitto *context, ਅਚਲ ਬਣਤਰ mosquitto_subscription *sub)
 {
-	int rc = 0;
+	ਪੂਰਨ rc = 0;
 	uint8_t qos, sub_qos;
 	uint16_t mid;
-	struct mosquitto__base_msg *retained;
+	ਬਣਤਰ mosquitto_ਅਧਾਰ_ਸੁਨੇਹਾ *retained;
 
-	if(retain__delete_expired_msg(branch)){
-		return MOSQ_ERR_SUCCESS;
+	ਜੇ(retain_delete_expired_ਸੁਨੇਹਾ(branch)){
+		ਵਾਪਸ MOSQ_ERR_SUCCESS;
 	}
 
 	retained = branch->retained;
 
-	rc = mosquitto_acl_check(context, retained->data.topic, retained->data.payloadlen, retained->data.payload,
-			retained->data.qos, retained->data.retain, retained->data.properties, MOSQ_ACL_READ);
-	if(rc == MOSQ_ERR_ACL_DENIED){
-		return MOSQ_ERR_SUCCESS;
-	}else if(rc != MOSQ_ERR_SUCCESS){
-		return rc;
+	rc = mosquitto_acl_check(context, retained->ਅੰਕੜੇ.topic, retained->ਅੰਕੜੇ.payloadlen, retained->ਅੰਕੜੇ.payload,
+			retained->ਅੰਕੜੇ.qos, retained->ਅੰਕੜੇ.retain, retained->ਅੰਕੜੇ.properties, MOSQ_ACL_READ);
+	ਜੇ(rc == MOSQ_ERR_ACL_DENIED){
+		ਵਾਪਸ MOSQ_ERR_SUCCESS;
+	}ਨਹੀਂਤਾਂ ਜੇ(rc != MOSQ_ERR_SUCCESS){
+		ਵਾਪਸ rc;
 	}
 
 	/* Check for original source access */
-	if(db.config->check_retain_source && retained->origin != mosq_mo_broker && retained->data.source_id){
-		struct mosquitto retain_ctxt;
-		memset(&retain_ctxt, 0, sizeof(struct mosquitto));
+	ਜੇ(db.config->check_retain_ਸਰੋਤ && retained->origin != mosq_mo_broker && retained->ਅੰਕੜੇ.ਸਰੋਤ_id){
+		ਬਣਤਰ mosquitto retain_ctxt;
+		memset(&retain_ctxt, 0, ਆਕਾਰ(ਬਣਤਰ mosquitto));
 
-		retain_ctxt.id = retained->data.source_id;
-		retain_ctxt.username = retained->data.source_username;
-		retain_ctxt.listener = retained->source_listener;
+		retain_ctxt.id = retained->ਅੰਕੜੇ.ਸਰੋਤ_id;
+		retain_ctxt.username = retained->ਅੰਕੜੇ.ਸਰੋਤ_username;
+		retain_ctxt.listener = retained->ਸਰੋਤ_listener;
 
-		rc = mosquitto_acl_check(&retain_ctxt, retained->data.topic, retained->data.payloadlen, retained->data.payload,
-				retained->data.qos, retained->data.retain, retained->data.properties, MOSQ_ACL_WRITE);
-		if(rc == MOSQ_ERR_ACL_DENIED){
-			return MOSQ_ERR_SUCCESS;
-		}else if(rc != MOSQ_ERR_SUCCESS){
-			return rc;
+		rc = mosquitto_acl_check(&retain_ctxt, retained->ਅੰਕੜੇ.topic, retained->ਅੰਕੜੇ.payloadlen, retained->ਅੰਕੜੇ.payload,
+				retained->ਅੰਕੜੇ.qos, retained->ਅੰਕੜੇ.retain, retained->ਅੰਕੜੇ.properties, MOSQ_ACL_WRITE);
+		ਜੇ(rc == MOSQ_ERR_ACL_DENIED){
+			ਵਾਪਸ MOSQ_ERR_SUCCESS;
+		}ਨਹੀਂਤਾਂ ਜੇ(rc != MOSQ_ERR_SUCCESS){
+			ਵਾਪਸ rc;
 		}
 	}
 
 	sub_qos = sub->options & 0x03;
-	if(db.config->upgrade_outgoing_qos){
+	ਜੇ(db.config->upgrade_outgoing_qos){
 		qos = sub_qos;
-	}else{
-		qos = retained->data.qos;
-		if(qos > sub_qos){
+	}ਨਹੀਂਤਾਂ{
+		qos = retained->ਅੰਕੜੇ.qos;
+		ਜੇ(qos > sub_qos){
 			qos = sub_qos;
 		}
 	}
-	if(qos > 0){
+	ਜੇ(qos > 0){
 		mid = mosquitto__mid_generate(context);
-	}else{
+	}ਨਹੀਂਤਾਂ{
 		mid = 0;
 	}
-	return db__message_insert_outgoing(context, 0, mid, qos, true, retained, sub->identifier, false, true);
+	ਵਾਪਸ db_ਸੁਨੇਹਾ_ਪਾਓ_outgoing(context, 0, mid, qos, true, retained, sub->identifier, false, true);
 }
 
 
-static int retain__search(struct mosquitto__retainhier *retainhier, char **split_topics, struct mosquitto *context, const struct mosquitto_subscription *sub, int level)
+ਸਥਿਰ ਪੂਰਨ retain_ਖੋਜ(ਬਣਤਰ mosquitto__retainhier *retainhier, ਅੱਖਰ **ਵੰਡੋ_topics, ਬਣਤਰ mosquitto *context, ਅਚਲ ਬਣਤਰ mosquitto_subscription *sub, ਪੂਰਨ level)
 {
-	struct mosquitto__retainhier *branch, *branch_tmp;
-	int flag = 0;
+	ਬਣਤਰ mosquitto__retainhier *branch, *branch_tmp;
+	ਪੂਰਨ flag = 0;
 
-	if(!strcmp(split_topics[0], "#") && split_topics[1] == NULL){
+	ਜੇ(!strcmp(ਵੰਡੋ_topics[0], "#") && ਵੰਡੋ_topics[1] == ਨਿਰਾ){
 		HASH_ITER(hh, retainhier->children, branch, branch_tmp){
 			/* Set flag to indicate that we should check for retained messages
 			 * on "foo" when we are subscribing to e.g. "foo/#" and then exit
 			 * this function and return to an earlier retain__search().
 			 */
 			flag = -1;
-			if(branch->retained){
+			ਜੇ(branch->retained){
 				retain__process(branch, context, sub);
 			}
-			if(branch->children){
-				retain__search(branch, split_topics, context, sub, level+1);
+			ਜੇ(branch->children){
+				retain_ਖੋਜ(branch, ਵੰਡੋ_topics, context, sub, level+1);
 			}
 		}
-	}else{
-		if(!strcmp(split_topics[0], "+")){
+	}ਨਹੀਂਤਾਂ{
+		ਜੇ(!strcmp(ਵੰਡੋ_topics[0], "+")){
 			HASH_ITER(hh, retainhier->children, branch, branch_tmp){
-				if(split_topics[1] != NULL){
-					if(retain__search(branch, &(split_topics[1]), context, sub, level+1) == -1
-							|| (split_topics[1] != NULL && !strcmp(split_topics[1], "#") && level>0)){
+				ਜੇ(ਵੰਡੋ_topics[1] != ਨਿਰਾ){
+					ਜੇ(retain_ਖੋਜ(branch, &(ਵੰਡੋ_topics[1]), context, sub, level+1) == -1
+							|| (ਵੰਡੋ_topics[1] != ਨਿਰਾ && !strcmp(ਵੰਡੋ_topics[1], "#") && level>0)){
 
-						if(branch->retained){
+						ਜੇ(branch->retained){
 							retain__process(branch, context, sub);
 						}
 					}
-				}else{
-					if(branch->retained){
+				}ਨਹੀਂਤਾਂ{
+					ਜੇ(branch->retained){
 						retain__process(branch, context, sub);
 					}
 				}
 			}
-		}else{
-			HASH_FIND(hh, retainhier->children, split_topics[0], strlen(split_topics[0]), branch);
-			if(branch){
-				if(split_topics[1] != NULL){
-					if(retain__search(branch, &(split_topics[1]), context, sub, level+1) == -1
-							|| (split_topics[1] != NULL && !strcmp(split_topics[1], "#") && level>0)){
+		}ਨਹੀਂਤਾਂ{
+			HASH_ਲੱਭੋ(hh, retainhier->children, ਵੰਡੋ_topics[0], ਲੜੀ_ਲੰਬਾਈ(ਵੰਡੋ_topics[0]), branch);
+			ਜੇ(branch){
+				ਜੇ(ਵੰਡੋ_topics[1] != ਨਿਰਾ){
+					ਜੇ(retain_ਖੋਜ(branch, &(ਵੰਡੋ_topics[1]), context, sub, level+1) == -1
+							|| (ਵੰਡੋ_topics[1] != ਨਿਰਾ && !strcmp(ਵੰਡੋ_topics[1], "#") && level>0)){
 
-						if(branch->retained){
+						ਜੇ(branch->retained){
 							retain__process(branch, context, sub);
 						}
 					}
-				}else{
-					if(branch->retained){
+				}ਨਹੀਂਤਾਂ{
+					ਜੇ(branch->retained){
 						retain__process(branch, context, sub);
 					}
 				}
 			}
 		}
 	}
-	return flag;
+	ਵਾਪਸ flag;
 }
 
 
-int retain__queue(struct mosquitto *context, const struct mosquitto_subscription *sub)
+ਪੂਰਨ retain_ਕਤਾਰ(ਬਣਤਰ mosquitto *context, ਅਚਲ ਬਣਤਰ mosquitto_subscription *sub)
 {
-	struct mosquitto__retainhier *retainhier;
-	char *local_sub;
-	char **split_topics;
-	int rc;
+	ਬਣਤਰ mosquitto__retainhier *retainhier;
+	ਅੱਖਰ *local_sub;
+	ਅੱਖਰ **ਵੰਡੋ_topics;
+	ਪੂਰਨ rc;
 
-	assert(context);
-	assert(sub);
+	ਪ੍ਰਤਿਜ੍ਞਾ(context);
+	ਪ੍ਰਤਿਜ੍ਞਾ(sub);
 
-	if(!strncmp(sub->topic_filter, "$share/", strlen("$share/"))){
-		return MOSQ_ERR_SUCCESS;
+	ਜੇ(!ਲੜੀ_ਤੁਲਨਾ(sub->topic_filter, "$share/", ਲੜੀ_ਲੰਬਾਈ("$share/"))){
+		ਵਾਪਸ MOSQ_ERR_SUCCESS;
 	}
 
-	rc = sub__topic_tokenise(sub->topic_filter, &local_sub, &split_topics, NULL);
-	if(rc){
-		return rc;
+	rc = sub__topic_tokenise(sub->topic_filter, &local_sub, &ਵੰਡੋ_topics, ਨਿਰਾ);
+	ਜੇ(rc){
+		ਵਾਪਸ rc;
 	}
 
-	HASH_FIND(hh, db.retains, split_topics[0], strlen(split_topics[0]), retainhier);
+	HASH_ਲੱਭੋ(hh, db.retains, ਵੰਡੋ_topics[0], ਲੜੀ_ਲੰਬਾਈ(ਵੰਡੋ_topics[0]), retainhier);
 
-	if(retainhier){
-		retain__search(retainhier, split_topics, context, sub, 0);
+	ਜੇ(retainhier){
+		retain_ਖੋਜ(retainhier, ਵੰਡੋ_topics, context, sub, 0);
 	}
 	mosquitto_FREE(local_sub);
-	mosquitto_FREE(split_topics);
+	mosquitto_FREE(ਵੰਡੋ_topics);
 
-	return MOSQ_ERR_SUCCESS;
+	ਵਾਪਸ MOSQ_ERR_SUCCESS;
 }
 
 
-void retain__expire(struct mosquitto__retainhier **retainhier)
+ਖਾਲੀ retain__expire(ਬਣਤਰ mosquitto__retainhier **retainhier)
 {
-	struct mosquitto__retainhier *peer, *retainhier_tmp;
+	ਬਣਤਰ mosquitto__retainhier *peer, *retainhier_tmp;
 
 	HASH_ITER(hh, *retainhier, peer, retainhier_tmp){
 		retain__expire(&peer->children);
 
-		struct mosquitto__retainhier *parent = peer->parent;
-		if(retain__delete_expired_msg(peer)){
-			retain__clean_empty_hierarchy(parent);
+		ਬਣਤਰ mosquitto__retainhier *ਮਾਪਾ = peer->ਮਾਪਾ;
+		ਜੇ(retain_delete_expired_ਸੁਨੇਹਾ(peer)){
+			retain_clean_ਖਾਲੀ_ਥਾਵਾਂ_hierarchy(ਮਾਪਾ);
 		}
 	}
 }
 
 
-void retain__clean(struct mosquitto__retainhier **retainhier)
+ਖਾਲੀ retain__clean(ਬਣਤਰ mosquitto__retainhier **retainhier)
 {
-	struct mosquitto__retainhier *peer, *retainhier_tmp;
+	ਬਣਤਰ mosquitto__retainhier *peer, *retainhier_tmp;
 
 	HASH_ITER(hh, *retainhier, peer, retainhier_tmp){
-		if(peer->retained){
-			db__msg_store_ref_dec(&peer->retained);
+		ਜੇ(peer->retained){
+			db_ਸੁਨੇਹਾ_store_ref_dec(&peer->retained);
 		}
 		retain__clean(&peer->children);
 
@@ -408,10 +408,10 @@ void retain__clean(struct mosquitto__retainhier **retainhier)
 }
 
 
-void retain__expiry_check(void)
+ਖਾਲੀ retain__expiry_check(ਖਾਲੀ)
 {
-	if(db.config->retain_expiry_interval > 0 && db.now_s > next_expire_check){
+	ਜੇ(db.config->retain_expiry_interval > 0 && db.now_s > ਅਗਲਾ_expire_check){
 		retain__expire(&db.retains);
-		next_expire_check = db.now_s + db.config->retain_expiry_interval;
+		ਅਗਲਾ_expire_check = db.now_s + db.config->retain_expiry_interval;
 	}
 }

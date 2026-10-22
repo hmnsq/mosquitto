@@ -16,230 +16,230 @@ Contributors:
    Roger Light - initial implementation and documentation.
 */
 
-#include "config.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "config.h"
 
-#ifdef WITH_PERSISTENCE
+#ਜੇ_ਪਰਿਭਾਸ਼ਿਤ WITH_PERSISTENCE
 
-#ifndef WIN32
-#include <arpa/inet.h>
-#endif
-#include <errno.h>
-#include <fcntl.h>
-#include <stdio.h>
-#include <string.h>
-#include <sys/stat.h>
-#include <time.h>
+#ਜੇ_ਅਪਰਿਭਾਸ਼ਿਤ WIN32
+#ਅਨ੍ਤਰ੍ਭਾਵ <arpa/inet.h>
+#ਜੇ_ਅੰਤ
+#ਅਨ੍ਤਰ੍ਭਾਵ <errno.h>
+#ਅਨ੍ਤਰ੍ਭਾਵ <fcntl.h>
+#ਅਨ੍ਤਰ੍ਭਾਵ <stdio.h>
+#ਅਨ੍ਤਰ੍ਭਾਵ <string.h>
+#ਅਨ੍ਤਰ੍ਭਾਵ <sys/stat.h>
+#ਅਨ੍ਤਰ੍ਭਾਵ <time.h>
 
-#include "mosquitto_broker_internal.h"
-#include "persist.h"
-#include "util_mosq.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "mosquitto_broker_internal.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "persist.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "util_mosq.h"
 
 
-int persist__chunk_header_read_v234(FILE *db_fptr, uint32_t *chunk, uint32_t *length)
+ਪੂਰਨ persist_chunk_ਸਿਰਲੇਖ_read_v234(FILE *db_fptr, uint32_t *chunk, uint32_t *ਲੰਮਾਈ)
 {
 	size_t rlen;
 	uint16_t i16temp;
 	uint32_t i32temp;
 
-	rlen = fread(&i16temp, sizeof(uint16_t), 1, db_fptr);
-	if(rlen != 1){
-		return 1;
+	rlen = fread(&i16temp, ਆਕਾਰ(uint16_t), 1, db_fptr);
+	ਜੇ(rlen != 1){
+		ਵਾਪਸ 1;
 	}
 
-	rlen = fread(&i32temp, sizeof(uint32_t), 1, db_fptr);
-	if(rlen != 1){
-		return 1;
+	rlen = fread(&i32temp, ਆਕਾਰ(uint32_t), 1, db_fptr);
+	ਜੇ(rlen != 1){
+		ਵਾਪਸ 1;
 	}
 
 	*chunk = ntohs(i16temp);
-	*length = ntohl(i32temp);
+	*ਲੰਮਾਈ = ntohl(i32temp);
 
-	return MOSQ_ERR_SUCCESS;
+	ਵਾਪਸ MOSQ_ERR_SUCCESS;
 }
 
 
-int persist__chunk_cfg_read_v234(FILE *db_fptr, struct PF_cfg *chunk)
+ਪੂਰਨ persist__chunk_cfg_read_v234(FILE *db_fptr, ਬਣਤਰ PF_cfg *chunk)
 {
-	int rc = MOSQ_ERR_UNKNOWN;
+	ਪੂਰਨ rc = MOSQ_ERR_UNKNOWN;
 
-	read_e(db_fptr, &chunk->shutdown, sizeof(uint8_t)); /* shutdown */
-	read_e(db_fptr, &chunk->dbid_size, sizeof(uint8_t)); /* sizeof(dbid_t) */
-	read_e(db_fptr, &chunk->last_db_id, sizeof(dbid_t));
+	read_e(db_fptr, &chunk->shutdown, ਆਕਾਰ(uint8_t)); /* shutdown */
+	read_e(db_fptr, &chunk->dbid_ਮਾਪ, ਆਕਾਰ(uint8_t)); /* sizeof(dbid_t) */
+	read_e(db_fptr, &chunk->ਆਖਰੀ_db_id, ਆਕਾਰ(dbid_t));
 
-	return MOSQ_ERR_SUCCESS;
+	ਵਾਪਸ MOSQ_ERR_SUCCESS;
 error:
-	log__printf(NULL, MOSQ_LOG_ERR, "Error: %s.", strerror(errno));
-	return rc;
+	log__printf(ਨਿਰਾ, MOSQ_LOG_ERR, "Error: %s.", strerror(errno));
+	ਵਾਪਸ rc;
 }
 
 
-int persist__chunk_client_read_v234(FILE *db_fptr, struct P_client *chunk, uint32_t db_version)
+ਪੂਰਨ persist__chunk_client_read_v234(FILE *db_fptr, ਬਣਤਰ P_client *chunk, uint32_t db_ਸੰਸਕਰਣ)
 {
 	uint16_t i16temp;
-	int rc;
-	time_t temp;
+	ਪੂਰਨ rc;
+	time_t ਆਰਜ਼ੀ;
 
 	rc = persist__read_string(db_fptr, &chunk->clientid);
-	if(rc){
-		return rc;
+	ਜੇ(rc){
+		ਵਾਪਸ rc;
 	}
 
-	read_e(db_fptr, &i16temp, sizeof(uint16_t));
-	chunk->F.last_mid = ntohs(i16temp);
-	if(db_version != 2){
-		read_e(db_fptr, &temp, sizeof(time_t));
+	read_e(db_fptr, &i16temp, ਆਕਾਰ(uint16_t));
+	chunk->F.ਆਖਰੀ_mid = ntohs(i16temp);
+	ਜੇ(db_ਸੰਸਕਰਣ != 2){
+		read_e(db_fptr, &ਆਰਜ਼ੀ, ਆਕਾਰ(time_t));
 	}
 
-	return MOSQ_ERR_SUCCESS;
+	ਵਾਪਸ MOSQ_ERR_SUCCESS;
 error:
-	log__printf(NULL, MOSQ_LOG_ERR, "Error: %s.", strerror(errno));
+	log__printf(ਨਿਰਾ, MOSQ_LOG_ERR, "Error: %s.", strerror(errno));
 	mosquitto_FREE(chunk->clientid);
-	return 1;
+	ਵਾਪਸ 1;
 }
 
 
-int persist__chunk_client_msg_read_v234(FILE *db_fptr, struct P_client_msg *chunk)
+ਪੂਰਨ persist_chunk_client_ਸੁਨੇਹਾ_read_v234(FILE *db_fptr, ਬਣਤਰ P_client_ਸੁਨੇਹਾ *chunk)
 {
 	uint16_t i16temp;
-	int rc;
+	ਪੂਰਨ rc;
 	uint8_t retain, dup;
 
 	rc = persist__read_string(db_fptr, &chunk->clientid);
-	if(rc){
-		return rc;
+	ਜੇ(rc){
+		ਵਾਪਸ rc;
 	}
 
-	read_e(db_fptr, &chunk->F.store_id, sizeof(dbid_t));
+	read_e(db_fptr, &chunk->F.store_id, ਆਕਾਰ(dbid_t));
 
-	read_e(db_fptr, &i16temp, sizeof(uint16_t));
+	read_e(db_fptr, &i16temp, ਆਕਾਰ(uint16_t));
 	chunk->F.mid = ntohs(i16temp);
 
-	read_e(db_fptr, &chunk->F.qos, sizeof(uint8_t));
-	read_e(db_fptr, &retain, sizeof(uint8_t));
-	read_e(db_fptr, &chunk->F.direction, sizeof(uint8_t));
-	read_e(db_fptr, &chunk->F.state, sizeof(uint8_t));
-	read_e(db_fptr, &dup, sizeof(uint8_t));
+	read_e(db_fptr, &chunk->F.qos, ਆਕਾਰ(uint8_t));
+	read_e(db_fptr, &retain, ਆਕਾਰ(uint8_t));
+	read_e(db_fptr, &chunk->F.direction, ਆਕਾਰ(uint8_t));
+	read_e(db_fptr, &chunk->F.state, ਆਕਾਰ(uint8_t));
+	read_e(db_fptr, &dup, ਆਕਾਰ(uint8_t));
 
 	chunk->F.retain_dup = (uint8_t)((retain&0x0F)<<4 | (dup&0x0F));
 
-	return MOSQ_ERR_SUCCESS;
+	ਵਾਪਸ MOSQ_ERR_SUCCESS;
 error:
-	log__printf(NULL, MOSQ_LOG_ERR, "Error: %s.", strerror(errno));
+	log__printf(ਨਿਰਾ, MOSQ_LOG_ERR, "Error: %s.", strerror(errno));
 	mosquitto_FREE(chunk->clientid);
-	return 1;
+	ਵਾਪਸ 1;
 }
 
 
-int persist__chunk_base_msg_read_v234(FILE *db_fptr, struct P_base_msg *chunk, uint32_t db_version)
+ਪੂਰਨ persist_chunk_ਅਧਾਰ_ਸੁਨੇਹਾ_read_v234(FILE *db_fptr, ਬਣਤਰ P_ਅਧਾਰ_ਸੁਨੇਹਾ *chunk, uint32_t db_ਸੰਸਕਰਣ)
 {
 	uint32_t i32temp;
 	uint16_t i16temp;
-	int rc = 0;
+	ਪੂਰਨ rc = 0;
 	size_t slen;
 
-	read_e(db_fptr, &chunk->F.store_id, sizeof(dbid_t));
+	read_e(db_fptr, &chunk->F.store_id, ਆਕਾਰ(dbid_t));
 
-	rc = persist__read_string(db_fptr, &chunk->source.id);
-	if(rc){
-		return rc;
+	rc = persist__read_string(db_fptr, &chunk->ਸਰੋਤ.id);
+	ਜੇ(rc){
+		ਵਾਪਸ rc;
 	}
 
-	if(db_version == 4){
-		rc = persist__read_string(db_fptr, &chunk->source.username);
-		if(rc){
-			goto error;
+	ਜੇ(db_ਸੰਸਕਰਣ == 4){
+		rc = persist__read_string(db_fptr, &chunk->ਸਰੋਤ.username);
+		ਜੇ(rc){
+			ਜਾਓ error;
 		}
-		read_e(db_fptr, &i16temp, sizeof(uint16_t));
-		chunk->F.source_port = ntohs(i16temp);
+		read_e(db_fptr, &i16temp, ਆਕਾਰ(uint16_t));
+		chunk->F.ਸਰੋਤ_ਪੋਰਟ = ntohs(i16temp);
 	}
 
-	read_e(db_fptr, &i16temp, sizeof(uint16_t));
-	chunk->F.source_mid = ntohs(i16temp);
+	read_e(db_fptr, &i16temp, ਆਕਾਰ(uint16_t));
+	chunk->F.ਸਰੋਤ_mid = ntohs(i16temp);
 
 	/* This is the mid - don't need it */
-	read_e(db_fptr, &i16temp, sizeof(uint16_t));
+	read_e(db_fptr, &i16temp, ਆਕਾਰ(uint16_t));
 
 	rc = persist__read_string(db_fptr, &chunk->topic);
-	if(rc){
-		goto error;
+	ਜੇ(rc){
+		ਜਾਓ error;
 	}
-	if(!chunk->topic){
+	ਜੇ(!chunk->topic){
 		rc = MOSQ_ERR_INVAL;
-		goto error;
+		ਜਾਓ error;
 	}
-	slen = strlen(chunk->topic);
-	if(slen > UINT16_MAX){
+	slen = ਲੜੀ_ਲੰਬਾਈ(chunk->topic);
+	ਜੇ(slen > UINT16_MAX){
 		rc = MOSQ_ERR_INVAL;
-		goto error;
+		ਜਾਓ error;
 	}
 	chunk->F.topic_len = (uint16_t)slen;
 
-	read_e(db_fptr, &chunk->F.qos, sizeof(uint8_t));
-	read_e(db_fptr, &chunk->F.retain, sizeof(uint8_t));
+	read_e(db_fptr, &chunk->F.qos, ਆਕਾਰ(uint8_t));
+	read_e(db_fptr, &chunk->F.retain, ਆਕਾਰ(uint8_t));
 
-	read_e(db_fptr, &i32temp, sizeof(uint32_t));
+	read_e(db_fptr, &i32temp, ਆਕਾਰ(uint32_t));
 	chunk->F.payloadlen = ntohl(i32temp);
 
-	if(chunk->F.payloadlen){
-		if(chunk->F.payloadlen > MQTT_MAX_PAYLOAD){
+	ਜੇ(chunk->F.payloadlen){
+		ਜੇ(chunk->F.payloadlen > MQTT_MAX_PAYLOAD){
 			rc = MOSQ_ERR_INVAL;
-			goto error;
+			ਜਾਓ error;
 		}
 		chunk->payload = mosquitto_malloc(chunk->F.payloadlen+1);
-		if(chunk->payload == NULL){
+		ਜੇ(chunk->payload == ਨਿਰਾ){
 			rc = MOSQ_ERR_NOMEM;
-			goto error;
+			ਜਾਓ error;
 		}
 		read_e(db_fptr, chunk->payload, chunk->F.payloadlen);
 		/* Ensure zero terminated regardless of contents */
 		((uint8_t *)chunk->payload)[chunk->F.payloadlen] = 0;
 	}
 
-	return MOSQ_ERR_SUCCESS;
+	ਵਾਪਸ MOSQ_ERR_SUCCESS;
 error:
 	mosquitto_FREE(chunk->payload);
-	mosquitto_FREE(chunk->source.id);
-	mosquitto_FREE(chunk->source.username);
+	mosquitto_FREE(chunk->ਸਰੋਤ.id);
+	mosquitto_FREE(chunk->ਸਰੋਤ.username);
 	mosquitto_FREE(chunk->topic);
-	return rc;
+	ਵਾਪਸ rc;
 }
 
 
-int persist__chunk_retain_read_v234(FILE *db_fptr, struct P_retain *chunk)
+ਪੂਰਨ persist__chunk_retain_read_v234(FILE *db_fptr, ਬਣਤਰ P_retain *chunk)
 {
 	dbid_t i64temp;
 
-	if(fread(&i64temp, sizeof(dbid_t), 1, db_fptr) != 1){
-		log__printf(NULL, MOSQ_LOG_ERR, "Error: %s.", strerror(errno));
-		return 1;
+	ਜੇ(fread(&i64temp, ਆਕਾਰ(dbid_t), 1, db_fptr) != 1){
+		log__printf(ਨਿਰਾ, MOSQ_LOG_ERR, "Error: %s.", strerror(errno));
+		ਵਾਪਸ 1;
 	}
 	chunk->F.store_id = i64temp;
 
-	return MOSQ_ERR_SUCCESS;
+	ਵਾਪਸ MOSQ_ERR_SUCCESS;
 }
 
 
-int persist__chunk_sub_read_v234(FILE *db_fptr, struct P_sub *chunk)
+ਪੂਰਨ persist__chunk_sub_read_v234(FILE *db_fptr, ਬਣਤਰ P_sub *chunk)
 {
-	int rc;
+	ਪੂਰਨ rc;
 
 	rc = persist__read_string(db_fptr, &chunk->clientid);
-	if(rc){
-		goto error;
+	ਜੇ(rc){
+		ਜਾਓ error;
 	}
 
 	rc = persist__read_string(db_fptr, &chunk->topic);
-	if(rc){
-		goto error;
+	ਜੇ(rc){
+		ਜਾਓ error;
 	}
 
-	read_e(db_fptr, &chunk->F.qos, sizeof(uint8_t));
+	read_e(db_fptr, &chunk->F.qos, ਆਕਾਰ(uint8_t));
 
-	return MOSQ_ERR_SUCCESS;
+	ਵਾਪਸ MOSQ_ERR_SUCCESS;
 error:
 	mosquitto_FREE(chunk->clientid);
 	mosquitto_FREE(chunk->topic);
-	return rc;
+	ਵਾਪਸ rc;
 }
 
-#endif
+#ਜੇ_ਅੰਤ

@@ -17,285 +17,285 @@ Contributors:
    Tatsuzo Osawa - Add epoll.
 */
 
-#include "config.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "config.h"
 
-#ifndef WIN32
-#  define _GNU_SOURCE
-#endif
+#ਜੇ_ਅਪਰਿਭਾਸ਼ਿਤ WIN32
+#  define GNU_ਸਰੋਤ
+#ਜੇ_ਅੰਤ
 
-#ifndef WIN32
-#include <unistd.h>
-#else
-#include <process.h>
-#include <winsock2.h>
-#include <ws2tcpip.h>
-#endif
+#ਜੇ_ਅਪਰਿਭਾਸ਼ਿਤ WIN32
+#ਅਨ੍ਤਰ੍ਭਾਵ <unistd.h>
+#ਨਹੀਂਤਾਂ
+#ਅਨ੍ਤਰ੍ਭਾਵ <process.h>
+#ਅਨ੍ਤਰ੍ਭਾਵ <winsock2.h>
+#ਅਨ੍ਤਰ੍ਭਾਵ <ws2tcpip.h>
+#ਜੇ_ਅੰਤ
 
-#include <errno.h>
-#include <signal.h>
-#include <stdio.h>
-#include <string.h>
-#ifndef WIN32
+#ਅਨ੍ਤਰ੍ਭਾਵ <errno.h>
+#ਅਨ੍ਤਰ੍ਭਾਵ <signal.h>
+#ਅਨ੍ਤਰ੍ਭਾਵ <stdio.h>
+#ਅਨ੍ਤਰ੍ਭਾਵ <string.h>
+#ਜੇ_ਅਪਰਿਭਾਸ਼ਿਤ WIN32
 #  include <sys/socket.h>
-#endif
-#include <time.h>
-#include <utlist.h>
+#ਜੇ_ਅੰਤ
+#ਅਨ੍ਤਰ੍ਭਾਵ <time.h>
+#ਅਨ੍ਤਰ੍ਭਾਵ <utlist.h>
 
-#if defined(WITH_WEBSOCKETS) && WITH_WEBSOCKETS == WS_IS_LWS
+#ਜੇ defined(WITH_WEBSOCKETS) && WITH_WEBSOCKETS == WS_IS_LWS
 #  include <libwebsockets.h>
-#endif
+#ਜੇ_ਅੰਤ
 
-#include "mosquitto_broker_internal.h"
-#include "mosquitto/mqtt_protocol.h"
-#include "packet_mosq.h"
-#include "property_common.h"
-#include "send_mosq.h"
-#include "sys_tree.h"
-#include "util_mosq.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "mosquitto_broker_internal.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "mosquitto/mqtt_protocol.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "packet_mosq.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "property_common.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "send_mosq.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "sys_tree.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "util_mosq.h"
 
-extern int g_run;
+ਬਾਹਰੀ ਪੂਰਨ g_ਲੜੀਵਾਰ;
 
-#if defined(WITH_WEBSOCKETS) && WITH_WEBSOCKETS == WS_IS_LWS && LWS_LIBRARY_VERSION_NUMBER == 3002000
+#ਜੇ defined(WITH_WEBSOCKETS) && WITH_WEBSOCKETS == WS_IS_LWS && LWS_LIBRARY_ਸੰਸਕਰਣ_ਸੰਖਿਆ == 3002000
 
 
-void lws__sul_callback(struct lws_sorted_usec_list *l)
+ਖਾਲੀ lws__sul_callback(ਬਣਤਰ lws_sorted_usec_list *l)
 {
 }
 
-static struct lws_sorted_usec_list sul;
-#endif
+ਸਥਿਰ ਬਣਤਰ lws_sorted_usec_list sul;
+#ਜੇ_ਅੰਤ
 
 
-static int single_publish(struct mosquitto *context, struct mosquitto__message_v5 *pub_msg, uint32_t message_expiry)
+ਸਥਿਰ ਪੂਰਨ single_publish(ਬਣਤਰ mosquitto *context, ਬਣਤਰ mosquitto_ਸੁਨੇਹਾ_v5 *pub_ਸੁਨੇਹਾ, uint32_t ਸੁਨੇਹਾ_expiry)
 {
-	struct mosquitto__base_msg *base_msg;
+	ਬਣਤਰ mosquitto_ਅਧਾਰ_ਸੁਨੇਹਾ *ਅਧਾਰ_ਸੁਨੇਹਾ;
 	uint16_t mid;
 
-	base_msg = mosquitto_calloc(1, sizeof(struct mosquitto__base_msg));
-	if(base_msg == NULL){
-		return MOSQ_ERR_NOMEM;
+	ਅਧਾਰ_ਸੁਨੇਹਾ = mosquitto_calloc(1, ਆਕਾਰ(ਬਣਤਰ mosquitto_ਅਧਾਰ_ਸੁਨੇਹਾ));
+	ਜੇ(ਅਧਾਰ_ਸੁਨੇਹਾ == ਨਿਰਾ){
+		ਵਾਪਸ MOSQ_ERR_NOMEM;
 	}
 
-	base_msg->data.topic = pub_msg->topic;
-	pub_msg->topic = NULL;
-	base_msg->data.retain = 0;
-	base_msg->data.payloadlen = (uint32_t)pub_msg->payloadlen;
-	base_msg->data.payload = mosquitto_malloc(base_msg->data.payloadlen+1);
-	if(base_msg->data.payload == NULL){
-		db__msg_store_free(base_msg);
-		return MOSQ_ERR_NOMEM;
+	ਅਧਾਰ_ਸੁਨੇਹਾ->ਅੰਕੜੇ.topic = pub_ਸੁਨੇਹਾ->topic;
+	pub_ਸੁਨੇਹਾ->topic = ਨਿਰਾ;
+	ਅਧਾਰ_ਸੁਨੇਹਾ->ਅੰਕੜੇ.retain = 0;
+	ਅਧਾਰ_ਸੁਨੇਹਾ->ਅੰਕੜੇ.payloadlen = (uint32_t)pub_ਸੁਨੇਹਾ->payloadlen;
+	ਅਧਾਰ_ਸੁਨੇਹਾ->ਅੰਕੜੇ.payload = mosquitto_malloc(ਅਧਾਰ_ਸੁਨੇਹਾ->ਅੰਕੜੇ.payloadlen+1);
+	ਜੇ(ਅਧਾਰ_ਸੁਨੇਹਾ->ਅੰਕੜੇ.payload == ਨਿਰਾ){
+		db_ਸੁਨੇਹਾ_store_free(ਅਧਾਰ_ਸੁਨੇਹਾ);
+		ਵਾਪਸ MOSQ_ERR_NOMEM;
 	}
 	/* Ensure payload is always zero terminated, this is the reason for the extra byte above */
-	((uint8_t *)base_msg->data.payload)[base_msg->data.payloadlen] = 0;
-	memcpy(base_msg->data.payload, pub_msg->payload, base_msg->data.payloadlen);
+	((uint8_t *)ਅਧਾਰ_ਸੁਨੇਹਾ->ਅੰਕੜੇ.payload)[ਅਧਾਰ_ਸੁਨੇਹਾ->ਅੰਕੜੇ.payloadlen] = 0;
+	ਸਮ੍ਰਿਤੀ_ਨਕਲ(ਅਧਾਰ_ਸੁਨੇਹਾ->ਅੰਕੜੇ.payload, pub_ਸੁਨੇਹਾ->payload, ਅਧਾਰ_ਸੁਨੇਹਾ->ਅੰਕੜੇ.payloadlen);
 
-	if(pub_msg->properties){
-		base_msg->data.properties = pub_msg->properties;
-		pub_msg->properties = NULL;
+	ਜੇ(pub_ਸੁਨੇਹਾ->properties){
+		ਅਧਾਰ_ਸੁਨੇਹਾ->ਅੰਕੜੇ.properties = pub_ਸੁਨੇਹਾ->properties;
+		pub_ਸੁਨੇਹਾ->properties = ਨਿਰਾ;
 	}
 
-	if(db__message_store(context, base_msg, &message_expiry, mosq_mo_broker)){
-		return 1;
+	ਜੇ(db_ਸੁਨੇਹਾ_store(context, ਅਧਾਰ_ਸੁਨੇਹਾ, &ਸੁਨੇਹਾ_expiry, mosq_mo_broker)){
+		ਵਾਪਸ 1;
 	}
 
-	if(pub_msg->qos){
+	ਜੇ(pub_ਸੁਨੇਹਾ->qos){
 		mid = mosquitto__mid_generate(context);
-	}else{
+	}ਨਹੀਂਤਾਂ{
 		mid = 0;
 	}
-	return db__message_insert_outgoing(context, 0, mid, (uint8_t)pub_msg->qos, 0, base_msg, 0, true, true);
+	ਵਾਪਸ db_ਸੁਨੇਹਾ_ਪਾਓ_outgoing(context, 0, mid, (uint8_t)pub_ਸੁਨੇਹਾ->qos, 0, ਅਧਾਰ_ਸੁਨੇਹਾ, 0, true, true);
 }
 
 
-static void read_message_expiry_interval(mosquitto_property **proplist, uint32_t *message_expiry)
+ਸਥਿਰ ਖਾਲੀ read_ਸੁਨੇਹਾ_expiry_interval(mosquitto_property **proplist, uint32_t *ਸੁਨੇਹਾ_expiry)
 {
-	mosquitto_property *p, *previous = NULL;
+	mosquitto_property *p, *ਪਿਛਲਾ = ਨਿਰਾ;
 
-	*message_expiry = MSG_EXPIRY_INFINITE;
+	*ਸੁਨੇਹਾ_expiry = ਸੁਨੇਹਾ_EXPIRY_INFINITE;
 
-	if(!proplist){
-		return;
+	ਜੇ(!proplist){
+		ਵਾਪਸ;
 	}
 
 	p = *proplist;
-	while(p){
-		if(mosquitto_property_identifier(p) == MQTT_PROP_MESSAGE_EXPIRY_INTERVAL){
-			*message_expiry = mosquitto_property_int32_value(p);
-			if(p == *proplist){
-				*proplist = mosquitto_property_next(p);
-			}else{
-				previous->next = mosquitto_property_next(p);
+	ਜਦੋਂ(p){
+		ਜੇ(mosquitto_property_identifier(p) == MQTT_PROP_ਸੁਨੇਹਾ_EXPIRY_INTERVAL){
+			*ਸੁਨੇਹਾ_expiry = mosquitto_property_int32_ਮੁੱਲ(p);
+			ਜੇ(p == *proplist){
+				*proplist = mosquitto_property_ਅਗਲਾ(p);
+			}ਨਹੀਂਤਾਂ{
+				ਪਿਛਲਾ->ਅਗਲਾ = mosquitto_property_ਅਗਲਾ(p);
 			}
 			mosquitto_property_free(&p);
-			return;
+			ਵਾਪਸ;
 
 		}
-		previous = p;
-		p = mosquitto_property_next(p);
+		ਪਿਛਲਾ = p;
+		p = mosquitto_property_ਅਗਲਾ(p);
 	}
 }
 
 
-static void queue_plugin_msgs(void)
+ਸਥਿਰ ਖਾਲੀ ਕਤਾਰ_plugin_msgs(ਖਾਲੀ)
 {
-	struct mosquitto__message_v5 *msg, *tmp;
-	struct mosquitto *context;
-	uint32_t message_expiry;
+	ਬਣਤਰ mosquitto_ਸੁਨੇਹਾ_v5 *ਸੁਨੇਹਾ, *tmp;
+	ਬਣਤਰ mosquitto *context;
+	uint32_t ਸੁਨੇਹਾ_expiry;
 
-	DL_FOREACH_SAFE(db.plugin_msgs, msg, tmp){
-		DL_DELETE(db.plugin_msgs, msg);
+	DL_FOREACH_ਸੁਰੱਖਿਅਤ(db.plugin_msgs, ਸੁਨੇਹਾ, tmp){
+		DL_DELETE(db.plugin_msgs, ਸੁਨੇਹਾ);
 
-		read_message_expiry_interval(&msg->properties, &message_expiry);
+		read_ਸੁਨੇਹਾ_expiry_interval(&ਸੁਨੇਹਾ->properties, &ਸੁਨੇਹਾ_expiry);
 
-		if(msg->clientid){
-			HASH_FIND(hh_id, db.contexts_by_id, msg->clientid, strlen(msg->clientid), context);
-			if(context){
-				single_publish(context, msg, message_expiry);
+		ਜੇ(ਸੁਨੇਹਾ->clientid){
+			HASH_ਲੱਭੋ(hh_id, db.contexts_by_id, ਸੁਨੇਹਾ->clientid, ਲੜੀ_ਲੰਬਾਈ(ਸੁਨੇਹਾ->clientid), context);
+			ਜੇ(context){
+				single_publish(context, ਸੁਨੇਹਾ, ਸੁਨੇਹਾ_expiry);
 			}
-		}else{
-			db__messages_easy_queue(NULL, msg->topic, (uint8_t)msg->qos, (uint32_t)msg->payloadlen, msg->payload, msg->retain, message_expiry, &msg->properties);
+		}ਨਹੀਂਤਾਂ{
+			db_messages_easy_ਕਤਾਰ(ਨਿਰਾ, ਸੁਨੇਹਾ->topic, (uint8_t)ਸੁਨੇਹਾ->qos, (uint32_t)ਸੁਨੇਹਾ->payloadlen, ਸੁਨੇਹਾ->payload, ਸੁਨੇਹਾ->retain, ਸੁਨੇਹਾ_expiry, &ਸੁਨੇਹਾ->properties);
 		}
-		mosquitto_FREE(msg->topic);
-		mosquitto_FREE(msg->payload);
-		mosquitto_property_free_all(&msg->properties);
-		mosquitto_FREE(msg->clientid);
-		mosquitto_FREE(msg);
+		mosquitto_FREE(ਸੁਨੇਹਾ->topic);
+		mosquitto_FREE(ਸੁਨੇਹਾ->payload);
+		mosquitto_property_free_all(&ਸੁਨੇਹਾ->properties);
+		mosquitto_FREE(ਸੁਨੇਹਾ->clientid);
+		mosquitto_FREE(ਸੁਨੇਹਾ);
 	}
 }
 
 
-void loop__update_next_event(time_t new_ms)
+ਖਾਲੀ loop_update_ਅਗਲਾ_event(time_t new_ms)
 {
-	if(new_ms > 0 && new_ms < db.next_event_ms){
-		db.next_event_ms = new_ms;
+	ਜੇ(new_ms > 0 && new_ms < db.ਅਗਲਾ_event_ms){
+		db.ਅਗਲਾ_event_ms = new_ms;
 	}
 }
 
 
-int mosquitto_main_loop(struct mosquitto__listener_sock *listensock, int listensock_count)
+ਪੂਰਨ mosquitto_main_loop(ਬਣਤਰ mosquitto__listener_sock *listensock, ਪੂਰਨ listensock_ਗਿਣਤੀ)
 {
-#ifdef WITH_PERSISTENCE
-	time_t last_backup = mosquitto_time();
-#endif
-	int rc;
+#ਜੇ_ਪਰਿਭਾਸ਼ਿਤ WITH_PERSISTENCE
+	time_t ਆਖਰੀ_backup = mosquitto_ਸਮਾਂ();
+#ਜੇ_ਅੰਤ
+	ਪੂਰਨ rc;
 
 
 	watchdog__init();
-#if defined(WITH_WEBSOCKETS) && WITH_WEBSOCKETS == WS_IS_LWS && LWS_LIBRARY_VERSION_NUMBER == 3002000
-	memset(&sul, 0, sizeof(struct lws_sorted_usec_list));
-#endif
+#ਜੇ defined(WITH_WEBSOCKETS) && WITH_WEBSOCKETS == WS_IS_LWS && LWS_LIBRARY_ਸੰਸਕਰਣ_ਸੰਖਿਆ == 3002000
+	memset(&sul, 0, ਆਕਾਰ(ਬਣਤਰ lws_sorted_usec_list));
+#ਜੇ_ਅੰਤ
 
-	db.now_s = mosquitto_time();
-	db.now_real_s = time(NULL);
+	db.now_s = mosquitto_ਸਮਾਂ();
+	db.now_real_s = ਸਮਾਂ(ਨਿਰਾ);
 
-#ifdef WITH_BRIDGE
-	rc = bridge__register_local_connections();
-	if(rc){
-		return rc;
+#ਜੇ_ਪਰਿਭਾਸ਼ਿਤ WITH_BRIDGE
+	rc = bridge_ਰਜਿਸਟਰ_local_connections();
+	ਜੇ(rc){
+		ਵਾਪਸ rc;
 	}
-#endif
+#ਜੇ_ਅੰਤ
 
-	while(g_run){
+	ਜਦੋਂ(g_ਲੜੀਵਾਰ){
 		retain__expiry_check();
-		queue_plugin_msgs();
+		ਕਤਾਰ_plugin_msgs();
 		context__free_disused();
 
-		db.next_event_ms = 86400000;
-#ifdef WITH_SYS_TREE
-		if(db.config->sys_interval > 0){
-			sys_tree__update(false);
+		db.ਅਗਲਾ_event_ms = 86400000;
+#ਜੇ_ਪਰਿਭਾਸ਼ਿਤ WITH_SYS_ਰੁੱਖ
+		ਜੇ(db.config->sys_interval > 0){
+			sys_ਰੁੱਖ_update(false);
 		}
-#endif
+#ਜੇ_ਅੰਤ
 
 		keepalive__check();
 		watchdog__check();
 
-#ifdef WITH_BRIDGE
+#ਜੇ_ਪਰਿਭਾਸ਼ਿਤ WITH_BRIDGE
 		bridge_check();
-#endif
+#ਜੇ_ਅੰਤ
 		plugin__handle_tick();
 		session_expiry__check();
 		will_delay__check();
 
-		rc = mux__handle(listensock, listensock_count);
-		if(rc){
-			return rc;
+		rc = mux__handle(listensock, listensock_ਗਿਣਤੀ);
+		ਜੇ(rc){
+			ਵਾਪਸ rc;
 		}
 
-#ifdef WITH_PERSISTENCE
-		if(db.config->persistence && db.config->autosave_interval){
-			if(db.config->autosave_on_changes){
-				if(db.persistence_changes >= db.config->autosave_interval){
+#ਜੇ_ਪਰਿਭਾਸ਼ਿਤ WITH_PERSISTENCE
+		ਜੇ(db.config->persistence && db.config->autosave_interval){
+			ਜੇ(db.config->autosave_on_changes){
+				ਜੇ(db.persistence_changes >= db.config->autosave_interval){
 					persist__backup(false);
 					db.persistence_changes = 0;
 				}
-			}else{
-				if(last_backup + db.config->autosave_interval < db.now_s){
+			}ਨਹੀਂਤਾਂ{
+				ਜੇ(ਆਖਰੀ_backup + db.config->autosave_interval < db.now_s){
 					persist__backup(false);
-					last_backup = db.now_s;
+					ਆਖਰੀ_backup = db.now_s;
 				}
 			}
 		}
-#endif
+#ਜੇ_ਅੰਤ
 
 		rc = signal__flag_check();
-		if(rc){
-			return rc;
+		ਜੇ(rc){
+			ਵਾਪਸ rc;
 		}
 
-#if defined(WITH_WEBSOCKETS) && WITH_WEBSOCKETS == WS_IS_LWS
-		for(int i=0; i<db.config->listener_count; i++){
+#ਜੇ defined(WITH_WEBSOCKETS) && WITH_WEBSOCKETS == WS_IS_LWS
+		ਲਈ(ਪੂਰਨ i=0; i<db.config->listener_ਗਿਣਤੀ; i++){
 			/* Extremely hacky, should be using the lws provided external poll
 			 * interface, but their interface has changed recently and ours
 			 * will soon, so for now websockets clients are second class
 			 * citizens. */
-			if(db.config->listeners[i].ws_context){
-#if LWS_LIBRARY_VERSION_NUMBER > 3002000
+			ਜੇ(db.config->listeners[i].ws_context){
+#ਜੇ LWS_LIBRARY_ਸੰਸਕਰਣ_ਸੰਖਿਆ > 3002000
 				lws_service(db.config->listeners[i].ws_context, -1);
-#elif LWS_LIBRARY_VERSION_NUMBER == 3002000
-				lws_sul_schedule(db.config->listeners[i].ws_context, 0, &sul, lws__sul_callback, 10);
+#ਜਾਂਜੇ LWS_LIBRARY_ਸੰਸਕਰਣ_ਸੰਖਿਆ == 3002000
+				lws_sul_ਸਮਾਂ_ਸਾਰਣੀ(db.config->listeners[i].ws_context, 0, &sul, lws__sul_callback, 10);
 				lws_service(db.config->listeners[i].ws_context, 0);
-#else
+#ਨਹੀਂਤਾਂ
 				lws_service(db.config->listeners[i].ws_context, 0);
-#endif
+#ਜੇ_ਅੰਤ
 
 			}
 		}
-#endif
+#ਜੇ_ਅੰਤ
 	}
 
-	return MOSQ_ERR_SUCCESS;
+	ਵਾਪਸ MOSQ_ERR_SUCCESS;
 }
 
 
-void do_disconnect(struct mosquitto *context, int reason)
+ਖਾਲੀ do_disconnect(ਬਣਤਰ mosquitto *context, ਪੂਰਨ reason)
 {
-	const char *id;
-#if defined(WITH_WEBSOCKETS) && WITH_WEBSOCKETS == WS_IS_LWS
+	ਅਚਲ ਅੱਖਰ *id;
+#ਜੇ defined(WITH_WEBSOCKETS) && WITH_WEBSOCKETS == WS_IS_LWS
 	bool is_duplicate = false;
-#endif
+#ਜੇ_ਅੰਤ
 
-	if(context->state == mosq_cs_disconnected){
-		return;
+	ਜੇ(context->state == mosq_cs_disconnected){
+		ਵਾਪਸ;
 	}
-#if defined(WITH_WEBSOCKETS) && WITH_WEBSOCKETS == WS_IS_LWS
-	if(context->wsi){
-		if(context->state == mosq_cs_duplicate){
+#ਜੇ defined(WITH_WEBSOCKETS) && WITH_WEBSOCKETS == WS_IS_LWS
+	ਜੇ(context->wsi){
+		ਜੇ(context->state == mosq_cs_duplicate){
 			is_duplicate = true;
 		}
 
-		if(context->state != mosq_cs_disconnecting && context->state != mosq_cs_disconnect_with_will){
-			mosquitto__set_state(context, mosq_cs_disconnect_ws);
+		ਜੇ(context->state != mosq_cs_disconnecting && context->state != mosq_cs_disconnect_with_will){
+			mosquitto_ਸੈੱਟ_state(context, mosq_cs_disconnect_ws);
 		}
-		if(context->wsi){
+		ਜੇ(context->wsi){
 			lws_callback_on_writable(context->wsi);
 		}
-		if(context->sock != INVALID_SOCKET){
+		ਜੇ(context->sock != INVALID_SOCKET){
 			HASH_DELETE(hh_sock, db.contexts_by_sock, context);
 			mux__delete(context);
 			context->sock = INVALID_SOCKET;
 		}
-		if(is_duplicate){
+		ਜੇ(is_duplicate){
 			/* This occurs if another client is taking over the same client id.
 			 * It is important to remove this from the by_id hash here, so it
 			 * doesn't leave us with multiple clients in the hash with the same
@@ -304,103 +304,103 @@ void do_disconnect(struct mosquitto *context, int reason)
 			 * there could be two clients with the same id in the hash. */
 			context__remove_from_by_id(context);
 		}
-	}else
-#endif
+	}ਨਹੀਂਤਾਂ
+#ਜੇ_ਅੰਤ
 	{
-		if(db.config->connection_messages == true){
-			if(context->id){
+		ਜੇ(db.config->connection_messages == true){
+			ਜੇ(context->id){
 				id = context->id;
-			}else{
-				id = context->address;
+			}ਨਹੀਂਤਾਂ{
+				id = context->ਪਤਾ;
 			}
-			if(context->state != mosq_cs_disconnecting && context->state != mosq_cs_disconnect_with_will){
-				switch(reason){
-					case MOSQ_ERR_SUCCESS:
-						break;
-					case MOSQ_ERR_MALFORMED_PACKET:
-						log__printf(NULL, MOSQ_LOG_NOTICE, "Client %s [%s:%d] disconnected: malformed packet.", id, context->address, context->remote_port);
-						break;
-					case MOSQ_ERR_PROTOCOL:
-						log__printf(NULL, MOSQ_LOG_NOTICE, "Client %s [%s:%d] disconnected: protocol error.", id, context->address, context->remote_port);
-						break;
-					case MOSQ_ERR_CONN_LOST:
-						log__printf(NULL, MOSQ_LOG_NOTICE, "Client %s [%s:%d] disconnected: connection closed by client.", id, context->address, context->remote_port);
-						break;
-					case MOSQ_ERR_AUTH:
-						log__printf(NULL, MOSQ_LOG_NOTICE, "Client %s [%s:%d] disconnected: not authorised.", id, context->address, context->remote_port);
-						break;
-					case MOSQ_ERR_KEEPALIVE:
-						log__printf(NULL, MOSQ_LOG_NOTICE, "Client %s [%s:%d] disconnected: exceeded timeout.", id, context->address, context->remote_port);
-						break;
-					case MOSQ_ERR_OVERSIZE_PACKET:
-						log__printf(NULL, MOSQ_LOG_NOTICE, "Client %s [%s:%d] disconnected: oversize packet.", id, context->address, context->remote_port);
-						break;
-					case MOSQ_ERR_PAYLOAD_SIZE:
-						log__printf(NULL, MOSQ_LOG_NOTICE, "Client %s [%s:%d] disconnected: oversize payload.", id, context->address, context->remote_port);
-						break;
-					case MOSQ_ERR_NOMEM:
-						log__printf(NULL, MOSQ_LOG_NOTICE, "Client %s [%s:%d] disconnected: out of memory.", id, context->address, context->remote_port);
-						break;
-					case MOSQ_ERR_NOT_SUPPORTED:
-						log__printf(NULL, MOSQ_LOG_NOTICE, "Client %s [%s:%d] disconnected: used disallowed feature (QoS too high, retain not supported, or bad AUTH method).", id, context->address, context->remote_port);
-						break;
-					case MOSQ_ERR_ADMINISTRATIVE_ACTION:
-						log__printf(NULL, MOSQ_LOG_NOTICE, "Client %s [%s:%d] disconnected: administrative action.", id, context->address, context->remote_port);
-						break;
-					case MOSQ_ERR_ERRNO:
-						log__printf(NULL, MOSQ_LOG_NOTICE, "Client %s [%s:%d] disconnected: %s.", id, context->address, context->remote_port, strerror(errno));
-						break;
-					case MOSQ_ERR_RECEIVE_MAXIMUM_EXCEEDED:
-						log__printf(NULL, MOSQ_LOG_NOTICE, "Client %s [%s:%d] disconnected: receive maximum exceeded.", id, context->address, context->remote_port);
-						break;
-					case MOSQ_ERR_IMPLEMENTATION_SPECIFIC:
-						log__printf(NULL, MOSQ_LOG_NOTICE, "Client %s [%s:%d] disconnected: implementation specific error.", id, context->address, context->remote_port);
-						break;
-					case MOSQ_ERR_CLIENT_IDENTIFIER_NOT_VALID:
-						log__printf(NULL, MOSQ_LOG_NOTICE, "Client %s [%s:%d] disconnected: client identifier not valid.", id, context->address, context->remote_port);
-						break;
-					case MOSQ_ERR_BAD_USERNAME_OR_PASSWORD:
-						log__printf(NULL, MOSQ_LOG_NOTICE, "Client %s [%s:%d] disconnected: bad username or password.", id, context->address, context->remote_port);
-						break;
-					case MOSQ_ERR_SERVER_UNAVAILABLE:
-						log__printf(NULL, MOSQ_LOG_NOTICE, "Client %s [%s:%d] disconnected: server unavailable.", id, context->address, context->remote_port);
-						break;
-					case MOSQ_ERR_SERVER_BUSY:
-						log__printf(NULL, MOSQ_LOG_NOTICE, "Client %s [%s:%d] disconnected: server busy.", id, context->address, context->remote_port);
-						break;
-					case MOSQ_ERR_BANNED:
-						log__printf(NULL, MOSQ_LOG_NOTICE, "Client %s [%s:%d] disconnected: client banned.", id, context->address, context->remote_port);
-						break;
-					case MOSQ_ERR_BAD_AUTHENTICATION_METHOD:
-						log__printf(NULL, MOSQ_LOG_NOTICE, "Client %s [%s:%d] disconnected: bad authentication method.", id, context->address, context->remote_port);
-						break;
-					case MOSQ_ERR_QUOTA_EXCEEDED:
-						log__printf(NULL, MOSQ_LOG_NOTICE, "Client %s [%s:%d] disconnected: quota exceeded.", id, context->address, context->remote_port);
-						break;
-					case MOSQ_ERR_CONNECTION_RATE_EXCEEDED:
-						log__printf(NULL, MOSQ_LOG_NOTICE, "Client %s [%s:%d] disconnected: connection rate exceeded.", id, context->address, context->remote_port);
-						break;
-					case MOSQ_ERR_SESSION_TAKEN_OVER:
-						log__printf(NULL, MOSQ_LOG_NOTICE, "Client %s [%s:%d] disconnected: session taken over.", id, context->address, context->remote_port);
-						break;
-					case MOSQ_ERR_TOPIC_ALIAS_INVALID:
-						log__printf(NULL, MOSQ_LOG_NOTICE, "Client %s [%s:%d] disconnected: topic alias invalid.", id, context->address, context->remote_port);
-						break;
-					case MOSQ_ERR_HTTP_BAD_ORIGIN:
-						log__printf(NULL, MOSQ_LOG_NOTICE, "Client %s [%s:%d] disconnected: non-matching http origin.", id, context->address, context->remote_port);
-						break;
-					case MOSQ_ERR_PROXY:
+			ਜੇ(context->state != mosq_cs_disconnecting && context->state != mosq_cs_disconnect_with_will){
+				ਚੋਣ(reason){
+					ਹਾਲਤ MOSQ_ERR_SUCCESS:
+						ਰੋਕੋ;
+					ਹਾਲਤ MOSQ_ERR_MALFORMED_PACKET:
+						log__printf(ਨਿਰਾ, MOSQ_LOG_NOTICE, "Client %s [%s:%d] disconnected: malformed packet.", id, context->ਪਤਾ, context->remote_ਪੋਰਟ);
+						ਰੋਕੋ;
+					ਹਾਲਤ MOSQ_ERR_PROTOCOL:
+						log__printf(ਨਿਰਾ, MOSQ_LOG_NOTICE, "Client %s [%s:%d] disconnected: protocol error.", id, context->ਪਤਾ, context->remote_ਪੋਰਟ);
+						ਰੋਕੋ;
+					ਹਾਲਤ MOSQ_ERR_CONN_ਗੁਆਚਾ:
+						log__printf(ਨਿਰਾ, MOSQ_LOG_NOTICE, "Client %s [%s:%d] disconnected: connection closed by client.", id, context->ਪਤਾ, context->remote_ਪੋਰਟ);
+						ਰੋਕੋ;
+					ਹਾਲਤ MOSQ_ERR_AUTH:
+						log__printf(ਨਿਰਾ, MOSQ_LOG_NOTICE, "Client %s [%s:%d] disconnected: not authorised.", id, context->ਪਤਾ, context->remote_ਪੋਰਟ);
+						ਰੋਕੋ;
+					ਹਾਲਤ MOSQ_ERR_KEEPALIVE:
+						log__printf(ਨਿਰਾ, MOSQ_LOG_NOTICE, "Client %s [%s:%d] disconnected: exceeded timeout.", id, context->ਪਤਾ, context->remote_ਪੋਰਟ);
+						ਰੋਕੋ;
+					ਹਾਲਤ MOSQ_ERR_OVERSIZE_PACKET:
+						log__printf(ਨਿਰਾ, MOSQ_LOG_NOTICE, "Client %s [%s:%d] disconnected: oversize packet.", id, context->ਪਤਾ, context->remote_ਪੋਰਟ);
+						ਰੋਕੋ;
+					ਹਾਲਤ MOSQ_ERR_PAYLOAD_ਮਾਪ:
+						log__printf(ਨਿਰਾ, MOSQ_LOG_NOTICE, "Client %s [%s:%d] disconnected: oversize payload.", id, context->ਪਤਾ, context->remote_ਪੋਰਟ);
+						ਰੋਕੋ;
+					ਹਾਲਤ MOSQ_ERR_NOMEM:
+						log__printf(ਨਿਰਾ, MOSQ_LOG_NOTICE, "Client %s [%s:%d] disconnected: out of memory.", id, context->ਪਤਾ, context->remote_ਪੋਰਟ);
+						ਰੋਕੋ;
+					ਹਾਲਤ MOSQ_ERR_NOT_SUPPORTED:
+						log__printf(ਨਿਰਾ, MOSQ_LOG_NOTICE, "Client %s [%s:%d] disconnected: used disallowed feature (QoS too high, retain not supported, or bad AUTH method).", id, context->ਪਤਾ, context->remote_ਪੋਰਟ);
+						ਰੋਕੋ;
+					ਹਾਲਤ MOSQ_ERR_ADMINISTRATIVE_ACTION:
+						log__printf(ਨਿਰਾ, MOSQ_LOG_NOTICE, "Client %s [%s:%d] disconnected: administrative action.", id, context->ਪਤਾ, context->remote_ਪੋਰਟ);
+						ਰੋਕੋ;
+					ਹਾਲਤ MOSQ_ERR_ERRNO:
+						log__printf(ਨਿਰਾ, MOSQ_LOG_NOTICE, "Client %s [%s:%d] disconnected: %s.", id, context->ਪਤਾ, context->remote_ਪੋਰਟ, strerror(errno));
+						ਰੋਕੋ;
+					ਹਾਲਤ MOSQ_ERR_RECEIVE_ਵੱਧ_ਤੋਂ_ਵੱਧ_EXCEEDED:
+						log__printf(ਨਿਰਾ, MOSQ_LOG_NOTICE, "Client %s [%s:%d] disconnected: receive maximum exceeded.", id, context->ਪਤਾ, context->remote_ਪੋਰਟ);
+						ਰੋਕੋ;
+					ਹਾਲਤ MOSQ_ERR_IMPLEMENTATION_SPECIFIC:
+						log__printf(ਨਿਰਾ, MOSQ_LOG_NOTICE, "Client %s [%s:%d] disconnected: implementation specific error.", id, context->ਪਤਾ, context->remote_ਪੋਰਟ);
+						ਰੋਕੋ;
+					ਹਾਲਤ MOSQ_ERR_CLIENT_IDENTIFIER_NOT_VALID:
+						log__printf(ਨਿਰਾ, MOSQ_LOG_NOTICE, "Client %s [%s:%d] disconnected: client identifier not valid.", id, context->ਪਤਾ, context->remote_ਪੋਰਟ);
+						ਰੋਕੋ;
+					ਹਾਲਤ MOSQ_ERR_BAD_USERNAME_OR_PASSWORD:
+						log__printf(ਨਿਰਾ, MOSQ_LOG_NOTICE, "Client %s [%s:%d] disconnected: bad username or password.", id, context->ਪਤਾ, context->remote_ਪੋਰਟ);
+						ਰੋਕੋ;
+					ਹਾਲਤ MOSQ_ERR_SERVER_UNAVAILABLE:
+						log__printf(ਨਿਰਾ, MOSQ_LOG_NOTICE, "Client %s [%s:%d] disconnected: server unavailable.", id, context->ਪਤਾ, context->remote_ਪੋਰਟ);
+						ਰੋਕੋ;
+					ਹਾਲਤ MOSQ_ERR_SERVER_BUSY:
+						log__printf(ਨਿਰਾ, MOSQ_LOG_NOTICE, "Client %s [%s:%d] disconnected: server busy.", id, context->ਪਤਾ, context->remote_ਪੋਰਟ);
+						ਰੋਕੋ;
+					ਹਾਲਤ MOSQ_ERR_BANNED:
+						log__printf(ਨਿਰਾ, MOSQ_LOG_NOTICE, "Client %s [%s:%d] disconnected: client banned.", id, context->ਪਤਾ, context->remote_ਪੋਰਟ);
+						ਰੋਕੋ;
+					ਹਾਲਤ MOSQ_ERR_BAD_AUTHENTICATION_ਵਿਧੀ:
+						log__printf(ਨਿਰਾ, MOSQ_LOG_NOTICE, "Client %s [%s:%d] disconnected: bad authentication method.", id, context->ਪਤਾ, context->remote_ਪੋਰਟ);
+						ਰੋਕੋ;
+					ਹਾਲਤ MOSQ_ERR_QUOTA_EXCEEDED:
+						log__printf(ਨਿਰਾ, MOSQ_LOG_NOTICE, "Client %s [%s:%d] disconnected: quota exceeded.", id, context->ਪਤਾ, context->remote_ਪੋਰਟ);
+						ਰੋਕੋ;
+					ਹਾਲਤ MOSQ_ERR_CONNECTION_ਦਰ_EXCEEDED:
+						log__printf(ਨਿਰਾ, MOSQ_LOG_NOTICE, "Client %s [%s:%d] disconnected: connection rate exceeded.", id, context->ਪਤਾ, context->remote_ਪੋਰਟ);
+						ਰੋਕੋ;
+					ਹਾਲਤ MOSQ_ERR_SESSION_ਲਿਆ_OVER:
+						log__printf(ਨਿਰਾ, MOSQ_LOG_NOTICE, "Client %s [%s:%d] disconnected: session taken over.", id, context->ਪਤਾ, context->remote_ਪੋਰਟ);
+						ਰੋਕੋ;
+					ਹਾਲਤ MOSQ_ERR_TOPIC_ALIAS_INVALID:
+						log__printf(ਨਿਰਾ, MOSQ_LOG_NOTICE, "Client %s [%s:%d] disconnected: topic alias invalid.", id, context->ਪਤਾ, context->remote_ਪੋਰਟ);
+						ਰੋਕੋ;
+					ਹਾਲਤ MOSQ_ERR_HTTP_BAD_ORIGIN:
+						log__printf(ਨਿਰਾ, MOSQ_LOG_NOTICE, "Client %s [%s:%d] disconnected: non-matching http origin.", id, context->ਪਤਾ, context->remote_ਪੋਰਟ);
+						ਰੋਕੋ;
+					ਹਾਲਤ MOSQ_ERR_PROXY:
 						/* This was a proxy v2 health check connection, so don't report */
-						break;
-					default:
-						log__printf(NULL, MOSQ_LOG_NOTICE, "Client %s [%s:%d] disconnected: bad socket read/write: %s", id, context->address, context->remote_port, mosquitto_strerror(reason));
-						break;
+						ਰੋਕੋ;
+					ਮੂਲ:
+						log__printf(ਨਿਰਾ, MOSQ_LOG_NOTICE, "Client %s [%s:%d] disconnected: bad socket read/write: %s", id, context->ਪਤਾ, context->remote_ਪੋਰਟ, mosquitto_strerror(reason));
+						ਰੋਕੋ;
 				}
-			}else{
-				if(reason == MOSQ_ERR_ADMINISTRATIVE_ACTION){
-					log__printf(NULL, MOSQ_LOG_NOTICE, "Client %s [%s:%d] disconnected: administrative action.", id, context->address, context->remote_port);
-				}else{
-					log__printf(NULL, MOSQ_LOG_NOTICE, "Client %s [%s:%d] disconnected.", id, context->address, context->remote_port);
+			}ਨਹੀਂਤਾਂ{
+				ਜੇ(reason == MOSQ_ERR_ADMINISTRATIVE_ACTION){
+					log__printf(ਨਿਰਾ, MOSQ_LOG_NOTICE, "Client %s [%s:%d] disconnected: administrative action.", id, context->ਪਤਾ, context->remote_ਪੋਰਟ);
+				}ਨਹੀਂਤਾਂ{
+					log__printf(ਨਿਰਾ, MOSQ_LOG_NOTICE, "Client %s [%s:%d] disconnected.", id, context->ਪਤਾ, context->remote_ਪੋਰਟ);
 				}
 			}
 		}

@@ -16,110 +16,110 @@ Contributors:
    Roger Light - initial implementation and documentation.
 */
 
-#include "config.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "config.h"
 
-#include <stdio.h>
-#include <string.h>
+#ਅਨ੍ਤਰ੍ਭਾਵ <stdio.h>
+#ਅਨ੍ਤਰ੍ਭਾਵ <string.h>
 
-#include "mosquitto_broker_internal.h"
-#include "mosquitto/mqtt_protocol.h"
-#include "packet_mosq.h"
-#include "read_handle.h"
-#include "send_mosq.h"
-#include "sys_tree.h"
-#include "util_mosq.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "mosquitto_broker_internal.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "mosquitto/mqtt_protocol.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "packet_mosq.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "read_handle.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "send_mosq.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "sys_tree.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "util_mosq.h"
 
 
-int handle__packet(struct mosquitto *context)
+ਪੂਰਨ handle__packet(ਬਣਤਰ mosquitto *context)
 {
-	int rc = MOSQ_ERR_INVAL;
+	ਪੂਰਨ rc = MOSQ_ERR_INVAL;
 
-	if(!context){
-		return MOSQ_ERR_INVAL;
+	ਜੇ(!context){
+		ਵਾਪਸ MOSQ_ERR_INVAL;
 	}
 
-	switch((context->in_packet.command)&0xF0){
-		case CMD_PINGREQ:
+	ਚੋਣ((context->ਵਿੱਚ_packet.command)&0xF0){
+		ਹਾਲਤ CMD_PINGREQ:
 			metrics__int_inc(mosq_counter_mqtt_pingreq_received, 1);
 			rc = handle__pingreq(context);
-			break;
-		case CMD_PINGRESP:
+			ਰੋਕੋ;
+		ਹਾਲਤ CMD_PINGRESP:
 			metrics__int_inc(mosq_counter_mqtt_pingresp_received, 1);
 			rc = handle__pingresp(context);
-			break;
-		case CMD_PUBACK:
+			ਰੋਕੋ;
+		ਹਾਲਤ CMD_PUBACK:
 			metrics__int_inc(mosq_counter_mqtt_puback_received, 1);
 			rc = handle__pubackcomp(context, "PUBACK");
-			break;
-		case CMD_PUBCOMP:
+			ਰੋਕੋ;
+		ਹਾਲਤ CMD_PUBCOMP:
 			metrics__int_inc(mosq_counter_mqtt_pubcomp_received, 1);
 			rc = handle__pubackcomp(context, "PUBCOMP");
-			break;
-		case CMD_PUBLISH:
+			ਰੋਕੋ;
+		ਹਾਲਤ CMD_PUBLISH:
 			metrics__int_inc(mosq_counter_mqtt_publish_received, 1);
 			rc = handle__publish(context);
-			break;
-		case CMD_PUBREC:
+			ਰੋਕੋ;
+		ਹਾਲਤ CMD_PUBREC:
 			metrics__int_inc(mosq_counter_mqtt_pubrec_received, 1);
 			rc = handle__pubrec(context);
-			break;
-		case CMD_PUBREL:
+			ਰੋਕੋ;
+		ਹਾਲਤ CMD_PUBREL:
 			metrics__int_inc(mosq_counter_mqtt_pubrel_received, 1);
 			rc = handle__pubrel(context);
-			break;
-		case CMD_CONNECT:
+			ਰੋਕੋ;
+		ਹਾਲਤ CMD_CONNECT:
 			metrics__int_inc(mosq_counter_mqtt_connect_received, 1);
-			return handle__connect(context);
-		case CMD_DISCONNECT:
+			ਵਾਪਸ handle__connect(context);
+		ਹਾਲਤ CMD_DISCONNECT:
 			metrics__int_inc(mosq_counter_mqtt_disconnect_received, 1);
 			rc = handle__disconnect(context);
-			break;
-		case CMD_SUBSCRIBE:
+			ਰੋਕੋ;
+		ਹਾਲਤ CMD_SUBSCRIBE:
 			metrics__int_inc(mosq_counter_mqtt_subscribe_received, 1);
 			rc = handle__subscribe(context);
-			break;
-		case CMD_UNSUBSCRIBE:
+			ਰੋਕੋ;
+		ਹਾਲਤ CMD_UNSUBSCRIBE:
 			metrics__int_inc(mosq_counter_mqtt_unsubscribe_received, 1);
 			rc = handle__unsubscribe(context);
-			break;
-#ifdef WITH_BRIDGE
-		case CMD_CONNACK:
+			ਰੋਕੋ;
+#ਜੇ_ਪਰਿਭਾਸ਼ਿਤ WITH_BRIDGE
+		ਹਾਲਤ CMD_CONNACK:
 			metrics__int_inc(mosq_counter_mqtt_connack_received, 1);
 			rc = handle__connack(context);
-			break;
-		case CMD_SUBACK:
+			ਰੋਕੋ;
+		ਹਾਲਤ CMD_SUBACK:
 			metrics__int_inc(mosq_counter_mqtt_suback_received, 1);
 			rc = handle__suback(context);
-			break;
-		case CMD_UNSUBACK:
+			ਰੋਕੋ;
+		ਹਾਲਤ CMD_UNSUBACK:
 			metrics__int_inc(mosq_counter_mqtt_unsuback_received, 1);
 			rc = handle__unsuback(context);
-			break;
-#endif
-		case CMD_AUTH:
+			ਰੋਕੋ;
+#ਜੇ_ਅੰਤ
+		ਹਾਲਤ CMD_AUTH:
 			metrics__int_inc(mosq_counter_mqtt_auth_received, 1);
 			rc = handle__auth(context);
-			break;
-		default:
+			ਰੋਕੋ;
+		ਮੂਲ:
 			rc = MOSQ_ERR_PROTOCOL;
 	}
 
-	if(context->protocol == mosq_p_mqtt5){
-		if(rc == MOSQ_ERR_PROTOCOL || rc == MOSQ_ERR_DUPLICATE_PROPERTY){
-			send__disconnect(context, MQTT_RC_PROTOCOL_ERROR, NULL);
-		}else if(rc == MOSQ_ERR_MALFORMED_PACKET){
-			send__disconnect(context, MQTT_RC_MALFORMED_PACKET, NULL);
-		}else if(rc == MOSQ_ERR_QOS_NOT_SUPPORTED){
-			send__disconnect(context, MQTT_RC_QOS_NOT_SUPPORTED, NULL);
-		}else if(rc == MOSQ_ERR_RETAIN_NOT_SUPPORTED){
-			send__disconnect(context, MQTT_RC_RETAIN_NOT_SUPPORTED, NULL);
-		}else if(rc == MOSQ_ERR_TOPIC_ALIAS_INVALID){
-			send__disconnect(context, MQTT_RC_TOPIC_ALIAS_INVALID, NULL);
-		}else if(rc == MOSQ_ERR_RECEIVE_MAXIMUM_EXCEEDED){
-			send__disconnect(context, MQTT_RC_RECEIVE_MAXIMUM_EXCEEDED, NULL);
-		}else if(rc == MOSQ_ERR_UNKNOWN || rc == MOSQ_ERR_NOMEM){
-			send__disconnect(context, MQTT_RC_UNSPECIFIED, NULL);
+	ਜੇ(context->protocol == mosq_p_mqtt5){
+		ਜੇ(rc == MOSQ_ERR_PROTOCOL || rc == MOSQ_ERR_DUPLICATE_PROPERTY){
+			send__disconnect(context, MQTT_RC_PROTOCOL_ERROR, ਨਿਰਾ);
+		}ਨਹੀਂਤਾਂ ਜੇ(rc == MOSQ_ERR_MALFORMED_PACKET){
+			send__disconnect(context, MQTT_RC_MALFORMED_PACKET, ਨਿਰਾ);
+		}ਨਹੀਂਤਾਂ ਜੇ(rc == MOSQ_ERR_QOS_NOT_SUPPORTED){
+			send__disconnect(context, MQTT_RC_QOS_NOT_SUPPORTED, ਨਿਰਾ);
+		}ਨਹੀਂਤਾਂ ਜੇ(rc == MOSQ_ERR_RETAIN_NOT_SUPPORTED){
+			send__disconnect(context, MQTT_RC_RETAIN_NOT_SUPPORTED, ਨਿਰਾ);
+		}ਨਹੀਂਤਾਂ ਜੇ(rc == MOSQ_ERR_TOPIC_ALIAS_INVALID){
+			send__disconnect(context, MQTT_RC_TOPIC_ALIAS_INVALID, ਨਿਰਾ);
+		}ਨਹੀਂਤਾਂ ਜੇ(rc == MOSQ_ERR_RECEIVE_ਵੱਧ_ਤੋਂ_ਵੱਧ_EXCEEDED){
+			send__disconnect(context, MQTT_RC_RECEIVE_ਵੱਧ_ਤੋਂ_ਵੱਧ_EXCEEDED, ਨਿਰਾ);
+		}ਨਹੀਂਤਾਂ ਜੇ(rc == MOSQ_ERR_UNKNOWN || rc == MOSQ_ERR_NOMEM){
+			send__disconnect(context, MQTT_RC_UNSPECIFIED, ਨਿਰਾ);
 		}
 	}
-	return rc;
+	ਵਾਪਸ rc;
 }

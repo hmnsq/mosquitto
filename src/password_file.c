@@ -16,72 +16,72 @@ Contributors:
    Roger Light - initial implementation and documentation.
 */
 
-#include "config.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "config.h"
 
-#include <ctype.h>
-#include <stdio.h>
-#include <string.h>
+#ਅਨ੍ਤਰ੍ਭਾਵ <ctype.h>
+#ਅਨ੍ਤਰ੍ਭਾਵ <stdio.h>
+#ਅਨ੍ਤਰ੍ਭਾਵ <string.h>
 
-#include "mosquitto_broker_internal.h"
-#include "password_file.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "mosquitto_broker_internal.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "password_file.h"
 
 
-int broker_password_file__init(void)
+ਪੂਰਨ broker_password_file__init(ਖਾਲੀ)
 {
-	int rc;
+	ਪੂਰਨ rc;
 
 	/* Load username/password data if required. */
-	if(db.config->per_listener_settings){
-		for(int i=0; i<db.config->listener_count; i++){
-			if(db.config->listeners[i].security_options->password_data.password_file){
-				rc = password_file__parse(&db.config->listeners[i].security_options->password_data);
-				if(rc){
-					return rc;
+	ਜੇ(db.config->ਪ੍ਰਤੀ_listener_settings){
+		ਲਈ(ਪੂਰਨ i=0; i<db.config->listener_ਗਿਣਤੀ; i++){
+			ਜੇ(db.config->listeners[i].security_options->password_ਅੰਕੜੇ.password_file){
+				rc = password_file__parse(&db.config->listeners[i].security_options->password_ਅੰਕੜੇ);
+				ਜੇ(rc){
+					ਵਾਪਸ rc;
 				}
-				if(db.config->listeners[i].security_options->plugin_count == 0){
-					config__plugin_add_secopt(db.config->listeners[i].security_options->pid, db.config->listeners[i].security_options);
+				ਜੇ(db.config->listeners[i].security_options->plugin_ਗਿਣਤੀ == 0){
+					config_plugin_ਜੋੜੋ_secopt(db.config->listeners[i].security_options->pid, db.config->listeners[i].security_options);
 				}
 
-				mosquitto_callback_register(db.config->listeners[i].security_options->pid,
-						MOSQ_EVT_BASIC_AUTH, password_file__check, NULL, &db.config->listeners[i].security_options->password_data);
+				mosquitto_callback_ਰਜਿਸਟਰ(db.config->listeners[i].security_options->pid,
+						MOSQ_EVT_BASIC_AUTH, password_file__check, ਨਿਰਾ, &db.config->listeners[i].security_options->password_ਅੰਕੜੇ);
 			}
 		}
-	}else{
-		if(db.config->security_options.password_data.password_file){
-			rc = password_file__parse(&db.config->security_options.password_data);
-			if(rc){
-				return rc;
+	}ਨਹੀਂਤਾਂ{
+		ਜੇ(db.config->security_options.password_ਅੰਕੜੇ.password_file){
+			rc = password_file__parse(&db.config->security_options.password_ਅੰਕੜੇ);
+			ਜੇ(rc){
+				ਵਾਪਸ rc;
 			}
-			if(db.config->security_options.plugin_count == 0){
-				config__plugin_add_secopt(db.config->security_options.pid, &db.config->security_options);
+			ਜੇ(db.config->security_options.plugin_ਗਿਣਤੀ == 0){
+				config_plugin_ਜੋੜੋ_secopt(db.config->security_options.pid, &db.config->security_options);
 			}
 
-			mosquitto_callback_register(db.config->security_options.pid,
-					MOSQ_EVT_BASIC_AUTH, password_file__check, NULL, &db.config->security_options.password_data);
+			mosquitto_callback_ਰਜਿਸਟਰ(db.config->security_options.pid,
+					MOSQ_EVT_BASIC_AUTH, password_file__check, ਨਿਰਾ, &db.config->security_options.password_ਅੰਕੜੇ);
 		}
 	}
 
-	return MOSQ_ERR_SUCCESS;
+	ਵਾਪਸ MOSQ_ERR_SUCCESS;
 }
 
 
-void broker_password_file__cleanup(void)
+ਖਾਲੀ broker_password_file__cleanup(ਖਾਲੀ)
 {
-	if(db.config->per_listener_settings){
-		for(int i=0; i<db.config->listener_count; i++){
-			if(db.config->listeners[i].security_options->pid){
+	ਜੇ(db.config->ਪ੍ਰਤੀ_listener_settings){
+		ਲਈ(ਪੂਰਨ i=0; i<db.config->listener_ਗਿਣਤੀ; i++){
+			ਜੇ(db.config->listeners[i].security_options->pid){
 				mosquitto_callback_unregister(db.config->listeners[i].security_options->pid,
-						MOSQ_EVT_BASIC_AUTH, password_file__check, NULL);
+						MOSQ_EVT_BASIC_AUTH, password_file__check, ਨਿਰਾ);
 
-				password_file__cleanup(&db.config->listeners[i].security_options->password_data);
+				password_file__cleanup(&db.config->listeners[i].security_options->password_ਅੰਕੜੇ);
 			}
 		}
-	}else{
-		if(db.config->security_options.pid){
+	}ਨਹੀਂਤਾਂ{
+		ਜੇ(db.config->security_options.pid){
 			mosquitto_callback_unregister(db.config->security_options.pid,
-					MOSQ_EVT_BASIC_AUTH, password_file__check, NULL);
+					MOSQ_EVT_BASIC_AUTH, password_file__check, ਨਿਰਾ);
 
-			password_file__cleanup(&db.config->security_options.password_data);
+			password_file__cleanup(&db.config->security_options.password_ਅੰਕੜੇ);
 		}
 	}
 }

@@ -1,344 +1,344 @@
-#ifdef WIN32
+#ਜੇ_ਪਰਿਭਾਸ਼ਿਤ WIN32
 #  include <winsock2.h>
 #  include <ws2tcpip.h>
-#else
+#ਨਹੀਂਤਾਂ
 #  include <arpa/inet.h>
 #  include <netinet/in.h>
-#endif
-#include <stdint.h>
-#include "mosquitto_broker_internal.h"
-#include "mosquitto_internal.h"
-#include "net_mosq.h"
+#ਜੇ_ਅੰਤ
+#ਅਨ੍ਤਰ੍ਭਾਵ <stdint.h>
+#ਅਨ੍ਤਰ੍ਭਾਵ "mosquitto_broker_internal.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "mosquitto_internal.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "net_mosq.h"
 
-#if !defined(WITH_WEBSOCKETS) || WITH_WEBSOCKETS == WS_IS_BUILTIN
+#ਜੇ !defined(WITH_WEBSOCKETS) || WITH_WEBSOCKETS == WS_IS_BUILTIN
 
-#define PROXY_CMD_LOCAL 0x00
-#define PROXY_CMD_PROXY 0x01
+#ਪਰਿਭਾਸ਼ਿਤ_ਕਰੋ PROXY_CMD_LOCAL 0x00
+#ਪਰਿਭਾਸ਼ਿਤ_ਕਰੋ PROXY_CMD_PROXY 0x01
 
-#define PROXY_TCP_IPV4 0x11
-#define PROXY_TCP_IPV6 0x21
-#define PROXY_TCP_UNIX 0x31
+#ਪਰਿਭਾਸ਼ਿਤ_ਕਰੋ PROXY_TCP_IPV4 0x11
+#ਪਰਿਭਾਸ਼ਿਤ_ਕਰੋ PROXY_TCP_IPV6 0x21
+#ਪਰਿਭਾਸ਼ਿਤ_ਕਰੋ PROXY_TCP_UNIX 0x31
 
-#define PP2_TYPE_ALPN           0x01
-#define PP2_TYPE_AUTHORITY      0x02
-#define PP2_TYPE_CRC32C         0x03
-#define PP2_TYPE_NOOP           0x04
-#define PP2_TYPE_UNIQUE_ID      0x05
-#define PP2_TYPE_SSL            0x20
-#define PP2_SUBTYPE_SSL_VERSION 0x21
-#define PP2_SUBTYPE_SSL_CN      0x22
-#define PP2_SUBTYPE_SSL_CIPHER  0x23
-#define PP2_SUBTYPE_SSL_SIG_ALG 0x24
-#define PP2_SUBTYPE_SSL_KEY_ALG 0x25
-#define PP2_TYPE_NETNS          0x30
+#ਪਰਿਭਾਸ਼ਿਤ_ਕਰੋ PP2_TYPE_ALPN           0x01
+#ਪਰਿਭਾਸ਼ਿਤ_ਕਰੋ PP2_TYPE_AUTHORITY      0x02
+#ਪਰਿਭਾਸ਼ਿਤ_ਕਰੋ PP2_TYPE_ਚੱਕਰੀ_ਜਾਂਚ_32_C         0x03
+#ਪਰਿਭਾਸ਼ਿਤ_ਕਰੋ PP2_TYPE_NOOP           0x04
+#ਪਰਿਭਾਸ਼ਿਤ_ਕਰੋ PP2_TYPE_UNIQUE_ID      0x05
+#ਪਰਿਭਾਸ਼ਿਤ_ਕਰੋ PP2_TYPE_SSL            0x20
+#ਪਰਿਭਾਸ਼ਿਤ_ਕਰੋ PP2_SUBTYPE_SSL_ਸੰਸਕਰਣ 0x21
+#ਪਰਿਭਾਸ਼ਿਤ_ਕਰੋ PP2_SUBTYPE_SSL_CN      0x22
+#ਪਰਿਭਾਸ਼ਿਤ_ਕਰੋ PP2_SUBTYPE_SSL_CIPHER  0x23
+#ਪਰਿਭਾਸ਼ਿਤ_ਕਰੋ PP2_SUBTYPE_SSL_SIG_ALG 0x24
+#ਪਰਿਭਾਸ਼ਿਤ_ਕਰੋ PP2_SUBTYPE_SSL_ਕੁੰਜੀ_ALG 0x25
+#ਪਰਿਭਾਸ਼ਿਤ_ਕਰੋ PP2_TYPE_NETNS          0x30
 
-#define PP2_CLIENT_SSL           0x01
-#define PP2_CLIENT_CERT_CONN     0x02
-#define PP2_CLIENT_CERT_SESS     0x04
+#ਪਰਿਭਾਸ਼ਿਤ_ਕਰੋ PP2_CLIENT_SSL           0x01
+#ਪਰਿਭਾਸ਼ਿਤ_ਕਰੋ PP2_CLIENT_CERT_CONN     0x02
+#ਪਰਿਭਾਸ਼ਿਤ_ਕਰੋ PP2_CLIENT_CERT_SESS     0x04
 
-#define PROXY_PACKET_LIMIT 500
+#ਪਰਿਭਾਸ਼ਿਤ_ਕਰੋ PROXY_PACKET_ਹੱਦਬੰਦੀ 500
 
-struct proxy_hdr_v2 {
+ਬਣਤਰ proxy_hdr_v2 {
 	uint8_t sig[12]; /* hex 0D 0A 0D 0A 00 0D 0A 51 55 49 54 0A */
 	uint8_t ver_cmd; /* protocol version and command */
 	uint8_t fam; /* protocol family and address */
 	uint16_t len; /* number of following bytes part of the header */
 };
 
-union proxy_addr {
-	struct { /* for TCP/UDP over IPv4, len = 12 */
+ਸੰਘ proxy_addr {
+	ਬਣਤਰ { /* for TCP/UDP over IPv4, len = 12 */
 		uint32_t src_addr;
 		uint32_t dst_addr;
-		uint16_t src_port;
-		uint16_t dst_port;
+		uint16_t src_ਪੋਰਟ;
+		uint16_t dst_ਪੋਰਟ;
 	} ipv4_addr;
-	struct { /* for TCP/UDP over IPv6, len = 36 */
+	ਬਣਤਰ { /* for TCP/UDP over IPv6, len = 36 */
 		uint8_t src_addr[16];
 		uint8_t dst_addr[16];
-		uint16_t src_port;
-		uint16_t dst_port;
+		uint16_t src_ਪੋਰਟ;
+		uint16_t dst_ਪੋਰਟ;
 	} ipv6_addr;
-	struct { /* for AF_UNIX sockets, len = 216 */
+	ਬਣਤਰ { /* for AF_UNIX sockets, len = 216 */
 		uint8_t src_addr[108];
 		uint8_t dst_addr[108];
 	} unix_addr;
 };
 
-struct pp2_tlv {
+ਬਣਤਰ pp2_tlv {
 	uint8_t type;
-	uint8_t length_h;
-	uint8_t length_l;
+	uint8_t ਲੰਮਾਈ_h;
+	uint8_t ਲੰਮਾਈ_l;
 };
 
-struct pp2_tlv_ssl {
+ਬਣਤਰ pp2_tlv_ssl {
 	uint8_t client;
 	uint32_t verify;
 };
 
-const uint8_t signature[12] = {0x0D, 0x0A, 0x0D, 0x0A, 0x00, 0x0D, 0x0A, 0x51, 0x55, 0x49, 0x54, 0x0A};
+ਅਚਲ uint8_t signature[12] = {0x0D, 0x0A, 0x0D, 0x0A, 0x00, 0x0D, 0x0A, 0x51, 0x55, 0x49, 0x54, 0x0A};
 
 
-static void proxy_cleanup(struct mosquitto *context)
+ਸਥਿਰ ਖਾਲੀ proxy_cleanup(ਬਣਤਰ mosquitto *context)
 {
 	mosquitto_FREE(context->proxy.buf);
-	mosquitto_FREE(context->proxy.tls_version);
+	mosquitto_FREE(context->proxy.tls_ਸੰਸਕਰਣ);
 	mosquitto_FREE(context->proxy.cipher);
 }
 
 
-static int read_tlv_ssl(struct mosquitto *context, uint16_t len, bool *have_certificate)
+ਸਥਿਰ ਪੂਰਨ read_tlv_ssl(ਬਣਤਰ mosquitto *context, uint16_t len, bool *have_certificate)
 {
-	struct pp2_tlv_ssl ssl = {0};
+	ਬਣਤਰ pp2_tlv_ssl ssl = {0};
 
-	if(len < sizeof(uint8_t) + sizeof(uint32_t)){
-		return MOSQ_ERR_INVAL;
+	ਜੇ(len < ਆਕਾਰ(uint8_t) + ਆਕਾਰ(uint32_t)){
+		ਵਾਪਸ MOSQ_ERR_INVAL;
 	}
 
 	ssl.client = context->proxy.buf[context->proxy.pos];
-	ssl.verify = ntohl(*(uint32_t *)(&context->proxy.buf[context->proxy.pos + sizeof(uint8_t)]));
-	context->proxy.pos = (uint16_t)(context->proxy.pos + sizeof(uint8_t) + sizeof(uint32_t));
-	len = (uint16_t)(len - (sizeof(uint8_t) + sizeof(uint32_t)));
+	ssl.verify = ntohl(*(uint32_t *)(&context->proxy.buf[context->proxy.pos + ਆਕਾਰ(uint8_t)]));
+	context->proxy.pos = (uint16_t)(context->proxy.pos + ਆਕਾਰ(uint8_t) + ਆਕਾਰ(uint32_t));
+	len = (uint16_t)(len - (ਆਕਾਰ(uint8_t) + ਆਕਾਰ(uint32_t)));
 
-	if(ssl.client & PP2_CLIENT_SSL && ssl.client & PP2_CLIENT_CERT_SESS && !ssl.verify){
+	ਜੇ(ssl.client & PP2_CLIENT_SSL && ssl.client & PP2_CLIENT_CERT_SESS && !ssl.verify){
 		*have_certificate = true;
 	}
 
-	while(len > 0){
-		if(context->proxy.len - context->proxy.pos < (int)sizeof(struct pp2_tlv)){
-			return MOSQ_ERR_INVAL;
+	ਜਦੋਂ(len > 0){
+		ਜੇ(context->proxy.len - context->proxy.pos < (ਪੂਰਨ)ਆਕਾਰ(ਬਣਤਰ pp2_tlv)){
+			ਵਾਪਸ MOSQ_ERR_INVAL;
 		}
-		struct pp2_tlv *tlv = (struct pp2_tlv *)(&context->proxy.buf[context->proxy.pos]);
-		uint16_t tlv_len = (uint16_t)((tlv->length_h<<8) + tlv->length_l);
-		context->proxy.pos = (uint16_t)(context->proxy.pos + sizeof(struct pp2_tlv));
+		ਬਣਤਰ pp2_tlv *tlv = (ਬਣਤਰ pp2_tlv *)(&context->proxy.buf[context->proxy.pos]);
+		uint16_t tlv_len = (uint16_t)((tlv->ਲੰਮਾਈ_h<<8) + tlv->ਲੰਮਾਈ_l);
+		context->proxy.pos = (uint16_t)(context->proxy.pos + ਆਕਾਰ(ਬਣਤਰ pp2_tlv));
 
-		if(tlv_len > context->proxy.len - context->proxy.pos){
-			return MOSQ_ERR_INVAL;
+		ਜੇ(tlv_len > context->proxy.len - context->proxy.pos){
+			ਵਾਪਸ MOSQ_ERR_INVAL;
 		}
 
-		switch(tlv->type){
-			case PP2_SUBTYPE_SSL_VERSION:
-#ifdef WITH_TLS
-				mosquitto_free(context->proxy.tls_version);
-				context->proxy.tls_version = mosquitto_strndup((const char *)&context->proxy.buf[context->proxy.pos], tlv_len);
-#else
-				return MOSQ_ERR_NOT_SUPPORTED;
-#endif
-				break;
+		ਚੋਣ(tlv->type){
+			ਹਾਲਤ PP2_SUBTYPE_SSL_ਸੰਸਕਰਣ:
+#ਜੇ_ਪਰਿਭਾਸ਼ਿਤ WITH_TLS
+				mosquitto_free(context->proxy.tls_ਸੰਸਕਰਣ);
+				context->proxy.tls_ਸੰਸਕਰਣ = mosquitto_strndup((ਅਚਲ ਅੱਖਰ *)&context->proxy.buf[context->proxy.pos], tlv_len);
+#ਨਹੀਂਤਾਂ
+				ਵਾਪਸ MOSQ_ERR_NOT_SUPPORTED;
+#ਜੇ_ਅੰਤ
+				ਰੋਕੋ;
 
-			case PP2_SUBTYPE_SSL_CIPHER:
-#ifdef WITH_TLS
+			ਹਾਲਤ PP2_SUBTYPE_SSL_CIPHER:
+#ਜੇ_ਪਰਿਭਾਸ਼ਿਤ WITH_TLS
 				mosquitto_free(context->proxy.cipher);
-				context->proxy.cipher = mosquitto_strndup((const char *)&context->proxy.buf[context->proxy.pos], tlv_len);
-#else
-				return MOSQ_ERR_NOT_SUPPORTED;
-#endif
-				break;
+				context->proxy.cipher = mosquitto_strndup((ਅਚਲ ਅੱਖਰ *)&context->proxy.buf[context->proxy.pos], tlv_len);
+#ਨਹੀਂਤਾਂ
+				ਵਾਪਸ MOSQ_ERR_NOT_SUPPORTED;
+#ਜੇ_ਅੰਤ
+				ਰੋਕੋ;
 
-			case PP2_SUBTYPE_SSL_CN:
-#ifdef WITH_TLS
-				if(context->listener->use_identity_as_username){
+			ਹਾਲਤ PP2_SUBTYPE_SSL_CN:
+#ਜੇ_ਪਰਿਭਾਸ਼ਿਤ WITH_TLS
+				ਜੇ(context->listener->use_ਪਛਾਣ_ਤੱਤ_as_username){
 					mosquitto_free(context->username);
-					context->username = mosquitto_strndup((const char *)&context->proxy.buf[context->proxy.pos], tlv_len);
-					if(!context->username){
-						return MOSQ_ERR_NOMEM;
+					context->username = mosquitto_strndup((ਅਚਲ ਅੱਖਰ *)&context->proxy.buf[context->proxy.pos], tlv_len);
+					ਜੇ(!context->username){
+						ਵਾਪਸ MOSQ_ERR_NOMEM;
 					}
 				}
-#else
-				return MOSQ_ERR_NOT_SUPPORTED;
-#endif
-				break;
+#ਨਹੀਂਤਾਂ
+				ਵਾਪਸ MOSQ_ERR_NOT_SUPPORTED;
+#ਜੇ_ਅੰਤ
+				ਰੋਕੋ;
 		}
-		len = (uint16_t)(len - (sizeof(uint8_t) + sizeof(uint8_t) + sizeof(uint8_t) + tlv_len));
+		len = (uint16_t)(len - (ਆਕਾਰ(uint8_t) + ਆਕਾਰ(uint8_t) + ਆਕਾਰ(uint8_t) + tlv_len));
 		context->proxy.pos = (uint16_t)(context->proxy.pos + tlv_len);
 	}
 	context->proxy.have_tls = true;
 
-	return MOSQ_ERR_SUCCESS;
+	ਵਾਪਸ MOSQ_ERR_SUCCESS;
 }
 
 
-static int read_tlv(struct mosquitto *context, bool *have_certificate)
+ਸਥਿਰ ਪੂਰਨ read_tlv(ਬਣਤਰ mosquitto *context, bool *have_certificate)
 {
-	while(context->proxy.pos < context->proxy.len){
-		if(context->proxy.len - context->proxy.pos < (int)sizeof(struct pp2_tlv)){
-			return MOSQ_ERR_INVAL;
+	ਜਦੋਂ(context->proxy.pos < context->proxy.len){
+		ਜੇ(context->proxy.len - context->proxy.pos < (ਪੂਰਨ)ਆਕਾਰ(ਬਣਤਰ pp2_tlv)){
+			ਵਾਪਸ MOSQ_ERR_INVAL;
 		}
-		struct pp2_tlv *tlv = (struct pp2_tlv *)(&context->proxy.buf[context->proxy.pos]);
-		uint16_t tlv_len = (uint16_t)((tlv->length_h<<8) + tlv->length_l);
-		context->proxy.pos = (uint16_t)(context->proxy.pos + sizeof(struct pp2_tlv));
+		ਬਣਤਰ pp2_tlv *tlv = (ਬਣਤਰ pp2_tlv *)(&context->proxy.buf[context->proxy.pos]);
+		uint16_t tlv_len = (uint16_t)((tlv->ਲੰਮਾਈ_h<<8) + tlv->ਲੰਮਾਈ_l);
+		context->proxy.pos = (uint16_t)(context->proxy.pos + ਆਕਾਰ(ਬਣਤਰ pp2_tlv));
 
-		if(tlv_len > context->proxy.len - context->proxy.pos){
-			return MOSQ_ERR_INVAL;
+		ਜੇ(tlv_len > context->proxy.len - context->proxy.pos){
+			ਵਾਪਸ MOSQ_ERR_INVAL;
 		}
 
-		switch(tlv->type){
-			case PP2_TYPE_SSL:
+		ਚੋਣ(tlv->type){
+			ਹਾਲਤ PP2_TYPE_SSL:
 				{
-					int rc = read_tlv_ssl(context, tlv_len, have_certificate);
-					if(rc){
-						return rc;
+					ਪੂਰਨ rc = read_tlv_ssl(context, tlv_len, have_certificate);
+					ਜੇ(rc){
+						ਵਾਪਸ rc;
 					}
 				}
-				break;
-			default:
+				ਰੋਕੋ;
+			ਮੂਲ:
 				context->proxy.pos = (uint16_t)(context->proxy.pos + tlv_len);
-				break;
+				ਰੋਕੋ;
 		}
 	}
 
-	return MOSQ_ERR_SUCCESS;
+	ਵਾਪਸ MOSQ_ERR_SUCCESS;
 }
 
 
-int proxy_v2__read(struct mosquitto *context)
+ਪੂਰਨ proxy_v2__read(ਬਣਤਰ mosquitto *context)
 {
-	struct proxy_hdr_v2 hdr;
+	ਬਣਤਰ proxy_hdr_v2 hdr;
 
-	if(context->proxy.cmd == -1){
-		context->proxy.buf = NULL;
-		if(net__read(context, &hdr, sizeof(hdr)) != sizeof(hdr)){
-			return MOSQ_ERR_CONN_LOST;
+	ਜੇ(context->proxy.cmd == -1){
+		context->proxy.buf = ਨਿਰਾ;
+		ਜੇ(net__read(context, &hdr, ਆਕਾਰ(hdr)) != ਆਕਾਰ(hdr)){
+			ਵਾਪਸ MOSQ_ERR_CONN_ਗੁਆਚਾ;
 		}
-		if(memcmp(hdr.sig, signature, sizeof(signature))){
-			return MOSQ_ERR_INVAL;
+		ਜੇ(memcmp(hdr.sig, signature, ਆਕਾਰ(signature))){
+			ਵਾਪਸ MOSQ_ERR_INVAL;
 		}
-		if((hdr.ver_cmd & 0xF0) != 0x20){
-			return MOSQ_ERR_INVAL;
+		ਜੇ((hdr.ver_cmd & 0xF0) != 0x20){
+			ਵਾਪਸ MOSQ_ERR_INVAL;
 		}
 		context->proxy.cmd = hdr.ver_cmd & 0x0F;
-		if(context->proxy.cmd != 0x00 && context->proxy.cmd != 0x01){
-			return MOSQ_ERR_INVAL;
+		ਜੇ(context->proxy.cmd != 0x00 && context->proxy.cmd != 0x01){
+			ਵਾਪਸ MOSQ_ERR_INVAL;
 		}
 		context->proxy.fam = hdr.fam;
-		if((hdr.fam != 0x00 || context->proxy.cmd != PROXY_CMD_LOCAL)
+		ਜੇ((hdr.fam != 0x00 || context->proxy.cmd != PROXY_CMD_LOCAL)
 				&& hdr.fam != PROXY_TCP_IPV4
 				&& hdr.fam != PROXY_TCP_IPV6
 				&& hdr.fam != PROXY_TCP_UNIX){
 
-			return 1;
+			ਵਾਪਸ 1;
 		}
 		context->proxy.pos = 0;
 		context->proxy.len = ntohs(hdr.len);
-		if(context->proxy.len > 0){
+		ਜੇ(context->proxy.len > 0){
 			/* PROXY_PACKET_LIMIT=500 bytes, arbitrary upper limit */
-			switch(context->proxy.fam){
-				case PROXY_TCP_IPV4:
-					if(context->proxy.len < 12 || context->proxy.len > PROXY_PACKET_LIMIT){
-						return MOSQ_ERR_INVAL;
+			ਚੋਣ(context->proxy.fam){
+				ਹਾਲਤ PROXY_TCP_IPV4:
+					ਜੇ(context->proxy.len < 12 || context->proxy.len > PROXY_PACKET_ਹੱਦਬੰਦੀ){
+						ਵਾਪਸ MOSQ_ERR_INVAL;
 					}
-					break;
-				case PROXY_TCP_IPV6:
-					if(context->proxy.len < 36 || context->proxy.len > PROXY_PACKET_LIMIT){
-						return MOSQ_ERR_INVAL;
+					ਰੋਕੋ;
+				ਹਾਲਤ PROXY_TCP_IPV6:
+					ਜੇ(context->proxy.len < 36 || context->proxy.len > PROXY_PACKET_ਹੱਦਬੰਦੀ){
+						ਵਾਪਸ MOSQ_ERR_INVAL;
 					}
-					break;
-				case PROXY_TCP_UNIX:
-					if(context->proxy.len > PROXY_PACKET_LIMIT){
-						return MOSQ_ERR_INVAL;
+					ਰੋਕੋ;
+				ਹਾਲਤ PROXY_TCP_UNIX:
+					ਜੇ(context->proxy.len > PROXY_PACKET_ਹੱਦਬੰਦੀ){
+						ਵਾਪਸ MOSQ_ERR_INVAL;
 					}
-					break;
+					ਰੋਕੋ;
 			}
 			context->proxy.buf = mosquitto_calloc(1, (size_t)(context->proxy.len+1));
-			if(!context->proxy.buf){
-				return MOSQ_ERR_NOMEM;
+			ਜੇ(!context->proxy.buf){
+				ਵਾਪਸ MOSQ_ERR_NOMEM;
 			}
-		}else{
-			if(context->proxy.cmd != PROXY_CMD_LOCAL || context->proxy.fam != 0x00){
-				return MOSQ_ERR_PROTOCOL;
+		}ਨਹੀਂਤਾਂ{
+			ਜੇ(context->proxy.cmd != PROXY_CMD_LOCAL || context->proxy.fam != 0x00){
+				ਵਾਪਸ MOSQ_ERR_PROTOCOL;
 			}
 		}
 
 	}
 
-	if(context->proxy.pos < context->proxy.len){
+	ਜੇ(context->proxy.pos < context->proxy.len){
 		ssize_t rc = net__read(context, context->proxy.buf, (size_t)(context->proxy.len - context->proxy.pos));
-		if(rc > 0){
+		ਜੇ(rc > 0){
 			context->proxy.pos = (uint16_t)(context->proxy.pos + rc);
-		}else{
+		}ਨਹੀਂਤਾਂ{
 			proxy_cleanup(context);
-			return MOSQ_ERR_CONN_LOST;
+			ਵਾਪਸ MOSQ_ERR_CONN_ਗੁਆਚਾ;
 		}
 	}
-	if(context->proxy.pos == context->proxy.len){
-		if(context->proxy.fam == PROXY_TCP_IPV4){
-			char address[100];
-			union proxy_addr *addr = (union proxy_addr *)context->proxy.buf;
+	ਜੇ(context->proxy.pos == context->proxy.len){
+		ਜੇ(context->proxy.fam == PROXY_TCP_IPV4){
+			ਅੱਖਰ ਪਤਾ[100];
+			ਸੰਘ proxy_addr *addr = (ਸੰਘ proxy_addr *)context->proxy.buf;
 
-			inet_ntop(AF_INET, &addr->ipv4_addr.src_addr, address, sizeof(address));
-			context->address = mosquitto_strdup(address);
-			context->remote_port = ntohs(addr->ipv4_addr.src_port);
+			inet_ntop(AF_INET, &addr->ipv4_addr.src_addr, ਪਤਾ, ਆਕਾਰ(ਪਤਾ));
+			context->ਪਤਾ = mosquitto_strdup(ਪਤਾ);
+			context->remote_ਪੋਰਟ = ntohs(addr->ipv4_addr.src_ਪੋਰਟ);
 			context->proxy.pos = 4+4+2+2;
-		}else if(context->proxy.fam == PROXY_TCP_IPV6){
-			char address[100];
-			union proxy_addr *addr = (union proxy_addr *)context->proxy.buf;
+		}ਨਹੀਂਤਾਂ ਜੇ(context->proxy.fam == PROXY_TCP_IPV6){
+			ਅੱਖਰ ਪਤਾ[100];
+			ਸੰਘ proxy_addr *addr = (ਸੰਘ proxy_addr *)context->proxy.buf;
 
-			inet_ntop(AF_INET6, addr->ipv6_addr.src_addr, address, sizeof(address));
-			context->address = mosquitto_strdup(address);
-			context->remote_port = ntohs(addr->ipv6_addr.src_port);
+			inet_ntop(AF_INET6, addr->ipv6_addr.src_addr, ਪਤਾ, ਆਕਾਰ(ਪਤਾ));
+			context->ਪਤਾ = mosquitto_strdup(ਪਤਾ);
+			context->remote_ਪੋਰਟ = ntohs(addr->ipv6_addr.src_ਪੋਰਟ);
 			context->proxy.pos = 16+16+2+2;
-		}else if(context->proxy.fam == PROXY_TCP_UNIX){
-			union proxy_addr *addr = (union proxy_addr *)context->proxy.buf;
-			context->address = mosquitto_strndup((char *)addr->unix_addr.src_addr, sizeof(addr->unix_addr.src_addr));
-			context->remote_port = 0;
-			context->proxy.pos = (uint16_t)(sizeof(addr->unix_addr.src_addr) + 1);
-		}else{
+		}ਨਹੀਂਤਾਂ ਜੇ(context->proxy.fam == PROXY_TCP_UNIX){
+			ਸੰਘ proxy_addr *addr = (ਸੰਘ proxy_addr *)context->proxy.buf;
+			context->ਪਤਾ = mosquitto_strndup((ਅੱਖਰ *)addr->unix_addr.src_addr, ਆਕਾਰ(addr->unix_addr.src_addr));
+			context->remote_ਪੋਰਟ = 0;
+			context->proxy.pos = (uint16_t)(ਆਕਾਰ(addr->unix_addr.src_addr) + 1);
+		}ਨਹੀਂਤਾਂ{
 			/* Must be LOCAL */
 			/* Ignore address */
-			context->address = NULL;
-			context->remote_port = 0;
+			context->ਪਤਾ = ਨਿਰਾ;
+			context->remote_ਪੋਰਟ = 0;
 			proxy_cleanup(context);
-			return MOSQ_ERR_PROXY;
+			ਵਾਪਸ MOSQ_ERR_PROXY;
 		}
-		if(!context->address){
+		ਜੇ(!context->ਪਤਾ){
 			proxy_cleanup(context);
-			return MOSQ_ERR_NOMEM;
+			ਵਾਪਸ MOSQ_ERR_NOMEM;
 		}
 
 		bool have_certificate = false;
 
-		int rc = read_tlv(context, &have_certificate);
-		if(rc){
-			log__printf(NULL, MOSQ_LOG_NOTICE, "Connection from %s:%d rejected, corrupt PROXY header.",
-					context->address, context->remote_port);
+		ਪੂਰਨ rc = read_tlv(context, &have_certificate);
+		ਜੇ(rc){
+			log__printf(ਨਿਰਾ, MOSQ_LOG_NOTICE, "Connection from %s:%d rejected, corrupt PROXY header.",
+					context->ਪਤਾ, context->remote_ਪੋਰਟ);
 			proxy_cleanup(context);
-			return MOSQ_ERR_PROXY;
+			ਵਾਪਸ MOSQ_ERR_PROXY;
 		}
 		mosquitto_FREE(context->proxy.buf);
 
-		if(context->listener->proxy_protocol_v2_require_tls && !context->proxy.have_tls){
-			log__printf(NULL, MOSQ_LOG_NOTICE, "Connection from %s:%d rejected, client did not connect using TLS.",
-					context->address, context->remote_port);
+		ਜੇ(context->listener->proxy_protocol_v2_require_tls && !context->proxy.have_tls){
+			log__printf(ਨਿਰਾ, MOSQ_LOG_NOTICE, "Connection from %s:%d rejected, client did not connect using TLS.",
+					context->ਪਤਾ, context->remote_ਪੋਰਟ);
 			proxy_cleanup(context);
-			return MOSQ_ERR_PROXY;
+			ਵਾਪਸ MOSQ_ERR_PROXY;
 		}
 
-#ifdef WITH_TLS
-		if(context->listener->require_certificate){
-			if(!have_certificate){
-				log__printf(NULL, MOSQ_LOG_NOTICE, "Connection from %s:%d rejected, client did not provide a certificate.",
-						context->address, context->remote_port);
+#ਜੇ_ਪਰਿਭਾਸ਼ਿਤ WITH_TLS
+		ਜੇ(context->listener->require_certificate){
+			ਜੇ(!have_certificate){
+				log__printf(ਨਿਰਾ, MOSQ_LOG_NOTICE, "Connection from %s:%d rejected, client did not provide a certificate.",
+						context->ਪਤਾ, context->remote_ਪੋਰਟ);
 				proxy_cleanup(context);
-				return MOSQ_ERR_PROXY;
+				ਵਾਪਸ MOSQ_ERR_PROXY;
 			}
 		}
 
-		if(context->proxy.tls_version && context->proxy.cipher){
-			log__printf(NULL, MOSQ_LOG_NOTICE, "Connection from %s:%d negotiated %s cipher %s",
-					context->address, context->remote_port, context->proxy.tls_version, context->proxy.cipher);
+		ਜੇ(context->proxy.tls_ਸੰਸਕਰਣ && context->proxy.cipher){
+			log__printf(ਨਿਰਾ, MOSQ_LOG_NOTICE, "Connection from %s:%d negotiated %s cipher %s",
+					context->ਪਤਾ, context->remote_ਪੋਰਟ, context->proxy.tls_ਸੰਸਕਰਣ, context->proxy.cipher);
 		}
-#endif
+#ਜੇ_ਅੰਤ
 		proxy_cleanup(context);
 
-#if defined(WITH_WEBSOCKETS) && WITH_WEBSOCKETS == WS_IS_BUILTIN
-		if(context->listener->protocol == mp_websockets){
-			return http__context_init(context);
-		}else
-#endif
+#ਜੇ defined(WITH_WEBSOCKETS) && WITH_WEBSOCKETS == WS_IS_BUILTIN
+		ਜੇ(context->listener->protocol == mp_websockets){
+			ਵਾਪਸ http__context_init(context);
+		}ਨਹੀਂਤਾਂ
+#ਜੇ_ਅੰਤ
 		{
 			context->transport = mosq_t_tcp;
 		}
 	}
 
-	return MOSQ_ERR_SUCCESS;
+	ਵਾਪਸ MOSQ_ERR_SUCCESS;
 }
-#endif
+#ਜੇ_ਅੰਤ

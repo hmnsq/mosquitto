@@ -18,264 +18,264 @@ Contributors:
 
 /* This loads v4 plugins in a v5 wrapper to make the core code cleaner */
 
-#include "config.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "config.h"
 
-#include <stdio.h>
-#include <string.h>
+#ਅਨ੍ਤਰ੍ਭਾਵ <stdio.h>
+#ਅਨ੍ਤਰ੍ਭਾਵ <string.h>
 
-#include "mosquitto/broker.h"
-#include "mosquitto_broker_internal.h"
-#include "mosquitto/broker_plugin.h"
-#include "lib_load.h"
-#include "utlist.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "mosquitto/broker.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "mosquitto_broker_internal.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "mosquitto/broker_plugin.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "lib_load.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "utlist.h"
 
-typedef int (*FUNC_auth_plugin_version)(void);
-typedef int (*FUNC_plugin_version)(int, const int *);
+ਕਿਸਮਪਰਿਭਾਸ਼ਾ ਪੂਰਨ (*FUNC_auth_plugin_ਸੰਸਕਰਣ)(ਖਾਲੀ);
+ਕਿਸਮਪਰਿਭਾਸ਼ਾ ਪੂਰਨ (*FUNC_plugin_ਸੰਸਕਰਣ)(ਪੂਰਨ, ਅਚਲ ਪੂਰਨ *);
 
 
-static int plugin_v4_basic_auth(int event, void *event_data, void *userdata)
+ਸਥਿਰ ਪੂਰਨ plugin_v4_basic_auth(ਪੂਰਨ event, ਖਾਲੀ *event_ਅੰਕੜੇ, ਖਾਲੀ *userdata)
 {
 	mosquitto_plugin_id_t *plugin = userdata;
-	struct mosquitto_evt_basic_auth *ed = event_data;
+	ਬਣਤਰ mosquitto_evt_basic_auth *ed = event_ਅੰਕੜੇ;
 
-	UNUSED(event);
+	ਅਣਵਰਤਿਆ(event);
 
-	if(plugin->lib.unpwd_check_v4 == NULL){
-		return MOSQ_ERR_PLUGIN_DEFER;
+	ਜੇ(plugin->lib.unpwd_check_v4 == ਨਿਰਾ){
+		ਵਾਪਸ MOSQ_ERR_PLUGIN_DEFER;
 	}
 
-	return plugin->lib.unpwd_check_v4(
-			plugin->lib.user_data,
+	ਵਾਪਸ plugin->lib.unpwd_check_v4(
+			plugin->lib.user_ਅੰਕੜੇ,
 			ed->client,
 			ed->username,
 			ed->password);
 }
 
 
-static int plugin_v4_acl_check(int event, void *event_data, void *userdata)
+ਸਥਿਰ ਪੂਰਨ plugin_v4_acl_check(ਪੂਰਨ event, ਖਾਲੀ *event_ਅੰਕੜੇ, ਖਾਲੀ *userdata)
 {
 	mosquitto_plugin_id_t *plugin = userdata;
-	struct mosquitto_evt_acl_check *ed = event_data;
-	struct mosquitto_acl_msg msg;
-	int rc;
+	ਬਣਤਰ mosquitto_evt_acl_check *ed = event_ਅੰਕੜੇ;
+	ਬਣਤਰ mosquitto_acl_ਸੁਨੇਹਾ ਸੁਨੇਹਾ;
+	ਪੂਰਨ rc;
 
-	UNUSED(event);
+	ਅਣਵਰਤਿਆ(event);
 
-	if(plugin->lib.acl_check_v4 == NULL){
-		return MOSQ_ERR_PLUGIN_DEFER;
+	ਜੇ(plugin->lib.acl_check_v4 == ਨਿਰਾ){
+		ਵਾਪਸ MOSQ_ERR_PLUGIN_DEFER;
 	}
 
-	memset(&msg, 0, sizeof(msg));
-	msg.topic = ed->topic;
-	msg.payloadlen = ed->payloadlen;
-	msg.payload = ed->payload;
-	msg.qos = ed->qos;
-	msg.retain = ed->retain;
+	memset(&ਸੁਨੇਹਾ, 0, ਆਕਾਰ(ਸੁਨੇਹਾ));
+	ਸੁਨੇਹਾ.topic = ed->topic;
+	ਸੁਨੇਹਾ.payloadlen = ed->payloadlen;
+	ਸੁਨੇਹਾ.payload = ed->payload;
+	ਸੁਨੇਹਾ.qos = ed->qos;
+	ਸੁਨੇਹਾ.retain = ed->retain;
 
 	rc = acl__pre_check(plugin, ed->client, ed->access);
-	if(rc == MOSQ_ERR_PLUGIN_DEFER){
-		return plugin->lib.acl_check_v4(
-				plugin->lib.user_data,
+	ਜੇ(rc == MOSQ_ERR_PLUGIN_DEFER){
+		ਵਾਪਸ plugin->lib.acl_check_v4(
+				plugin->lib.user_ਅੰਕੜੇ,
 				ed->access,
 				ed->client,
-				&msg);
-	}else{
-		return rc;
+				&ਸੁਨੇਹਾ);
+	}ਨਹੀਂਤਾਂ{
+		ਵਾਪਸ rc;
 	}
 }
 
 
-static int plugin_v4_auth_start(int event, void *event_data, void *userdata)
+ਸਥਿਰ ਪੂਰਨ plugin_v4_auth_ਸ਼ੁਰੂ(ਪੂਰਨ event, ਖਾਲੀ *event_ਅੰਕੜੇ, ਖਾਲੀ *userdata)
 {
 	mosquitto_plugin_id_t *plugin = userdata;
-	struct mosquitto_evt_extended_auth *ed = event_data;
+	ਬਣਤਰ mosquitto_evt_extended_auth *ed = event_ਅੰਕੜੇ;
 
-	UNUSED(event);
+	ਅਣਵਰਤਿਆ(event);
 
-	if(plugin->lib.auth_start_v4 == NULL){
-		return MOSQ_ERR_PLUGIN_DEFER;
+	ਜੇ(plugin->lib.auth_ਸ਼ੁਰੂ_v4 == ਨਿਰਾ){
+		ਵਾਪਸ MOSQ_ERR_PLUGIN_DEFER;
 	}
 
-	return plugin->lib.auth_start_v4(
-			plugin->lib.user_data,
+	ਵਾਪਸ plugin->lib.auth_ਸ਼ੁਰੂ_v4(
+			plugin->lib.user_ਅੰਕੜੇ,
 			ed->client,
-			ed->client->auth_method,
+			ed->client->auth_ਵਿਧੀ,
 			false,
-			ed->data_in, ed->data_in_len,
-			&ed->data_out, &ed->data_out_len);
+			ed->ਅੰਕੜੇ_ਵਿੱਚ, ed->ਅੰਕੜੇ_ਵਿੱਚ_len,
+			&ed->ਅੰਕੜੇ_ਬਾਹਰਲਾ, &ed->ਅੰਕੜੇ_ਬਾਹਰਲਾ_len);
 }
 
 
-static int plugin_v4_auth_continue(int event, void *event_data, void *userdata)
+ਸਥਿਰ ਪੂਰਨ plugin_v4_auth_continue(ਪੂਰਨ event, ਖਾਲੀ *event_ਅੰਕੜੇ, ਖਾਲੀ *userdata)
 {
 	mosquitto_plugin_id_t *plugin = userdata;
-	struct mosquitto_evt_extended_auth *ed = event_data;
+	ਬਣਤਰ mosquitto_evt_extended_auth *ed = event_ਅੰਕੜੇ;
 
-	UNUSED(event);
+	ਅਣਵਰਤਿਆ(event);
 
-	if(plugin->lib.auth_continue_v4 == NULL){
-		return MOSQ_ERR_PLUGIN_DEFER;
+	ਜੇ(plugin->lib.auth_continue_v4 == ਨਿਰਾ){
+		ਵਾਪਸ MOSQ_ERR_PLUGIN_DEFER;
 	}
 
-	return plugin->lib.auth_continue_v4(
-			plugin->lib.user_data,
+	ਵਾਪਸ plugin->lib.auth_continue_v4(
+			plugin->lib.user_ਅੰਕੜੇ,
 			ed->client,
-			ed->client->auth_method,
-			ed->data_in, ed->data_in_len,
-			&ed->data_out, &ed->data_out_len);
+			ed->client->auth_ਵਿਧੀ,
+			ed->ਅੰਕੜੇ_ਵਿੱਚ, ed->ਅੰਕੜੇ_ਵਿੱਚ_len,
+			&ed->ਅੰਕੜੇ_ਬਾਹਰਲਾ, &ed->ਅੰਕੜੇ_ਬਾਹਰਲਾ_len);
 }
 
 
-static int plugin_v4_psk_key_get(int event, void *event_data, void *userdata)
+ਸਥਿਰ ਪੂਰਨ plugin_v4_psk_ਕੁੰਜੀ_get(ਪੂਰਨ event, ਖਾਲੀ *event_ਅੰਕੜੇ, ਖਾਲੀ *userdata)
 {
 	mosquitto_plugin_id_t *plugin = userdata;
-	struct mosquitto_evt_psk_key *ed = event_data;
+	ਬਣਤਰ mosquitto_evt_psk_ਕੁੰਜੀ *ed = event_ਅੰਕੜੇ;
 
-	UNUSED(event);
+	ਅਣਵਰਤਿਆ(event);
 
-	if(plugin->lib.psk_key_get_v4 == NULL){
-		return MOSQ_ERR_PLUGIN_DEFER;
+	ਜੇ(plugin->lib.psk_ਕੁੰਜੀ_get_v4 == ਨਿਰਾ){
+		ਵਾਪਸ MOSQ_ERR_PLUGIN_DEFER;
 	}
 
-	return plugin->lib.psk_key_get_v4(
-			plugin->lib.user_data,
+	ਵਾਪਸ plugin->lib.psk_ਕੁੰਜੀ_get_v4(
+			plugin->lib.user_ਅੰਕੜੇ,
 			ed->client,
 			ed->hint,
-			ed->identity,
-			ed->key,
-			ed->max_key_len);
+			ed->ਪਛਾਣ_ਤੱਤ,
+			ed->ਕੁੰਜੀ,
+			ed->max_ਕੁੰਜੀ_len);
 }
 
 
-static int plugin_v4_reload(int event, void *event_data, void *userdata)
+ਸਥਿਰ ਪੂਰਨ plugin_v4_reload(ਪੂਰਨ event, ਖਾਲੀ *event_ਅੰਕੜੇ, ਖਾਲੀ *userdata)
 {
 	mosquitto_plugin_id_t *plugin = userdata;
-	int rc;
+	ਪੂਰਨ rc;
 
-	UNUSED(event);
-	UNUSED(event_data);
+	ਅਣਵਰਤਿਆ(event);
+	ਅਣਵਰਤਿਆ(event_ਅੰਕੜੇ);
 
 	rc = plugin->lib.security_cleanup_v4(
-			plugin->lib.user_data,
+			plugin->lib.user_ਅੰਕੜੇ,
 			plugin->config.options,
-			plugin->config.option_count,
+			plugin->config.option_ਗਿਣਤੀ,
 			true);
-	if(rc){
-		return rc;
+	ਜੇ(rc){
+		ਵਾਪਸ rc;
 	}
 
 	rc = plugin->lib.security_init_v4(
-			plugin->lib.user_data,
+			plugin->lib.user_ਅੰਕੜੇ,
 			plugin->config.options,
-			plugin->config.option_count,
+			plugin->config.option_ਗਿਣਤੀ,
 			true);
-	return rc;
+	ਵਾਪਸ rc;
 }
 
 
-int plugin__load_v4(mosquitto_plugin_id_t *plugin, void *lib)
+ਪੂਰਨ plugin_ਲੱਦੋ_v4(mosquitto_plugin_id_t *plugin, ਖਾਲੀ *lib)
 {
-	int rc;
+	ਪੂਰਨ rc;
 
-	if(!(plugin->lib.plugin_init_v4 = (FUNC_auth_plugin_init_v4)LIB_SYM(lib, "mosquitto_auth_plugin_init"))){
-		log__printf(NULL, MOSQ_LOG_ERR,
+	ਜੇ(!(plugin->lib.plugin_init_v4 = (FUNC_auth_plugin_init_v4)LIB_SYM(lib, "mosquitto_auth_plugin_init"))){
+		log__printf(ਨਿਰਾ, MOSQ_LOG_ERR,
 				"Error: Unable to load auth plugin function mosquitto_auth_plugin_init().");
 		LIB_ERROR();
-		return MOSQ_ERR_UNKNOWN;
+		ਵਾਪਸ MOSQ_ERR_UNKNOWN;
 	}
-	if(!(plugin->lib.plugin_cleanup_v4 = (FUNC_auth_plugin_cleanup_v4)LIB_SYM(lib, "mosquitto_auth_plugin_cleanup"))){
-		log__printf(NULL, MOSQ_LOG_ERR,
+	ਜੇ(!(plugin->lib.plugin_cleanup_v4 = (FUNC_auth_plugin_cleanup_v4)LIB_SYM(lib, "mosquitto_auth_plugin_cleanup"))){
+		log__printf(ਨਿਰਾ, MOSQ_LOG_ERR,
 				"Error: Unable to load auth plugin function mosquitto_auth_plugin_cleanup().");
 		LIB_ERROR();
-		return MOSQ_ERR_UNKNOWN;
+		ਵਾਪਸ MOSQ_ERR_UNKNOWN;
 	}
 
-	if(!(plugin->lib.security_init_v4 = (FUNC_auth_plugin_security_init_v4)LIB_SYM(lib, "mosquitto_auth_security_init"))){
-		log__printf(NULL, MOSQ_LOG_ERR,
+	ਜੇ(!(plugin->lib.security_init_v4 = (FUNC_auth_plugin_security_init_v4)LIB_SYM(lib, "mosquitto_auth_security_init"))){
+		log__printf(ਨਿਰਾ, MOSQ_LOG_ERR,
 				"Error: Unable to load auth plugin function mosquitto_auth_security_init().");
 		LIB_ERROR();
-		return MOSQ_ERR_UNKNOWN;
+		ਵਾਪਸ MOSQ_ERR_UNKNOWN;
 	}
 
-	if(!(plugin->lib.security_cleanup_v4 = (FUNC_auth_plugin_security_cleanup_v4)LIB_SYM(lib, "mosquitto_auth_security_cleanup"))){
-		log__printf(NULL, MOSQ_LOG_ERR,
+	ਜੇ(!(plugin->lib.security_cleanup_v4 = (FUNC_auth_plugin_security_cleanup_v4)LIB_SYM(lib, "mosquitto_auth_security_cleanup"))){
+		log__printf(ਨਿਰਾ, MOSQ_LOG_ERR,
 				"Error: Unable to load auth plugin function mosquitto_auth_security_cleanup().");
 		LIB_ERROR();
-		return MOSQ_ERR_UNKNOWN;
+		ਵਾਪਸ MOSQ_ERR_UNKNOWN;
 	}
 
-	if(!(plugin->lib.acl_check_v4 = (FUNC_auth_plugin_acl_check_v4)LIB_SYM(lib, "mosquitto_auth_acl_check"))){
-		log__printf(NULL, MOSQ_LOG_ERR,
+	ਜੇ(!(plugin->lib.acl_check_v4 = (FUNC_auth_plugin_acl_check_v4)LIB_SYM(lib, "mosquitto_auth_acl_check"))){
+		log__printf(ਨਿਰਾ, MOSQ_LOG_ERR,
 				"Error: Unable to load auth plugin function mosquitto_auth_acl_check().");
 		LIB_ERROR();
-		return MOSQ_ERR_UNKNOWN;
+		ਵਾਪਸ MOSQ_ERR_UNKNOWN;
 	}
 
 	plugin->lib.unpwd_check_v4 = (FUNC_auth_plugin_unpwd_check_v4)LIB_SYM(lib, "mosquitto_auth_unpwd_check");
-	if(plugin->lib.unpwd_check_v4){
-		log__printf(NULL, MOSQ_LOG_INFO,
+	ਜੇ(plugin->lib.unpwd_check_v4){
+		log__printf(ਨਿਰਾ, MOSQ_LOG_INFO,
 				" ├── Username/password checking enabled.");
-	}else{
-		log__printf(NULL, MOSQ_LOG_INFO,
+	}ਨਹੀਂਤਾਂ{
+		log__printf(ਨਿਰਾ, MOSQ_LOG_INFO,
 				" ├── Username/password checking not enabled.");
 	}
 
-	plugin->lib.psk_key_get_v4 = (FUNC_auth_plugin_psk_key_get_v4)LIB_SYM(lib, "mosquitto_auth_psk_key_get");
-	if(plugin->lib.psk_key_get_v4){
-		log__printf(NULL, MOSQ_LOG_INFO,
+	plugin->lib.psk_ਕੁੰਜੀ_get_v4 = (FUNC_auth_plugin_psk_ਕੁੰਜੀ_get_v4)LIB_SYM(lib, "mosquitto_auth_psk_key_get");
+	ਜੇ(plugin->lib.psk_ਕੁੰਜੀ_get_v4){
+		log__printf(ਨਿਰਾ, MOSQ_LOG_INFO,
 				" ├── TLS-PSK checking enabled.");
-	}else{
-		log__printf(NULL, MOSQ_LOG_INFO,
+	}ਨਹੀਂਤਾਂ{
+		log__printf(ਨਿਰਾ, MOSQ_LOG_INFO,
 				" ├── TLS-PSK checking not enabled.");
 	}
 
-	plugin->lib.auth_start_v4 = (FUNC_auth_plugin_auth_start_v4)LIB_SYM(lib, "mosquitto_auth_start");
+	plugin->lib.auth_ਸ਼ੁਰੂ_v4 = (FUNC_auth_plugin_auth_ਸ਼ੁਰੂ_v4)LIB_SYM(lib, "mosquitto_auth_start");
 	plugin->lib.auth_continue_v4 = (FUNC_auth_plugin_auth_continue_v4)LIB_SYM(lib, "mosquitto_auth_continue");
 
-	if(plugin->lib.auth_start_v4){
-		if(plugin->lib.auth_continue_v4){
-			log__printf(NULL, MOSQ_LOG_INFO,
+	ਜੇ(plugin->lib.auth_ਸ਼ੁਰੂ_v4){
+		ਜੇ(plugin->lib.auth_continue_v4){
+			log__printf(ਨਿਰਾ, MOSQ_LOG_INFO,
 					" └── Extended authentication enabled.");
-		}else{
-			log__printf(NULL, MOSQ_LOG_ERR,
+		}ਨਹੀਂਤਾਂ{
+			log__printf(ਨਿਰਾ, MOSQ_LOG_ERR,
 					"Error: Plugin has missing mosquitto_auth_continue() function.");
-			return MOSQ_ERR_UNKNOWN;
+			ਵਾਪਸ MOSQ_ERR_UNKNOWN;
 		}
-	}else{
-		log__printf(NULL, MOSQ_LOG_INFO,
+	}ਨਹੀਂਤਾਂ{
+		log__printf(ਨਿਰਾ, MOSQ_LOG_INFO,
 				" └── Extended authentication not enabled.");
 	}
 
 	plugin->lib.lib = lib;
-	plugin->lib.user_data = NULL;
+	plugin->lib.user_ਅੰਕੜੇ = ਨਿਰਾ;
 	plugin->lib.identifier = plugin;
 
-	if(plugin->lib.plugin_init_v4){
-		rc = plugin->lib.plugin_init_v4(&plugin->lib.user_data, plugin->config.options, plugin->config.option_count);
-		if(rc){
-			log__printf(NULL, MOSQ_LOG_ERR,
+	ਜੇ(plugin->lib.plugin_init_v4){
+		rc = plugin->lib.plugin_init_v4(&plugin->lib.user_ਅੰਕੜੇ, plugin->config.options, plugin->config.option_ਗਿਣਤੀ);
+		ਜੇ(rc){
+			log__printf(ਨਿਰਾ, MOSQ_LOG_ERR,
 					"Error: Authentication plugin returned %d when initialising.", rc);
-			return rc;
+			ਵਾਪਸ rc;
 		}
 	}
 
-	mosquitto_callback_register(plugin, MOSQ_EVT_RELOAD, plugin_v4_reload, NULL, plugin);
+	mosquitto_callback_ਰਜਿਸਟਰ(plugin, MOSQ_EVT_RELOAD, plugin_v4_reload, ਨਿਰਾ, plugin);
 
-	if(plugin->lib.unpwd_check_v4){
-		mosquitto_callback_register(plugin, MOSQ_EVT_BASIC_AUTH, plugin_v4_basic_auth, NULL, plugin);
+	ਜੇ(plugin->lib.unpwd_check_v4){
+		mosquitto_callback_ਰਜਿਸਟਰ(plugin, MOSQ_EVT_BASIC_AUTH, plugin_v4_basic_auth, ਨਿਰਾ, plugin);
 	}
-	if(plugin->lib.acl_check_v4){
-		mosquitto_callback_register(plugin, MOSQ_EVT_ACL_CHECK, plugin_v4_acl_check, NULL, plugin);
+	ਜੇ(plugin->lib.acl_check_v4){
+		mosquitto_callback_ਰਜਿਸਟਰ(plugin, MOSQ_EVT_ACL_CHECK, plugin_v4_acl_check, ਨਿਰਾ, plugin);
 	}
-	if(plugin->lib.auth_start_v4){
-		mosquitto_callback_register(plugin, MOSQ_EVT_EXT_AUTH_START, plugin_v4_auth_start, NULL, plugin);
+	ਜੇ(plugin->lib.auth_ਸ਼ੁਰੂ_v4){
+		mosquitto_callback_ਰਜਿਸਟਰ(plugin, MOSQ_EVT_EXT_AUTH_ਸ਼ੁਰੂ, plugin_v4_auth_ਸ਼ੁਰੂ, ਨਿਰਾ, plugin);
 	}
-	if(plugin->lib.auth_continue_v4){
-		mosquitto_callback_register(plugin, MOSQ_EVT_EXT_AUTH_CONTINUE, plugin_v4_auth_continue, NULL, plugin);
+	ਜੇ(plugin->lib.auth_continue_v4){
+		mosquitto_callback_ਰਜਿਸਟਰ(plugin, MOSQ_EVT_EXT_AUTH_CONTINUE, plugin_v4_auth_continue, ਨਿਰਾ, plugin);
 	}
-	if(plugin->lib.psk_key_get_v4){
-		mosquitto_callback_register(plugin, MOSQ_EVT_PSK_KEY, plugin_v4_psk_key_get, NULL, plugin);
+	ਜੇ(plugin->lib.psk_ਕੁੰਜੀ_get_v4){
+		mosquitto_callback_ਰਜਿਸਟਰ(plugin, MOSQ_EVT_PSK_ਕੁੰਜੀ, plugin_v4_psk_ਕੁੰਜੀ_get, ਨਿਰਾ, plugin);
 	}
 
-	return 0;
+	ਵਾਪਸ 0;
 }

@@ -47,598 +47,598 @@ Contributors:
  *	a/b/d
  */
 
-#include "config.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "config.h"
 
-#include <assert.h>
-#include <stdio.h>
-#include <string.h>
+#ਅਨ੍ਤਰ੍ਭਾਵ <assert.h>
+#ਅਨ੍ਤਰ੍ਭਾਵ <stdio.h>
+#ਅਨ੍ਤਰ੍ਭਾਵ <string.h>
 
-#include "mosquitto_broker_internal.h"
-#include "mosquitto/mqtt_protocol.h"
-#include "util_mosq.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "mosquitto_broker_internal.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "mosquitto/mqtt_protocol.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "util_mosq.h"
 
-#include "utlist.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "utlist.h"
 
-static struct mosquitto__subhier *sub__add_hier_entry(struct mosquitto__subhier *parent, struct mosquitto__subhier **sibling, const char *topic, uint16_t len);
+ਸਥਿਰ ਬਣਤਰ mosquitto__subhier *sub_ਜੋੜੋ_hier_ਇੰਦਰਾਜ(ਬਣਤਰ mosquitto__subhier *ਮਾਪਾ, ਬਣਤਰ mosquitto__subhier **sibling, ਅਚਲ ਅੱਖਰ *topic, uint16_t len);
 
-static unsigned int hashv_plus = 0;
-static unsigned int hashv_hash = 0;
+ਸਥਿਰ ਬਿਨਾਨਿਸ਼ਾਨੀ ਪੂਰਨ hashv_plus = 0;
+ਸਥਿਰ ਬਿਨਾਨਿਸ਼ਾਨੀ ਪੂਰਨ hashv_hash = 0;
 
 
-static int subs__send(struct mosquitto__subleaf *leaf, const char *topic, uint8_t qos, int retain, struct mosquitto__base_msg *stored)
+ਸਥਿਰ ਪੂਰਨ subs__send(ਬਣਤਰ mosquitto__subleaf *ਪੱਤੀ, ਅਚਲ ਅੱਖਰ *topic, uint8_t qos, ਪੂਰਨ retain, ਬਣਤਰ mosquitto_ਅਧਾਰ_ਸੁਨੇਹਾ *stored)
 {
 	bool client_retain;
 	uint16_t mid;
-	uint8_t client_qos, msg_qos;
-	int rc2;
+	uint8_t client_qos, ਸੁਨੇਹਾ_qos;
+	ਪੂਰਨ rc2;
 
 	/* Check for ACL topic access. */
-	rc2 = mosquitto_acl_check(leaf->context, topic, stored->data.payloadlen, stored->data.payload, stored->data.qos, stored->data.retain, stored->data.properties, MOSQ_ACL_READ);
-	if(rc2 == MOSQ_ERR_ACL_DENIED){
-		return MOSQ_ERR_SUCCESS;
-	}else if(rc2 == MOSQ_ERR_SUCCESS){
-		client_qos = MQTT_SUB_OPT_GET_QOS(leaf->subscription_options);
+	rc2 = mosquitto_acl_check(ਪੱਤੀ->context, topic, stored->ਅੰਕੜੇ.payloadlen, stored->ਅੰਕੜੇ.payload, stored->ਅੰਕੜੇ.qos, stored->ਅੰਕੜੇ.retain, stored->ਅੰਕੜੇ.properties, MOSQ_ACL_READ);
+	ਜੇ(rc2 == MOSQ_ERR_ACL_DENIED){
+		ਵਾਪਸ MOSQ_ERR_SUCCESS;
+	}ਨਹੀਂਤਾਂ ਜੇ(rc2 == MOSQ_ERR_SUCCESS){
+		client_qos = MQTT_SUB_OPT_GET_QOS(ਪੱਤੀ->subscription_options);
 
-		if(db.config->upgrade_outgoing_qos){
-			msg_qos = client_qos;
-		}else{
-			if(qos > client_qos){
-				msg_qos = client_qos;
-			}else{
-				msg_qos = qos;
+		ਜੇ(db.config->upgrade_outgoing_qos){
+			ਸੁਨੇਹਾ_qos = client_qos;
+		}ਨਹੀਂਤਾਂ{
+			ਜੇ(qos > client_qos){
+				ਸੁਨੇਹਾ_qos = client_qos;
+			}ਨਹੀਂਤਾਂ{
+				ਸੁਨੇਹਾ_qos = qos;
 			}
 		}
-		if(msg_qos){
-			mid = mosquitto__mid_generate(leaf->context);
-		}else{
+		ਜੇ(ਸੁਨੇਹਾ_qos){
+			mid = mosquitto__mid_generate(ਪੱਤੀ->context);
+		}ਨਹੀਂਤਾਂ{
 			mid = 0;
 		}
-		if(MQTT_SUB_OPT_GET_RETAIN_AS_PUBLISHED(leaf->subscription_options)){
+		ਜੇ(MQTT_SUB_OPT_GET_RETAIN_AS_PUBLISHED(ਪੱਤੀ->subscription_options)){
 			client_retain = retain;
-		}else{
+		}ਨਹੀਂਤਾਂ{
 			client_retain = false;
 		}
-		if(db__message_insert_outgoing(leaf->context, 0, mid, msg_qos, client_retain, stored, leaf->identifier, true, true) == 1){
-			return 1;
+		ਜੇ(db_ਸੁਨੇਹਾ_ਪਾਓ_outgoing(ਪੱਤੀ->context, 0, mid, ਸੁਨੇਹਾ_qos, client_retain, stored, ਪੱਤੀ->identifier, true, true) == 1){
+			ਵਾਪਸ 1;
 		}
-	}else{
-		return 1; /* Application error */
+	}ਨਹੀਂਤਾਂ{
+		ਵਾਪਸ 1; /* Application error */
 	}
-	return 0;
+	ਵਾਪਸ 0;
 }
 
 
-static int subs__shared_process(struct mosquitto__subhier *hier, const char *topic, uint8_t qos, int retain, struct mosquitto__base_msg *stored)
+ਸਥਿਰ ਪੂਰਨ subs__shared_process(ਬਣਤਰ mosquitto__subhier *hier, ਅਚਲ ਅੱਖਰ *topic, uint8_t qos, ਪੂਰਨ retain, ਬਣਤਰ mosquitto_ਅਧਾਰ_ਸੁਨੇਹਾ *stored)
 {
-	int rc = 0, rc2;
-	struct mosquitto__subshared *shared, *shared_tmp;
-	struct mosquitto__subleaf *leaf;
+	ਪੂਰਨ rc = 0, rc2;
+	ਬਣਤਰ mosquitto__subshared *shared, *shared_tmp;
+	ਬਣਤਰ mosquitto__subleaf *ਪੱਤੀ;
 
 	HASH_ITER(hh, hier->shared, shared, shared_tmp){
-		leaf = shared->subs;
-		rc2 = subs__send(leaf, topic, qos, retain, stored);
+		ਪੱਤੀ = shared->subs;
+		rc2 = subs__send(ਪੱਤੀ, topic, qos, retain, stored);
 		/* Remove current from the top, add back to the bottom */
-		DL_DELETE(shared->subs, leaf);
-		DL_APPEND(shared->subs, leaf);
+		DL_DELETE(shared->subs, ਪੱਤੀ);
+		DL_APPEND(shared->subs, ਪੱਤੀ);
 
-		if(rc2){
+		ਜੇ(rc2){
 			rc = 1;
 		}
 	}
 
-	return rc;
+	ਵਾਪਸ rc;
 }
 
 
-static int subs__process(struct mosquitto__subhier *hier, const char *source_id, const char *topic, uint8_t qos, int retain, struct mosquitto__base_msg *stored)
+ਸਥਿਰ ਪੂਰਨ subs__process(ਬਣਤਰ mosquitto__subhier *hier, ਅਚਲ ਅੱਖਰ *ਸਰੋਤ_id, ਅਚਲ ਅੱਖਰ *topic, uint8_t qos, ਪੂਰਨ retain, ਬਣਤਰ mosquitto_ਅਧਾਰ_ਸੁਨੇਹਾ *stored)
 {
-	int rc = 0;
-	int rc2;
-	struct mosquitto__subleaf *leaf;
+	ਪੂਰਨ rc = 0;
+	ਪੂਰਨ rc2;
+	ਬਣਤਰ mosquitto__subleaf *ਪੱਤੀ;
 
 	rc = subs__shared_process(hier, topic, qos, retain, stored);
 
-	leaf = hier->subs;
-	while(source_id && leaf){
-		if(!leaf->context->id || (MQTT_SUB_OPT_GET_NO_LOCAL(leaf->subscription_options) && !strcmp(leaf->context->id, source_id))){
-			leaf = leaf->next;
-			continue;
+	ਪੱਤੀ = hier->subs;
+	ਜਦੋਂ(ਸਰੋਤ_id && ਪੱਤੀ){
+		ਜੇ(!ਪੱਤੀ->context->id || (MQTT_SUB_OPT_GET_NO_LOCAL(ਪੱਤੀ->subscription_options) && !strcmp(ਪੱਤੀ->context->id, ਸਰੋਤ_id))){
+			ਪੱਤੀ = ਪੱਤੀ->ਅਗਲਾ;
+			ਜਾਰੀ;
 		}
-		rc2 = subs__send(leaf, topic, qos, retain, stored);
-		if(rc2){
+		rc2 = subs__send(ਪੱਤੀ, topic, qos, retain, stored);
+		ਜੇ(rc2){
 			rc = 1;
 		}
-		leaf = leaf->next;
+		ਪੱਤੀ = ਪੱਤੀ->ਅਗਲਾ;
 	}
-	if(hier->subs || hier->shared){
-		return rc;
-	}else{
-		return MOSQ_ERR_NO_SUBSCRIBERS;
+	ਜੇ(hier->subs || hier->shared){
+		ਵਾਪਸ rc;
+	}ਨਹੀਂਤਾਂ{
+		ਵਾਪਸ MOSQ_ERR_NO_SUBSCRIBERS;
 	}
 }
 
 
-static int sub__add_leaf(struct mosquitto *context, const struct mosquitto_subscription *sub, struct mosquitto__subleaf **head, struct mosquitto__subleaf **newleaf)
+ਸਥਿਰ ਪੂਰਨ sub_ਜੋੜੋ_ਪੱਤੀ(ਬਣਤਰ mosquitto *context, ਅਚਲ ਬਣਤਰ mosquitto_subscription *sub, ਬਣਤਰ mosquitto__subleaf **ਸਿਰ, ਬਣਤਰ mosquitto__subleaf **newleaf)
 {
-	struct mosquitto__subleaf *leaf;
+	ਬਣਤਰ mosquitto__subleaf *ਪੱਤੀ;
 
-	*newleaf = NULL;
-	leaf = *head;
+	*newleaf = ਨਿਰਾ;
+	ਪੱਤੀ = *ਸਿਰ;
 
-	while(leaf){
-		if(leaf->context && leaf->context->id && !strcmp(leaf->context->id, context->id)){
+	ਜਦੋਂ(ਪੱਤੀ){
+		ਜੇ(ਪੱਤੀ->context && ਪੱਤੀ->context->id && !strcmp(ਪੱਤੀ->context->id, context->id)){
 			/* Client making a second subscription to same topic. Only
 			 * need to update QoS. Return MOSQ_ERR_SUB_EXISTS to
 			 * indicate this to the calling function. */
-			leaf->identifier = sub->identifier;
-			leaf->subscription_options = sub->options;
-			return MOSQ_ERR_SUB_EXISTS;
+			ਪੱਤੀ->identifier = sub->identifier;
+			ਪੱਤੀ->subscription_options = sub->options;
+			ਵਾਪਸ MOSQ_ERR_SUB_EXISTS;
 		}
-		leaf = leaf->next;
+		ਪੱਤੀ = ਪੱਤੀ->ਅਗਲਾ;
 	}
-	leaf = mosquitto_calloc(1, sizeof(struct mosquitto__subleaf) + strlen(sub->topic_filter) + 1);
-	if(!leaf){
-		return MOSQ_ERR_NOMEM;
+	ਪੱਤੀ = mosquitto_calloc(1, ਆਕਾਰ(ਬਣਤਰ mosquitto__subleaf) + ਲੜੀ_ਲੰਬਾਈ(sub->topic_filter) + 1);
+	ਜੇ(!ਪੱਤੀ){
+		ਵਾਪਸ MOSQ_ERR_NOMEM;
 	}
-	leaf->context = context;
-	leaf->identifier = sub->identifier;
-	leaf->subscription_options = sub->options;
-	strcpy(leaf->topic_filter, sub->topic_filter);
+	ਪੱਤੀ->context = context;
+	ਪੱਤੀ->identifier = sub->identifier;
+	ਪੱਤੀ->subscription_options = sub->options;
+	strcpy(ਪੱਤੀ->topic_filter, sub->topic_filter);
 
-	DL_APPEND(*head, leaf);
-	*newleaf = leaf;
+	DL_APPEND(*ਸਿਰ, ਪੱਤੀ);
+	*newleaf = ਪੱਤੀ;
 
-	return MOSQ_ERR_SUCCESS;
+	ਵਾਪਸ MOSQ_ERR_SUCCESS;
 }
 
 
-static void sub__remove_shared_leaf(struct mosquitto__subhier *subhier, struct mosquitto__subshared *shared, struct mosquitto__subleaf *leaf)
+ਸਥਿਰ ਖਾਲੀ sub_remove_shared_ਪੱਤੀ(ਬਣਤਰ mosquitto__subhier *subhier, ਬਣਤਰ mosquitto__subshared *shared, ਬਣਤਰ mosquitto__subleaf *ਪੱਤੀ)
 {
-	DL_DELETE(shared->subs, leaf);
-	if(shared->subs == NULL){
+	DL_DELETE(shared->subs, ਪੱਤੀ);
+	ਜੇ(shared->subs == ਨਿਰਾ){
 		HASH_DELETE(hh, subhier->shared, shared);
 		mosquitto_FREE(shared);
 	}
 }
 
 
-static int sub__add_shared(struct mosquitto *context, const struct mosquitto_subscription *sub, struct mosquitto__subhier *subhier, const char *sharename)
+ਸਥਿਰ ਪੂਰਨ sub_ਜੋੜੋ_shared(ਬਣਤਰ mosquitto *context, ਅਚਲ ਬਣਤਰ mosquitto_subscription *sub, ਬਣਤਰ mosquitto__subhier *subhier, ਅਚਲ ਅੱਖਰ *sharename)
 {
-	struct mosquitto__subleaf *newleaf;
-	struct mosquitto__subshared *shared = NULL;
-	struct mosquitto__subleaf **subs;
+	ਬਣਤਰ mosquitto__subleaf *newleaf;
+	ਬਣਤਰ mosquitto__subshared *shared = ਨਿਰਾ;
+	ਬਣਤਰ mosquitto__subleaf **subs;
 	size_t slen;
-	int rc;
-	unsigned hashv;
+	ਪੂਰਨ rc;
+	ਬਿਨਾਨਿਸ਼ਾਨੀ hashv;
 
-	slen = strlen(sharename);
+	slen = ਲੜੀ_ਲੰਬਾਈ(sharename);
 
-	HASH_VALUE(sharename, slen, hashv);
+	HASH_ਮੁੱਲ(sharename, slen, hashv);
 
-	HASH_FIND_BYHASHVALUE(hh, subhier->shared, sharename, slen, hashv, shared);
-	if(shared == NULL){
-		shared = mosquitto_calloc(1, sizeof(struct mosquitto__subshared) + slen + 1);
-		if(!shared){
-			return MOSQ_ERR_NOMEM;
+	HASH_ਲੱਭੋ_BYHASHVALUE(hh, subhier->shared, sharename, slen, hashv, shared);
+	ਜੇ(shared == ਨਿਰਾ){
+		shared = mosquitto_calloc(1, ਆਕਾਰ(ਬਣਤਰ mosquitto__subshared) + slen + 1);
+		ਜੇ(!shared){
+			ਵਾਪਸ MOSQ_ERR_NOMEM;
 		}
 		strncpy(shared->name, sharename, slen+1);
 
-		HASH_ADD_BYHASHVALUE(hh, subhier->shared, name, slen, hashv, shared);
+		HASH_ਜੋੜੋ_BYHASHVALUE(hh, subhier->shared, name, slen, hashv, shared);
 	}
 
-	rc = sub__add_leaf(context, sub, &shared->subs, &newleaf);
-	if(rc > 0){
-		if(shared->subs == NULL){
+	rc = sub_ਜੋੜੋ_ਪੱਤੀ(context, sub, &shared->subs, &newleaf);
+	ਜੇ(rc > 0){
+		ਜੇ(shared->subs == ਨਿਰਾ){
 			HASH_DELETE(hh, subhier->shared, shared);
 			mosquitto_FREE(shared);
 		}
-		return rc;
+		ਵਾਪਸ rc;
 	}
 
-	if(rc != MOSQ_ERR_SUB_EXISTS){
+	ਜੇ(rc != MOSQ_ERR_SUB_EXISTS){
 		newleaf->hier = subhier;
 		newleaf->shared = shared;
 
 		bool assigned = false;
-		for(int i=0; i<context->subs_capacity; i++){
-			if(!context->subs[i]){
+		ਲਈ(ਪੂਰਨ i=0; i<context->subs_ਸਮਰੱਥਾ; i++){
+			ਜੇ(!context->subs[i]){
 				context->subs[i] = newleaf;
-				context->subs_count++;
+				context->subs_ਗਿਣਤੀ++;
 				assigned = true;
-				break;
+				ਰੋਕੋ;
 			}
 		}
-		if(assigned == false){
-			subs = mosquitto_realloc(context->subs, sizeof(struct mosquitto__subleaf *)*(size_t)(context->subs_capacity + 1));
-			if(!subs){
-				sub__remove_shared_leaf(subhier, shared, newleaf);
+		ਜੇ(assigned == false){
+			subs = mosquitto_realloc(context->subs, ਆਕਾਰ(ਬਣਤਰ mosquitto__subleaf *)*(size_t)(context->subs_ਸਮਰੱਥਾ + 1));
+			ਜੇ(!subs){
+				sub_remove_shared_ਪੱਤੀ(subhier, shared, newleaf);
 				mosquitto_FREE(newleaf);
-				return MOSQ_ERR_NOMEM;
+				ਵਾਪਸ MOSQ_ERR_NOMEM;
 			}
 			context->subs = subs;
-			context->subs_capacity++;
-			context->subs_count++;
-			context->subs[context->subs_capacity-1] = newleaf;
+			context->subs_ਸਮਰੱਥਾ++;
+			context->subs_ਗਿਣਤੀ++;
+			context->subs[context->subs_ਸਮਰੱਥਾ-1] = newleaf;
 		}
-#ifdef WITH_SYS_TREE
-		db.shared_subscription_count++;
-#endif
+#ਜੇ_ਪਰਿਭਾਸ਼ਿਤ WITH_SYS_ਰੁੱਖ
+		db.shared_subscription_ਗਿਣਤੀ++;
+#ਜੇ_ਅੰਤ
 	}
 
-	if(context->protocol == mosq_p_mqtt31 || context->protocol == mosq_p_mqtt5){
-		return rc;
-	}else{
+	ਜੇ(context->protocol == mosq_p_mqtt31 || context->protocol == mosq_p_mqtt5){
+		ਵਾਪਸ rc;
+	}ਨਹੀਂਤਾਂ{
 		/* mqttv311/mqttv5 requires retained messages are resent on
 		 * resubscribe. */
-		return MOSQ_ERR_SUCCESS;
+		ਵਾਪਸ MOSQ_ERR_SUCCESS;
 	}
 }
 
 
-static int sub__add_normal(struct mosquitto *context, const struct mosquitto_subscription *sub, struct mosquitto__subhier *subhier)
+ਸਥਿਰ ਪੂਰਨ sub_ਜੋੜੋ_ਸਾਧਾਰਨ(ਬਣਤਰ mosquitto *context, ਅਚਲ ਬਣਤਰ mosquitto_subscription *sub, ਬਣਤਰ mosquitto__subhier *subhier)
 {
-	struct mosquitto__subleaf *newleaf = NULL;
-	struct mosquitto__subleaf **subs;
-	int rc;
+	ਬਣਤਰ mosquitto__subleaf *newleaf = ਨਿਰਾ;
+	ਬਣਤਰ mosquitto__subleaf **subs;
+	ਪੂਰਨ rc;
 
-	rc = sub__add_leaf(context, sub, &subhier->subs, &newleaf);
-	if(rc > 0){
-		return rc;
+	rc = sub_ਜੋੜੋ_ਪੱਤੀ(context, sub, &subhier->subs, &newleaf);
+	ਜੇ(rc > 0){
+		ਵਾਪਸ rc;
 	}
 
-	if(rc != MOSQ_ERR_SUB_EXISTS){
+	ਜੇ(rc != MOSQ_ERR_SUB_EXISTS){
 		newleaf->hier = subhier;
-		newleaf->shared = NULL;
+		newleaf->shared = ਨਿਰਾ;
 
 		bool assigned = false;
-		for(int i=0; i<context->subs_capacity; i++){
-			if(!context->subs[i]){
+		ਲਈ(ਪੂਰਨ i=0; i<context->subs_ਸਮਰੱਥਾ; i++){
+			ਜੇ(!context->subs[i]){
 				context->subs[i] = newleaf;
-				context->subs_count++;
+				context->subs_ਗਿਣਤੀ++;
 				assigned = true;
-				break;
+				ਰੋਕੋ;
 			}
 		}
-		if(assigned == false){
-			subs = mosquitto_realloc(context->subs, sizeof(struct mosquitto__subleaf *)*(size_t)(context->subs_capacity + 1));
-			if(!subs){
+		ਜੇ(assigned == false){
+			subs = mosquitto_realloc(context->subs, ਆਕਾਰ(ਬਣਤਰ mosquitto__subleaf *)*(size_t)(context->subs_ਸਮਰੱਥਾ + 1));
+			ਜੇ(!subs){
 				DL_DELETE(subhier->subs, newleaf);
 				mosquitto_FREE(newleaf);
-				return MOSQ_ERR_NOMEM;
+				ਵਾਪਸ MOSQ_ERR_NOMEM;
 			}
 			context->subs = subs;
-			context->subs_capacity++;
-			context->subs_count++;
-			context->subs[context->subs_capacity-1] = newleaf;
+			context->subs_ਸਮਰੱਥਾ++;
+			context->subs_ਗਿਣਤੀ++;
+			context->subs[context->subs_ਸਮਰੱਥਾ-1] = newleaf;
 		}
-#ifdef WITH_SYS_TREE
-		db.subscription_count++;
-#endif
+#ਜੇ_ਪਰਿਭਾਸ਼ਿਤ WITH_SYS_ਰੁੱਖ
+		db.subscription_ਗਿਣਤੀ++;
+#ਜੇ_ਅੰਤ
 	}
 
-	if(context->protocol == mosq_p_mqtt31 || context->protocol == mosq_p_mqtt5){
-		return rc;
-	}else{
+	ਜੇ(context->protocol == mosq_p_mqtt31 || context->protocol == mosq_p_mqtt5){
+		ਵਾਪਸ rc;
+	}ਨਹੀਂਤਾਂ{
 		/* mqttv311/mqttv5 requires retained messages are resent on
 		 * resubscribe. */
-		return MOSQ_ERR_SUCCESS;
+		ਵਾਪਸ MOSQ_ERR_SUCCESS;
 	}
 }
 
 
-static int sub__add_context(struct mosquitto *context, const struct mosquitto_subscription *sub, struct mosquitto__subhier *subhier, char *const *const topics, const char *sharename)
+ਸਥਿਰ ਪੂਰਨ sub_ਜੋੜੋ_context(ਬਣਤਰ mosquitto *context, ਅਚਲ ਬਣਤਰ mosquitto_subscription *sub, ਬਣਤਰ mosquitto__subhier *subhier, ਅੱਖਰ *ਅਚਲ *ਅਚਲ topics, ਅਚਲ ਅੱਖਰ *sharename)
 {
-	struct mosquitto__subhier *branch;
-	int topic_index = 0;
+	ਬਣਤਰ mosquitto__subhier *branch;
+	ਪੂਰਨ topic_ਸੂਚਕਾਂਕ = 0;
 	size_t topiclen;
 
 	/* Find leaf node */
-	while(topics && topics[topic_index] != NULL){
-		topiclen = strlen(topics[topic_index]);
-		if(topiclen > UINT16_MAX){
-			return MOSQ_ERR_INVAL;
+	ਜਦੋਂ(topics && topics[topic_ਸੂਚਕਾਂਕ] != ਨਿਰਾ){
+		topiclen = ਲੜੀ_ਲੰਬਾਈ(topics[topic_ਸੂਚਕਾਂਕ]);
+		ਜੇ(topiclen > UINT16_MAX){
+			ਵਾਪਸ MOSQ_ERR_INVAL;
 		}
-		HASH_FIND(hh, subhier->children, topics[topic_index], topiclen, branch);
-		if(!branch){
+		HASH_ਲੱਭੋ(hh, subhier->children, topics[topic_ਸੂਚਕਾਂਕ], topiclen, branch);
+		ਜੇ(!branch){
 			/* Not found */
-			branch = sub__add_hier_entry(subhier, &subhier->children, topics[topic_index], (uint16_t)topiclen);
-			if(!branch){
-				return MOSQ_ERR_NOMEM;
+			branch = sub_ਜੋੜੋ_hier_ਇੰਦਰਾਜ(subhier, &subhier->children, topics[topic_ਸੂਚਕਾਂਕ], (uint16_t)topiclen);
+			ਜੇ(!branch){
+				ਵਾਪਸ MOSQ_ERR_NOMEM;
 			}
 		}
 		subhier = branch;
-		topic_index++;
+		topic_ਸੂਚਕਾਂਕ++;
 	}
 
 	/* Add add our context */
-	if(context && context->id){
-		if(sharename){
-			return sub__add_shared(context, sub, subhier, sharename);
-		}else{
-			return sub__add_normal(context, sub, subhier);
+	ਜੇ(context && context->id){
+		ਜੇ(sharename){
+			ਵਾਪਸ sub_ਜੋੜੋ_shared(context, sub, subhier, sharename);
+		}ਨਹੀਂਤਾਂ{
+			ਵਾਪਸ sub_ਜੋੜੋ_ਸਾਧਾਰਨ(context, sub, subhier);
 		}
-	}else{
-		return MOSQ_ERR_SUCCESS;
+	}ਨਹੀਂਤਾਂ{
+		ਵਾਪਸ MOSQ_ERR_SUCCESS;
 	}
 }
 
 
-static int sub__remove_normal(struct mosquitto *context, struct mosquitto__subhier *subhier, uint8_t *reason)
+ਸਥਿਰ ਪੂਰਨ sub_remove_ਸਾਧਾਰਨ(ਬਣਤਰ mosquitto *context, ਬਣਤਰ mosquitto__subhier *subhier, uint8_t *reason)
 {
-	struct mosquitto__subleaf *leaf;
+	ਬਣਤਰ mosquitto__subleaf *ਪੱਤੀ;
 
-	leaf = subhier->subs;
-	while(leaf){
-		if(leaf->context==context){
-#ifdef WITH_SYS_TREE
-			db.subscription_count--;
-#endif
-			DL_DELETE(subhier->subs, leaf);
+	ਪੱਤੀ = subhier->subs;
+	ਜਦੋਂ(ਪੱਤੀ){
+		ਜੇ(ਪੱਤੀ->context==context){
+#ਜੇ_ਪਰਿਭਾਸ਼ਿਤ WITH_SYS_ਰੁੱਖ
+			db.subscription_ਗਿਣਤੀ--;
+#ਜੇ_ਅੰਤ
+			DL_DELETE(subhier->subs, ਪੱਤੀ);
 
 			/* Remove the reference to the sub that the client is keeping.
 			 * It would be nice to be able to use the reference directly,
 			 * but that would involve keeping a copy of the topic string in
 			 * each subleaf. Might be worth considering though. */
-			for(int i=0; i<context->subs_capacity; i++){
-				if(context->subs[i] && context->subs[i]->hier == subhier){
-					context->subs_count--;
+			ਲਈ(ਪੂਰਨ i=0; i<context->subs_ਸਮਰੱਥਾ; i++){
+				ਜੇ(context->subs[i] && context->subs[i]->hier == subhier){
+					context->subs_ਗਿਣਤੀ--;
 					mosquitto_free(context->subs[i]);
-					context->subs[i] = NULL;
-					break;
+					context->subs[i] = ਨਿਰਾ;
+					ਰੋਕੋ;
 				}
 			}
 			*reason = 0;
-			return MOSQ_ERR_SUCCESS;
+			ਵਾਪਸ MOSQ_ERR_SUCCESS;
 		}
-		leaf = leaf->next;
+		ਪੱਤੀ = ਪੱਤੀ->ਅਗਲਾ;
 	}
-	return MOSQ_ERR_NO_SUBSCRIBERS;
+	ਵਾਪਸ MOSQ_ERR_NO_SUBSCRIBERS;
 }
 
 
-static int sub__remove_shared(struct mosquitto *context, struct mosquitto__subhier *subhier, uint8_t *reason, const char *sharename)
+ਸਥਿਰ ਪੂਰਨ sub__remove_shared(ਬਣਤਰ mosquitto *context, ਬਣਤਰ mosquitto__subhier *subhier, uint8_t *reason, ਅਚਲ ਅੱਖਰ *sharename)
 {
-	struct mosquitto__subshared *shared;
+	ਬਣਤਰ mosquitto__subshared *shared;
 
-	HASH_FIND(hh, subhier->shared, sharename, strlen(sharename), shared);
-	if(shared){
-		struct mosquitto__subleaf *leaf = shared->subs;
-		while(leaf){
-			if(leaf->context==context){
-#ifdef WITH_SYS_TREE
-				db.shared_subscription_count--;
-#endif
-				DL_DELETE(shared->subs, leaf);
+	HASH_ਲੱਭੋ(hh, subhier->shared, sharename, ਲੜੀ_ਲੰਬਾਈ(sharename), shared);
+	ਜੇ(shared){
+		ਬਣਤਰ mosquitto__subleaf *ਪੱਤੀ = shared->subs;
+		ਜਦੋਂ(ਪੱਤੀ){
+			ਜੇ(ਪੱਤੀ->context==context){
+#ਜੇ_ਪਰਿਭਾਸ਼ਿਤ WITH_SYS_ਰੁੱਖ
+				db.shared_subscription_ਗਿਣਤੀ--;
+#ਜੇ_ਅੰਤ
+				DL_DELETE(shared->subs, ਪੱਤੀ);
 
 				/* Remove the reference to the sub that the client is keeping.
 				* It would be nice to be able to use the reference directly,
 				* but that would involve keeping a copy of the topic string in
 				* each subleaf. Might be worth considering though. */
-				for(int i=0; i<context->subs_capacity; i++){
-					if(context->subs[i]
+				ਲਈ(ਪੂਰਨ i=0; i<context->subs_ਸਮਰੱਥਾ; i++){
+					ਜੇ(context->subs[i]
 							&& context->subs[i]->hier == subhier
 							&& context->subs[i]->shared == shared){
 
 						mosquitto_free(context->subs[i]);
-						context->subs[i] = NULL;
-						context->subs_count--;
-						break;
+						context->subs[i] = ਨਿਰਾ;
+						context->subs_ਗਿਣਤੀ--;
+						ਰੋਕੋ;
 					}
 				}
 
-				if(shared->subs == NULL){
+				ਜੇ(shared->subs == ਨਿਰਾ){
 					HASH_DELETE(hh, subhier->shared, shared);
 					mosquitto_FREE(shared);
 				}
 
 				*reason = 0;
-				return MOSQ_ERR_SUCCESS;
+				ਵਾਪਸ MOSQ_ERR_SUCCESS;
 			}
-			leaf = leaf->next;
+			ਪੱਤੀ = ਪੱਤੀ->ਅਗਲਾ;
 		}
-		return MOSQ_ERR_NO_SUBSCRIBERS;
-	}else{
-		return MOSQ_ERR_NO_SUBSCRIBERS;
+		ਵਾਪਸ MOSQ_ERR_NO_SUBSCRIBERS;
+	}ਨਹੀਂਤਾਂ{
+		ਵਾਪਸ MOSQ_ERR_NO_SUBSCRIBERS;
 	}
 }
 
 
-static int sub__remove_recurse(struct mosquitto *context, struct mosquitto__subhier *subhier, char **topics, uint8_t *reason, const char *sharename)
+ਸਥਿਰ ਪੂਰਨ sub__remove_recurse(ਬਣਤਰ mosquitto *context, ਬਣਤਰ mosquitto__subhier *subhier, ਅੱਖਰ **topics, uint8_t *reason, ਅਚਲ ਅੱਖਰ *sharename)
 {
-	struct mosquitto__subhier *branch;
+	ਬਣਤਰ mosquitto__subhier *branch;
 
-	if(topics == NULL || topics[0] == NULL){
-		if(sharename){
-			return sub__remove_shared(context, subhier, reason, sharename);
-		}else{
-			return sub__remove_normal(context, subhier, reason);
+	ਜੇ(topics == ਨਿਰਾ || topics[0] == ਨਿਰਾ){
+		ਜੇ(sharename){
+			ਵਾਪਸ sub__remove_shared(context, subhier, reason, sharename);
+		}ਨਹੀਂਤਾਂ{
+			ਵਾਪਸ sub_remove_ਸਾਧਾਰਨ(context, subhier, reason);
 		}
 	}
 
-	HASH_FIND(hh, subhier->children, topics[0], strlen(topics[0]), branch);
-	if(branch){
+	HASH_ਲੱਭੋ(hh, subhier->children, topics[0], ਲੜੀ_ਲੰਬਾਈ(topics[0]), branch);
+	ਜੇ(branch){
 		sub__remove_recurse(context, branch, &(topics[1]), reason, sharename);
-		if(!branch->children && !branch->subs && !branch->shared){
+		ਜੇ(!branch->children && !branch->subs && !branch->shared){
 			HASH_DELETE(hh, subhier->children, branch);
 			mosquitto_FREE(branch);
 		}
 	}
-	return MOSQ_ERR_SUCCESS;
+	ਵਾਪਸ MOSQ_ERR_SUCCESS;
 }
 
 
-static int sub__search(struct mosquitto__subhier *subhier, char **split_topics, const char *source_id, const char *topic, uint8_t qos, int retain, struct mosquitto__base_msg *stored)
+ਸਥਿਰ ਪੂਰਨ sub_ਖੋਜ(ਬਣਤਰ mosquitto__subhier *subhier, ਅੱਖਰ **ਵੰਡੋ_topics, ਅਚਲ ਅੱਖਰ *ਸਰੋਤ_id, ਅਚਲ ਅੱਖਰ *topic, uint8_t qos, ਪੂਰਨ retain, ਬਣਤਰ mosquitto_ਅਧਾਰ_ਸੁਨੇਹਾ *stored)
 {
 	/* FIXME - need to take into account source_id if the client is a bridge */
-	struct mosquitto__subhier *branch;
-	int rc;
+	ਬਣਤਰ mosquitto__subhier *branch;
+	ਪੂਰਨ rc;
 	bool have_subscribers = false;
 
-	if(split_topics && split_topics[0]){
+	ਜੇ(ਵੰਡੋ_topics && ਵੰਡੋ_topics[0]){
 		/* Check for literal match */
-		HASH_FIND(hh, subhier->children, split_topics[0], strlen(split_topics[0]), branch);
+		HASH_ਲੱਭੋ(hh, subhier->children, ਵੰਡੋ_topics[0], ਲੜੀ_ਲੰਬਾਈ(ਵੰਡੋ_topics[0]), branch);
 
-		if(branch){
-			rc = sub__search(branch, &(split_topics[1]), source_id, topic, qos, retain, stored);
-			if(rc == MOSQ_ERR_SUCCESS){
+		ਜੇ(branch){
+			rc = sub_ਖੋਜ(branch, &(ਵੰਡੋ_topics[1]), ਸਰੋਤ_id, topic, qos, retain, stored);
+			ਜੇ(rc == MOSQ_ERR_SUCCESS){
 				have_subscribers = true;
-			}else if(rc != MOSQ_ERR_NO_SUBSCRIBERS){
-				return rc;
+			}ਨਹੀਂਤਾਂ ਜੇ(rc != MOSQ_ERR_NO_SUBSCRIBERS){
+				ਵਾਪਸ rc;
 			}
-			if(split_topics[1] == NULL){ /* End of list */
-				rc = subs__process(branch, source_id, topic, qos, retain, stored);
-				if(rc == MOSQ_ERR_SUCCESS){
+			ਜੇ(ਵੰਡੋ_topics[1] == ਨਿਰਾ){ /* End of list */
+				rc = subs__process(branch, ਸਰੋਤ_id, topic, qos, retain, stored);
+				ਜੇ(rc == MOSQ_ERR_SUCCESS){
 					have_subscribers = true;
-				}else if(rc != MOSQ_ERR_NO_SUBSCRIBERS){
-					return rc;
+				}ਨਹੀਂਤਾਂ ਜੇ(rc != MOSQ_ERR_NO_SUBSCRIBERS){
+					ਵਾਪਸ rc;
 				}
 			}
 		}
 
 		/* Check for + match */
-		HASH_FIND_BYHASHVALUE(hh, subhier->children, "+", 1, hashv_plus, branch);
+		HASH_ਲੱਭੋ_BYHASHVALUE(hh, subhier->children, "+", 1, hashv_plus, branch);
 
-		if(branch){
-			rc = sub__search(branch, &(split_topics[1]), source_id, topic, qos, retain, stored);
-			if(rc == MOSQ_ERR_SUCCESS){
+		ਜੇ(branch){
+			rc = sub_ਖੋਜ(branch, &(ਵੰਡੋ_topics[1]), ਸਰੋਤ_id, topic, qos, retain, stored);
+			ਜੇ(rc == MOSQ_ERR_SUCCESS){
 				have_subscribers = true;
-			}else if(rc != MOSQ_ERR_NO_SUBSCRIBERS){
-				return rc;
+			}ਨਹੀਂਤਾਂ ਜੇ(rc != MOSQ_ERR_NO_SUBSCRIBERS){
+				ਵਾਪਸ rc;
 			}
-			if(split_topics[1] == NULL){ /* End of list */
-				rc = subs__process(branch, source_id, topic, qos, retain, stored);
-				if(rc == MOSQ_ERR_SUCCESS){
+			ਜੇ(ਵੰਡੋ_topics[1] == ਨਿਰਾ){ /* End of list */
+				rc = subs__process(branch, ਸਰੋਤ_id, topic, qos, retain, stored);
+				ਜੇ(rc == MOSQ_ERR_SUCCESS){
 					have_subscribers = true;
-				}else if(rc != MOSQ_ERR_NO_SUBSCRIBERS){
-					return rc;
+				}ਨਹੀਂਤਾਂ ਜੇ(rc != MOSQ_ERR_NO_SUBSCRIBERS){
+					ਵਾਪਸ rc;
 				}
 			}
 		}
 	}
 
 	/* Check for # match */
-	HASH_FIND_BYHASHVALUE(hh, subhier->children, "#", 1, hashv_hash, branch);
-	if(branch && !branch->children){
+	HASH_ਲੱਭੋ_BYHASHVALUE(hh, subhier->children, "#", 1, hashv_hash, branch);
+	ਜੇ(branch && !branch->children){
 		/* The topic matches due to a # wildcard - process the
 		 * subscriptions but *don't* return. Although this branch has ended
 		 * there may still be other subscriptions to deal with.
 		 */
-		rc = subs__process(branch, source_id, topic, qos, retain, stored);
-		if(rc == MOSQ_ERR_SUCCESS){
+		rc = subs__process(branch, ਸਰੋਤ_id, topic, qos, retain, stored);
+		ਜੇ(rc == MOSQ_ERR_SUCCESS){
 			have_subscribers = true;
-		}else if(rc != MOSQ_ERR_NO_SUBSCRIBERS){
-			return rc;
+		}ਨਹੀਂਤਾਂ ਜੇ(rc != MOSQ_ERR_NO_SUBSCRIBERS){
+			ਵਾਪਸ rc;
 		}
 	}
 
-	if(have_subscribers){
-		return MOSQ_ERR_SUCCESS;
-	}else{
-		return MOSQ_ERR_NO_SUBSCRIBERS;
+	ਜੇ(have_subscribers){
+		ਵਾਪਸ MOSQ_ERR_SUCCESS;
+	}ਨਹੀਂਤਾਂ{
+		ਵਾਪਸ MOSQ_ERR_NO_SUBSCRIBERS;
 	}
 }
 
 
-static struct mosquitto__subhier *sub__add_hier_entry(struct mosquitto__subhier *parent, struct mosquitto__subhier **sibling, const char *topic, uint16_t len)
+ਸਥਿਰ ਬਣਤਰ mosquitto__subhier *sub_ਜੋੜੋ_hier_ਇੰਦਰਾਜ(ਬਣਤਰ mosquitto__subhier *ਮਾਪਾ, ਬਣਤਰ mosquitto__subhier **sibling, ਅਚਲ ਅੱਖਰ *topic, uint16_t len)
 {
-	struct mosquitto__subhier *child;
+	ਬਣਤਰ mosquitto__subhier *ਬੱਚਾ;
 
-	assert(sibling);
+	ਪ੍ਰਤਿਜ੍ਞਾ(sibling);
 
-	child = mosquitto_calloc(1, sizeof(struct mosquitto__subhier) + len + 1);
-	if(!child){
-		log__printf(NULL, MOSQ_LOG_ERR, "Error: Out of memory.");
-		return NULL;
+	ਬੱਚਾ = mosquitto_calloc(1, ਆਕਾਰ(ਬਣਤਰ mosquitto__subhier) + len + 1);
+	ਜੇ(!ਬੱਚਾ){
+		log__printf(ਨਿਰਾ, MOSQ_LOG_ERR, "Error: Out of memory.");
+		ਵਾਪਸ ਨਿਰਾ;
 	}
-	child->parent = parent;
-	child->topic_len = len;
-	if(len > 0){
-		strncpy(child->topic, topic, (size_t)(len+1));
+	ਬੱਚਾ->ਮਾਪਾ = ਮਾਪਾ;
+	ਬੱਚਾ->topic_len = len;
+	ਜੇ(len > 0){
+		strncpy(ਬੱਚਾ->topic, topic, (size_t)(len+1));
 	}
 
-	HASH_ADD(hh, *sibling, topic, child->topic_len, child);
+	HASH_ਜੋੜੋ(hh, *sibling, topic, ਬੱਚਾ->topic_len, ਬੱਚਾ);
 
-	return child;
+	ਵਾਪਸ ਬੱਚਾ;
 }
 
 
-int sub__add(struct mosquitto *context, const struct mosquitto_subscription *sub)
+ਪੂਰਨ sub_ਜੋੜੋ(ਬਣਤਰ mosquitto *context, ਅਚਲ ਬਣਤਰ mosquitto_subscription *sub)
 {
-	int rc = 0;
-	struct mosquitto__subhier *subhier;
-	const char *sharename = NULL;
-	char *local_sub;
-	char **topics;
+	ਪੂਰਨ rc = 0;
+	ਬਣਤਰ mosquitto__subhier *subhier;
+	ਅਚਲ ਅੱਖਰ *sharename = ਨਿਰਾ;
+	ਅੱਖਰ *local_sub;
+	ਅੱਖਰ **topics;
 	size_t topiclen;
 
-	assert(sub);
-	assert(sub->topic_filter);
+	ਪ੍ਰਤਿਜ੍ਞਾ(sub);
+	ਪ੍ਰਤਿਜ੍ਞਾ(sub->topic_filter);
 
 	rc = sub__topic_tokenise(sub->topic_filter, &local_sub, &topics, &sharename);
-	if(rc){
-		return rc;
+	ਜੇ(rc){
+		ਵਾਪਸ rc;
 	}
 
-	topiclen = strlen(topics[0]);
-	if(topiclen > UINT16_MAX){
+	topiclen = ਲੜੀ_ਲੰਬਾਈ(topics[0]);
+	ਜੇ(topiclen > UINT16_MAX){
 		mosquitto_FREE(local_sub);
 		mosquitto_FREE(topics);
-		return MOSQ_ERR_INVAL;
+		ਵਾਪਸ MOSQ_ERR_INVAL;
 	}
 
-	if(sharename){
-		HASH_FIND(hh, db.shared_subs, topics[0], topiclen, subhier);
-		if(!subhier){
-			subhier = sub__add_hier_entry(NULL, &db.shared_subs, topics[0], (uint16_t)topiclen);
-			if(!subhier){
+	ਜੇ(sharename){
+		HASH_ਲੱਭੋ(hh, db.shared_subs, topics[0], topiclen, subhier);
+		ਜੇ(!subhier){
+			subhier = sub_ਜੋੜੋ_hier_ਇੰਦਰਾਜ(ਨਿਰਾ, &db.shared_subs, topics[0], (uint16_t)topiclen);
+			ਜੇ(!subhier){
 				mosquitto_FREE(local_sub);
 				mosquitto_FREE(topics);
-				log__printf(NULL, MOSQ_LOG_ERR, "Error: Out of memory.");
-				return MOSQ_ERR_NOMEM;
+				log__printf(ਨਿਰਾ, MOSQ_LOG_ERR, "Error: Out of memory.");
+				ਵਾਪਸ MOSQ_ERR_NOMEM;
 			}
 		}
-	}else{
-		HASH_FIND(hh, db.normal_subs, topics[0], topiclen, subhier);
-		if(!subhier){
-			subhier = sub__add_hier_entry(NULL, &db.normal_subs, topics[0], (uint16_t)topiclen);
-			if(!subhier){
+	}ਨਹੀਂਤਾਂ{
+		HASH_ਲੱਭੋ(hh, db.ਸਾਧਾਰਨ_subs, topics[0], topiclen, subhier);
+		ਜੇ(!subhier){
+			subhier = sub_ਜੋੜੋ_hier_ਇੰਦਰਾਜ(ਨਿਰਾ, &db.ਸਾਧਾਰਨ_subs, topics[0], (uint16_t)topiclen);
+			ਜੇ(!subhier){
 				mosquitto_FREE(local_sub);
 				mosquitto_FREE(topics);
-				log__printf(NULL, MOSQ_LOG_ERR, "Error: Out of memory.");
-				return MOSQ_ERR_NOMEM;
+				log__printf(ਨਿਰਾ, MOSQ_LOG_ERR, "Error: Out of memory.");
+				ਵਾਪਸ MOSQ_ERR_NOMEM;
 			}
 		}
 	}
-	rc = sub__add_context(context, sub, subhier, topics, sharename);
+	rc = sub_ਜੋੜੋ_context(context, sub, subhier, topics, sharename);
 
 	mosquitto_FREE(local_sub);
 	mosquitto_FREE(topics);
 
-	return rc;
+	ਵਾਪਸ rc;
 }
 
 
-int sub__remove(struct mosquitto *context, const char *sub, uint8_t *reason)
+ਪੂਰਨ sub__remove(ਬਣਤਰ mosquitto *context, ਅਚਲ ਅੱਖਰ *sub, uint8_t *reason)
 {
-	int rc = 0;
-	struct mosquitto__subhier *subhier;
-	const char *sharename = NULL;
-	char *local_sub = NULL;
-	char **topics = NULL;
+	ਪੂਰਨ rc = 0;
+	ਬਣਤਰ mosquitto__subhier *subhier;
+	ਅਚਲ ਅੱਖਰ *sharename = ਨਿਰਾ;
+	ਅੱਖਰ *local_sub = ਨਿਰਾ;
+	ਅੱਖਰ **topics = ਨਿਰਾ;
 
-	assert(sub);
+	ਪ੍ਰਤਿਜ੍ਞਾ(sub);
 
 	rc = sub__topic_tokenise(sub, &local_sub, &topics, &sharename);
-	if(rc){
-		return rc;
+	ਜੇ(rc){
+		ਵਾਪਸ rc;
 	}
 
-	if(sharename){
-		HASH_FIND(hh, db.shared_subs, topics[0], strlen(topics[0]), subhier);
-	}else{
-		HASH_FIND(hh, db.normal_subs, topics[0], strlen(topics[0]), subhier);
+	ਜੇ(sharename){
+		HASH_ਲੱਭੋ(hh, db.shared_subs, topics[0], ਲੜੀ_ਲੰਬਾਈ(topics[0]), subhier);
+	}ਨਹੀਂਤਾਂ{
+		HASH_ਲੱਭੋ(hh, db.ਸਾਧਾਰਨ_subs, topics[0], ਲੜੀ_ਲੰਬਾਈ(topics[0]), subhier);
 	}
-	if(subhier){
+	ਜੇ(subhier){
 		*reason = MQTT_RC_NO_SUBSCRIPTION_EXISTED;
 		rc = sub__remove_recurse(context, subhier, topics, reason, sharename);
 	}
@@ -646,203 +646,203 @@ int sub__remove(struct mosquitto *context, const char *sub, uint8_t *reason)
 	mosquitto_FREE(local_sub);
 	mosquitto_FREE(topics);
 
-	return rc;
+	ਵਾਪਸ rc;
 }
 
 
-int sub__messages_queue(const char *source_id, uint8_t qos, struct mosquitto__base_msg **stored)
+ਪੂਰਨ sub_messages_ਕਤਾਰ(ਅਚਲ ਅੱਖਰ *ਸਰੋਤ_id, uint8_t qos, ਬਣਤਰ mosquitto_ਅਧਾਰ_ਸੁਨੇਹਾ **stored)
 {
-	int rc = MOSQ_ERR_SUCCESS, rc2;
-	int rc_normal = MOSQ_ERR_NO_SUBSCRIBERS, rc_shared = MOSQ_ERR_NO_SUBSCRIBERS;
-	struct mosquitto__subhier *subhier;
-	char **split_topics = NULL;
-	char *local_topic = NULL;
-	unsigned hashv;
+	ਪੂਰਨ rc = MOSQ_ERR_SUCCESS, rc2;
+	ਪੂਰਨ rc_ਸਾਧਾਰਨ = MOSQ_ERR_NO_SUBSCRIBERS, rc_shared = MOSQ_ERR_NO_SUBSCRIBERS;
+	ਬਣਤਰ mosquitto__subhier *subhier;
+	ਅੱਖਰ **ਵੰਡੋ_topics = ਨਿਰਾ;
+	ਅੱਖਰ *local_topic = ਨਿਰਾ;
+	ਬਿਨਾਨਿਸ਼ਾਨੀ hashv;
 	size_t topiclen;
-	bool retain = (*stored)->data.retain;
-	const char *topic = (*stored)->data.topic;
+	bool retain = (*stored)->ਅੰਕੜੇ.retain;
+	ਅਚਲ ਅੱਖਰ *topic = (*stored)->ਅੰਕੜੇ.topic;
 
-	assert(topic);
+	ਪ੍ਰਤਿਜ੍ਞਾ(topic);
 
-	if(sub__topic_tokenise(topic, &local_topic, &split_topics, NULL)){
-		return 1;
+	ਜੇ(sub__topic_tokenise(topic, &local_topic, &ਵੰਡੋ_topics, ਨਿਰਾ)){
+		ਵਾਪਸ 1;
 	}
 
 	/* Protect this message until we have sent it to all
 	clients - this is required because websockets client calls
 	db__message_write(), which could remove the message if ref_count==0.
 	*/
-	db__msg_store_ref_inc(*stored);
+	db_ਸੁਨੇਹਾ_store_ref_inc(*stored);
 
-	topiclen = strlen(split_topics[0]);
-	HASH_VALUE(split_topics[0], topiclen, hashv);
-	HASH_FIND_BYHASHVALUE(hh, db.normal_subs, split_topics[0], topiclen, hashv, subhier);
-	if(subhier){
-		rc_normal = sub__search(subhier, split_topics, source_id, topic, qos, retain, *stored);
-		if(rc_normal > 0){
-			rc = rc_normal;
-			goto end;
+	topiclen = ਲੜੀ_ਲੰਬਾਈ(ਵੰਡੋ_topics[0]);
+	HASH_ਮੁੱਲ(ਵੰਡੋ_topics[0], topiclen, hashv);
+	HASH_ਲੱਭੋ_BYHASHVALUE(hh, db.ਸਾਧਾਰਨ_subs, ਵੰਡੋ_topics[0], topiclen, hashv, subhier);
+	ਜੇ(subhier){
+		rc_ਸਾਧਾਰਨ = sub_ਖੋਜ(subhier, ਵੰਡੋ_topics, ਸਰੋਤ_id, topic, qos, retain, *stored);
+		ਜੇ(rc_ਸਾਧਾਰਨ > 0){
+			rc = rc_ਸਾਧਾਰਨ;
+			ਜਾਓ ਸਿਰਾ;
 		}
 	}
 
-	HASH_FIND_BYHASHVALUE(hh, db.shared_subs, split_topics[0], topiclen, hashv, subhier);
-	if(subhier){
-		rc_shared = sub__search(subhier, split_topics, source_id, topic, qos, retain, *stored);
-		if(rc_shared > 0){
+	HASH_ਲੱਭੋ_BYHASHVALUE(hh, db.shared_subs, ਵੰਡੋ_topics[0], topiclen, hashv, subhier);
+	ਜੇ(subhier){
+		rc_shared = sub_ਖੋਜ(subhier, ਵੰਡੋ_topics, ਸਰੋਤ_id, topic, qos, retain, *stored);
+		ਜੇ(rc_shared > 0){
 			rc = rc_shared;
-			goto end;
+			ਜਾਓ ਸਿਰਾ;
 		}
 	}
 
-	if(rc_normal == MOSQ_ERR_NO_SUBSCRIBERS && rc_shared == MOSQ_ERR_NO_SUBSCRIBERS){
+	ਜੇ(rc_ਸਾਧਾਰਨ == MOSQ_ERR_NO_SUBSCRIBERS && rc_shared == MOSQ_ERR_NO_SUBSCRIBERS){
 		rc = MOSQ_ERR_NO_SUBSCRIBERS;
 	}
 
-	if(retain){
-		rc2 = retain__store(topic, *stored, split_topics, true);
-		if(rc2){
+	ਜੇ(retain){
+		rc2 = retain__store(topic, *stored, ਵੰਡੋ_topics, true);
+		ਜੇ(rc2){
 			rc = rc2;
 		}
 	}
 
-end:
-	mosquitto_FREE(split_topics);
+ਸਿਰਾ:
+	mosquitto_FREE(ਵੰਡੋ_topics);
 	mosquitto_FREE(local_topic);
 	/* Remove our reference and free if needed. */
-	db__msg_store_ref_dec(stored);
+	db_ਸੁਨੇਹਾ_store_ref_dec(stored);
 
-	return rc;
+	ਵਾਪਸ rc;
 }
 
 
 /* Remove a subhier element, and return its parent if that needs freeing as well. */
-static struct mosquitto__subhier *tmp_remove_subs(struct mosquitto__subhier *sub)
+ਸਥਿਰ ਬਣਤਰ mosquitto__subhier *tmp_remove_subs(ਬਣਤਰ mosquitto__subhier *sub)
 {
-	struct mosquitto__subhier *parent;
+	ਬਣਤਰ mosquitto__subhier *ਮਾਪਾ;
 
-	if(!sub || !sub->parent){
-		return NULL;
+	ਜੇ(!sub || !sub->ਮਾਪਾ){
+		ਵਾਪਸ ਨਿਰਾ;
 	}
 
-	if(sub->children || sub->subs){
-		return NULL;
+	ਜੇ(sub->children || sub->subs){
+		ਵਾਪਸ ਨਿਰਾ;
 	}
 
-	parent = sub->parent;
-	HASH_DELETE(hh, parent->children, sub);
+	ਮਾਪਾ = sub->ਮਾਪਾ;
+	HASH_DELETE(hh, ਮਾਪਾ->children, sub);
 	mosquitto_FREE(sub);
 
-	if(parent->subs == NULL
-			&& parent->children == NULL
-			&& parent->shared == NULL
-			&& parent->parent){
+	ਜੇ(ਮਾਪਾ->subs == ਨਿਰਾ
+			&& ਮਾਪਾ->children == ਨਿਰਾ
+			&& ਮਾਪਾ->shared == ਨਿਰਾ
+			&& ਮਾਪਾ->ਮਾਪਾ){
 
-		return parent;
-	}else{
-		return NULL;
+		ਵਾਪਸ ਮਾਪਾ;
+	}ਨਹੀਂਤਾਂ{
+		ਵਾਪਸ ਨਿਰਾ;
 	}
 }
 
 
 /* Remove all subscriptions for a client.
  */
-int sub__clean_session(struct mosquitto *context)
+ਪੂਰਨ sub__clean_session(ਬਣਤਰ mosquitto *context)
 {
-	for(int i=0; i<context->subs_capacity; i++){
-		if(context->subs[i] == NULL || context->subs[i]->hier == NULL){
-			continue;
+	ਲਈ(ਪੂਰਨ i=0; i<context->subs_ਸਮਰੱਥਾ; i++){
+		ਜੇ(context->subs[i] == ਨਿਰਾ || context->subs[i]->hier == ਨਿਰਾ){
+			ਜਾਰੀ;
 		}
 
-		struct mosquitto__subhier *hier = context->subs[i]->hier;
-		struct mosquitto__subleaf *leaf;
+		ਬਣਤਰ mosquitto__subhier *hier = context->subs[i]->hier;
+		ਬਣਤਰ mosquitto__subleaf *ਪੱਤੀ;
 
 		plugin_persist__handle_subscription_delete(context, context->subs[i]->topic_filter);
-		if(context->subs[i]->shared){
-			leaf = context->subs[i]->shared->subs;
-			while(leaf){
-				if(leaf->context==context){
-#ifdef WITH_SYS_TREE
-					db.shared_subscription_count--;
-#endif
-					sub__remove_shared_leaf(context->subs[i]->hier, context->subs[i]->shared, leaf);
-					break;
+		ਜੇ(context->subs[i]->shared){
+			ਪੱਤੀ = context->subs[i]->shared->subs;
+			ਜਦੋਂ(ਪੱਤੀ){
+				ਜੇ(ਪੱਤੀ->context==context){
+#ਜੇ_ਪਰਿਭਾਸ਼ਿਤ WITH_SYS_ਰੁੱਖ
+					db.shared_subscription_ਗਿਣਤੀ--;
+#ਜੇ_ਅੰਤ
+					sub_remove_shared_ਪੱਤੀ(context->subs[i]->hier, context->subs[i]->shared, ਪੱਤੀ);
+					ਰੋਕੋ;
 				}
-				leaf = leaf->next;
+				ਪੱਤੀ = ਪੱਤੀ->ਅਗਲਾ;
 			}
-		}else{
-			leaf = hier->subs;
-			while(leaf){
-				if(leaf->context==context){
-#ifdef WITH_SYS_TREE
-					db.subscription_count--;
-#endif
-					DL_DELETE(hier->subs, leaf);
-					break;
+		}ਨਹੀਂਤਾਂ{
+			ਪੱਤੀ = hier->subs;
+			ਜਦੋਂ(ਪੱਤੀ){
+				ਜੇ(ਪੱਤੀ->context==context){
+#ਜੇ_ਪਰਿਭਾਸ਼ਿਤ WITH_SYS_ਰੁੱਖ
+					db.subscription_ਗਿਣਤੀ--;
+#ਜੇ_ਅੰਤ
+					DL_DELETE(hier->subs, ਪੱਤੀ);
+					ਰੋਕੋ;
 				}
-				leaf = leaf->next;
+				ਪੱਤੀ = ਪੱਤੀ->ਅਗਲਾ;
 			}
 		}
 		mosquitto_FREE(context->subs[i]);
 
-		if(hier->subs == NULL
-				&& hier->children == NULL
-				&& hier->shared == NULL
-				&& hier->parent){
+		ਜੇ(hier->subs == ਨਿਰਾ
+				&& hier->children == ਨਿਰਾ
+				&& hier->shared == ਨਿਰਾ
+				&& hier->ਮਾਪਾ){
 
-			do{
+			ਕਰੋ{
 				hier = tmp_remove_subs(hier);
-			}while(hier);
+			}ਜਦੋਂ(hier);
 		}
 	}
 	mosquitto_FREE(context->subs);
-	context->subs_capacity = 0;
-	context->subs_count = 0;
+	context->subs_ਸਮਰੱਥਾ = 0;
+	context->subs_ਗਿਣਤੀ = 0;
 
-	return MOSQ_ERR_SUCCESS;
+	ਵਾਪਸ MOSQ_ERR_SUCCESS;
 }
 
 
-void sub__tree_print(struct mosquitto__subhier *root, int level)
+ਖਾਲੀ sub_ਰੁੱਖ_print(ਬਣਤਰ mosquitto__subhier *ਜੜ੍ਹ, ਪੂਰਨ level)
 {
-	int i;
-	struct mosquitto__subhier *branch, *branch_tmp;
-	struct mosquitto__subleaf *leaf;
+	ਪੂਰਨ i;
+	ਬਣਤਰ mosquitto__subhier *branch, *branch_tmp;
+	ਬਣਤਰ mosquitto__subleaf *ਪੱਤੀ;
 
-	HASH_ITER(hh, root, branch, branch_tmp){
-		if(level > -1){
-			for(i=0; i<(level+2)*2; i++){
-				printf(" ");
+	HASH_ITER(hh, ਜੜ੍ਹ, branch, branch_tmp){
+		ਜੇ(level > -1){
+			ਲਈ(i=0; i<(level+2)*2; i++){
+				ਲਿਖੋ(" ");
 			}
-			printf("%s", branch->topic);
-			leaf = branch->subs;
-			while(leaf){
-				if(leaf->context){
-					printf(" (%s, %d)", leaf->context->id, MQTT_SUB_OPT_GET_QOS(leaf->subscription_options));
-				}else{
-					printf(" (%s, %d)", "", MQTT_SUB_OPT_GET_QOS(leaf->subscription_options));
+			ਲਿਖੋ("%s", branch->topic);
+			ਪੱਤੀ = branch->subs;
+			ਜਦੋਂ(ਪੱਤੀ){
+				ਜੇ(ਪੱਤੀ->context){
+					ਲਿਖੋ(" (%s, %d)", ਪੱਤੀ->context->id, MQTT_SUB_OPT_GET_QOS(ਪੱਤੀ->subscription_options));
+				}ਨਹੀਂਤਾਂ{
+					ਲਿਖੋ(" (%s, %d)", "", MQTT_SUB_OPT_GET_QOS(ਪੱਤੀ->subscription_options));
 				}
-				leaf = leaf->next;
+				ਪੱਤੀ = ਪੱਤੀ->ਅਗਲਾ;
 			}
-			printf("\n");
+			ਲਿਖੋ("\n");
 		}
 
-		sub__tree_print(branch->children, level+1);
+		sub_ਰੁੱਖ_print(branch->children, level+1);
 	}
 }
 
 
-int sub__init(void)
+ਪੂਰਨ sub__init(ਖਾਲੀ)
 {
-	HASH_VALUE("+", 1, hashv_plus);
-	HASH_VALUE("#", 1, hashv_hash);
+	HASH_ਮੁੱਲ("+", 1, hashv_plus);
+	HASH_ਮੁੱਲ("#", 1, hashv_hash);
 
-	if(sub__add_hier_entry(NULL, &db.shared_subs, "", 0) == NULL
-			|| sub__add_hier_entry(NULL, &db.normal_subs, "", 0) == NULL
-			|| sub__add_hier_entry(NULL, &db.normal_subs, "$SYS", (uint16_t)strlen("$SYS")) == NULL
+	ਜੇ(sub_ਜੋੜੋ_hier_ਇੰਦਰਾਜ(ਨਿਰਾ, &db.shared_subs, "", 0) == ਨਿਰਾ
+			|| sub_ਜੋੜੋ_hier_ਇੰਦਰਾਜ(ਨਿਰਾ, &db.ਸਾਧਾਰਨ_subs, "", 0) == ਨਿਰਾ
+			|| sub_ਜੋੜੋ_hier_ਇੰਦਰਾਜ(ਨਿਰਾ, &db.ਸਾਧਾਰਨ_subs, "$SYS", (uint16_t)ਲੜੀ_ਲੰਬਾਈ("$SYS")) == ਨਿਰਾ
 			){
 
-		return MOSQ_ERR_NOMEM;
-	}else{
-		return MOSQ_ERR_SUCCESS;
+		ਵਾਪਸ MOSQ_ERR_NOMEM;
+	}ਨਹੀਂਤਾਂ{
+		ਵਾਪਸ MOSQ_ERR_SUCCESS;
 	}
 }

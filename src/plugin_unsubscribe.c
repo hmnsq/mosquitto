@@ -17,54 +17,54 @@ Contributors:
    Roger Light - initial implementation and documentation.
 */
 
-#include "config.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "config.h"
 
-#include "mosquitto_broker_internal.h"
-#include "utlist.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "mosquitto_broker_internal.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "utlist.h"
 
 
-static int plugin__handle_unsubscribe_single(struct mosquitto__security_options *opts, struct mosquitto *context, struct mosquitto_subscription *sub)
+ਸਥਿਰ ਪੂਰਨ plugin__handle_unsubscribe_single(ਬਣਤਰ mosquitto__security_options *opts, ਬਣਤਰ mosquitto *context, ਬਣਤਰ mosquitto_subscription *sub)
 {
-	struct mosquitto_evt_unsubscribe event_data;
-	struct mosquitto__callback *cb_base, *cb_next;
-	int rc = MOSQ_ERR_SUCCESS;
+	ਬਣਤਰ mosquitto_evt_unsubscribe event_ਅੰਕੜੇ;
+	ਬਣਤਰ mosquitto__callback *cb_ਅਧਾਰ, *cb_ਅਗਲਾ;
+	ਪੂਰਨ rc = MOSQ_ERR_SUCCESS;
 
-	memset(&event_data, 0, sizeof(event_data));
-	event_data.client = context;
-	event_data.data.topic_filter = sub->topic_filter;
-	event_data.data.properties = sub->properties;
+	memset(&event_ਅੰਕੜੇ, 0, ਆਕਾਰ(event_ਅੰਕੜੇ));
+	event_ਅੰਕੜੇ.client = context;
+	event_ਅੰਕੜੇ.ਅੰਕੜੇ.topic_filter = sub->topic_filter;
+	event_ਅੰਕੜੇ.ਅੰਕੜੇ.properties = sub->properties;
 
-	DL_FOREACH_SAFE(opts->plugin_callbacks.unsubscribe, cb_base, cb_next){
-		rc = cb_base->cb(MOSQ_EVT_UNSUBSCRIBE, &event_data, cb_base->userdata);
-		if(rc != MOSQ_ERR_SUCCESS){
-			break;
+	DL_FOREACH_ਸੁਰੱਖਿਅਤ(opts->plugin_callbacks.unsubscribe, cb_ਅਧਾਰ, cb_ਅਗਲਾ){
+		rc = cb_ਅਧਾਰ->cb(MOSQ_EVT_UNSUBSCRIBE, &event_ਅੰਕੜੇ, cb_ਅਧਾਰ->userdata);
+		ਜੇ(rc != MOSQ_ERR_SUCCESS){
+			ਰੋਕੋ;
 		}
 
-		if(sub->topic_filter != event_data.data.topic_filter){
+		ਜੇ(sub->topic_filter != event_ਅੰਕੜੇ.ਅੰਕੜੇ.topic_filter){
 			mosquitto_free(sub->topic_filter);
-			sub->topic_filter = event_data.data.topic_filter;
+			sub->topic_filter = event_ਅੰਕੜੇ.ਅੰਕੜੇ.topic_filter;
 		}
 	}
 
-	return rc;
+	ਵਾਪਸ rc;
 }
 
 
-int plugin__handle_unsubscribe(struct mosquitto *context, struct mosquitto_subscription *sub)
+ਪੂਰਨ plugin__handle_unsubscribe(ਬਣਤਰ mosquitto *context, ਬਣਤਰ mosquitto_subscription *sub)
 {
-	int rc = MOSQ_ERR_SUCCESS;
+	ਪੂਰਨ rc = MOSQ_ERR_SUCCESS;
 
 	/* Global plugins */
 	rc = plugin__handle_unsubscribe_single(&db.config->security_options,
 			context, sub);
-	if(rc){
-		return rc;
+	ਜੇ(rc){
+		ਵਾਪਸ rc;
 	}
 
-	if(context->listener){
+	ਜੇ(context->listener){
 		rc = plugin__handle_unsubscribe_single(context->listener->security_options,
 				context, sub);
 	}
 
-	return rc;
+	ਵਾਪਸ rc;
 }

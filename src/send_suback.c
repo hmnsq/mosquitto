@@ -16,44 +16,44 @@ Contributors:
    Roger Light - initial implementation and documentation.
 */
 
-#include "config.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "config.h"
 
-#include "mosquitto_broker_internal.h"
-#include "mosquitto/mqtt_protocol.h"
-#include "packet_mosq.h"
-#include "property_mosq.h"
-#include "sys_tree.h"
-#include "util_mosq.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "mosquitto_broker_internal.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "mosquitto/mqtt_protocol.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "packet_mosq.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "property_mosq.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "sys_tree.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "util_mosq.h"
 
 
-int send__suback(struct mosquitto *context, uint16_t mid, uint32_t payloadlen, const void *payload)
+ਪੂਰਨ send__suback(ਬਣਤਰ mosquitto *context, uint16_t mid, uint32_t payloadlen, ਅਚਲ ਖਾਲੀ *payload)
 {
-	struct mosquitto__packet *packet = NULL;
-	int rc;
-	mosquitto_property *properties = NULL;
-	uint32_t remaining_length;
+	ਬਣਤਰ mosquitto__packet *packet = ਨਿਰਾ;
+	ਪੂਰਨ rc;
+	mosquitto_property *properties = ਨਿਰਾ;
+	uint32_t ਬਚਿਆ_ਲੰਮਾਈ;
 
-	log__printf(NULL, MOSQ_LOG_DEBUG, "Sending SUBACK to %s", context->id);
+	log__printf(ਨਿਰਾ, MOSQ_LOG_DEBUG, "Sending SUBACK to %s", context->id);
 
-	remaining_length = 2+payloadlen;
-	if(context->protocol == mosq_p_mqtt5){
-		remaining_length += mosquitto_property_get_remaining_length(properties);
+	ਬਚਿਆ_ਲੰਮਾਈ = 2+payloadlen;
+	ਜੇ(context->protocol == mosq_p_mqtt5){
+		ਬਚਿਆ_ਲੰਮਾਈ += mosquitto_property_get_ਬਚਿਆ_ਲੰਮਾਈ(properties);
 	}
-	rc = packet__alloc(&packet, CMD_SUBACK, remaining_length);
-	if(rc){
-		return rc;
+	rc = packet__alloc(&packet, CMD_SUBACK, ਬਚਿਆ_ਲੰਮਾਈ);
+	ਜੇ(rc){
+		ਵਾਪਸ rc;
 	}
 	packet__write_uint16(packet, mid);
 
-	if(context->protocol == mosq_p_mqtt5){
+	ਜੇ(context->protocol == mosq_p_mqtt5){
 		/* We don't use Reason String or User Property yet. */
 		property__write_all(packet, properties, true);
 	}
 
-	if(payloadlen){
-		packet__write_bytes(packet, payload, payloadlen);
+	ਜੇ(payloadlen){
+		packet_write_ਬਾਈਟਾਂ(packet, payload, payloadlen);
 	}
 
-	metrics__int_inc(mosq_counter_mqtt_suback_sent, 1);
-	return packet__queue(context, packet);
+	metrics__int_inc(mosq_counter_mqtt_suback_ਭੇਜਿਆ, 1);
+	ਵਾਪਸ packet_ਕਤਾਰ(context, packet);
 }

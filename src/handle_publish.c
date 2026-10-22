@@ -16,384 +16,384 @@ Contributors:
    Roger Light - initial implementation and documentation.
 */
 
-#include "config.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "config.h"
 
-#include <stdio.h>
-#include <string.h>
+#ਅਨ੍ਤਰ੍ਭਾਵ <stdio.h>
+#ਅਨ੍ਤਰ੍ਭਾਵ <string.h>
 
-#include "mosquitto_broker_internal.h"
-#include "alias_mosq.h"
-#include "mosquitto/mqtt_protocol.h"
-#include "packet_mosq.h"
-#include "property_mosq.h"
-#include "read_handle.h"
-#include "send_mosq.h"
-#include "sys_tree.h"
-#include "util_mosq.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "mosquitto_broker_internal.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "alias_mosq.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "mosquitto/mqtt_protocol.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "packet_mosq.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "property_mosq.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "read_handle.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "send_mosq.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "sys_tree.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "util_mosq.h"
 
 
-static int process_bad_message(struct mosquitto *context, struct mosquitto__base_msg *base_msg, uint8_t reason_code)
+ਸਥਿਰ ਪੂਰਨ process_bad_ਸੁਨੇਹਾ(ਬਣਤਰ mosquitto *context, ਬਣਤਰ mosquitto_ਅਧਾਰ_ਸੁਨੇਹਾ *ਅਧਾਰ_ਸੁਨੇਹਾ, uint8_t reason_ਕੋਡ)
 {
-	int rc = MOSQ_ERR_UNKNOWN;
-	if(base_msg){
-		switch(base_msg->data.qos){
-			case 0:
+	ਪੂਰਨ rc = MOSQ_ERR_UNKNOWN;
+	ਜੇ(ਅਧਾਰ_ਸੁਨੇਹਾ){
+		ਚੋਣ(ਅਧਾਰ_ਸੁਨੇਹਾ->ਅੰਕੜੇ.qos){
+			ਹਾਲਤ 0:
 				rc = MOSQ_ERR_SUCCESS;
-				break;
-			case 1:
-				if(context){
-					rc = send__puback(context, base_msg->data.source_mid, reason_code, NULL);
-				}else{
+				ਰੋਕੋ;
+			ਹਾਲਤ 1:
+				ਜੇ(context){
+					rc = send__puback(context, ਅਧਾਰ_ਸੁਨੇਹਾ->ਅੰਕੜੇ.ਸਰੋਤ_mid, reason_ਕੋਡ, ਨਿਰਾ);
+				}ਨਹੀਂਤਾਂ{
 					rc = MOSQ_ERR_SUCCESS;
 				}
-				break;
-			case 2:
-				if(context){
-					rc = send__pubrec(context, base_msg->data.source_mid, reason_code, NULL);
-				}else{
+				ਰੋਕੋ;
+			ਹਾਲਤ 2:
+				ਜੇ(context){
+					rc = send__pubrec(context, ਅਧਾਰ_ਸੁਨੇਹਾ->ਅੰਕੜੇ.ਸਰੋਤ_mid, reason_ਕੋਡ, ਨਿਰਾ);
+				}ਨਹੀਂਤਾਂ{
 					rc = MOSQ_ERR_SUCCESS;
 				}
-				break;
+				ਰੋਕੋ;
 		}
-		db__msg_store_free(base_msg);
+		db_ਸੁਨੇਹਾ_store_free(ਅਧਾਰ_ਸੁਨੇਹਾ);
 	}
-	if(context && db.config->max_queued_messages > 0 && context->out_packet_count >= db.config->max_queued_messages){
+	ਜੇ(context && db.config->max_queued_messages > 0 && context->ਬਾਹਰਲਾ_packet_ਗਿਣਤੀ >= db.config->max_queued_messages){
 		rc = MQTT_RC_QUOTA_EXCEEDED;
 	}
-	return rc;
+	ਵਾਪਸ rc;
 }
 
 
-int handle__accepted_publish(struct mosquitto *context, struct mosquitto__base_msg *base_msg, uint16_t mid, int dup, uint32_t *message_expiry_interval)
+ਪੂਰਨ handle__accepted_publish(ਬਣਤਰ mosquitto *context, ਬਣਤਰ mosquitto_ਅਧਾਰ_ਸੁਨੇਹਾ *ਅਧਾਰ_ਸੁਨੇਹਾ, uint16_t mid, ਪੂਰਨ dup, uint32_t *ਸੁਨੇਹਾ_expiry_interval)
 {
-	int rc;
-	int rc2;
-	struct mosquitto__base_msg *stored = NULL;
-	struct mosquitto__client_msg *cmsg_stored = NULL;
+	ਪੂਰਨ rc;
+	ਪੂਰਨ rc2;
+	ਬਣਤਰ mosquitto_ਅਧਾਰ_ਸੁਨੇਹਾ *stored = ਨਿਰਾ;
+	ਬਣਤਰ mosquitto_client_ਸੁਨੇਹਾ *cmsg_stored = ਨਿਰਾ;
 
 	{
-		rc = plugin__handle_message_in(context, &base_msg->data);
-		if(rc == MOSQ_ERR_ACL_DENIED){
-			log__printf(NULL, MOSQ_LOG_DEBUG,
+		rc = plugin_handle_ਸੁਨੇਹਾ_ਵਿੱਚ(context, &ਅਧਾਰ_ਸੁਨੇਹਾ->ਅੰਕੜੇ);
+		ਜੇ(rc == MOSQ_ERR_ACL_DENIED){
+			log__printf(ਨਿਰਾ, MOSQ_LOG_DEBUG,
 					"Denied PUBLISH from %s (d%d, q%d, r%d, m%d, '%s', ... (%ld bytes))",
-					context->id, dup, base_msg->data.qos, base_msg->data.retain, base_msg->data.source_mid, base_msg->data.topic,
-					(long)base_msg->data.payloadlen);
+					context->id, dup, ਅਧਾਰ_ਸੁਨੇਹਾ->ਅੰਕੜੇ.qos, ਅਧਾਰ_ਸੁਨੇਹਾ->ਅੰਕੜੇ.retain, ਅਧਾਰ_ਸੁਨੇਹਾ->ਅੰਕੜੇ.ਸਰੋਤ_mid, ਅਧਾਰ_ਸੁਨੇਹਾ->ਅੰਕੜੇ.topic,
+					(ਲੰਮਾ)ਅਧਾਰ_ਸੁਨੇਹਾ->ਅੰਕੜੇ.payloadlen);
 
-			return process_bad_message(context, base_msg, MQTT_RC_NOT_AUTHORIZED);
-		}else if(rc == MOSQ_ERR_QUOTA_EXCEEDED){
-			log__printf(NULL, MOSQ_LOG_DEBUG,
+			ਵਾਪਸ process_bad_ਸੁਨੇਹਾ(context, ਅਧਾਰ_ਸੁਨੇਹਾ, MQTT_RC_NOT_AUTHORIZED);
+		}ਨਹੀਂਤਾਂ ਜੇ(rc == MOSQ_ERR_QUOTA_EXCEEDED){
+			log__printf(ਨਿਰਾ, MOSQ_LOG_DEBUG,
 					"Rejected PUBLISH from %s, quota exceeded.", context->id);
 
-			return process_bad_message(context, base_msg, MQTT_RC_QUOTA_EXCEEDED);
-		}else if(rc != MOSQ_ERR_SUCCESS){
-			db__msg_store_free(base_msg);
-			return rc;
+			ਵਾਪਸ process_bad_ਸੁਨੇਹਾ(context, ਅਧਾਰ_ਸੁਨੇਹਾ, MQTT_RC_QUOTA_EXCEEDED);
+		}ਨਹੀਂਤਾਂ ਜੇ(rc != MOSQ_ERR_SUCCESS){
+			db_ਸੁਨੇਹਾ_store_free(ਅਧਾਰ_ਸੁਨੇਹਾ);
+			ਵਾਪਸ rc;
 		}
 	}
 
-	if(base_msg->data.qos > 0){
-		db__message_store_find(context, base_msg->data.source_mid, &cmsg_stored);
+	ਜੇ(ਅਧਾਰ_ਸੁਨੇਹਾ->ਅੰਕੜੇ.qos > 0){
+		db_ਸੁਨੇਹਾ_store_ਲੱਭੋ(context, ਅਧਾਰ_ਸੁਨੇਹਾ->ਅੰਕੜੇ.ਸਰੋਤ_mid, &cmsg_stored);
 	}
 
-	if(cmsg_stored && base_msg->data.source_mid != 0 &&
-			(cmsg_stored->base_msg->data.qos != base_msg->data.qos
-			|| cmsg_stored->base_msg->data.payloadlen != base_msg->data.payloadlen
-			|| strcmp(cmsg_stored->base_msg->data.topic, base_msg->data.topic)
-			|| (base_msg->data.payloadlen > 0 && memcmp(cmsg_stored->base_msg->data.payload, base_msg->data.payload, base_msg->data.payloadlen)))){
+	ਜੇ(cmsg_stored && ਅਧਾਰ_ਸੁਨੇਹਾ->ਅੰਕੜੇ.ਸਰੋਤ_mid != 0 &&
+			(cmsg_stored->ਅਧਾਰ_ਸੁਨੇਹਾ->ਅੰਕੜੇ.qos != ਅਧਾਰ_ਸੁਨੇਹਾ->ਅੰਕੜੇ.qos
+			|| cmsg_stored->ਅਧਾਰ_ਸੁਨੇਹਾ->ਅੰਕੜੇ.payloadlen != ਅਧਾਰ_ਸੁਨੇਹਾ->ਅੰਕੜੇ.payloadlen
+			|| strcmp(cmsg_stored->ਅਧਾਰ_ਸੁਨੇਹਾ->ਅੰਕੜੇ.topic, ਅਧਾਰ_ਸੁਨੇਹਾ->ਅੰਕੜੇ.topic)
+			|| (ਅਧਾਰ_ਸੁਨੇਹਾ->ਅੰਕੜੇ.payloadlen > 0 && memcmp(cmsg_stored->ਅਧਾਰ_ਸੁਨੇਹਾ->ਅੰਕੜੇ.payload, ਅਧਾਰ_ਸੁਨੇਹਾ->ਅੰਕੜੇ.payload, ਅਧਾਰ_ਸੁਨੇਹਾ->ਅੰਕੜੇ.payloadlen)))){
 
-		log__printf(NULL, MOSQ_LOG_WARNING, "Reused message ID %u from %s detected. Clearing from storage.", base_msg->data.source_mid, context->id);
-		db__message_remove_incoming(context, base_msg->data.source_mid);
-		cmsg_stored = NULL;
+		log__printf(ਨਿਰਾ, MOSQ_LOG_WARNING, "Reused message ID %u from %s detected. Clearing from storage.", ਅਧਾਰ_ਸੁਨੇਹਾ->ਅੰਕੜੇ.ਸਰੋਤ_mid, context->id);
+		db_ਸੁਨੇਹਾ_remove_incoming(context, ਅਧਾਰ_ਸੁਨੇਹਾ->ਅੰਕੜੇ.ਸਰੋਤ_mid);
+		cmsg_stored = ਨਿਰਾ;
 	}
 
-	if(!cmsg_stored){
-		if(base_msg->data.qos > 0 && context->msgs_in.inflight_quota == 0){
-			log__printf(NULL, MOSQ_LOG_WARNING, "Client %s has exceeded its receive-maximum quota. This behaviour must be fixed on the client.", context->id);
-#if 0
+	ਜੇ(!cmsg_stored){
+		ਜੇ(ਅਧਾਰ_ਸੁਨੇਹਾ->ਅੰਕੜੇ.qos > 0 && context->msgs_ਵਿੱਚ.inflight_quota == 0){
+			log__printf(ਨਿਰਾ, MOSQ_LOG_WARNING, "Client %s has exceeded its receive-maximum quota. This behaviour must be fixed on the client.", context->id);
+#ਜੇ 0
 			/* Badly behaving clients like on the esp32 fall foul of this
 			 * check, so report it for now but don't disconnect, to give chance
 			 * for the bad behaviour to be fixed. */
 			/* Client isn't allowed any more incoming messages, so fail early */
-			db__msg_store_free(base_msg);
-			return MOSQ_ERR_RECEIVE_MAXIMUM_EXCEEDED;
-#endif
+			db_ਸੁਨੇਹਾ_store_free(ਅਧਾਰ_ਸੁਨੇਹਾ);
+			ਵਾਪਸ MOSQ_ERR_RECEIVE_ਵੱਧ_ਤੋਂ_ਵੱਧ_EXCEEDED;
+#ਜੇ_ਅੰਤ
 		}
 
-		if(base_msg->data.qos == 0
-				|| db__ready_for_flight(context, mosq_md_in, base_msg->data.qos)
+		ਜੇ(ਅਧਾਰ_ਸੁਨੇਹਾ->ਅੰਕੜੇ.qos == 0
+				|| db__ready_for_flight(context, mosq_md_ਵਿੱਚ, ਅਧਾਰ_ਸੁਨੇਹਾ->ਅੰਕੜੇ.qos)
 				){
 
 			dup = 0;
-			rc = db__message_store(context, base_msg, message_expiry_interval, mosq_mo_client);
-			if(rc){
-				return rc;
+			rc = db_ਸੁਨੇਹਾ_store(context, ਅਧਾਰ_ਸੁਨੇਹਾ, ਸੁਨੇਹਾ_expiry_interval, mosq_mo_client);
+			ਜੇ(rc){
+				ਵਾਪਸ rc;
 			}
-		}else{
+		}ਨਹੀਂਤਾਂ{
 			/* Client isn't allowed any more incoming messages, so fail early */
-			return process_bad_message(context, base_msg, MQTT_RC_QUOTA_EXCEEDED);
+			ਵਾਪਸ process_bad_ਸੁਨੇਹਾ(context, ਅਧਾਰ_ਸੁਨੇਹਾ, MQTT_RC_QUOTA_EXCEEDED);
 		}
-		stored = base_msg;
-		base_msg = NULL;
+		stored = ਅਧਾਰ_ਸੁਨੇਹਾ;
+		ਅਧਾਰ_ਸੁਨੇਹਾ = ਨਿਰਾ;
 		dup = 0;
-	}else{
-		db__msg_store_free(base_msg);
-		base_msg = NULL;
-		stored = cmsg_stored->base_msg;
-		cmsg_stored->data.dup++;
-		dup = cmsg_stored->data.dup;
+	}ਨਹੀਂਤਾਂ{
+		db_ਸੁਨੇਹਾ_store_free(ਅਧਾਰ_ਸੁਨੇਹਾ);
+		ਅਧਾਰ_ਸੁਨੇਹਾ = ਨਿਰਾ;
+		stored = cmsg_stored->ਅਧਾਰ_ਸੁਨੇਹਾ;
+		cmsg_stored->ਅੰਕੜੇ.dup++;
+		dup = cmsg_stored->ਅੰਕੜੇ.dup;
 	}
 
-	switch(stored->data.qos){
-		case 0:
-			rc2 = sub__messages_queue(context->id, stored->data.qos, &stored);
-			if(rc2 > 0){
+	ਚੋਣ(stored->ਅੰਕੜੇ.qos){
+		ਹਾਲਤ 0:
+			rc2 = sub_messages_ਕਤਾਰ(context->id, stored->ਅੰਕੜੇ.qos, &stored);
+			ਜੇ(rc2 > 0){
 				rc = rc2;
 			}
-			break;
-		case 1:
+			ਰੋਕੋ;
+		ਹਾਲਤ 1:
 			util__decrement_receive_quota(context);
-			rc2 = sub__messages_queue(context->id, stored->data.qos, &stored);
+			rc2 = sub_messages_ਕਤਾਰ(context->id, stored->ਅੰਕੜੇ.qos, &stored);
 			/* stored may now be free, so don't refer to it */
-			if(rc2 == MOSQ_ERR_SUCCESS || context->protocol != mosq_p_mqtt5){
-				rc2 = send__puback(context, mid, 0, NULL);
-				if(rc2){
+			ਜੇ(rc2 == MOSQ_ERR_SUCCESS || context->protocol != mosq_p_mqtt5){
+				rc2 = send__puback(context, mid, 0, ਨਿਰਾ);
+				ਜੇ(rc2){
 					rc = rc2;
 				}
-			}else if(rc2 == MOSQ_ERR_NO_SUBSCRIBERS){
-				rc2 = send__puback(context, mid, MQTT_RC_NO_MATCHING_SUBSCRIBERS, NULL);
-				if(rc2){
+			}ਨਹੀਂਤਾਂ ਜੇ(rc2 == MOSQ_ERR_NO_SUBSCRIBERS){
+				rc2 = send__puback(context, mid, MQTT_RC_NO_MATCHING_SUBSCRIBERS, ਨਿਰਾ);
+				ਜੇ(rc2){
 					rc = rc2;
 				}
-			}else{
+			}ਨਹੀਂਤਾਂ{
 				rc = rc2;
 			}
-			break;
-		case 2:
+			ਰੋਕੋ;
+		ਹਾਲਤ 2:
 			{
-				int res;
-				if(dup == 0){
-					res = db__message_insert_incoming(context, 0, stored, true);
-				}else{
+				ਪੂਰਨ res;
+				ਜੇ(dup == 0){
+					res = db_ਸੁਨੇਹਾ_ਪਾਓ_incoming(context, 0, stored, true);
+				}ਨਹੀਂਤਾਂ{
 					res = 0;
 				}
 
 				/* db__message_insert() returns 2 to indicate dropped message
 				 * due to queue. This isn't an error so don't disconnect them. */
 				/* FIXME - this is no longer necessary due to failing early above */
-				if(!res){
-					if(dup == 0 || dup == 1){
-						rc2 = send__pubrec(context, stored->data.source_mid, 0, NULL);
-						if(rc2){
+				ਜੇ(!res){
+					ਜੇ(dup == 0 || dup == 1){
+						rc2 = send__pubrec(context, stored->ਅੰਕੜੇ.ਸਰੋਤ_mid, 0, ਨਿਰਾ);
+						ਜੇ(rc2){
 							rc = rc2;
 						}
-					}else{
-						log__printf(NULL, MOSQ_LOG_INFO, "Protocol error from %s: PUBLISH with dup = %d.", context->id, dup);
-						return MOSQ_ERR_PROTOCOL;
+					}ਨਹੀਂਤਾਂ{
+						log__printf(ਨਿਰਾ, MOSQ_LOG_INFO, "Protocol error from %s: PUBLISH with dup = %d.", context->id, dup);
+						ਵਾਪਸ MOSQ_ERR_PROTOCOL;
 					}
-				}else{
+				}ਨਹੀਂਤਾਂ{
 					rc = res;
 				}
-				break;
+				ਰੋਕੋ;
 			}
 	}
 
-	db__message_write_queued_in(context);
-	return rc;
+	db_ਸੁਨੇਹਾ_write_queued_ਵਿੱਚ(context);
+	ਵਾਪਸ rc;
 }
 
 
-int handle__publish(struct mosquitto *context)
+ਪੂਰਨ handle__publish(ਬਣਤਰ mosquitto *context)
 {
 	uint8_t dup;
-	int rc = 0;
-	uint8_t header = context->in_packet.command;
-	struct mosquitto__base_msg *base_msg;
+	ਪੂਰਨ rc = 0;
+	uint8_t ਸਿਰਲੇਖ = context->ਵਿੱਚ_packet.command;
+	ਬਣਤਰ mosquitto_ਅਧਾਰ_ਸੁਨੇਹਾ *ਅਧਾਰ_ਸੁਨੇਹਾ;
 	size_t len;
 	uint16_t slen;
-	char *topic_mount;
-	mosquitto_property *properties = NULL;
-	uint32_t message_expiry_interval = MSG_EXPIRY_INFINITE;
-	int topic_alias = -1;
+	ਅੱਖਰ *topic_mount;
+	mosquitto_property *properties = ਨਿਰਾ;
+	uint32_t ਸੁਨੇਹਾ_expiry_interval = ਸੁਨੇਹਾ_EXPIRY_INFINITE;
+	ਪੂਰਨ topic_alias = -1;
 	uint16_t mid = 0;
 
-	if(context->state != mosq_cs_active){
-		log__printf(NULL, MOSQ_LOG_INFO, "Protocol error from %s: PUBLISH before session is active.", context->id);
-		return MOSQ_ERR_PROTOCOL;
+	ਜੇ(context->state != mosq_cs_ਸਰਗਰਮ){
+		log__printf(ਨਿਰਾ, MOSQ_LOG_INFO, "Protocol error from %s: PUBLISH before session is active.", context->id);
+		ਵਾਪਸ MOSQ_ERR_PROTOCOL;
 	}
 
 	context->stats.messages_received++;
 
-	base_msg = mosquitto_calloc(1, sizeof(struct mosquitto__base_msg));
-	if(base_msg == NULL){
-		return MOSQ_ERR_NOMEM;
+	ਅਧਾਰ_ਸੁਨੇਹਾ = mosquitto_calloc(1, ਆਕਾਰ(ਬਣਤਰ mosquitto_ਅਧਾਰ_ਸੁਨੇਹਾ));
+	ਜੇ(ਅਧਾਰ_ਸੁਨੇਹਾ == ਨਿਰਾ){
+		ਵਾਪਸ MOSQ_ERR_NOMEM;
 	}
 
-	dup = (header & 0x08)>>3;
-	base_msg->data.qos = (header & 0x06)>>1;
-	if(dup == 1 && base_msg->data.qos == 0){
-		log__printf(NULL, MOSQ_LOG_INFO,
+	dup = (ਸਿਰਲੇਖ & 0x08)>>3;
+	ਅਧਾਰ_ਸੁਨੇਹਾ->ਅੰਕੜੇ.qos = (ਸਿਰਲੇਖ & 0x06)>>1;
+	ਜੇ(dup == 1 && ਅਧਾਰ_ਸੁਨੇਹਾ->ਅੰਕੜੇ.qos == 0){
+		log__printf(ਨਿਰਾ, MOSQ_LOG_INFO,
 				"Invalid PUBLISH (QoS=0 and DUP=1) from %s, disconnecting.", context->id);
-		db__msg_store_free(base_msg);
-		return MOSQ_ERR_MALFORMED_PACKET;
+		db_ਸੁਨੇਹਾ_store_free(ਅਧਾਰ_ਸੁਨੇਹਾ);
+		ਵਾਪਸ MOSQ_ERR_MALFORMED_PACKET;
 	}
-	if(base_msg->data.qos == 3){
-		log__printf(NULL, MOSQ_LOG_INFO,
+	ਜੇ(ਅਧਾਰ_ਸੁਨੇਹਾ->ਅੰਕੜੇ.qos == 3){
+		log__printf(ਨਿਰਾ, MOSQ_LOG_INFO,
 				"Invalid QoS in PUBLISH from %s, disconnecting.", context->id);
-		db__msg_store_free(base_msg);
-		return MOSQ_ERR_MALFORMED_PACKET;
+		db_ਸੁਨੇਹਾ_store_free(ਅਧਾਰ_ਸੁਨੇਹਾ);
+		ਵਾਪਸ MOSQ_ERR_MALFORMED_PACKET;
 	}
-	if(base_msg->data.qos > context->max_qos){
-		log__printf(NULL, MOSQ_LOG_INFO,
+	ਜੇ(ਅਧਾਰ_ਸੁਨੇਹਾ->ਅੰਕੜੇ.qos > context->max_qos){
+		log__printf(ਨਿਰਾ, MOSQ_LOG_INFO,
 				"Too high QoS in PUBLISH from %s, disconnecting.", context->id);
-		db__msg_store_free(base_msg);
-		return MOSQ_ERR_QOS_NOT_SUPPORTED;
+		db_ਸੁਨੇਹਾ_store_free(ਅਧਾਰ_ਸੁਨੇਹਾ);
+		ਵਾਪਸ MOSQ_ERR_QOS_NOT_SUPPORTED;
 	}
-	base_msg->data.retain = (header & 0x01);
+	ਅਧਾਰ_ਸੁਨੇਹਾ->ਅੰਕੜੇ.retain = (ਸਿਰਲੇਖ & 0x01);
 
-	if(base_msg->data.retain && db.config->retain_available == false){
-		db__msg_store_free(base_msg);
-		return MOSQ_ERR_RETAIN_NOT_SUPPORTED;
+	ਜੇ(ਅਧਾਰ_ਸੁਨੇਹਾ->ਅੰਕੜੇ.retain && db.config->retain_ਉਪਲਬਧ == false){
+		db_ਸੁਨੇਹਾ_store_free(ਅਧਾਰ_ਸੁਨੇਹਾ);
+		ਵਾਪਸ MOSQ_ERR_RETAIN_NOT_SUPPORTED;
 	}
 
-	if(packet__read_string(&context->in_packet, &base_msg->data.topic, &slen)){
-		db__msg_store_free(base_msg);
-		return MOSQ_ERR_MALFORMED_PACKET;
+	ਜੇ(packet__read_string(&context->ਵਿੱਚ_packet, &ਅਧਾਰ_ਸੁਨੇਹਾ->ਅੰਕੜੇ.topic, &slen)){
+		db_ਸੁਨੇਹਾ_store_free(ਅਧਾਰ_ਸੁਨੇਹਾ);
+		ਵਾਪਸ MOSQ_ERR_MALFORMED_PACKET;
 	}
-	if(!slen && context->protocol != mosq_p_mqtt5){
+	ਜੇ(!slen && context->protocol != mosq_p_mqtt5){
 		/* Invalid publish topic, disconnect client. */
-		db__msg_store_free(base_msg);
-		return MOSQ_ERR_MALFORMED_PACKET;
+		db_ਸੁਨੇਹਾ_store_free(ਅਧਾਰ_ਸੁਨੇਹਾ);
+		ਵਾਪਸ MOSQ_ERR_MALFORMED_PACKET;
 	}
 
-	if(base_msg->data.qos > 0){
-		if(packet__read_uint16(&context->in_packet, &mid)){
-			db__msg_store_free(base_msg);
-			return MOSQ_ERR_MALFORMED_PACKET;
+	ਜੇ(ਅਧਾਰ_ਸੁਨੇਹਾ->ਅੰਕੜੇ.qos > 0){
+		ਜੇ(packet__read_uint16(&context->ਵਿੱਚ_packet, &mid)){
+			db_ਸੁਨੇਹਾ_store_free(ਅਧਾਰ_ਸੁਨੇਹਾ);
+			ਵਾਪਸ MOSQ_ERR_MALFORMED_PACKET;
 		}
-		if(mid == 0){
-			db__msg_store_free(base_msg);
-			log__printf(NULL, MOSQ_LOG_INFO, "Protocol error from %s: PUBLISH packet with mid = 0.", context->id);
-			return MOSQ_ERR_PROTOCOL;
+		ਜੇ(mid == 0){
+			db_ਸੁਨੇਹਾ_store_free(ਅਧਾਰ_ਸੁਨੇਹਾ);
+			log__printf(ਨਿਰਾ, MOSQ_LOG_INFO, "Protocol error from %s: PUBLISH packet with mid = 0.", context->id);
+			ਵਾਪਸ MOSQ_ERR_PROTOCOL;
 		}
 		/* It is important to have a separate copy of mid, because msg may be
 		 * freed before we want to send a PUBACK/PUBREC. */
-		base_msg->data.source_mid = mid;
+		ਅਧਾਰ_ਸੁਨੇਹਾ->ਅੰਕੜੇ.ਸਰੋਤ_mid = mid;
 	}
 
 	/* Handle properties */
-	if(context->protocol == mosq_p_mqtt5){
-		rc = property__read_all(CMD_PUBLISH, &context->in_packet, &properties);
-		if(rc){
-			db__msg_store_free(base_msg);
-			return rc;
+	ਜੇ(context->protocol == mosq_p_mqtt5){
+		rc = property__read_all(CMD_PUBLISH, &context->ਵਿੱਚ_packet, &properties);
+		ਜੇ(rc){
+			db_ਸੁਨੇਹਾ_store_free(ਅਧਾਰ_ਸੁਨੇਹਾ);
+			ਵਾਪਸ rc;
 		}
 
-		rc = property__process_publish(base_msg, &properties, &topic_alias, &message_expiry_interval, context->bridge);
-		if(rc){
+		rc = property__process_publish(ਅਧਾਰ_ਸੁਨੇਹਾ, &properties, &topic_alias, &ਸੁਨੇਹਾ_expiry_interval, context->bridge);
+		ਜੇ(rc){
 			mosquitto_property_free_all(&properties);
-			db__msg_store_free(base_msg);
-			return MOSQ_ERR_PROTOCOL;
+			db_ਸੁਨੇਹਾ_store_free(ਅਧਾਰ_ਸੁਨੇਹਾ);
+			ਵਾਪਸ MOSQ_ERR_PROTOCOL;
 		}
 	}
 	mosquitto_property_free_all(&properties);
 
-	if(topic_alias == 0 || (context->listener && topic_alias > context->listener->max_topic_alias)){
-		db__msg_store_free(base_msg);
-		return MOSQ_ERR_TOPIC_ALIAS_INVALID;
-	}else if(topic_alias > 0){
-		if(base_msg->data.topic){
-			rc = alias__add_r2l(context, base_msg->data.topic, (uint16_t)topic_alias);
-			if(rc){
-				db__msg_store_free(base_msg);
-				return rc;
+	ਜੇ(topic_alias == 0 || (context->listener && topic_alias > context->listener->max_topic_alias)){
+		db_ਸੁਨੇਹਾ_store_free(ਅਧਾਰ_ਸੁਨੇਹਾ);
+		ਵਾਪਸ MOSQ_ERR_TOPIC_ALIAS_INVALID;
+	}ਨਹੀਂਤਾਂ ਜੇ(topic_alias > 0){
+		ਜੇ(ਅਧਾਰ_ਸੁਨੇਹਾ->ਅੰਕੜੇ.topic){
+			rc = alias_ਜੋੜੋ_r2l(context, ਅਧਾਰ_ਸੁਨੇਹਾ->ਅੰਕੜੇ.topic, (uint16_t)topic_alias);
+			ਜੇ(rc){
+				db_ਸੁਨੇਹਾ_store_free(ਅਧਾਰ_ਸੁਨੇਹਾ);
+				ਵਾਪਸ rc;
 			}
-		}else{
-			rc = alias__find_by_alias(context, ALIAS_DIR_R2L, (uint16_t)topic_alias, &base_msg->data.topic);
-			if(rc){
-				db__msg_store_free(base_msg);
-				log__printf(NULL, MOSQ_LOG_INFO, "Protocol error from %s: PUBLISH invalid topic alias (%d).",
+		}ਨਹੀਂਤਾਂ{
+			rc = alias_ਲੱਭੋ_by_alias(context, ALIAS_DIR_R2L, (uint16_t)topic_alias, &ਅਧਾਰ_ਸੁਨੇਹਾ->ਅੰਕੜੇ.topic);
+			ਜੇ(rc){
+				db_ਸੁਨੇਹਾ_store_free(ਅਧਾਰ_ਸੁਨੇਹਾ);
+				log__printf(ਨਿਰਾ, MOSQ_LOG_INFO, "Protocol error from %s: PUBLISH invalid topic alias (%d).",
 						context->id, topic_alias);
-				return MOSQ_ERR_PROTOCOL;
+				ਵਾਪਸ MOSQ_ERR_PROTOCOL;
 			}
 		}
 	}
 
-#ifdef WITH_BRIDGE
-	rc = bridge__remap_topic_in(context, &base_msg->data.topic);
-	if(rc){
-		db__msg_store_free(base_msg);
-		return rc;
+#ਜੇ_ਪਰਿਭਾਸ਼ਿਤ WITH_BRIDGE
+	rc = bridge_remap_topic_ਵਿੱਚ(context, &ਅਧਾਰ_ਸੁਨੇਹਾ->ਅੰਕੜੇ.topic);
+	ਜੇ(rc){
+		db_ਸੁਨੇਹਾ_store_free(ਅਧਾਰ_ਸੁਨੇਹਾ);
+		ਵਾਪਸ rc;
 	}
 
-#endif
-	if(mosquitto_pub_topic_check(base_msg->data.topic) != MOSQ_ERR_SUCCESS){
+#ਜੇ_ਅੰਤ
+	ਜੇ(mosquitto_pub_topic_check(ਅਧਾਰ_ਸੁਨੇਹਾ->ਅੰਕੜੇ.topic) != MOSQ_ERR_SUCCESS){
 		/* Invalid publish topic, just swallow it. */
-		db__msg_store_free(base_msg);
-		return MOSQ_ERR_MALFORMED_PACKET;
+		db_ਸੁਨੇਹਾ_store_free(ਅਧਾਰ_ਸੁਨੇਹਾ);
+		ਵਾਪਸ MOSQ_ERR_MALFORMED_PACKET;
 	}
 
-	base_msg->data.payloadlen = context->in_packet.remaining_length - context->in_packet.pos;
-	metrics__int_inc(mosq_counter_pub_bytes_received, base_msg->data.payloadlen);
-	if(context->listener && context->listener->mount_point){
-		len = strlen(context->listener->mount_point) + strlen(base_msg->data.topic) + 1;
+	ਅਧਾਰ_ਸੁਨੇਹਾ->ਅੰਕੜੇ.payloadlen = context->ਵਿੱਚ_packet.ਬਚਿਆ_ਲੰਮਾਈ - context->ਵਿੱਚ_packet.pos;
+	metrics__int_inc(mosq_counter_pub_ਬਾਈਟਾਂ_received, ਅਧਾਰ_ਸੁਨੇਹਾ->ਅੰਕੜੇ.payloadlen);
+	ਜੇ(context->listener && context->listener->mount_ਬਿੰਦੂ){
+		len = ਲੜੀ_ਲੰਬਾਈ(context->listener->mount_ਬਿੰਦੂ) + ਲੜੀ_ਲੰਬਾਈ(ਅਧਾਰ_ਸੁਨੇਹਾ->ਅੰਕੜੇ.topic) + 1;
 		topic_mount = mosquitto_malloc(len+1);
-		if(!topic_mount){
-			db__msg_store_free(base_msg);
-			return MOSQ_ERR_NOMEM;
+		ਜੇ(!topic_mount){
+			db_ਸੁਨੇਹਾ_store_free(ਅਧਾਰ_ਸੁਨੇਹਾ);
+			ਵਾਪਸ MOSQ_ERR_NOMEM;
 		}
-		snprintf(topic_mount, len, "%s%s", context->listener->mount_point, base_msg->data.topic);
+		snprintf(topic_mount, len, "%s%s", context->listener->mount_ਬਿੰਦੂ, ਅਧਾਰ_ਸੁਨੇਹਾ->ਅੰਕੜੇ.topic);
 		topic_mount[len] = '\0';
 
-		mosquitto_FREE(base_msg->data.topic);
-		base_msg->data.topic = topic_mount;
+		mosquitto_FREE(ਅਧਾਰ_ਸੁਨੇਹਾ->ਅੰਕੜੇ.topic);
+		ਅਧਾਰ_ਸੁਨੇਹਾ->ਅੰਕੜੇ.topic = topic_mount;
 	}
 
-	if(base_msg->data.payloadlen){
-		if(db.config->message_size_limit && base_msg->data.payloadlen > db.config->message_size_limit){
-			log__printf(NULL, MOSQ_LOG_DEBUG, "Dropped too large PUBLISH from %s (d%d, q%d, r%d, m%d, '%s', ... (%ld bytes))", context->id, dup, base_msg->data.qos, base_msg->data.retain, base_msg->data.source_mid, base_msg->data.topic, (long)base_msg->data.payloadlen);
-			return process_bad_message(context, base_msg, MQTT_RC_PACKET_TOO_LARGE);
+	ਜੇ(ਅਧਾਰ_ਸੁਨੇਹਾ->ਅੰਕੜੇ.payloadlen){
+		ਜੇ(db.config->ਸੁਨੇਹਾ_ਮਾਪ_ਹੱਦਬੰਦੀ && ਅਧਾਰ_ਸੁਨੇਹਾ->ਅੰਕੜੇ.payloadlen > db.config->ਸੁਨੇਹਾ_ਮਾਪ_ਹੱਦਬੰਦੀ){
+			log__printf(ਨਿਰਾ, MOSQ_LOG_DEBUG, "Dropped too large PUBLISH from %s (d%d, q%d, r%d, m%d, '%s', ... (%ld bytes))", context->id, dup, ਅਧਾਰ_ਸੁਨੇਹਾ->ਅੰਕੜੇ.qos, ਅਧਾਰ_ਸੁਨੇਹਾ->ਅੰਕੜੇ.retain, ਅਧਾਰ_ਸੁਨੇਹਾ->ਅੰਕੜੇ.ਸਰੋਤ_mid, ਅਧਾਰ_ਸੁਨੇਹਾ->ਅੰਕੜੇ.topic, (ਲੰਮਾ)ਅਧਾਰ_ਸੁਨੇਹਾ->ਅੰਕੜੇ.payloadlen);
+			ਵਾਪਸ process_bad_ਸੁਨੇਹਾ(context, ਅਧਾਰ_ਸੁਨੇਹਾ, MQTT_RC_PACKET_TOO_LARGE);
 		}
-		base_msg->data.payload = mosquitto_malloc(base_msg->data.payloadlen+1);
-		if(base_msg->data.payload == NULL){
-			db__msg_store_free(base_msg);
-			return MOSQ_ERR_NOMEM;
+		ਅਧਾਰ_ਸੁਨੇਹਾ->ਅੰਕੜੇ.payload = mosquitto_malloc(ਅਧਾਰ_ਸੁਨੇਹਾ->ਅੰਕੜੇ.payloadlen+1);
+		ਜੇ(ਅਧਾਰ_ਸੁਨੇਹਾ->ਅੰਕੜੇ.payload == ਨਿਰਾ){
+			db_ਸੁਨੇਹਾ_store_free(ਅਧਾਰ_ਸੁਨੇਹਾ);
+			ਵਾਪਸ MOSQ_ERR_NOMEM;
 		}
 		/* Ensure payload is always zero terminated, this is the reason for the extra byte above */
-		((uint8_t *)base_msg->data.payload)[base_msg->data.payloadlen] = 0;
+		((uint8_t *)ਅਧਾਰ_ਸੁਨੇਹਾ->ਅੰਕੜੇ.payload)[ਅਧਾਰ_ਸੁਨੇਹਾ->ਅੰਕੜੇ.payloadlen] = 0;
 
-		if(packet__read_bytes(&context->in_packet, base_msg->data.payload, base_msg->data.payloadlen)){
-			db__msg_store_free(base_msg);
-			return MOSQ_ERR_MALFORMED_PACKET;
+		ਜੇ(packet_read_ਬਾਈਟਾਂ(&context->ਵਿੱਚ_packet, ਅਧਾਰ_ਸੁਨੇਹਾ->ਅੰਕੜੇ.payload, ਅਧਾਰ_ਸੁਨੇਹਾ->ਅੰਕੜੇ.payloadlen)){
+			db_ਸੁਨੇਹਾ_store_free(ਅਧਾਰ_ਸੁਨੇਹਾ);
+			ਵਾਪਸ MOSQ_ERR_MALFORMED_PACKET;
 		}
 	}
 
 	/* Check for topic access */
 	rc = mosquitto_acl_check(context,
-			base_msg->data.topic, base_msg->data.payloadlen, base_msg->data.payload,
-			base_msg->data.qos, base_msg->data.retain, base_msg->data.properties,
+			ਅਧਾਰ_ਸੁਨੇਹਾ->ਅੰਕੜੇ.topic, ਅਧਾਰ_ਸੁਨੇਹਾ->ਅੰਕੜੇ.payloadlen, ਅਧਾਰ_ਸੁਨੇਹਾ->ਅੰਕੜੇ.payload,
+			ਅਧਾਰ_ਸੁਨੇਹਾ->ਅੰਕੜੇ.qos, ਅਧਾਰ_ਸੁਨੇਹਾ->ਅੰਕੜੇ.retain, ਅਧਾਰ_ਸੁਨੇਹਾ->ਅੰਕੜੇ.properties,
 			MOSQ_ACL_WRITE);
-	if(rc == MOSQ_ERR_ACL_DENIED){
-		log__printf(NULL, MOSQ_LOG_DEBUG,
+	ਜੇ(rc == MOSQ_ERR_ACL_DENIED){
+		log__printf(ਨਿਰਾ, MOSQ_LOG_DEBUG,
 				"Denied PUBLISH from %s (d%d, q%d, r%d, m%d, '%s', ... (%ld bytes))",
-				context->id, dup, base_msg->data.qos, base_msg->data.retain, base_msg->data.source_mid, base_msg->data.topic,
-				(long)base_msg->data.payloadlen);
-		return process_bad_message(context, base_msg, MQTT_RC_NOT_AUTHORIZED);
-	}else if(rc != MOSQ_ERR_SUCCESS){
-		db__msg_store_free(base_msg);
-		return rc;
+				context->id, dup, ਅਧਾਰ_ਸੁਨੇਹਾ->ਅੰਕੜੇ.qos, ਅਧਾਰ_ਸੁਨੇਹਾ->ਅੰਕੜੇ.retain, ਅਧਾਰ_ਸੁਨੇਹਾ->ਅੰਕੜੇ.ਸਰੋਤ_mid, ਅਧਾਰ_ਸੁਨੇਹਾ->ਅੰਕੜੇ.topic,
+				(ਲੰਮਾ)ਅਧਾਰ_ਸੁਨੇਹਾ->ਅੰਕੜੇ.payloadlen);
+		ਵਾਪਸ process_bad_ਸੁਨੇਹਾ(context, ਅਧਾਰ_ਸੁਨੇਹਾ, MQTT_RC_NOT_AUTHORIZED);
+	}ਨਹੀਂਤਾਂ ਜੇ(rc != MOSQ_ERR_SUCCESS){
+		db_ਸੁਨੇਹਾ_store_free(ਅਧਾਰ_ਸੁਨੇਹਾ);
+		ਵਾਪਸ rc;
 	}
 
-	log__printf(NULL, MOSQ_LOG_DEBUG, "Received PUBLISH from %s (d%d, q%d, r%d, m%d, '%s', ... (%ld bytes))", context->id, dup, base_msg->data.qos, base_msg->data.retain, base_msg->data.source_mid, base_msg->data.topic, (long)base_msg->data.payloadlen);
+	log__printf(ਨਿਰਾ, MOSQ_LOG_DEBUG, "Received PUBLISH from %s (d%d, q%d, r%d, m%d, '%s', ... (%ld bytes))", context->id, dup, ਅਧਾਰ_ਸੁਨੇਹਾ->ਅੰਕੜੇ.qos, ਅਧਾਰ_ਸੁਨੇਹਾ->ਅੰਕੜੇ.retain, ਅਧਾਰ_ਸੁਨੇਹਾ->ਅੰਕੜੇ.ਸਰੋਤ_mid, ਅਧਾਰ_ਸੁਨੇਹਾ->ਅੰਕੜੇ.topic, (ਲੰਮਾ)ਅਧਾਰ_ਸੁਨੇਹਾ->ਅੰਕੜੇ.payloadlen);
 
-	if(!strncmp(base_msg->data.topic, "$CONTROL/", 9)){
-#ifdef WITH_CONTROL
-		rc = control__process(context, base_msg);
-		db__msg_store_free(base_msg);
-		return rc;
-#else
-		return process_bad_message(context, base_msg, MQTT_RC_IMPLEMENTATION_SPECIFIC);
-#endif
+	ਜੇ(!ਲੜੀ_ਤੁਲਨਾ(ਅਧਾਰ_ਸੁਨੇਹਾ->ਅੰਕੜੇ.topic, "$CONTROL/", 9)){
+#ਜੇ_ਪਰਿਭਾਸ਼ਿਤ WITH_CONTROL
+		rc = control__process(context, ਅਧਾਰ_ਸੁਨੇਹਾ);
+		db_ਸੁਨੇਹਾ_store_free(ਅਧਾਰ_ਸੁਨੇਹਾ);
+		ਵਾਪਸ rc;
+#ਨਹੀਂਤਾਂ
+		ਵਾਪਸ process_bad_ਸੁਨੇਹਾ(context, ਅਧਾਰ_ਸੁਨੇਹਾ, MQTT_RC_IMPLEMENTATION_SPECIFIC);
+#ਜੇ_ਅੰਤ
 	}
 
-	return handle__accepted_publish(context, base_msg, mid, dup, &message_expiry_interval);
+	ਵਾਪਸ handle__accepted_publish(context, ਅਧਾਰ_ਸੁਨੇਹਾ, mid, dup, &ਸੁਨੇਹਾ_expiry_interval);
 }

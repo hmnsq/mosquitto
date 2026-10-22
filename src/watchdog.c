@@ -17,50 +17,50 @@ Contributors:
    Tatsuzo Osawa - Add epoll.
 */
 
-#include "config.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "config.h"
 
-#include <stdlib.h>
-#include <time.h>
-#include "mosquitto.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ <stdlib.h>
+#ਅਨ੍ਤਰ੍ਭਾਵ <time.h>
+#ਅਨ੍ਤਰ੍ਭਾਵ "mosquitto.h"
 
-#ifdef WITH_SYSTEMD
+#ਜੇ_ਪਰਿਭਾਸ਼ਿਤ WITH_SYSTEMD
 #  include <systemd/sd-daemon.h>
-#endif
+#ਜੇ_ਅੰਤ
 
-#ifdef WITH_SYSTEMD
-static time_t next_ping = 0;
-static time_t ping_sec = 0;
-#endif
+#ਜੇ_ਪਰਿਭਾਸ਼ਿਤ WITH_SYSTEMD
+ਸਥਿਰ time_t ਅਗਲਾ_ping = 0;
+ਸਥਿਰ time_t ping_sec = 0;
+#ਜੇ_ਅੰਤ
 
 
-void watchdog__init(void)
+ਖਾਲੀ watchdog__init(ਖਾਲੀ)
 {
-#ifdef WITH_SYSTEMD
-	char *watchdog_usec = getenv("WATCHDOG_USEC");
-	next_ping = mosquitto_time();
+#ਜੇ_ਪਰਿਭਾਸ਼ਿਤ WITH_SYSTEMD
+	ਅੱਖਰ *watchdog_usec = getenv("WATCHDOG_USEC");
+	ਅਗਲਾ_ping = mosquitto_ਸਮਾਂ();
 	ping_sec = 0;
 
-	if(watchdog_usec){
-		char *endptr = NULL;
-		long usec = strtol(watchdog_usec, &endptr, 10);
-		if(watchdog_usec[0] != '\0' && endptr[0] == '\0' && usec > 0){
+	ਜੇ(watchdog_usec){
+		ਅੱਖਰ *endptr = ਨਿਰਾ;
+		ਲੰਮਾ usec = strtol(watchdog_usec, &endptr, 10);
+		ਜੇ(watchdog_usec[0] != '\0' && endptr[0] == '\0' && usec > 0){
 			ping_sec = (usec / 1000000) / 2;
 		}
-		next_ping = mosquitto_time();
+		ਅਗਲਾ_ping = mosquitto_ਸਮਾਂ();
 	}
-#endif
+#ਜੇ_ਅੰਤ
 }
 
 
-void watchdog__check(void)
+ਖਾਲੀ watchdog__check(ਖਾਲੀ)
 {
-#ifdef WITH_SYSTEMD
-	if(ping_sec){
-		time_t now = mosquitto_time();
-		if(now > next_ping){
+#ਜੇ_ਪਰਿਭਾਸ਼ਿਤ WITH_SYSTEMD
+	ਜੇ(ping_sec){
+		time_t now = mosquitto_ਸਮਾਂ();
+		ਜੇ(now > ਅਗਲਾ_ping){
 			sd_notify(0, "WATCHDOG=1");
-			next_ping = now + ping_sec;
+			ਅਗਲਾ_ping = now + ping_sec;
 		}
 	}
-#endif
+#ਜੇ_ਅੰਤ
 }

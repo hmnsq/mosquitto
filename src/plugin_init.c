@@ -16,166 +16,166 @@ Contributors:
    Roger Light - initial implementation and documentation.
 */
 
-#include "config.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "config.h"
 
-#include <stdio.h>
-#include <string.h>
+#ਅਨ੍ਤਰ੍ਭਾਵ <stdio.h>
+#ਅਨ੍ਤਰ੍ਭਾਵ <string.h>
 
-#include "mosquitto/broker.h"
-#include "mosquitto_broker_internal.h"
-#include "mosquitto/broker_plugin.h"
-#include "lib_load.h"
-#include "utlist.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "mosquitto/broker.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "mosquitto_broker_internal.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "mosquitto/broker_plugin.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "lib_load.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "utlist.h"
 
-typedef int (*FUNC_auth_plugin_version)(void);
-typedef int (*FUNC_plugin_version)(int, const int *);
+ਕਿਸਮਪਰਿਭਾਸ਼ਾ ਪੂਰਨ (*FUNC_auth_plugin_ਸੰਸਕਰਣ)(ਖਾਲੀ);
+ਕਿਸਮਪਰਿਭਾਸ਼ਾ ਪੂਰਨ (*FUNC_plugin_ਸੰਸਕਰਣ)(ਪੂਰਨ, ਅਚਲ ਪੂਰਨ *);
 
 
-void LIB_ERROR(void)
+ਖਾਲੀ LIB_ERROR(ਖਾਲੀ)
 {
-#ifdef WIN32
-	char *buf;
-	FormatMessage(FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM,
-			NULL, GetLastError(), LANG_NEUTRAL, (LPTSTR)&buf, 0, NULL);
-	log__printf(NULL, MOSQ_LOG_ERR, "Load error: %s", buf);
+#ਜੇ_ਪਰਿਭਾਸ਼ਿਤ WIN32
+	ਅੱਖਰ *buf;
+	Format_ਸੁਨੇਹਾ(FORMAT_ਸੁਨੇਹਾ_ALLOCATE_ਬਫਰ | FORMAT_ਸੁਨੇਹਾ_FROM_SYSTEM,
+			ਨਿਰਾ, Get_ਆਖਰੀ_Error(), LANG_NEUTRAL, (LPTSTR)&buf, 0, ਨਿਰਾ);
+	log__printf(ਨਿਰਾ, MOSQ_LOG_ERR, "Load error: %s", buf);
 	LocalFree(buf);
-#else
-	log__printf(NULL, MOSQ_LOG_ERR, "Load error: %s", dlerror());
-#endif
+#ਨਹੀਂਤਾਂ
+	log__printf(ਨਿਰਾ, MOSQ_LOG_ERR, "Load error: %s", dlerror());
+#ਜੇ_ਅੰਤ
 }
 
 
-static int plugin__load_single(mosquitto_plugin_id_t *plugin)
+ਸਥਿਰ ਪੂਰਨ plugin_ਲੱਦੋ_single(mosquitto_plugin_id_t *plugin)
 {
-	void *lib;
-	int (*plugin_version)(int, const int *) = NULL;
-	int (*plugin_auth_version)(void) = NULL;
-	int version;
-	int rc;
-	const int plugin_versions[] = {5, 4, 3, 2};
-	int plugin_version_count = sizeof(plugin_versions)/sizeof(int);
+	ਖਾਲੀ *lib;
+	ਪੂਰਨ (*plugin_ਸੰਸਕਰਣ)(ਪੂਰਨ, ਅਚਲ ਪੂਰਨ *) = ਨਿਰਾ;
+	ਪੂਰਨ (*plugin_auth_ਸੰਸਕਰਣ)(ਖਾਲੀ) = ਨਿਰਾ;
+	ਪੂਰਨ ਸੰਸਕਰਣ_2;
+	ਪੂਰਨ rc;
+	ਅਚਲ ਪੂਰਨ plugin_versions[] = {5, 4, 3, 2};
+	ਪੂਰਨ plugin_ਸੰਸਕਰਣ_ਗਿਣਤੀ = ਆਕਾਰ(plugin_versions)/ਆਕਾਰ(ਪੂਰਨ);
 
-	if(plugin->config.security_option_count == 0){
-		return MOSQ_ERR_SUCCESS;
+	ਜੇ(plugin->config.security_option_ਗਿਣਤੀ == 0){
+		ਵਾਪਸ MOSQ_ERR_SUCCESS;
 	}
 
-	memset(&plugin->lib, 0, sizeof(struct mosquitto__plugin_lib));
+	memset(&plugin->lib, 0, ਆਕਾਰ(ਬਣਤਰ mosquitto__plugin_lib));
 
-	log__printf(NULL, MOSQ_LOG_INFO, "Loading plugin: %s", plugin->config.path);
+	log__printf(ਨਿਰਾ, MOSQ_LOG_INFO, "Loading plugin: %s", plugin->config.ਰਸਤਾ);
 
-	lib = LIB_LOAD(plugin->config.path);
-	if(!lib){
-		log__printf(NULL, MOSQ_LOG_ERR,
-				"Error: Unable to load plugin \"%s\".", plugin->config.path);
+	lib = LIB_ਲੱਦੋ(plugin->config.ਰਸਤਾ);
+	ਜੇ(!lib){
+		log__printf(ਨਿਰਾ, MOSQ_LOG_ERR,
+				"Error: Unable to load plugin \"%s\".", plugin->config.ਰਸਤਾ);
 		LIB_ERROR();
-		return MOSQ_ERR_UNKNOWN;
+		ਵਾਪਸ MOSQ_ERR_UNKNOWN;
 	}
 
-	plugin->lib.lib = NULL;
-	if((plugin_version = (FUNC_plugin_version)LIB_SYM(lib, "mosquitto_plugin_version"))){
-		version = plugin_version(plugin_version_count, plugin_versions);
-	}else if((plugin_auth_version = (FUNC_auth_plugin_version)LIB_SYM(lib, "mosquitto_auth_plugin_version"))){
-		version = plugin_auth_version();
-	}else{
-		log__printf(NULL, MOSQ_LOG_ERR,
+	plugin->lib.lib = ਨਿਰਾ;
+	ਜੇ((plugin_ਸੰਸਕਰਣ = (FUNC_plugin_ਸੰਸਕਰਣ)LIB_SYM(lib, "mosquitto_plugin_version"))){
+		ਸੰਸਕਰਣ_2 = plugin_ਸੰਸਕਰਣ(plugin_ਸੰਸਕਰਣ_ਗਿਣਤੀ, plugin_versions);
+	}ਨਹੀਂਤਾਂ ਜੇ((plugin_auth_ਸੰਸਕਰਣ = (FUNC_auth_plugin_ਸੰਸਕਰਣ)LIB_SYM(lib, "mosquitto_auth_plugin_version"))){
+		ਸੰਸਕਰਣ_2 = plugin_auth_ਸੰਸਕਰਣ();
+	}ਨਹੀਂਤਾਂ{
+		log__printf(ਨਿਰਾ, MOSQ_LOG_ERR,
 				"Error: Unable to load auth plugin function mosquitto_auth_plugin_version() or mosquitto_plugin_version().");
 		LIB_ERROR();
 		LIB_CLOSE(lib);
-		return MOSQ_ERR_UNKNOWN;
+		ਵਾਪਸ MOSQ_ERR_UNKNOWN;
 	}
 
-	plugin->lib.version = version;
-	if(version == 5){
-		rc = plugin__load_v5(plugin, lib);
-		if(rc){
-			return rc;
+	plugin->lib.ਸੰਸਕਰਣ_2 = ਸੰਸਕਰਣ_2;
+	ਜੇ(ਸੰਸਕਰਣ_2 == 5){
+		rc = plugin_ਲੱਦੋ_v5(plugin, lib);
+		ਜੇ(rc){
+			ਵਾਪਸ rc;
 		}
-	}else if(version == 4){
-		rc = plugin__load_v4(plugin, lib);
-		if(rc){
-			return rc;
+	}ਨਹੀਂਤਾਂ ਜੇ(ਸੰਸਕਰਣ_2 == 4){
+		rc = plugin_ਲੱਦੋ_v4(plugin, lib);
+		ਜੇ(rc){
+			ਵਾਪਸ rc;
 		}
-	}else if(version == 3){
-		rc = plugin__load_v3(plugin, lib);
-		if(rc){
-			return rc;
+	}ਨਹੀਂਤਾਂ ਜੇ(ਸੰਸਕਰਣ_2 == 3){
+		rc = plugin_ਲੱਦੋ_v3(plugin, lib);
+		ਜੇ(rc){
+			ਵਾਪਸ rc;
 		}
-	}else if(version == 2){
-		rc = plugin__load_v2(plugin, lib);
-		if(rc){
-			return rc;
+	}ਨਹੀਂਤਾਂ ਜੇ(ਸੰਸਕਰਣ_2 == 2){
+		rc = plugin_ਲੱਦੋ_v2(plugin, lib);
+		ਜੇ(rc){
+			ਵਾਪਸ rc;
 		}
-	}else{
-		log__printf(NULL, MOSQ_LOG_ERR,
+	}ਨਹੀਂਤਾਂ{
+		log__printf(ਨਿਰਾ, MOSQ_LOG_ERR,
 				"Error: Unsupported auth plugin version (got %d, expected %d).",
-				version, MOSQ_PLUGIN_VERSION);
+				ਸੰਸਕਰਣ_2, MOSQ_PLUGIN_ਸੰਸਕਰਣ);
 		LIB_ERROR();
 
 		LIB_CLOSE(lib);
-		return MOSQ_ERR_UNKNOWN;
+		ਵਾਪਸ MOSQ_ERR_UNKNOWN;
 	}
-	return MOSQ_ERR_SUCCESS;
+	ਵਾਪਸ MOSQ_ERR_SUCCESS;
 }
 
 
-int plugin__load_all(void)
+ਪੂਰਨ plugin_ਲੱਦੋ_all(ਖਾਲੀ)
 {
-	int rc = MOSQ_ERR_SUCCESS;
+	ਪੂਰਨ rc = MOSQ_ERR_SUCCESS;
 
-	for(int i=0; i<db.plugin_count; i++){
-		rc = plugin__load_single(db.plugins[i]);
-		if(rc){
-			return rc;
+	ਲਈ(ਪੂਰਨ i=0; i<db.plugin_ਗਿਣਤੀ; i++){
+		rc = plugin_ਲੱਦੋ_single(db.plugins[i]);
+		ਜੇ(rc){
+			ਵਾਪਸ rc;
 		}
 	}
-	return MOSQ_ERR_SUCCESS;
+	ਵਾਪਸ MOSQ_ERR_SUCCESS;
 }
 
 
-static int plugin__security_init_single(mosquitto_plugin_id_t *plugin, bool reload)
+ਸਥਿਰ ਪੂਰਨ plugin__security_init_single(mosquitto_plugin_id_t *plugin, bool reload)
 {
-	int rc;
+	ਪੂਰਨ rc;
 
-	if(plugin->lib.version == 5){
+	ਜੇ(plugin->lib.ਸੰਸਕਰਣ_2 == 5){
 		rc = MOSQ_ERR_SUCCESS;
-	}else if(plugin->lib.version == 4){
+	}ਨਹੀਂਤਾਂ ਜੇ(plugin->lib.ਸੰਸਕਰਣ_2 == 4){
 		rc = plugin->lib.security_init_v4(
-				plugin->lib.user_data,
+				plugin->lib.user_ਅੰਕੜੇ,
 				plugin->config.options,
-				plugin->config.option_count,
+				plugin->config.option_ਗਿਣਤੀ,
 				reload);
 
-	}else if(plugin->lib.version == 3){
+	}ਨਹੀਂਤਾਂ ਜੇ(plugin->lib.ਸੰਸਕਰਣ_2 == 3){
 		rc = plugin->lib.security_init_v3(
-				plugin->lib.user_data,
+				plugin->lib.user_ਅੰਕੜੇ,
 				plugin->config.options,
-				plugin->config.option_count,
+				plugin->config.option_ਗਿਣਤੀ,
 				reload);
 
-	}else if(plugin->lib.version == 2){
+	}ਨਹੀਂਤਾਂ ਜੇ(plugin->lib.ਸੰਸਕਰਣ_2 == 2){
 		rc = plugin->lib.security_init_v2(
-				plugin->lib.user_data,
-				(struct mosquitto_auth_opt *)plugin->config.options,
-				plugin->config.option_count,
+				plugin->lib.user_ਅੰਕੜੇ,
+				(ਬਣਤਰ mosquitto_auth_opt *)plugin->config.options,
+				plugin->config.option_ਗਿਣਤੀ,
 				reload);
-	}else{
+	}ਨਹੀਂਤਾਂ{
 		rc = MOSQ_ERR_INVAL;
 	}
 
-	return rc;
+	ਵਾਪਸ rc;
 }
 
 
-int mosquitto_security_init(bool reload)
+ਪੂਰਨ mosquitto_security_init(bool reload)
 {
-	int rc;
+	ਪੂਰਨ rc;
 
-	for(int i=0; i<db.plugin_count; i++){
+	ਲਈ(ਪੂਰਨ i=0; i<db.plugin_ਗਿਣਤੀ; i++){
 		rc = plugin__security_init_single(db.plugins[i], reload);
-		if(rc != MOSQ_ERR_SUCCESS){
-			return rc;
+		ਜੇ(rc != MOSQ_ERR_SUCCESS){
+			ਵਾਪਸ rc;
 		}
 	}
 	rc = mosquitto_security_init_default();
-	return rc;
+	ਵਾਪਸ rc;
 }

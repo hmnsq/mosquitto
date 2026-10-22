@@ -16,111 +16,111 @@ Contributors:
    Roger Light - initial implementation and documentation.
 */
 
-#include "config.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "config.h"
 
-#include "mosquitto_broker_internal.h"
-#include "utlist.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "mosquitto_broker_internal.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "utlist.h"
 
-struct should_free {
+ਬਣਤਰ should_free {
 	bool topic;
 	bool payload;
 	bool properties;
 };
 
 
-static int plugin__handle_message_single(struct mosquitto__callback *callbacks, enum mosquitto_plugin_event ev_type, struct should_free *to_free, struct mosquitto *context, struct mosquitto_base_msg *stored)
+ਸਥਿਰ ਪੂਰਨ plugin_handle_ਸੁਨੇਹਾ_single(ਬਣਤਰ mosquitto__callback *callbacks, ਗਿਣਤੀ mosquitto_plugin_event ev_type, ਬਣਤਰ should_free *ਮੰਜ਼ਿਲ_free, ਬਣਤਰ mosquitto *context, ਬਣਤਰ mosquitto_ਅਧਾਰ_ਸੁਨੇਹਾ_2 *stored)
 {
-	struct mosquitto_evt_message event_data;
-	struct mosquitto__callback *cb_base, *cb_next;
-	int rc = MOSQ_ERR_SUCCESS;
+	ਬਣਤਰ mosquitto_evt_ਸੁਨੇਹਾ event_ਅੰਕੜੇ;
+	ਬਣਤਰ mosquitto__callback *cb_ਅਧਾਰ, *cb_ਅਗਲਾ;
+	ਪੂਰਨ rc = MOSQ_ERR_SUCCESS;
 
-	memset(&event_data, 0, sizeof(event_data));
-	event_data.client = context;
-	event_data.topic = stored->topic;
-	event_data.payloadlen = stored->payloadlen;
-	event_data.payload = stored->payload;
-	event_data.qos = stored->qos;
-	event_data.retain = stored->retain;
-	event_data.properties = stored->properties;
+	memset(&event_ਅੰਕੜੇ, 0, ਆਕਾਰ(event_ਅੰਕੜੇ));
+	event_ਅੰਕੜੇ.client = context;
+	event_ਅੰਕੜੇ.topic = stored->topic;
+	event_ਅੰਕੜੇ.payloadlen = stored->payloadlen;
+	event_ਅੰਕੜੇ.payload = stored->payload;
+	event_ਅੰਕੜੇ.qos = stored->qos;
+	event_ਅੰਕੜੇ.retain = stored->retain;
+	event_ਅੰਕੜੇ.properties = stored->properties;
 
-	DL_FOREACH_SAFE(callbacks, cb_base, cb_next){
-		rc = cb_base->cb((int)ev_type, &event_data, cb_base->userdata);
-		if(rc != MOSQ_ERR_SUCCESS){
-			break;
+	DL_FOREACH_ਸੁਰੱਖਿਅਤ(callbacks, cb_ਅਧਾਰ, cb_ਅਗਲਾ){
+		rc = cb_ਅਧਾਰ->cb((ਪੂਰਨ)ev_type, &event_ਅੰਕੜੇ, cb_ਅਧਾਰ->userdata);
+		ਜੇ(rc != MOSQ_ERR_SUCCESS){
+			ਰੋਕੋ;
 		}
 
-		if(stored->topic != event_data.topic){
-			if(to_free->topic){
+		ਜੇ(stored->topic != event_ਅੰਕੜੇ.topic){
+			ਜੇ(ਮੰਜ਼ਿਲ_free->topic){
 				mosquitto_FREE(stored->topic);
 			}
-			stored->topic = event_data.topic;
-			to_free->topic = true;
+			stored->topic = event_ਅੰਕੜੇ.topic;
+			ਮੰਜ਼ਿਲ_free->topic = true;
 		}
 
-		if(stored->payload != event_data.payload){
-			if(to_free->payload){
+		ਜੇ(stored->payload != event_ਅੰਕੜੇ.payload){
+			ਜੇ(ਮੰਜ਼ਿਲ_free->payload){
 				mosquitto_FREE(stored->payload);
 			}
-			stored->payload = event_data.payload;
-			stored->payloadlen = event_data.payloadlen;
-			to_free->payload = true;
+			stored->payload = event_ਅੰਕੜੇ.payload;
+			stored->payloadlen = event_ਅੰਕੜੇ.payloadlen;
+			ਮੰਜ਼ਿਲ_free->payload = true;
 		}
 
-		if(stored->properties != event_data.properties){
-			if(to_free->properties){
+		ਜੇ(stored->properties != event_ਅੰਕੜੇ.properties){
+			ਜੇ(ਮੰਜ਼ਿਲ_free->properties){
 				mosquitto_property_free_all(&stored->properties);
 			}
-			stored->properties = event_data.properties;
-			to_free->properties = true;
+			stored->properties = event_ਅੰਕੜੇ.properties;
+			ਮੰਜ਼ਿਲ_free->properties = true;
 		}
 	}
 
-	stored->retain = event_data.retain;
-	if(ev_type == MOSQ_EVT_MESSAGE_OUT){
-		stored->qos = event_data.qos;
+	stored->retain = event_ਅੰਕੜੇ.retain;
+	ਜੇ(ev_type == MOSQ_EVT_ਸੁਨੇਹਾ_ਬਾਹਰਲਾ){
+		stored->qos = event_ਅੰਕੜੇ.qos;
 	}
 
-	return rc;
+	ਵਾਪਸ rc;
 }
 
 
-int plugin__handle_message_out(struct mosquitto *context, struct mosquitto_base_msg *stored)
+ਪੂਰਨ plugin_handle_ਸੁਨੇਹਾ_ਬਾਹਰਲਾ(ਬਣਤਰ mosquitto *context, ਬਣਤਰ mosquitto_ਅਧਾਰ_ਸੁਨੇਹਾ_2 *stored)
 {
-	int rc = MOSQ_ERR_SUCCESS;
-	struct should_free to_free = {false, false, false}; /* in msg_out, original data will be freed later */
+	ਪੂਰਨ rc = MOSQ_ERR_SUCCESS;
+	ਬਣਤਰ should_free ਮੰਜ਼ਿਲ_free = {false, false, false}; /* in msg_out, original data will be freed later */
 
 	/* Global plugins */
-	rc = plugin__handle_message_single(db.config->security_options.plugin_callbacks.message_out,
-			MOSQ_EVT_MESSAGE_OUT, &to_free, context, stored);
-	if(rc){
-		return rc;
+	rc = plugin_handle_ਸੁਨੇਹਾ_single(db.config->security_options.plugin_callbacks.ਸੁਨੇਹਾ_ਬਾਹਰਲਾ,
+			MOSQ_EVT_ਸੁਨੇਹਾ_ਬਾਹਰਲਾ, &ਮੰਜ਼ਿਲ_free, context, stored);
+	ਜੇ(rc){
+		ਵਾਪਸ rc;
 	}
 
-	if(context->listener){
-		rc = plugin__handle_message_single(context->listener->security_options->plugin_callbacks.message_out,
-				MOSQ_EVT_MESSAGE_OUT, &to_free, context, stored);
+	ਜੇ(context->listener){
+		rc = plugin_handle_ਸੁਨੇਹਾ_single(context->listener->security_options->plugin_callbacks.ਸੁਨੇਹਾ_ਬਾਹਰਲਾ,
+				MOSQ_EVT_ਸੁਨੇਹਾ_ਬਾਹਰਲਾ, &ਮੰਜ਼ਿਲ_free, context, stored);
 	}
 
-	return rc;
+	ਵਾਪਸ rc;
 }
 
 
-int plugin__handle_message_in(struct mosquitto *context, struct mosquitto_base_msg *stored)
+ਪੂਰਨ plugin_handle_ਸੁਨੇਹਾ_ਵਿੱਚ(ਬਣਤਰ mosquitto *context, ਬਣਤਰ mosquitto_ਅਧਾਰ_ਸੁਨੇਹਾ_2 *stored)
 {
-	int rc = MOSQ_ERR_SUCCESS;
-	struct should_free to_free = {true, true, true}; /* in msg_in, original data should be freed */
+	ਪੂਰਨ rc = MOSQ_ERR_SUCCESS;
+	ਬਣਤਰ should_free ਮੰਜ਼ਿਲ_free = {true, true, true}; /* in msg_in, original data should be freed */
 
 	/* Global plugins */
-	rc = plugin__handle_message_single(db.config->security_options.plugin_callbacks.message_in,
-			MOSQ_EVT_MESSAGE_IN, &to_free, context, stored);
-	if(rc){
-		return rc;
+	rc = plugin_handle_ਸੁਨੇਹਾ_single(db.config->security_options.plugin_callbacks.ਸੁਨੇਹਾ_ਵਿੱਚ,
+			MOSQ_EVT_ਸੁਨੇਹਾ_ਵਿੱਚ, &ਮੰਜ਼ਿਲ_free, context, stored);
+	ਜੇ(rc){
+		ਵਾਪਸ rc;
 	}
 
-	if(context->listener){
-		rc = plugin__handle_message_single(context->listener->security_options->plugin_callbacks.message_in,
-				MOSQ_EVT_MESSAGE_IN, &to_free, context, stored);
+	ਜੇ(context->listener){
+		rc = plugin_handle_ਸੁਨੇਹਾ_single(context->listener->security_options->plugin_callbacks.ਸੁਨੇਹਾ_ਵਿੱਚ,
+				MOSQ_EVT_ਸੁਨੇਹਾ_ਵਿੱਚ, &ਮੰਜ਼ਿਲ_free, context, stored);
 	}
 
-	return rc;
+	ਵਾਪਸ rc;
 }

@@ -16,10 +16,10 @@ Contributors:
    Roger Light - initial implementation and documentation.
 */
 
-#include "config.h"
-#include <time.h>
-#include "mosquitto_broker_internal.h"
-#include <utlist.h>
+#ਅਨ੍ਤਰ੍ਭਾਵ "config.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ <time.h>
+#ਅਨ੍ਤਰ੍ਭਾਵ "mosquitto_broker_internal.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ <utlist.h>
 
 
 /* This contains code for checking whether clients have exceeded their keepalive timeouts.
@@ -57,117 +57,117 @@ Contributors:
  * problem for you please get in touch.
  */
 
-static time_t last_keepalive_check = 0;
-#ifndef WITH_OLD_KEEPALIVE
-static int keepalive_list_max = 0;
-static struct mosquitto **keepalive_list = NULL;
-#endif
+ਸਥਿਰ time_t ਆਖਰੀ_keepalive_check = 0;
+#ਜੇ_ਅਪਰਿਭਾਸ਼ਿਤ WITH_OLD_KEEPALIVE
+ਸਥਿਰ ਪੂਰਨ keepalive_list_max = 0;
+ਸਥਿਰ ਬਣਤਰ mosquitto **keepalive_list = ਨਿਰਾ;
+#ਜੇ_ਅੰਤ
 
-#ifndef WITH_OLD_KEEPALIVE
+#ਜੇ_ਅਪਰਿਭਾਸ਼ਿਤ WITH_OLD_KEEPALIVE
 
 
-static int calc_index(struct mosquitto *context)
+ਸਥਿਰ ਪੂਰਨ calc_ਸੂਚਕਾਂਕ(ਬਣਤਰ mosquitto *context)
 {
-	return (int)(context->last_msg_in + context->keepalive*3/2) % keepalive_list_max;
+	ਵਾਪਸ (ਪੂਰਨ)(context->ਆਖਰੀ_ਸੁਨੇਹਾ_ਵਿੱਚ + context->keepalive*3/2) % keepalive_list_max;
 }
-#endif
+#ਜੇ_ਅੰਤ
 
 
-int keepalive__init(void)
+ਪੂਰਨ keepalive__init(ਖਾਲੀ)
 {
-#ifndef WITH_OLD_KEEPALIVE
-	struct mosquitto *context, *ctxt_tmp;
+#ਜੇ_ਅਪਰਿਭਾਸ਼ਿਤ WITH_OLD_KEEPALIVE
+	ਬਣਤਰ mosquitto *context, *ctxt_tmp;
 
-	if(db.config->max_keepalive <= 0){
+	ਜੇ(db.config->max_keepalive <= 0){
 		keepalive_list_max = (UINT16_MAX * 3)/2 + 1;
-	}else{
+	}ਨਹੀਂਤਾਂ{
 		keepalive_list_max = (db.config->max_keepalive * 3)/2 + 1;
 	}
-	keepalive_list = mosquitto_calloc((size_t)keepalive_list_max, sizeof(struct mosquitto *));
-	if(keepalive_list == NULL){
-		log__printf(NULL, MOSQ_LOG_ERR, "Error: Out of memory.");
+	keepalive_list = mosquitto_calloc((size_t)keepalive_list_max, ਆਕਾਰ(ਬਣਤਰ mosquitto *));
+	ਜੇ(keepalive_list == ਨਿਰਾ){
+		log__printf(ਨਿਰਾ, MOSQ_LOG_ERR, "Error: Out of memory.");
 		keepalive_list_max = 0;
-		return MOSQ_ERR_NOMEM;
+		ਵਾਪਸ MOSQ_ERR_NOMEM;
 	}
 
 	/* Add existing clients - should only be applicable on MOSQ_EVT_RELOAD */
 	HASH_ITER(hh_sock, db.contexts_by_sock, context, ctxt_tmp){
-		if(net__is_connected(context) && !context->bridge && context->keepalive > 0){
-			keepalive__add(context);
+		ਜੇ(net__is_connected(context) && !context->bridge && context->keepalive > 0){
+			keepalive_ਜੋੜੋ(context);
 		}
 	}
-#endif
-	last_keepalive_check = db.now_s;
-	return MOSQ_ERR_SUCCESS;
+#ਜੇ_ਅੰਤ
+	ਆਖਰੀ_keepalive_check = db.now_s;
+	ਵਾਪਸ MOSQ_ERR_SUCCESS;
 }
 
 
-void keepalive__cleanup(void)
+ਖਾਲੀ keepalive__cleanup(ਖਾਲੀ)
 {
-#ifndef WITH_OLD_KEEPALIVE
-	for(int idx=0; idx<keepalive_list_max; idx++){
-		struct mosquitto *context, *ctxt_tmp;
-		DL_FOREACH_SAFE2(keepalive_list[idx], context, ctxt_tmp, keepalive_next){
-			DL_DELETE2(keepalive_list[idx], context, keepalive_prev, keepalive_next);
+#ਜੇ_ਅਪਰਿਭਾਸ਼ਿਤ WITH_OLD_KEEPALIVE
+	ਲਈ(ਪੂਰਨ idx=0; idx<keepalive_list_max; idx++){
+		ਬਣਤਰ mosquitto *context, *ctxt_tmp;
+		DL_FOREACH_SAFE2(keepalive_list[idx], context, ctxt_tmp, keepalive_ਅਗਲਾ){
+			DL_DELETE2(keepalive_list[idx], context, keepalive_prev, keepalive_ਅਗਲਾ);
 		}
 	}
 	mosquitto_free(keepalive_list);
-	keepalive_list = NULL;
+	keepalive_list = ਨਿਰਾ;
 	keepalive_list_max = 0;
-#endif
+#ਜੇ_ਅੰਤ
 }
 
 
-int keepalive__add(struct mosquitto *context)
+ਪੂਰਨ keepalive_ਜੋੜੋ(ਬਣਤਰ mosquitto *context)
 {
-#ifndef WITH_OLD_KEEPALIVE
-	if(context->keepalive <= 0 || !net__is_connected(context)){
-		return MOSQ_ERR_SUCCESS;
+#ਜੇ_ਅਪਰਿਭਾਸ਼ਿਤ WITH_OLD_KEEPALIVE
+	ਜੇ(context->keepalive <= 0 || !net__is_connected(context)){
+		ਵਾਪਸ MOSQ_ERR_SUCCESS;
 	}
-#ifdef WITH_BRIDGE
-	if(context->bridge){
-		return MOSQ_ERR_SUCCESS;
+#ਜੇ_ਪਰਿਭਾਸ਼ਿਤ WITH_BRIDGE
+	ਜੇ(context->bridge){
+		ਵਾਪਸ MOSQ_ERR_SUCCESS;
 	}
-#endif
+#ਜੇ_ਅੰਤ
 
-	DL_APPEND2(keepalive_list[calc_index(context)], context, keepalive_prev, keepalive_next);
-	context->keepalive_add_time = db.now_s;
-#else
-	UNUSED(context);
-#endif
-	return MOSQ_ERR_SUCCESS;
+	DL_APPEND2(keepalive_list[calc_ਸੂਚਕਾਂਕ(context)], context, keepalive_prev, keepalive_ਅਗਲਾ);
+	context->keepalive_ਜੋੜੋ_ਸਮਾਂ = db.now_s;
+#ਨਹੀਂਤਾਂ
+	ਅਣਵਰਤਿਆ(context);
+#ਜੇ_ਅੰਤ
+	ਵਾਪਸ MOSQ_ERR_SUCCESS;
 }
 
 
-#ifndef WITH_OLD_KEEPALIVE
+#ਜੇ_ਅਪਰਿਭਾਸ਼ਿਤ WITH_OLD_KEEPALIVE
 
 
-void keepalive__check(void)
+ਖਾਲੀ keepalive__check(ਖਾਲੀ)
 {
-	struct mosquitto *context, *ctxt_tmp;
+	ਬਣਤਰ mosquitto *context, *ctxt_tmp;
 	time_t timeout;
 
-	if(db.contexts_by_sock){
+	ਜੇ(db.contexts_by_sock){
 		/* Check the next 5 seconds for upcoming expiries */
 		/* FIXME - find the actual next entry without having to iterate over
 		 * the whole list */
 		timeout = 5;
-		for(time_t i=5; i>0; i--){
-			if(keepalive_list[(db.now_s + i) % keepalive_list_max]){
+		ਲਈ(time_t i=5; i>0; i--){
+			ਜੇ(keepalive_list[(db.now_s + i) % keepalive_list_max]){
 				timeout = i;
 			}
 		}
-		loop__update_next_event(timeout*1000);
+		loop_update_ਅਗਲਾ_event(timeout*1000);
 	}
-	for(time_t i=last_keepalive_check; i<db.now_s; i++){
-		int idx = (int)(i % keepalive_list_max);
-		if(keepalive_list[idx]){
-			DL_FOREACH_SAFE2(keepalive_list[idx], context, ctxt_tmp, keepalive_next){
+	ਲਈ(time_t i=ਆਖਰੀ_keepalive_check; i<db.now_s; i++){
+		ਪੂਰਨ idx = (ਪੂਰਨ)(i % keepalive_list_max);
+		ਜੇ(keepalive_list[idx]){
+			DL_FOREACH_SAFE2(keepalive_list[idx], context, ctxt_tmp, keepalive_ਅਗਲਾ){
 				/* keepalive_add_time lets us account for the client adding itself to the keepalive
 				 * list when its last_msg_in value is greater than the last_keepalive_check.
 				 * Without this, the client would be expired if it has keepalive == max_keepalive.
 				 */
-				if(context->keepalive_add_time <= last_keepalive_check && net__is_connected(context)){
+				ਜੇ(context->keepalive_ਜੋੜੋ_ਸਮਾਂ <= ਆਖਰੀ_keepalive_check && net__is_connected(context)){
 					/* Client has exceeded keepalive*1.5 */
 					do_disconnect(context, MOSQ_ERR_KEEPALIVE);
 				}
@@ -175,34 +175,34 @@ void keepalive__check(void)
 		}
 	}
 
-	last_keepalive_check = db.now_s;
+	ਆਖਰੀ_keepalive_check = db.now_s;
 }
-#else
+#ਨਹੀਂਤਾਂ
 
 
-void keepalive__check(void)
+ਖਾਲੀ keepalive__check(ਖਾਲੀ)
 {
-	struct mosquitto *context, *ctxt_tmp;
+	ਬਣਤਰ mosquitto *context, *ctxt_tmp;
 	time_t timeout;
 
-	if(db.contexts_by_sock){
-		timeout = (last_keepalive_check + 5 - db.now_s);
-		if(timeout <= 0){
+	ਜੇ(db.contexts_by_sock){
+		timeout = (ਆਖਰੀ_keepalive_check + 5 - db.now_s);
+		ਜੇ(timeout <= 0){
 			timeout = 5;
 		}
-		loop__update_next_event(timeout*1000);
+		loop_update_ਅਗਲਾ_event(timeout*1000);
 	}
-	if(last_keepalive_check + 5 <= db.now_s){
-		last_keepalive_check = db.now_s;
+	ਜੇ(ਆਖਰੀ_keepalive_check + 5 <= db.now_s){
+		ਆਖਰੀ_keepalive_check = db.now_s;
 
 		HASH_ITER(hh_sock, db.contexts_by_sock, context, ctxt_tmp){
-			if(net__is_connected(context)){
+			ਜੇ(net__is_connected(context)){
 				/* Local bridges never time out in this fashion. */
-				if(!(context->keepalive)
+				ਜੇ(!(context->keepalive)
 						|| context->bridge
-						|| db.now_s - context->last_msg_in <= (time_t)(context->keepalive)*3/2){
+						|| db.now_s - context->ਆਖਰੀ_ਸੁਨੇਹਾ_ਵਿੱਚ <= (time_t)(context->keepalive)*3/2){
 
-				}else{
+				}ਨਹੀਂਤਾਂ{
 					/* Client has exceeded keepalive*1.5 */
 					do_disconnect(context, MOSQ_ERR_KEEPALIVE);
 				}
@@ -210,40 +210,40 @@ void keepalive__check(void)
 		}
 	}
 }
-#endif
+#ਜੇ_ਅੰਤ
 
 
-int keepalive__remove(struct mosquitto *context)
+ਪੂਰਨ keepalive__remove(ਬਣਤਰ mosquitto *context)
 {
-#ifndef WITH_OLD_KEEPALIVE
-	int idx;
+#ਜੇ_ਅਪਰਿਭਾਸ਼ਿਤ WITH_OLD_KEEPALIVE
+	ਪੂਰਨ idx;
 
-	if(context->keepalive <= 0 || context->keepalive_prev == NULL){
-		return MOSQ_ERR_SUCCESS;
+	ਜੇ(context->keepalive <= 0 || context->keepalive_prev == ਨਿਰਾ){
+		ਵਾਪਸ MOSQ_ERR_SUCCESS;
 	}
 
-	idx = calc_index(context);
-	if(keepalive_list[idx]){
-		DL_DELETE2(keepalive_list[idx], context, keepalive_prev, keepalive_next);
-		context->keepalive_next = NULL;
-		context->keepalive_prev = NULL;
+	idx = calc_ਸੂਚਕਾਂਕ(context);
+	ਜੇ(keepalive_list[idx]){
+		DL_DELETE2(keepalive_list[idx], context, keepalive_prev, keepalive_ਅਗਲਾ);
+		context->keepalive_ਅਗਲਾ = ਨਿਰਾ;
+		context->keepalive_prev = ਨਿਰਾ;
 	}
-#else
-	UNUSED(context);
-#endif
-	return MOSQ_ERR_SUCCESS;
+#ਨਹੀਂਤਾਂ
+	ਅਣਵਰਤਿਆ(context);
+#ਜੇ_ਅੰਤ
+	ਵਾਪਸ MOSQ_ERR_SUCCESS;
 }
 
 
-int keepalive__update(struct mosquitto *context)
+ਪੂਰਨ keepalive__update(ਬਣਤਰ mosquitto *context)
 {
-#ifndef WITH_OLD_KEEPALIVE
+#ਜੇ_ਅਪਰਿਭਾਸ਼ਿਤ WITH_OLD_KEEPALIVE
 	keepalive__remove(context);
 	/* coverity[missing_lock] - broker is single threaded, so no lock required */
-	context->last_msg_in = db.now_s;
-	keepalive__add(context);
-#else
-	UNUSED(context);
-#endif
-	return MOSQ_ERR_SUCCESS;
+	context->ਆਖਰੀ_ਸੁਨੇਹਾ_ਵਿੱਚ = db.now_s;
+	keepalive_ਜੋੜੋ(context);
+#ਨਹੀਂਤਾਂ
+	ਅਣਵਰਤਿਆ(context);
+#ਜੇ_ਅੰਤ
+	ਵਾਪਸ MOSQ_ERR_SUCCESS;
 }

@@ -16,143 +16,143 @@ Contributors:
    Roger Light - initial implementation and documentation.
 */
 
-#include "config.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "config.h"
 
-#include <stdio.h>
-#include <string.h>
+#ਅਨ੍ਤਰ੍ਭਾਵ <stdio.h>
+#ਅਨ੍ਤਰ੍ਭਾਵ <string.h>
 
-#include "mosquitto/broker.h"
-#include "mosquitto_broker_internal.h"
-#include "mosquitto/broker_plugin.h"
-#include "lib_load.h"
-#include "utlist.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "mosquitto/broker.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "mosquitto_broker_internal.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "mosquitto/broker_plugin.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "lib_load.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "utlist.h"
 
 
-int acl__pre_check(mosquitto_plugin_id_t *plugin, struct mosquitto *context, int access)
+ਪੂਰਨ acl__pre_check(mosquitto_plugin_id_t *plugin, ਬਣਤਰ mosquitto *context, ਪੂਰਨ access)
 {
-	const char *username;
+	ਅਚਲ ਅੱਖਰ *username;
 
 	username = mosquitto_client_username(context);
-	if(plugin->config.deny_special_chars == true){
+	ਜੇ(plugin->config.deny_special_chars == true){
 		/* Check whether the client id or username contains a +, # or / and if
 		* so deny access.
 		*
 		* Do this check for every message regardless, we have to protect the
 		* plugins against possible pattern based attacks.
 		*/
-		if(username && strpbrk(username, "+#/")){
-			log__printf(NULL, MOSQ_LOG_NOTICE, "ACL denying access to client with dangerous username \"%s\"", username);
-			return MOSQ_ERR_ACL_DENIED;
+		ਜੇ(username && strpbrk(username, "+#/")){
+			log__printf(ਨਿਰਾ, MOSQ_LOG_NOTICE, "ACL denying access to client with dangerous username \"%s\"", username);
+			ਵਾਪਸ MOSQ_ERR_ACL_DENIED;
 		}
-		if(context->id && strpbrk(context->id, "+#/")){
-			log__printf(NULL, MOSQ_LOG_NOTICE, "ACL denying access to client with dangerous client id \"%s\"", context->id);
-			return MOSQ_ERR_ACL_DENIED;
+		ਜੇ(context->id && strpbrk(context->id, "+#/")){
+			log__printf(ਨਿਰਾ, MOSQ_LOG_NOTICE, "ACL denying access to client with dangerous client id \"%s\"", context->id);
+			ਵਾਪਸ MOSQ_ERR_ACL_DENIED;
 		}
 	}
 
-	if(plugin->lib.version == 4){
-		if(access == MOSQ_ACL_UNSUBSCRIBE){
-			return MOSQ_ERR_SUCCESS;
+	ਜੇ(plugin->lib.ਸੰਸਕਰਣ_2 == 4){
+		ਜੇ(access == MOSQ_ACL_UNSUBSCRIBE){
+			ਵਾਪਸ MOSQ_ERR_SUCCESS;
 		}
-	}else if(plugin->lib.version == 3){
-		if(access == MOSQ_ACL_UNSUBSCRIBE){
-			return MOSQ_ERR_SUCCESS;
+	}ਨਹੀਂਤਾਂ ਜੇ(plugin->lib.ਸੰਸਕਰਣ_2 == 3){
+		ਜੇ(access == MOSQ_ACL_UNSUBSCRIBE){
+			ਵਾਪਸ MOSQ_ERR_SUCCESS;
 		}
-	}else if(plugin->lib.version == 2){
-		if(access == MOSQ_ACL_SUBSCRIBE || access == MOSQ_ACL_UNSUBSCRIBE){
-			return MOSQ_ERR_SUCCESS;
+	}ਨਹੀਂਤਾਂ ਜੇ(plugin->lib.ਸੰਸਕਰਣ_2 == 2){
+		ਜੇ(access == MOSQ_ACL_SUBSCRIBE || access == MOSQ_ACL_UNSUBSCRIBE){
+			ਵਾਪਸ MOSQ_ERR_SUCCESS;
 		}
 	}
-	return MOSQ_ERR_PLUGIN_DEFER;
+	ਵਾਪਸ MOSQ_ERR_PLUGIN_DEFER;
 }
 
 
-static int acl__check_dollar(const char *topic, int access)
+ਸਥਿਰ ਪੂਰਨ acl__check_dollar(ਅਚਲ ਅੱਖਰ *topic, ਪੂਰਨ access)
 {
-	int rc;
-	bool match = false;
+	ਪੂਰਨ rc;
+	bool ਮੇਲ = false;
 
-	if(topic[0] != '$'){
-		return MOSQ_ERR_SUCCESS;
+	ਜੇ(topic[0] != '$'){
+		ਵਾਪਸ MOSQ_ERR_SUCCESS;
 	}
 
-	if(!strncmp(topic, "$SYS", 4)){
-		if(access == MOSQ_ACL_WRITE){
+	ਜੇ(!ਲੜੀ_ਤੁਲਨਾ(topic, "$SYS", 4)){
+		ਜੇ(access == MOSQ_ACL_WRITE){
 			/* Potentially allow write access for bridge status, otherwise explicitly deny. */
-			rc = mosquitto_topic_matches_sub("$SYS/broker/connection/+/state", topic, &match);
-			if(rc == MOSQ_ERR_SUCCESS && match == true){
-				return MOSQ_ERR_SUCCESS;
-			}else{
-				return MOSQ_ERR_ACL_DENIED;
+			rc = mosquitto_topic_matches_sub("$SYS/broker/connection/+/state", topic, &ਮੇਲ);
+			ਜੇ(rc == MOSQ_ERR_SUCCESS && ਮੇਲ == true){
+				ਵਾਪਸ MOSQ_ERR_SUCCESS;
+			}ਨਹੀਂਤਾਂ{
+				ਵਾਪਸ MOSQ_ERR_ACL_DENIED;
 			}
-		}else{
-			return MOSQ_ERR_SUCCESS;
+		}ਨਹੀਂਤਾਂ{
+			ਵਾਪਸ MOSQ_ERR_SUCCESS;
 		}
-	}else if(!strncmp(topic, "$share", 6)){
+	}ਨਹੀਂਤਾਂ ਜੇ(!ਲੜੀ_ਤੁਲਨਾ(topic, "$share", 6)){
 		/* Only allow sub/unsub to shared subscriptions */
-		if(access == MOSQ_ACL_SUBSCRIBE || access == MOSQ_ACL_UNSUBSCRIBE){
-			return MOSQ_ERR_SUCCESS;
-		}else{
-			return MOSQ_ERR_ACL_DENIED;
+		ਜੇ(access == MOSQ_ACL_SUBSCRIBE || access == MOSQ_ACL_UNSUBSCRIBE){
+			ਵਾਪਸ MOSQ_ERR_SUCCESS;
+		}ਨਹੀਂਤਾਂ{
+			ਵਾਪਸ MOSQ_ERR_ACL_DENIED;
 		}
-	}else{
+	}ਨਹੀਂਤਾਂ{
 		/* This is an unknown $ topic, for the moment just defer to actual tests. */
-		return MOSQ_ERR_SUCCESS;
+		ਵਾਪਸ MOSQ_ERR_SUCCESS;
 	}
 }
 
 
-static int plugin__acl_check(struct mosquitto__security_options *opts, struct mosquitto *context, const char *topic, uint32_t payloadlen, void *payload, uint8_t qos, bool retain, mosquitto_property *properties, int access)
+ਸਥਿਰ ਪੂਰਨ plugin__acl_check(ਬਣਤਰ mosquitto__security_options *opts, ਬਣਤਰ mosquitto *context, ਅਚਲ ਅੱਖਰ *topic, uint32_t payloadlen, ਖਾਲੀ *payload, uint8_t qos, bool retain, mosquitto_property *properties, ਪੂਰਨ access)
 {
-	int rc = MOSQ_ERR_PLUGIN_DEFER;
-	struct mosquitto_acl_msg msg;
-	struct mosquitto__callback *cb_base, *cb_next;
-	struct mosquitto_evt_acl_check event_data;
+	ਪੂਰਨ rc = MOSQ_ERR_PLUGIN_DEFER;
+	ਬਣਤਰ mosquitto_acl_ਸੁਨੇਹਾ ਸੁਨੇਹਾ;
+	ਬਣਤਰ mosquitto__callback *cb_ਅਧਾਰ, *cb_ਅਗਲਾ;
+	ਬਣਤਰ mosquitto_evt_acl_check event_ਅੰਕੜੇ;
 
-	memset(&msg, 0, sizeof(msg));
-	msg.topic = topic;
-	msg.payloadlen = payloadlen;
-	msg.payload = payload;
-	msg.qos = qos;
-	msg.retain = retain;
+	memset(&ਸੁਨੇਹਾ, 0, ਆਕਾਰ(ਸੁਨੇਹਾ));
+	ਸੁਨੇਹਾ.topic = topic;
+	ਸੁਨੇਹਾ.payloadlen = payloadlen;
+	ਸੁਨੇਹਾ.payload = payload;
+	ਸੁਨੇਹਾ.qos = qos;
+	ਸੁਨੇਹਾ.retain = retain;
 
-	DL_FOREACH_SAFE(opts->plugin_callbacks.acl_check, cb_base, cb_next){
+	DL_FOREACH_ਸੁਰੱਖਿਅਤ(opts->plugin_callbacks.acl_check, cb_ਅਧਾਰ, cb_ਅਗਲਾ){
 		/* FIXME - username deny special chars */
 
-		memset(&event_data, 0, sizeof(event_data));
-		event_data.client = context;
-		event_data.access = access;
-		event_data.topic = topic;
-		event_data.payloadlen = payloadlen;
-		event_data.payload = payload;
-		event_data.qos = qos;
-		event_data.retain = retain;
-		event_data.properties = properties;
-		rc = cb_base->cb(MOSQ_EVT_ACL_CHECK, &event_data, cb_base->userdata);
-		if(rc != MOSQ_ERR_PLUGIN_DEFER && rc != MOSQ_ERR_PLUGIN_IGNORE){
-			return rc;
+		memset(&event_ਅੰਕੜੇ, 0, ਆਕਾਰ(event_ਅੰਕੜੇ));
+		event_ਅੰਕੜੇ.client = context;
+		event_ਅੰਕੜੇ.access = access;
+		event_ਅੰਕੜੇ.topic = topic;
+		event_ਅੰਕੜੇ.payloadlen = payloadlen;
+		event_ਅੰਕੜੇ.payload = payload;
+		event_ਅੰਕੜੇ.qos = qos;
+		event_ਅੰਕੜੇ.retain = retain;
+		event_ਅੰਕੜੇ.properties = properties;
+		rc = cb_ਅਧਾਰ->cb(MOSQ_EVT_ACL_CHECK, &event_ਅੰਕੜੇ, cb_ਅਧਾਰ->userdata);
+		ਜੇ(rc != MOSQ_ERR_PLUGIN_DEFER && rc != MOSQ_ERR_PLUGIN_IGNORE){
+			ਵਾਪਸ rc;
 		}
 	}
 
-	return rc;
+	ਵਾਪਸ rc;
 }
 
 
-int mosquitto_acl_check(struct mosquitto *context, const char *topic, uint32_t payloadlen, void *payload, uint8_t qos, bool retain, mosquitto_property *properties, int access)
+ਪੂਰਨ mosquitto_acl_check(ਬਣਤਰ mosquitto *context, ਅਚਲ ਅੱਖਰ *topic, uint32_t payloadlen, ਖਾਲੀ *payload, uint8_t qos, bool retain, mosquitto_property *properties, ਪੂਰਨ access)
 {
-	int rc;
-	int rc_final;
+	ਪੂਰਨ rc;
+	ਪੂਰਨ rc_final;
 
-	if(!context->id){
-		return MOSQ_ERR_ACL_DENIED;
+	ਜੇ(!context->id){
+		ਵਾਪਸ MOSQ_ERR_ACL_DENIED;
 	}
-	if(context->bridge){
-		return MOSQ_ERR_SUCCESS;
+	ਜੇ(context->bridge){
+		ਵਾਪਸ MOSQ_ERR_SUCCESS;
 	}
 
 	rc = acl__check_dollar(topic, access);
-	if(rc){
-		return rc;
+	ਜੇ(rc){
+		ਵਾਪਸ rc;
 	}
 
 	/*
@@ -160,42 +160,42 @@ int mosquitto_acl_check(struct mosquitto *context, const char *topic, uint32_t p
 	 */
 	rc_final = MOSQ_ERR_SUCCESS;
 
-	if(db.config->security_options.plugin_callbacks.acl_check){
+	ਜੇ(db.config->security_options.plugin_callbacks.acl_check){
 		rc = plugin__acl_check(&db.config->security_options, context, topic, payloadlen,
 				payload, qos, retain, properties, access);
 
-		if(rc == MOSQ_ERR_PLUGIN_IGNORE){
+		ਜੇ(rc == MOSQ_ERR_PLUGIN_IGNORE){
 			/* Do nothing, this is as if the plugin doesn't exist */
-		}else if(rc == MOSQ_ERR_PLUGIN_DEFER){
+		}ਨਹੀਂਤਾਂ ਜੇ(rc == MOSQ_ERR_PLUGIN_DEFER){
 			rc_final = MOSQ_ERR_PLUGIN_DEFER;
-		}else{
-			return rc;
+		}ਨਹੀਂਤਾਂ{
+			ਵਾਪਸ rc;
 		}
 	}
 
-	if(context->listener){
-		if(context->listener->security_options->plugin_callbacks.acl_check){
+	ਜੇ(context->listener){
+		ਜੇ(context->listener->security_options->plugin_callbacks.acl_check){
 			rc = plugin__acl_check(context->listener->security_options, context, topic, payloadlen,
 					payload, qos, retain, properties, access);
 
-			if(rc == MOSQ_ERR_PLUGIN_IGNORE){
+			ਜੇ(rc == MOSQ_ERR_PLUGIN_IGNORE){
 				/* Do nothing, this is as if the plugin doesn't exist */
-			}else if(rc == MOSQ_ERR_PLUGIN_DEFER){
+			}ਨਹੀਂਤਾਂ ਜੇ(rc == MOSQ_ERR_PLUGIN_DEFER){
 				rc_final = MOSQ_ERR_PLUGIN_DEFER;
-			}else{
-				return rc;
+			}ਨਹੀਂਤਾਂ{
+				ਵਾਪਸ rc;
 			}
 		}
-	}else{
-		if(db.config->per_listener_settings){
-			return MOSQ_ERR_ACL_DENIED;
+	}ਨਹੀਂਤਾਂ{
+		ਜੇ(db.config->ਪ੍ਰਤੀ_listener_settings){
+			ਵਾਪਸ MOSQ_ERR_ACL_DENIED;
 		}
 	}
 
 	/* If all plugins deferred, this is a denial. If rc == MOSQ_ERR_SUCCESS
 	 * here, then no plugins were configured, or all plugins ignored. */
-	if(rc_final == MOSQ_ERR_PLUGIN_DEFER){
+	ਜੇ(rc_final == MOSQ_ERR_PLUGIN_DEFER){
 		rc_final = MOSQ_ERR_ACL_DENIED;
 	}
-	return rc_final;
+	ਵਾਪਸ rc_final;
 }

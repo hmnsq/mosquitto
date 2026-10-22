@@ -15,38 +15,38 @@ SPDX-License-Identifier: EPL-2.0 OR BSD-3-Clause
 Contributors:
    Roger Light - initial implementation and documentation.
 */
-#ifndef ACL_FILE_H
-#define ACL_FILE_H
+#ਜੇ_ਅਪਰਿਭਾਸ਼ਿਤ ACL_FILE_H
+#ਪਰਿਭਾਸ਼ਿਤ_ਕਰੋ ACL_FILE_H
 
-#include <uthash.h>
+#ਅਨ੍ਤਰ੍ਭਾਵ <uthash.h>
 
-struct acl__entry {
-	struct acl__entry *next, *prev;
-	char *topic;
-	int access;
-	int ucount;
-	int ccount;
+ਬਣਤਰ acl_ਇੰਦਰਾਜ {
+	ਬਣਤਰ acl_ਇੰਦਰਾਜ *ਅਗਲਾ, *prev;
+	ਅੱਖਰ *topic;
+	ਪੂਰਨ access;
+	ਪੂਰਨ ucount;
+	ਪੂਰਨ ccount;
 };
 
 
-struct acl__user {
+ਬਣਤਰ acl__user {
 	UT_hash_handle hh;
-	char *username;
-	struct acl__entry *acl;
+	ਅੱਖਰ *username;
+	ਬਣਤਰ acl_ਇੰਦਰਾਜ *acl;
 };
 
 
-struct acl_file_data {
-	char *acl_file;
-	struct acl__user *acl_users;
-	struct acl__user acl_anon;
-	struct acl__entry *acl_patterns;
+ਬਣਤਰ acl_file_ਅੰਕੜੇ {
+	ਅੱਖਰ *acl_file;
+	ਬਣਤਰ acl__user *acl_users;
+	ਬਣਤਰ acl__user acl_anon;
+	ਬਣਤਰ acl_ਇੰਦਰਾਜ *acl_patterns;
 };
 
 
-int acl_file__parse(struct acl_file_data *data);
-int acl_file__check(int event, void *event_data, void *userdata);
-int acl_file__reload(int event, void *event_data, void *userdata);
-void acl_file__cleanup(struct acl_file_data *data);
+ਪੂਰਨ acl_file__parse(ਬਣਤਰ acl_file_ਅੰਕੜੇ *ਅੰਕੜੇ);
+ਪੂਰਨ acl_file__check(ਪੂਰਨ event, ਖਾਲੀ *event_ਅੰਕੜੇ, ਖਾਲੀ *userdata);
+ਪੂਰਨ acl_file__reload(ਪੂਰਨ event, ਖਾਲੀ *event_ਅੰਕੜੇ, ਖਾਲੀ *userdata);
+ਖਾਲੀ acl_file__cleanup(ਬਣਤਰ acl_file_ਅੰਕੜੇ *ਅੰਕੜੇ);
 
-#endif
+#ਜੇ_ਅੰਤ
