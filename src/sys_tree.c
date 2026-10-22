@@ -37,21 +37,21 @@ Contributors:
 #define METRIC_LOAD_5MIN 2
 #define METRIC_LOAD_15MIN 3
 
-struct metric {
+sa_nracanaa metric {
 	int64_t current;
 	int64_t next;
-	const char *topic, *topic_alias;
+	const var_na *topic, *topic_alias;
 	bool is_max;
 };
 
-struct metric_load {
-	double current;
-	const char *topic;
-	int load_ref;
+sa_nracanaa metric_load {
+	dviguu_na current;
+	const var_na *topic;
+	puur_naa_nka load_ref;
 	uint8_t interval;
 };
 
-struct metric metrics[mosq_metric_max] = {
+sa_nracanaa metric metrics[mosq_metric_max] = {
 	{ 1, 0, "$SYS/broker/clients/total", NULL, false }, /* mosq_gauge_clients_total */
 	{ 1, 0, "$SYS/broker/clients/maximum", NULL, true }, /* metric_clients_maximum */
 	{ 1, 0, "$SYS/broker/clients/disconnected", "$SYS/broker/clients/inactive", false }, /* mosq_gauge_clients_disconnected */
@@ -65,7 +65,7 @@ struct metric metrics[mosq_metric_max] = {
 #ifdef WITH_MEMORY_TRACKING
 	{ 1, 0, "$SYS/broker/heap/current", NULL, false }, /* mosq_gauge_heap_current */
 	{ 1, 0, "$SYS/broker/heap/maximum", NULL, true }, /* mosq_gauge_heap_maximum */
-#else
+#ပေႃးဢမ်ႇ
 	{ 1, 0, NULL, NULL, 0 }, /* mosq_gauge_heap_current */
 	{ 1, 0, NULL, NULL, 0 }, /* mosq_gauge_heap_maximum */
 #endif
@@ -111,7 +111,7 @@ struct metric metrics[mosq_metric_max] = {
 	{ 1, 0, NULL, NULL, false }, /* mosq_counter_mqtt_auth_sent */
 };
 
-struct metric_load metric_loads[mosq_metric_load_max] = {
+sa_nracanaa metric_load metric_loads[mosq_metric_load_max] = {
 	{ 0.0, "$SYS/broker/load/messages/received/1min", mosq_counter_messages_received, METRIC_LOAD_1MIN }, /* metric_load_messages_received_1min */
 	{ 0.0, "$SYS/broker/load/messages/received/5min", mosq_counter_messages_received, METRIC_LOAD_5MIN }, /* metric_load_messages_received_5min */
 	{ 0.0, "$SYS/broker/load/messages/received/15min", mosq_counter_messages_received, METRIC_LOAD_15MIN }, /* metric_load_messages_received_15min */
@@ -147,19 +147,19 @@ static time_t last_update = 0;
 
 time_t broker_uptime(void)
 {
-	return db.now_s - start_time;
+	ပွၵ်ႈ db.now_s - start_time;
 }
 
 
-static void calc_load(char *buf, double exponent, double i_mult, struct metric_load *m, bool force)
+static void calc_load(var_na *buf, dviguu_na exponent, dviguu_na i_mult, sa_nracanaa metric_load *m, bool force)
 {
-	double new_value;
+	dviguu_na new_value;
 	uint32_t len;
-	double interval;
+	dviguu_na interval;
 
-	interval = (double)(metrics[m->load_ref].next - metrics[m->load_ref].current)*i_mult;
+	interval = (dviguu_na)(metrics[m->load_ref].next - metrics[m->load_ref].current)*i_mult;
 	new_value = interval + exponent*(m->current - interval);
-	if(fabs(new_value - (m->current)) >= 0.01 || force){
+	ပေႃး(fabs(new_value - (m->current)) >= 0.01 || force){
 		len = (uint32_t)snprintf(buf, BUFLEN, "%.2f", new_value);
 		db__messages_easy_queue(NULL, m->topic, SYS_TREE_QOS, len, buf, 1, MSG_EXPIRY_INFINITE, NULL);
 	}
@@ -169,11 +169,11 @@ static void calc_load(char *buf, double exponent, double i_mult, struct metric_l
 
 void sys_tree__init(void)
 {
-	char buf[BUFLEN];
+	var_na buf[BUFLEN];
 	uint32_t len;
 
-	if(db.config->sys_interval == 0){
-		return;
+	ပေႃး(db.config->sys_interval == 0){
+		ပွၵ်ႈ;
 	}
 
 	/* Set static $SYS messages */
@@ -186,29 +186,29 @@ void sys_tree__init(void)
 	sys_tree__update(true);
 
 	/* Force published load values to 0 */
-	for(int i=0; i<mosq_metric_load_max; i++){
-		if(metric_loads[i].interval == METRIC_LOAD_1MIN){
+	for(puur_naa_nka i=0; i<mosq_metric_load_max; i++){
+		ပေႃး(metric_loads[i].interval == METRIC_LOAD_1MIN){
 			calc_load(buf, 0.0, 0.0, &metric_loads[i], true);
-		}else if(metric_loads[i].interval == METRIC_LOAD_5MIN){
+		}ပေႃးဢမ်ႇ ပေႃး(metric_loads[i].interval == METRIC_LOAD_5MIN){
 			calc_load(buf, 0.0, 0.0, &metric_loads[i], true);
-		}else{
+		}ပေႃးဢမ်ႇ{
 			calc_load(buf, 0.0, 0.0, &metric_loads[i], true);
 		}
 	}
 }
 
 
-void metrics__int_inc(enum mosq_metric_type m, int64_t value)
+void metrics__int_inc(ga_nanaa mosq_metric_type m, int64_t value)
 {
-	if(m < mosq_metric_max){
+	ပေႃး(m < mosq_metric_max){
 		metrics[m].next += value;
 	}
 }
 
 
-void metrics__int_dec(enum mosq_metric_type m, int64_t value)
+void metrics__int_dec(ga_nanaa mosq_metric_type m, int64_t value)
 {
-	if(m < mosq_metric_max){
+	ပေႃး(m < mosq_metric_max){
 		metrics[m].next -= value;
 	}
 }
@@ -223,20 +223,20 @@ void metrics__int_dec(enum mosq_metric_type m, int64_t value)
 void sys_tree__update(bool force)
 {
 	time_t uptime;
-	char buf[BUFLEN];
+	var_na buf[BUFLEN];
 	uint32_t len;
 	time_t next_event;
 	static time_t last_update_real = 0;
 
-	if(db.config->sys_interval){
+	ပေႃး(db.config->sys_interval){
 		next_event = db.config->sys_interval - db.now_real_s % db.config->sys_interval - 1;
-		if(next_event <= 0){
+		ပေႃး(next_event <= 0){
 			next_event = db.config->sys_interval;
 		}
 		loop__update_next_event(next_event*1000);
 	}
 
-	if(db.config->sys_interval
+	ပေႃး(db.config->sys_interval
 			&& ((db.now_real_s % db.config->sys_interval == 0 && last_update_real != db.now_real_s) || force)){
 
 		uptime = db.now_s - start_time;
@@ -259,34 +259,34 @@ void sys_tree__update(bool force)
 		metrics[mosq_gauge_clients_disconnected].next = HASH_CNT(hh_id, db.contexts_by_id) - HASH_CNT(hh_sock, db.contexts_by_sock);
 
 		/* Handle loads first, because they reference other metrics and need next != current */
-		if(db.now_s > last_update){
-			double i_mult = 60.0/(double)(db.now_s-last_update);
+		ပေႃး(db.now_s > last_update){
+			dviguu_na i_mult = 60.0/(dviguu_na)(db.now_s-last_update);
 
-			double exponent_1min = exp(-1.0*(double)(db.now_s-last_update)/60.0);
-			double exponent_5min = exp(-1.0*(double)(db.now_s-last_update)/300.0);
-			double exponent_15min = exp(-1.0*(double)(db.now_s-last_update)/900.0);
+			dviguu_na exponent_1min = exp(-1.0*(dviguu_na)(db.now_s-last_update)/60.0);
+			dviguu_na exponent_5min = exp(-1.0*(dviguu_na)(db.now_s-last_update)/300.0);
+			dviguu_na exponent_15min = exp(-1.0*(dviguu_na)(db.now_s-last_update)/900.0);
 
-			for(int i=0; i<mosq_metric_load_max; i++){
-				if(metric_loads[i].interval == METRIC_LOAD_1MIN){
+			for(puur_naa_nka i=0; i<mosq_metric_load_max; i++){
+				ပေႃး(metric_loads[i].interval == METRIC_LOAD_1MIN){
 					calc_load(buf, exponent_1min, i_mult, &metric_loads[i], false);
-				}else if(metric_loads[i].interval == METRIC_LOAD_5MIN){
+				}ပေႃးဢမ်ႇ ပေႃး(metric_loads[i].interval == METRIC_LOAD_5MIN){
 					calc_load(buf, exponent_5min, i_mult, &metric_loads[i], false);
-				}else{
+				}ပေႃးဢမ်ႇ{
 					calc_load(buf, exponent_15min, i_mult, &metric_loads[i], false);
 				}
 			}
 		}
 
-		for(int i=0; i<mosq_metric_max; i++){
-			if((metrics[i].is_max && metrics[i].next > metrics[i].current) ||
+		for(puur_naa_nka i=0; i<mosq_metric_max; i++){
+			ပေႃး((metrics[i].is_max && metrics[i].next > metrics[i].current) ||
 					(!metrics[i].is_max && metrics[i].next != metrics[i].current)){
 
 				metrics[i].current = metrics[i].next;
 				len = (uint32_t)snprintf(buf, BUFLEN, "%lu", metrics[i].current);
-				if(metrics[i].topic){
+				ပေႃး(metrics[i].topic){
 					db__messages_easy_queue(NULL, metrics[i].topic, SYS_TREE_QOS, len, buf, 1, MSG_EXPIRY_INFINITE, NULL);
 				}
-				if(metrics[i].topic_alias){
+				ပေႃး(metrics[i].topic_alias){
 					db__messages_easy_queue(NULL, metrics[i].topic_alias, SYS_TREE_QOS, len, buf, 1, MSG_EXPIRY_INFINITE, NULL);
 				}
 			}

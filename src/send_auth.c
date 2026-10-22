@@ -26,19 +26,19 @@ Contributors:
 #include "util_mosq.h"
 
 
-int send__auth(struct mosquitto *context, uint8_t reason_code, const void *auth_data, uint16_t auth_data_len)
+puur_naa_nka send__auth(sa_nracanaa mosquitto *context, uint8_t reason_code, const void *auth_data, uint16_t auth_data_len)
 {
-	struct mosquitto__packet *packet = NULL;
-	int rc;
+	sa_nracanaa mosquitto__packet *packet = NULL;
+	puur_naa_nka rc;
 	mosquitto_property *properties = NULL;
 	uint32_t remaining_length;
 
-	if(context->auth_method == NULL){
-		return MOSQ_ERR_INVAL;
+	ပေႃး(context->auth_method == NULL){
+		ပွၵ်ႈ MOSQ_ERR_INVAL;
 	}
-	if(context->protocol != mosq_p_mqtt5){
+	ပေႃး(context->protocol != mosq_p_mqtt5){
 		log__printf(NULL, MOSQ_LOG_INFO, "Protocol error from %s: Sending AUTH packet when session not MQTT v5.0.", context->id);
-		return MOSQ_ERR_PROTOCOL;
+		ပွၵ်ႈ MOSQ_ERR_PROTOCOL;
 	}
 
 	log__printf(NULL, MOSQ_LOG_DEBUG, "Sending AUTH to %s (rc%d, %s)", context->id, reason_code, context->auth_method);
@@ -46,13 +46,13 @@ int send__auth(struct mosquitto *context, uint8_t reason_code, const void *auth_
 	remaining_length = 1;
 
 	rc = mosquitto_property_add_string(&properties, MQTT_PROP_AUTHENTICATION_METHOD, context->auth_method);
-	if(rc){
+	ပေႃး(rc){
 		goto error;
 	}
 
-	if(auth_data != NULL && auth_data_len > 0){
+	ပေႃး(auth_data != NULL && auth_data_len > 0){
 		rc = mosquitto_property_add_binary(&properties, MQTT_PROP_AUTHENTICATION_DATA, auth_data, auth_data_len);
-		if(rc){
+		ပေႃး(rc){
 			goto error;
 		}
 	}
@@ -60,12 +60,12 @@ int send__auth(struct mosquitto *context, uint8_t reason_code, const void *auth_
 	remaining_length += mosquitto_property_get_remaining_length(properties);
 
 	rc = packet__check_oversize(context, remaining_length);
-	if(rc){
+	ပေႃး(rc){
 		goto error;
 	}
 
 	rc = packet__alloc(&packet, CMD_AUTH, remaining_length);
-	if(rc){
+	ပေႃး(rc){
 		goto error;
 	}
 
@@ -74,8 +74,8 @@ int send__auth(struct mosquitto *context, uint8_t reason_code, const void *auth_
 	mosquitto_property_free_all(&properties);
 
 	metrics__int_inc(mosq_counter_mqtt_auth_sent, 1);
-	return packet__queue(context, packet);
+	ပွၵ်ႈ packet__queue(context, packet);
 error:
 	mosquitto_property_free_all(&properties);
-	return rc;
+	ပွၵ်ႈ rc;
 }
